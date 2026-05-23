@@ -2,6 +2,23 @@
 
 This file records meaningful codebase, workflow, rendering, state-contract, pricing, and delivery changes for `market-predictions/weekly-etf`.
 
+## 2026-05-24 — Fix pricing-basis disclosure validator after ticker linkification
+
+### What changed
+- Updated `tools/validate_etf_pricing_basis_disclosure.py` so it normalizes TradingView markdown links back to plain ticker symbols before checking whether each holding row is present.
+
+### Why
+The pricing-basis disclosure was inserted before the ticker-linkification step. By validation time, cells such as `SPY` had become `[SPY](https://www.tradingview.com/chart/?symbol=SPY)`. The validator still looked only for raw `| SPY |` table cells, causing a false failure that looked like missing prices even though the pricing pass itself had completed.
+
+### Affected files
+- `tools/validate_etf_pricing_basis_disclosure.py`
+- `changelog.md`
+
+### Validation / evidence
+- Previous workflow failure: `missing pricing row for PAVE, SMH, PPA, SPY, URNM, GLD` in both EN/NL reports after ticker-linkification. Next validation step is a fresh ETF production run.
+
+---
+
 ## 2026-05-23 — Add explicit closing-price disclosure to ETF report
 
 ### What changed
