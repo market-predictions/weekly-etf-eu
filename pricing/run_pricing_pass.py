@@ -78,6 +78,14 @@ def requested_close_from_today(today: date) -> str:
     return d.isoformat()
 
 
+def _report_token_from_close(close_date: str) -> str:
+    try:
+        d = date.fromisoformat(close_date)
+        return d.strftime("%y%m%d")
+    except ValueError:
+        return str(close_date).replace("-", "")[-6:]
+
+
 def _to_float(text: str | int | float | None) -> float | None:
     if text is None:
         return None
@@ -301,6 +309,7 @@ def load_latest_report_text(output_dir: Path) -> str:
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--requested-close-date", default=None)
+    parser.add_argument("--run-id", default=None)
     parser.add_argument("--output-dir", default="output")
     parser.add_argument("--pricing-dir", default="output/pricing")
     parser.add_argument("--portfolio-state", default="output/etf_portfolio_state.json")
@@ -311,6 +320,8 @@ def main() -> None:
     today = now_utc.date()
     requested_close_date = args.requested_close_date or requested_close_from_now(now_utc)
     run_date = today.isoformat()
+    run_id = args.run_id or now_utc.strftime("%Y%m%d_%H%M%S")
+    report_token = _report_token_from_close(requested_close_date)
 
     output_dir = Path(args.output_dir)
     md_text = load_latest_report_text(output_dir)
@@ -390,7 +401,13 @@ def main() -> None:
         price_results=results,
     )
 
-    audit_path = write_price_audit(args.pricing_dir, pass_result)
+    audit_path = write_price_audit(args.pricing_dir, pass_result, run_id=run_id)
+
+    # Backward-compatible pointer for legacy scripts. This is intentionally a
+    # copy of the immutable audit, not the primary source of truth.
+    latest_pointer = Path(args.pricing_dir) / "latest_price_audit_path.txt"
+    latest_pointer.parent.mkdir(parents=True, exist_ok=True)
+    latest_pointer.write_text(str(audit_path) + "\n", encoding="utf-8")
 
     if stale_holdings and decision == "blocked_or_partial":
         raise RuntimeError(
@@ -400,7 +417,7 @@ def main() -> None:
 
     print(
         f"PRICING_PASS_{'OK' if fresh_count else 'PARTIAL'} | requested_close={requested_close_date} | "
-        f"holdings={holdings_count} | holdings_source={holdings_source} | shortlist={len(shortlist)} | "
+        f"run_id={run_id} | report_token={report_token} | holdings={holdings_count} | holdings_source={holdings_source} | shortlist={len(shortlist)} | "
         f"fresh={fresh_count} | carried={carried_forward_count} | stale={len(stale_holdings)} | "
         f"weight_coverage={invested_weight_coverage_pct:.2f} | audit={audit_path}"
     )
