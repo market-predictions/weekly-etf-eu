@@ -2,6 +2,25 @@
 
 This file records meaningful codebase, workflow, rendering, state-contract, pricing, and delivery changes for `market-predictions/weekly-etf`.
 
+## 2026-05-24 — Prioritize live API close discovery before issuer override
+
+### What changed
+- Updated `pricing/source_registry.yaml` so ETF holdings try `twelve_data`, `fmp`, `alpha_vantage`, and `yahoo_history` before `issuer_override`.
+- Updated `pricing/clients/issuer_override.py` to describe itself as a last-resort issuer hook and record delegated Yahoo history explicitly in `source_detail` and metadata.
+
+### Why
+The report made clear that all current holding prices were coming from `issuer_override`. That was not the intended layered close-discovery behavior. The old source order let `issuer_override` short-circuit the normal API cascade, and the override implementation internally delegated to Yahoo while relabeling the result as `issuer_override`. The new order restores the expected API-first discovery path and keeps issuer override only as a final operational fallback.
+
+### Affected files
+- `pricing/source_registry.yaml`
+- `pricing/clients/issuer_override.py`
+- `changelog.md`
+
+### Validation / evidence
+- Previous report showed all six holdings with pricing source `issuer_override`. Next validation step is a fresh ETF production run; the disclosure table should show live/API sources where available, with `issuer_override:...:delegated_yahoo_history` only if all normal sources fail.
+
+---
+
 ## 2026-05-24 — Treat DBC as optional RS duel proxy
 
 ### What changed
