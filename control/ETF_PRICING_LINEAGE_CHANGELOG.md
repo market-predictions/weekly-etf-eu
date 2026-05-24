@@ -12,6 +12,80 @@ This file is the central changelog for the ETF pricing-lineage repair track. It 
 
 ---
 
+## 2026-05-24 — Implement immutable ETF run identity and run manifest wiring
+
+### Current issue
+
+The ETF workflow had started to show close-price disclosure in the report, but the production run still relied on multiple `latest_file()` selections. Same-day pricing runs could overwrite the audit file, and downstream stages could independently choose the latest audit/runtime artifact instead of using the exact artifact created by the current run.
+
+### Root cause
+
+The workflow did not establish one immutable run id before pricing, did not pass an exact pricing-audit path forward, and did not write a central run manifest that connected the audit, runtime state, English report, Dutch report, and persisted artifacts.
+
+### What changed
+
+- `pricing/audit_writer.py`
+  - Added optional `run_id` support.
+  - Production audit files now use `price_audit_<requested_close_date>_<run_id>.json` when a run id is supplied.
+  - The old `price_audit_<run_date>.json` naming remains only as a backward-compatible fallback for non-production callers.
+
+- `pricing/run_pricing_pass.py`
+  - Added `--run-id`.
+  - Emits `run_id`, `report_token`, and immutable `audit=` path in the pricing log.
+  - Writes `output/pricing/latest_price_audit_path.txt` as a compatibility pointer, while keeping the immutable audit as source of truth.
+
+- `runtime/build_etf_report_state.py`
+  - Added `--pricing-audit`, `--lane-artifact`, and `--output-path` support.
+  - Reads explicit pricing/lane paths from CLI or environment.
+  - Writes run-scoped runtime files when `run_id` exists.
+  - Writes `output/runtime/latest_etf_report_state_path.txt` as a compatibility pointer.
+
+- `tools/write_weekly_etf_run_manifest.py`
+  - New manifest writer under `output/run_manifests/`.
+  - Captures run id, requested close date, report token, pricing audit, runtime state, English/Dutch report paths, state paths, pricing summary, and runtime summary.
+
+- `.github/workflows/send-weekly-report.yml`
+  - Added `contents: write` and full checkout history for artifact commit-back.
+  - Added `Resolve ETF run identity` step.
+  - Passes `--requested-close-date` and `--run-id` into pricing.
+  - Captures `ETF_PRICING_AUDIT_PATH` from pricing output.
+  - Passes explicit pricing audit into first and final lane discovery.
+  - Passes explicit audit/lane paths into challenger pricing and runtime state build.
+  - Passes explicit runtime state and pricing audit into pricing-basis disclosure injection.
+  - Writes a run manifest after report build and a final manifest in an `always()` step.
+  - Commits output artifacts, pricing audits, runtime state, run manifests, market history, lane reviews, macro output, and state files back to `main` with `[skip ci]`.
+
+### Affected files
+
+- `pricing/audit_writer.py`
+- `pricing/run_pricing_pass.py`
+- `runtime/build_etf_report_state.py`
+- `tools/write_weekly_etf_run_manifest.py`
+- `.github/workflows/send-weekly-report.yml`
+- `control/ETF_PRICING_LINEAGE_CHANGELOG.md`
+- `changelog.md`
+
+### Validation / evidence
+
+This is a workflow/code commit. No production run has been executed yet after these changes. The next validation step is a manual or run-queue triggered ETF workflow run. Expected evidence:
+
+- `output/pricing/price_audit_<requested_close_date>_<run_id>.json`
+- `output/runtime/etf_report_state_<requested_close_date_without_dashes>_<run_id>.json`
+- `output/run_manifests/weekly_etf_run_manifest_<requested_close_date>_<run_id>.json`
+- workflow log lines for `PRICING_AUDIT_PATH_OK`, `LANE_ARTIFACT_PATH_OK`, `ETF_RUNTIME_STATE_OK`, and `ETF_RUN_MANIFEST_OK`
+
+### Remaining gaps
+
+This closes Phase 1B step 6 only. It does not yet implement:
+
+- upgraded price-row schema
+- exact/prior close-date status semantics
+- independent verification
+- canonical portfolio-state and valuation-history persistence from runtime valuation
+- hard `tools/validate_etf_pricing_lineage_contract.py`
+
+---
+
 ## 2026-05-24 — Create ETF Pricing Lineage Contract V1
 
 ### Current issue
@@ -67,20 +141,20 @@ No runtime code was changed in this entry. This is a design/control-layer commit
 
 ### A. Latest-file ambiguity
 
-Current ETF runtime components can still select the latest audit or latest runtime state independently. Future implementation must pass explicit audit and manifest paths through the workflow.
+Partly addressed. Production workflow now passes explicit audit/runtime/lane paths through the current run. Some legacy scripts and validators still use latest-file selection and need to be migrated in later phases.
 
 ### B. State persistence gap
 
-Current ETF reports can derive a new runtime NAV without updating `output/etf_portfolio_state.json` and `output/etf_valuation_history.csv` as canonical state.
+Current ETF reports can derive a new runtime NAV without updating `output/etf_portfolio_state.json` and `output/etf_valuation_history.csv` as canonical state. This remains open.
 
 ### C. Weak fresh-close semantics
 
-A provider row on or before the requested date must not be labeled generically as fresh. The status must distinguish exact requested close from prior valid market close.
+A provider row on or before the requested date must not be labeled generically as fresh. The status must distinguish exact requested close from prior valid market close. This remains open.
 
 ### D. Challenger pricing tier ambiguity
 
-Broad discovery can remain research-grade. Replacement-duel challengers and promoted fundable candidates require valuation-grade pricing before being presented as actionable.
+Broad discovery can remain research-grade. Replacement-duel challengers and promoted fundable candidates require valuation-grade pricing before being presented as actionable. This remains open.
 
 ### E. Missing independent verification
 
-Provider closes should be cross-checked where feasible. When cross-check is unavailable, the audit must say so explicitly.
+Provider closes should be cross-checked where feasible. When cross-check is unavailable, the audit must say so explicitly. This remains open.
