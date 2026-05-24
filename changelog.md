@@ -2,6 +2,23 @@
 
 This file records meaningful codebase, workflow, rendering, state-contract, pricing, and delivery changes for `market-predictions/weekly-etf`.
 
+## 2026-05-24 — Keep valuation history as first Section 7 table
+
+### What changed
+- Updated `runtime/add_etf_pricing_basis_section.py` so the explicit closing-price disclosure is inserted after the Section 7 valuation-history table rather than before it.
+
+### Why
+The equity-curve parser and validator intentionally treat the first table in Section 7 as the portfolio valuation history. Placing the new pricing-basis table before that table caused the validator to parse the wrong table and report `Section 7 has only 0 point(s)`. The disclosure remains visible in Section 7, but no longer breaks the existing equity-curve contract.
+
+### Affected files
+- `runtime/add_etf_pricing_basis_section.py`
+- `changelog.md`
+
+### Validation / evidence
+- Previous workflow failure: `ETF equity curve history validation failed ... Section 7 has only 0 point(s); expected at least 3.` Next validation step is a fresh ETF production run.
+
+---
+
 ## 2026-05-24 — Fix pricing-basis disclosure validator after ticker linkification
 
 ### What changed
