@@ -28,6 +28,11 @@ For ETF architecture, debugging, prompt, workflow, state, pricing, discovery, or
 3. `control/NEXT_ACTIONS.md`
 4. only then the minimum relevant execution files
 
+## Canonical control files
+
+- `control/ETF_PRICING_LINEAGE_CONTRACT_V1.md` — authoritative design contract for the pricing-lineage hardening cycle, including immutable audit identity, state persistence, exact close-date semantics, provider lineage, independent verification, and challenger pricing tiers.
+- `control/ETF_PRICING_LINEAGE_CHANGELOG.md` — central pricing-lineage changelog for regression review and implementation tracking.
+
 ## Canonical execution files
 
 - `etf.txt` — production masterprompt for the Weekly ETF Review.
@@ -61,6 +66,7 @@ For ETF architecture, debugging, prompt, workflow, state, pricing, discovery, or
 - `output/etf_trade_ledger.csv` — machine-readable executed-change ledger.
 - `output/etf_recommendation_scorecard.csv` — machine-readable recommendation discipline and capital re-underwriting memory.
 - `output/pricing/` — persisted pricing audits.
+- `output/run_manifests/` — intended location for immutable ETF run manifests once `ETF_PRICING_LINEAGE_CONTRACT_V1` is implemented.
 - `output/market_history/etf_relative_strength.json` — historical market-strength metrics used by discovery scoring when available.
 - `output/lane_reviews/` — machine-readable lane assessment artifacts created by the lane discovery engine.
 - `output/runtime/` — normalized runtime state artifacts.
@@ -93,6 +99,7 @@ Lab outputs are never production truth unless explicitly promoted through a revi
 - Do not treat the Structural Opportunity Radar as a static memory list; run the lane discovery engine before runtime state build.
 - Do not treat priced challengers as automatically fundable; challenger pricing only enables fairer comparison.
 - Do not repair branded sections that require strict layout/clickable behavior through markdown post-processing; render them from runtime state at the delivery HTML layer and protect them with the delivery HTML validator.
+- Do not describe ETF pricing lineage as solved merely because the closing-price disclosure table is visible; the lineage contract requires immutable audit identity, explicit manifest linkage, state persistence, and audit-to-report validation.
 
 ## Current direction of travel
 
@@ -101,8 +108,10 @@ ETF is moving toward:
 - GitHub as external source of truth
 - ChatGPT Project as workbench
 - explicit pricing/state artifacts
+- immutable pricing audit and run manifest lineage
 - runtime-derived English canonical report plus Dutch companion
 - delivery HTML as the authority for branded strict-layout sections
 - lane discovery artifacts for breadth, novelty, market strength, and challenger discipline
+- valuation-grade challenger pricing only when a challenger is replacement-ready or fundable
 - recommendation scorecard artifacts for capital discipline
 - lab-only optimization as a QA/research surface, not a production allocator
