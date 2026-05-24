@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+from typing import Any
 
 try:
     import yaml
@@ -14,6 +15,10 @@ class SymbolResolver:
 
     def normalize_symbol(self, symbol: str) -> str:
         return symbol.strip().upper()
+
+    def _override(self, symbol: str) -> dict[str, Any]:
+        symbol = self.normalize_symbol(symbol)
+        return dict(self.cfg.get("overrides", {}).get(symbol, {}) or {})
 
     def get_source_order(self, symbol: str, kind: str) -> list[str]:
         symbol = self.normalize_symbol(symbol)
@@ -29,5 +34,18 @@ class SymbolResolver:
         return list(defaults["generic_source_order"])
 
     def get_issuer_handler(self, symbol: str) -> str | None:
+        return self._override(symbol).get("issuer_handler")
+
+    def get_provider_symbol(self, symbol: str, source: str) -> str:
         symbol = self.normalize_symbol(symbol)
-        return self.cfg.get("overrides", {}).get(symbol, {}).get("issuer_handler")
+        override = self._override(symbol)
+        provider_symbols = override.get("provider_symbols") or {}
+        if isinstance(provider_symbols, dict):
+            provider_symbol = provider_symbols.get(source)
+            if provider_symbol:
+                return str(provider_symbol).strip()
+        return str(override.get("canonical_symbol") or symbol).strip()
+
+    def get_expected_exchange(self, symbol: str) -> str | None:
+        value = self._override(symbol).get("expected_exchange")
+        return None if value is None else str(value)
