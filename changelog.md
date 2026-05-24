@@ -2,6 +2,33 @@
 
 This file records meaningful codebase, workflow, rendering, state-contract, pricing, and delivery changes for `market-predictions/weekly-etf`.
 
+## 2026-05-24 — Implement immutable ETF run identity and manifest wiring
+
+### What changed
+- Updated `pricing/audit_writer.py` so production pricing audits can be written as immutable `price_audit_<requested_close_date>_<run_id>.json` files.
+- Updated `pricing/run_pricing_pass.py` with `--run-id`, explicit requested-close/report-token logging, immutable audit output, and a compatibility pointer at `output/pricing/latest_price_audit_path.txt`.
+- Updated `runtime/build_etf_report_state.py` with explicit `--pricing-audit`, `--lane-artifact`, and `--output-path` support, plus run-scoped runtime state output and `output/runtime/latest_etf_report_state_path.txt`.
+- Added `tools/write_weekly_etf_run_manifest.py` to write central run manifests under `output/run_manifests/`.
+- Updated `.github/workflows/send-weekly-report.yml` to resolve one run id, pass explicit audit/lane/runtime paths through the workflow, write a manifest, and commit run artifacts back to main with `[skip ci]`.
+- Updated `control/ETF_PRICING_LINEAGE_CHANGELOG.md` with the detailed implementation record.
+
+### Why
+The ETF pipeline needed to stop relying on independently selected `latest` audit/runtime artifacts. A report must be traceable to one immutable pricing audit and one run manifest before the deeper pricing-lineage validator can be added.
+
+### Affected files
+- `pricing/audit_writer.py`
+- `pricing/run_pricing_pass.py`
+- `runtime/build_etf_report_state.py`
+- `tools/write_weekly_etf_run_manifest.py`
+- `.github/workflows/send-weekly-report.yml`
+- `control/ETF_PRICING_LINEAGE_CHANGELOG.md`
+- `changelog.md`
+
+### Validation / evidence
+- No production workflow run has been executed yet after these code changes. Next validation step is a fresh ETF workflow run confirming immutable audit, runtime state, and run manifest artifacts are written and committed.
+
+---
+
 ## 2026-05-24 — Add ETF pricing-lineage contract and central pricing changelog
 
 ### What changed
