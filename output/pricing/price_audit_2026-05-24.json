@@ -5,15 +5,12 @@
   "fresh_holdings_count": 6,
   "fx_basis": {
     "error": null,
-    "metadata": {
-      "primary_error": "No values returned",
-      "primary_source": "twelve_data"
-    },
+    "metadata": {},
     "pair": "EUR/USD",
-    "rate": 1.1595,
+    "rate": 1.16031,
     "requested_date": "2026-05-22",
     "returned_date": "2026-05-22",
-    "source": "ecb_reference",
+    "source": "twelve_data",
     "status": "fresh_close"
   },
   "holdings": [
