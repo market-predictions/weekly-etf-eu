@@ -8,6 +8,9 @@ on:
       - "control/run_queue/weekly_etf_report_request_*.md"
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   send-report:
     runs-on: ubuntu-latest
@@ -15,6 +18,8 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -39,13 +44,43 @@ jobs:
           python -m pip install --upgrade pip
           pip install matplotlib mistune weasyprint pyyaml pandas yfinance
 
+      - name: Resolve ETF run identity
+        run: |
+          RUN_ID="$(date -u +'%Y%m%d_%H%M%S')"
+          CLOSE_DATE="$(python - <<'PY'
+          from datetime import datetime, timezone
+          from pricing.run_pricing_pass import requested_close_from_now
+          print(requested_close_from_now(datetime.now(timezone.utc)))
+          PY
+          )"
+          REPORT_TOKEN="$(python - <<PY
+          d='$CLOSE_DATE'
+          y,m,dd=d.split('-')
+          print(f'{y[2:]}{m}{dd}')
+          PY
+          )"
+          echo "ETF_PRICING_RUN_ID=$RUN_ID" >> "$GITHUB_ENV"
+          echo "MRKT_RPRTS_RUN_ID=$RUN_ID" >> "$GITHUB_ENV"
+          echo "REQUESTED_CLOSE_DATE=$CLOSE_DATE" >> "$GITHUB_ENV"
+          echo "REPORT_TOKEN=$REPORT_TOKEN" >> "$GITHUB_ENV"
+          echo "ETF_RUN_ID=$RUN_ID | requested_close=$CLOSE_DATE | report_token=$REPORT_TOKEN"
+
       - name: Run persistent ETF pricing pass
         env:
           TWELVE_DATA_API_KEY: ${{ secrets.TWELVE_DATA_API_KEY }}
           FMP_API_KEY: ${{ secrets.FMP_API_KEY }}
           ALPHA_VANTAGE_API_KEY: ${{ secrets.ALPHA_VANTAGE_API_KEY }}
         run: |
-          python -m pricing.run_pricing_pass
+          pricing_log="$(python -m pricing.run_pricing_pass --requested-close-date "$REQUESTED_CLOSE_DATE" --run-id "$ETF_PRICING_RUN_ID")"
+          echo "$pricing_log"
+          audit_path="$(printf '%s\n' "$pricing_log" | sed -n 's/.* audit=\([^ ]*\).*/\1/p' | tail -1)"
+          if [ -z "$audit_path" ] || [ ! -f "$audit_path" ]; then
+            echo "Pricing pass did not emit a valid immutable audit path." >&2
+            exit 1
+          fi
+          echo "ETF_PRICING_AUDIT_PATH=$audit_path" >> "$GITHUB_ENV"
+          echo "MRKT_RPRTS_PRICING_AUDIT_PATH=$audit_path" >> "$GITHUB_ENV"
+          echo "PRICING_AUDIT_PATH_OK | audit=$audit_path"
 
       - name: Fetch ETF historical relative strength
         env:
@@ -73,11 +108,21 @@ jobs:
         env:
           MRKT_RPRTS_REPORT_MODE: pro
         run: |
-          python -m runtime.discover_etf_lanes \
+          lane_log="$(python -m runtime.discover_etf_lanes \
             --config config/etf_discovery_universe.yml \
             --portfolio-state output/etf_portfolio_state.json \
+            --pricing-audit "$ETF_PRICING_AUDIT_PATH" \
             --relative-strength output/market_history/etf_relative_strength.json \
-            --macro-policy-pack output/macro/latest.json
+            --macro-policy-pack output/macro/latest.json)"
+          echo "$lane_log"
+          lane_path="$(printf '%s\n' "$lane_log" | sed -n 's/.* artifact=\([^ ]*\).*/\1/p' | tail -1)"
+          if [ -z "$lane_path" ] || [ ! -f "$lane_path" ]; then
+            echo "Lane discovery did not emit a valid artifact path." >&2
+            exit 1
+          fi
+          echo "ETF_LANE_ARTIFACT_PATH=$lane_path" >> "$GITHUB_ENV"
+          echo "MRKT_RPRTS_LANE_ARTIFACT_PATH=$lane_path" >> "$GITHUB_ENV"
+          echo "LANE_ARTIFACT_PATH_OK | artifact=$lane_path"
 
       - name: Price replacement-duel and discovery challengers
         env:
@@ -85,11 +130,15 @@ jobs:
           FMP_API_KEY: ${{ secrets.FMP_API_KEY }}
           ALPHA_VANTAGE_API_KEY: ${{ secrets.ALPHA_VANTAGE_API_KEY }}
         run: |
-          python -m pricing.augment_challenger_pricing --max-symbols 24
+          python -m pricing.augment_challenger_pricing \
+            --pricing-audit "$ETF_PRICING_AUDIT_PATH" \
+            --lane-artifact "$ETF_LANE_ARTIFACT_PATH" \
+            --max-symbols 24
 
       - name: Validate replacement duel pricing contract
         env:
           MRKT_RPRTS_REPORT_MODE: pro
+          ETF_PRICING_AUDIT_PATH: ${{ env.ETF_PRICING_AUDIT_PATH }}
         run: |
           python tools/validate_replacement_duel_pricing_contract.py
 
@@ -97,11 +146,20 @@ jobs:
         env:
           MRKT_RPRTS_REPORT_MODE: pro
         run: |
-          python -m runtime.discover_etf_lanes \
+          lane_log="$(python -m runtime.discover_etf_lanes \
             --config config/etf_discovery_universe.yml \
             --portfolio-state output/etf_portfolio_state.json \
+            --pricing-audit "$ETF_PRICING_AUDIT_PATH" \
             --relative-strength output/market_history/etf_relative_strength.json \
-            --macro-policy-pack output/macro/latest.json
+            --macro-policy-pack output/macro/latest.json)"
+          echo "$lane_log"
+          lane_path="$(printf '%s\n' "$lane_log" | sed -n 's/.* artifact=\([^ ]*\).*/\1/p' | tail -1)"
+          if [ -z "$lane_path" ] || [ ! -f "$lane_path" ]; then
+            echo "Final lane discovery did not emit a valid artifact path." >&2
+            exit 1
+          fi
+          echo "ETF_LANE_ARTIFACT_PATH=$lane_path" >> "$GITHUB_ENV"
+          echo "MRKT_RPRTS_LANE_ARTIFACT_PATH=$lane_path" >> "$GITHUB_ENV"
           python -m runtime.augment_lane_artifact_with_quality_filters \
             --relative-strength output/market_history/etf_relative_strength.json \
             --macro-context config/etf_macro_fundamental_context.yml
@@ -110,8 +168,18 @@ jobs:
         env:
           MRKT_RPRTS_REPORT_MODE: pro
         run: |
-          python -m runtime.build_etf_report_state
-          render_log="$(python -m runtime.render_etf_report_from_state --output-dir output)"
+          state_log="$(python -m runtime.build_etf_report_state \
+            --pricing-audit "$ETF_PRICING_AUDIT_PATH" \
+            --lane-artifact "$ETF_LANE_ARTIFACT_PATH")"
+          echo "$state_log"
+          runtime_state_path="$(printf '%s\n' "$state_log" | sed -n 's/.* output=\([^ |]*\).*/\1/p' | tail -1)"
+          if [ -z "$runtime_state_path" ] || [ ! -f "$runtime_state_path" ]; then
+            echo "Runtime state builder did not emit a valid runtime state path." >&2
+            exit 1
+          fi
+          echo "ETF_RUNTIME_STATE_PATH=$runtime_state_path" >> "$GITHUB_ENV"
+          echo "MRKT_RPRTS_RUNTIME_STATE_PATH=$runtime_state_path" >> "$GITHUB_ENV"
+          render_log="$(python -m runtime.render_etf_report_from_state --output-dir output --runtime-state "$runtime_state_path")"
           echo "$render_log"
           en_path="$(printf '%s\n' "$render_log" | sed -n 's/^ETF_RUNTIME_RENDER_OK | en=\([^|]*\) | nl=.*/\1/p' | xargs)"
           nl_path="$(printf '%s\n' "$render_log" | sed -n 's/^ETF_RUNTIME_RENDER_OK | en=[^|]* | nl=\([^|]*\).*/\1/p' | xargs)"
@@ -128,7 +196,7 @@ jobs:
           echo "MRKT_RPRTS_EXPLICIT_REPORT_PATH=$en_path" >> "$GITHUB_ENV"
           echo "MRKT_RPRTS_EXPLICIT_REPORT_PATH_NL=$nl_path" >> "$GITHUB_ENV"
           echo "RUNTIME_REPORT_PATHS_OK | en=$en_path | nl=$nl_path"
-          python -m runtime.add_etf_pricing_basis_section --output-dir output
+          python -m runtime.add_etf_pricing_basis_section --output-dir output --runtime-state "$runtime_state_path" --pricing-audit "$ETF_PRICING_AUDIT_PATH"
           python -m runtime.polish_runtime_reports --output-dir output
           python -m runtime.fix_report_output_contract --output-dir output
           python -m runtime.add_etf_position_performance_section --output-dir output
@@ -137,6 +205,15 @@ jobs:
           python -m runtime.scrub_nl_pdf_audit_leaks --output-dir output
           python -m runtime.localize_nl_report_dates --output-dir output
           python -m runtime.link_runtime_report_tickers --output-dir output
+          python tools/write_weekly_etf_run_manifest.py \
+            --run-id "$ETF_PRICING_RUN_ID" \
+            --requested-close-date "$REQUESTED_CLOSE_DATE" \
+            --report-token "$REPORT_TOKEN" \
+            --pricing-audit "$ETF_PRICING_AUDIT_PATH" \
+            --runtime-state "$runtime_state_path" \
+            --english-report "$en_path" \
+            --dutch-report "$nl_path" \
+            --status runtime_reports_built
 
       - name: Validate ETF pricing basis disclosure
         env:
@@ -252,3 +329,48 @@ jobs:
           MRKT_RPRTS_MAIL_TO: ${{ secrets.MRKT_RPRTS_MAIL_TO }}
           MRKT_RPRTS_MAIL_TO_NL: ${{ secrets.MRKT_RPRTS_MAIL_TO_NL }}
         run: python send_report_runtime_html.py
+
+      - name: Write final ETF run manifest
+        if: always()
+        run: |
+          python tools/write_weekly_etf_run_manifest.py \
+            --run-id "$ETF_PRICING_RUN_ID" \
+            --requested-close-date "$REQUESTED_CLOSE_DATE" \
+            --report-token "$REPORT_TOKEN" \
+            --pricing-audit "${ETF_PRICING_AUDIT_PATH:-}" \
+            --runtime-state "${ETF_RUNTIME_STATE_PATH:-}" \
+            --english-report "${MRKT_RPRTS_EXPLICIT_REPORT_PATH:-}" \
+            --dutch-report "${MRKT_RPRTS_EXPLICIT_REPORT_PATH_NL:-}" \
+            --status "workflow_${{ job.status }}" \
+            --conclusion "${{ job.status }}"
+
+      - name: Commit ETF run artifacts back to main
+        if: always()
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add \
+            output/weekly_analysis_pro_*.md \
+            output/weekly_analysis_pro_*_clean.md \
+            output/weekly_analysis_pro_*_delivery.html \
+            output/weekly_analysis_pro_*.pdf \
+            output/weekly_analysis_pro_*_equity_curve.png \
+            output/pricing/*.json \
+            output/pricing/*.txt \
+            output/runtime/*.json \
+            output/runtime/*.txt \
+            output/run_manifests/*.json \
+            output/run_manifests/*.txt \
+            output/market_history/*.json \
+            output/lane_reviews/*.json \
+            output/macro/*.json \
+            output/etf_portfolio_state.json \
+            output/etf_valuation_history.csv \
+            output/etf_trade_ledger.csv \
+            output/etf_recommendation_scorecard.csv || true
+          if git diff --cached --quiet; then
+            echo "No ETF run artifacts to commit."
+            exit 0
+          fi
+          git commit -m "Persist Weekly ETF run artifacts and manifest [skip ci]"
+          git push origin HEAD:main
