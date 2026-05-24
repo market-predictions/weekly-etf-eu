@@ -7,9 +7,11 @@ from pathlib import Path
 from typing import Any
 
 EN_REPORT_RE = re.compile(r"^weekly_analysis_pro_(\d{6})(?:_(\d{2}))?\.md$")
-START = "<!-- ETF_PRICE_BASIS_DISCLOSURE_START -->"
-END = "<!-- ETF_PRICE_BASIS_DISCLOSURE_END -->"
+OLD_START = "<!-- ETF_PRICE_BASIS_DISCLOSURE_START -->"
+OLD_END = "<!-- ETF_PRICE_BASIS_DISCLOSURE_END -->"
 SECTION_RE = re.compile(r"(^##\s+(\d+)\.\s+.*?$)", re.M)
+EN_HEADING = "### Closing prices used in this report"
+NL_HEADING = "### Gebruikte slotkoersen in dit rapport"
 
 
 def f2(value: Any) -> str:
@@ -31,12 +33,24 @@ def text(value: Any, fallback: str = "") -> str:
     return raw if raw else fallback
 
 
+def read_json(path: Path) -> dict[str, Any]:
+    return json.loads(path.read_text(encoding="utf-8"))
+
+
 def latest_runtime_state(output_dir: Path) -> dict[str, Any]:
     runtime_dir = output_dir / "runtime"
     files = sorted(runtime_dir.glob("etf_report_state_*.json"))
     if not files:
         raise RuntimeError(f"No runtime ETF state files found in {runtime_dir}")
-    return json.loads(files[-1].read_text(encoding="utf-8"))
+    return read_json(files[-1])
+
+
+def latest_price_audit(output_dir: Path) -> dict[str, Any]:
+    pricing_dir = output_dir / "pricing"
+    files = sorted(pricing_dir.glob("price_audit_*.json"))
+    if not files:
+        raise RuntimeError(f"No pricing audit files found in {pricing_dir}")
+    return read_json(files[-1])
 
 
 def latest_report_pair(output_dir: Path) -> tuple[Path, Path]:
@@ -71,8 +85,15 @@ def section_bounds(markdown: str, section_number: int) -> tuple[int, int] | None
     return None
 
 
-def remove_existing_block(text_value: str) -> str:
-    return re.sub(rf"\n?{re.escape(START)}.*?{re.escape(END)}\n?", "\n", text_value, flags=re.S)
+def remove_existing_block(markdown: str) -> str:
+    # Remove the old marker-based implementation, including visible escaped HTML
+    # comment variants, and remove the current heading-based disclosure block.
+    out = re.sub(rf"\n?{re.escape(OLD_START)}.*?{re.escape(OLD_END)}\n?", "\n", markdown, flags=re.S)
+    out = re.sub(r"\n?&lt;!-- ETF_PRICE_BASIS_DISCLOSURE_START --&gt;.*?&lt;!-- ETF_PRICE_BASIS_DISCLOSURE_END --&gt;\n?", "\n", out, flags=re.S)
+    for heading in (EN_HEADING, NL_HEADING):
+        pattern = rf"\n?{re.escape(heading)}\n.*?(?=\n`EQUITY_CURVE_CHART_PLACEHOLDER`|\n### |\n## |\Z)"
+        out = re.sub(pattern, "\n", out, flags=re.S)
+    return re.sub(r"\n{3,}", "\n\n", out)
 
 
 def price_status_label(value: Any, language: str) -> str:
@@ -86,79 +107,95 @@ def price_status_label(value: Any, language: str) -> str:
     return labels.get(raw, {"en": raw, "nl": raw}).get(language, raw)
 
 
-def price_source(value: Any) -> str:
-    return text(value, "not recorded")
+def source_label(result: dict[str, Any], language: str) -> str:
+    source = text(result.get("source"))
+    delegated = text((result.get("metadata") or {}).get("delegated_source"))
+    source_detail = text(result.get("source_detail"))
+    source_to_label = {
+        "twelve_data": {"en": "Twelve Data", "nl": "Twelve Data"},
+        "yahoo_history": {"en": "Yahoo Finance history", "nl": "Yahoo Finance historie"},
+        "yfinance": {"en": "Yahoo Finance history", "nl": "Yahoo Finance historie"},
+        "issuer_pages": {"en": "Issuer page", "nl": "Uitgeverpagina"},
+        "price_cache": {"en": "Persisted price cache", "nl": "Opgeslagen prijscache"},
+        "manual_override": {"en": "Manual override", "nl": "Handmatige override"},
+    }
+    if delegated in {"yahoo_history", "yfinance"}:
+        return "Yahoo Finance history via issuer resolver" if language == "en" else "Yahoo Finance historie via uitgeversresolver"
+    if source == "issuer_override":
+        return "Issuer resolver" if not source_detail else "Issuer resolver with delegated market data"
+    return source_to_label.get(source, {"en": source or "Not recorded", "nl": source or "Niet vastgelegd"}).get(language, source)
 
 
-def close_date_used(position: dict[str, Any], requested_close: str) -> str:
-    return text(
-        position.get("previous_price_date")
-        or position.get("returned_close_date")
-        or position.get("close_date")
-        or position.get("pricing_date"),
-        requested_close,
-    )
+def audit_price_map(audit: dict[str, Any]) -> dict[str, dict[str, Any]]:
+    rows = audit.get("price_results") or audit.get("prices") or []
+    out: dict[str, dict[str, Any]] = {}
+    for row in rows:
+        symbol = text(row.get("symbol")).upper()
+        if symbol:
+            out[symbol] = row
+    return out
 
 
-def en_block(state: dict[str, Any]) -> str:
-    requested_close = text(state.get("requested_close_date") or state.get("report_date"), "unknown")
-    fx = state.get("fx_basis") or {}
+def holding_order(state: dict[str, Any], audit: dict[str, Any]) -> list[str]:
+    tickers = [text(p.get("ticker")).upper() for p in state.get("positions", []) if text(p.get("ticker"))]
+    if tickers:
+        return tickers
+    return [text(h.get("ticker")).upper() for h in audit.get("holdings", []) if text(h.get("ticker"))]
+
+
+def en_block(state: dict[str, Any], audit: dict[str, Any]) -> str:
+    requested_close = text(audit.get("requested_close_date") or state.get("requested_close_date") or state.get("report_date"), "unknown")
+    price_map = audit_price_map(audit)
+    fx = audit.get("fx_basis") or state.get("fx_basis") or {}
     lines = [
-        START,
-        "### Closing prices used in this report",
+        EN_HEADING,
         "",
-        f"The portfolio valuation above is based on the per-position closes shown here. Requested close date: **{requested_close}**. If a holding used a fallback or carried-forward close, it is shown explicitly in this table.",
+        f"The portfolio valuation above is based on the per-position closes shown here. Requested close date: **{requested_close}**. The source column shows the market-data layer that supplied the close, not internal resolver names.",
         "",
-        "| Holding | Close date used | Close used | Currency | Pricing source | Status |",
-        "|---|---|---:|---|---|---|",
+        "| Holding | Requested close | Close date used | Close used | Currency | Market-data source | Status |",
+        "|---|---|---|---:|---|---|---|",
     ]
-    for position in state.get("positions", []) or []:
-        ticker = text(position.get("ticker"), "UNKNOWN").upper()
+    for ticker in holding_order(state, audit):
+        row = price_map.get(ticker, {})
         lines.append(
-            f"| {ticker} | {close_date_used(position, requested_close)} | {f2(position.get('previous_price_local') or position.get('current_price_local'))} | "
-            f"{text(position.get('currency'), 'USD')} | {price_source(position.get('pricing_source'))} | {price_status_label(position.get('pricing_status'), 'en')} |"
+            f"| {ticker} | {text(row.get('requested_close_date'), requested_close)} | {text(row.get('returned_close_date'), requested_close)} | "
+            f"{f2(row.get('price'))} | {text(row.get('currency'), 'USD')} | {source_label(row, 'en')} | {price_status_label(row.get('status'), 'en')} |"
         )
     fx_date = text(fx.get("returned_date") or fx.get("requested_date"), requested_close)
-    lines.extend(
-        [
-            "",
-            "| FX basis | Date used | Rate | Source | Status |",
-            "|---|---|---:|---|---|",
-            f"| {text(fx.get('pair'), 'EUR/USD')} | {fx_date} | {f4(fx.get('rate'))} | {price_source(fx.get('source'))} | {price_status_label(fx.get('status'), 'en')} |",
-            END,
-        ]
-    )
+    lines.extend([
+        "",
+        "| FX basis | Requested date | Date used | Rate | Source | Status |",
+        "|---|---|---|---:|---|---|",
+        f"| {text(fx.get('pair'), 'EUR/USD')} | {text(fx.get('requested_date'), requested_close)} | {fx_date} | {f4(fx.get('rate'))} | {source_label(fx, 'en')} | {price_status_label(fx.get('status'), 'en')} |",
+    ])
     return "\n".join(lines)
 
 
-def nl_block(state: dict[str, Any]) -> str:
-    requested_close = text(state.get("requested_close_date") or state.get("report_date"), "onbekend")
-    fx = state.get("fx_basis") or {}
+def nl_block(state: dict[str, Any], audit: dict[str, Any]) -> str:
+    requested_close = text(audit.get("requested_close_date") or state.get("requested_close_date") or state.get("report_date"), "onbekend")
+    price_map = audit_price_map(audit)
+    fx = audit.get("fx_basis") or state.get("fx_basis") or {}
     lines = [
-        START,
-        "### Gebruikte slotkoersen in dit rapport",
+        NL_HEADING,
         "",
-        f"De bovenstaande portefeuillewaardering is gebaseerd op de slotkoersen per positie in deze tabel. Gevraagde slotdatum: **{requested_close}**. Als een positie een fallbackbron of doorgeschoven slotkoers gebruikt, staat dat expliciet in deze tabel.",
+        f"De bovenstaande portefeuillewaardering is gebaseerd op de slotkoersen per positie in deze tabel. Gevraagde slotdatum: **{requested_close}**. De bronkolom toont de marktdata-laag die de slotkoers leverde, niet interne resolvernamen.",
         "",
-        "| Positie | Gebruikte slotdatum | Gebruikte slotkoers | Valuta | Prijsbron | Status |",
-        "|---|---|---:|---|---|---|",
+        "| Positie | Gevraagde slotdatum | Gebruikte slotdatum | Gebruikte slotkoers | Valuta | Marktdata-bron | Status |",
+        "|---|---|---|---:|---|---|---|",
     ]
-    for position in state.get("positions", []) or []:
-        ticker = text(position.get("ticker"), "ONBEKEND").upper()
+    for ticker in holding_order(state, audit):
+        row = price_map.get(ticker, {})
         lines.append(
-            f"| {ticker} | {close_date_used(position, requested_close)} | {f2(position.get('previous_price_local') or position.get('current_price_local'))} | "
-            f"{text(position.get('currency'), 'USD')} | {price_source(position.get('pricing_source'))} | {price_status_label(position.get('pricing_status'), 'nl')} |"
+            f"| {ticker} | {text(row.get('requested_close_date'), requested_close)} | {text(row.get('returned_close_date'), requested_close)} | "
+            f"{f2(row.get('price'))} | {text(row.get('currency'), 'USD')} | {source_label(row, 'nl')} | {price_status_label(row.get('status'), 'nl')} |"
         )
     fx_date = text(fx.get("returned_date") or fx.get("requested_date"), requested_close)
-    lines.extend(
-        [
-            "",
-            "| FX-basis | Gebruikte datum | Koers | Bron | Status |",
-            "|---|---|---:|---|---|",
-            f"| {text(fx.get('pair'), 'EUR/USD')} | {fx_date} | {f4(fx.get('rate'))} | {price_source(fx.get('source'))} | {price_status_label(fx.get('status'), 'nl')} |",
-            END,
-        ]
-    )
+    lines.extend([
+        "",
+        "| FX-basis | Gevraagde datum | Gebruikte datum | Koers | Bron | Status |",
+        "|---|---|---|---:|---|---|",
+        f"| {text(fx.get('pair'), 'EUR/USD')} | {text(fx.get('requested_date'), requested_close)} | {fx_date} | {f4(fx.get('rate'))} | {source_label(fx, 'nl')} | {price_status_label(fx.get('status'), 'nl')} |",
+    ])
     return "\n".join(lines)
 
 
@@ -184,17 +221,10 @@ def insert_into_section7(markdown: str, block: str) -> str:
         raise RuntimeError("Section 7 not found for pricing basis disclosure insertion")
     start, end = bounds
     section = clean[start:end]
-
-    # Keep the valuation-history table as the first table in Section 7.
-    # send_report.py and the equity-curve validator intentionally parse the
-    # first Section 7 table as the NAV history source. The pricing-basis table
-    # is therefore inserted immediately after that first table, before the
-    # chart placeholder where possible.
     first_table_end = end_of_first_table(section)
     if first_table_end is not None:
         insert_at = start + first_table_end
         return clean[:insert_at].rstrip() + "\n\n" + block + "\n\n" + clean[insert_at:].lstrip()
-
     placeholder = section.find("`EQUITY_CURVE_CHART_PLACEHOLDER`")
     if placeholder >= 0:
         insert_at = start + placeholder
@@ -202,8 +232,8 @@ def insert_into_section7(markdown: str, block: str) -> str:
     return clean[:end].rstrip() + "\n\n" + block + "\n\n" + clean[end:].lstrip()
 
 
-def update_report(path: Path, state: dict[str, Any], language: str) -> None:
-    block = nl_block(state) if language == "nl" else en_block(state)
+def update_report(path: Path, state: dict[str, Any], audit: dict[str, Any], language: str) -> None:
+    block = nl_block(state, audit) if language == "nl" else en_block(state, audit)
     path.write_text(insert_into_section7(path.read_text(encoding="utf-8"), block), encoding="utf-8")
     print(f"ETF_PRICE_BASIS_DISCLOSURE_ADDED | language={language} | report={path.name}")
 
@@ -212,13 +242,15 @@ def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--output-dir", default="output")
     parser.add_argument("--runtime-state", default=None)
+    parser.add_argument("--pricing-audit", default=None)
     args = parser.parse_args()
 
     output_dir = Path(args.output_dir)
-    state = json.loads(Path(args.runtime_state).read_text(encoding="utf-8")) if args.runtime_state else latest_runtime_state(output_dir)
+    state = read_json(Path(args.runtime_state)) if args.runtime_state else latest_runtime_state(output_dir)
+    audit = read_json(Path(args.pricing_audit)) if args.pricing_audit else latest_price_audit(output_dir)
     en_path, nl_path = latest_report_pair(output_dir)
-    update_report(en_path, state, "en")
-    update_report(nl_path, state, "nl")
+    update_report(en_path, state, audit, "en")
+    update_report(nl_path, state, audit, "nl")
 
 
 if __name__ == "__main__":
