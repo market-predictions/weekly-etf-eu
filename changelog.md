@@ -2,6 +2,31 @@
 
 This file records meaningful codebase, workflow, rendering, state-contract, pricing, and delivery changes for `market-predictions/weekly-etf`.
 
+## 2026-05-24 — Add ETF pricing-lineage contract and central pricing changelog
+
+### What changed
+- Added `control/ETF_PRICING_LINEAGE_CONTRACT_V1.md` as the authority for the next pricing hardening cycle.
+- Added `control/ETF_PRICING_LINEAGE_CHANGELOG.md` as the central detailed changelog for pricing-lineage changes and regressions.
+- Updated `control/SYSTEM_INDEX.md` to register the new pricing-lineage control files and the intended `output/run_manifests/` location.
+- Updated `control/CURRENT_STATE.md` to mark pricing lineage as the active engineering priority and to clarify that visible close-price disclosure is not sufficient proof that the fresh-pricing issue is solved.
+- Updated `control/NEXT_ACTIONS.md` with a dedicated Phase 1B for immutable audit identity, exact manifest linkage, price-row schema/status upgrades, state persistence, challenger pricing tiers, and a hard pricing-lineage validator.
+
+### Why
+The latest investigation showed that the report can display fresh closes and reconcile internally while still lacking a deterministic proof chain from immutable pricing audit to runtime state, report tables, persisted portfolio state, valuation history, and delivery manifest. The new contract prevents another round of surface-level patches and defines the implementation target before production pricing code is changed.
+
+### Affected files
+- `control/ETF_PRICING_LINEAGE_CONTRACT_V1.md`
+- `control/ETF_PRICING_LINEAGE_CHANGELOG.md`
+- `control/SYSTEM_INDEX.md`
+- `control/CURRENT_STATE.md`
+- `control/NEXT_ACTIONS.md`
+- `changelog.md`
+
+### Validation / evidence
+- No runtime pricing code changed in this entry. This is a control/design-layer commit. Next validation is implementation of the contract and the future `tools/validate_etf_pricing_lineage_contract.py` gate.
+
+---
+
 ## 2026-05-24 — Render ETF close disclosure from pricing audit, not portfolio state
 
 ### What changed
