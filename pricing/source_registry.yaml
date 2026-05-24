@@ -1,10 +1,10 @@
 defaults:
   holding_source_order:
-    - issuer_override
     - twelve_data
     - fmp
     - alpha_vantage
     - yahoo_history
+    - issuer_override
 
   generic_source_order:
     - twelve_data
