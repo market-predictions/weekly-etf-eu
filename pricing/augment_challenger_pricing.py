@@ -9,7 +9,7 @@ from typing import Any
 import yaml
 
 from .close_resolver import CloseResolver
-from .models import PriceRequest
+from .models import PRICED_CLOSE_STATUSES, PriceRequest
 
 PRICING_DIR = Path("output/pricing")
 LANE_DIR = Path("output/lane_reviews")
@@ -50,11 +50,15 @@ def _symbol(value: Any) -> str:
     return raw
 
 
+def _is_priced_row(row: dict[str, Any]) -> bool:
+    return row.get("price") is not None and str(row.get("status") or "") in PRICED_CLOSE_STATUSES
+
+
 def already_priced_symbols(audit: dict[str, Any]) -> set[str]:
     out: set[str] = set()
     for row in audit.get("prices", []) or []:
         symbol = _symbol(row.get("symbol"))
-        if symbol and row.get("price") is not None:
+        if symbol and _is_priced_row(row):
             out.add(symbol)
     for row in audit.get("holdings", []) or []:
         symbol = _symbol(row.get("ticker"))
@@ -79,7 +83,6 @@ def replacement_target_map(macro_path: Path = MACRO_CONTEXT_PATH) -> dict[str, l
     configured = ((macro.get("replacement_duel_policy") or {}).get("target_map") or {})
     if not configured:
         return DEFAULT_TARGET_MAP
-
     out: dict[str, list[str]] = {}
     for holding, payload in configured.items():
         holding_symbol = _symbol(holding)
@@ -91,14 +94,6 @@ def replacement_target_map(macro_path: Path = MACRO_CONTEXT_PATH) -> dict[str, l
 
 
 def replacement_duel_symbols(held: set[str], macro_path: Path = MACRO_CONTEXT_PATH) -> list[str]:
-    """Symbols required by Replacement Duel Table v2.
-
-    The old two-pass augmenter only priced symbols discovered in the lane artifact.
-    Replacement Duel Table v2 is driven by the replacement target map, so symbols
-    such as IWM, QUAL, EFA, ITA, GRID or BIL can appear in the report even when
-    they are not promoted live-radar lanes. These must be priced first, otherwise
-    the table shows direct RS edges but says close pricing is missing.
-    """
     symbols: list[str] = []
     target_map = replacement_target_map(macro_path)
     for holding, challengers in target_map.items():
@@ -117,11 +112,9 @@ def discovery_candidate_symbols(lane_artifact: dict[str, Any], max_symbols: int)
         reverse=True,
     )
     symbols: list[str] = []
-
     prioritized = [lane for lane in lanes if lane.get("promoted_to_live_radar") is True]
     prioritized += [lane for lane in lanes if lane.get("challenger") is True]
     prioritized += lanes
-
     for lane in prioritized:
         for key in ("primary_etf", "alternative_etf"):
             symbol = _symbol(lane.get(key))
@@ -151,14 +144,14 @@ def merge_price_results(audit: dict[str, Any], new_results: list[dict[str, Any]]
         if not symbol:
             continue
         old = existing.get(symbol)
-        if old is None or (old.get("price") is None and row.get("price") is not None) or row.get("status") in {"fresh_close", "fresh_fallback_source"}:
+        if old is None or (old.get("price") is None and row.get("price") is not None) or str(row.get("status") or "") in PRICED_CLOSE_STATUSES:
             existing[symbol] = row
     merged["prices"] = list(existing.values())
     merged["price_results"] = merged["prices"]
     merged["two_pass_challenger_pricing"] = {
         "enabled": True,
         "added_or_refreshed_symbols": [row.get("symbol") for row in new_results],
-        "priced_count": sum(1 for row in new_results if row.get("price") is not None),
+        "priced_count": sum(1 for row in new_results if _is_priced_row(row)),
         "selection_policy": "replacement_duel_targets_first_then_lane_candidates",
     }
     return merged
@@ -212,7 +205,7 @@ def main() -> None:
 
     augmented = merge_price_results(audit, new_results)
     audit_path.write_text(json.dumps(augmented, indent=2, sort_keys=True), encoding="utf-8")
-    priced_count = sum(1 for row in new_results if row.get("price") is not None)
+    priced_count = sum(1 for row in new_results if _is_priced_row(row))
     print(
         "TWO_PASS_CHALLENGER_PRICING_OK | "
         f"selected={len(candidates)} | priced={priced_count} | duel_targets={len([s for s in duel_symbols if s not in existing])} | audit={audit_path}"
