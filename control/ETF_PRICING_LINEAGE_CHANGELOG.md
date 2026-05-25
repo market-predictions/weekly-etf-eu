@@ -12,6 +12,63 @@ This file is the central changelog for the ETF pricing-lineage repair track. It 
 
 ---
 
+## 2026-05-24 — Persist successful ETF runtime valuation state
+
+### Current issue
+
+The ETF runtime report could compute a fresh NAV and render the correct Section 7/Section 15 values, but the canonical state files could remain stale. That meant the next production run could start from older portfolio prices and valuation history instead of the last successful priced runtime state.
+
+### Root cause
+
+Runtime state and report rendering were treated as successful output, but the pipeline did not deterministically write the successful runtime valuation back into `output/etf_portfolio_state.json` and `output/etf_valuation_history.csv` as canonical state.
+
+### What changed
+
+- Added `runtime/persist_etf_valuation_state.py`.
+  - Reads the exact runtime state from `ETF_RUNTIME_STATE_PATH` / CLI.
+  - Reconciles positions + cash to runtime NAV.
+  - Updates canonical portfolio fields: cash, invested market value, NAV, peak NAV, max drawdown, last report, last valuation, and per-position current price / market value / weights.
+  - Persists pricing lineage fields per position where available: pricing source, pricing status, selected close, close type, pricing tier, and price date.
+  - Appends or replaces the requested close date in `output/etf_valuation_history.csv` deterministically.
+
+- Added `tools/validate_etf_persisted_valuation_state.py`.
+  - Validates canonical portfolio state against runtime state.
+  - Validates the valuation-history row for the runtime requested close date.
+  - Fails if NAV, cash, invested value, position count, or valuation-history row diverge.
+
+- Updated `.github/workflows/send-weekly-report.yml`.
+  - Adds `Persist successful ETF valuation state` after pricing/report/language/equity validators and before delivery render/send.
+  - Updates the run manifest with portfolio-state and valuation-history paths after successful persistence.
+  - Keeps final manifest writing and artifact commit-back aligned with persisted state files.
+
+### Affected files
+
+- `runtime/persist_etf_valuation_state.py`
+- `tools/validate_etf_persisted_valuation_state.py`
+- `.github/workflows/send-weekly-report.yml`
+- `control/ETF_PRICING_LINEAGE_CHANGELOG.md`
+- `changelog.md`
+
+### Validation / evidence
+
+No production workflow run has been executed yet after this implementation. The next validation step is a fresh ETF workflow run. Expected evidence:
+
+- workflow marker `ETF_VALUATION_STATE_PERSISTED`
+- workflow marker `ETF_PERSISTED_VALUATION_STATE_OK`
+- `output/etf_portfolio_state.json` has `last_valuation.date` equal to the runtime requested close date
+- `output/etf_valuation_history.csv` has exactly one row for the runtime requested close date
+- the persisted NAV equals runtime positions + cash and the latest report NAV
+
+### Remaining gaps
+
+This closes Phase 1B step 8 at persistence/validation level. Remaining pricing-lineage work:
+
+- enforce valuation-grade pricing for replacement-duel and fundable challengers
+- add the hard `tools/validate_etf_pricing_lineage_contract.py` gate across manifest → audit → runtime → report → persisted state → valuation history
+- add independent cross-provider verification so `fresh_exact_close` can be used instead of `fresh_exact_unverified`
+
+---
+
 ## 2026-05-24 — Upgrade ETF price-row schema and exact/prior status semantics
 
 ### Current issue
@@ -172,7 +229,6 @@ This is a workflow/code commit. No production run has been executed yet after th
 This closes Phase 1B step 6 only. It does not yet implement:
 
 - independent verification
-- canonical portfolio-state and valuation-history persistence from runtime valuation
 - hard `tools/validate_etf_pricing_lineage_contract.py`
 
 ---
@@ -236,7 +292,7 @@ Partly addressed. Production workflow now passes explicit audit/runtime/lane pat
 
 ### B. State persistence gap
 
-Current ETF reports can derive a new runtime NAV without updating `output/etf_portfolio_state.json` and `output/etf_valuation_history.csv` as canonical state. This remains open.
+Addressed at runtime persistence level. The workflow now persists successful runtime valuation into `output/etf_portfolio_state.json` and `output/etf_valuation_history.csv` and validates the persisted values against runtime state. Full end-to-end validation remains pending until a fresh production run completes.
 
 ### C. Weak fresh-close semantics
 
