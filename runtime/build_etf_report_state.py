@@ -13,6 +13,7 @@ RUNTIME_DIR = Path("output/runtime")
 PRICING_DIR = Path("output/pricing")
 LANE_DIR = Path("output/lane_reviews")
 MACRO_DIR = Path("output/macro")
+PRICED_CLOSE_STATUSES = {"fresh_close", "fresh_fallback_source", "fresh_exact_close", "fresh_exact_unverified", "prior_valid_close"}
 
 
 @dataclass
@@ -144,6 +145,13 @@ def _to_float(value: Any) -> float | None:
         return None
 
 
+def _selected_price(row: dict[str, Any]) -> float | None:
+    selected = _to_float(row.get("selected_close"))
+    if selected is not None:
+        return selected
+    return _to_float(row.get("price"))
+
+
 def _index_by_ticker(rows: list[dict[str, Any]], ticker_key: str = "ticker") -> dict[str, dict[str, Any]]:
     indexed: dict[str, dict[str, Any]] = {}
     for row in rows:
@@ -178,11 +186,11 @@ def _revalue_holding_from_price(holding: dict[str, Any], price_row: dict[str, An
     ticker = _ticker(holding.get("ticker"))
     if not ticker or not price_row:
         return holding
-    price = _to_float(price_row.get("price"))
+    price = _selected_price(price_row)
     if price is None:
         return holding
     status = str(price_row.get("status") or "")
-    if status not in {"fresh_close", "fresh_fallback_source", "fresh_exact_close", "fresh_exact_unverified", "prior_valid_close"}:
+    if status not in PRICED_CLOSE_STATUSES:
         return holding
 
     shares = _to_float(holding.get("shares"))
@@ -209,6 +217,8 @@ def _revalue_holding_from_price(holding: dict[str, Any], price_row: dict[str, An
     holding["previous_price_date"] = price_row.get("returned_close_date")
     holding["pricing_source"] = price_row.get("source")
     holding["pricing_status"] = price_row.get("status")
+    holding["pricing_close_type"] = price_row.get("selected_close_type")
+    holding["pricing_tier"] = price_row.get("pricing_tier")
     return holding
 
 
@@ -292,7 +302,7 @@ def build_runtime_state(pricing_audit_path: str | None = None, lane_assessment_p
         "macro_policy_pack": macro_policy_pack,
         "recommendation_scorecard": recommendation_scorecard,
         "replacement_duels": duel_candidates,
-        "validation_flags": {"pricing_audit_valid": bool(pricing_audit.get("holdings")), "pricing_revalued_from_price_results": True, "lane_assessment_present": bool(lane_assessment.get("assessed_lanes")), "lane_assessment_source": str(sources.lane_assessment), "lane_assessment_has_primary_etfs": _lane_artifact_has_etf_contract(lane_assessment), "macro_policy_pack_present": bool(macro_policy_pack.get("regime")), "scorecard_present": len(recommendation_scorecard) > 0, "positions_enriched": any(p.get("short_reason") for p in holdings), "fx_rate_present": _fx_rate(pricing_audit) is not None},
+        "validation_flags": {"pricing_audit_valid": bool(pricing_audit.get("holdings")), "pricing_revalued_from_price_results": True, "pricing_status_semantics": "exact_or_prior_v1", "lane_assessment_present": bool(lane_assessment.get("assessed_lanes")), "lane_assessment_source": str(sources.lane_assessment), "lane_assessment_has_primary_etfs": _lane_artifact_has_etf_contract(lane_assessment), "macro_policy_pack_present": bool(macro_policy_pack.get("regime")), "scorecard_present": len(recommendation_scorecard) > 0, "positions_enriched": any(p.get("short_reason") for p in holdings), "fx_rate_present": _fx_rate(pricing_audit) is not None},
     }
 
 
