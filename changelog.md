@@ -2,6 +2,45 @@
 
 This file records meaningful codebase, workflow, rendering, state-contract, pricing, and delivery changes for `market-predictions/weekly-etf`.
 
+## 2026-05-24 — Upgrade ETF price-row schema and exact/prior close semantics
+
+### What changed
+- Updated `pricing/models.py` with explicit pricing statuses: `fresh_exact_close`, `fresh_exact_unverified`, `prior_valid_close`, `carried_forward`, `unresolved`, and `blocked`, while preserving legacy `fresh_close` / `fresh_fallback_source` normalization for older rows.
+- Added audit-row lineage fields for provider symbol, provider exchange, raw close, adjusted close, selected close, selected close type, provider timestamp/timezone, finality, asset role, pricing tier, and verification status.
+- Updated `pricing/close_resolver.py`, `pricing/symbol_resolver.py`, and `pricing/source_registry.yaml` so provider-symbol and expected-exchange context flows into the pricing clients.
+- Updated provider and FX clients to emit exact/prior status semantics and selected-close lineage where available.
+- Updated `pricing/run_pricing_pass.py` so only exact requested-date holding closes count as fresh; prior valid rows are separated from exact fresh rows.
+- Updated `pricing/augment_challenger_pricing.py`, `runtime/build_etf_report_state.py`, `runtime/add_etf_pricing_basis_section.py`, and `runtime/score_etf_lanes.py` to consume explicit priced-close statuses and selected close values.
+- Updated `control/ETF_PRICING_LINEAGE_CHANGELOG.md` with the detailed implementation record.
+
+### Why
+The pricing audit must no longer treat exact requested-date closes and latest prior provider closes as equivalent. The audit row now carries the selected close, close type, provider symbol, expected exchange, pricing tier, and verification placeholder needed for the future hard pricing-lineage validator.
+
+### Affected files
+- `pricing/models.py`
+- `pricing/close_resolver.py`
+- `pricing/symbol_resolver.py`
+- `pricing/source_registry.yaml`
+- `pricing/clients/twelve_data.py`
+- `pricing/clients/yahoo_history.py`
+- `pricing/clients/fmp.py`
+- `pricing/clients/alpha_vantage.py`
+- `pricing/clients/issuer_override.py`
+- `pricing/clients/ecb_reference.py`
+- `pricing/fx_resolver.py`
+- `pricing/run_pricing_pass.py`
+- `pricing/augment_challenger_pricing.py`
+- `runtime/build_etf_report_state.py`
+- `runtime/add_etf_pricing_basis_section.py`
+- `runtime/score_etf_lanes.py`
+- `control/ETF_PRICING_LINEAGE_CHANGELOG.md`
+- `changelog.md`
+
+### Validation / evidence
+- No production workflow run has been executed yet after this schema/status change. Next validation step is a fresh ETF workflow run confirming that the audit rows contain the new lineage fields and that the report renders exact/prior statuses correctly.
+
+---
+
 ## 2026-05-24 — Implement immutable ETF run identity and manifest wiring
 
 ### What changed
