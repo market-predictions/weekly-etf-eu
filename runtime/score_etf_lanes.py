@@ -14,6 +14,9 @@ LANE_WEIGHTS = {
     "portfolio_differentiation": 0.07,
 }
 
+EXACT_CLOSE_STATUSES = {"fresh_close", "fresh_exact_close", "fresh_exact_unverified"}
+PRICED_CLOSE_STATUSES = EXACT_CLOSE_STATUSES | {"fresh_fallback_source", "prior_valid_close"}
+
 
 @dataclass(frozen=True)
 class LaneContext:
@@ -89,10 +92,12 @@ def portfolio_gap_score(lane: dict[str, Any], context: LaneContext) -> int:
 def pricing_confidence(symbol: str, context: LaneContext) -> str:
     symbol = symbol.upper()
     status = context.price_status_by_symbol.get(symbol)
-    if status in {"fresh_close", "fresh_fallback_source"}:
-        return "fresh_priced"
+    if status in EXACT_CLOSE_STATUSES:
+        return "fresh_exact_priced"
+    if status in PRICED_CLOSE_STATUSES:
+        return "prior_valid_or_challenger_priced"
     if symbol in context.priced_symbols:
-        return "latest_verified_or_challenger_priced"
+        return "priced_but_status_unclassified"
     return "not_priced_in_current_audit"
 
 
@@ -144,7 +149,7 @@ def adjusted_lane_score(lane: dict[str, Any], context: LaneContext) -> tuple[flo
     base = weighted_lane_score(lane)
     gap_bonus = min(portfolio_gap_score(lane, context), 5) * 0.03
     primary_conf = pricing_confidence(primary, context)
-    price_bonus = 0.05 if primary_conf == "fresh_priced" else 0.02 if primary_conf == "latest_verified_or_challenger_priced" else -0.03
+    price_bonus = 0.05 if primary_conf == "fresh_exact_priced" else 0.02 if primary_conf in {"prior_valid_or_challenger_priced", "priced_but_status_unclassified"} else -0.03
     novelty = novelty_status(lane, context)
     novelty_bonus = 0.04 if novelty in {"new_or_rotating_challenger", "rotating_challenger"} else 0.0
     primary_rs = rs_score(primary, context)
@@ -259,12 +264,9 @@ def apply_promotion_flags(scored: list[dict[str, Any]], promoted: list[dict[str,
     promoted_tags = {lane.get("taxonomy_tag") for lane in promoted}
     output: list[dict[str, Any]] = []
     for lane in scored:
-        lane = dict(lane)
-        is_promoted = lane.get("taxonomy_tag") in promoted_tags
-        lane["promoted_to_live_radar"] = bool(is_promoted)
-        if is_promoted:
-            lane["rejection_reason"] = ""
-        else:
-            lane["rejection_reason"] = _rejection_reason(lane)
-        output.append(lane)
+        item = dict(lane)
+        item["promoted_to_live_radar"] = lane.get("taxonomy_tag") in promoted_tags
+        if not item["promoted_to_live_radar"]:
+            item["non_promotion_reason"] = _rejection_reason(item)
+        output.append(item)
     return output
