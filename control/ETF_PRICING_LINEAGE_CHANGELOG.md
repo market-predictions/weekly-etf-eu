@@ -12,6 +12,107 @@ This file is the central changelog for the ETF pricing-lineage repair track. It 
 
 ---
 
+## 2026-05-24 — Close Phase 1B Step 9 by wiring challenger fundability validation into workflow
+
+### Current issue
+
+The new challenger fundability validator existed, but it was not yet part of the production workflow. That meant valuation-grade challenger discipline could be implemented in code and artifacts, while production delivery could still proceed without the dedicated lane-level fundability gate.
+
+### Root cause
+
+`tools/validate_etf_challenger_fundability_contract.py` was added after the Step 9 model changes, but `.github/workflows/send-weekly-report.yml` still moved directly from final lane discovery into runtime state build. The workflow needed a hard validation step using the exact final lane artifact and exact immutable pricing audit for the current run.
+
+### What changed
+
+- Updated `.github/workflows/send-weekly-report.yml`.
+  - Added `Validate ETF challenger fundability contract` immediately after final lane discovery and lane-quality augmentation.
+  - The validator receives the exact current-run artifacts:
+    - `--lane-artifact "$ETF_LANE_ARTIFACT_PATH"`
+    - `--pricing-audit "$ETF_PRICING_AUDIT_PATH"`
+  - Runtime state/report build now only proceeds after challenger fundability validation passes.
+
+### Affected files
+
+- `.github/workflows/send-weekly-report.yml`
+- `control/ETF_PRICING_LINEAGE_CHANGELOG.md`
+
+### Validation / evidence
+
+No production workflow run has been executed yet after this workflow-wiring change. Expected evidence in the next run:
+
+- `ETF_CHALLENGER_FUNDABILITY_CONTRACT_OK`
+- failure if a lane is marked `is_fundable_candidate=true` without a valuation-grade audit row
+- failure if a promoted challenger lacks valuation-grade pricing and lacks an explicit radar-only/fundability note
+
+### Status
+
+This closes Phase 1B Step 9 at model + validator + workflow level. Remaining pricing-lineage work:
+
+- add the hard `tools/validate_etf_pricing_lineage_contract.py` gate across manifest → audit → runtime → report → persisted state → valuation history
+- add independent cross-provider verification so `fresh_exact_close` can be used instead of `fresh_exact_unverified`
+
+---
+
+## 2026-05-24 — Enforce valuation-grade challenger pricing discipline
+
+### Current issue
+
+The ETF workflow could price challengers and score lanes, but the system still allowed discovery/radar candidates and replacement-duel rows to look decision-relevant without a hard distinction between research-grade pricing and valuation-grade pricing.
+
+### Root cause
+
+The pricing audit now carries `pricing_tier`, but the lane scoring and replacement-duel layers did not yet enforce that a fundable challenger must have `pricing_tier == valuation_grade` plus a priced close status.
+
+### What changed
+
+- `runtime/score_etf_lanes.py`
+  - Added valuation-grade and research-grade constants.
+  - Added `price_tier_by_symbol` and `price_source_by_symbol` to `LaneContext`.
+  - Added fundability classification for lanes.
+  - Added `fundability_status`, `is_fundable_candidate`, primary/alternative pricing tier, and pricing source fields to lane artifacts.
+  - Promoted challenger lanes that are not valuation-grade priced are marked as radar-only through `promotion_fundability_note`.
+
+- `runtime/discover_etf_lanes.py`
+  - Reads `pricing_tier` and source from the pricing audit.
+  - Passes pricing tier/source into lane scoring.
+  - Updates discovery engine version to `lane_discovery_v4_valuation_grade_fundability`.
+  - Prints the count of promoted fundable lanes in workflow logs.
+
+- `runtime/replacement_duel_v2.py`
+  - Adds challenger pricing tier/status fields to replacement-duel rows.
+  - Requires valuation-grade challenger pricing before actionable replacement language is allowed.
+  - Non-valuation-grade challenger pricing now produces review-only language.
+
+- `tools/validate_replacement_duel_pricing_contract.py`
+  - Adds a hard failure if a duel row looks actionable without valuation-grade challenger pricing.
+  - Converts missing valuation-grade challenger rows into warnings unless they are shown as actionable.
+
+- `tools/validate_etf_challenger_fundability_contract.py`
+  - New validator for lane-level fundability discipline.
+  - Fails if `is_fundable_candidate` is true without a valuation-grade audit row.
+  - Fails if a promoted challenger lacks valuation-grade pricing and lacks an explicit fundability note.
+
+### Affected files
+
+- `runtime/score_etf_lanes.py`
+- `runtime/discover_etf_lanes.py`
+- `runtime/replacement_duel_v2.py`
+- `tools/validate_replacement_duel_pricing_contract.py`
+- `tools/validate_etf_challenger_fundability_contract.py`
+- `control/pricing_lineage_step9_implementation_log.md`
+- `control/ETF_PRICING_LINEAGE_CHANGELOG.md`
+
+### Validation / evidence
+
+No production workflow run has been executed yet after this implementation. Expected evidence:
+
+- Lane artifact contains `fundability_status`, `is_fundable_candidate`, pricing tier, and pricing source fields.
+- Replacement-duel rows contain `challenger_pricing_tier` and `valuation_grade_pricing_complete`.
+- `tools/validate_replacement_duel_pricing_contract.py` fails actionable duel rows without valuation-grade challenger pricing.
+- `tools/validate_etf_challenger_fundability_contract.py` fails fundable challenger lanes without valuation-grade audit rows.
+
+---
+
 ## 2026-05-24 — Persist successful ETF runtime valuation state
 
 ### Current issue
@@ -63,7 +164,6 @@ No production workflow run has been executed yet after this implementation. The 
 
 This closes Phase 1B step 8 at persistence/validation level. Remaining pricing-lineage work:
 
-- enforce valuation-grade pricing for replacement-duel and fundable challengers
 - add the hard `tools/validate_etf_pricing_lineage_contract.py` gate across manifest → audit → runtime → report → persisted state → valuation history
 - add independent cross-provider verification so `fresh_exact_close` can be used instead of `fresh_exact_unverified`
 
@@ -300,7 +400,7 @@ Addressed at schema/status level. New rows now distinguish exact requested-date 
 
 ### D. Challenger pricing tier ambiguity
 
-Partly addressed. Resolver-level rows now carry `pricing_tier`, with holdings and challengers treated as valuation-grade and broad radar rows treated as research-grade. Enforcement that fundable challengers must have valuation-grade pricing remains open.
+Addressed at model, artifact, duel, validator, and workflow level. Resolver rows carry `pricing_tier`; lane artifacts classify fundability; replacement-duel action language requires valuation-grade challenger pricing; the production workflow now runs `tools/validate_etf_challenger_fundability_contract.py` before runtime/report build.
 
 ### E. Missing independent verification
 
