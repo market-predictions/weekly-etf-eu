@@ -36,6 +36,8 @@ STRATEGIC_HOLDING_RANK = {ticker: idx for idx, ticker in enumerate(STRATEGIC_HOL
 DEFAULT_MACRO_CONTEXT = Path("config/etf_macro_fundamental_context.yml")
 DEFAULT_RS_PATH = Path("output/market_history/etf_relative_strength.json")
 INVESTOR_REPLACEMENT_DUEL_LIMIT = 8
+PRICED_STATUSES = {"fresh_close", "fresh_fallback_source", "fresh_exact_close", "fresh_exact_unverified", "prior_valid_close"}
+VALUATION_GRADE = "valuation_grade"
 
 
 def _ticker(value: Any) -> str:
@@ -116,28 +118,26 @@ def _holding_close(state: dict[str, Any], holding: str) -> dict[str, Any]:
     position = _index_positions(state).get(_ticker(holding), {})
     price = _num(position.get("previous_price_local") or position.get("current_price_local"))
     currency = position.get("currency", "USD")
-    returned_date = (
-        position.get("previous_price_date")
-        or position.get("current_price_date")
-        or state.get("requested_close_date")
-        or state.get("report_date")
-    )
+    returned_date = position.get("previous_price_date") or position.get("current_price_date") or state.get("requested_close_date") or state.get("report_date")
     return {
         "price": price,
         "currency": currency,
         "returned_close_date": returned_date,
-        "source": "portfolio_state_pricing_audit",
-        "status": "priced" if price is not None else "missing_current_holding_close",
+        "source": position.get("pricing_source") or "portfolio_state_pricing_audit",
+        "status": position.get("pricing_status") or ("priced" if price is not None else "missing_current_holding_close"),
+        "pricing_tier": position.get("pricing_tier") or VALUATION_GRADE,
     }
 
 
 def _price_close(price: dict[str, Any]) -> dict[str, Any]:
+    selected = price.get("selected_close") if price.get("selected_close") is not None else price.get("price")
     return {
-        "price": _num(price.get("price")),
+        "price": _num(selected),
         "currency": price.get("currency", "USD"),
         "returned_close_date": price.get("returned_close_date") or price.get("date"),
         "source": price.get("source") or price.get("source_detail") or "pricing_audit",
         "status": price.get("status") or "unresolved",
+        "pricing_tier": price.get("pricing_tier") or "unclassified",
     }
 
 
@@ -155,24 +155,31 @@ def _return_edge(metrics: dict[str, Any], challenger: str, holding: str, key: st
 def _pricing_basis(current_close: dict[str, Any], challenger_close: dict[str, Any]) -> str:
     current_date = current_close.get("returned_close_date") or "missing current close"
     challenger_date = challenger_close.get("returned_close_date") or "missing challenger close"
+    tier = challenger_close.get("pricing_tier") or "unclassified"
     if current_date and challenger_date and current_date == challenger_date:
-        return f"Current and challenger closes validated on {current_date}."
-    return f"Current validated on {current_date}; challenger validated on {challenger_date}."
+        return f"Current and challenger closes validated on {current_date}; challenger pricing tier: {tier}."
+    return f"Current validated on {current_date}; challenger validated on {challenger_date}; challenger pricing tier: {tier}."
 
 
 def _pricing_complete(current_close: dict[str, Any], challenger_close: dict[str, Any]) -> bool:
     return current_close.get("price") is not None and challenger_close.get("price") is not None
 
 
-def _decision(pricing_complete: bool, edge_1m: Any, edge_3m: Any) -> str:
+def _valuation_grade_complete(current_close: dict[str, Any], challenger_close: dict[str, Any]) -> bool:
+    return _pricing_complete(current_close, challenger_close) and str(challenger_close.get("status") or "") in PRICED_STATUSES and str(challenger_close.get("pricing_tier") or "") == VALUATION_GRADE
+
+
+def _decision(pricing_complete: bool, valuation_grade_complete: bool, edge_1m: Any, edge_3m: Any) -> str:
     if not pricing_complete:
-        return "Not fundable — close proof incomplete."
+        return "Not fundable - close proof incomplete."
+    if not valuation_grade_complete:
+        return "Not fundable - valuation-grade challenger pricing required."
     e1 = _num(edge_1m)
     e3 = _num(edge_3m)
     if e1 is None and e3 is None:
-        return "Priced, but direct RS duel incomplete."
+        return "Priced valuation-grade, but direct RS duel incomplete."
     if e3 is not None and e3 >= 5.0:
-        return "Replacement trigger watch — challenger leading over 3m."
+        return "Replacement trigger watch - challenger leading over 3m."
     if e3 is not None and e3 > 0:
         return "Challenger improving; keep duel active."
     if e1 is not None and e1 > 0 and (e3 is None or e3 <= 0):
@@ -180,9 +187,11 @@ def _decision(pricing_complete: bool, edge_1m: Any, edge_3m: Any) -> str:
     return "Current holding still leads; no replacement."
 
 
-def _required_trigger(pricing_complete: bool, edge_1m: Any, edge_3m: Any) -> str:
+def _required_trigger(pricing_complete: bool, valuation_grade_complete: bool, edge_1m: Any, edge_3m: Any) -> str:
     if not pricing_complete:
         return "Resolve both close prices before decision."
+    if not valuation_grade_complete:
+        return "Upgrade challenger to valuation-grade pricing before any funding decision."
     e1 = _num(edge_1m)
     e3 = _num(edge_3m)
     if e3 is not None and e3 >= 5.0:
@@ -194,35 +203,33 @@ def _required_trigger(pricing_complete: bool, edge_1m: Any, edge_3m: Any) -> str
     return "Needs sustained relative outperformance."
 
 
-def _row_payload(
-    state: dict[str, Any],
-    holding: str,
-    challenger: str,
-    edge_1m: Any,
-    edge_3m: Any,
-    source: str,
-) -> dict[str, Any]:
+def _row_payload(state: dict[str, Any], holding: str, challenger: str, edge_1m: Any, edge_3m: Any, source: str) -> dict[str, Any]:
     prices = _index_prices(state)
     holding = _ticker(holding)
     challenger = _ticker(challenger)
     current_close = _holding_close(state, holding)
     challenger_close = _price_close(prices.get(challenger) or {})
     complete = _pricing_complete(current_close, challenger_close)
+    valuation_complete = _valuation_grade_complete(current_close, challenger_close)
     row = {
         "current_holding": holding,
         "current_close": current_close.get("price"),
         "current_close_currency": current_close.get("currency", "USD"),
         "current_close_date": current_close.get("returned_close_date"),
+        "current_pricing_tier": current_close.get("pricing_tier"),
         "challenger": challenger,
         "challenger_close": challenger_close.get("price"),
         "challenger_close_currency": challenger_close.get("currency", "USD"),
         "challenger_close_date": challenger_close.get("returned_close_date"),
+        "challenger_pricing_tier": challenger_close.get("pricing_tier"),
+        "challenger_price_status": challenger_close.get("status"),
         "edge_1m_pct": edge_1m,
         "edge_3m_pct": edge_3m,
         "pricing_complete": complete,
+        "valuation_grade_pricing_complete": valuation_complete,
         "is_priority_duel": (holding, challenger) in PRIORITY_DUEL_PAIRS,
-        "decision": _decision(complete, edge_1m, edge_3m),
-        "required_trigger": _required_trigger(complete, edge_1m, edge_3m),
+        "decision": _decision(complete, valuation_complete, edge_1m, edge_3m),
+        "required_trigger": _required_trigger(complete, valuation_complete, edge_1m, edge_3m),
         "source": source,
     }
     row["pricing_basis"] = _pricing_basis(current_close, challenger_close)
@@ -255,38 +262,23 @@ def _lane_rows(state: dict[str, Any], existing: set[tuple[str, str]]) -> list[di
         if key in existing:
             continue
         existing.add(key)
-        rows.append(
-            _row_payload(
-                state,
-                holding,
-                challenger,
-                lane.get("direct_rs_vs_holding_1m_pct"),
-                lane.get("direct_rs_vs_holding_3m_pct"),
-                "lane_artifact_direct_rs",
-            )
-        )
+        rows.append(_row_payload(state, holding, challenger, lane.get("direct_rs_vs_holding_1m_pct"), lane.get("direct_rs_vs_holding_3m_pct"), "lane_artifact_direct_rs"))
     return rows
 
 
-def _row_rank(row: dict[str, Any]) -> tuple[int, int, int, int, float, str]:
+def _row_rank(row: dict[str, Any]) -> tuple[int, int, int, int, int, float, str]:
     priority_rank = 0 if row.get("is_priority_duel") else 1
     source_rank = 0 if row.get("source") == "strategic_target_map" else 1
+    funding_rank = 0 if row.get("valuation_grade_pricing_complete") else 1
     holding = _ticker(row.get("current_holding"))
     holding_rank = STRATEGIC_HOLDING_RANK.get(holding, 99)
     edge = _num(row.get("edge_3m_pct"))
     missing_edge_rank = 1 if edge is None else 0
     edge_value = edge if edge is not None else -999.0
-    return (priority_rank, source_rank, holding_rank, missing_edge_rank, -edge_value, _ticker(row.get("challenger")))
+    return (priority_rank, source_rank, funding_rank, holding_rank, missing_edge_rank, -edge_value, _ticker(row.get("challenger")))
 
 
 def replacement_duel_v2_rows(state: dict[str, Any], limit: int = INVESTOR_REPLACEMENT_DUEL_LIMIT) -> list[dict[str, Any]]:
-    """Return the most decision-relevant replacement duels for the client report.
-
-    The full target map can easily become a long analyst audit table. The client
-    report should stay compact and only show the most relevant funding/replacement
-    decisions, while the underlying target map and pricing artifacts remain the
-    machine-readable audit trail.
-    """
     rows = _strategic_rows(state)
     existing = {(_ticker(row.get("current_holding")), _ticker(row.get("challenger"))) for row in rows}
     rows.extend(_lane_rows(state, existing))
@@ -295,15 +287,9 @@ def replacement_duel_v2_rows(state: dict[str, Any], limit: int = INVESTOR_REPLAC
 
 def replacement_duel_v2_markdown(state: dict[str, Any], language: str = "en") -> str:
     if language == "nl":
-        lines = [
-            "| Huidige positie | Alternatief | 1m relatieve sterkte | 3m relatieve sterkte | Prijsbasis | Beoordeling | Benodigde bevestiging |",
-            "|---|---|---:|---:|---|---|---|",
-        ]
+        lines = ["| Huidige positie | Alternatief | 1m relatieve sterkte | 3m relatieve sterkte | Prijsbasis | Beoordeling | Benodigde bevestiging |", "|---|---|---:|---:|---|---|---|"]
     else:
-        lines = [
-            "| Current holding | Challenger | 1m edge | 3m edge | Pricing basis | Decision | Required trigger |",
-            "|---|---|---:|---:|---|---|---|",
-        ]
+        lines = ["| Current holding | Challenger | 1m edge | 3m edge | Pricing basis | Decision | Required trigger |", "|---|---|---:|---:|---|---|---|"]
     for row in replacement_duel_v2_rows(state):
         lines.append(
             f"| {row['current_holding']} | {row['challenger']} | "
@@ -321,10 +307,7 @@ def replacement_duel_v2_html(state: dict[str, Any], base: Any, language: str = "
             url = f"https://www.tradingview.com/chart/?symbol={escape(ticker)}"
             return f'<a href="{url}" target="_blank" rel="noopener noreferrer">{escape(ticker)}</a>'
 
-    labels = {
-        "en": ["Current holding", "Challenger", "1m edge", "3m edge", "Pricing basis", "Decision", "Required trigger"],
-        "nl": ["Huidige positie", "Alternatief", "1m relatieve sterkte", "3m relatieve sterkte", "Prijsbasis", "Beoordeling", "Benodigde bevestiging"],
-    }.get(language, ["Current holding", "Challenger", "1m edge", "3m edge", "Pricing basis", "Decision", "Required trigger"])
+    labels = {"en": ["Current holding", "Challenger", "1m edge", "3m edge", "Pricing basis", "Decision", "Required trigger"], "nl": ["Huidige positie", "Alternatief", "1m relatieve sterkte", "3m relatieve sterkte", "Prijsbasis", "Beoordeling", "Benodigde bevestiging"]}.get(language, ["Current holding", "Challenger", "1m edge", "3m edge", "Pricing basis", "Decision", "Required trigger"])
 
     body = []
     for row in replacement_duel_v2_rows(state):
@@ -340,12 +323,4 @@ def replacement_duel_v2_html(state: dict[str, Any], base: Any, language: str = "
             f"<td>{escape(localize_trigger(row['required_trigger'], language))}</td>"
             "</tr>"
         )
-    return "".join(
-        [
-            "<table class='data-table replacement-duel-v2-table'>",
-            "<thead><tr>" + "".join(f"<th>{escape(label)}</th>" for label in labels) + "</tr></thead>",
-            "<tbody>",
-            "".join(body),
-            "</tbody></table>",
-        ]
-    )
+    return "".join(["<table class='data-table replacement-duel-v2-table'>", "<thead><tr>" + "".join(f"<th>{escape(label)}</th>" for label in labels) + "</tr></thead>", "<tbody>", "".join(body), "</tbody></table>"])
