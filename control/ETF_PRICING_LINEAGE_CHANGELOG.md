@@ -12,6 +12,45 @@ This file is the central changelog for the ETF pricing-lineage repair track. It 
 
 ---
 
+## 2026-05-27 — Preserve fundability notes after lane-quality repromotion
+
+### Current issue
+
+The fresh ETF workflow failed at `Validate ETF challenger fundability contract`. The log showed: `COPX: promoted challenger lacks valuation-grade pricing and lacks fundability note`.
+
+### Root cause
+
+The Step 9 lane-scoring layer correctly added `promotion_fundability_note` for promoted challengers that are radar-only rather than valuation-grade fundable. However, `runtime/augment_lane_artifact_with_quality_filters.py` runs after final lane discovery and repromotes lanes by score. That quality-filter repromotion cleared `rejection_reason` and set `promoted_to_live_radar=True`, but did not re-apply the Step 9 fundability note. As a result, a non-valuation-grade promoted challenger such as `COPX` could be valid as radar-only, yet fail the validator because the note had been dropped/never restored after repromotion.
+
+### What changed
+
+- Updated `runtime/augment_lane_artifact_with_quality_filters.py`.
+  - Added `FUNDABLE_STATUS = "funding_candidate_valuation_grade"`.
+  - Added `_needs_fundability_note()` and `ensure_fundability_note()`.
+  - Added `clear_rejection_if_promoted()` so quality-filter promotion preserves or restores an explicit radar-only note.
+  - `augment_lane()` and `repromote()` now ensure every promoted challenger without valuation-grade fundability carries: `Promoted to radar only; funding requires valuation-grade pricing.`
+
+### Affected files
+
+- `runtime/augment_lane_artifact_with_quality_filters.py`
+- `control/ETF_PRICING_LINEAGE_CHANGELOG.md`
+
+### Validation / evidence
+
+A production workflow run failed before this patch with:
+
+```text
+RuntimeError: ETF challenger fundability contract failed: COPX: promoted challenger lacks valuation-grade pricing and lacks fundability note
+```
+
+Expected evidence after rerun:
+
+- `ETF_LANE_QUALITY_FILTERS_OK`
+- `ETF_CHALLENGER_FUNDABILITY_CONTRACT_OK`
+- any promoted challenger lacking valuation-grade pricing includes `promotion_fundability_note` in the lane artifact
+
+---
+
 ## 2026-05-24 — Close Phase 1B Step 9 by wiring challenger fundability validation into workflow
 
 ### Current issue
@@ -110,298 +149,3 @@ No production workflow run has been executed yet after this implementation. Expe
 - Replacement-duel rows contain `challenger_pricing_tier` and `valuation_grade_pricing_complete`.
 - `tools/validate_replacement_duel_pricing_contract.py` fails actionable duel rows without valuation-grade challenger pricing.
 - `tools/validate_etf_challenger_fundability_contract.py` fails fundable challenger lanes without valuation-grade audit rows.
-
----
-
-## 2026-05-24 — Persist successful ETF runtime valuation state
-
-### Current issue
-
-The ETF runtime report could compute a fresh NAV and render the correct Section 7/Section 15 values, but the canonical state files could remain stale. That meant the next production run could start from older portfolio prices and valuation history instead of the last successful priced runtime state.
-
-### Root cause
-
-Runtime state and report rendering were treated as successful output, but the pipeline did not deterministically write the successful runtime valuation back into `output/etf_portfolio_state.json` and `output/etf_valuation_history.csv` as canonical state.
-
-### What changed
-
-- Added `runtime/persist_etf_valuation_state.py`.
-  - Reads the exact runtime state from `ETF_RUNTIME_STATE_PATH` / CLI.
-  - Reconciles positions + cash to runtime NAV.
-  - Updates canonical portfolio fields: cash, invested market value, NAV, peak NAV, max drawdown, last report, last valuation, and per-position current price / market value / weights.
-  - Persists pricing lineage fields per position where available: pricing source, pricing status, selected close, close type, pricing tier, and price date.
-  - Appends or replaces the requested close date in `output/etf_valuation_history.csv` deterministically.
-
-- Added `tools/validate_etf_persisted_valuation_state.py`.
-  - Validates canonical portfolio state against runtime state.
-  - Validates the valuation-history row for the runtime requested close date.
-  - Fails if NAV, cash, invested value, position count, or valuation-history row diverge.
-
-- Updated `.github/workflows/send-weekly-report.yml`.
-  - Adds `Persist successful ETF valuation state` after pricing/report/language/equity validators and before delivery render/send.
-  - Updates the run manifest with portfolio-state and valuation-history paths after successful persistence.
-  - Keeps final manifest writing and artifact commit-back aligned with persisted state files.
-
-### Affected files
-
-- `runtime/persist_etf_valuation_state.py`
-- `tools/validate_etf_persisted_valuation_state.py`
-- `.github/workflows/send-weekly-report.yml`
-- `control/ETF_PRICING_LINEAGE_CHANGELOG.md`
-- `changelog.md`
-
-### Validation / evidence
-
-No production workflow run has been executed yet after this implementation. The next validation step is a fresh ETF workflow run. Expected evidence:
-
-- workflow marker `ETF_VALUATION_STATE_PERSISTED`
-- workflow marker `ETF_PERSISTED_VALUATION_STATE_OK`
-- `output/etf_portfolio_state.json` has `last_valuation.date` equal to the runtime requested close date
-- `output/etf_valuation_history.csv` has exactly one row for the runtime requested close date
-- the persisted NAV equals runtime positions + cash and the latest report NAV
-
-### Remaining gaps
-
-This closes Phase 1B step 8 at persistence/validation level. Remaining pricing-lineage work:
-
-- add the hard `tools/validate_etf_pricing_lineage_contract.py` gate across manifest → audit → runtime → report → persisted state → valuation history
-- add independent cross-provider verification so `fresh_exact_close` can be used instead of `fresh_exact_unverified`
-
----
-
-## 2026-05-24 — Upgrade ETF price-row schema and exact/prior status semantics
-
-### Current issue
-
-The ETF report now exposes close-price rows, but the audit still used legacy statuses such as `fresh_close` and `fresh_fallback_source`. That allowed an exact requested-date close and a latest prior provider close to be treated too similarly. The audit also lacked a normalized place for selected close, raw/adjusted close, provider symbol, provider exchange, finality, price role, and pricing tier.
-
-### Root cause
-
-The old pricing model treated provider success as enough. It did not separate the evidence questions required by `ETF_PRICING_LINEAGE_CONTRACT_V1`:
-
-- Was the close exactly on the requested close date?
-- Was it merely the latest valid prior market close?
-- Which provider symbol was requested?
-- Which close field was selected?
-- Was the row valuation-grade or research-grade?
-
-### What changed
-
-- `pricing/models.py`
-  - Added explicit statuses:
-    - `fresh_exact_close`
-    - `fresh_exact_unverified`
-    - `prior_valid_close`
-    - `carried_forward`
-    - `unresolved`
-    - `blocked`
-  - Kept `fresh_close` and `fresh_fallback_source` as legacy inputs, normalized by `PriceResult.__post_init__`.
-  - Added close-lineage fields: `provider_symbol`, `provider_exchange`, `raw_close`, `adjusted_close`, `selected_close`, `selected_close_type`, `provider_timestamp`, `provider_timezone`, `is_final_eod_bar`, `asset_role`, `pricing_tier`, and `verification`.
-  - Added shared status sets for exact and priced closes.
-
-- `pricing/close_resolver.py`
-  - Uses explicit priced-close statuses as success states.
-  - Adds resolver-level asset role and pricing tier to each resolved row.
-  - Passes provider symbol and expected exchange into provider clients.
-
-- `pricing/symbol_resolver.py`
-  - Added provider-symbol and expected-exchange lookup.
-
-- `pricing/source_registry.yaml`
-  - Added explicit provider-symbol and expected-exchange metadata for current ETF holdings.
-
-- Provider clients:
-  - `pricing/clients/twelve_data.py`
-  - `pricing/clients/yahoo_history.py`
-  - `pricing/clients/fmp.py`
-  - `pricing/clients/alpha_vantage.py`
-  - `pricing/clients/issuer_override.py`
-  - `pricing/clients/ecb_reference.py`
-  - `pricing/fx_resolver.py`
-  - These now emit exact/prior status semantics and lineage fields where available.
-
-- Runtime/report consumers:
-  - `pricing/run_pricing_pass.py` now counts only exact-close holdings as fresh and records prior-valid rows separately.
-  - `runtime/build_etf_report_state.py` now values holdings from `selected_close` when present and records pricing close type/tier into runtime positions.
-  - `runtime/add_etf_pricing_basis_section.py` now renders client-facing exact/prior status labels and uses `selected_close` when present.
-  - `pricing/augment_challenger_pricing.py` and `runtime/score_etf_lanes.py` now understand explicit priced-close statuses.
-
-### Affected files
-
-- `pricing/models.py`
-- `pricing/close_resolver.py`
-- `pricing/symbol_resolver.py`
-- `pricing/source_registry.yaml`
-- `pricing/clients/twelve_data.py`
-- `pricing/clients/yahoo_history.py`
-- `pricing/clients/fmp.py`
-- `pricing/clients/alpha_vantage.py`
-- `pricing/clients/issuer_override.py`
-- `pricing/clients/ecb_reference.py`
-- `pricing/fx_resolver.py`
-- `pricing/run_pricing_pass.py`
-- `pricing/augment_challenger_pricing.py`
-- `runtime/build_etf_report_state.py`
-- `runtime/add_etf_pricing_basis_section.py`
-- `runtime/score_etf_lanes.py`
-- `control/ETF_PRICING_LINEAGE_CHANGELOG.md`
-- `changelog.md`
-
-### Validation / evidence
-
-No production workflow run has been executed yet after this implementation. The next validation step is a fresh ETF workflow run. Expected evidence:
-
-- New audit rows contain `selected_close`, `selected_close_type`, `provider_symbol`, `provider_exchange`, `is_final_eod_bar`, `pricing_tier`, and `verification`.
-- Exact requested-date rows are labeled `fresh_exact_unverified` unless/until independent verification is added.
-- Prior rows are labeled `prior_valid_close` rather than generic `fresh_fallback_source`.
-- The report disclosure renders these as readable client-facing statuses.
-
-### Remaining gaps
-
-This closes Phase 1B step 7 at schema/status level, but independent verification remains intentionally open. `fresh_exact_close` should be reserved for rows that pass the future cross-provider verification layer. The next implementation step is Phase 1B step 8: persist successful runtime valuation state into `output/etf_portfolio_state.json` and `output/etf_valuation_history.csv`.
-
----
-
-## 2026-05-24 — Implement immutable ETF run identity and run manifest wiring
-
-### Current issue
-
-The ETF workflow had started to show close-price disclosure in the report, but the production run still relied on multiple `latest_file()` selections. Same-day pricing runs could overwrite the audit file, and downstream stages could independently choose the latest audit/runtime artifact instead of using the exact artifact created by the current run.
-
-### Root cause
-
-The workflow did not establish one immutable run id before pricing, did not pass an exact pricing-audit path forward, and did not write a central run manifest that connected the audit, runtime state, English report, Dutch report, and persisted artifacts.
-
-### What changed
-
-- `pricing/audit_writer.py`
-  - Added optional `run_id` support.
-  - Production audit files now use `price_audit_<requested_close_date>_<run_id>.json` when a run id is supplied.
-  - The old `price_audit_<run_date>.json` naming remains only as a backward-compatible fallback for non-production callers.
-
-- `pricing/run_pricing_pass.py`
-  - Added `--run-id`.
-  - Emits `run_id`, `report_token`, and immutable `audit=` path in the pricing log.
-  - Writes `output/pricing/latest_price_audit_path.txt` as a compatibility pointer, while keeping the immutable audit as source of truth.
-
-- `runtime/build_etf_report_state.py`
-  - Added `--pricing-audit`, `--lane-artifact`, and `--output-path` support.
-  - Reads explicit pricing/lane paths from CLI or environment.
-  - Writes run-scoped runtime files when `run_id` exists.
-  - Writes `output/runtime/latest_etf_report_state_path.txt` as a compatibility pointer.
-
-- `tools/write_weekly_etf_run_manifest.py`
-  - New manifest writer under `output/run_manifests/`.
-  - Captures run id, requested close date, report token, pricing audit, runtime state, English/Dutch report paths, state paths, pricing summary, and runtime summary.
-
-- `.github/workflows/send-weekly-report.yml`
-  - Added `contents: write` and full checkout history for artifact commit-back.
-  - Added `Resolve ETF run identity` step.
-  - Passes `--requested-close-date` and `--run-id` into pricing.
-  - Captures `ETF_PRICING_AUDIT_PATH` from pricing output.
-  - Passes explicit pricing audit into first and final lane discovery.
-  - Passes explicit audit/lane paths into challenger pricing and runtime state build.
-  - Passes explicit runtime state and pricing audit into pricing-basis disclosure injection.
-  - Writes a run manifest after report build and a final manifest in an `always()` step.
-  - Commits output artifacts, pricing audits, runtime state, run manifests, market history, lane reviews, macro output, and state files back to `main` with `[skip ci]`.
-
-### Affected files
-
-- `pricing/audit_writer.py`
-- `pricing/run_pricing_pass.py`
-- `runtime/build_etf_report_state.py`
-- `tools/write_weekly_etf_run_manifest.py`
-- `.github/workflows/send-weekly-report.yml`
-- `control/ETF_PRICING_LINEAGE_CHANGELOG.md`
-- `changelog.md`
-
-### Validation / evidence
-
-This is a workflow/code commit. No production run has been executed yet after these changes. The next validation step is a manual or run-queue triggered ETF workflow run. Expected evidence:
-
-- `output/pricing/price_audit_<requested_close_date>_<run_id>.json`
-- `output/runtime/etf_report_state_<requested_close_date_without_dashes>_<run_id>.json`
-- `output/run_manifests/weekly_etf_run_manifest_<requested_close_date>_<run_id>.json`
-- workflow log lines for `PRICING_AUDIT_PATH_OK`, `LANE_ARTIFACT_PATH_OK`, `ETF_RUNTIME_STATE_OK`, and `ETF_RUN_MANIFEST_OK`
-
-### Remaining gaps
-
-This closes Phase 1B step 6 only. It does not yet implement:
-
-- independent verification
-- hard `tools/validate_etf_pricing_lineage_contract.py`
-
----
-
-## 2026-05-24 — Create ETF Pricing Lineage Contract V1
-
-### Current issue
-
-The ETF report can now display a per-holding close-price disclosure table that reconciles internally with Section 7 and Section 15, but the repository still lacks a hard proof that one immutable pricing audit flows through runtime state, English/Dutch report render, persisted portfolio state, valuation history, and delivery manifest.
-
-### Root cause
-
-The existing system still relies too heavily on latest-file selection and report-time runtime derivation. It can show fresh prices without also proving immutable audit identity, provider symbol lineage, exact close-date semantics, independent verification, and post-run state persistence.
-
-### What changed
-
-- Added `control/ETF_PRICING_LINEAGE_CONTRACT_V1.md`.
-- Defined the target artifact chain:
-  - requested close date and report token
-  - immutable pricing audit
-  - explicit run manifest
-  - runtime report state
-  - English/Dutch reports
-  - delivery assets
-  - persisted portfolio state
-  - persisted valuation history
-- Defined the required status split:
-  - `fresh_exact_close`
-  - `fresh_exact_unverified`
-  - `prior_valid_close`
-  - `carried_forward`
-  - `unresolved`
-  - `blocked`
-- Defined valuation-grade versus research-grade challenger pricing tiers.
-- Defined the required future hard validator: `tools/validate_etf_pricing_lineage_contract.py`.
-
-### Weekly Index lesson imported
-
-The Weekly Index repo already has a stronger pattern where pricing writes canonical state and valuation history, and the workflow commits pricing, runtime, report, manifest, state, and candidate artifacts back to the repo. ETF should copy that operating discipline.
-
-### Improvement beyond Weekly Index
-
-ETF should not copy Weekly Index blindly. The ETF contract requires stronger immutable run identity, exact/prior close-date semantics, provider-symbol lineage, independent verification, and valuation-grade challenger enforcement.
-
-### Affected files
-
-- `control/ETF_PRICING_LINEAGE_CONTRACT_V1.md`
-- `control/ETF_PRICING_LINEAGE_CHANGELOG.md`
-
-### Validation / evidence
-
-No runtime code was changed in this entry. This is a design/control-layer commit that defines the implementation target before touching production pricing code.
-
----
-
-## Open regression themes to close
-
-### A. Latest-file ambiguity
-
-Partly addressed. Production workflow now passes explicit audit/runtime/lane paths through the current run. Some legacy scripts and validators still use latest-file selection and need to be migrated in later phases.
-
-### B. State persistence gap
-
-Addressed at runtime persistence level. The workflow now persists successful runtime valuation into `output/etf_portfolio_state.json` and `output/etf_valuation_history.csv` and validates the persisted values against runtime state. Full end-to-end validation remains pending until a fresh production run completes.
-
-### C. Weak fresh-close semantics
-
-Addressed at schema/status level. New rows now distinguish exact requested-date closes from prior valid market closes. Independent verification remains open, so most exact provider closes should be `fresh_exact_unverified` until the cross-provider verifier is added.
-
-### D. Challenger pricing tier ambiguity
-
-Addressed at model, artifact, duel, validator, and workflow level. Resolver rows carry `pricing_tier`; lane artifacts classify fundability; replacement-duel action language requires valuation-grade challenger pricing; the production workflow now runs `tools/validate_etf_challenger_fundability_contract.py` before runtime/report build.
-
-### E. Missing independent verification
-
-Provider closes should be cross-checked where feasible. When cross-check is unavailable, the audit now says `verification.status = not_checked`; cross-provider verification remains open.
