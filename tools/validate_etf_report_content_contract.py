@@ -53,6 +53,9 @@ MIN_SECTION_CHARS = {
     16: 240,
 }
 
+LEGACY_FINAL_ACTION_COLUMNS = ["Ticker", "Suggested Action", "Total Score", "Portfolio Role"]
+ROTATION_FINAL_ACTION_COLUMNS = ["Ticker", "Current weight", "Target weight", "Delta weight", "Action code", "Release score"]
+
 
 def _canonical_report_key(path: Path) -> tuple[str, int] | None:
     match = PRO_REPORT_RE.match(path.name)
@@ -110,6 +113,10 @@ def has_markdown_table(text: str) -> bool:
     return False
 
 
+def _missing(required: list[str], text: str) -> list[str]:
+    return [item for item in required if item not in text]
+
+
 def validate_no_forbidden_tokens(md_text: str, report_path: Path) -> None:
     lower = md_text.lower()
     for token in FORBIDDEN_TOKENS:
@@ -132,7 +139,7 @@ def validate_required_sections(md_text: str, report_path: Path) -> None:
 def validate_structural_radar(md_text: str, report_path: Path) -> None:
     text = section_text(md_text, 4)
     required = ["Theme", "Primary ETF", "Alternative ETF", "Why it matters"]
-    missing = [item for item in required if item not in text]
+    missing = _missing(required, text)
     if missing or not has_markdown_table(text):
         raise RuntimeError(f"ETF content contract failed for {report_path.name}: Structural Opportunity Radar table is missing/incomplete: {', '.join(missing)}")
 
@@ -140,17 +147,29 @@ def validate_structural_radar(md_text: str, report_path: Path) -> None:
 def validate_equity_curve(md_text: str, report_path: Path) -> None:
     text = section_text(md_text, 7)
     required = ["Current portfolio value (EUR)", "Since inception return (%)", "Portfolio value (EUR)"]
-    missing = [item for item in required if item not in text]
+    missing = _missing(required, text)
     if missing or not has_markdown_table(text):
         raise RuntimeError(f"ETF content contract failed for {report_path.name}: Section 7 equity curve content is missing/incomplete: {', '.join(missing)}")
 
 
 def validate_final_action_table(md_text: str, report_path: Path) -> None:
     text = section_text(md_text, 13)
-    required = ["Ticker", "Suggested Action", "Total Score", "Portfolio Role"]
-    missing = [item for item in required if item not in text]
-    if missing or not has_markdown_table(text):
-        raise RuntimeError(f"ETF content contract failed for {report_path.name}: Final Action Table is missing/incomplete: {', '.join(missing)}")
+    if not has_markdown_table(text):
+        raise RuntimeError(f"ETF content contract failed for {report_path.name}: Final Action Table is missing/incomplete: no markdown table")
+
+    legacy_missing = _missing(LEGACY_FINAL_ACTION_COLUMNS, text)
+    rotation_missing = _missing(ROTATION_FINAL_ACTION_COLUMNS, text)
+    if not legacy_missing:
+        print(f"ETF_FINAL_ACTION_TABLE_CONTRACT_OK | mode=legacy | report={report_path.name}")
+        return
+    if not rotation_missing:
+        print(f"ETF_FINAL_ACTION_TABLE_CONTRACT_OK | mode=rotation_v1 | report={report_path.name}")
+        return
+
+    raise RuntimeError(
+        f"ETF content contract failed for {report_path.name}: Final Action Table is missing/incomplete. "
+        f"legacy_missing={', '.join(legacy_missing)}; rotation_v1_missing={', '.join(rotation_missing)}"
+    )
 
 
 def validate_section15(md_text: str, report_path: Path) -> None:
@@ -163,7 +182,7 @@ def validate_section15(md_text: str, report_path: Path) -> None:
         "Market value (EUR)",
         "Weight %",
     ]
-    missing = [item for item in required if item not in text]
+    missing = _missing(required, text)
     if missing or not has_markdown_table(text):
         raise RuntimeError(f"ETF content contract failed for {report_path.name}: Section 15 holdings/cash table is missing/incomplete: {', '.join(missing)}")
     report_module.validate_section15_arithmetic(md_text)
