@@ -50,6 +50,19 @@ def load_macro_pack() -> dict[str, Any]:
         return {}
 
 
+def load_runtime_state() -> dict[str, Any]:
+    raw = os.environ.get("MRKT_RPRTS_RUNTIME_STATE_PATH") or os.environ.get("ETF_RUNTIME_STATE_PATH") or ""
+    if not raw:
+        return {}
+    path = Path(raw)
+    if not path.exists():
+        return {}
+    try:
+        return json.loads(path.read_text(encoding="utf-8"))
+    except Exception:
+        return {}
+
+
 def _take(values: Any, limit: int = 3) -> list[str]:
     if not isinstance(values, list):
         return []
@@ -90,6 +103,107 @@ def replace_between(text: str, start_heading: str, end_heading: str, replacement
     if end == -1:
         return text
     return text[:body_start] + "\n\n" + replacement_body.strip() + "\n\n" + text[end:]
+
+
+def _trade_intents(state: dict[str, Any]) -> list[dict[str, Any]]:
+    intents = state.get("trade_intents") or (state.get("rotation_plan") or {}).get("trade_intents") or []
+    return list(intents) if isinstance(intents, list) else []
+
+
+def _fmt(value: Any) -> str:
+    try:
+        return f"{float(value):.2f}"
+    except (TypeError, ValueError):
+        return "0.00"
+
+
+def _trade_summary_en(state: dict[str, Any]) -> str:
+    intents = _trade_intents(state)
+    if not intents:
+        return "No proposed rotation trade intent was generated this run."
+    parts: list[str] = []
+    for trade in intents:
+        source = str(trade.get("source_ticker") or "").upper()
+        destination = str(trade.get("destination_ticker") or "CASH").upper()
+        source_delta = _fmt(trade.get("delta_weight_pct"))
+        dest_delta = _fmt(trade.get("destination_delta_weight_pct"))
+        parts.append(f"reduce {source} by {source_delta}% NAV and allocate {dest_delta}% NAV to {destination}")
+    return "; ".join(parts) + ", pending execution and portfolio-state persistence."
+
+
+def _trade_summary_nl(state: dict[str, Any]) -> str:
+    intents = _trade_intents(state)
+    if not intents:
+        return "Deze run is geen voorgestelde rotatie-intentie gegenereerd."
+    parts: list[str] = []
+    for trade in intents:
+        source = str(trade.get("source_ticker") or "").upper()
+        destination = str(trade.get("destination_ticker") or "CASH").upper()
+        source_delta = _fmt(trade.get("delta_weight_pct"))
+        dest_delta = _fmt(trade.get("destination_delta_weight_pct"))
+        parts.append(f"verlaag {source} met {source_delta}% NAV en alloceer {dest_delta}% NAV naar {destination}")
+    return "; ".join(parts) + ", in afwachting van uitvoering en verwerking in de portefeuille-staat."
+
+
+def _patch_rotation_intent_language_en(text: str, state: dict[str, Any]) -> str:
+    if not _trade_intents(state):
+        return text
+    summary = _trade_summary_en(state)
+    text = text.replace(
+        "## 14. Position Changes Executed This Run",
+        "## 14. Proposed Position Changes / Rotation Trade Intents",
+    )
+    text = text.replace(
+        "| Action | Reason |\n|---|---|---:|---:|---:|---|---|",
+        "| Intent status | Reason |\n|---|---|---:|---:|---:|---|---|",
+    )
+    text = text.replace(
+        "- Added: a validated state-led production path with macro-policy regime input; no portfolio position was added unless shown in Section 14.",
+        "- Added: no executed portfolio position was added unless recorded in the trade ledger; Section 14 shows proposed rotation intents while the rotation engine is in warning mode.",
+    )
+    text = text.replace(
+        "- Reduced: None unless explicit state says otherwise.",
+        f"- Proposed rotation: {summary}",
+    )
+    text = text.replace(
+        "- Closed: None.",
+        "- Executed reductions/closures: none unless separately recorded in the trade ledger and persisted portfolio state.",
+    )
+    return text
+
+
+def _patch_rotation_intent_language_nl(text: str, state: dict[str, Any]) -> str:
+    if not _trade_intents(state):
+        return text
+    summary = _trade_summary_nl(state)
+    text = text.replace(
+        "## 14. Positiewijzigingen in deze run",
+        "## 14. Voorgestelde positiewijzigingen / rotatie-intenties",
+    )
+    text = text.replace(
+        "| Actie | Reden |\n|---|---|---:|---:|---:|---|---|",
+        "| Intentiestatus | Reden |\n|---|---|---:|---:|---:|---|---|",
+    )
+    text = text.replace(
+        "Toegevoegd: geen positie toegevoegd tenzij expliciet in sectie 14 vermeld.",
+        "Toegevoegd: geen uitgevoerde positie toegevoegd tenzij deze in het handelslogboek en de portefeuille-staat is verwerkt.",
+    )
+    text = text.replace(
+        "Verlaagd: geen tenzij expliciet in de portefeuille-staat vermeld.",
+        f"Voorgestelde rotatie: {summary}",
+    )
+    text = text.replace(
+        "Gesloten: geen.",
+        "Uitgevoerde verlagingen/sluitingen: geen tenzij apart vastgelegd in het handelslogboek en de portefeuille-staat.",
+    )
+    # Native Dutch templates have varied wording across iterations; append a
+    # deterministic continuity note if no replacement was possible.
+    marker = "### Recommendation discipline continuity"
+    nl_marker = "### Aanbevelingsdiscipline-continuïteit"
+    continuity_marker = marker if marker in text else nl_marker
+    if continuity_marker in text and "Voorgestelde rotatie:" not in text:
+        text = text.replace(continuity_marker, f"### Voorgestelde rotatie\n- {summary}\n\n{continuity_marker}")
+    return text
 
 
 def _macro_executive_summary(pack: dict[str, Any]) -> str:
@@ -175,7 +289,8 @@ def _inject_macro_radar_reasons(text: str, pack: dict[str, Any]) -> str:
     return "\n".join(out)
 
 
-def polish_english(text: str) -> str:
+def polish_english(text: str, runtime_state: dict[str, Any] | None = None) -> str:
+    runtime_state = runtime_state or {}
     pack = load_macro_pack()
 
     text = text.replace("Replacement Duel Table v2", "Replacement Duel Table")
@@ -220,10 +335,13 @@ def polish_english(text: str) -> str:
 """
         )
 
+    text = _patch_rotation_intent_language_en(text, runtime_state)
     return text
 
 
-def polish_dutch(text: str) -> str:
+def polish_dutch(text: str, runtime_state: dict[str, Any] | None = None) -> str:
+    runtime_state = runtime_state or {}
+    text = _patch_rotation_intent_language_nl(text, runtime_state)
     if is_native_dutch_report(text):
         print("ETF_RUNTIME_POLISH_NL_SKIPPED | reason=native_dutch_renderer")
         return text
@@ -242,9 +360,10 @@ def main() -> None:
     output_dir = Path(args.output_dir)
     en_path = latest_report(output_dir, EN_RE)
     nl_path = latest_report(output_dir, NL_RE)
+    runtime_state = load_runtime_state()
 
-    en_path.write_text(polish_english(en_path.read_text(encoding="utf-8")), encoding="utf-8")
-    nl_path.write_text(polish_dutch(nl_path.read_text(encoding="utf-8")), encoding="utf-8")
+    en_path.write_text(polish_english(en_path.read_text(encoding="utf-8"), runtime_state), encoding="utf-8")
+    nl_path.write_text(polish_dutch(nl_path.read_text(encoding="utf-8"), runtime_state), encoding="utf-8")
 
     print(f"ETF_RUNTIME_POLISH_OK | en={en_path.name} | nl={nl_path.name}")
 
