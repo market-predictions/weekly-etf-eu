@@ -7,7 +7,7 @@ from typing import Any
 
 import yaml
 
-from runtime.nl_localization import localized_pricing_basis, localize_decision, localize_trigger
+from runtime.nl_localization import localized_pricing_basis
 
 DEFAULT_TARGET_MAP: dict[str, list[str]] = {
     "SPY": ["QUAL", "IEFA", "EFA", "IWM"],
@@ -38,6 +38,77 @@ DEFAULT_RS_PATH = Path("output/market_history/etf_relative_strength.json")
 INVESTOR_REPLACEMENT_DUEL_LIMIT = 8
 PRICED_STATUSES = {"fresh_close", "fresh_fallback_source", "fresh_exact_close", "fresh_exact_unverified", "prior_valid_close"}
 VALUATION_GRADE = "valuation_grade"
+
+DECISION_LABELS: dict[str, dict[str, str]] = {
+    "close_proof_incomplete": {
+        "en": "Not fundable - close proof incomplete.",
+        "nl": "Niet geschikt voor allocatie — sluitkoersbevestiging is onvolledig.",
+    },
+    "valuation_grade_required": {
+        "en": "Not fundable - valuation-grade challenger pricing required.",
+        "nl": "Niet geschikt voor allocatie — waarderingswaardige prijsbevestiging voor het alternatief is vereist.",
+    },
+    "rs_duel_incomplete": {
+        "en": "Priced valuation-grade, but direct RS duel incomplete.",
+        "nl": "Waarderingswaardig geprijsd, maar de directe relatieve-sterkteanalyse is onvolledig.",
+    },
+    "replacement_trigger_watch": {
+        "en": "Replacement trigger watch - challenger leading over 3m.",
+        "nl": "Vervangingskandidaat blijft op de volglijst — het alternatief leidt over drie maanden.",
+    },
+    "challenger_improving": {
+        "en": "Challenger improving; keep duel active.",
+        "nl": "Het alternatief verbetert; houd de vervangingsanalyse actief.",
+    },
+    "early_1m_only": {
+        "en": "Early 1m improvement only; wait for 3m confirmation.",
+        "nl": "Alleen vroege 1-maands verbetering; wacht op 3-maands bevestiging.",
+    },
+    "current_still_leads": {
+        "en": "Current holding still leads; no replacement.",
+        "nl": "Huidige positie blijft sterker; geen vervanging.",
+    },
+}
+
+TRIGGER_LABELS: dict[str, dict[str, str]] = {
+    "resolve_closes": {
+        "en": "Resolve both close prices before decision.",
+        "nl": "Los beide slotkoersen op vóór een besluit.",
+    },
+    "upgrade_valuation_grade": {
+        "en": "Upgrade challenger to valuation-grade pricing before any funding decision.",
+        "nl": "Verbeter de prijsbevestiging van het alternatief tot waarderingskwaliteit vóór een allocatiebesluit.",
+    },
+    "confirm_thesis_liquidity_funding": {
+        "en": "Confirm thesis fit, liquidity and funding source.",
+        "nl": "Bevestig aansluiting op de beleggingscase, liquiditeit en financieringsbron.",
+    },
+    "repeat_3m_edge_and_capital": {
+        "en": "Needs repeat 3m edge and capital source.",
+        "nl": "Vereist herhaalde 3-maands voorsprong en duidelijke financieringsbron.",
+    },
+    "needs_3m_confirmation": {
+        "en": "Needs 3m confirmation.",
+        "nl": "Vereist 3-maands bevestiging.",
+    },
+    "sustained_outperformance": {
+        "en": "Needs sustained relative outperformance.",
+        "nl": "Vereist aanhoudende relatieve outperformance.",
+    },
+}
+
+
+def _label(mapping: dict[str, dict[str, str]], code: str, language: str = "en") -> str:
+    labels = mapping.get(code) or {}
+    return labels.get(language) or labels.get("en") or code
+
+
+def decision_label(code: str, language: str = "en") -> str:
+    return _label(DECISION_LABELS, code, language)
+
+
+def trigger_label(code: str, language: str = "en") -> str:
+    return _label(TRIGGER_LABELS, code, language)
 
 
 def _ticker(value: Any) -> str:
@@ -169,38 +240,38 @@ def _valuation_grade_complete(current_close: dict[str, Any], challenger_close: d
     return _pricing_complete(current_close, challenger_close) and str(challenger_close.get("status") or "") in PRICED_STATUSES and str(challenger_close.get("pricing_tier") or "") == VALUATION_GRADE
 
 
-def _decision(pricing_complete: bool, valuation_grade_complete: bool, edge_1m: Any, edge_3m: Any) -> str:
+def _decision_code(pricing_complete: bool, valuation_grade_complete: bool, edge_1m: Any, edge_3m: Any) -> str:
     if not pricing_complete:
-        return "Not fundable - close proof incomplete."
+        return "close_proof_incomplete"
     if not valuation_grade_complete:
-        return "Not fundable - valuation-grade challenger pricing required."
+        return "valuation_grade_required"
     e1 = _num(edge_1m)
     e3 = _num(edge_3m)
     if e1 is None and e3 is None:
-        return "Priced valuation-grade, but direct RS duel incomplete."
+        return "rs_duel_incomplete"
     if e3 is not None and e3 >= 5.0:
-        return "Replacement trigger watch - challenger leading over 3m."
+        return "replacement_trigger_watch"
     if e3 is not None and e3 > 0:
-        return "Challenger improving; keep duel active."
+        return "challenger_improving"
     if e1 is not None and e1 > 0 and (e3 is None or e3 <= 0):
-        return "Early 1m improvement only; wait for 3m confirmation."
-    return "Current holding still leads; no replacement."
+        return "early_1m_only"
+    return "current_still_leads"
 
 
-def _required_trigger(pricing_complete: bool, valuation_grade_complete: bool, edge_1m: Any, edge_3m: Any) -> str:
+def _trigger_code(pricing_complete: bool, valuation_grade_complete: bool, edge_1m: Any, edge_3m: Any) -> str:
     if not pricing_complete:
-        return "Resolve both close prices before decision."
+        return "resolve_closes"
     if not valuation_grade_complete:
-        return "Upgrade challenger to valuation-grade pricing before any funding decision."
+        return "upgrade_valuation_grade"
     e1 = _num(edge_1m)
     e3 = _num(edge_3m)
     if e3 is not None and e3 >= 5.0:
-        return "Confirm thesis fit, liquidity and funding source."
+        return "confirm_thesis_liquidity_funding"
     if e3 is not None and e3 > 0:
-        return "Needs repeat 3m edge and capital source."
+        return "repeat_3m_edge_and_capital"
     if e1 is not None and e1 > 0:
-        return "Needs 3m confirmation."
-    return "Needs sustained relative outperformance."
+        return "needs_3m_confirmation"
+    return "sustained_outperformance"
 
 
 def _row_payload(state: dict[str, Any], holding: str, challenger: str, edge_1m: Any, edge_3m: Any, source: str) -> dict[str, Any]:
@@ -211,6 +282,8 @@ def _row_payload(state: dict[str, Any], holding: str, challenger: str, edge_1m: 
     challenger_close = _price_close(prices.get(challenger) or {})
     complete = _pricing_complete(current_close, challenger_close)
     valuation_complete = _valuation_grade_complete(current_close, challenger_close)
+    decision_code = _decision_code(complete, valuation_complete, edge_1m, edge_3m)
+    trigger_code = _trigger_code(complete, valuation_complete, edge_1m, edge_3m)
     row = {
         "current_holding": holding,
         "current_close": current_close.get("price"),
@@ -228,8 +301,10 @@ def _row_payload(state: dict[str, Any], holding: str, challenger: str, edge_1m: 
         "pricing_complete": complete,
         "valuation_grade_pricing_complete": valuation_complete,
         "is_priority_duel": (holding, challenger) in PRIORITY_DUEL_PAIRS,
-        "decision": _decision(complete, valuation_complete, edge_1m, edge_3m),
-        "required_trigger": _required_trigger(complete, valuation_complete, edge_1m, edge_3m),
+        "decision_code": decision_code,
+        "decision": decision_label(decision_code, "en"),
+        "required_trigger_code": trigger_code,
+        "required_trigger": trigger_label(trigger_code, "en"),
         "source": source,
     }
     row["pricing_basis"] = _pricing_basis(current_close, challenger_close)
@@ -294,7 +369,9 @@ def replacement_duel_v2_markdown(state: dict[str, Any], language: str = "en") ->
         lines.append(
             f"| {row['current_holding']} | {row['challenger']} | "
             f"{_edge_text(row.get('edge_1m_pct'))} | {_edge_text(row.get('edge_3m_pct'))} | "
-            f"{localized_pricing_basis(row, language)} | {localize_decision(row['decision'], language)} | {localize_trigger(row['required_trigger'], language)} |"
+            f"{localized_pricing_basis(row, language)} | "
+            f"{decision_label(str(row.get('decision_code')), language)} | "
+            f"{trigger_label(str(row.get('required_trigger_code')), language)} |"
         )
     return "\n".join(lines)
 
@@ -319,8 +396,8 @@ def replacement_duel_v2_html(state: dict[str, Any], base: Any, language: str = "
             f"<td class='num'>{escape(_edge_text(row.get('edge_1m_pct')))}</td>"
             f"<td class='num'>{escape(_edge_text(row.get('edge_3m_pct')))}</td>"
             f"<td>{escape(localized_pricing_basis(row, language))}</td>"
-            f"<td>{escape(localize_decision(row['decision'], language))}</td>"
-            f"<td>{escape(localize_trigger(row['required_trigger'], language))}</td>"
+            f"<td>{escape(decision_label(str(row.get('decision_code')), language))}</td>"
+            f"<td>{escape(trigger_label(str(row.get('required_trigger_code')), language))}</td>"
             "</tr>"
         )
     return "".join(["<table class='data-table replacement-duel-v2-table'>", "<thead><tr>" + "".join(f"<th>{escape(label)}</th>" for label in labels) + "</tr></thead>", "<tbody>", "".join(body), "</tbody></table>"])
