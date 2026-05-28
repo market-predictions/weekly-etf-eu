@@ -23,6 +23,7 @@ class RuntimeSources:
     lane_assessment: Path
     recommendation_scorecard: Path
     macro_policy_pack: Path | None = None
+    rotation_plan: Path | None = None
 
 
 def latest_file(directory: Path, pattern: str) -> Path:
@@ -93,6 +94,21 @@ def latest_macro_policy_pack() -> Path | None:
     return files[-1] if files else None
 
 
+def latest_rotation_plan_file() -> Path | None:
+    pointer = RUNTIME_DIR / "latest_etf_rotation_plan_path.txt"
+    if pointer.exists():
+        raw = pointer.read_text(encoding="utf-8").strip()
+        if raw:
+            path = Path(raw)
+            if path.exists():
+                return path
+            candidate = RUNTIME_DIR / path.name
+            if candidate.exists():
+                return candidate
+    files = sorted(RUNTIME_DIR.glob("etf_rotation_plan_*.json")) if RUNTIME_DIR.exists() else []
+    return files[-1] if files else None
+
+
 def _explicit_path(value: str | None, *, description: str) -> Path | None:
     if not value:
         return None
@@ -105,6 +121,7 @@ def _explicit_path(value: str | None, *, description: str) -> Path | None:
 def discover_sources(
     pricing_audit_path: str | None = None,
     lane_assessment_path: str | None = None,
+    rotation_plan_path: str | None = None,
 ) -> RuntimeSources:
     explicit_pricing = _explicit_path(
         pricing_audit_path or os.environ.get("ETF_PRICING_AUDIT_PATH") or os.environ.get("MRKT_RPRTS_PRICING_AUDIT_PATH"),
@@ -114,12 +131,17 @@ def discover_sources(
         lane_assessment_path or os.environ.get("ETF_LANE_ARTIFACT_PATH") or os.environ.get("MRKT_RPRTS_LANE_ARTIFACT_PATH"),
         description="ETF lane artifact path",
     )
+    explicit_rotation = _explicit_path(
+        rotation_plan_path or os.environ.get("ETF_ROTATION_PLAN_PATH") or os.environ.get("MRKT_RPRTS_ROTATION_PLAN_PATH"),
+        description="ETF rotation plan path",
+    )
     return RuntimeSources(
         portfolio_state=Path("output/etf_portfolio_state.json"),
         pricing_audit=explicit_pricing or latest_file(PRICING_DIR, "price_audit_*.json"),
         lane_assessment=explicit_lane or latest_lane_file(LANE_DIR, "etf_lane_assessment_*.json"),
         recommendation_scorecard=Path("output/etf_recommendation_scorecard.csv"),
         macro_policy_pack=latest_macro_policy_pack(),
+        rotation_plan=explicit_rotation or latest_rotation_plan_file(),
     )
 
 
@@ -263,17 +285,66 @@ def enrich_positions(pricing_holdings: list[dict[str, Any]], portfolio_state: di
     return enriched
 
 
-def build_runtime_state(pricing_audit_path: str | None = None, lane_assessment_path: str | None = None) -> dict[str, Any]:
-    sources = discover_sources(pricing_audit_path=pricing_audit_path, lane_assessment_path=lane_assessment_path)
+def _load_rotation_plan(path: Path | None) -> dict[str, Any]:
+    if path is None:
+        return {}
+    return load_json(path)
+
+
+def _apply_rotation_targets_to_holdings(holdings: list[dict[str, Any]], rotation_plan: dict[str, Any]) -> list[dict[str, Any]]:
+    if not rotation_plan:
+        return holdings
+    target_by_ticker = {
+        _ticker(row.get("ticker")): _to_float(row.get("target_weight_pct"))
+        for row in rotation_plan.get("target_weights", []) or []
+        if _ticker(row.get("ticker"))
+    }
+    decision_by_ticker = {
+        _ticker(row.get("ticker")): row
+        for row in rotation_plan.get("rotation_decisions", []) or []
+        if _ticker(row.get("ticker"))
+    }
+    out: list[dict[str, Any]] = []
+    for holding in holdings:
+        ticker = _ticker(holding.get("ticker"))
+        item = dict(holding)
+        if ticker in target_by_ticker and target_by_ticker[ticker] is not None:
+            item["target_weight_pct"] = target_by_ticker[ticker]
+            item["rotation_target_weight_pct"] = target_by_ticker[ticker]
+        if ticker in decision_by_ticker:
+            decision = decision_by_ticker[ticker]
+            item["rotation_action_code"] = decision.get("action_code")
+            item["rotation_delta_weight_pct"] = decision.get("delta_weight_pct")
+            item["rotation_destination_ticker"] = decision.get("destination_ticker")
+            item["rotation_release_score"] = decision.get("release_score")
+            item["rotation_override_status"] = decision.get("override_status")
+            item["rotation_override_reason_code"] = decision.get("override_reason_code")
+            # Keep suggested_action stable during warning-mode integration; the renderer will switch later.
+        out.append(item)
+    return out
+
+
+def build_runtime_state(
+    pricing_audit_path: str | None = None,
+    lane_assessment_path: str | None = None,
+    rotation_plan_path: str | None = None,
+) -> dict[str, Any]:
+    sources = discover_sources(
+        pricing_audit_path=pricing_audit_path,
+        lane_assessment_path=lane_assessment_path,
+        rotation_plan_path=rotation_plan_path,
+    )
 
     portfolio_state = load_json(sources.portfolio_state)
     pricing_audit = load_json(sources.pricing_audit)
     lane_assessment = load_json(sources.lane_assessment)
     recommendation_scorecard = load_scorecard(sources.recommendation_scorecard)
     macro_policy_pack = load_json_if_exists(sources.macro_policy_pack)
+    rotation_plan = _load_rotation_plan(sources.rotation_plan)
 
     pricing_holdings = pricing_audit.get("holdings", [])
     holdings = enrich_positions(pricing_holdings, portfolio_state, recommendation_scorecard, pricing_audit)
+    holdings = _apply_rotation_targets_to_holdings(holdings, rotation_plan)
     prices = pricing_audit.get("prices", [])
     fx_basis = pricing_audit.get("fx_basis") or {}
 
@@ -287,13 +358,35 @@ def build_runtime_state(pricing_audit_path: str | None = None, lane_assessment_p
 
     total_portfolio_value_eur = sum(float(h.get("previous_market_value_eur", 0.0) or 0.0) for h in holdings) + float(portfolio_state.get("cash_eur", 0.0) or 0.0)
     resolved_report_date = lane_assessment.get("report_date") or pricing_audit.get("requested_close_date") or datetime.utcnow().strftime("%Y-%m-%d")
+    validation_flags = {
+        "pricing_audit_valid": bool(pricing_audit.get("holdings")),
+        "pricing_revalued_from_price_results": True,
+        "pricing_status_semantics": "exact_or_prior_v1",
+        "lane_assessment_present": bool(lane_assessment.get("assessed_lanes")),
+        "lane_assessment_source": str(sources.lane_assessment),
+        "lane_assessment_has_primary_etfs": _lane_artifact_has_etf_contract(lane_assessment),
+        "macro_policy_pack_present": bool(macro_policy_pack.get("regime")),
+        "scorecard_present": len(recommendation_scorecard) > 0,
+        "positions_enriched": any(p.get("short_reason") for p in holdings),
+        "fx_rate_present": _fx_rate(pricing_audit) is not None,
+        "rotation_plan_present": bool(rotation_plan),
+        "rotation_plan_source": str(sources.rotation_plan) if sources.rotation_plan else None,
+        "rotation_warning_mode": True,
+    }
 
     return {
         "generated_at_utc": datetime.utcnow().isoformat() + "Z",
         "run_id": pricing_audit.get("run_id") or os.environ.get("ETF_PRICING_RUN_ID") or os.environ.get("MRKT_RPRTS_RUN_ID"),
         "report_date": resolved_report_date,
         "requested_close_date": pricing_audit.get("requested_close_date"),
-        "source_files": {"portfolio_state": str(sources.portfolio_state), "pricing_audit": str(sources.pricing_audit), "lane_assessment": str(sources.lane_assessment), "recommendation_scorecard": str(sources.recommendation_scorecard), "macro_policy_pack": str(sources.macro_policy_pack) if sources.macro_policy_pack else None},
+        "source_files": {
+            "portfolio_state": str(sources.portfolio_state),
+            "pricing_audit": str(sources.pricing_audit),
+            "lane_assessment": str(sources.lane_assessment),
+            "recommendation_scorecard": str(sources.recommendation_scorecard),
+            "macro_policy_pack": str(sources.macro_policy_pack) if sources.macro_policy_pack else None,
+            "rotation_plan": str(sources.rotation_plan) if sources.rotation_plan else None,
+        },
         "portfolio": {"cash_eur": portfolio_state.get("cash_eur"), "total_portfolio_value_eur": round(total_portfolio_value_eur, 2), "base_currency": "EUR"},
         "fx_basis": {"pair": fx_basis.get("pair", "EUR/USD"), "rate": _fx_rate(pricing_audit), "requested_date": fx_basis.get("requested_date"), "returned_date": fx_basis.get("returned_date"), "source": fx_basis.get("source"), "status": fx_basis.get("status")},
         "positions": holdings,
@@ -302,7 +395,11 @@ def build_runtime_state(pricing_audit_path: str | None = None, lane_assessment_p
         "macro_policy_pack": macro_policy_pack,
         "recommendation_scorecard": recommendation_scorecard,
         "replacement_duels": duel_candidates,
-        "validation_flags": {"pricing_audit_valid": bool(pricing_audit.get("holdings")), "pricing_revalued_from_price_results": True, "pricing_status_semantics": "exact_or_prior_v1", "lane_assessment_present": bool(lane_assessment.get("assessed_lanes")), "lane_assessment_source": str(sources.lane_assessment), "lane_assessment_has_primary_etfs": _lane_artifact_has_etf_contract(lane_assessment), "macro_policy_pack_present": bool(macro_policy_pack.get("regime")), "scorecard_present": len(recommendation_scorecard) > 0, "positions_enriched": any(p.get("short_reason") for p in holdings), "fx_rate_present": _fx_rate(pricing_audit) is not None},
+        "rotation_plan": rotation_plan,
+        "rotation_decisions": rotation_plan.get("rotation_decisions", []) if rotation_plan else [],
+        "target_weights": rotation_plan.get("target_weights", []) if rotation_plan else [],
+        "trade_intents": rotation_plan.get("trade_intents", []) if rotation_plan else [],
+        "validation_flags": validation_flags,
     }
 
 
@@ -310,10 +407,15 @@ def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--pricing-audit", default=None)
     parser.add_argument("--lane-artifact", default=None)
+    parser.add_argument("--rotation-plan", default=None)
     parser.add_argument("--output-path", default=None)
     args = parser.parse_args()
 
-    runtime_state = build_runtime_state(pricing_audit_path=args.pricing_audit, lane_assessment_path=args.lane_artifact)
+    runtime_state = build_runtime_state(
+        pricing_audit_path=args.pricing_audit,
+        lane_assessment_path=args.lane_artifact,
+        rotation_plan_path=args.rotation_plan,
+    )
     RUNTIME_DIR.mkdir(parents=True, exist_ok=True)
     report_date = str(runtime_state.get("report_date") or "unknown").replace("-", "")
     run_id = str(runtime_state.get("run_id") or "").strip()
@@ -326,7 +428,15 @@ def main() -> None:
     out_path.parent.mkdir(parents=True, exist_ok=True)
     out_path.write_text(json.dumps(runtime_state, indent=2), encoding="utf-8")
     (RUNTIME_DIR / "latest_etf_report_state_path.txt").write_text(str(out_path) + "\n", encoding="utf-8")
-    print(f"ETF_RUNTIME_STATE_OK | report_date={runtime_state.get('report_date')} | run_id={runtime_state.get('run_id')} | output={out_path} | pricing={runtime_state.get('source_files', {}).get('pricing_audit')} | lane_source={runtime_state.get('source_files', {}).get('lane_assessment')} | macro_source={runtime_state.get('source_files', {}).get('macro_policy_pack')}")
+    print(
+        f"ETF_RUNTIME_STATE_OK | report_date={runtime_state.get('report_date')} | "
+        f"run_id={runtime_state.get('run_id')} | output={out_path} | "
+        f"pricing={runtime_state.get('source_files', {}).get('pricing_audit')} | "
+        f"lane_source={runtime_state.get('source_files', {}).get('lane_assessment')} | "
+        f"macro_source={runtime_state.get('source_files', {}).get('macro_policy_pack')} | "
+        f"rotation_plan={runtime_state.get('source_files', {}).get('rotation_plan') or 'none'} | "
+        f"rotation_warning_mode={runtime_state.get('validation_flags', {}).get('rotation_warning_mode')}"
+    )
 
 
 if __name__ == "__main__":
