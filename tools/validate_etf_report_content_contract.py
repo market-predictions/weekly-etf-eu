@@ -41,6 +41,13 @@ REQUIRED_SECTION_TITLES = {
     17: "Disclaimer",
 }
 
+SECTION_TITLE_ALIASES = {
+    14: [
+        "Position Changes Executed This Run",
+        "Proposed Position Changes / Rotation Trade Intents",
+    ],
+}
+
 MIN_SECTION_CHARS = {
     3: 180,
     4: 240,
@@ -117,6 +124,10 @@ def _missing(required: list[str], text: str) -> list[str]:
     return [item for item in required if item not in text]
 
 
+def _section_title_options(section_number: int, canonical: str) -> list[str]:
+    return SECTION_TITLE_ALIASES.get(section_number, [canonical])
+
+
 def validate_no_forbidden_tokens(md_text: str, report_path: Path) -> None:
     lower = md_text.lower()
     for token in FORBIDDEN_TOKENS:
@@ -129,8 +140,13 @@ def validate_required_sections(md_text: str, report_path: Path) -> None:
         text = section_text(md_text, section_number)
         if not text:
             raise RuntimeError(f"ETF content contract failed for {report_path.name}: missing section {section_number} ({title}).")
-        if title.lower() not in text.splitlines()[0].lower():
-            raise RuntimeError(f"ETF content contract failed for {report_path.name}: section {section_number} title mismatch; expected {title!r}.")
+        first_line = text.splitlines()[0].lower()
+        accepted = _section_title_options(section_number, title)
+        if not any(option.lower() in first_line for option in accepted):
+            raise RuntimeError(
+                f"ETF content contract failed for {report_path.name}: section {section_number} title mismatch; "
+                f"expected one of {accepted!r}."
+            )
         min_chars = MIN_SECTION_CHARS.get(section_number)
         if min_chars is not None and len(text) < min_chars:
             raise RuntimeError(f"ETF content contract failed for {report_path.name}: section {section_number} ({title}) is too thin ({len(text)} chars).")
