@@ -226,12 +226,16 @@ jobs:
           fi
           export MRKT_RPRTS_EXPLICIT_REPORT_PATH="$en_path"
           export MRKT_RPRTS_EXPLICIT_REPORT_PATH_NL="$nl_path"
+          export MRKT_RPRTS_RUNTIME_STATE_PATH="$runtime_state_path"
+          export ETF_RUNTIME_STATE_PATH="$runtime_state_path"
           echo "MRKT_RPRTS_EXPLICIT_REPORT_PATH=$en_path" >> "$GITHUB_ENV"
           echo "MRKT_RPRTS_EXPLICIT_REPORT_PATH_NL=$nl_path" >> "$GITHUB_ENV"
-          echo "RUNTIME_REPORT_PATHS_OK | en=$en_path | nl=$nl_path"
+          echo "MRKT_RPRTS_RUNTIME_STATE_PATH=$runtime_state_path" >> "$GITHUB_ENV"
+          echo "ETF_RUNTIME_STATE_PATH=$runtime_state_path" >> "$GITHUB_ENV"
+          echo "RUNTIME_REPORT_PATHS_OK | en=$en_path | nl=$nl_path | runtime_state=$runtime_state_path"
           python -m runtime.add_etf_pricing_basis_section --output-dir output --runtime-state "$runtime_state_path" --pricing-audit "$ETF_PRICING_AUDIT_PATH"
-          python -m runtime.polish_runtime_reports --output-dir output
-          python -m runtime.fix_report_output_contract --output-dir output
+          python -m runtime.polish_runtime_reports --output-dir output --runtime-state "$runtime_state_path"
+          python -m runtime.fix_report_output_contract --output-dir output --runtime-state "$runtime_state_path"
           python -m runtime.add_etf_position_performance_section --output-dir output
           python -m runtime.apply_nl_localization --output-dir output
           python -m runtime.scrub_nl_client_language --output-dir output
@@ -283,6 +287,7 @@ jobs:
           MRKT_RPRTS_REPORT_MODE: pro
         run: |
           python tools/validate_etf_dutch_language_quality.py --output-dir output
+          python tools/validate_etf_dutch_client_surface_clean.py --output-dir output
 
       - name: Validate persisted pricing audit after runtime render
         run: |
@@ -366,6 +371,7 @@ jobs:
           MRKT_RPRTS_REPORT_MODE: pro
         run: |
           python tools/validate_etf_delivery_html_contract.py --output-dir output
+          python tools/validate_etf_client_surface_clean.py --output-dir output
 
       - name: Validate ETF explicit state derivation before send
         env:
