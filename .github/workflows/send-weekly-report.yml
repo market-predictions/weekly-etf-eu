@@ -242,6 +242,23 @@ jobs:
           python -m runtime.scrub_nl_pdf_audit_leaks --output-dir output
           python -m runtime.localize_nl_report_dates --output-dir output
           python -m runtime.link_runtime_report_tickers --output-dir output
+          execution_log="$(python -m runtime.model_execution_engine \
+            --runtime-state "$runtime_state_path" \
+            --portfolio-state output/etf_portfolio_state.json \
+            --trade-ledger output/etf_trade_ledger.csv \
+            --mode shadow \
+            --output-dir output/runtime)"
+          echo "$execution_log"
+          model_execution_path="$(printf '%s\n' "$execution_log" | sed -n 's/^ETF_MODEL_EXECUTION_SHADOW_OK | artifact=\([^|]*\) |.*/\1/p' | xargs)"
+          if [ -z "$model_execution_path" ] || [ ! -f "$model_execution_path" ]; then
+            echo "Model execution engine did not emit a valid shadow artifact path." >&2
+            exit 1
+          fi
+          export ETF_MODEL_EXECUTION_PATH="$model_execution_path"
+          export MRKT_RPRTS_MODEL_EXECUTION_PATH="$model_execution_path"
+          echo "ETF_MODEL_EXECUTION_PATH=$model_execution_path" >> "$GITHUB_ENV"
+          echo "MRKT_RPRTS_MODEL_EXECUTION_PATH=$model_execution_path" >> "$GITHUB_ENV"
+          python tools/validate_etf_model_execution.py --artifact "$model_execution_path" --expected-mode shadow
           python tools/write_weekly_etf_run_manifest.py \
             --run-id "$ETF_PRICING_RUN_ID" \
             --requested-close-date "$REQUESTED_CLOSE_DATE" \
