@@ -35,3 +35,20 @@ Planned next change:
 - `runtime/build_etf_report_state.py` accepts optional `--rotation-plan`;
 - runtime state includes `rotation_plan`, `target_weights`, `trade_intents`, and `rotation_decisions` when supplied;
 - absence of a rotation plan is warning/non-blocking during v1 buildout.
+
+---
+
+## 2026-05-29 — Client-facing rotation wording cleanup started
+
+Implemented first cleanup in `runtime/rotation_render_tables.py`:
+
+- translated internal reason codes to investor-facing language;
+- renamed `Reason codes` / `Redencodes` to rationale/toelichting fields;
+- translated override reasons away from raw internal labels;
+- kept signed deltas in numeric table columns while moving prose toward client-facing wording.
+
+Remaining cleanup before final validation run:
+
+- delivery HTML prose still needs the same client-facing wording map;
+- Dutch quality validator should block raw rotation reason codes and override codes;
+- then run a fresh PDF validation pass.
