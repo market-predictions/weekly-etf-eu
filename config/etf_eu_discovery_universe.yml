@@ -1,0 +1,28 @@
+schema_version: etf_eu_discovery_universe_v1
+universe_type: ucits_candidates
+
+rules:
+  us_etfs_allowed_as_research_proxies_only: true
+  funded_candidates_require_ucits_verification: true
+  canonical_identity: isin_first
+
+lanes:
+  - lane_name: Core U.S. equity UCITS
+    benchmark_proxy: SPY
+    investable_status: requires_ucits_candidate_verification
+    candidate_source: config/ucits_benchmark_proxy_map.yml
+
+  - lane_name: Semiconductor UCITS
+    benchmark_proxy: SMH
+    investable_status: requires_ucits_candidate_verification
+    candidate_source: config/ucits_benchmark_proxy_map.yml
+
+  - lane_name: Infrastructure UCITS
+    benchmark_proxy: PAVE
+    investable_status: requires_ucits_candidate_verification
+    candidate_source: config/ucits_benchmark_proxy_map.yml
+
+  - lane_name: Gold / commodity hedge EU-listed products
+    benchmark_proxy: GLD
+    investable_status: requires_ucits_candidate_verification
+    candidate_source: config/ucits_benchmark_proxy_map.yml
