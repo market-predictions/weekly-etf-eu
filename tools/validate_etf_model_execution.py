@@ -58,6 +58,10 @@ def _resolve(path_arg: str | None) -> Path:
     raise RuntimeError("No ETF model-execution artifact found.")
 
 
+def _is_already_executed(payload: dict[str, Any]) -> bool:
+    return payload.get("execution_mode") == "guarded_auto" and payload.get("execution_status") == "already_executed"
+
+
 def validate(path: Path, *, expected_mode: str, finalize_report: bool = True) -> None:
     payload = _read_json(path)
     errors: list[str] = []
@@ -69,9 +73,9 @@ def validate(path: Path, *, expected_mode: str, finalize_report: bool = True) ->
     if policy.get("passed") is not True:
         errors.append("policy_checks_not_passed:" + ";".join(policy.get("errors") or []))
     rows = payload.get("proposed_ledger_rows") or []
-    if not rows:
-        errors.append("no_proposed_ledger_rows")
     shadow_positions = payload.get("shadow_positions") or []
+    if not _is_already_executed(payload) and not rows:
+        errors.append("no_proposed_ledger_rows")
     if not shadow_positions:
         errors.append("no_shadow_positions")
     post = payload.get("post_trade_shadow_portfolio") or {}
@@ -90,26 +94,33 @@ def validate(path: Path, *, expected_mode: str, finalize_report: bool = True) ->
         if _float(row.get("destination_delta_weight_pct")) <= 0:
             errors.append("ledger_row_destination_delta_not_positive")
     if expected_mode == "guarded_auto":
-        if payload.get("execution_status") != "executed":
-            errors.append(f"guarded_auto_not_executed:{payload.get('execution_status')}")
+        status = payload.get("execution_status")
+        if status not in {"executed", "already_executed"}:
+            errors.append(f"guarded_auto_not_executed:{status}")
         result = payload.get("guarded_auto_result") or {}
-        if result.get("portfolio_state_written") is not True:
-            errors.append("portfolio_state_not_written")
-        if result.get("trade_ledger_written") is not True:
-            errors.append("trade_ledger_not_written")
-        official_rows = result.get("official_ledger_rows") or []
-        if not official_rows:
-            errors.append("no_official_ledger_rows")
-        for row in official_rows:
-            action = _text(row.get("action"))
-            shares_delta = _float(row.get("shares_delta"))
-            if action == "Sell" and shares_delta >= 0:
-                errors.append("sell_row_delta_not_negative")
-            if action == "Buy" and shares_delta <= 0:
-                errors.append("buy_row_delta_not_positive")
+        if status == "executed":
+            if result.get("portfolio_state_written") is not True:
+                errors.append("portfolio_state_not_written")
+            if result.get("trade_ledger_written") is not True:
+                errors.append("trade_ledger_not_written")
+            official_rows = result.get("official_ledger_rows") or []
+            if not official_rows:
+                errors.append("no_official_ledger_rows")
+            for row in official_rows:
+                action = _text(row.get("action"))
+                shares_delta = _float(row.get("shares_delta"))
+                if action == "Sell" and shares_delta >= 0:
+                    errors.append("sell_row_delta_not_negative")
+                if action == "Buy" and shares_delta <= 0:
+                    errors.append("buy_row_delta_not_positive")
+        elif status == "already_executed":
+            if result.get("idempotency_status") != "already_executed":
+                errors.append("already_executed_missing_idempotency_status")
+            if result.get("portfolio_state_written") is True or result.get("trade_ledger_written") is True:
+                errors.append("already_executed_must_not_write_state_or_ledger")
     if errors:
         raise RuntimeError("ETF model execution validation failed for " + path.name + ": " + "; ".join(sorted(set(errors))))
-    print(f"ETF_MODEL_EXECUTION_VALIDATION_OK | artifact={path.name} | mode={expected_mode} | trades={len(rows)} | positions={len(shadow_positions)}")
+    print(f"ETF_MODEL_EXECUTION_VALIDATION_OK | artifact={path.name} | mode={expected_mode} | status={payload.get('execution_status')} | trades={len(rows)} | positions={len(shadow_positions)}")
     if expected_mode == "guarded_auto" and finalize_report:
         finalization = finalize_from_artifact(path)
         runtime_state = finalization.get("runtime_state") if isinstance(finalization, dict) else None
