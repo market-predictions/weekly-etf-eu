@@ -72,6 +72,7 @@ def _strip_ticker_from_list(value: str, ticker: str, none_label: str = "None") -
 def _scrub_over_cap_adds(text: str, tickers: list[str]) -> str:
     for ticker in tickers:
         hold_msg = f"{ticker} remains the best earned exposure, but no fresh capital is added while it is above the 25% max-position cap."
+        capped_status = "Structurally actionable, but no fresh capital while above cap"
         text = text.replace(
             f"- {ticker} remains the leading funded growth exposure, subject to the max-position rule.",
             f"- {hold_msg}",
@@ -79,6 +80,18 @@ def _scrub_over_cap_adds(text: str, tickers: list[str]) -> str:
         text = text.replace(
             f"- {ticker} remains the first candidate for additional capital only if the 25% position-size rule leaves room.",
             f"- {hold_msg}",
+        )
+        text = re.sub(
+            rf"-\s*{re.escape(ticker)}\s+remains the leading funded growth exposure, subject to the max-position rule\.",
+            f"- {hold_msg}",
+            text,
+            flags=re.IGNORECASE,
+        )
+        text = re.sub(
+            rf"-\s*{re.escape(ticker)}\s+remains the first candidate for additional capital[^\.]*\.",
+            f"- {hold_msg}",
+            text,
+            flags=re.IGNORECASE,
         )
         text = re.sub(
             rf"\|\s*{re.escape(ticker)}\s*\|\s*Add\s*\|",
@@ -98,6 +111,19 @@ def _scrub_over_cap_adds(text: str, tickers: list[str]) -> str:
         text = re.sub(
             rf"(\|\s*Close\s*\|\s*Reduce\s*\|\s*Hold\s*\|\s*Add(?: / destination)?\s*\|[^\n]*\n\|[^\n]*\n\|\s*[^\|]*\|\s*[^\|]*\|\s*[^\|]*\|\s*)([^\|\n]*{re.escape(ticker)}[^\|\n]*)(\s*\|)",
             lambda m: m.group(1) + _strip_ticker_from_list(m.group(2), ticker) + m.group(3),
+            text,
+            flags=re.IGNORECASE,
+        )
+        # Structural Opportunity Radar table: a promoted over-cap lane can be structurally valid, but not fundable/actionable for fresh capital.
+        text = re.sub(
+            rf"(\|[^\n]*\|\s*{re.escape(ticker)}\s*\|[^\n]*\|[^\n]*\|[^\n]*\|[^\n]*\|\s*)Actionable now(\s*\|)",
+            rf"\1{capped_status}\2",
+            text,
+            flags=re.IGNORECASE,
+        )
+        text = re.sub(
+            rf"(\|[^\n]*\|\s*{re.escape(ticker)}\s*\|[^\n]*\|[^\n]*\|[^\n]*\|[^\n]*\|\s*)Actionable now(\s*\|\s*[^\|\n]*(?:position-size discipline matters|position size discipline matters)[^\|\n]*\|)",
+            rf"\1{capped_status}\2",
             text,
             flags=re.IGNORECASE,
         )
