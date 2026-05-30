@@ -1,0 +1,78 @@
+name: Weekly ETF EU UCITS bootstrap validation
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "control/run_queue/weekly_etf_eu_report_request_*.md"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate-eu-bootstrap:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Validate EU control files exist
+        run: |
+          test -f control/SYSTEM_INDEX.md
+          test -f control/CURRENT_STATE.md
+          test -f control/NEXT_ACTIONS.md
+          test -f control/UCITS_ETF_REVIEW_CONTRACT_V1.md
+          test -f control/UCITS_INVESTABILITY_RULES.md
+          test -f control/UCITS_SYMBOL_REGISTRY_CONTRACT.md
+          test -f control/UCITS_MIGRATION_PLAN.md
+          echo "ETF_EU_CONTROL_FILES_OK"
+
+      - name: Validate EU config files exist
+        run: |
+          test -f config/etf_eu_discovery_universe.yml
+          test -f config/ucits_symbol_registry.yml
+          test -f config/ucits_benchmark_proxy_map.yml
+          test -f config/nl_client_investability_rules.yml
+          echo "ETF_EU_CONFIG_FILES_OK"
+
+      - name: Validate EU cash-only state and no US ETF holdings
+        run: |
+          python tools/validate_no_us_etf_as_eu_holding.py --state output/etf_eu_portfolio_state.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          state = json.loads(Path('output/etf_eu_portfolio_state.json').read_text(encoding='utf-8'))
+          assert state.get('schema_version') == 'etf_eu_portfolio_state_v1'
+          assert float(state.get('cash_eur', 0)) == 100000.0
+          assert float(state.get('invested_market_value_eur', -1)) == 0.0
+          assert state.get('positions') == []
+          print('ETF_EU_CASH_ONLY_STATE_OK')
+          PY
+
+      - name: Validate inherited US production sender is disabled
+        run: |
+          if grep -q "MRKT_RPRTS_SMTP" .github/workflows/send-weekly-report.yml; then
+            echo "Inherited U.S. send workflow still contains SMTP delivery configuration." >&2
+            exit 1
+          fi
+          if grep -q "weekly_etf_report_request_" .github/workflows/send-weekly-report.yml; then
+            echo "Inherited U.S. run queue trigger still active in EU repo." >&2
+            exit 1
+          fi
+          grep -q "DISABLED_INHERITED_US_ETF_SEND_WORKFLOW" .github/workflows/send-weekly-report.yml
+          echo "ETF_EU_INHERITED_SEND_DISABLED_OK"
+
+      - name: Confirm no delivery is attempted
+        run: |
+          echo "ETF_EU_BOOTSTRAP_VALIDATION_ONLY"
+          echo "No pricing pass, portfolio mutation, PDF generation or email delivery is performed by this workflow."
