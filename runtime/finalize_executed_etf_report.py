@@ -12,6 +12,7 @@ from runtime.build_etf_report_state import build_runtime_state
 from runtime.render_etf_report_from_state import render_en, render_nl
 
 RUNTIME_DIR = Path("output/runtime")
+POST_EXECUTION_STATUSES = {"executed", "already_executed"}
 AUTHORITY_FIELDS = {
     "shares",
     "current_price_local",
@@ -89,6 +90,8 @@ def _overlay_executed_portfolio_authority(final_state: dict[str, Any], portfolio
     changes = _executed_model_changes(artifact)
     change_by_ticker = {row["ticker"]: row for row in changes}
     final_by_ticker = {_ticker(row.get("ticker")): dict(row) for row in final_state.get("positions", []) or [] if _ticker(row.get("ticker"))}
+    status = str(artifact.get("execution_status") or "")
+    already_executed = status == "already_executed"
     positions: list[dict[str, Any]] = []
     for official in portfolio_state.get("positions", []) or []:
         ticker = _ticker(official.get("ticker"))
@@ -108,6 +111,12 @@ def _overlay_executed_portfolio_authority(final_state: dict[str, Any], portfolio
             merged["weight_change_pct"] = change["weight_change_pct"]
             merged["action_executed_this_run"] = change["action"]
             merged["funding_source_note"] = change["funding_source_note"]
+        elif already_executed:
+            # The trade is already reflected in official state. Do not reuse stale per-run deltas from portfolio state.
+            merged["shares_delta_this_run"] = 0.0
+            merged["weight_change_pct"] = 0.0
+            merged["action_executed_this_run"] = "Already reflected"
+            merged["funding_source_note"] = "No new trade this run; prior guarded model rotation is already reflected in official state."
         else:
             merged["shares_delta_this_run"] = 0.0
             merged["weight_change_pct"] = 0.0
@@ -140,15 +149,18 @@ def _overlay_executed_portfolio_authority(final_state: dict[str, Any], portfolio
     final_state["execution_context"] = {
         "report_phase": "post_execution",
         "execution_mode": artifact.get("execution_mode"),
-        "execution_status": artifact.get("execution_status"),
+        "execution_status": status,
         "model_execution_artifact": str(artifact.get("artifact_path") or ""),
         "portfolio_state": str(portfolio_state_path),
         "executed_change_count": len(changes),
+        "already_executed_noop": already_executed,
+        "post_execution_note": "Rotation already reflected in official portfolio state; no new state or ledger mutation was performed." if already_executed else "Guarded model rotation executed and persisted in official state.",
     }
     flags = dict(final_state.get("validation_flags") or {})
     flags["executed_portfolio_authority_overlay"] = True
     flags["executed_portfolio_authority_source"] = str(portfolio_state_path)
     flags["post_execution_report"] = True
+    flags["already_executed_noop"] = already_executed
     flags["rotation_plan_present"] = False
     flags["rotation_warning_mode"] = False
     final_state["validation_flags"] = flags
@@ -213,8 +225,9 @@ def _run_executed_report_contract(runtime_state_path: Path, en_path: Path, nl_pa
 
 def finalize_from_artifact(artifact_path: Path) -> dict[str, Any]:
     artifact = _read_json(artifact_path)
-    if artifact.get("execution_mode") != "guarded_auto" or artifact.get("execution_status") != "executed":
-        return {"finalized": False, "reason": "artifact_not_executed_guarded_auto"}
+    status = str(artifact.get("execution_status") or "")
+    if artifact.get("execution_mode") != "guarded_auto" or status not in POST_EXECUTION_STATUSES:
+        return {"finalized": False, "reason": "artifact_not_post_execution_guarded_auto"}
 
     source_files = artifact.get("source_files") or {}
     pricing_audit = source_files.get("pricing_audit")
@@ -237,7 +250,8 @@ def finalize_from_artifact(artifact_path: Path) -> dict[str, Any]:
     final_state = _overlay_executed_portfolio_authority(final_state, portfolio_state_path, artifact)
     report_date = str(final_state.get("report_date") or "unknown").replace("-", "")
     run_id = str(final_state.get("run_id") or artifact.get("run_id") or "unknown")
-    final_state_path = RUNTIME_DIR / f"etf_report_state_{report_date}_{run_id}_executed.json"
+    suffix = "already_executed" if status == "already_executed" else "executed"
+    final_state_path = RUNTIME_DIR / f"etf_report_state_{report_date}_{run_id}_{suffix}.json"
     final_state_path.parent.mkdir(parents=True, exist_ok=True)
     final_state_path.write_text(json.dumps(final_state, indent=2), encoding="utf-8")
     (RUNTIME_DIR / "latest_etf_report_state_path.txt").write_text(str(final_state_path) + "\n", encoding="utf-8")
@@ -258,10 +272,11 @@ def finalize_from_artifact(artifact_path: Path) -> dict[str, Any]:
         "dutch_report": str(nl_path),
         "position_count": len(final_state.get("positions") or []),
         "executed_change_count": len(final_state.get("executed_model_changes") or []),
+        "execution_status": status,
     }
     print(
         "ETF_EXECUTED_REPORT_FINALIZED | "
-        f"runtime_state={result['runtime_state']} | en={result['english_report']} | nl={result['dutch_report']} | positions={result['position_count']} | executed_changes={result['executed_change_count']}"
+        f"runtime_state={result['runtime_state']} | en={result['english_report']} | nl={result['dutch_report']} | positions={result['position_count']} | executed_changes={result['executed_change_count']} | status={status}"
     )
     return result
 
