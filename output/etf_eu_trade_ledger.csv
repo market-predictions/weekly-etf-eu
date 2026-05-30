@@ -1,0 +1,2 @@
+trade_id,trade_date,source_report,isin,exchange_ticker,action,shares_delta,previous_weight_pct,new_weight_pct,weight_change_pct,target_weight_pct,conviction_tier,portfolio_role,funding_source_note
+bootstrap-2026-05-30-CASH,2026-05-30,bootstrap,,CASH,Initial cash-only state,0.0,0.0,0.0,0.0,0.0,,,EU/UCITS model starts cash-only until candidates pass investability validation
