@@ -30,7 +30,7 @@
 ### 3. Rewrite control layer for EU authority
 
 - Owner: `[ASSISTANT]`
-- Status: in progress
+- Status: done
 - Target files:
   - `control/SYSTEM_INDEX.md`
   - `control/CURRENT_STATE.md`
@@ -40,7 +40,7 @@
 ### 4. Add UCITS authority contracts
 
 - Owner: `[ASSISTANT]`
-- Status: next
+- Status: done
 - Target files:
   - `control/UCITS_ETF_REVIEW_CONTRACT_V1.md`
   - `control/UCITS_INVESTABILITY_RULES.md`
@@ -51,7 +51,7 @@
 ### 5. Add EU config stubs
 
 - Owner: `[ASSISTANT]`
-- Status: next
+- Status: done
 - Target files:
   - `config/etf_eu_discovery_universe.yml`
   - `config/ucits_symbol_registry.yml`
@@ -62,7 +62,7 @@
 ### 6. Add cash-only EU state
 
 - Owner: `[ASSISTANT]`
-- Status: next
+- Status: done
 - Target files:
   - `output/etf_eu_portfolio_state.json`
   - `output/etf_eu_valuation_history.csv`
@@ -73,7 +73,7 @@
 ### 7. Add no-U.S.-ETF-as-EU-holding validator
 
 - Owner: `[ASSISTANT]`
-- Status: next
+- Status: done
 - Target file:
   - `tools/validate_no_us_etf_as_eu_holding.py`
 - Done when: funded EU positions fail validation if they use U.S.-listed ETF tickers as holdings.
@@ -85,25 +85,24 @@
 ### 8. Disable inherited production send path until EU contract is ready
 
 - Owner: `[ASSISTANT]`
-- Status: planned
+- Status: done
 - Target file:
   - `.github/workflows/send-weekly-report.yml`
-- Action: prevent accidental U.S.-style production delivery from the EU repo.
-- Done when: EU repo does not send inherited U.S.-ETF reports accidentally.
+- Done when: inherited U.S. workflow no longer performs pricing, portfolio mutation, PDF generation or email delivery in the EU repo.
 
 ### 9. Add EU run queue and workflow naming
 
 - Owner: `[ASSISTANT]`
-- Status: planned
+- Status: done
 - Target paths:
   - `control/run_queue/weekly_etf_eu_report_request_YYYYMMDD_HHMMSS.md`
   - `.github/workflows/send-weekly-etf-eu-report.yml`
-- Done when: ChatGPT-triggered EU runs use separate names from U.S. runs.
+- Done when: ChatGPT-triggered EU bootstrap validation uses separate names from U.S. runs.
 
 ### 10. Add EU output contract
 
 - Owner: `[ASSISTANT]`
-- Status: planned
+- Status: next
 - Target output names:
   - `output/weekly_etf_eu_review_YYMMDD.md`
   - `output/weekly_etf_eu_review_nl_YYMMDD.md`
@@ -111,11 +110,37 @@
   - `output/weekly_etf_eu_review_nl_YYMMDD.pdf`
 - Done when: EU reports cannot be confused with U.S. weekly ETF reports.
 
+### 11. Add no-U.S.-ETF-as-report-holding validator
+
+- Owner: `[ASSISTANT]`
+- Status: next
+- Target file:
+  - `tools/validate_etf_eu_output_contract.py`
+- Done when: EU report markdown fails validation if U.S. ETF tickers appear as investable holdings rather than research proxies.
+
+### 12. Add first Dutch-first EU report skeleton
+
+- Owner: `[ASSISTANT]`
+- Status: next
+- Target file:
+  - `runtime/render_etf_eu_report.py`
+- Done when: the repo can generate a non-delivery cash-only EU report skeleton with UCITS/proxy disclosure.
+
 ---
 
 ## Phase 3 — UCITS pricing and reporting
 
-### 11. Adapt pricing to UCITS exchange lines
+### 13. Build initial UCITS candidate registry
+
+- Owner: `[JOINT]`
+- Status: planned
+- Action:
+  - identify candidate UCITS ETFs by theme;
+  - verify ISIN, provider, trading line, exchange, trading currency, TER, UCITS status and KID status;
+  - keep `investability_status=candidate_requires_verification` until checked.
+- Done when: registry contains verified candidates ready for pricing tests.
+
+### 14. Adapt pricing to UCITS exchange lines
 
 - Owner: `[ASSISTANT]`
 - Status: planned
@@ -125,7 +150,7 @@
   - add provider symbol and exchange lineage.
 - Done when: EU holdings price from UCITS trading lines, not U.S. proxies.
 
-### 12. Build Dutch-first EU report renderer
+### 15. Build Dutch-first EU report renderer
 
 - Owner: `[ASSISTANT]`
 - Status: planned
@@ -135,7 +160,7 @@
   - disclose UCITS / PRIIPs / trading line status.
 - Done when: Dutch/EU report is client-native, not a translation of a U.S. investable-universe report.
 
-### 13. Enable EU delivery only after validators pass
+### 16. Enable EU delivery only after validators pass
 
 - Owner: `[JOINT]`
 - Status: blocked until Phases 1-3 are complete
