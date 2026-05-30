@@ -171,3 +171,32 @@ The new patcher:
 - rebuilds Section 14 / Dutch Section 14 from `executed_model_changes` using real previous weight, new weight, weight change and share delta values;
 - validates that any row with a non-zero share delta cannot show unchanged previous/new weights;
 - patches both English and Dutch report markdown before delivery render.
+
+---
+
+## 2026-05-30 — Post-execution delivery HTML copy contract
+
+The received `weekly_analysis_pro_260529_15.pdf` showed that state, valuation history, holdings arithmetic, duplicate-execution prevention and the already-executed table were fixed, but the delivery/PDF layer still surfaced proposed/pending language in the Portfolio Action Snapshot and replacement-funding copy.
+
+Changed:
+
+- `runtime/delivery_html_overrides.py` now treats post-execution and already-executed runtime states as delivery-layer post-execution states;
+- `runtime/delivery_html_overrides.py` now prefers the latest finalized post-execution runtime pointer over the earlier pre-execution runtime-state environment variables;
+- `runtime/render_etf_report_from_state.py` now avoids active/proposed rotation wording when `execution_context.report_phase == post_execution` or `validation_flags.already_executed_noop == true`;
+- `tools/validate_etf_delivery_html_contract.py` now validates the rendered delivery HTML, not only markdown, and blocks post-execution reports if visible HTML still contains proposed/pending execution wording.
+
+Forbidden post-execution delivery phrases now include:
+
+- `Rotation plan artifact is active`;
+- `proposed until`;
+- `pending execution`;
+- `pending portfolio-state persistence`;
+- `Proposed rotation`;
+- `trade intents are proposed`;
+- `not executed trades until`.
+
+Required behavior:
+
+- `executed`: show the model rotation as executed and persisted;
+- `already_executed`: show the model rotation as already reflected, with no new state or ledger mutation;
+- delivery HTML/PDF must not describe the GLD→GSG rotation as proposed or pending once the official portfolio state already reflects it.
