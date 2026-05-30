@@ -1,0 +1,63 @@
+# U.S. proxy to UCITS candidate map.
+# U.S. proxies are research references only, not EU portfolio holdings.
+
+proxy_mappings:
+  - theme: S&P 500 core beta
+    us_proxy: SPY
+    benchmark: S&P 500
+    eu_role: Core U.S. equity exposure through UCITS ETF
+    ucits_candidates:
+      - isin: TBD
+        fund_name: TBD S&P 500 UCITS ETF
+        provider: TBD
+        exchange_ticker: TBD
+        exchange: TBD
+        trading_currency: EUR
+        distribution_policy: accumulating_preferred
+        hedged_unhedged: unhedged
+        investability_status: candidate_requires_verification
+
+  - theme: Semiconductor leadership
+    us_proxy: SMH
+    benchmark: Semiconductor equity basket
+    eu_role: Semiconductor thematic exposure through UCITS ETF
+    ucits_candidates:
+      - isin: TBD
+        fund_name: TBD Semiconductor UCITS ETF
+        provider: TBD
+        exchange_ticker: TBD
+        exchange: TBD
+        trading_currency: EUR
+        distribution_policy: accumulating_preferred
+        hedged_unhedged: unhedged
+        investability_status: candidate_requires_verification
+
+  - theme: Gold / hard-asset hedge
+    us_proxy: GLD
+    benchmark: Gold spot / physical gold ETP reference
+    eu_role: Gold or commodity hedge through EU-listed product
+    ucits_candidates:
+      - isin: TBD
+        fund_name: TBD Gold ETC / UCITS-equivalent eligible product
+        provider: TBD
+        exchange_ticker: TBD
+        exchange: TBD
+        trading_currency: EUR
+        distribution_policy: not_applicable_or_accumulating
+        hedged_unhedged: unhedged
+        investability_status: candidate_requires_verification
+
+  - theme: Infrastructure / real asset capex
+    us_proxy: PAVE
+    benchmark: Infrastructure equity basket
+    eu_role: Infrastructure exposure through UCITS ETF
+    ucits_candidates:
+      - isin: TBD
+        fund_name: TBD Infrastructure UCITS ETF
+        provider: TBD
+        exchange_ticker: TBD
+        exchange: TBD
+        trading_currency: EUR
+        distribution_policy: accumulating_preferred
+        hedged_unhedged: unhedged
+        investability_status: candidate_requires_verification
