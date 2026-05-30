@@ -1,0 +1,23 @@
+schema_version: nl_client_investability_rules_v1
+client_region: Netherlands / European Union
+base_currency: EUR
+
+hard_rules:
+  - funded_holdings_must_be_ucits_or_explicitly_allowed_eu_listed_products
+  - priips_kid_required_for_retail_fundable_status
+  - us_listed_etfs_are_research_proxies_only
+  - isin_required_for_funded_holdings
+  - exchange_ticker_required_for_pricing
+  - trading_currency_required_for_pricing
+
+preferences:
+  eur_trading_line: preferred
+  distribution_policy: accumulating_preferred_unless_user_overrides
+  leverage_etfs: not_allowed
+  synthetic_replication: allowed_only_with_explicit_disclosure
+  currency_hedging: disclose_hedged_or_unhedged
+
+report_language:
+  primary_language: nl
+  proxy_label: research proxy only
+  investable_label: UCITS ETF / EU-listed instrument
