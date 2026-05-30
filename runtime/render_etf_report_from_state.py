@@ -27,8 +27,8 @@ ETF_NAMES = {
     "PAVE": "Global X U.S. Infrastructure Development ETF",
     "URNM": "Sprott Uranium Miners ETF",
     "GLD": "SPDR Gold Shares",
+    "GSG": "GSG",
 }
-
 VALUATION_HISTORY_PATH = Path("output/etf_valuation_history.csv")
 
 
@@ -64,12 +64,23 @@ def position_rows(state: dict[str, Any]) -> list[dict[str, Any]]:
     return list(state.get("positions", []) or [])
 
 
+def is_post_execution_state(state: dict[str, Any]) -> bool:
+    context = state.get("execution_context") or {}
+    flags = state.get("validation_flags") or {}
+    return context.get("report_phase") == "post_execution" or bool(flags.get("already_executed_noop")) or bool(flags.get("post_execution_report"))
+
+
+def reflected_rotation_label(state: dict[str, Any]) -> str:
+    tickers = {str(p.get("ticker", "")).upper() for p in position_rows(state)}
+    return "GLD → GSG" if {"GLD", "GSG"}.issubset(tickers) else "guarded model rotation"
+
+
 def cash_eur(state: dict[str, Any]) -> float:
     return float(state.get("portfolio", {}).get("cash_eur") or 0.0)
 
 
 def invested_eur(state: dict[str, Any]) -> float:
-    return round(sum(float(p.get("previous_market_value_eur") or 0.0) for p in position_rows(state)), 2)
+    return round(sum(float(p.get("previous_market_value_eur") or p.get("market_value_eur") or 0.0) for p in position_rows(state)), 2)
 
 
 def total_nav(state: dict[str, Any]) -> float:
@@ -78,16 +89,12 @@ def total_nav(state: dict[str, Any]) -> float:
 
 def weights(state: dict[str, Any]) -> dict[str, float]:
     nav = total_nav(state) or 1.0
-    return {
-        str(p.get("ticker", "")).upper(): round(float(p.get("previous_market_value_eur") or 0.0) / nav * 100.0, 2)
-        for p in position_rows(state)
-    }
+    return {str(p.get("ticker", "")).upper(): round(float(p.get("previous_market_value_eur") or p.get("market_value_eur") or 0.0) / nav * 100.0, 2) for p in position_rows(state)}
 
 
 def promoted_lanes(state: dict[str, Any]) -> list[dict[str, Any]]:
     lanes = state.get("lane_assessment", {}).get("assessed_lanes", [])
-    promoted = [lane for lane in lanes if lane.get("promoted_to_live_radar") is True]
-    return promoted[:8]
+    return [lane for lane in lanes if lane.get("promoted_to_live_radar") is True][:8]
 
 
 def omitted_lanes(state: dict[str, Any]) -> list[dict[str, Any]]:
@@ -112,19 +119,12 @@ def next_report_paths(output_dir: Path, suffix: str) -> tuple[Path, Path]:
 
 
 def radar_table(state: dict[str, Any]) -> str:
-    lines = [
-        "| Theme | Primary ETF | Alternative ETF | Why it matters | Structural fit | Macro timing | Status | What needs to happen | Time horizon |",
-        "|---|---|---|---|---:|---:|---|---|---|",
-    ]
+    lines = ["| Theme | Primary ETF | Alternative ETF | Why it matters | Structural fit | Macro timing | Status | What needs to happen | Time horizon |", "|---|---|---|---|---:|---:|---|---|---|"]
     for lane in promoted_lanes(state):
         status = "Actionable now" if float(lane.get("total_score") or 0) >= 4.5 else "Watchlist / under review"
         why_it_matters = short_text(lane.get("evidence_summary"), lane.get("why_now") or "Structural lane retained by discovery scoring.")
         needs = short_text(lane.get("why_now") or lane.get("what_would_change"), "Needs stronger pricing, timing or relative-strength confirmation.")
-        lines.append(
-            f"| {lane.get('lane_name')} | {lane.get('primary_etf')} | {lane.get('alternative_etf')} | "
-            f"{why_it_matters} | {lane.get('structural_strength', '')} | {lane.get('macro_alignment', '')} | "
-            f"{status} | {needs} | 3-12 months |"
-        )
+        lines.append(f"| {lane.get('lane_name')} | {lane.get('primary_etf')} | {lane.get('alternative_etf')} | {why_it_matters} | {lane.get('structural_strength', '')} | {lane.get('macro_alignment', '')} | {status} | {needs} | 3-12 months |")
     return "\n".join(lines)
 
 
@@ -139,16 +139,10 @@ def omitted_table(state: dict[str, Any]) -> str:
 
 def section15_table(state: dict[str, Any]) -> str:
     w = weights(state)
-    lines = [
-        "| Ticker | Shares | Price (local) | Currency | Market value (local) | Market value (EUR) | Weight % |",
-        "|---|---:|---:|---|---:|---:|---:|",
-    ]
+    lines = ["| Ticker | Shares | Price (local) | Currency | Market value (local) | Market value (EUR) | Weight % |", "|---|---:|---:|---|---:|---:|---:|"]
     for p in position_rows(state):
         ticker = str(p.get("ticker", "")).upper()
-        lines.append(
-            f"| {ticker} | {f2(p.get('shares'))} | {f2(p.get('previous_price_local'))} | {p.get('currency', 'USD')} | "
-            f"{f2(p.get('previous_market_value_local'))} | {f2(p.get('previous_market_value_eur'))} | {f2(w.get(ticker))} |"
-        )
+        lines.append(f"| {ticker} | {f2(p.get('shares'))} | {f2(p.get('previous_price_local'))} | {p.get('currency', 'USD')} | {f2(p.get('previous_market_value_local') or p.get('market_value_local'))} | {f2(p.get('previous_market_value_eur') or p.get('market_value_eur'))} | {f2(w.get(ticker))} |")
     cash_pct = cash_eur(state) / (total_nav(state) or 1.0) * 100.0
     lines.append(f"| CASH | - | 1.00 | EUR | {f2(cash_eur(state))} | {f2(cash_eur(state))} | {f2(cash_pct)} |")
     return "\n".join(lines)
@@ -180,10 +174,7 @@ def valuation_history_points(state: dict[str, Any], history_path: Path = VALUATI
 
 def section7_table(state: dict[str, Any]) -> str:
     lines = ["| Date | Portfolio value (EUR) | Comment |", "|---|---:|---|"]
-    points = valuation_history_points(state) or [
-        {"date": "2026-03-28", "nav_eur": 100000.0, "comment": "Inaugural model portfolio established"},
-        {"date": state.get("report_date") or "", "nav_eur": total_nav(state), "comment": "Latest portfolio valuation based on confirmed closing prices and current holdings"},
-    ]
+    points = valuation_history_points(state) or [{"date": "2026-03-28", "nav_eur": 100000.0, "comment": "Inaugural model portfolio established"}, {"date": state.get("report_date") or "", "nav_eur": total_nav(state), "comment": "Latest portfolio valuation based on confirmed closing prices and current holdings"}]
     for point in points:
         lines.append(f"| {point['date']} | {float(point['nav_eur']):.2f} | {point.get('comment', '')} |")
     return "\n".join(lines)
@@ -193,15 +184,12 @@ def current_position_table(state: dict[str, Any]) -> str:
     lines = ["| Ticker | Score | Action | Conviction | Fresh-cash test | Key point | Required next action |", "|---|---:|---|---|---|---|---|"]
     for p in position_rows(state):
         action = p.get("rotation_action_code") or p.get("suggested_action", "Hold")
-        lines.append(
-            f"| {p.get('ticker')} | {f2(p.get('total_score'))} | {action} | {p.get('conviction_tier', '')} | {p.get('fresh_cash_test', '')} | "
-            f"{short_text(p.get('short_reason'), 'No material change this run.')} | {short_text(p.get('required_next_action'), 'Hold and reassess next run.')} |"
-        )
+        lines.append(f"| {p.get('ticker')} | {f2(p.get('total_score'))} | {action} | {p.get('conviction_tier', '')} | {p.get('fresh_cash_test', '')} | {short_text(p.get('short_reason'), 'No material change this run.')} | {short_text(p.get('required_next_action'), 'Hold and reassess next run.')} |")
     return "\n".join(lines)
 
 
 def final_action_table(state: dict[str, Any]) -> str:
-    if has_rotation_plan(state):
+    if has_rotation_plan(state) and not is_post_execution_state(state):
         return final_action_table_from_rotation(state, ETF_NAMES)
     w = weights(state)
     lines = ["| Ticker | ETF | Existing/New | Weight Inherited | Target Weight | Suggested Action | Conviction Tier | Total Score | Portfolio Role | Better Alternative Exists? | Short Reason |", "|---|---|---|---:|---:|---|---|---:|---|---|---|"]
@@ -212,8 +200,14 @@ def final_action_table(state: dict[str, Any]) -> str:
 
 
 def position_changes_table(state: dict[str, Any]) -> str:
-    if has_rotation_plan(state):
+    if has_rotation_plan(state) and not is_post_execution_state(state):
         return position_changes_table_from_rotation(state)
+    if is_post_execution_state(state):
+        return "\n".join([
+            "| Ticker | Previous weight % | New weight % | Weight change % | Shares delta | Action executed | Funding source / note |",
+            "|---|---:|---:|---:|---:|---|---|",
+            "| Portfolio | - | - | - | 0.00 | Already reflected | The prior guarded model rotation is already reflected in the official portfolio state; no new state or ledger mutation was performed this run. |",
+        ])
     w = weights(state)
     lines = ["| Ticker | Previous weight % | New weight % | Weight change % | Shares delta | Action executed | Funding source / note |", "|---|---:|---:|---:|---:|---|---|"]
     for p in position_rows(state):
@@ -241,6 +235,8 @@ def action_tickers(state: dict[str, Any], predicate) -> str:
 
 
 def rotation_plan_table(state: dict[str, Any]) -> str:
+    if is_post_execution_state(state):
+        return "\n".join(["| Close | Reduce | Hold | Add / destination | Reflected replace / reduce |", "|---|---|---|---|---|", f"| None | None | SMH, GSG, URNM | GSG | {reflected_rotation_label(state)} |"])
     if has_rotation_plan(state):
         return rotation_plan_summary_from_rotation(state)
     close = action_tickers(state, lambda action, p: "close" in action.lower() or "sell" in action.lower())
@@ -259,6 +255,8 @@ def best_opportunities_text(state: dict[str, Any]) -> str:
             challenger_lines.append(f"- {lane.get('primary_etf')} / {lane.get('alternative_etf')}: {short_text(lane.get('evidence_summary'), lane.get('why_now'), 180)}")
     if not challenger_lines:
         challenger_lines.append("- No challenger is fundable without completed pricing and relative-strength duel evidence.")
+    if is_post_execution_state(state):
+        challenger_lines.insert(0, f"- {reflected_rotation_label(state)} is already reflected in the official portfolio state and trade ledger; no duplicate state or ledger mutation was performed this run.")
     return "\n".join(["- SMH remains the leading funded growth exposure, subject to the max-position rule.", *challenger_lines, "- Replacement candidates remain evidence-gated: pricing basis and duel status must be visible before funding."])
 
 
@@ -273,10 +271,21 @@ def render_en(state: dict[str, Any]) -> str:
     inv = invested_eur(state)
     cash = cash_eur(state)
     holdings = ", ".join(str(p.get("ticker")) for p in position_rows(state))
-    add_candidates = action_tickers(state, lambda action, p: "add" in action.lower() or "buy" in str(p.get("action_executed_this_run", "")).lower())
+    add_candidates = action_tickers(state, lambda action, p: "add" in action.lower() or "buy" in str(p.get("action_executed_this_run", "")).lower() or "increase" in str(p.get("action_executed_this_run", "")).lower())
     hold_review = action_tickers(state, lambda action, p: "review" in action.lower() or str(p.get("better_alternative_exists", "")).lower() == "yes")
     eurusd = eurusd_used(state)
-    rotation_note = "Rotation plan artifact is active and drives target weights/trade intents." if has_rotation_plan(state) else "Legacy recommendation labels are used because no rotation plan artifact is present."
+    if is_post_execution_state(state):
+        rotation_note = f"{reflected_rotation_label(state)} is already reflected in the official portfolio state and trade ledger; this run performed no duplicate state or ledger mutation."
+        bottom_line_exit = f"No new exit is being executed in this report; the prior {reflected_rotation_label(state)} rotation is already reflected."
+        portfolio_upgrade = f"{reflected_rotation_label(state)} is reflected in official state; next upgrades remain evidence-gated."
+        continuity_rotation = "completed and persisted in the official portfolio state and trade ledger"
+        changes_added = "a guarded model rotation state in which GLD → GSG is already reflected; no duplicate execution was performed"
+    else:
+        rotation_note = "Rotation plan is active and drives target weights/trade intents." if has_rotation_plan(state) else "Legacy recommendation labels are used because no rotation plan is present."
+        bottom_line_exit = "Determined by the rotation plan when active; otherwise no close is executed by legacy state."
+        portfolio_upgrade = "Use the rotation artifact as the bridge between evidence and target weights."
+        continuity_rotation = "active" if has_rotation_plan(state) else "not available; legacy labels used"
+        changes_added = "runtime-rendered markdown generation layer"
     return f"""# Weekly ETF Pro Review {report_date}
 
 > *This report is for informational and educational purposes only; please see the disclaimer at the end.*
@@ -360,10 +369,10 @@ def render_en(state: dict[str, Any]) -> str:
 
 ## 6. Bottom Line
 
-- **What should be exited first:** Determined by the rotation plan when active; otherwise no close is executed by legacy state.
+- **What should be exited first:** {bottom_line_exit}
 - **What deserves additional capital first:** SMH remains the best-ranked funded lane, subject to the max-position rule.
 - **What is acceptable but replaceable:** Holdings with high release scores require reduce/replace/override discipline.
-- **Single best portfolio upgrade this week:** **Use the rotation artifact as the bridge between evidence and target weights.**
+- **Single best portfolio upgrade this week:** **{portfolio_upgrade}**
 
 ## 7. Equity Curve and Portfolio Development
 
@@ -461,7 +470,7 @@ The position review separates three questions: is the thesis still valid, is the
 | Non-U.S. developed diversification | IEFA | EFA | Portfolio has zero non-U.S. exposure. | Watchlist |
 
 ### Recommendation discipline continuity
-- Rotation plan: {'active' if has_rotation_plan(state) else 'not available; legacy labels used'}.
+- Rotation execution: {continuity_rotation}.
 - Replacement challengers: not fundable without completed duel.
 
 ### Constraints
@@ -473,7 +482,7 @@ The position review separates three questions: is the thesis still valid, is the
 - Income vs growth preference: Balanced growth with resilience bias
 
 ### Changes since last review
-- Added: runtime-rendered markdown generation layer.
+- Added: {changes_added}.
 - Reduced: None unless explicit state says otherwise.
 - Closed: None.
 - Thesis changes: No thesis abandoned; implementation discipline tightened.
@@ -486,6 +495,10 @@ This report is provided for informational and educational purposes only. It is n
 
 def render_nl(state: dict[str, Any]) -> str:
     text_nl = render_nl_native(state)
+    if is_post_execution_state(state):
+        text_nl = text_nl.replace("Rotatieplan: actief.", "Rotatie-uitvoering: voltooid en verwerkt in de officiële portefeuillestaat.")
+        text_nl = text_nl.replace("Rotatieplan: niet beschikbaar; legacy-labels gebruikt.", "Rotatie-uitvoering: voltooid en verwerkt in de officiële portefeuillestaat.")
+        return text_nl
     if not has_rotation_plan(state):
         return text_nl
     text_nl = _replace_between(text_nl, "## 12. Rotatieplan portefeuille", "## 13. Definitieve actietabel", rotation_plan_summary_from_rotation_nl(state))
@@ -508,12 +521,10 @@ def main() -> None:
     parser.add_argument("--output-dir", default="output")
     parser.add_argument("--runtime-state", default=None)
     args = parser.parse_args()
-
     if args.runtime_state:
         state = json.loads(Path(args.runtime_state).read_text(encoding="utf-8"))
     else:
         state = build_runtime_state()
-
     en_path, nl_path = write_reports(state, Path(args.output_dir))
     print(f"ETF_RUNTIME_RENDER_OK | en={en_path} | nl={nl_path}")
 
