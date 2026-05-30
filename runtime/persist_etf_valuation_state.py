@@ -23,11 +23,37 @@ HISTORY_FIELDS = [
 ]
 
 PRICED_STATUSES = {
-    "fresh_close",  # legacy
-    "fresh_fallback_source",  # legacy
+    "fresh_close",
+    "fresh_fallback_source",
     "fresh_exact_close",
     "fresh_exact_unverified",
     "prior_valid_close",
+}
+
+EXECUTION_AUTHORITY_FIELDS = {
+    "shares",
+    "current_price_local",
+    "previous_price_local",
+    "continuity_current_price_local",
+    "currency",
+    "market_value_local",
+    "previous_market_value_local",
+    "market_value_eur",
+    "previous_market_value_eur",
+    "current_weight_pct",
+    "previous_weight_pct",
+    "weight_inherited_pct",
+    "target_weight_pct",
+    "shares_delta_this_run",
+    "weight_change_pct",
+    "action_executed_this_run",
+    "funding_source_note",
+    "pricing_source",
+    "pricing_status",
+    "pricing_close_type",
+    "pricing_tier",
+    "price_date",
+    "selected_close",
 }
 
 
@@ -75,6 +101,10 @@ def _fx_rate(runtime_state: dict[str, Any]) -> float | None:
     return _round(raw, 4)
 
 
+def _fx_rate_full(runtime_state: dict[str, Any]) -> float:
+    return _float((runtime_state.get("fx_basis") or {}).get("rate"), 1.0) or 1.0
+
+
 def _history_rows(path: Path) -> list[dict[str, str]]:
     if not path.exists():
         return []
@@ -103,70 +133,94 @@ def _position_price_map(runtime_state: dict[str, Any]) -> dict[str, dict[str, An
     }
 
 
-def _runtime_positions(runtime_state: dict[str, Any]) -> list[dict[str, Any]]:
-    positions = []
-    price_map = _position_price_map(runtime_state)
-    for row in runtime_state.get("positions", []) or []:
-        ticker = _ticker(row.get("ticker"))
-        if not ticker or ticker == "CASH":
-            continue
-        item = dict(row)
-        item["ticker"] = ticker
-        if ticker in price_map:
-            item["_price_row"] = price_map[ticker]
-        positions.append(item)
-    return positions
-
-
-def _compute_nav(runtime_state: dict[str, Any]) -> tuple[float, float, float]:
-    cash = _round((runtime_state.get("portfolio") or {}).get("cash_eur"), 2)
-    invested = round(sum(_float(row.get("previous_market_value_eur")) for row in _runtime_positions(runtime_state)), 2)
-    nav = round(invested + cash, 2)
-    runtime_nav = _float((runtime_state.get("portfolio") or {}).get("total_portfolio_value_eur"), nav)
-    if abs(runtime_nav - nav) > 0.05:
-        raise RuntimeError(f"Runtime NAV mismatch: positions+cash={nav:.2f}, runtime_portfolio={runtime_nav:.2f}")
-    return cash, invested, nav
-
-
-def _update_positions(existing_state: dict[str, Any], runtime_state: dict[str, Any], nav: float) -> list[dict[str, Any]]:
-    existing_by_ticker = {
+def _runtime_position_map(runtime_state: dict[str, Any]) -> dict[str, dict[str, Any]]:
+    return {
         _ticker(row.get("ticker")): dict(row)
-        for row in existing_state.get("positions", []) or []
-        if _ticker(row.get("ticker"))
+        for row in runtime_state.get("positions", []) or []
+        if _ticker(row.get("ticker")) and _ticker(row.get("ticker")) != "CASH"
     }
-    updated: list[dict[str, Any]] = []
-    for row in _runtime_positions(runtime_state):
-        ticker = _ticker(row.get("ticker"))
-        base = dict(existing_by_ticker.get(ticker, {}))
-        base.update({k: v for k, v in row.items() if not k.startswith("_")})
 
-        price_row = row.get("_price_row") or {}
-        price = _float(base.get("current_price_local") or base.get("previous_price_local"))
-        market_value_local = _float(base.get("market_value_local") or base.get("previous_market_value_local"))
-        market_value_eur = _float(base.get("market_value_eur") or base.get("previous_market_value_eur"))
-        weight = round((market_value_eur / nav * 100.0), 2) if nav else 0.0
 
-        base["ticker"] = ticker
-        base["current_price_local"] = round(price, 4)
-        base["continuity_current_price_local"] = round(price, 4)
-        base["previous_price_local"] = round(price, 4)
-        base["market_value_local"] = round(market_value_local, 2)
-        base["previous_market_value_local"] = round(market_value_local, 2)
-        base["market_value_eur"] = round(market_value_eur, 2)
-        base["previous_market_value_eur"] = round(market_value_eur, 2)
-        base["current_weight_pct"] = weight
-        base["previous_weight_pct"] = weight
-        base["weight_inherited_pct"] = weight
-        base["target_weight_pct"] = round(_float(base.get("target_weight_pct"), weight), 2)
-        base["pricing_source"] = price_row.get("source") or base.get("pricing_source")
-        base["pricing_status"] = price_row.get("status") or base.get("pricing_status")
-        base["pricing_close_type"] = price_row.get("selected_close_type") or base.get("pricing_close_type")
-        base["pricing_tier"] = price_row.get("pricing_tier") or base.get("pricing_tier")
-        base["price_date"] = price_row.get("returned_close_date") or base.get("price_date")
-        base["selected_close"] = price_row.get("selected_close") if price_row.get("selected_close") is not None else base.get("selected_close", price)
-        base["action_executed_this_run"] = base.get("action_executed_this_run") or "None"
-        updated.append(base)
-    return updated
+def _official_positions(existing_state: dict[str, Any], runtime_state: dict[str, Any]) -> list[dict[str, Any]]:
+    existing = [dict(row) for row in existing_state.get("positions", []) or [] if _ticker(row.get("ticker"))]
+    if existing:
+        return existing
+    # Bootstrap fallback only. Once output/etf_portfolio_state.json exists, runtime/report rows are not quantity authority.
+    return [dict(row) for row in runtime_state.get("positions", []) or [] if _ticker(row.get("ticker")) and _ticker(row.get("ticker")) != "CASH"]
+
+
+def _value_eur_from_local(local_value: float, currency: str, fx_rate: float) -> float:
+    return local_value if currency == "EUR" else local_value / fx_rate
+
+
+def _build_authoritative_positions(existing_state: dict[str, Any], runtime_state: dict[str, Any]) -> tuple[list[dict[str, Any]], float, float, float]:
+    """Reprice official holdings without letting report/runtime memory change shares.
+
+    This persistence step happens before guarded model execution in the workflow.
+    It may refresh valuation fields, but it must not import scorecard/report-state
+    shares or proposed rotation quantities into the official portfolio state.
+    """
+    price_map = _position_price_map(runtime_state)
+    runtime_by_ticker = _runtime_position_map(runtime_state)
+    fx = _fx_rate_full(runtime_state)
+    cash = round(_float(existing_state.get("cash_eur"), _float((runtime_state.get("portfolio") or {}).get("cash_eur"))), 2)
+
+    positions: list[dict[str, Any]] = []
+    for official in _official_positions(existing_state, runtime_state):
+        ticker = _ticker(official.get("ticker"))
+        if not ticker:
+            continue
+        runtime_meta = runtime_by_ticker.get(ticker, {})
+        item = dict(official)
+        # Commentary/recommendation metadata may refresh from runtime state, but execution-critical fields remain authoritative below.
+        for key, value in runtime_meta.items():
+            if key.startswith("_") or key in EXECUTION_AUTHORITY_FIELDS:
+                continue
+            item[key] = value
+
+        price_row = price_map.get(ticker, {})
+        price = _float(price_row.get("selected_close") if price_row.get("selected_close") is not None else price_row.get("price"), _float(official.get("current_price_local") or official.get("previous_price_local")))
+        currency = _text(price_row.get("currency") or official.get("currency"), "USD").upper()
+        shares = _float(official.get("shares"))
+        if shares < 0:
+            raise RuntimeError(f"Official portfolio state has negative shares for {ticker}: {shares}")
+        if shares > 0 and price <= 0:
+            raise RuntimeError(f"No valuation-grade price available to persist official holding {ticker}")
+
+        market_value_local = round(shares * price, 2)
+        market_value_eur = round(_value_eur_from_local(market_value_local, currency, fx), 2)
+        item.update(
+            {
+                "ticker": ticker,
+                "shares": round(shares, 6),
+                "currency": currency,
+                "current_price_local": round(price, 6),
+                "continuity_current_price_local": round(price, 6),
+                "previous_price_local": round(price, 6),
+                "market_value_local": market_value_local,
+                "previous_market_value_local": market_value_local,
+                "market_value_eur": market_value_eur,
+                "previous_market_value_eur": market_value_eur,
+                "pricing_source": price_row.get("source") or official.get("pricing_source"),
+                "pricing_status": price_row.get("status") or official.get("pricing_status"),
+                "pricing_close_type": price_row.get("selected_close_type") or official.get("pricing_close_type"),
+                "pricing_tier": price_row.get("pricing_tier") or official.get("pricing_tier"),
+                "price_date": price_row.get("returned_close_date") or official.get("price_date"),
+                "selected_close": price_row.get("selected_close") if price_row.get("selected_close") is not None else price,
+            }
+        )
+        positions.append(item)
+
+    invested = round(sum(_float(row.get("market_value_eur")) for row in positions), 2)
+    nav = round(invested + cash, 2)
+    for item in positions:
+        weight = round(_float(item.get("market_value_eur")) / nav * 100.0, 2) if nav else 0.0
+        item["current_weight_pct"] = weight
+        item["previous_weight_pct"] = weight
+        item["weight_inherited_pct"] = weight
+        item["target_weight_pct"] = round(_float(item.get("target_weight_pct"), weight), 2)
+        item["action_executed_this_run"] = item.get("action_executed_this_run") or "None"
+    return positions, cash, invested, nav
 
 
 def _numeric_history(rows: list[dict[str, Any]]) -> list[tuple[str, float]]:
@@ -210,7 +264,7 @@ def _build_history_row(
         "since_inception_return_pct": since_inception_pct,
         "drawdown_pct": drawdown_pct,
         "eurusd_used": "" if eurusd is None else eurusd,
-        "comment": "Runtime valuation from immutable pricing audit and explicit portfolio state",
+        "comment": "Runtime valuation repriced from official portfolio-state shares",
         "source_report": source_report,
     }
 
@@ -228,10 +282,9 @@ def persist_state(
     source_report = _source_report_name(str(english_report_path)) or _source_report_name(runtime_state.get("source_files", {}).get("report"))
     pricing_audit_file = str(pricing_audit_path or runtime_state.get("source_files", {}).get("pricing_audit") or "")
 
-    cash, invested, nav = _compute_nav(runtime_state)
-    positions = _update_positions(existing_state, runtime_state, nav)
+    positions, cash, invested, nav = _build_authoritative_positions(existing_state, runtime_state)
     if not positions:
-        raise RuntimeError("No runtime positions available for portfolio-state persistence.")
+        raise RuntimeError("No official positions available for portfolio-state persistence.")
 
     history_rows = _history_rows(valuation_history_path)
     rows_without_current = [row for row in history_rows if _text(row.get("date")) != report_date]
@@ -245,7 +298,7 @@ def persist_state(
     persisted["schema_version"] = str(existing_state.get("schema_version") or "1.1")
     persisted["portfolio_mode"] = existing_state.get("portfolio_mode") or "client_long_only_thematic"
     persisted["base_currency"] = "EUR"
-    persisted["valuation_source"] = "runtime_pricing_lineage_state_v1"
+    persisted["valuation_source"] = "runtime_pricing_lineage_official_shares_v1"
     persisted["pricing_audit_file"] = pricing_audit_file or None
     persisted["trade_ledger_file"] = existing_state.get("trade_ledger_file") or "etf_trade_ledger.csv"
     persisted["recommendation_scorecard_file"] = existing_state.get("recommendation_scorecard_file")
