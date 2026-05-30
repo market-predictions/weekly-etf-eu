@@ -128,3 +128,25 @@ Changed:
 - `tools/validate_etf_execution_state_authority.py` now treats zero values as valid present values and only applies shadow share-delta bridge checks to tickers with a current-run non-zero share delta.
 
 This preserves the useful hard block while removing false positives from prior-run metadata.
+
+---
+
+## 2026-05-30 — Executed report finalization authority overlay
+
+The next guarded-auto run reached `ETF_MODEL_EXECUTION_OK` and wrote the official model portfolio/trade state, but failed after `ETF_EXECUTED_REPORT_FINALIZED`. The failure showed that the final report rebuild had reintroduced stale scorecard quantities into the executed report runtime state, including stale GLD shares and stale market values for several holdings.
+
+Changed:
+
+- `runtime/finalize_executed_etf_report.py` now overlays official `output/etf_portfolio_state.json` fields onto the rebuilt executed runtime state after `build_runtime_state(..., disable_rotation_plan=True)`.
+
+The overlay keeps report commentary enrichment, but makes these execution-critical fields authoritative from official portfolio state:
+
+- shares;
+- current/previous prices;
+- local and EUR market values;
+- current/previous/inherited weights;
+- target weight;
+- current-run execution fields;
+- pricing audit fields.
+
+The finalization step then recalculates cash, invested market value, NAV and row weights from the official positions before rendering EN/NL reports.
