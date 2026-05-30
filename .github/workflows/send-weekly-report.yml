@@ -340,11 +340,11 @@ jobs:
         env:
           MRKT_RPRTS_REPORT_MODE: pro
         run: |
-          execution_log="$(python -m runtime.model_execution_engine \
+          python tools/validate_etf_trade_ledger_idempotency.py --trade-ledger output/etf_trade_ledger.csv
+          execution_log="$(python -m runtime.model_execution_guarded_auto \
             --runtime-state "$ETF_RUNTIME_STATE_PATH" \
             --portfolio-state output/etf_portfolio_state.json \
             --trade-ledger output/etf_trade_ledger.csv \
-            --mode guarded_auto \
             --output-dir output/runtime)"
           echo "$execution_log"
           model_execution_path="$(printf '%s\n' "$execution_log" | sed -n 's/^ETF_MODEL_EXECUTION_OK | artifact=\([^|]*\) |.*/\1/p' | xargs)"
@@ -355,6 +355,7 @@ jobs:
           echo "ETF_MODEL_EXECUTION_PATH=$model_execution_path" >> "$GITHUB_ENV"
           echo "MRKT_RPRTS_MODEL_EXECUTION_PATH=$model_execution_path" >> "$GITHUB_ENV"
           python tools/validate_etf_model_execution.py --artifact "$model_execution_path" --expected-mode guarded_auto
+          python tools/validate_etf_trade_ledger_idempotency.py --trade-ledger output/etf_trade_ledger.csv
 
       - name: Validate lane breadth proof before render
         env:
