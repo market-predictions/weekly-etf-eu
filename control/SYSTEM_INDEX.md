@@ -1,117 +1,86 @@
-# ETF Review OS — System Index
+# Weekly ETF EU Review OS — System Index
 
-This file is the first entry point for serious work on the `weekly-etf` system.
+This file is the first entry point for serious work on the `weekly-etf-eu` system.
 
 ## Purpose
 
-This repository contains:
-1. execution files that generate and deliver reports
-2. control files that define authority, architecture, and next actions
-3. production output/state files
-4. lab-only research files that must not become production authority without explicit review
+This repository is the European / Dutch-client UCITS ETF review environment derived from `market-predictions/weekly-etf`.
+
+It must not be treated as a translated copy of the U.S.-ETF model. The current product goal is:
+
+```text
+Dutch/EU-client ETF review using UCITS ETFs as investable instruments.
+```
+
+The original `market-predictions/weekly-etf` repository remains the U.S.-ETF model baseline.
 
 ## Four-layer operating model
 
 Always distinguish:
 
-1. **Decision framework** — what the ETF review is trying to decide.
-2. **Input/state contract** — where authoritative facts come from and how conflicts are resolved.
-3. **Output contract** — how the final English/Dutch reports must be structured and rendered.
-4. **Operational runbook** — how GitHub Actions and scripts execute validation, rendering, state refresh, discovery, pricing, and delivery.
+1. **Decision framework** — which UCITS ETFs available to Dutch/EU investors deserve capital.
+2. **Input/state contract** — where authoritative UCITS instrument, pricing, portfolio and investability facts come from.
+3. **Output contract** — how Dutch-first EU client reports distinguish investable UCITS ETFs from U.S. research proxies.
+4. **Operational runbook** — how GitHub Actions and scripts execute pricing, validation, rendering, state refresh and delivery without accidentally using U.S. ETF holdings as EU portfolio truth.
 
 ## Session start rule
 
-For ETF architecture, debugging, prompt, workflow, state, pricing, discovery, or delivery work, read in this order:
+For ETF EU architecture, debugging, prompt, workflow, state, pricing, discovery, localization or delivery work, read in this order:
 
 1. `control/SYSTEM_INDEX.md`
 2. `control/CURRENT_STATE.md`
 3. `control/NEXT_ACTIONS.md`
 4. only then the minimum relevant execution files
 
-## Canonical control files
+## Canonical EU control files
 
-- `control/ETF_PRICING_LINEAGE_CONTRACT_V1.md` — authoritative design contract for the pricing-lineage hardening cycle, including immutable audit identity, state persistence, exact close-date semantics, provider lineage, independent verification, and challenger pricing tiers.
-- `control/ETF_PRICING_LINEAGE_CHANGELOG.md` — central pricing-lineage changelog for regression review and implementation tracking.
+- `control/UCITS_ETF_REVIEW_CONTRACT_V1.md` — authority contract for the EU/UCITS ETF review product.
+- `control/UCITS_INVESTABILITY_RULES.md` — Dutch/EU investability rules for UCITS, PRIIPs/KID, trading line, liquidity and disclosure.
+- `control/UCITS_SYMBOL_REGISTRY_CONTRACT.md` — ISIN-first instrument identity and proxy/candidate separation.
+- `control/UCITS_MIGRATION_PLAN.md` — staged migration from the cloned U.S.-ETF codebase to the EU/UCITS model.
 
-## Canonical execution files
+## Canonical EU config files
 
-- `etf.txt` — production masterprompt for the Weekly ETF Review.
-- `control/CAPITAL_REUNDERWRITING_RULES.md` — authoritative decision-framework addendum for fresh-cash tests, action clocks, hedge checks, factor-overlap checks, cash policy, and recommendation discipline.
-- `control/LANE_DISCOVERY_CONTRACT.md` — authoritative discovery contract for broad ETF lane scanning, historical relative strength, and two-pass challenger pricing.
-- `control/ETF_RUNTIME_STATE_CONTRACT.md` — runtime input/state authority contract.
-- `config/etf_discovery_universe.yml` — broad investable ETF lane universe used by discovery.
-- `runtime/fetch_etf_relative_strength.py` — historical relative-strength fetcher for discovery scoring.
-- `runtime/discover_etf_lanes.py` — lane discovery runtime that writes the matching lane artifact.
-- `runtime/score_etf_lanes.py` — deterministic lane scoring and promotion logic.
-- `pricing/augment_challenger_pricing.py` — targeted second-pass challenger pricing augmenter.
-- `runtime/build_etf_report_state.py` — deterministic runtime state builder.
-- `runtime/render_etf_report_from_state.py` — runtime-driven English/Dutch markdown renderer.
-- `runtime/polish_runtime_reports.py` — post-render editorial polish layer.
-- `runtime/link_runtime_report_tickers.py` — context-aware ticker linkification layer.
-- `runtime/delivery_html_overrides.py` — delivery-layer HTML overrides for branded sections that require strict layout/clickable behavior.
-- `tools/validate_etf_delivery_html_contract.py` — dynamic render-regression validator for delivery HTML.
-- `send_report.py` — base HTML/PDF/email delivery logic and manifest handling.
-- `send_report_runtime_html.py` — delivery entrypoint that applies runtime-state HTML overrides before PDF/email output.
-- `etf-pro.txt` — premium English editorial delivery layer.
-- `etf-pro-nl.txt` — Dutch companion delivery layer derived from the completed English report.
-- `.github/workflows/send-weekly-report.yml` — production send workflow.
-- `.github/workflows/refresh-etf-state-from-report.yml` — explicit state refresh workflow.
-- `.github/workflows/send-weekly-report-split-test.yml` — split-test delivery comparison workflow.
-- `.github/workflows/lab-pyportfolioopt-optimization.yml` — lab-only optimizer workflow.
+- `config/ucits_symbol_registry.yml` — ISIN-first registry for UCITS ETFs and exchange lines.
+- `config/ucits_benchmark_proxy_map.yml` — U.S. proxy / benchmark to UCITS candidate mapping.
+- `config/nl_client_investability_rules.yml` — client-facing Dutch/EU investability assumptions.
+- `config/etf_eu_discovery_universe.yml` — EU/UCITS investable discovery universe.
 
-## Canonical state files
+## Canonical EU state files
 
-- `output/etf_portfolio_state.json` — current machine-readable ETF portfolio state.
-- `output/etf_valuation_history.csv` — machine-readable valuation history.
-- `output/etf_trade_ledger.csv` — machine-readable executed-change ledger.
-- `output/etf_recommendation_scorecard.csv` — machine-readable recommendation discipline and capital re-underwriting memory.
-- `output/pricing/` — persisted pricing audits.
-- `output/run_manifests/` — intended location for immutable ETF run manifests once `ETF_PRICING_LINEAGE_CONTRACT_V1` is implemented.
-- `output/market_history/etf_relative_strength.json` — historical market-strength metrics used by discovery scoring when available.
-- `output/lane_reviews/` — machine-readable lane assessment artifacts created by the lane discovery engine.
-- `output/runtime/` — normalized runtime state artifacts.
+Preferred EU-specific state files:
 
-## State-model scripts
+- `output/etf_eu_portfolio_state.json`
+- `output/etf_eu_valuation_history.csv`
+- `output/etf_eu_trade_ledger.csv`
+- `output/etf_eu_recommendation_scorecard.csv`
 
-- `tools/write_etf_minimum_state.py`
-- `tools/write_etf_trade_ledger.py`
-- `tools/write_etf_recommendation_scorecard.py`
-
-## Lab-only files
-
-- `tools/generate_pyportfolioopt_optimization_lab.py`
-- `tools/fetch_etf_optimizer_prices_yfinance.py`
-- `docs/ETF_OPTIMIZATION_LAB.md`
-- `lab_inputs/`
-- `lab_outputs/`
-
-Lab outputs are never production truth unless explicitly promoted through a reviewed architecture decision.
+Compatibility files from the U.S. clone may remain temporarily, but they are not EU authority unless explicitly rewritten to the EU cash-only seed state.
 
 ## Non-negotiable discipline
 
-- Do not collapse decision framework, state contract, output contract, and runbook back into one opaque prompt.
-- Do not weaken the ETF executive look and feel.
-- Do not treat prior report prices as current prices when fresh pricing is feasible.
-- Do not let the Dutch companion become an independent research pass.
-- Do not claim email delivery without a receipt or manifest.
-- Do not let `Hold but replaceable` become indefinite inertia; apply `control/CAPITAL_REUNDERWRITING_RULES.md`.
-- Do not use markdown as the primary pricing or holdings database once runtime state is available.
-- Do not treat the Structural Opportunity Radar as a static memory list; run the lane discovery engine before runtime state build.
-- Do not treat priced challengers as automatically fundable; challenger pricing only enables fairer comparison.
-- Do not repair branded sections that require strict layout/clickable behavior through markdown post-processing; render them from runtime state at the delivery HTML layer and protect them with the delivery HTML validator.
-- Do not describe ETF pricing lineage as solved merely because the closing-price disclosure table is visible; the lineage contract requires immutable audit identity, explicit manifest linkage, state persistence, and audit-to-report validation.
+- Do not destructively mutate the U.S. `weekly-etf` repo for the EU model.
+- Do not present U.S.-listed ETFs as investable holdings for Dutch/EU retail clients.
+- U.S. ETFs may appear only as research proxies, benchmark comparators or thematic references.
+- Use ISIN-first identity for UCITS ETFs; ticker alone is not enough.
+- Do not fund a UCITS ETF before UCITS status, PRIIPs/KID availability, trading line and pricing are validated.
+- Do not reuse the U.S. portfolio state as EU portfolio truth.
+- Do not claim EU report production delivery until EU-specific validators pass and a delivery receipt or manifest exists.
+- Keep decision framework, input/state contract, output contract and runbook separate.
 
 ## Current direction of travel
 
-ETF is moving toward:
+The EU repo is in bootstrap/migration mode:
 
-- GitHub as external source of truth
-- ChatGPT Project as workbench
-- explicit pricing/state artifacts
-- immutable pricing audit and run manifest lineage
-- runtime-derived English canonical report plus Dutch companion
-- delivery HTML as the authority for branded strict-layout sections
-- lane discovery artifacts for breadth, novelty, market strength, and challenger discipline
-- valuation-grade challenger pricing only when a challenger is replacement-ready or fundable
-- recommendation scorecard artifacts for capital discipline
-- lab-only optimization as a QA/research surface, not a production allocator
+```text
+clone baseline
+→ freeze U.S. state as non-authoritative
+→ add UCITS control contracts
+→ add ISIN-first registry
+→ seed EU cash-only state
+→ add no-U.S.-ETF-as-holding validator
+→ rename workflow/run queue/output files
+→ price UCITS trading lines
+→ render Dutch-first EU report
+→ only then enable production delivery
+```
