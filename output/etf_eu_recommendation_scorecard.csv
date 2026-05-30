@@ -1,0 +1,2 @@
+report_date,isin,exchange_ticker,fund_name,weight_pct,shares,current_price_local,trading_currency,market_value_eur,total_score,suggested_action,conviction_tier,portfolio_role,fresh_cash_test,ucits_status,priips_kid_status,investability_status,us_proxy,source_report
+2026-05-30,,CASH,Cash,100.0,0,1.0,EUR,100000.0,,Hold,Tier 0,Cash reserve,Await verified UCITS candidates,not_applicable,not_applicable,cash_only_bootstrap,,bootstrap
