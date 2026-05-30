@@ -39,6 +39,12 @@ CORE_POSITION_FIELDS = {
     "weight_inherited_pct",
     "target_weight_pct",
 }
+RUN_FIELD_DEFAULTS = {
+    "shares_delta_this_run": 0.0,
+    "weight_change_pct": 0.0,
+    "action_executed_this_run": "None",
+    "funding_source_note": "No model trade executed this run.",
+}
 
 
 def _read_json(path: Path) -> dict[str, Any]:
@@ -66,6 +72,12 @@ def _float(value: Any, default: float = 0.0) -> float:
         return float(str(value).replace(",", "").replace("%", ""))
     except (TypeError, ValueError):
         return default
+
+
+def _clear_run_fields(row: dict[str, Any]) -> dict[str, Any]:
+    item = dict(row)
+    item.update(RUN_FIELD_DEFAULTS)
+    return item
 
 
 def _pricing_map(runtime_state: dict[str, Any]) -> dict[str, dict[str, Any]]:
@@ -159,11 +171,9 @@ def _valid_price_row(ticker: str, price_map: dict[str, dict[str, Any]]) -> tuple
 def _prepare_runtime_state(runtime_state: dict[str, Any], portfolio_state_path: Path) -> dict[str, Any]:
     """Use official portfolio state as position authority before model execution.
 
-    Runtime reports may merge analytical scorecard memory into positions. That
-    scorecard is allowed to carry stale advisory metadata, but it must never
-    override official shares or market values for execution. This function
-    re-overlays official positions and revalues them using the current pricing
-    audit so execution sees the true source/destination funding base.
+    Report/runtime rows may carry scorecard memory and previous execution metadata.
+    The scorecard may inform decisions, but execution quantities and this-run
+    change fields must start from official portfolio state plus current pricing.
     """
     if not portfolio_state_path.exists():
         return runtime_state
@@ -180,6 +190,7 @@ def _prepare_runtime_state(runtime_state: dict[str, Any], portfolio_state_path: 
             continue
         row = dict(runtime_by_ticker.get(ticker, {}))
         row.update({key: value for key, value in official.items() if key in CORE_POSITION_FIELDS or key not in row})
+        row = _clear_run_fields(row)
         row["ticker"] = ticker
         price = _price_local(ticker, official, price_map)
         currency = _currency(ticker, official, price_map)
@@ -301,7 +312,7 @@ def _validate_inputs(runtime_state: dict[str, Any]) -> tuple[list[str], list[str
 
 def _build_shadow_positions(runtime_state: dict[str, Any]) -> list[dict[str, Any]]:
     price_map = _pricing_map(runtime_state)
-    positions = {ticker: dict(row) for ticker, row in _position_map(runtime_state).items()}
+    positions = {ticker: _clear_run_fields(dict(row)) for ticker, row in _position_map(runtime_state).items()}
     fx = _fx(runtime_state)
     nav = _nav(runtime_state)
     for intent in _trade_intents(runtime_state):
@@ -331,7 +342,7 @@ def _build_shadow_positions(runtime_state: dict[str, Any]) -> list[dict[str, Any
         dest_price_row = price_map.get(destination, {})
         dest_price = _float(dest_price_row.get("selected_close") or dest_price_row.get("price"))
         dest_currency = _text(dest_price_row.get("currency") or "USD").upper()
-        dest_base = dict(positions.get(destination, {}))
+        dest_base = _clear_run_fields(dict(positions.get(destination, {})))
         dest_shares_delta = _shares_for_notional(executable_notional, dest_price, dest_currency, fx)
         dest_base.update({
             "ticker": destination,
@@ -455,6 +466,8 @@ def _guarded_positions(shadow_positions: list[dict[str, Any]]) -> list[dict[str,
             item["action_executed_this_run"] = "Sell"
         elif item.get("action_executed_this_run") == "Shadow buy":
             item["action_executed_this_run"] = "Buy"
+        else:
+            item = _clear_run_fields(item)
         if _float(item.get("shares")) <= 0.000001 and _market_value_eur(item) <= 1.0:
             continue
         out.append(item)
