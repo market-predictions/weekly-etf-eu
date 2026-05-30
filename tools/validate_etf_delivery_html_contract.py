@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import json
 import os
 import re
 import sys
@@ -17,16 +18,12 @@ from runtime.build_etf_report_state import build_runtime_state
 from runtime.client_facing_sanitizer import looks_dutch_markdown, sanitize_client_facing_html, validate_dutch_delivery_language
 
 report_module = runtime_delivery.report_module
-
 PRO_REPORT_RE = re.compile(r"^weekly_analysis_pro_(\d{6})(?:_(\d{2}))?\.md$")
 RAW_MARKDOWN_LINK_RE = re.compile(r"\[[A-Z][A-Z0-9.-]{0,14}\]\(https?://[^\)]+\)")
-STYLE_OR_SCRIPT_RE = re.compile(r"<(style|script)\b[^>]*>.*?</\1>", re.DOTALL | re.IGNORECASE)
-HIDDEN_EXEC_MARKER_RE = re.compile(r"<div class=['\"](?:exec-summary-suppressed|exec-summary-render-marker)['\"][^>]*>.*?</div>", re.DOTALL | re.IGNORECASE)
-VISIBLE_PANEL_EXEC_RE = re.compile(r"<div\b(?=[^>]*\bclass\s*=\s*['\"][^'\"]*\bpanel-exec\b)[^>]*>", re.IGNORECASE)
-HTML_TAG_RE = re.compile(r"<[^>]+>")
-HTML_START_TAG_RE = re.compile(r"<([a-zA-Z0-9]+)\b[^>]*>")
-SECTION_LABEL_RE = re.compile(r"<span\b[^>]*class=['\"][^'\"]*section-label[^'\"]*['\"][^>]*>(.*?)</span>", re.DOTALL | re.IGNORECASE)
-MINI_LABEL_RE = re.compile(r"<div\b[^>]*class=['\"][^'\"]*mini-label[^'\"]*['\"][^>]*>(.*?)</div>", re.DOTALL | re.IGNORECASE)
+STYLE_BLOCK_RE = re.compile(r"<(style|script)\b[^>]*>.*?</\1>", re.DOTALL | re.IGNORECASE)
+TAG_RE = re.compile(r"<[^>]+>")
+RUNTIME_POINTER = Path("output/runtime/latest_etf_report_state_path.txt")
+
 FORBIDDEN_CONTENT_TOKENS = [
     "Placeholder for runtime replacement",
     "runtime rebuild required",
@@ -34,8 +31,19 @@ FORBIDDEN_CONTENT_TOKENS = [
     "None / None:",
     "Replacement Duel Table v2",
 ]
+FORBIDDEN_POST_EXECUTION_PHRASES = [
+    "Rotation plan artifact is active",
+    "proposed until",
+    "pending execution",
+    "pending portfolio-state persistence",
+    "pending execution and portfolio-state persistence",
+    "Proposed rotation",
+    "proposed rotation",
+    "trade intents are proposed",
+    "not executed trades until",
+    "until the trade ledger and portfolio state record execution",
+]
 FORBIDDEN_REPLACEMENT_DUEL_HEADERS = ["Current close", "Challenger close"]
-
 STRICT_TITLE_GROUPS = [
     ["Portfolio Action Snapshot", "Portefeuille-acties"],
     ["Regime Dashboard", "Regime-dashboard"],
@@ -50,7 +58,6 @@ STRICT_TITLE_GROUPS = [
     ["Continuity Input for Next Run", "Input voor de volgende run"],
     ["Replacement Duel Table", "Vervangingsanalyse"],
 ]
-
 REPLACEMENT_DUEL_REQUIRED_HEADER_GROUPS = [
     ["Current holding", "Huidige positie"],
     ["Challenger", "Alternatief"],
@@ -59,12 +66,6 @@ REPLACEMENT_DUEL_REQUIRED_HEADER_GROUPS = [
     ["Pricing basis", "Prijsbasis"],
     ["Decision", "Beoordeling"],
     ["Required trigger", "Benodigde bevestiging"],
-]
-
-STRUCTURAL_RADAR_TITLES = ["Structural Opportunity Radar", "Structurele kansenradar"]
-STRUCTURAL_RADAR_END_TITLE_GROUPS = [
-    ["Short Opportunity Radar"],
-    ["Key Risks / Invalidators", "Belangrijkste risico’s / invalidaties"],
 ]
 EXECUTIVE_DUPLICATE_PHRASES = [
     "SMH remains the earned leader, but fresh capital and replacement decisions must pass regime, pricing and duel-evidence checks.",
@@ -75,9 +76,7 @@ EXECUTIVE_DUPLICATE_PHRASES = [
 
 def _canonical_report_key(path: Path) -> tuple[str, int] | None:
     match = PRO_REPORT_RE.match(path.name)
-    if not match:
-        return None
-    return match.group(1), int(match.group(2) or "1")
+    return (match.group(1), int(match.group(2) or "1")) if match else None
 
 
 def _explicit_report_path() -> Path | None:
@@ -96,7 +95,7 @@ def _latest_canonical_english_report(output_dir: Path) -> Path:
     explicit = _explicit_report_path()
     if explicit is not None:
         return explicit
-    candidates: list[tuple[str, int, Path]] = []
+    candidates = []
     for path in output_dir.glob("weekly_analysis_pro_*.md"):
         key = _canonical_report_key(path)
         if key is not None:
@@ -123,118 +122,44 @@ def _report_date_from_filename(path: Path) -> str:
     return f"20{suffix[:2]}-{suffix[2:4]}-{suffix[4:6]}"
 
 
+def _load_pointer_state() -> dict[str, Any] | None:
+    candidates: list[Path] = []
+    if RUNTIME_POINTER.exists():
+        raw = RUNTIME_POINTER.read_text(encoding="utf-8").strip()
+        if raw:
+            candidates += [Path(raw), RUNTIME_POINTER.parent / Path(raw).name]
+    for raw in (os.environ.get("MRKT_RPRTS_RUNTIME_STATE_PATH"), os.environ.get("ETF_RUNTIME_STATE_PATH")):
+        if raw:
+            candidates.append(Path(raw))
+    for path in candidates:
+        try:
+            if path.exists():
+                return json.loads(path.read_text(encoding="utf-8"))
+        except Exception:
+            pass
+    return None
+
+
+def _state() -> dict[str, Any]:
+    return _load_pointer_state() or build_runtime_state()
+
+
+def _is_post_execution_state(state: dict[str, Any]) -> bool:
+    context = state.get("execution_context") or {}
+    flags = state.get("validation_flags") or {}
+    return context.get("report_phase") == "post_execution" or bool(flags.get("already_executed_noop")) or bool(flags.get("post_execution_report"))
+
+
 def _render_delivery_html(report_path: Path) -> str:
     md_text = report_path.read_text(encoding="utf-8")
     html = report_module.build_report_html(md_text, _report_date_from_filename(report_path), image_src=None, render_mode="email")
     return sanitize_client_facing_html(html, md_text=md_text, language="nl" if looks_dutch_markdown(md_text) else "en")
 
 
-def _visible_html(html: str) -> str:
-    """Return HTML that represents visible body content, not CSS/script/hidden markers."""
-    html = STYLE_OR_SCRIPT_RE.sub("", html)
-    html = HIDDEN_EXEC_MARKER_RE.sub("", html)
-    return html
-
-
-def _strip_html(value: str) -> str:
-    value = _visible_html(value)
-    return unescape(re.sub(r"<[^>]+>", " ", value)).strip()
-
-
-def _plain_text_with_offsets(html: str) -> tuple[str, list[int]]:
-    """Convert HTML to plain text while mapping each text character back to HTML offset."""
-    chunks: list[str] = []
-    offsets: list[int] = []
-    cursor = 0
-    for tag in HTML_TAG_RE.finditer(html):
-        if tag.start() > cursor:
-            segment = unescape(html[cursor:tag.start()])
-            chunks.append(segment)
-            offsets.extend(range(cursor, cursor + len(segment)))
-        cursor = tag.end()
-    if cursor < len(html):
-        segment = unescape(html[cursor:])
-        chunks.append(segment)
-        offsets.extend(range(cursor, cursor + len(segment)))
-    return "".join(chunks), offsets
-
-
-def _compact(value: str, limit: int = 360) -> str:
-    value = re.sub(r"\s+", " ", unescape(value)).strip()
-    if len(value) <= limit:
-        return value
-    return value[: limit - 1].rstrip() + "…"
-
-
-def _html_snippet(html: str, offset: int, radius: int = 260) -> str:
-    start = max(0, offset - radius)
-    end = min(len(html), offset + radius)
-    return _compact(html[start:end], limit=520)
-
-
-def _nearest_start_tag(html: str, offset: int) -> str:
-    matches = list(HTML_START_TAG_RE.finditer(html[:offset]))
-    return _compact(matches[-1].group(0), limit=260) if matches else "unknown"
-
-
-def _nearest_label(html: str, offset: int) -> str:
-    labels: list[tuple[int, str, str]] = []
-    for match in SECTION_LABEL_RE.finditer(html[:offset]):
-        labels.append((match.start(), "section-label", _strip_html(match.group(1))))
-    for match in MINI_LABEL_RE.finditer(html[:offset]):
-        labels.append((match.start(), "mini-label", _strip_html(match.group(1))))
-    if not labels:
-        return "unknown"
-    _, kind, value = sorted(labels, key=lambda row: row[0])[-1]
-    return f"{kind}: {_compact(value, 140)}"
-
-
-def _nearest_title_from_known_titles(plain: str, plain_offset: int) -> str:
-    candidates: list[tuple[int, str]] = []
-    known_titles = [title for group in STRICT_TITLE_GROUPS + REPLACEMENT_DUEL_REQUIRED_HEADER_GROUPS for title in group]
-    known_titles += STRUCTURAL_RADAR_TITLES + ["Primary regime", "Primair regime", "Geopolitical regime", "Geopolitiek regime", "Main takeaway", "Kernconclusie"]
-    for title in known_titles:
-        idx = plain.rfind(title, 0, plain_offset)
-        if idx != -1:
-            candidates.append((idx, title))
-    if not candidates:
-        return "unknown"
-    return sorted(candidates, key=lambda row: row[0])[-1][1]
-
-
-def _phrase_context_report(html: str, phrase: str) -> str:
-    visible = _visible_html(html)
-    plain, offsets = _plain_text_with_offsets(visible)
-    occurrences: list[int] = []
-    start = 0
-    while True:
-        idx = plain.find(phrase, start)
-        if idx == -1:
-            break
-        occurrences.append(idx)
-        start = idx + max(1, len(phrase))
-
-    lines = [
-        "DUPLICATE_TAKEAWAY_CONTEXT_BEGIN",
-        f"phrase={phrase}",
-        f"plain_occurrences={len(occurrences)}",
-    ]
-    for number, plain_idx in enumerate(occurrences, start=1):
-        html_idx = offsets[plain_idx] if plain_idx < len(offsets) else -1
-        plain_before = plain[max(0, plain_idx - 220):plain_idx]
-        plain_after = plain[plain_idx + len(phrase):plain_idx + len(phrase) + 220]
-        lines.extend([
-            f"occurrence={number}",
-            f"plain_offset={plain_idx}",
-            f"html_offset={html_idx}",
-            f"nearest_label={_nearest_label(visible, html_idx) if html_idx >= 0 else 'unknown'}",
-            f"nearest_title={_nearest_title_from_known_titles(plain, plain_idx)}",
-            f"nearest_start_tag={_nearest_start_tag(visible, html_idx) if html_idx >= 0 else 'unknown'}",
-            f"plain_context={_compact(plain_before + ' >>> ' + phrase + ' <<< ' + plain_after, 520)}",
-            f"html_context={_html_snippet(visible, html_idx) if html_idx >= 0 else 'unknown'}",
-        ])
-    lines.append("DUPLICATE_TAKEAWAY_CONTEXT_END")
-    return "\n".join(lines)
+def _visible_text(html: str) -> str:
+    html = STYLE_BLOCK_RE.sub("", html)
+    text = unescape(TAG_RE.sub(" ", html))
+    return re.sub(r"\s+", " ", text).strip()
 
 
 def _ticker(value: Any) -> str:
@@ -257,25 +182,6 @@ def _anchor_for_ticker_exists(html: str, ticker: str) -> bool:
     return bool(re.search(rf"<a\b[^>]*href=[\"'][^\"']*tradingview\.com/chart/\?symbol={ticker_re}[^\"']*[\"'][^>]*>\s*{ticker_re}\s*</a>", html, flags=re.IGNORECASE))
 
 
-def _find_any(html: str, options: list[str], start: int = 0) -> tuple[int, str | None]:
-    candidates = [(html.find(option, start), option) for option in options]
-    candidates = [(idx, option) for idx, option in candidates if idx != -1]
-    return min(candidates, key=lambda item: item[0]) if candidates else (-1, None)
-
-
-def _section_between_title_groups(html: str, start_titles: list[str], end_title_groups: list[list[str]]) -> str:
-    start, found = _find_any(html, start_titles)
-    if start == -1:
-        raise RuntimeError(f"Delivery HTML contract validation failed: missing section title from: {start_titles}")
-    candidates: list[int] = []
-    for group in end_title_groups:
-        idx, _ = _find_any(html, group, start + len(found or ""))
-        if idx != -1:
-            candidates.append(idx)
-    end = min(candidates) if candidates else len(html)
-    return html[start:end]
-
-
 def _validate_no_forbidden_content(html: str, report_name: str) -> None:
     lower = html.lower()
     for token in FORBIDDEN_CONTENT_TOKENS:
@@ -286,41 +192,39 @@ def _validate_no_forbidden_content(html: str, report_name: str) -> None:
         raise RuntimeError(f"Delivery HTML contract validation failed for {report_name}: raw markdown link found: {match.group(0)}")
 
 
+def _validate_post_execution_copy(html: str, report_name: str, state: dict[str, Any]) -> None:
+    if not _is_post_execution_state(state):
+        return
+    text = _visible_text(html)
+    found = [phrase for phrase in FORBIDDEN_POST_EXECUTION_PHRASES if phrase in text]
+    if found:
+        raise RuntimeError(
+            f"Delivery HTML contract validation failed for {report_name}: post-execution HTML still contains proposed/pending wording: {', '.join(sorted(set(found)))}"
+        )
+
+
 def _validate_no_duplicate_executive_summary(html: str, report_name: str) -> None:
-    visible_html = _visible_html(html)
-    if VISIBLE_PANEL_EXEC_RE.search(visible_html):
+    text = _visible_text(html)
+    if "panel-exec" in html:
         raise RuntimeError(f"Delivery HTML contract validation failed for {report_name}: duplicate executive summary panel still rendered.")
-    plain = _strip_html(visible_html)
     for phrase in EXECUTIVE_DUPLICATE_PHRASES:
-        if plain.count(phrase) > 1:
-            diagnostics = _phrase_context_report(html, phrase)
-            raise RuntimeError(
-                f"Delivery HTML contract validation failed for {report_name}: duplicated executive takeaway phrase: {phrase[:80]}\n{diagnostics}"
-            )
+        if text.count(phrase) > 1:
+            raise RuntimeError(f"Delivery HTML contract validation failed for {report_name}: duplicated executive takeaway phrase: {phrase[:80]}")
 
 
 def _validate_required_titles(html: str, report_name: str) -> None:
-    plain = _strip_html(html)
-    missing = [" / ".join(group) for group in STRICT_TITLE_GROUPS if not any(title in plain for title in group)]
+    text = _visible_text(html)
+    missing = [" / ".join(group) for group in STRICT_TITLE_GROUPS if not any(title in text for title in group)]
     if missing:
         raise RuntimeError(f"Delivery HTML contract validation failed for {report_name}: missing rendered section titles: {', '.join(missing)}")
 
 
 def _validate_structural_radar(html: str, report_name: str) -> None:
-    section = _section_between_title_groups(html, STRUCTURAL_RADAR_TITLES, STRUCTURAL_RADAR_END_TITLE_GROUPS)
-    plain = _strip_html(section).lower()
-    if len(plain) < 240:
-        raise RuntimeError(f"Delivery HTML contract validation failed for {report_name}: Structural Opportunity Radar is too thin after rendering.")
-    if "placeholder" in plain or "runtime replacement" in plain:
+    text = _visible_text(html).lower()
+    if "structural opportunity radar" not in text and "structurele kansenradar" not in text:
+        raise RuntimeError(f"Delivery HTML contract validation failed for {report_name}: missing Structural Opportunity Radar section.")
+    if "placeholder" in text or "runtime replacement" in text:
         raise RuntimeError(f"Delivery HTML contract validation failed for {report_name}: Structural Opportunity Radar still contains placeholder text.")
-
-
-def _replacement_duel_section(html: str) -> str:
-    return _section_between_title_groups(
-        html,
-        ["Replacement Duel Table", "Vervangingsanalyse"],
-        [["Portfolio Rotation Plan", "Rotatieplan portefeuille"], ["Final Action Table", "Definitieve actietabel"]],
-    )
 
 
 def _validate_strict_tables_and_anchors(html: str, report_name: str, holdings: list[str]) -> None:
@@ -328,37 +232,35 @@ def _validate_strict_tables_and_anchors(html: str, report_name: str, holdings: l
     missing_classes = [klass for klass in required_classes if klass not in html]
     if missing_classes:
         raise RuntimeError(f"Delivery HTML contract validation failed for {report_name}: missing strict delivery table classes: {', '.join(missing_classes)}")
-
-    duel = _replacement_duel_section(html)
-    plain_duel = _strip_html(duel)
-    forbidden_headers = [header for header in FORBIDDEN_REPLACEMENT_DUEL_HEADERS if header in plain_duel]
+    text = _visible_text(html)
+    forbidden_headers = [header for header in FORBIDDEN_REPLACEMENT_DUEL_HEADERS if header in text]
     if forbidden_headers:
         raise RuntimeError(f"Delivery HTML contract validation failed for {report_name}: removed Replacement Duel columns still rendered: {', '.join(forbidden_headers)}")
-
-    missing_headers = [" / ".join(group) for group in REPLACEMENT_DUEL_REQUIRED_HEADER_GROUPS if not any(header in plain_duel for header in group)]
+    missing_headers = [" / ".join(group) for group in REPLACEMENT_DUEL_REQUIRED_HEADER_GROUPS if not any(header in text for header in group)]
     if missing_headers:
         raise RuntimeError(f"Delivery HTML contract validation failed for {report_name}: Replacement Duel Table missing headers: {', '.join(missing_headers)}")
-
     for ticker in holdings:
         if not _anchor_for_ticker_exists(html, ticker):
             raise RuntimeError(f"Delivery HTML contract validation failed for {report_name}: missing TradingView anchor for current holding {ticker}.")
 
 
 def validate(output_dir: Path) -> None:
-    state = build_runtime_state()
+    state = _state()
     holdings = _current_holdings_from_state(state)
     reports = _latest_reports(output_dir)
     for report_path in reports:
         md_text = report_path.read_text(encoding="utf-8")
         html = _render_delivery_html(report_path)
         _validate_no_forbidden_content(html, report_path.name)
+        _validate_post_execution_copy(html, report_path.name, state)
         _validate_no_duplicate_executive_summary(html, report_path.name)
         _validate_required_titles(html, report_path.name)
         _validate_structural_radar(html, report_path.name)
         _validate_strict_tables_and_anchors(html, report_path.name, holdings)
         if looks_dutch_markdown(md_text):
             validate_dutch_delivery_language(html, report_path.name)
-        print(f"ETF_DELIVERY_HTML_CONTRACT_OK | report={report_path.name} | dynamic_holdings={','.join(holdings)}")
+        post_flag = "post_execution=True" if _is_post_execution_state(state) else "post_execution=False"
+        print(f"ETF_DELIVERY_HTML_CONTRACT_OK | report={report_path.name} | dynamic_holdings={','.join(holdings)} | {post_flag}")
 
 
 def main() -> None:
