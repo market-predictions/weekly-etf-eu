@@ -1,300 +1,142 @@
-# ETF Review OS — Next Actions
+# Weekly ETF EU Review OS — Next Actions
 
 ## Status legend
+
 - `[USER]` = must be done manually by you in UI or external systems
-- `[ASSISTANT]` = I can do directly in chat/repo
-- `[JOINT]` = I prepare, you apply/approve
+- `[ASSISTANT]` = can be done directly in chat/repo
+- `[JOINT]` = I prepare, you approve or verify
 
 ---
 
-## Phase 1 — protect the validated runtime and delivery baseline
+## Phase 0 — repo split
 
-### 1. Keep using the control-layer start sequence
+### 1. Confirm new repo exists
+
+- Owner: `[USER]`
+- Status: done
+- Result: `market-predictions/weekly-etf-eu` was created and mirror-pushed from `market-predictions/weekly-etf`.
+
+### 2. Preserve U.S. repo as baseline
+
 - Owner: `[JOINT]`
-- Status: active standing rule
-- Action: every meaningful ETF architecture, debugging, prompt, state, workflow, delivery, discovery, localization, or lab-optimization session starts with:
-  1. `control/SYSTEM_INDEX.md`
-  2. `control/CURRENT_STATE.md`
-  3. `control/NEXT_ACTIONS.md`
-  4. only then the minimum relevant execution file(s)
-- Done when: sessions no longer rediscover the architecture.
-
-### 2. Treat the current runtime + delivery HTML path as the production baseline
-- Owner: `[JOINT]`
-- Status: active baseline
-- Current baseline:
-  ```text
-  pricing audit
-  → historical relative strength
-  → first-pass lane discovery
-  → targeted challenger pricing
-  → final lane discovery
-  → runtime state
-  → EN/NL markdown render
-  → full valuation-history Section 7 equity curve
-  → pricing-basis disclosure
-  → polish/linkify
-  → Dutch localization contract pass
-  → equity-curve history validation
-  → Dutch language quality validation
-  → bilingual numeric parity validation
-  → delivery HTML overrides
-  → bilingual delivery HTML contract validation
-  → PDF/email delivery
-  ```
-- Action: do not repair strict branded sections through markdown post-processing.
-- Done when: Section 2, Current Position Review, Portfolio Rotation Plan, Vervangingsanalyse, and Section 7 equity curve stay governed by runtime/delivery contracts and validator checks.
-
-### 3. Keep workflow behavior operational only
-- Owner: `[ASSISTANT]`
-- Status: active standing rule
-- Action:
-  - production send workflow should be for production report-output pushes, manual dispatch, or safe run-queue requests only
-  - code changes should not silently resend subscriber emails
-  - do not claim delivery success without a real receipt, manifest, or explicit user confirmation of received delivery
-- Done when: delivery status remains verifiable.
-
-### 4. Protect the full valuation-history equity curve
-- Owner: `[ASSISTANT]`
-- Status: done / active regression guard
-- Result:
-  - Section 7 now uses `output/etf_valuation_history.csv` plus current runtime NAV.
-  - The embedded equity-curve chart now shows intermediate valuation dates.
-  - `tools/validate_etf_equity_curve_history.py` is wired into `.github/workflows/send-weekly-report.yml`.
-  - Workflow marker: `ETF_EQUITY_CURVE_HISTORY_OK`.
-- Action going forward:
-  - do not hardcode Section 7 as only start/latest
-  - if valuation history changes, preserve Section 7 ↔ Section 15 reconciliation
-- Done when: every fresh report has at least the historical valuation points plus current NAV and latest Section 7 NAV reconciles with Section 15 total NAV.
+- Status: standing rule
+- Action: do not destructively change `market-predictions/weekly-etf` for EU/UCITS requirements.
+- Done when: U.S. and EU products remain separated.
 
 ---
 
-## Phase 1B — implement ETF pricing-lineage contract
+## Phase 1 — EU control and state separation
 
-### 5. Use `ETF_PRICING_LINEAGE_CONTRACT_V1` as authority
-- Owner: `[ASSISTANT]`
-- Status: active priority
-- Source files:
-  - `control/ETF_PRICING_LINEAGE_CONTRACT_V1.md`
-  - `control/ETF_PRICING_LINEAGE_CHANGELOG.md`
-- Action:
-  - treat the fresh-closing-price issue as unresolved until the contract is implemented
-  - track all pricing-lineage changes in the dedicated changelog
-  - preserve root `changelog.md` visibility for repo-level changes
-- Done when: the contract is implemented and the hard lineage validator passes before delivery.
+### 3. Rewrite control layer for EU authority
 
-### 6. Add immutable run identity and manifest
 - Owner: `[ASSISTANT]`
-- Status: next implementation step
+- Status: in progress
 - Target files:
-  - `pricing/run_pricing_pass.py`
-  - `pricing/audit_writer.py`
-  - `.github/workflows/send-weekly-report.yml`
-  - new `output/run_manifests/` writer/helper as needed
-- Action:
-  - create a run id for each production pricing run
-  - write immutable audit files using requested close date plus run id
-  - write a central run manifest under `output/run_manifests/`
-  - pass exact audit/runtime/report paths through later workflow steps instead of reselecting latest files
-- Done when: one report can be traced to one exact audit and manifest.
+  - `control/SYSTEM_INDEX.md`
+  - `control/CURRENT_STATE.md`
+  - `control/NEXT_ACTIONS.md`
+- Done when: the repo clearly defines itself as the UCITS/Dutch-client environment.
 
-### 7. Upgrade price row schema and status semantics
+### 4. Add UCITS authority contracts
+
 - Owner: `[ASSISTANT]`
-- Status: planned
+- Status: next
 - Target files:
-  - `pricing/models.py`
-  - `pricing/clients/twelve_data.py`
-  - `pricing/clients/yahoo_history.py`
-  - `pricing/clients/fmp.py`
-  - `pricing/clients/alpha_vantage.py`
-  - `pricing/source_registry.yaml`
-  - `pricing/symbol_resolver.py`
-- Action:
-  - add selected close, selected close type, provider symbol, provider exchange where available, finality flag, verification block, and pricing tier
-  - replace generic fresh labels with `fresh_exact_close`, `fresh_exact_unverified`, `prior_valid_close`, `carried_forward`, `unresolved`, and `blocked`
-- Done when: no close row can be mislabeled fresh when the returned close date differs from the requested close date.
+  - `control/UCITS_ETF_REVIEW_CONTRACT_V1.md`
+  - `control/UCITS_INVESTABILITY_RULES.md`
+  - `control/UCITS_SYMBOL_REGISTRY_CONTRACT.md`
+  - `control/UCITS_MIGRATION_PLAN.md`
+- Done when: EU decision framework, investability, symbol identity and migration are explicit.
 
-### 8. Persist successful ETF valuation state
+### 5. Add EU config stubs
+
 - Owner: `[ASSISTANT]`
-- Status: planned
+- Status: next
 - Target files:
-  - `runtime/build_etf_report_state.py`
-  - `runtime/render_etf_report_from_state.py`
-  - state writer/helper as needed
-  - `output/etf_portfolio_state.json`
-  - `output/etf_valuation_history.csv`
-- Action:
-  - update canonical portfolio state after successful pricing/runtime valuation
-  - append or replace the current requested close date in valuation history deterministically
-  - ensure future runs start from the last successful priced state, not stale report-derived values
-- Done when: the latest successful report NAV equals persisted portfolio state and valuation history.
+  - `config/etf_eu_discovery_universe.yml`
+  - `config/ucits_symbol_registry.yml`
+  - `config/ucits_benchmark_proxy_map.yml`
+  - `config/nl_client_investability_rules.yml`
+- Done when: UCITS discovery and proxy mapping are separated from the inherited U.S. universe.
 
-### 9. Enforce challenger pricing tiers
+### 6. Add cash-only EU state
+
 - Owner: `[ASSISTANT]`
-- Status: planned
+- Status: next
 - Target files:
-  - `pricing/augment_challenger_pricing.py`
-  - `runtime/discover_etf_lanes.py`
-  - `runtime/score_etf_lanes.py`
-  - replacement-duel validator files
-- Action:
-  - keep broad discovery candidates research-grade
-  - require valuation-grade pricing for replacement-duel challengers
-  - require valuation-grade pricing before any promoted challenger is shown as fundable/actionable
-- Done when: broad discovery is still efficient, but fundable challengers cannot appear without valuation-grade pricing.
+  - `output/etf_eu_portfolio_state.json`
+  - `output/etf_eu_valuation_history.csv`
+  - `output/etf_eu_trade_ledger.csv`
+  - `output/etf_eu_recommendation_scorecard.csv`
+- Done when: EU model has its own starting state and does not use U.S. holdings as current truth.
 
-### 10. Add hard pricing-lineage validator
+### 7. Add no-U.S.-ETF-as-EU-holding validator
+
+- Owner: `[ASSISTANT]`
+- Status: next
+- Target file:
+  - `tools/validate_no_us_etf_as_eu_holding.py`
+- Done when: funded EU positions fail validation if they use U.S.-listed ETF tickers as holdings.
+
+---
+
+## Phase 2 — workflow and output isolation
+
+### 8. Disable inherited production send path until EU contract is ready
+
 - Owner: `[ASSISTANT]`
 - Status: planned
 - Target file:
-  - `tools/validate_etf_pricing_lineage_contract.py`
-- Action:
-  - validate manifest → audit → runtime state → report tables → Section 7 NAV → Section 15 NAV → persisted portfolio state → valuation history
-  - fail before render/send if any piece diverges
-- Done when: a visible close-price disclosure is no longer enough; the full lineage must pass.
+  - `.github/workflows/send-weekly-report.yml`
+- Action: prevent accidental U.S.-style production delivery from the EU repo.
+- Done when: EU repo does not send inherited U.S.-ETF reports accidentally.
+
+### 9. Add EU run queue and workflow naming
+
+- Owner: `[ASSISTANT]`
+- Status: planned
+- Target paths:
+  - `control/run_queue/weekly_etf_eu_report_request_YYYYMMDD_HHMMSS.md`
+  - `.github/workflows/send-weekly-etf-eu-report.yml`
+- Done when: ChatGPT-triggered EU runs use separate names from U.S. runs.
+
+### 10. Add EU output contract
+
+- Owner: `[ASSISTANT]`
+- Status: planned
+- Target output names:
+  - `output/weekly_etf_eu_review_YYMMDD.md`
+  - `output/weekly_etf_eu_review_nl_YYMMDD.md`
+  - `output/weekly_etf_eu_review_YYMMDD.pdf`
+  - `output/weekly_etf_eu_review_nl_YYMMDD.pdf`
+- Done when: EU reports cannot be confused with U.S. weekly ETF reports.
 
 ---
 
-## Phase 2 — Dutch premium report quality roadmap
+## Phase 3 — UCITS pricing and reporting
 
-### 11. Maintain the Dutch quality roadmap
+### 11. Adapt pricing to UCITS exchange lines
+
 - Owner: `[ASSISTANT]`
-- Status: started
-- Source files:
-  - `control/NL_REPORT_QUALITY_ROADMAP.md`
-  - `control/NL_REPORT_LANGUAGE_CONTRACT.md`
-  - `control/NL_TERMINOLOGY.md`
+- Status: planned
 - Action:
-  - keep roadmap phases explicit
-  - do not let one-off Dutch phrase fixes replace the language-contract layer
-- Done when: Dutch report improvements are tracked as an operating roadmap, not ad-hoc fixes.
+  - price exchange ticker + exchange + trading currency;
+  - retain U.S. proxy pricing only as research benchmark input;
+  - add provider symbol and exchange lineage.
+- Done when: EU holdings price from UCITS trading lines, not U.S. proxies.
 
-### 12. Block mixed English/Dutch sentences before next Dutch publication
+### 12. Build Dutch-first EU report renderer
+
 - Owner: `[ASSISTANT]`
-- Status: implemented; needs test run
-- Changed files:
-  - `runtime/nl_localization.py`
-  - `tools/validate_etf_dutch_language_quality.py`
+- Status: planned
 - Action:
-  - validate that mixed sentences such as `Keep SMH...`, `but vers kapitaal...`, `Require replacement duels...`, and `Aanhouden under review` fail before send
-- Done when: the Dutch language quality validator fails any mixed-language decision sentence.
+  - render Dutch report as primary client output;
+  - mark U.S. proxies as research-only;
+  - disclose UCITS / PRIIPs / trading line status.
+- Done when: Dutch/EU report is client-native, not a translation of a U.S. investable-universe report.
 
-### 13. Translate table headers and enum values through controlled mappings
-- Owner: `[ASSISTANT]`
-- Status: implemented; needs test run
-- Changed files:
-  - `runtime/nl_localization.py`
-  - `runtime/apply_nl_localization.py`
-  - `control/NL_TERMINOLOGY.md`
-- Action:
-  - validate table labels such as Theme, Primary ETF, Why it matters, Existing, Yes, No, None, Hold, Add, Current status, Why I’m considering it
-- Done when: table labels and enum values in the Dutch report are mapped through the Dutch terminology contract.
+### 13. Enable EU delivery only after validators pass
 
-### 14. Remove internal workflow language from the Dutch client report
-- Owner: `[ASSISTANT]`
-- Status: implemented; needs test run
-- Changed files:
-  - `runtime/nl_localization.py`
-  - `tools/validate_etf_dutch_language_quality.py`
-- Action:
-  - block `Section`, `runtime`, `state-led`, `output/`, `pricing_audit`, `workflow`, `manifest`, `artifact`, and placeholder language where client-facing
-- Done when: operational runbook terms remain in audit/manifest files only.
-
-### 15. Replace low-quality literal translations
-- Owner: `[ASSISTANT]`
-- Status: implemented; needs test run
-- Changed files:
-  - `runtime/nl_localization.py`
-  - `control/NL_TERMINOLOGY.md`
-- Action:
-  - replace `verdiende leider`, `prijsbewijs`, `actiebias`, `thesisfit`, `reviewpositie`, `nuttige ballast`, `vers kapitaal`
-- Done when: executive sections and tables use institutional Dutch such as `best onderbouwde kernpositie`, `koersbevestiging`, `beslissingsrichting`, `aansluiting op de beleggingscase`, and `positie onder actieve herbeoordeling`.
-
-### 16. Make Dutch cover and chart language Dutch
-- Owner: `[ASSISTANT]`
-- Status: implemented; needs render test
-- Changed file:
-  - `send_report_runtime_html.py`
-- Action:
-  - validate Dutch delivery HTML/PDF cover no longer shows Investor Report, Analyst Report, PRIMARY REGIME, GEOPOLITICAL REGIME, MAIN TAKEAWAY
-  - validate chart labels are Dutch where practical
-- Done when: Dutch PDF cover and equity-curve labels read as Dutch client-facing output.
-
-### 17. Native Dutch templates for key sections
-- Owner: `[ASSISTANT]`
-- Status: planned after first test result
-- Target files:
-  - `runtime/render_etf_report_from_state.py`
-  - `runtime/apply_nl_localization.py`
-  - `runtime/nl_localization.py`
-- Action:
-  - render Kernsamenvatting, Conclusie, Portefeuille-acties, Review huidige posities and Vervangingsanalyse from runtime state using Dutch-native templates rather than sentence-by-sentence translation
-- Done when: these sections read as originally written Dutch.
-
-### 18. Human-readable Dutch glossary per section
-- Owner: `[ASSISTANT]`
-- Status: started
-- Source file:
-  - `control/NL_TERMINOLOGY.md`
-- Action:
-  - expand glossary when new sections/tables are added
-- Done when: changing Dutch report wording requires one terminology update plus one code mapping if needed.
-
----
-
-## Phase 3 — ChatGPT-triggerable report generation
-
-### 19. Use safe report request queue for ChatGPT-initiated fresh reports
-- Owner: `[ASSISTANT]`
-- Status: active baseline
-- Action: when the user asks ChatGPT to generate a fresh Weekly ETF Review, create a request file under:
-  ```text
-  control/run_queue/weekly_etf_report_request_YYYYMMDD_HHMMSS.md
-  ```
-- Do not create trigger files under `output/`.
-- Done when: the send workflow is triggered by the run-queue request path and no placeholder report files are introduced.
-
-### 20. Run one Dutch quality confirmation workflow
 - Owner: `[JOINT]`
-- Status: deferred behind pricing-lineage implementation unless specifically requested
-- Action:
-  - trigger a fresh report only after the user agrees to test the Phase 1 Dutch quality changes
-  - inspect validator output and the received PDF
-- Done when: the Dutch report passes automated validators and visual inspection for premium Dutch language quality.
-
----
-
-## Phase 4 — improve portfolio decision quality
-
-### 21. Continue direct challenger-vs-current-holding scoring
-- Owner: `[ASSISTANT]`
-- Action:
-  - map challenger lanes to likely funded holdings they could replace
-  - compare challenger 1m and 3m returns directly versus the target holding
-  - add direct replacement edge to lane scoring
-  - add direct duel fields to lane artifacts
-  - surface the direct edge in replacement-duel notes
-- Done when: replacement candidates are compared against the actual holding they would replace, not only versus SPY.
-
-### 22. Expand and curate the discovery universe
-- Owner: `[ASSISTANT]`
-- Source file:
-  - `config/etf_discovery_universe.yml`
-- Action:
-  - add additional sectors, factor ETFs, region ETFs, commodity ETFs, defensive exposures, and non-U.S. exposures
-  - keep each lane investable, differentiated, and scored
-- Done when: the universe is broad enough to surface new candidates without becoming noisy.
-
-### 23. Add better macro/fundamental freshness inputs
-- Owner: `[ASSISTANT]`
-- Action:
-  - add machine-readable macro/regime input file
-  - add policy/geopolitical catalyst tags
-  - add current official or market-based freshness notes where possible
-- Done when: discovery is no longer only config-driven.
-
----
-
-## Current checkpoint
-
-**The active engineering checkpoint is now ETF pricing-lineage hardening. The close-price disclosure table is visible and internally useful, but the fresh-closing-price issue remains open until immutable audit identity, explicit run manifests, state persistence, challenger pricing tiers, and the hard pricing-lineage validator are implemented.**
+- Status: blocked until Phases 1-3 are complete
+- Done when: EU validator stack passes and a real delivery manifest/receipt exists.
