@@ -1,0 +1,17 @@
+{
+  "schema_version": "etf_eu_portfolio_state_v1",
+  "portfolio_mode": "dutch_eu_ucits_model_bootstrap",
+  "base_currency": "EUR",
+  "valuation_source": "cash_only_bootstrap",
+  "inception_date": "2026-05-30",
+  "starting_capital_eur": 100000.0,
+  "cash_eur": 100000.0,
+  "invested_market_value_eur": 0.0,
+  "nav_eur": 100000.0,
+  "positions": [],
+  "notes": [
+    "Initial EU/UCITS model state.",
+    "U.S.-listed ETFs are research proxies only, not EU portfolio holdings.",
+    "UCITS candidates must pass ISIN, UCITS, PRIIPs/KID and exchange-line validation before funding."
+  ]
+}
