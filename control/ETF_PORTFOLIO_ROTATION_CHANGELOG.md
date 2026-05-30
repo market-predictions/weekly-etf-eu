@@ -200,3 +200,25 @@ Required behavior:
 - `executed`: show the model rotation as executed and persisted;
 - `already_executed`: show the model rotation as already reflected, with no new state or ledger mutation;
 - delivery HTML/PDF must not describe the GLD→GSG rotation as proposed or pending once the official portfolio state already reflects it.
+
+---
+
+## 2026-05-30 — Max-position action cap delivery guard
+
+The received `weekly_analysis_pro_260529_17.pdf` showed that state, valuation history, post-execution wording and GLD/GSG arithmetic were fixed, but SMH was still surfaced as `Add / destination` while its current weight was above the 25% maximum-position constraint.
+
+Added:
+
+- `runtime/max_position_action_contract.py`
+
+Changed:
+
+- `send_report_runtime_html.py` now applies the max-position action sanitizer during delivery HTML/PDF generation;
+- `tools/validate_etf_delivery_html_contract.py` now applies and validates the same max-position action contract on rendered delivery HTML;
+- `runtime/scrub_etf_client_surface.py` now scrubs over-cap `Add` wording from current markdown/report surfaces before client-surface validation.
+
+Required behavior:
+
+- if a ticker is above the max-position cap, it must not appear in `Add` or `Add / destination` in client-facing report surfaces;
+- over-cap leaders such as SMH should be described as `best earned exposure, but no fresh capital is added while above the 25% cap`;
+- delivery HTML/PDF validation must fail if an over-cap ticker is still rendered as Add.
