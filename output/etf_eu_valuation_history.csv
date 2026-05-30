@@ -1,0 +1,2 @@
+date,nav_eur,cash_eur,invested_market_value_eur,daily_return_pct,since_inception_return_pct,drawdown_pct,comment,source_report
+2026-05-30,100000.0,100000.0,0.0,0.0,0.0,0.0,Initial cash-only EU/UCITS bootstrap state,bootstrap
