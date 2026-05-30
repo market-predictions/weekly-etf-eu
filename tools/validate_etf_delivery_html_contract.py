@@ -16,6 +16,7 @@ if str(REPO_ROOT) not in sys.path:
 import send_report_runtime_html as runtime_delivery
 from runtime.build_etf_report_state import build_runtime_state
 from runtime.client_facing_sanitizer import looks_dutch_markdown, sanitize_client_facing_html, validate_dutch_delivery_language
+from runtime.max_position_action_contract import sanitize_over_cap_add_html, validate_no_over_cap_add_html
 
 report_module = runtime_delivery.report_module
 PRO_REPORT_RE = re.compile(r"^weekly_analysis_pro_(\d{6})(?:_(\d{2}))?\.md$")
@@ -152,10 +153,12 @@ def _is_post_execution_state(state: dict[str, Any]) -> bool:
     return context.get("report_phase") == "post_execution" or bool(flags.get("already_executed_noop")) or bool(flags.get("post_execution_report"))
 
 
-def _render_delivery_html(report_path: Path) -> str:
+def _render_delivery_html(report_path: Path, state: dict[str, Any]) -> str:
     md_text = report_path.read_text(encoding="utf-8")
+    language = "nl" if looks_dutch_markdown(md_text) else "en"
     html = report_module.build_report_html(md_text, _report_date_from_filename(report_path), image_src=None, render_mode="email")
-    return sanitize_client_facing_html(html, md_text=md_text, language="nl" if looks_dutch_markdown(md_text) else "en")
+    html = sanitize_client_facing_html(html, md_text=md_text, language=language)
+    return sanitize_over_cap_add_html(html, state, language=language)
 
 
 def _visible_html(html: str) -> str:
@@ -259,9 +262,10 @@ def validate(output_dir: Path) -> None:
     reports = _latest_reports(output_dir)
     for report_path in reports:
         md_text = report_path.read_text(encoding="utf-8")
-        html = _render_delivery_html(report_path)
+        html = _render_delivery_html(report_path, state)
         _validate_no_forbidden_content(html, report_path.name)
         _validate_post_execution_copy(html, report_path.name, state)
+        validate_no_over_cap_add_html(html, state, report_name=report_path.name)
         _validate_no_duplicate_executive_summary(html, report_path.name)
         _validate_required_titles(html, report_path.name)
         _validate_structural_radar(html, report_path.name)
