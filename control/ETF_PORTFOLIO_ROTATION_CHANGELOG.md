@@ -47,8 +47,47 @@ Implemented first cleanup in `runtime/rotation_render_tables.py`:
 - translated override reasons away from raw internal labels;
 - kept signed deltas in numeric table columns while moving prose toward client-facing wording.
 
-Remaining cleanup before final validation run:
+---
 
-- delivery HTML prose still needs the same client-facing wording map;
-- Dutch quality validator should block raw rotation reason codes and override codes;
-- then run a fresh PDF validation pass.
+## 2026-05-29 — Shadow and guarded model execution bridge
+
+Added the first self-steering model-execution bridge:
+
+- `runtime/model_execution_engine.py`
+- `tools/validate_etf_model_execution.py`
+
+The engine now supports:
+
+- `shadow` mode: build proposed ledger rows and shadow post-trade positions without writing official state;
+- `guarded_auto` mode: write official model trade-ledger rows and update `output/etf_portfolio_state.json` when all hard policy checks pass.
+
+The execution is model-portfolio execution only. It does not place broker orders.
+
+---
+
+## 2026-05-29 — Post-execution report rebuild added
+
+Issue found from the received PDF: the workflow could execute guarded model rotation after the report was already rendered, leaving the delivered PDF as a pre-execution report.
+
+Added:
+
+- `runtime/finalize_executed_etf_report.py`
+- `runtime/build_etf_report_state.py --no-rotation-plan`
+- guarded-auto validation now finalizes the report from the executed portfolio state.
+
+New intended run order:
+
+1. build rotation plan from current portfolio;
+2. build pre-execution runtime state;
+3. execute guarded model rotation if hard policy checks pass;
+4. update `output/etf_trade_ledger.csv` and `output/etf_portfolio_state.json`;
+5. rebuild runtime state from the executed portfolio state without the old rotation plan;
+6. overwrite the current EN/NL report pair from executed holdings;
+7. continue delivery validation/render/send from the executed report pair.
+
+Expected visible result after the next successful run:
+
+- Section 15 holdings should show the reduced GLD share count and a new GSG position if GLD→GSG still passes generic rules;
+- Section 14 should show executed model changes rather than only proposed trade intents;
+- Continuity input should start the next run from the executed holdings;
+- trade ledger should contain official Sell/Buy model rows.
