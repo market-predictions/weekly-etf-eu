@@ -9,7 +9,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   validate-eu-bootstrap:
@@ -26,6 +26,14 @@ jobs:
         with:
           python-version: "3.11"
 
+      - name: Resolve EU run identity
+        run: |
+          RUN_ID="$(date -u +'%Y%m%d_%H%M%S')"
+          REPORT_DATE="$(date -u +'%Y-%m-%d')"
+          echo "ETF_EU_RUN_ID=$RUN_ID" >> "$GITHUB_ENV"
+          echo "ETF_EU_REPORT_DATE=$REPORT_DATE" >> "$GITHUB_ENV"
+          echo "ETF_EU_RUN_ID=$RUN_ID | report_date=$REPORT_DATE"
+
       - name: Validate EU control files exist
         run: |
           test -f control/SYSTEM_INDEX.md
@@ -35,6 +43,8 @@ jobs:
           test -f control/UCITS_INVESTABILITY_RULES.md
           test -f control/UCITS_SYMBOL_REGISTRY_CONTRACT.md
           test -f control/UCITS_MIGRATION_PLAN.md
+          test -f control/ETF_EU_OUTPUT_CONTRACT_V1.md
+          test -f control/ETF_EU_CHANGELOG.md
           echo "ETF_EU_CONTROL_FILES_OK"
 
       - name: Validate EU config files exist
@@ -59,6 +69,18 @@ jobs:
           print('ETF_EU_CASH_ONLY_STATE_OK')
           PY
 
+      - name: Render EU cash-only report skeleton
+        run: |
+          python -m runtime.render_etf_eu_report \
+            --output-dir output \
+            --state output/etf_eu_portfolio_state.json \
+            --proxy-map config/ucits_benchmark_proxy_map.yml \
+            --report-date "$ETF_EU_REPORT_DATE"
+
+      - name: Validate EU output contract
+        run: |
+          python tools/validate_etf_eu_output_contract.py --output-dir output
+
       - name: Validate inherited US production sender is disabled
         run: |
           if grep -q "MRKT_RPRTS_SMTP" .github/workflows/send-weekly-report.yml; then
@@ -76,3 +98,15 @@ jobs:
         run: |
           echo "ETF_EU_BOOTSTRAP_VALIDATION_ONLY"
           echo "No pricing pass, portfolio mutation, PDF generation or email delivery is performed by this workflow."
+
+      - name: Commit EU bootstrap report artifacts
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add output/weekly_etf_eu_review_*.md || true
+          if git diff --cached --quiet; then
+            echo "No EU bootstrap report artifacts to commit."
+            exit 0
+          fi
+          git commit -m "Persist Weekly ETF EU bootstrap report skeleton [skip ci]"
+          git push origin HEAD:main
