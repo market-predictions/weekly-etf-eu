@@ -88,7 +88,7 @@ def _fx(runtime_state: dict[str, Any]) -> float:
 
 
 def _market_value_eur(row: dict[str, Any]) -> float:
-    return _float(row.get("previous_market_value_eur") or row.get("market_value_eur"))
+    return _float(row.get("previous_market_value_eur") if row.get("previous_market_value_eur") not in (None, "") else row.get("market_value_eur"))
 
 
 def _price_local(row: dict[str, Any], price_map: dict[str, dict[str, Any]]) -> float:
@@ -124,12 +124,44 @@ def _valid_price_row(ticker: str, price_map: dict[str, dict[str, Any]]) -> tuple
     return True, "ok"
 
 
+def _shares_for_notional(notional_eur: float, price_local: float, currency: str, fx: float) -> float:
+    if price_local <= 0:
+        return 0.0
+    return _local_from_eur(notional_eur, currency, fx) / price_local
+
+
+def _live_source_value_eur(row: dict[str, Any], price_map: dict[str, dict[str, Any]], fx: float) -> float:
+    price = _price_local(row, price_map)
+    currency = _currency(row, price_map)
+    shares = _float(row.get("shares"))
+    if shares > 0 and price > 0:
+        return round(_eur_from_local(shares * price, currency, fx), 2)
+    return _market_value_eur(row)
+
+
+def _requested_notional(intent: dict[str, Any], nav: float) -> float:
+    requested = abs(_float(intent.get("estimated_notional_eur")))
+    if requested <= 0 and nav > 0:
+        requested = abs(_float(intent.get("delta_weight_pct"))) / 100.0 * nav
+    return round(requested, 2)
+
+
+def _execution_notional(intent: dict[str, Any], source_row: dict[str, Any], runtime_state: dict[str, Any], price_map: dict[str, dict[str, Any]], fx: float) -> tuple[float, float, bool]:
+    nav = _nav(runtime_state)
+    requested = _requested_notional(intent, nav)
+    available = _live_source_value_eur(source_row, price_map, fx)
+    actual = max(0.0, min(requested, available))
+    capped = requested - actual > 1.0
+    return round(actual, 2), round(requested, 2), capped
+
+
 def _validate_inputs(runtime_state: dict[str, Any]) -> tuple[list[str], list[str]]:
     errors: list[str] = []
     warnings: list[str] = []
     price_map = _pricing_map(runtime_state)
     position_map = _position_map(runtime_state)
     nav = _nav(runtime_state)
+    fx = _fx(runtime_state)
     policy = _policy(runtime_state)
     intents = _trade_intents(runtime_state)
     min_trade = _float(policy.get("min_trade_size_pct_nav"), 2.0)
@@ -159,8 +191,10 @@ def _validate_inputs(runtime_state: dict[str, Any]) -> tuple[list[str], list[str
         if not source or not destination:
             errors.append("trade_intent_missing_source_or_destination")
             continue
-        if source not in position_map:
+        source_row = position_map.get(source)
+        if source_row is None:
             errors.append(f"source_not_in_portfolio:{source}")
+            continue
         for ticker in (source, destination):
             ok, reason = _valid_price_row(ticker, price_map)
             if not ok:
@@ -171,20 +205,20 @@ def _validate_inputs(runtime_state: dict[str, Any]) -> tuple[list[str], list[str
             errors.append(f"destination_delta_not_positive:{destination}:{destination_delta}")
         if abs(abs(source_delta) - abs(destination_delta)) > 0.05:
             errors.append(f"source_destination_delta_mismatch:{source_delta}:{destination_delta}")
-        if abs(source_delta) < min_trade:
-            errors.append(f"trade_below_min_size:{source}:{abs(source_delta):.2f}<{min_trade:.2f}")
-        if abs(source_delta) - max_source_reduction > 0.05:
-            errors.append(f"source_reduction_exceeds_policy:{source}:{abs(source_delta):.2f}>{max_source_reduction:.2f}")
+        actual_notional, requested_notional, capped = _execution_notional(intent, source_row, runtime_state, price_map, fx)
+        actual_pct = actual_notional / nav * 100.0 if nav else 0.0
+        if capped:
+            warnings.append(f"source_notional_capped_to_available_value:{source}:{requested_notional:.2f}->{actual_notional:.2f}")
+        if actual_notional <= 1.0:
+            errors.append(f"source_has_no_executable_value:{source}:{actual_notional:.2f}")
+        if actual_pct < min_trade:
+            errors.append(f"trade_below_min_size_after_source_cap:{source}:{actual_pct:.2f}<{min_trade:.2f}")
+        if actual_pct - max_source_reduction > 0.05:
+            errors.append(f"source_reduction_exceeds_policy:{source}:{actual_pct:.2f}>{max_source_reduction:.2f}")
         action = _text(intent.get("action_code"))
         if action not in {"replace_partial", "replace_full", "reduce", "close", "add_from_cash"}:
             errors.append(f"unsupported_action_code:{action}")
     return errors, warnings
-
-
-def _shares_for_notional(notional_eur: float, price_local: float, currency: str, fx: float) -> float:
-    if price_local <= 0:
-        return 0.0
-    return _local_from_eur(notional_eur, currency, fx) / price_local
 
 
 def _mark_position(row: dict[str, Any], *, shares: float, price: float, currency: str, nav: float, fx: float) -> dict[str, Any]:
@@ -221,14 +255,15 @@ def _build_shadow_positions(runtime_state: dict[str, Any]) -> list[dict[str, Any
         destination = _ticker(intent.get("destination_ticker"))
         if not source or not destination or source not in positions:
             continue
-        notional = abs(_float(intent.get("estimated_notional_eur")))
-        if notional <= 0 and nav > 0:
-            notional = abs(_float(intent.get("delta_weight_pct"))) / 100.0 * nav
-
         source_row = positions[source]
+        executable_notional, requested_notional, capped = _execution_notional(intent, source_row, runtime_state, price_map, fx)
+        if executable_notional <= 0:
+            continue
+        actual_delta_pct = round(executable_notional / nav * 100.0, 4) if nav else 0.0
+
         source_price = _price_local(source_row, price_map)
         source_currency = _currency(source_row, price_map)
-        source_shares_delta = -_shares_for_notional(notional, source_price, source_currency, fx)
+        source_shares_delta = -_shares_for_notional(executable_notional, source_price, source_currency, fx)
         source_row = _mark_position(
             source_row,
             shares=_float(source_row.get("shares")) + source_shares_delta,
@@ -237,17 +272,18 @@ def _build_shadow_positions(runtime_state: dict[str, Any]) -> list[dict[str, Any
             nav=nav,
             fx=fx,
         )
-        source_row["target_weight_pct"] = round(target_weights.get(source, source_row.get("current_weight_pct", 0.0)), 2)
+        source_row["target_weight_pct"] = round(max(0.0, _float(source_row.get("current_weight_pct"))), 2)
         source_row["shares_delta_this_run"] = round(source_shares_delta, 6)
-        source_row["weight_change_pct"] = round(_float(intent.get("delta_weight_pct")), 4)
+        source_row["weight_change_pct"] = round(-actual_delta_pct, 4)
         source_row["action_executed_this_run"] = "Shadow reduce"
+        source_row["funding_source_note"] = "Shadow execution capped to available source value." if capped else "Shadow execution from rotation intent."
         positions[source] = source_row
 
         dest_price_row = price_map.get(destination, {})
         dest_price = _float(dest_price_row.get("selected_close") or dest_price_row.get("price"))
         dest_currency = _text(dest_price_row.get("currency") or "USD").upper()
         dest_base = dict(positions.get(destination, {}))
-        dest_shares_delta = _shares_for_notional(notional, dest_price, dest_currency, fx)
+        dest_shares_delta = _shares_for_notional(executable_notional, dest_price, dest_currency, fx)
         dest_base.update({
             "ticker": destination,
             "suggested_action": "Add from rotation",
@@ -269,8 +305,9 @@ def _build_shadow_positions(runtime_state: dict[str, Any]) -> list[dict[str, Any
         )
         dest_base["target_weight_pct"] = round(target_weights.get(destination, dest_base.get("current_weight_pct", 0.0)), 2)
         dest_base["shares_delta_this_run"] = round(dest_shares_delta, 6)
-        dest_base["weight_change_pct"] = round(_float(intent.get("destination_delta_weight_pct")), 4)
+        dest_base["weight_change_pct"] = round(actual_delta_pct, 4)
         dest_base["action_executed_this_run"] = "Shadow buy"
+        dest_base["funding_source_note"] = f"Shadow buy funded by {source}."
         positions[destination] = dest_base
 
     return sorted(positions.values(), key=lambda row: _ticker(row.get("ticker")))
@@ -279,15 +316,18 @@ def _build_shadow_positions(runtime_state: dict[str, Any]) -> list[dict[str, Any
 def _build_ledger_rows(runtime_state: dict[str, Any]) -> list[dict[str, Any]]:
     price_map = _pricing_map(runtime_state)
     position_map = _position_map(runtime_state)
+    fx = _fx(runtime_state)
+    nav = _nav(runtime_state)
     run_id = _text(runtime_state.get("run_id"), "unknown")
     trade_date = _text(runtime_state.get("requested_close_date") or runtime_state.get("report_date"))
     rows: list[dict[str, Any]] = []
     for index, intent in enumerate(_trade_intents(runtime_state), start=1):
         source = _ticker(intent.get("source_ticker"))
         destination = _ticker(intent.get("destination_ticker"))
-        notional = abs(_float(intent.get("estimated_notional_eur")))
-        source_weight = _float((position_map.get(source) or {}).get("current_weight_pct"))
-        dest_weight = _float(intent.get("destination_delta_weight_pct"))
+        source_row = position_map.get(source, {})
+        actual_notional, requested_notional, capped = _execution_notional(intent, source_row, runtime_state, price_map, fx) if source_row else (0.0, _requested_notional(intent, nav), False)
+        source_weight = _float(source_row.get("current_weight_pct") or source_row.get("previous_weight_pct"))
+        actual_delta_pct = actual_notional / nav * 100.0 if nav else 0.0
         rows.append({
             "trade_id": f"shadow-{trade_date}-{run_id}-{index:02d}-{source}-{destination}",
             "trade_date": trade_date,
@@ -295,14 +335,16 @@ def _build_ledger_rows(runtime_state: dict[str, Any]) -> list[dict[str, Any]]:
             "source_ticker": source,
             "destination_ticker": destination,
             "action": _text(intent.get("action_code"), "unknown"),
-            "source_delta_weight_pct": _round(intent.get("delta_weight_pct"), 4),
-            "destination_delta_weight_pct": _round(intent.get("destination_delta_weight_pct"), 4),
-            "estimated_notional_eur": round(notional, 2),
+            "source_delta_weight_pct": round(-actual_delta_pct, 4),
+            "destination_delta_weight_pct": round(actual_delta_pct, 4),
+            "estimated_notional_eur": round(actual_notional, 2),
+            "requested_notional_eur": round(requested_notional, 2),
             "source_previous_weight_pct": round(source_weight, 4),
-            "source_target_weight_pct": round(source_weight + _float(intent.get("delta_weight_pct")), 4),
-            "destination_target_weight_pct": round(dest_weight, 4),
+            "source_target_weight_pct": round(max(0.0, source_weight - actual_delta_pct), 4),
+            "destination_target_weight_pct": round(actual_delta_pct, 4),
             "source_price_status": (price_map.get(source) or {}).get("status"),
             "destination_price_status": (price_map.get(destination) or {}).get("status"),
+            "notional_capped_to_source_value": capped,
             "reason_codes": intent.get("reason_codes") or [],
         })
     return rows
@@ -375,6 +417,8 @@ def _guarded_positions(shadow_positions: list[dict[str, Any]]) -> list[dict[str,
             item["action_executed_this_run"] = "Sell"
         elif item.get("action_executed_this_run") == "Shadow buy":
             item["action_executed_this_run"] = "Buy"
+        if _float(item.get("shares")) <= 0.000001 and _market_value_eur(item) <= 1.0:
+            continue
         out.append(item)
     return out
 
