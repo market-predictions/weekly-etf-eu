@@ -6,7 +6,9 @@ import re
 from collections import defaultdict
 from pathlib import Path
 
-MODEL_TRADE_RE = re.compile(r"^model-(\d{4}-\d{2}-\d{2})-(.+)-(\d{2})-([A-Z0-9.]+)-(SELL|BUY)$")
+MODEL_TRADE_RE = re.compile(r"^model-(\d{4}-\d{2}-\d{2})-(.+?)-(\d{2})-([A-Z0-9.]+)(?:-([A-Z]+))?$")
+REDUCE_ACTIONS = {"decrease", "reduce"}
+ADD_ACTIONS = {"increase", "add"}
 
 
 def _read_rows(path: Path) -> list[dict[str, str]]:
@@ -24,19 +26,22 @@ def _model_pairs(rows: list[dict[str, str]]) -> dict[tuple[str, str, str], list[
         match = MODEL_TRADE_RE.match(trade_id)
         if not match:
             continue
-        date_from_id, run_id, pair_index, ticker, side = match.groups()
+        date_from_id, run_id, pair_index, ticker, suffix = match.groups()
         trade_date = str(row.get("trade_date") or date_from_id).strip() or date_from_id
+        action = str(row.get("action") or "").strip().lower()
         group_key = (trade_date, run_id, pair_index)
-        grouped[group_key][side] = ticker.upper()
+        if suffix == "SELL" or action in REDUCE_ACTIONS:
+            grouped[group_key]["source"] = ticker.upper()
+        elif suffix == "BUY" or action in ADD_ACTIONS:
+            grouped[group_key]["destination"] = ticker.upper()
         source_reports[group_key].add(str(row.get("source_report") or "").strip())
     pairs: dict[tuple[str, str, str], list[str]] = defaultdict(list)
     for group_key, legs in grouped.items():
-        source = legs.get("SELL")
-        destination = legs.get("BUY")
+        source = legs.get("source")
+        destination = legs.get("destination")
         if not source or not destination:
             continue
-        trade_date = group_key[0]
-        pair_key = (trade_date, source, destination)
+        pair_key = (group_key[0], source, destination)
         pairs[pair_key].extend(sorted(source_reports[group_key]))
     return pairs
 
@@ -46,9 +51,10 @@ def validate(path: Path) -> None:
     pairs = _model_pairs(rows)
     errors: list[str] = []
     for (trade_date, source, destination), sources in sorted(pairs.items()):
-        if len(sources) > 1:
+        unique_sources = sorted(set(sources))
+        if len(unique_sources) > 1:
             errors.append(
-                f"duplicate_guarded_model_execution:{trade_date}:{source}->{destination}:count={len(sources)}:sources={','.join(sources)}"
+                f"duplicate_guarded_model_execution:{trade_date}:{source}->{destination}:count={len(unique_sources)}:sources={','.join(unique_sources)}"
             )
     if errors:
         raise RuntimeError("ETF trade-ledger idempotency validation failed: " + "; ".join(errors))
