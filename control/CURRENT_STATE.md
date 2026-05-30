@@ -6,7 +6,7 @@
 
 ## What this repository currently is
 
-This repository has just been cloned from `market-predictions/weekly-etf` into:
+This repository has been cloned from `market-predictions/weekly-etf` into:
 
 ```text
 market-predictions/weekly-etf-eu
@@ -28,27 +28,48 @@ This new repo is intended to become:
 market-predictions/weekly-etf-eu = UCITS ETF model for Dutch/EU clients
 ```
 
-The clone currently still contains many U.S.-ETF artifacts, workflow names and outputs. Those files are inherited history, not final EU authority.
+The clone still contains many U.S.-ETF artifacts, old workflow names and historical outputs. Those files are inherited history, not final EU authority.
 
 ## Current migration status
 
-The repo is in **Phase 0 / Phase 1 bootstrap**.
+The repo is in **Phase 1 / Phase 2 bootstrap**.
 
 Completed:
 
 - repository created and mirror-pushed from `weekly-etf`;
 - control layer rewritten to identify this as the EU/UCITS environment;
-- EU authority files are being added;
-- initial EU state separation is being introduced.
+- UCITS authority files added;
+- EU config stubs added;
+- EU cash-only state files added;
+- `tools/validate_no_us_etf_as_eu_holding.py` added;
+- inherited U.S. production send workflow disabled;
+- EU bootstrap validation workflow added;
+- first EU bootstrap validation run passed in GitHub Actions.
 
 Not yet completed:
 
-- EU workflow separation;
 - EU output filename separation;
 - UCITS pricing line support;
 - verified UCITS symbol registry;
 - Dutch-first EU report renderer;
 - production delivery enablement.
+
+## Latest validation result
+
+The first `Weekly ETF EU UCITS bootstrap validation` GitHub Actions run passed.
+
+Validated markers:
+
+```text
+EU control files exist
+EU config files exist
+EU cash-only state exists
+no U.S.-listed ETF appears as an EU holding
+inherited U.S. production sender is disabled
+no delivery is attempted
+```
+
+This is a bootstrap validation only. It is not a production report delivery receipt.
 
 ## Current authority rules
 
@@ -105,19 +126,18 @@ Pricing code and workflows still need to be adapted to UCITS exchange tickers an
 
 The inherited report is bilingual U.S.-ETF reporting. The EU report must become Dutch-client native, with UCITS/tradability disclosure and U.S. proxies clearly marked as research-only.
 
-### 5. Delivery must remain blocked until EU validators pass
+### 5. Delivery remains blocked
 
-Do not send production EU emails until EU state, UCITS registry, no-U.S.-holding validation and output contracts pass.
+Production delivery remains blocked until EU state, UCITS registry, no-U.S.-holding validation and output contracts pass.
 
 ## Immediate priority
 
-Build the first safe EU separation layer:
+Build the EU output contract and first non-delivery report skeleton:
 
-1. Add UCITS control contracts.
-2. Add UCITS config stubs.
-3. Add cash-only EU state files.
-4. Add validator blocking U.S.-listed ETFs as EU holdings.
-5. Rename/disable production workflow until EU output contract is ready.
+1. Define EU output filenames.
+2. Add output validator that blocks U.S. ETFs as holdings in the report surface.
+3. Add Dutch-first EU report skeleton using cash-only state and UCITS candidate registry.
+4. Keep production delivery disabled.
 
 ## Stable decision
 
