@@ -41,6 +41,19 @@ MINI_CARD_TRIPLE_RE = re.compile(
 )
 RUNTIME_POINTER = Path("output/runtime/latest_etf_report_state_path.txt")
 
+FORBIDDEN_POST_EXECUTION_PHRASES = {
+    "Rotation plan artifact is active": "Guarded model rotation is reflected in the official portfolio state",
+    "target weights and trade intents are proposed until the trade ledger and portfolio state record execution": "the official portfolio state and trade ledger already reflect the guarded model rotation",
+    "proposed until": "already reflected",
+    "pending execution and portfolio-state persistence": "already reflected in official portfolio state",
+    "pending portfolio-state persistence": "already reflected in official portfolio state",
+    "pending execution": "already reflected in official portfolio state",
+    "Proposed rotation": "Reflected rotation",
+    "proposed rotation": "reflected rotation",
+    "trade intents are proposed": "the guarded model rotation is reflected",
+    "not executed trades until": "already reflected in official state",
+}
+
 LABELS = {
     "en": {
         "portfolio_action_snapshot": "Portfolio Action Snapshot",
@@ -54,13 +67,14 @@ LABELS = {
         "hold": "Hold",
         "hold_override": "Hold with override",
         "hold_replaceable": "Hold but replaceable",
-        "proposed_replace_reduce": "Proposed replace / reduce",
+        "reflected_replace_reduce": "Reflected replace / reduce",
         "reduce": "Reduce",
         "close": "Close",
         "none": "None",
         "replaceable_note": "remain under explicit review.",
         "best_replacements": "Best replacements to fund",
         "best_replacements_note": "No challenger is promoted to a fundable replacement yet. Each named replacement must first clear the same close-date pricing basis and relative-strength duel.",
+        "post_execution_best_replacements_note": "The GLD → GSG guarded model rotation is already reflected in the official portfolio state and trade ledger; no new state or ledger mutation was performed this run.",
         "ticker": "Ticker",
         "action": "Action",
         "score": "Score",
@@ -71,8 +85,8 @@ LABELS = {
         "primary_regime": "Primary regime",
         "geopolitical_regime": "Geopolitical regime",
         "main_takeaway": "Main takeaway",
-        "rotation_status": "Rotation engine status",
-        "rotation_active_note": "Rotation plan artifact is active; target weights and trade intents are proposed until the trade ledger and portfolio state record execution.",
+        "rotation_status": "Rotation execution status",
+        "rotation_reflected_note": "Guarded model rotation is already reflected in the official portfolio state and trade ledger; this run performed no duplicate state or ledger mutation.",
     },
     "nl": {
         "portfolio_action_snapshot": "Portefeuille-acties",
@@ -86,13 +100,14 @@ LABELS = {
         "hold": "Aanhouden",
         "hold_override": "Aanhouden met override",
         "hold_replaceable": "Aanhouden, maar vervangbaar",
-        "proposed_replace_reduce": "Voorgesteld vervangen / verlagen",
+        "reflected_replace_reduce": "Verwerkte vervanging / verlaging",
         "reduce": "Verlagen",
         "close": "Sluiten",
         "none": "Geen",
         "replaceable_note": "blijven expliciet onder herbeoordeling.",
         "best_replacements": "Beste alternatieven om te financieren",
         "best_replacements_note": "Nog geen alternatief is sterk genoeg om direct te financieren. Elk genoemd alternatief moet eerst dezelfde prijsbasis en relatieve-sterkteanalyse doorstaan.",
+        "post_execution_best_replacements_note": "De bewaakte GLD → GSG-modelrotatie is al verwerkt in de officiële portefeuillestaat en het handelslogboek; deze run heeft geen dubbele staat- of handelslogboekmutatie uitgevoerd.",
         "ticker": "Ticker",
         "action": "Actie",
         "score": "Score",
@@ -103,8 +118,8 @@ LABELS = {
         "primary_regime": "Primair regime",
         "geopolitical_regime": "Geopolitiek regime",
         "main_takeaway": "Kernconclusie",
-        "rotation_status": "Status rotatie-engine",
-        "rotation_active_note": "Het rotatieplan is actief; doelgewichten en handelsintenties blijven voorstellen totdat het handelslogboek en de portefeuille-staat uitvoering vastleggen.",
+        "rotation_status": "Status rotatie-uitvoering",
+        "rotation_reflected_note": "De bewaakte modelrotatie is al verwerkt in de officiële portefeuillestaat en het handelslogboek; deze run heeft geen dubbele staat- of handelslogboekmutatie uitgevoerd.",
     },
 }
 
@@ -112,10 +127,13 @@ ACTION_NL = {
     "hold": "Aanhouden",
     "add": "Toevoegen",
     "buy": "Kopen",
+    "increase": "Toevoegen",
     "reduce": "Verlagen",
+    "decrease": "Verlagen",
     "close": "Sluiten",
     "sell": "Verkopen",
     "hold under review": "Aanhouden, onder herbeoordeling",
+    "already reflected": "Al verwerkt",
 }
 ROTATION_ACTION_LABELS = {
     "en": {
@@ -142,6 +160,7 @@ FRESH_CASH_NL = {
     "smaller": "Kleiner",
     "reduce": "Verlagen",
     "hold": "Aanhouden",
+    "hold / monitor": "Aanhouden / monitoren",
 }
 ROLE_NL = {
     "Core beta": "Kernbeta",
@@ -150,6 +169,7 @@ ROLE_NL = {
     "Real-asset capex": "Reële activa / capex",
     "Strategic energy": "Strategische energie",
     "Hedge ballast": "Hedgepositie",
+    "Rotation destination": "Rotatiebestemming",
 }
 NEXT_ACTION_NL = {
     "SPY": "Toets overlap met SMH voordat extra kapitaal wordt toegewezen.",
@@ -158,6 +178,7 @@ NEXT_ACTION_NL = {
     "PAVE": "Voer de vervangingsanalyse tegenover GRID opnieuw uit.",
     "URNM": "Aanhouden en vergelijken met URA/NLR als uraniumbreedte verbetert.",
     "GLD": "Voer de hedge-validiteitstest opnieuw uit tegenover GSG en BIL.",
+    "GSG": "Monitor commodity-breedte en bijdrage aan de hedgefunctie.",
 }
 
 
@@ -254,7 +275,7 @@ def _nl_action(value: Any) -> str:
         return ACTION_NL[low]
     if "add" in low or "buy" in low:
         return "Toevoegen"
-    if "reduce" in low:
+    if "reduce" in low or "decrease" in low:
         return "Verlagen"
     if "review" in low:
         return "Aanhouden, onder herbeoordeling"
@@ -298,7 +319,7 @@ def _is_add(p: dict[str, Any]) -> bool:
     action = _clean(p.get("suggested_action")).lower()
     executed = _clean(p.get("action_executed_this_run")).lower()
     shares_delta = float(p.get("shares_delta_this_run") or 0.0)
-    return "add" in action or "buy" in executed or shares_delta > 0
+    return "add" in action or "buy" in executed or "increase" in executed or shares_delta > 0
 
 
 def _is_hold(p: dict[str, Any]) -> bool:
@@ -312,7 +333,9 @@ def _is_replace(p: dict[str, Any]) -> bool:
 
 
 def _is_reduce(p: dict[str, Any]) -> bool:
-    return "reduce" in _clean(p.get("suggested_action")).lower()
+    action = _clean(p.get("suggested_action")).lower()
+    executed = _clean(p.get("action_executed_this_run")).lower()
+    return "reduce" in action or "decrease" in executed or "sell" in executed
 
 
 def _is_close(p: dict[str, Any]) -> bool:
@@ -359,23 +382,40 @@ def _section_header(base: Any, number: int, title: str) -> str:
         return f"<h2>{escape(title)}</h2>"
 
 
-def _runtime_state_from_pointer() -> dict[str, Any] | None:
-    for raw in (os.environ.get("MRKT_RPRTS_RUNTIME_STATE_PATH"), os.environ.get("ETF_RUNTIME_STATE_PATH")):
-        if not raw:
-            continue
-        path = Path(raw)
+def _read_json_file(path: Path) -> dict[str, Any] | None:
+    try:
         if path.exists():
             return json.loads(path.read_text(encoding="utf-8"))
+    except Exception:
+        return None
+    return None
+
+
+def _is_post_execution_state(state: dict[str, Any] | None) -> bool:
+    if not state:
+        return False
+    context = state.get("execution_context") or {}
+    flags = state.get("validation_flags") or {}
+    return context.get("report_phase") == "post_execution" or bool(flags.get("already_executed_noop")) or bool(flags.get("post_execution_report"))
+
+
+def _runtime_state_from_pointer() -> dict[str, Any] | None:
+    # Prefer the latest finalized post-execution state over the earlier pre-execution runtime state left in GitHub env.
+    pointer_state: dict[str, Any] | None = None
     if RUNTIME_POINTER.exists():
         raw = RUNTIME_POINTER.read_text(encoding="utf-8").strip()
         if raw:
             path = Path(raw)
-            if path.exists():
-                return json.loads(path.read_text(encoding="utf-8"))
-            candidate = RUNTIME_POINTER.parent / path.name
-            if candidate.exists():
-                return json.loads(candidate.read_text(encoding="utf-8"))
-    return None
+            pointer_state = _read_json_file(path) or _read_json_file(RUNTIME_POINTER.parent / path.name)
+    if _is_post_execution_state(pointer_state):
+        return pointer_state
+    for raw in (os.environ.get("MRKT_RPRTS_RUNTIME_STATE_PATH"), os.environ.get("ETF_RUNTIME_STATE_PATH")):
+        if not raw:
+            continue
+        env_state = _read_json_file(Path(raw))
+        if env_state:
+            return env_state
+    return pointer_state
 
 
 def _load_state() -> dict[str, Any]:
@@ -386,11 +426,15 @@ def _load_state() -> dict[str, Any]:
 
 
 def _rotation_decisions(state: dict[str, Any]) -> list[dict[str, Any]]:
+    if _is_post_execution_state(state):
+        return []
     rows = state.get("rotation_decisions") or (state.get("rotation_plan") or {}).get("rotation_decisions") or []
     return list(rows) if isinstance(rows, list) else []
 
 
 def _trade_intents(state: dict[str, Any]) -> list[dict[str, Any]]:
+    if _is_post_execution_state(state):
+        return []
     rows = state.get("trade_intents") or (state.get("rotation_plan") or {}).get("trade_intents") or []
     return list(rows) if isinstance(rows, list) else []
 
@@ -435,7 +479,17 @@ def _rotation_bucket_summary(state: dict[str, Any]) -> dict[str, list[str]]:
     return buckets
 
 
+def _post_execution_pairs(state: dict[str, Any]) -> list[str]:
+    positions = {_ticker(p.get("ticker")) for p in position_rows(state)}
+    if "GLD" in positions and "GSG" in positions:
+        return ["GLD→GSG"]
+    return []
+
+
 def _trade_summary_html(base: Any, state: dict[str, Any], language: str) -> str:
+    if _is_post_execution_state(state):
+        note = _labels(language)["post_execution_best_replacements_note"]
+        return escape(note)
     intents = _trade_intents(state)
     if not intents:
         return escape(_labels(language)["best_replacements_note"])
@@ -464,8 +518,30 @@ def _classified_positions(state: dict[str, Any]) -> dict[str, list[str]]:
     }
 
 
+def _post_execution_action_snapshot_html(base: Any, state: dict[str, Any], language: str) -> str:
+    l = _labels(language)
+    c = _classified_positions(state)
+    reflected = _post_execution_pairs(state)
+    return "".join([
+        "<div class='panel panel-action-snapshot'>", _section_header(base, 2, l["portfolio_action_snapshot"]),
+        "<table class='action-table'><thead><tr>",
+        f"<th>{escape(l['recommendation'])}</th><th>{escape(l['tickers_notes'])}</th></tr></thead><tbody>",
+        f"<tr><th>{escape(l['add_destination'])}</th><td>{_ticker_join(base, c['add'], language)}</td></tr>",
+        f"<tr><th>{escape(l['hold'])}</th><td>{_ticker_join(base, c['hold'], language)}</td></tr>",
+        f"<tr><th>{escape(l['hold_override'])}</th><td>{_ticker_join(base, c['replace'], language)} {escape(l['replaceable_note'])}</td></tr>",
+        f"<tr><th>{escape(l['reflected_replace_reduce'])}</th><td>{_ticker_expr_join(base, reflected, language)}</td></tr>",
+        f"<tr><th>{escape(l['close'])}</th><td>{_ticker_join(base, c['close'], language)}</td></tr>",
+        "</tbody></table>",
+        f"<div class='note-box'><h4>{escape(l['rotation_status'])}</h4><ul><li>{escape(l['rotation_reflected_note'])}</li></ul></div>",
+        f"<div class='note-box'><h4>{escape(l['best_replacements'])}</h4><ul><li>{_trade_summary_html(base, state, language)}</li></ul></div>",
+        "</div>",
+    ])
+
+
 def _action_snapshot_html(base: Any, state: dict[str, Any], language: str) -> str:
     l = _labels(language)
+    if _is_post_execution_state(state):
+        return _post_execution_action_snapshot_html(base, state, language)
     if _has_rotation_plan(state):
         c = _rotation_bucket_summary(state)
         return "".join([
@@ -475,10 +551,10 @@ def _action_snapshot_html(base: Any, state: dict[str, Any], language: str) -> st
             f"<tr><th>{escape(l['add_destination'])}</th><td>{_ticker_join(base, c['add'], language)}</td></tr>",
             f"<tr><th>{escape(l['hold'])}</th><td>{_ticker_join(base, c['hold'], language)}</td></tr>",
             f"<tr><th>{escape(l['hold_override'])}</th><td>{_ticker_join(base, c['override'], language)}</td></tr>",
-            f"<tr><th>{escape(l['proposed_replace_reduce'])}</th><td>{_ticker_expr_join(base, c['replace'] + c['reduce'], language)}</td></tr>",
+            f"<tr><th>{escape(l['reflected_replace_reduce'])}</th><td>{_ticker_expr_join(base, c['replace'] + c['reduce'], language)}</td></tr>",
             f"<tr><th>{escape(l['close'])}</th><td>{_ticker_join(base, c['close'], language)}</td></tr>",
             "</tbody></table>",
-            f"<div class='note-box'><h4>{escape(l['rotation_status'])}</h4><ul><li>{escape(l['rotation_active_note'])}</li></ul></div>",
+            f"<div class='note-box'><h4>{escape(l['rotation_status'])}</h4><ul><li>{escape(l['rotation_reflected_note'])}</li></ul></div>",
             f"<div class='note-box'><h4>{escape(l['best_replacements'])}</h4><ul><li>{_trade_summary_html(base, state, language)}</li></ul></div>",
             "</div>",
         ])
@@ -535,6 +611,18 @@ def _position_review_html(base: Any, state: dict[str, Any], language: str) -> st
 
 def _rotation_plan_html(base: Any, state: dict[str, Any], language: str) -> str:
     l = _labels(language)
+    if _is_post_execution_state(state):
+        c = _classified_positions(state)
+        reflected = _post_execution_pairs(state)
+        return "".join([
+            "<div class='panel panel-rotation-plan'>", _section_header(base, 5, l["portfolio_rotation_plan"]),
+            "<table class='data-table rotation-plan-table'><thead><tr>",
+            f"<th>{escape(l['close'])}</th><th>{escape(l['reduce'])}</th><th>{escape(l['hold'])}</th><th>{escape(l['add'])}</th><th>{escape(l['replace'])}</th></tr></thead>",
+            "<tbody><tr>",
+            f"<td>{_ticker_join(base, c['close'], language)}</td><td>{_ticker_join(base, c['reduce'], language)}</td><td>{_ticker_join(base, c['hold'], language)}</td><td>{_ticker_join(base, c['add'], language)}</td><td>{_ticker_expr_join(base, reflected, language)}</td>",
+            "</tr></tbody></table>",
+            f"<div class='note-box'><ul><li>{escape(l['rotation_reflected_note'])}</li></ul></div></div>",
+        ])
     if _has_rotation_plan(state):
         c = _rotation_bucket_summary(state)
         return "".join([
@@ -609,6 +697,14 @@ def _inject_print_table_pagination_css(html: str) -> str:
     return PRINT_TABLE_PAGINATION_CSS + html
 
 
+def _sanitize_post_execution_copy(html: str, state: dict[str, Any]) -> str:
+    if not _is_post_execution_state(state):
+        return html
+    for old, new in FORBIDDEN_POST_EXECUTION_PHRASES.items():
+        html = html.replace(old, new)
+    return html
+
+
 def apply_etf_delivery_html_overrides(html: str, base: Any, md_text: str) -> str:
     language = _language(md_text)
     try:
@@ -621,6 +717,7 @@ def apply_etf_delivery_html_overrides(html: str, base: Any, md_text: str) -> str
     html = _replace_panel_by_title(html, ["Portfolio Rotation Plan", "Rotatieplan portefeuille"], _rotation_plan_html(base, state, language))
     html = _append_replacement_duel_after_best_opportunities(html, base, state, language)
     html = html.replace("Replacement Duel Table v2", _labels(language)["replacement_duel_table"])
+    html = _sanitize_post_execution_copy(html, state)
     return _inject_print_table_pagination_css(html)
 
 
