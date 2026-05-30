@@ -12,10 +12,96 @@ from runtime.build_etf_report_state import build_runtime_state
 from runtime.render_etf_report_from_state import render_en, render_nl
 
 RUNTIME_DIR = Path("output/runtime")
+AUTHORITY_FIELDS = {
+    "shares",
+    "current_price_local",
+    "previous_price_local",
+    "continuity_current_price_local",
+    "currency",
+    "market_value_local",
+    "previous_market_value_local",
+    "market_value_eur",
+    "previous_market_value_eur",
+    "current_weight_pct",
+    "previous_weight_pct",
+    "weight_inherited_pct",
+    "target_weight_pct",
+    "shares_delta_this_run",
+    "weight_change_pct",
+    "action_executed_this_run",
+    "funding_source_note",
+    "pricing_source",
+    "pricing_status",
+    "pricing_tier",
+    "pricing_close_type",
+    "price_date",
+    "selected_close",
+}
 
 
 def _read_json(path: Path) -> dict[str, Any]:
     return json.loads(path.read_text(encoding="utf-8"))
+
+
+def _ticker(value: Any) -> str:
+    return str(value or "").strip().upper()
+
+
+def _float(value: Any, default: float = 0.0) -> float:
+    try:
+        if value is None or value == "":
+            return default
+        return float(str(value).replace(",", "").replace("%", ""))
+    except (TypeError, ValueError):
+        return default
+
+
+def _overlay_executed_portfolio_authority(final_state: dict[str, Any], portfolio_state_path: Path) -> dict[str, Any]:
+    """Keep executed portfolio state authoritative after report-state rebuild.
+
+    build_runtime_state enriches rows with scorecard/report context. That is useful
+    for commentary, but scorecard memory must not override executed shares,
+    prices, market values, weights, cash or NAV in the final delivered report.
+    """
+    if not portfolio_state_path.exists():
+        return final_state
+    portfolio_state = _read_json(portfolio_state_path)
+    final_by_ticker = {_ticker(row.get("ticker")): dict(row) for row in final_state.get("positions", []) or [] if _ticker(row.get("ticker"))}
+    positions: list[dict[str, Any]] = []
+    for official in portfolio_state.get("positions", []) or []:
+        ticker = _ticker(official.get("ticker"))
+        if not ticker:
+            continue
+        merged = dict(final_by_ticker.get(ticker, {}))
+        for field in AUTHORITY_FIELDS:
+            if field in official:
+                merged[field] = official.get(field)
+        merged["ticker"] = ticker
+        positions.append(merged)
+
+    cash = round(_float(portfolio_state.get("cash_eur")), 2)
+    invested = round(sum(_float(row.get("market_value_eur") if row.get("market_value_eur") not in (None, "") else row.get("previous_market_value_eur")) for row in positions), 2)
+    nav = round(invested + cash, 2)
+    for row in positions:
+        mv = _float(row.get("market_value_eur") if row.get("market_value_eur") not in (None, "") else row.get("previous_market_value_eur"))
+        weight = round(mv / nav * 100.0, 2) if nav else 0.0
+        row["current_weight_pct"] = weight
+        row["previous_weight_pct"] = weight
+        row["weight_inherited_pct"] = weight
+        row.setdefault("target_weight_pct", weight)
+
+    final_state = dict(final_state)
+    final_state["positions"] = positions
+    final_state["portfolio"] = {
+        "cash_eur": cash,
+        "total_portfolio_value_eur": nav,
+        "base_currency": "EUR",
+    }
+    flags = dict(final_state.get("validation_flags") or {})
+    flags["executed_portfolio_authority_overlay"] = True
+    flags["executed_portfolio_authority_source"] = str(portfolio_state_path)
+    final_state["validation_flags"] = flags
+    return final_state
 
 
 def _output_root_from_artifact(path: Path) -> Path:
@@ -69,6 +155,7 @@ def finalize_from_artifact(artifact_path: Path) -> dict[str, Any]:
 
     source_files = artifact.get("source_files") or {}
     pricing_audit = source_files.get("pricing_audit")
+    portfolio_state_path = Path(source_files.get("portfolio_state") or "output/etf_portfolio_state.json")
     lane_artifact = source_files.get("lane_assessment") or source_files.get("lane_artifact")
     if not lane_artifact:
         # Runtime-state source keeps lane path inside source_files.
@@ -85,6 +172,7 @@ def finalize_from_artifact(artifact_path: Path) -> dict[str, Any]:
         rotation_plan_path=None,
         disable_rotation_plan=True,
     )
+    final_state = _overlay_executed_portfolio_authority(final_state, portfolio_state_path)
     report_date = str(final_state.get("report_date") or "unknown").replace("-", "")
     run_id = str(final_state.get("run_id") or artifact.get("run_id") or "unknown")
     final_state_path = RUNTIME_DIR / f"etf_report_state_{report_date}_{run_id}_executed.json"
