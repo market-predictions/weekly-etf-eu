@@ -1,0 +1,12 @@
+# UCITS symbol registry.
+# This file is intentionally conservative at bootstrap.
+# Candidates must be verified before they can become funded holdings.
+
+schema_version: ucits_symbol_registry_v1
+canonical_identity: isin_first
+
+funds: []
+
+bootstrap_notes:
+  - No UCITS ETF is fundable until ISIN, UCITS status, KID status and exchange line are verified.
+  - U.S. ETFs from the cloned weekly-etf repo are research proxies only.
