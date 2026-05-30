@@ -112,3 +112,19 @@ The new hard validation checks:
 - executed final report runtime state matches official portfolio-state quantities after `finalize_executed_etf_report.py` runs.
 
 This is intentionally validator-first. It blocks stale scorecard/report-state quantity leakage before PDF/email delivery instead of patching the report surface after the fact.
+
+---
+
+## 2026-05-30 — Execution validator follow-up after first blocked run
+
+The first run after adding the validator was correctly blocked before delivery. It exposed two follow-up problems:
+
+- model-execution inputs still inherited stale per-run fields such as `shares_delta_this_run`, `weight_change_pct`, `action_executed_this_run`, and `funding_source_note` from previously persisted portfolio state;
+- the validator used truthy fallbacks, so a legitimate current weight of `0.00` could fall through to stale legacy `weight_pct`.
+
+Changed:
+
+- `runtime/model_execution_engine.py` now clears stale this-run execution fields before building shadow and guarded positions;
+- `tools/validate_etf_execution_state_authority.py` now treats zero values as valid present values and only applies shadow share-delta bridge checks to tickers with a current-run non-zero share delta.
+
+This preserves the useful hard block while removing false positives from prior-run metadata.
