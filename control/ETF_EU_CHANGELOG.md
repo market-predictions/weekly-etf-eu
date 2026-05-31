@@ -425,6 +425,45 @@ This is still non-delivery. No PDF or email is produced.
 
 ---
 
+## 2026-05-30 — EU output validator markdown-normalization fix
+
+### Current issue
+
+The first output-contract run reached the EU output validator but failed because the validator searched for exact phrase strings while the renderer used markdown emphasis around the same labels, for example:
+
+```text
+- **Funded UCITS holdings:** none.
+- **Production delivery:** disabled.
+```
+
+The semantic contract was present, but the validator did not normalize markdown emphasis before checking required phrases.
+
+### File changed
+
+```text
+tools/validate_etf_eu_output_contract.py
+```
+
+### Commit
+
+```text
+ce3aa0a2802c2342b10da967d19f1be06e31160e
+```
+
+### Change
+
+The validator now normalizes cosmetic markdown before required-phrase checks:
+
+- strips `**`, `__` and backticks;
+- normalizes whitespace;
+- applies the same normalization to ticker/proxy table-row checks.
+
+### Result expected
+
+The next EU bootstrap validation should treat bold markdown labels and plain labels equivalently, while still enforcing that U.S. ETF tickers only appear in proxy/research context.
+
+---
+
 ## Current status after this changelog update
 
 The EU repo is safely separated at control/state/config/workflow level and now has a first non-delivery EU report output surface.
@@ -434,7 +473,7 @@ Production delivery remains blocked.
 The next material implementation step should be:
 
 ```text
-run EU bootstrap validation
-inspect generated weekly_etf_eu_review_nl_*.md and weekly_etf_eu_review_*.md
+rerun EU bootstrap validation
+confirm generated weekly_etf_eu_review_nl_*.md and weekly_etf_eu_review_*.md pass the normalized output contract
 then begin UCITS registry population with verified ISIN/trading-line candidates
 ```
