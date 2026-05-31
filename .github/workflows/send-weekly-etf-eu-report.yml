@@ -98,17 +98,20 @@ jobs:
           print('ETF_EU_CASH_ONLY_STATE_OK')
           PY
 
-      - name: Render EU cash-only report skeleton
+      - name: Render EU candidate report skeleton
         run: |
           python -m runtime.render_etf_eu_report \
             --output-dir output \
             --state output/etf_eu_portfolio_state.json \
             --proxy-map config/ucits_benchmark_proxy_map.yml \
+            --registry config/ucits_symbol_registry.yml \
+            --pricing-preflight "output/pricing/ucits_pricing_preflight_${ETF_EU_RUN_ID}.json" \
             --report-date "$ETF_EU_REPORT_DATE"
 
-      - name: Validate EU output contract
+      - name: Validate EU output and candidate report contracts
         run: |
           python tools/validate_etf_eu_output_contract.py --output-dir output
+          python tools/validate_etf_eu_candidate_report.py --output-dir output
 
       - name: Validate inherited US production sender is disabled
         run: |
@@ -138,5 +141,5 @@ jobs:
             echo "No EU bootstrap artifacts to commit."
             exit 0
           fi
-          git commit -m "Persist Weekly ETF EU bootstrap pricing preflight artifacts [skip ci]"
+          git commit -m "Persist Weekly ETF EU candidate report artifacts [skip ci]"
           git push origin HEAD:main
