@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import urllib.error
 import urllib.request
 from datetime import datetime, timezone
@@ -13,6 +14,7 @@ import yaml
 DEFAULT_SOURCE_POLICY = Path("config/ucits_pricing_source_policy.yml")
 DEFAULT_OUTPUT_DIR = Path("output/pricing")
 OFFICIAL_SOURCE_IDS = {"euronext_live", "deutsche_boerse_live"}
+OBSERVATION_TERMS = ["EUR", "USD", "last", "price", "close", "koers", "slot", "cours", "preis"]
 
 
 def load_yaml(path: Path) -> dict[str, Any]:
@@ -36,6 +38,29 @@ def fetch_text(url: str, timeout: int = 20) -> dict[str, Any]:
         return {"http_status": None, "error": str(exc), "text": ""}
 
 
+def clean_page_text(page_text: str) -> str:
+    cleaned = re.sub(r"<[^>]+>", " ", page_text)
+    cleaned = cleaned.replace("&nbsp;", " ").replace("&amp;", "&")
+    return re.sub(r"\s+", " ", cleaned).strip()
+
+
+def candidate_observation_text(page_text: str) -> list[str]:
+    cleaned = clean_page_text(page_text)
+    lowered = cleaned.lower()
+    snippets: list[str] = []
+    for term in OBSERVATION_TERMS:
+        start = 0
+        while len(snippets) < 20:
+            idx = lowered.find(term.lower(), start)
+            if idx < 0:
+                break
+            snippet = cleaned[max(0, idx - 90): min(len(cleaned), idx + 180)].strip()
+            if snippet and snippet not in snippets:
+                snippets.append(snippet)
+            start = idx + len(term)
+    return snippets
+
+
 def build_rows(policy: dict[str, Any]) -> list[dict[str, Any]]:
     rows: list[dict[str, Any]] = []
     for line in policy.get("trading_line_policies") or []:
@@ -51,6 +76,7 @@ def build_rows(policy: dict[str, Any]) -> list[dict[str, Any]]:
                 continue
             fetched = fetch_text(str(product_url))
             page_text = fetched.get("text") or ""
+            candidate_text = candidate_observation_text(page_text)
             expected_tokens = source.get("expected_tokens") or []
             token_checks = []
             for token in expected_tokens:
@@ -71,6 +97,8 @@ def build_rows(policy: dict[str, Any]) -> list[dict[str, Any]]:
                 "http_status": fetched.get("http_status"),
                 "fetch_error": fetched.get("error"),
                 "expected_token_checks": token_checks,
+                "candidate_price_date_currency_text": candidate_text,
+                "candidate_observation_status": "candidate_text_observed" if candidate_text else "no_candidate_text_observed",
                 "evidence_status": "official_page_reachable" if fetched.get("http_status") == 200 else "official_page_unresolved",
                 "price_extraction": False,
                 "portfolio_mutation": False,
@@ -106,7 +134,8 @@ def main() -> None:
     output_dir.mkdir(parents=True, exist_ok=True)
     path = output_dir / f"ucits_official_exchange_page_evidence_{run_id}.json"
     path.write_text(json.dumps(artifact, indent=2, sort_keys=True), encoding="utf-8")
-    print(f"UCITS_OFFICIAL_EXCHANGE_PAGE_EVIDENCE_OK | artifact={path} | rows={len(rows)}")
+    observed = sum(1 for row in rows if row.get("candidate_observation_status") == "candidate_text_observed")
+    print(f"UCITS_OFFICIAL_EXCHANGE_PAGE_EVIDENCE_OK | artifact={path} | rows={len(rows)} | candidate_observed={observed}")
 
 
 if __name__ == "__main__":
