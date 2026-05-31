@@ -1,0 +1,94 @@
+# UCITS valuation pricing source policy.
+# Pricing is evaluated at ISIN + exchange trading-line level.
+# This file is intentionally conservative: yfinance is connectivity-only by default.
+
+schema_version: ucits_pricing_source_policy_v1
+pricing_authority_mode: valuation_grade_pending
+last_reviewed: 2026-05-31
+
+rules:
+  portfolio_mutation_from_pricing: false
+  production_delivery_from_pricing: false
+  funding_authority_from_pricing: false
+  yfinance_default_authority: non_authoritative_connectivity_only
+  require_observed_date: true
+  require_trading_currency_match: true
+  require_source_lineage: true
+  require_completed_market_session: true
+  require_positive_close: true
+  max_price_age_calendar_days: 7
+  default_pending_status: valuation_grade_pending
+
+source_authority_hierarchy:
+  - source_id: exchange_official
+    authority: preferred_valuation_source
+    valuation_grade_eligible: true
+    notes: Official exchange close is preferred when completed-session evidence is attributable to the UCITS trading line.
+  - source_id: twelve_data
+    authority: candidate_valuation_source
+    valuation_grade_eligible: true
+    notes: May become valuation-grade per trading line after symbol, exchange, observed date and trading currency are verified.
+  - source_id: issuer_factsheet
+    authority: reference_only_or_stale_check
+    valuation_grade_eligible: false
+    notes: Useful for instrument facts and stale sanity checks, not daily report valuation by default.
+  - source_id: yahoo_yfinance
+    authority: non_authoritative_connectivity_only
+    valuation_grade_eligible: false
+    notes: Used only to prove symbol reachability unless explicitly promoted in a later policy revision.
+
+trading_line_policies:
+  - registry_id: core_us_equity_cspx
+    isin: IE00B5BMR087
+    exchange: London Stock Exchange
+    exchange_ticker: CSPX
+    trading_currency: USD
+    provider_symbol: CSPX LN
+    source_order:
+      - source_id: exchange_official
+        authority: preferred_valuation_source
+        valuation_grade_eligible: true
+        status: not_integrated_yet
+      - source_id: twelve_data
+        authority: candidate_valuation_source
+        valuation_grade_eligible: true
+        status: pending_symbol_and_currency_verification
+      - source_id: yahoo_yfinance
+        symbol: CSPX.L
+        authority: non_authoritative_connectivity_only
+        valuation_grade_eligible: false
+        status: connectivity_preflight_only
+    current_phase4_status: valuation_grade_pending
+
+  - registry_id: core_us_equity_cspx
+    isin: IE00B5BMR087
+    exchange: Xetra
+    exchange_ticker: SXR8
+    trading_currency: EUR
+    provider_symbol: SXR8 GY
+    source_order:
+      - source_id: exchange_official
+        authority: preferred_valuation_source
+        valuation_grade_eligible: true
+        status: not_integrated_yet
+      - source_id: twelve_data
+        authority: candidate_valuation_source
+        valuation_grade_eligible: true
+        status: pending_symbol_and_currency_verification
+      - source_id: yahoo_yfinance
+        symbol: SXR8.DE
+        authority: non_authoritative_connectivity_only
+        valuation_grade_eligible: false
+        status: connectivity_preflight_only
+    current_phase4_status: valuation_grade_pending
+
+blocked_defaults:
+  candidate_requires_verification: no_valuation_authority_until_registry_verification
+  policy_review_required_not_ucits: no_valuation_authority_under_ucits_only_policy
+  pending_exchange_line_verification: no_valuation_authority_until_exchange_line_verified
+
+notes:
+  - This policy does not fund any ETF.
+  - This policy does not mutate portfolio state.
+  - A source being listed as valuation-grade eligible does not mean it is integrated or accepted for a row.
+  - A row becomes valuation-grade only when the valuation artifact contains source/date/close/currency/completed-session evidence and passes validation.
