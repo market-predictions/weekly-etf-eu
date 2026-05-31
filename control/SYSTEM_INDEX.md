@@ -75,10 +75,12 @@ When ChatGPT triggers a GitHub Actions run or any run-queue workflow, ChatGPT ow
 Operational rule:
 
 1. Trigger the run by committing the queue/control file.
-2. Check GitHub Actions, commit status, workflow jobs, logs and generated artifact commits directly from GitHub where tool access allows.
-3. If the run fails, inspect the failing step/logs and patch the repo before asking the user for manual screenshots.
-4. If the run passes, verify the committed output artifacts, manifests or receipts before claiming success.
-5. Ask the user for an Actions screenshot only when GitHub tool access cannot expose the run, job logs, artifact, or permission state.
+2. Build in a short pause before the first status check so GitHub has time to create the workflow run.
+3. Poll run status through available GitHub tools and artifact commits; do not conclude from an immediate empty result.
+4. Check GitHub Actions, commit status, workflow jobs, logs and generated artifact commits directly from GitHub where tool access allows.
+5. If the run fails, inspect the failing step/logs and patch the repo before asking the user for manual screenshots.
+6. If the run passes, verify the committed output artifacts, manifests or receipts before claiming success.
+7. Ask the user for an Actions screenshot only when GitHub tool access cannot expose the run, job logs, artifact, or permission state.
 
 Never rely on the user as the default run-status checker when GitHub tool access is available.
 
