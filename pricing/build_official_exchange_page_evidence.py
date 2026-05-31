@@ -72,7 +72,7 @@ def build_rows(policy: dict[str, Any]) -> list[dict[str, Any]]:
                 "fetch_error": fetched.get("error"),
                 "expected_token_checks": token_checks,
                 "evidence_status": "official_page_reachable" if fetched.get("http_status") == 200 else "official_page_unresolved",
-                "price_extraction": false,
+                "price_extraction": False,
                 "portfolio_mutation": False,
                 "production_delivery": False,
                 "funding_authority": False,
