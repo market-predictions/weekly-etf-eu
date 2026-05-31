@@ -32,7 +32,7 @@ The clone still contains many U.S.-ETF artifacts, old workflow names and histori
 
 ## Current migration status
 
-The repo is in **Phase 2 / Phase 3 transition**.
+The repo is in **Phase 3 — UCITS registry and pricing-line preparation**.
 
 Completed:
 
@@ -50,26 +50,32 @@ Completed:
 - EU output contract validator added;
 - output validator markdown-normalization fix added;
 - normalized EU output-contract validation passed in GitHub Actions;
-- generated EU markdown skeletons committed under `output/`.
+- generated EU markdown skeletons committed under `output/`;
+- initial UCITS candidate registry seeded;
+- UCITS symbol registry validator added;
+- UCITS investability contract validator added;
+- EU workflow now validates UCITS registry and investability contract;
+- registry YAML syntax fix applied;
+- UCITS registry validation run passed in GitHub Actions.
 
 Not yet completed:
 
-- verified UCITS symbol registry;
 - UCITS pricing line support;
+- verified pricing-source mapping for UCITS exchange tickers;
 - funded EU model portfolio;
 - Dutch-first production report renderer with real UCITS positions;
 - production PDF/email delivery enablement.
 
 ## Latest validation result
 
-The latest `Weekly ETF EU UCITS bootstrap validation` GitHub Actions run passed.
+The latest `Weekly ETF EU UCITS bootstrap validation` GitHub Actions run passed after the YAML syntax fix.
 
-Validated markers:
+Validated markers now include:
 
 ```text
-EU control files exist
-EU config files exist
-EU cash-only state exists
+UCITS symbol registry validation
+UCITS investability contract validation
+EU cash-only state validation
 no U.S.-listed ETF appears as an EU holding
 EU markdown report skeleton rendered
 EU output contract passed
@@ -77,7 +83,7 @@ inherited U.S. production sender is disabled
 no delivery is attempted
 ```
 
-Generated non-delivery outputs:
+Generated non-delivery outputs remain:
 
 ```text
 output/weekly_etf_eu_review_260531.md
@@ -93,6 +99,32 @@ These reports show:
 - production delivery disabled.
 
 This is a bootstrap validation and report-skeleton commit only. It is not a production report delivery receipt.
+
+## Current UCITS registry status
+
+The current registry is:
+
+```text
+config/ucits_symbol_registry.yml
+```
+
+Seed entries include:
+
+```text
+core_us_equity_cspx
+semiconductor_vaneck_smh_ucits
+gold_ishares_physical_gold_etc
+infrastructure_ishares_global_infr
+```
+
+Current authority posture:
+
+- `core_us_equity_cspx` is the only `verified_candidate_not_funded` seed.
+- `semiconductor_vaneck_smh_ucits` remains `candidate_requires_verification` until domicile, distribution policy, replication method and pricing symbol are verified.
+- `gold_ishares_physical_gold_etc` remains policy-blocked because it is an ETC, not a UCITS ETF.
+- `infrastructure_ishares_global_infr` remains a placeholder requiring issuer confirmation.
+
+No candidate is funded.
 
 ## Current authority rules
 
@@ -148,9 +180,9 @@ From `weekly-etf`, the EU repo should preserve:
 
 The repo currently inherits U.S. ETF output and state artifacts. They must not be mistaken for EU portfolio truth.
 
-### 2. UCITS universe is not yet verified
+### 2. UCITS universe is only partially verified
 
-The repo does not yet have a validated UCITS symbol registry with ISIN, exchange line, currency, TER, KID status and investability status.
+The repo has an initial validated registry structure, but most candidates are not yet verified enough for pricing or funding.
 
 ### 3. Pricing still assumes the U.S. pipeline
 
@@ -166,12 +198,13 @@ Production delivery remains blocked until EU state, UCITS registry, UCITS pricin
 
 ## Immediate priority
 
-Begin Phase 3: build and validate an initial UCITS candidate registry.
+Begin UCITS pricing-line preparation.
 
-1. Identify candidate UCITS ETFs by theme.
-2. Verify ISIN, provider, exchange ticker, exchange, trading currency, TER, UCITS status and PRIIPs/KID status.
-3. Keep candidates as `candidate_requires_verification` until checked.
-4. Only after registry validation, add UCITS pricing-line tests.
+1. Add a UCITS pricing-line contract.
+2. Add a pricing-line candidate extraction script from `config/ucits_symbol_registry.yml`.
+3. Validate that only non-funded verified candidates can enter pricing tests.
+4. Test CSPX / SXR8 style exchange symbols without mutating the portfolio.
+5. Keep delivery disabled.
 
 ## Stable decision
 
