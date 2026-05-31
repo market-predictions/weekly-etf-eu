@@ -1,0 +1,73 @@
+{
+  "candidates": [
+    {
+      "exchange": "London Stock Exchange",
+      "exchange_ticker": "CSPX",
+      "fund_name": "iShares Core S&P 500 UCITS ETF USD (Acc)",
+      "fundable_status": "not_funded_requires_broker_and_pricing_line_confirmation",
+      "funding_authority": false,
+      "instrument_type": "ETF",
+      "investability_status": "verified_candidate_not_funded",
+      "isin": "IE00B5BMR087",
+      "line_verification_status": "issuer_verified_bloomberg_ticker",
+      "portfolio_mutation": false,
+      "pricing_status": "pending_pipeline_test",
+      "pricing_symbol_yahoo": "CSPX.L",
+      "priips_kid_status": "available",
+      "production_delivery": false,
+      "provider": "iShares / BlackRock",
+      "provider_symbol": "CSPX LN",
+      "registry_id": "core_us_equity_cspx",
+      "trading_currency": "USD",
+      "ucits_status": "confirmed",
+      "us_research_proxy": "SPY"
+    },
+    {
+      "exchange": "Xetra",
+      "exchange_ticker": "SXR8",
+      "fund_name": "iShares Core S&P 500 UCITS ETF USD (Acc)",
+      "fundable_status": "not_funded_requires_broker_and_pricing_line_confirmation",
+      "funding_authority": false,
+      "instrument_type": "ETF",
+      "investability_status": "verified_candidate_not_funded",
+      "isin": "IE00B5BMR087",
+      "line_verification_status": "pending_exchange_line_verification",
+      "portfolio_mutation": false,
+      "pricing_status": "pending_pipeline_test",
+      "pricing_symbol_yahoo": "SXR8.DE",
+      "priips_kid_status": "available",
+      "production_delivery": false,
+      "provider": "iShares / BlackRock",
+      "provider_symbol": "SXR8 GY",
+      "registry_id": "core_us_equity_cspx",
+      "trading_currency": "EUR",
+      "ucits_status": "confirmed",
+      "us_research_proxy": "SPY"
+    }
+  ],
+  "created_at_utc": "2026-05-31T23:21:11.747129+00:00",
+  "eligible_investability_status": "verified_candidate_not_funded",
+  "funding_authority": false,
+  "portfolio_mutation": false,
+  "production_delivery": false,
+  "run_id": "20260531_232111",
+  "schema_version": "ucits_pricing_candidates_v1",
+  "skipped": [
+    {
+      "investability_status": "candidate_requires_verification",
+      "reason": "investability_status_not_verified_candidate_not_funded",
+      "registry_id": "semiconductor_vaneck_smh_ucits"
+    },
+    {
+      "investability_status": "policy_review_required_not_ucits",
+      "reason": "investability_status_not_verified_candidate_not_funded",
+      "registry_id": "gold_ishares_physical_gold_etc"
+    },
+    {
+      "investability_status": "candidate_requires_verification",
+      "reason": "investability_status_not_verified_candidate_not_funded",
+      "registry_id": "infrastructure_ishares_global_infr"
+    }
+  ],
+  "source_registry": "config/ucits_symbol_registry.yml"
+}
