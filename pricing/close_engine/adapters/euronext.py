@@ -10,7 +10,9 @@ from typing import Any
 from pricing.close_engine.contracts import CloseObservation, SourcePolicy, TradingLine
 
 EURONEXT_HINTS = ["currentPath", "baseUrlSearchQuote", "dynamic_quotes_display", "product_data", "Live quotes"]
-QUOTED_STRING_RE = re.compile(r"[\"']([^\"']{2,400})[\"']")
+QUOTED_STRING_RE = re.compile(r"[\"']([^\"']{2,700})[\"']")
+CANONICAL_HREF_RE = re.compile(r"<link\b[^>]*rel=[\"']canonical[\"'][^>]*href=[\"']([^\"']+)[\"']", re.IGNORECASE)
+CANONICAL_HREF_RE_REVERSED = re.compile(r"<link\b[^>]*href=[\"']([^\"']+)[\"'][^>]*rel=[\"']canonical[\"']", re.IGNORECASE)
 
 
 @dataclass(frozen=True)
@@ -144,9 +146,10 @@ class EuronextAdapter:
             "base_url_search_quote_hint": base_url_search_quote,
             "endpoint_hint_samples": endpoint_hints[:20],
             "search_endpoint_probe_results": search_probe_results,
+            "resolved_product_url_candidates": self._resolved_product_url_candidates(search_probe_results, source.source_url),
             "script_tag_count": len(re.findall(r"<script\b", raw, flags=re.IGNORECASE)),
             "raw_page_bytes": len(raw.encode("utf-8", errors="replace")),
-            "next_step": "select a stable Euronext endpoint from successful probes before any candidate close parsing",
+            "next_step": "select a stable Euronext product or quote endpoint from probe diagnostics before any candidate close parsing",
         }
         parser_status = "endpoint_probe_completed" if search_probe_results else "endpoint_hints_observed" if present_hints or endpoint_hints else "endpoint_hints_not_observed"
         confidence = "low" if parser_status != "endpoint_hints_not_observed" else "none"
@@ -220,8 +223,8 @@ class EuronextAdapter:
             normalized += "/"
         return normalized
 
-    @staticmethod
-    def _fetch_probe(probe_name: str, url: str, line: TradingLine) -> dict[str, Any]:
+    @classmethod
+    def _fetch_probe(cls, probe_name: str, url: str, line: TradingLine) -> dict[str, Any]:
         try:
             req = urllib.request.Request(
                 url,
@@ -232,9 +235,11 @@ class EuronextAdapter:
                 },
             )
             with urllib.request.urlopen(req, timeout=12) as response:
-                raw = response.read(2400)
+                raw = response.read(6000)
                 text = raw.decode("utf-8", errors="replace")
                 lowered = text.lower()
+                canonical_url = cls._extract_canonical_url(text, url)
+                product_links = cls._extract_product_link_candidates(text, url)
                 return {
                     "probe_name": probe_name,
                     "url": url,
@@ -244,9 +249,13 @@ class EuronextAdapter:
                     "looks_json": text.lstrip().startswith(("{", "[")),
                     "contains_isin": line.isin.lower() in lowered,
                     "contains_exchange_ticker": line.exchange_ticker.lower() in lowered,
-                    "contains_trading_currency": line.trading_currency.lower() in lowered,
+                    "contains_trading_currency_token": cls._contains_currency_token(text, line.trading_currency),
                     "contains_close_terms": any(term in lowered for term in ["close", "closing", "last", "price", "currency"]),
-                    "body_sample": re.sub(r"\s+", " ", text[:500]).strip(),
+                    "canonical_url": canonical_url,
+                    "canonical_matches_source_line_pattern": bool(canonical_url and f"/{line.isin}".lower() in canonical_url.lower()),
+                    "product_link_candidate_count": len(product_links),
+                    "product_link_candidates": product_links[:10],
+                    "body_sample": re.sub(r"\s+", " ", text[:700]).strip(),
                 }
         except Exception as exc:  # pragma: no cover - remote provider dependent
             return {
@@ -257,3 +266,45 @@ class EuronextAdapter:
                 "bytes_sampled": 0,
                 "error": str(exc),
             }
+
+    @staticmethod
+    def _extract_canonical_url(text: str, base_url: str) -> str | None:
+        for pattern in [CANONICAL_HREF_RE, CANONICAL_HREF_RE_REVERSED]:
+            match = pattern.search(text)
+            if match:
+                return urllib.parse.urljoin(base_url, html.unescape(match.group(1).strip()))
+        return None
+
+    @staticmethod
+    def _extract_product_link_candidates(text: str, base_url: str) -> list[str]:
+        candidates: list[str] = []
+        for match in QUOTED_STRING_RE.finditer(text):
+            value = html.unescape(match.group(1)).strip()
+            lower = value.lower()
+            if "/product/" not in lower or "/etfs/" not in lower:
+                continue
+            normalized = urllib.parse.urljoin(base_url, value)
+            if normalized not in candidates:
+                candidates.append(normalized)
+            if len(candidates) >= 20:
+                break
+        return candidates
+
+    @staticmethod
+    def _contains_currency_token(text: str, currency: str) -> bool:
+        token = currency.strip().lower()
+        if not token:
+            return False
+        return re.search(rf"(?<![a-z]){re.escape(token)}(?![a-z])", text.lower()) is not None
+
+    @staticmethod
+    def _resolved_product_url_candidates(probe_results: list[dict[str, Any]], source_url: str | None) -> list[str]:
+        candidates: list[str] = []
+        for result in probe_results:
+            for value in [result.get("canonical_url"), *(result.get("product_link_candidates") or [])]:
+                if not value:
+                    continue
+                normalized = urllib.parse.urljoin(source_url or "", str(value))
+                if "/product/" in normalized.lower() and normalized not in candidates:
+                    candidates.append(normalized)
+        return candidates[:20]
