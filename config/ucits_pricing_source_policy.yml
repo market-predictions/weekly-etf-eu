@@ -61,6 +61,22 @@ trading_line_policies:
         valuation_grade_eligible: true
         accept_as_valuation_grade: false
         status: candidate_live_source_test
+        candidate_symbol_queries:
+          - symbol: CSPX
+            exchange: LSE
+            note: policy_primary_guess
+          - symbol: CSPX
+            exchange: XLON
+            note: mic_code_guess
+          - symbol: CSPX.L
+            exchange: null
+            note: yahoo_style_suffix_probe
+          - symbol: CSPX:LN
+            exchange: null
+            note: bloomberg_style_probe
+          - symbol: IE00B5BMR087
+            exchange: null
+            note: isin_search_probe
       - source_id: yahoo_yfinance
         symbol: CSPX.L
         authority: non_authoritative_connectivity_only
@@ -90,6 +106,22 @@ trading_line_policies:
         valuation_grade_eligible: true
         accept_as_valuation_grade: false
         status: candidate_live_source_test
+        candidate_symbol_queries:
+          - symbol: SXR8
+            exchange: XETRA
+            note: policy_primary_guess
+          - symbol: SXR8
+            exchange: XETR
+            note: mic_code_guess
+          - symbol: SXR8.DE
+            exchange: null
+            note: yahoo_style_suffix_probe
+          - symbol: SXR8:GY
+            exchange: null
+            note: bloomberg_style_probe
+          - symbol: IE00B5BMR087
+            exchange: null
+            note: isin_search_probe
       - source_id: yahoo_yfinance
         symbol: SXR8.DE
         authority: non_authoritative_connectivity_only
@@ -107,5 +139,6 @@ notes:
   - This policy does not mutate portfolio state.
   - A source being listed as valuation-grade eligible does not mean it is integrated or accepted for a row.
   - Twelve Data evidence is collected as candidate valuation evidence first.
+  - Candidate symbol queries are diagnostic probes only, not approved valuation identifiers.
   - A Twelve Data row becomes valuation-grade only when accept_as_valuation_grade is explicitly true for the trading line and the artifact passes source/date/close/currency/completed-session validation.
   - A row becomes valuation-grade only when the valuation artifact contains source/date/close/currency/completed-session evidence and passes validation.
