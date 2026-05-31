@@ -49,6 +49,14 @@ FORBIDDEN_HOLDING_CONTEXT = [
 ]
 
 
+def _normalized_markdown(text: str) -> str:
+    """Normalize cosmetic markdown so contract checks test semantics, not bold markers."""
+    text = text.replace("**", "")
+    text = text.replace("__", "")
+    text = text.replace("`", "")
+    return re.sub(r"\s+", " ", text).strip()
+
+
 def _plain(text: str) -> str:
     return re.sub(r"\s+", " ", text).strip()
 
@@ -72,21 +80,23 @@ def _validate_report(path: Path) -> None:
     if not EU_REPORT_RE.match(path.name):
         raise RuntimeError(f"EU output contract failed: unexpected EU report filename: {path.name}")
     text = path.read_text(encoding="utf-8")
+    normalized_text = _normalized_markdown(text)
     is_nl = "_nl_" in path.name
     required = REQUIRED_NL_PHRASES if is_nl else REQUIRED_EN_PHRASES
-    missing = [phrase for phrase in required if phrase not in text]
+    missing = [phrase for phrase in required if phrase not in normalized_text]
     if missing:
         raise RuntimeError(f"EU output contract failed for {path.name}: missing required phrase(s): {', '.join(missing)}")
-    if "weekly_analysis_pro" in text:
+    if "weekly_analysis_pro" in normalized_text:
         raise RuntimeError(f"EU output contract failed for {path.name}: inherited U.S. report filename leaked into EU report body")
     for ticker in US_PROXY_TICKERS:
         for line in _lines_with_ticker(text, ticker):
-            if _has_forbidden_holding_context(line):
-                raise RuntimeError(f"EU output contract failed for {path.name}: U.S. proxy {ticker} appears in holding context: {line[:220]}")
-            if ticker in line and not _is_allowed_proxy_line(line):
+            normalized_line = _normalized_markdown(line)
+            if _has_forbidden_holding_context(normalized_line):
+                raise RuntimeError(f"EU output contract failed for {path.name}: U.S. proxy {ticker} appears in holding context: {normalized_line[:220]}")
+            if ticker in normalized_line and not _is_allowed_proxy_line(normalized_line):
                 # Permit explicit mapping rows only if the row labels the ticker as proxy/reference.
-                if line.startswith("|"):
-                    raise RuntimeError(f"EU output contract failed for {path.name}: U.S. proxy {ticker} appears in table without proxy context: {line[:220]}")
+                if normalized_line.startswith("|"):
+                    raise RuntimeError(f"EU output contract failed for {path.name}: U.S. proxy {ticker} appears in table without proxy context: {normalized_line[:220]}")
     print(f"ETF_EU_OUTPUT_CONTRACT_OK | report={path.name} | language={'nl' if is_nl else 'en'}")
 
 
