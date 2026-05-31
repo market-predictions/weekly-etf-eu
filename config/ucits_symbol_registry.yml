@@ -1,12 +1,187 @@
 # UCITS symbol registry.
-# This file is intentionally conservative at bootstrap.
-# Candidates must be verified before they can become funded holdings.
+# Canonical identity is ISIN-first. Tickers identify trading lines only.
+# U.S. ETFs are research proxies / benchmarks only, not EU holdings.
 
 schema_version: ucits_symbol_registry_v1
 canonical_identity: isin_first
+registry_status: bootstrap_seed
+last_reviewed: 2026-05-31
 
-funds: []
+funds:
+  - registry_id: core_us_equity_cspx
+    role: Core U.S. equity exposure
+    us_research_proxy: SPY
+    isin: IE00B5BMR087
+    fund_name: iShares Core S&P 500 UCITS ETF USD (Acc)
+    provider: iShares / BlackRock
+    instrument_type: ETF
+    ucits_status: confirmed
+    priips_kid_status: available
+    investability_status: verified_candidate_not_funded
+    fundable_status: not_funded_requires_broker_and_pricing_line_confirmation
+    domicile: Ireland
+    base_currency: USD
+    distribution_policy: accumulating
+    replication_method: physical_replication
+    benchmark_index: S&P 500 Index
+    ter_pct: 0.07
+    sfdr_classification: Other
+    evidence:
+      - source_type: issuer_product_page
+        url: https://www.ishares.com/uk/individual/en/products/253743/ishares-core-sp-500-ucits-etf?siteEntryPassthrough=true&switchLocale=y
+        verified_fields:
+          - fund_name
+          - benchmark_index
+          - isin
+          - ter_pct
+          - distribution_policy
+          - domicile
+          - ucits_status
+          - replication_method
+          - listed_bloomberg_ticker
+    trading_lines:
+      - exchange: London Stock Exchange
+        exchange_ticker: CSPX
+        trading_currency: USD
+        provider_symbol: CSPX LN
+        pricing_symbol_yahoo: CSPX.L
+        line_verification_status: issuer_verified_bloomberg_ticker
+        pricing_status: pending_pipeline_test
+      - exchange: Xetra
+        exchange_ticker: SXR8
+        trading_currency: EUR
+        provider_symbol: SXR8 GY
+        pricing_symbol_yahoo: SXR8.DE
+        line_verification_status: pending_exchange_line_verification
+        pricing_status: pending_pipeline_test
+    research_proxies:
+      - us_proxy: SPY
+        purpose: benchmark_reference_only
+        proxy_must_not_be_funded: true
+
+  - registry_id: semiconductor_vaneck_smh_ucits
+    role: Semiconductor thematic exposure
+    us_research_proxy: SMH
+    isin: IE00BMC38736
+    fund_name: VanEck Semiconductor UCITS ETF
+    provider: VanEck
+    instrument_type: ETF
+    ucits_status: confirmed_by_fund_name
+    priips_kid_status: available
+    investability_status: verified_candidate_not_funded
+    fundable_status: not_funded_requires_broker_and_pricing_line_confirmation
+    domicile: pending_verification
+    base_currency: USD
+    distribution_policy: pending_verification
+    replication_method: pending_verification
+    benchmark_index: semiconductor_equity_basket
+    ter_pct: 0.35
+    sfdr_classification: Article 8
+    evidence:
+      - source_type: issuer_product_page
+        url: https://www.vaneck.com/nl/en/investments/semiconductor-etf/overview/
+        verified_fields:
+          - fund_name
+          - isin
+          - priips_kid_status
+          - ter_pct
+          - sfdr_classification
+    trading_lines:
+      - exchange: primary_line_pending_verification
+        exchange_ticker: SMH
+        trading_currency: USD
+        provider_symbol: SMH
+        pricing_symbol_yahoo: pending_verification
+        line_verification_status: pending_exchange_line_verification
+        pricing_status: pending_pipeline_test
+    research_proxies:
+      - us_proxy: SMH
+        purpose: benchmark_reference_only
+        proxy_must_not_be_funded: true
+    notes:
+      - The UCITS ETF shares the ticker string SMH with the U.S. VanEck Semiconductor ETF in some contexts; EU authority must remain ISIN-first.
+
+  - registry_id: gold_ishares_physical_gold_etc
+    role: Gold / hard-asset hedge
+    us_research_proxy: GLD
+    isin: TBD
+    fund_name: iShares Physical Gold ETC
+    provider: iShares / BlackRock
+    instrument_type: ETC
+    ucits_status: not_ucits_etc
+    priips_kid_status: pending_verification
+    investability_status: policy_review_required_not_ucits
+    fundable_status: not_fundable_under_ucits_only_policy
+    domicile: pending_verification
+    base_currency: pending_verification
+    distribution_policy: not_applicable
+    replication_method: physical_gold_exposure
+    benchmark_index: LBMA gold price reference
+    ter_pct: pending_verification
+    sfdr_classification: not_in_scope_or_pending
+    evidence:
+      - source_type: issuer_product_page
+        url: https://www.ishares.com/uk/individual/en/products/258441/
+        verified_fields:
+          - fund_name
+          - physical_gold_exposure_description
+          - etc_not_fund_not_etf_warning
+    trading_lines:
+      - exchange: pending_verification
+        exchange_ticker: SGLN
+        trading_currency: pending_verification
+        provider_symbol: SGLN
+        pricing_symbol_yahoo: pending_verification
+        line_verification_status: pending_exchange_line_verification
+        pricing_status: pending_pipeline_test
+    research_proxies:
+      - us_proxy: GLD
+        purpose: benchmark_reference_only
+        proxy_must_not_be_funded: true
+    notes:
+      - Physical gold products in Europe are commonly ETCs rather than UCITS ETFs. This candidate must remain blocked unless the EU policy explicitly allows ETCs.
+
+  - registry_id: infrastructure_ishares_global_infr
+    role: Infrastructure / real-asset capex exposure
+    us_research_proxy: PAVE
+    isin: TBD
+    fund_name: iShares Global Infrastructure UCITS ETF
+    provider: iShares / BlackRock
+    instrument_type: ETF
+    ucits_status: pending_verification
+    priips_kid_status: pending_verification
+    investability_status: candidate_requires_verification
+    fundable_status: not_funded_requires_full_verification
+    domicile: pending_verification
+    base_currency: pending_verification
+    distribution_policy: pending_verification
+    replication_method: pending_verification
+    benchmark_index: FTSE Global Core Infrastructure reference_pending_verification
+    ter_pct: pending_verification
+    sfdr_classification: pending_verification
+    evidence:
+      - source_type: secondary_reference_pending_issuer_confirmation
+        url: https://moneyweek.com/investments/infrastructure-investing-stable-growth-amid-market-turmoil
+        verified_fields:
+          - broad_product_reference_only
+          - ticker_reference_only
+    trading_lines:
+      - exchange: pending_verification
+        exchange_ticker: INFR
+        trading_currency: pending_verification
+        provider_symbol: INFR
+        pricing_symbol_yahoo: pending_verification
+        line_verification_status: pending_exchange_line_verification
+        pricing_status: pending_pipeline_test
+    research_proxies:
+      - us_proxy: PAVE
+        purpose: benchmark_reference_only
+        proxy_must_not_be_funded: true
+    notes:
+      - Secondary-source placeholder only. Do not promote to verified candidate until issuer page, ISIN, KID, TER and exchange line are verified.
 
 bootstrap_notes:
-  - No UCITS ETF is fundable until ISIN, UCITS status, KID status and exchange line are verified.
+  - No UCITS ETF is funded yet.
   - U.S. ETFs from the cloned weekly-etf repo are research proxies only.
+  - `verified_candidate_not_funded` means registry facts are sufficiently useful for pricing tests, not that a portfolio allocation has been approved.
+  - Gold remains a policy question because iShares explicitly describes Physical ETCs as exchange traded commodities, neither funds nor ETFs.
