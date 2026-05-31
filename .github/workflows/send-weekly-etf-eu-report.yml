@@ -102,6 +102,15 @@ jobs:
             --artifact "output/pricing/ucits_valuation_prices_${ETF_EU_RUN_ID}.json" \
             --source-policy config/ucits_pricing_source_policy.yml
 
+      - name: Snapshot official exchange source candidates
+        run: |
+          python -m pricing.build_official_exchange_source_snapshot \
+            --source-policy config/ucits_pricing_source_policy.yml \
+            --output-dir output/pricing \
+            --run-id "$ETF_EU_RUN_ID"
+          python tools/validate_official_exchange_source_snapshot.py \
+            --artifact "output/pricing/ucits_official_exchange_source_snapshot_${ETF_EU_RUN_ID}.json"
+
       - name: Discover Twelve Data UCITS provider symbols
         env:
           TWELVE_DATA_API_KEY: ${{ secrets.TWELVE_DATA_API_KEY }}
@@ -162,13 +171,14 @@ jobs:
           echo "No portfolio mutation, PDF generation or email delivery is performed by this workflow."
           echo "UCITS pricing preflight is non-authoritative and cannot promote candidates to fundable status."
           echo "UCITS valuation pricing artifact is non-mutating and cannot create funding authority."
+          echo "Official exchange source snapshot is diagnostic only and cannot create valuation or funding authority."
           echo "Twelve Data symbol discovery is diagnostic only and cannot create valuation or funding authority."
 
       - name: Commit EU bootstrap report and pricing artifacts
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add output/weekly_etf_eu_review_*.md output/pricing/ucits_pricing_candidates_*.json output/pricing/ucits_pricing_preflight_*.json output/pricing/ucits_valuation_prices_*.json output/pricing/ucits_twelve_data_symbol_discovery_*.json || true
+          git add output/weekly_etf_eu_review_*.md output/pricing/ucits_pricing_candidates_*.json output/pricing/ucits_pricing_preflight_*.json output/pricing/ucits_valuation_prices_*.json output/pricing/ucits_official_exchange_source_snapshot_*.json output/pricing/ucits_twelve_data_symbol_discovery_*.json || true
           if git diff --cached --quiet; then
             echo "No EU bootstrap artifacts to commit."
             exit 0
