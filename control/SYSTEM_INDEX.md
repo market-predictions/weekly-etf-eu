@@ -68,6 +68,20 @@ Compatibility files from the U.S. clone may remain temporarily, but they are not
 - Do not claim EU report production delivery until EU-specific validators pass and a delivery receipt or manifest exists.
 - Keep decision framework, input/state contract, output contract and runbook separate.
 
+## GitHub run verification discipline
+
+When ChatGPT triggers a GitHub Actions run or any run-queue workflow, ChatGPT owns the verification loop by default.
+
+Operational rule:
+
+1. Trigger the run by committing the queue/control file.
+2. Check GitHub Actions, commit status, workflow jobs, logs and generated artifact commits directly from GitHub where tool access allows.
+3. If the run fails, inspect the failing step/logs and patch the repo before asking the user for manual screenshots.
+4. If the run passes, verify the committed output artifacts, manifests or receipts before claiming success.
+5. Ask the user for an Actions screenshot only when GitHub tool access cannot expose the run, job logs, artifact, or permission state.
+
+Never rely on the user as the default run-status checker when GitHub tool access is available.
+
 ## Current direction of travel
 
 The EU repo is in bootstrap/migration mode:
