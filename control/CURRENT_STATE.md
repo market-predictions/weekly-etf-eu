@@ -32,7 +32,7 @@ The clone still contains many U.S.-ETF artifacts, old workflow names and histori
 
 ## Current migration status
 
-The repo is in **Phase 3 — UCITS pricing-line preflight and candidate-report preparation**.
+The repo is in **Phase 3 — UCITS candidate-report and pricing-authority preparation**.
 
 Completed:
 
@@ -64,7 +64,11 @@ Completed:
 - UCITS pricing preflight validator added;
 - EU workflow now runs and validates UCITS pricing-line preflight;
 - UCITS pricing-line preflight validation passed in GitHub Actions;
-- non-delivery pricing candidate and preflight artifacts are committed under `output/pricing/` by the workflow.
+- non-delivery pricing candidate and preflight artifacts are committed under `output/pricing/` by the workflow;
+- Dutch-first candidate-report table added to the renderer;
+- candidate-report validator added;
+- EU workflow now validates the candidate-report layer;
+- candidate-report validation passed in GitHub Actions.
 
 Not yet completed:
 
@@ -76,7 +80,7 @@ Not yet completed:
 
 ## Latest validation result
 
-The latest `Weekly ETF EU UCITS bootstrap validation` GitHub Actions run passed after adding the UCITS pricing-line preflight layer.
+The latest `Weekly ETF EU UCITS bootstrap validation` GitHub Actions run passed after adding the candidate-report layer.
 
 Validated markers now include:
 
@@ -89,8 +93,9 @@ non-authoritative UCITS pricing preflight
 UCITS pricing preflight validation
 EU cash-only state validation
 no U.S.-listed ETF appears as an EU holding
-EU markdown report skeleton rendered
+EU candidate report skeleton rendered
 EU output contract passed
+EU candidate-report contract passed
 inherited U.S. production sender is disabled
 no delivery is attempted
 ```
@@ -144,6 +149,19 @@ Current pricing-preflight rules:
 - authority flags: `portfolio_mutation=false`, `production_delivery=false`, `funding_authority=false`;
 - pricing success does not promote candidates to `fundable`.
 
+## Current report-surface status
+
+The Dutch-first and English companion reports now include a UCITS candidate registry table.
+
+Current report-surface rules:
+
+- the candidate table is not a portfolio;
+- the candidate table is not a buy recommendation;
+- the candidate table is not valuation authority;
+- every candidate row remains not funded;
+- pricing-preflight status is non-authoritative connectivity only;
+- U.S. proxies remain research-only.
+
 ## Current authority rules
 
 1. U.S.-listed ETFs are **not** EU portfolio instruments.
@@ -152,7 +170,8 @@ Current pricing-preflight rules:
 4. Dutch/EU investability requires UCITS status and PRIIPs/KID availability before funding.
 5. The starting EU portfolio state is cash-only until instruments pass the UCITS investability contract.
 6. Pricing-line connectivity alone is not funding authority.
-7. Any existing cloned U.S. reports, pricing audits or portfolio entries are historical clone artifacts, not EU current-position truth.
+7. Candidate-report visibility alone is not portfolio authority.
+8. Any existing cloned U.S. reports, pricing audits or portfolio entries are historical clone artifacts, not EU current-position truth.
 
 ## Current state files
 
@@ -169,7 +188,7 @@ Temporary compatibility files may exist while the cloned runtime is refactored, 
 
 ## Current output files
 
-The current non-delivery EU report skeleton files are:
+The current non-delivery EU candidate report skeleton files are:
 
 ```text
 output/weekly_etf_eu_review_260531.md
@@ -207,9 +226,9 @@ The repo has an initial validated registry structure, but most candidates are no
 
 The first pricing-line layer uses non-authoritative connectivity tests. It is useful for validating symbols and plumbing, but not yet enough for valuation-grade report authority.
 
-### 4. Report output is only a skeleton
+### 4. Report output is still a bootstrap candidate report
 
-The current EU report is a cash-only bootstrap skeleton. It is not yet a full Dutch/EU UCITS investment report.
+The current EU report shows cash-only portfolio state and candidate rows. It is not yet a full Dutch/EU UCITS investment report.
 
 ### 5. Delivery remains blocked
 
@@ -217,13 +236,13 @@ Production delivery remains blocked until EU state, UCITS registry, valuation-gr
 
 ## Immediate priority
 
-Begin the UCITS candidate-report phase.
+Begin valuation-grade UCITS pricing authority design.
 
-1. Extend the Dutch-first skeleton renderer to include a UCITS candidate table from `config/ucits_symbol_registry.yml`.
-2. Surface pricing-preflight status as non-authoritative connectivity information only.
-3. Keep portfolio state cash-only.
-4. Add a validator that prevents pricing-preflight rows from being interpreted as funded positions.
-5. Keep delivery disabled.
+1. Define the authoritative UCITS pricing-source order.
+2. Decide which sources are valuation-grade per exchange line.
+3. Preserve yfinance as non-authoritative connectivity/research preflight unless explicitly promoted.
+4. Add pricing-lineage fields to the preflight artifact or a new valuation-grade artifact.
+5. Keep portfolio state cash-only and delivery disabled.
 
 ## Stable decision
 
