@@ -58,3 +58,27 @@ The first EU workflow is `Weekly ETF EU UCITS bootstrap validation`, and it is v
 ### Rationale
 
 The EU repo should become operational only after UCITS registry, pricing, output and delivery contracts are explicit.
+
+---
+
+## 2026-05-31 — Valuation-grade UCITS pricing is a separate authority layer
+
+### Decision
+
+Create a separate Phase 4 valuation-pricing layer between non-authoritative pricing-line connectivity and any future portfolio funding, valuation-history mutation, PDF generation or delivery.
+
+### Authority
+
+- Non-authoritative yfinance/Yahoo-style connectivity may be retained as preflight evidence.
+- yfinance is not valuation-grade under the current source policy.
+- Valuation-grade status requires explicit source/date/close/currency/completed-session/source-lineage evidence.
+- Pricing authority alone does not create funding authority.
+- Portfolio mutation, production delivery and funding authority remain false in the valuation artifact.
+
+### Rationale
+
+UCITS pricing is trading-line specific. The EU model must evaluate price authority at ISIN + exchange + exchange ticker + trading currency + provider symbol level, not by ticker text alone. This prevents a reachable quote symbol from becoming portfolio valuation truth by accident.
+
+### Result
+
+Phase 4 now has explicit contract, source-policy, artifact builder, validator and workflow wiring for non-mutating valuation-price evidence.
