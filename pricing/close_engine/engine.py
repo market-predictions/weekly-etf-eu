@@ -9,6 +9,7 @@ from typing import Any
 import yaml
 
 from pricing.close_engine.adapters import DeutscheBoerseAdapter, EuronextAdapter
+from pricing.close_engine.adapters.euronext_quote_endpoint_candidates import build_quote_endpoint_candidate_evidence_from_summary
 from pricing.close_engine.contracts import SourcePolicy, TradingLine
 
 DEFAULT_SOURCE_POLICY = Path("config/ucits_pricing_source_policy.yml")
@@ -62,6 +63,34 @@ def iter_source_requests(policy: dict[str, Any]) -> list[tuple[TradingLine, Sour
     return requests
 
 
+def enrich_euronext_quote_candidates(row: dict[str, Any]) -> dict[str, Any]:
+    if row.get("source_id") != "euronext_live":
+        return row
+    source_lineage = row.get("source_lineage") if isinstance(row.get("source_lineage"), dict) else {}
+    diagnostics = source_lineage.get("adapter_diagnostics") if isinstance(source_lineage.get("adapter_diagnostics"), dict) else {}
+    product_page = diagnostics.get("product_page_signal_diagnostics") if isinstance(diagnostics.get("product_page_signal_diagnostics"), dict) else {}
+    if product_page.get("quote_endpoint_candidate_evidence"):
+        return row
+    custom_summary = product_page.get("custom_instrument_summary") if isinstance(product_page.get("custom_instrument_summary"), dict) else {}
+    registry_identity = {
+        "isin": str(row.get("isin") or ""),
+        "exchange_ticker": str(row.get("exchange_ticker") or ""),
+        "provider_symbol": str(row.get("provider_symbol") or ""),
+        "trading_currency": str(row.get("trading_currency") or ""),
+    }
+    product_page["quote_endpoint_candidate_evidence"] = build_quote_endpoint_candidate_evidence_from_summary(
+        custom_instrument_summary=custom_summary,
+        source_url=row.get("source_url"),
+        registry_identity=registry_identity,
+    )
+    diagnostics["product_page_signal_diagnostics"] = product_page
+    source_lineage["adapter_diagnostics"] = diagnostics
+    row["source_lineage"] = source_lineage
+    if product_page["quote_endpoint_candidate_evidence"].get("candidate_urls"):
+        row["parser_status"] = "quote_endpoint_candidate_evidence_collected"
+    return row
+
+
 def observe(policy_path: Path, output_dir: Path, run_id: str) -> Path:
     policy = load_yaml(policy_path)
     adapter_list = adapters()
@@ -70,7 +99,7 @@ def observe(policy_path: Path, output_dir: Path, run_id: str) -> Path:
         matched = False
         for adapter in adapter_list:
             if adapter.supports(source, line):
-                rows.append(adapter.observe(source, line).to_dict())
+                rows.append(enrich_euronext_quote_candidates(adapter.observe(source, line).to_dict()))
                 matched = True
                 break
         if not matched:
