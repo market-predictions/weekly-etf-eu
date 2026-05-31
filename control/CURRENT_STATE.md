@@ -32,7 +32,7 @@ The clone still contains many U.S.-ETF artifacts, old workflow names and histori
 
 ## Current migration status
 
-The repo is in **Phase 3 — UCITS candidate-report and pricing-authority preparation**.
+The repo is in **Phase 4 — UCITS valuation-pricing authority scaffolding validated; valuation-source integration still pending**.
 
 Completed:
 
@@ -68,19 +68,28 @@ Completed:
 - Dutch-first candidate-report table added to the renderer;
 - candidate-report validator added;
 - EU workflow now validates the candidate-report layer;
-- candidate-report validation passed in GitHub Actions.
+- candidate-report validation passed in GitHub Actions;
+- UCITS valuation-pricing authority contract added;
+- UCITS pricing source policy added;
+- valuation-price artifact builder added;
+- valuation-price artifact validator added;
+- EU workflow now builds and validates the valuation-price artifact;
+- Phase 4 valuation-pricing validation run passed in GitHub Actions;
+- valuation-price artifact committed under `output/pricing/`.
 
 Not yet completed:
 
-- valuation-grade UCITS pricing authority;
+- integration of a live authoritative valuation source such as exchange-official close or verified Twelve Data line;
 - verified pricing-source lineage beyond non-authoritative yfinance connectivity;
+- any `valuation_grade: true` UCITS price row;
+- candidate promotion path from `verified_candidate_not_funded` to `fundable`;
 - funded EU model portfolio;
 - Dutch-first production report renderer with real UCITS positions;
 - production PDF/email delivery enablement.
 
 ## Latest validation result
 
-The latest `Weekly ETF EU UCITS bootstrap validation` GitHub Actions run passed after adding the candidate-report layer.
+The latest `Weekly ETF EU UCITS bootstrap validation` GitHub Actions run passed after adding the Phase 4 valuation-pricing layer.
 
 Validated markers now include:
 
@@ -91,6 +100,9 @@ UCITS pricing candidate extraction
 UCITS pricing candidate validation
 non-authoritative UCITS pricing preflight
 UCITS pricing preflight validation
+UCITS valuation-pricing source policy validation
+UCITS valuation-price artifact build
+UCITS valuation-price artifact validation
 EU cash-only state validation
 no U.S.-listed ETF appears as an EU holding
 EU candidate report skeleton rendered
@@ -107,9 +119,25 @@ output/weekly_etf_eu_review_260531.md
 output/weekly_etf_eu_review_nl_260531.md
 output/pricing/ucits_pricing_candidates_*.json
 output/pricing/ucits_pricing_preflight_*.json
+output/pricing/ucits_valuation_prices_*.json
 ```
 
-These artifacts are bootstrap/preflight outputs only. They are not production pricing authority and not a production report delivery receipt.
+Latest valuation artifact observed:
+
+```text
+output/pricing/ucits_valuation_prices_20260531_133912.json
+```
+
+This artifact is valuation-authority scaffolding only. It contains pending valuation rows and explicitly keeps:
+
+```text
+portfolio_mutation=false
+production_delivery=false
+funding_authority=false
+valuation_grade_row_count=0
+```
+
+It is not a production pricing authority artifact, not a portfolio valuation-history mutation and not a production report delivery receipt.
 
 ## Current UCITS registry status
 
@@ -130,7 +158,7 @@ infrastructure_ishares_global_infr
 
 Current authority posture:
 
-- `core_us_equity_cspx` is the only `verified_candidate_not_funded` seed and is eligible for non-authoritative pricing-line preflight.
+- `core_us_equity_cspx` is the only `verified_candidate_not_funded` seed and is eligible for non-authoritative pricing-line preflight and Phase 4 valuation-price pending rows.
 - `semiconductor_vaneck_smh_ucits` remains `candidate_requires_verification` until domicile, distribution policy, replication method and pricing symbol are verified.
 - `gold_ishares_physical_gold_etc` remains policy-blocked because it is an ETC, not a UCITS ETF.
 - `infrastructure_ishares_global_infr` remains a placeholder requiring issuer confirmation.
@@ -149,6 +177,35 @@ Current pricing-preflight rules:
 - authority flags: `portfolio_mutation=false`, `production_delivery=false`, `funding_authority=false`;
 - pricing success does not promote candidates to `fundable`.
 
+## Current valuation-pricing status
+
+The valuation-pricing layer is now present and validated as a non-mutating authority scaffold.
+
+Current valuation-pricing files:
+
+```text
+control/UCITS_VALUATION_PRICING_CONTRACT_V1.md
+config/ucits_pricing_source_policy.yml
+pricing/build_ucits_valuation_prices.py
+tools/validate_ucits_valuation_prices.py
+output/pricing/ucits_valuation_prices_*.json
+```
+
+Current source-policy posture:
+
+- `exchange_official` is the preferred valuation source but not yet integrated;
+- `twelve_data` is a candidate valuation source pending symbol/date/currency verification per UCITS trading line;
+- `issuer_factsheet` is reference/stale-check only;
+- `yahoo_yfinance` remains non-authoritative connectivity only.
+
+Current artifact behavior:
+
+- CSPX London and SXR8 Xetra rows are present as `valuation_grade_pending`;
+- non-authoritative yfinance evidence is preserved inside `non_authoritative_preflight_evidence`;
+- yfinance evidence is explicitly excluded from valuation authority under current policy;
+- `valuation_grade_row_count=0`;
+- no state mutation, funding authority, PDF generation or email delivery occurs.
+
 ## Current report-surface status
 
 The Dutch-first and English companion reports now include a UCITS candidate registry table.
@@ -160,6 +217,7 @@ Current report-surface rules:
 - the candidate table is not valuation authority;
 - every candidate row remains not funded;
 - pricing-preflight status is non-authoritative connectivity only;
+- valuation-pricing artifact status is not funding authority;
 - U.S. proxies remain research-only.
 
 ## Current authority rules
@@ -170,8 +228,9 @@ Current report-surface rules:
 4. Dutch/EU investability requires UCITS status and PRIIPs/KID availability before funding.
 5. The starting EU portfolio state is cash-only until instruments pass the UCITS investability contract.
 6. Pricing-line connectivity alone is not funding authority.
-7. Candidate-report visibility alone is not portfolio authority.
-8. Any existing cloned U.S. reports, pricing audits or portfolio entries are historical clone artifacts, not EU current-position truth.
+7. Valuation-price artifact generation alone is not funding authority.
+8. Candidate-report visibility alone is not portfolio authority.
+9. Any existing cloned U.S. reports, pricing audits or portfolio entries are historical clone artifacts, not EU current-position truth.
 
 ## Current state files
 
@@ -222,9 +281,9 @@ The repo currently inherits U.S. ETF output and state artifacts. They must not b
 
 The repo has an initial validated registry structure, but most candidates are not yet verified enough for pricing or funding.
 
-### 3. Pricing is only a non-authoritative connectivity preflight
+### 3. Pricing source authority is still pending
 
-The first pricing-line layer uses non-authoritative connectivity tests. It is useful for validating symbols and plumbing, but not yet enough for valuation-grade report authority.
+The repo now has valuation-pricing scaffolding, but no integrated authoritative completed-session close source yet. Current yfinance evidence is deliberately preserved as connectivity-only and excluded from valuation authority.
 
 ### 4. Report output is still a bootstrap candidate report
 
@@ -236,12 +295,12 @@ Production delivery remains blocked until EU state, UCITS registry, valuation-gr
 
 ## Immediate priority
 
-Begin valuation-grade UCITS pricing authority design.
+Move from valuation-pricing scaffolding to real valuation-source integration.
 
-1. Define the authoritative UCITS pricing-source order.
-2. Decide which sources are valuation-grade per exchange line.
-3. Preserve yfinance as non-authoritative connectivity/research preflight unless explicitly promoted.
-4. Add pricing-lineage fields to the preflight artifact or a new valuation-grade artifact.
+1. Decide whether the first valuation-grade source integration should be Twelve Data or exchange-official close.
+2. Define exact provider symbols and currency evidence for CSPX London and SXR8 Xetra.
+3. Implement source-specific fetch logic without mutating portfolio state.
+4. Keep yfinance as non-authoritative connectivity/research preflight unless explicitly promoted.
 5. Keep portfolio state cash-only and delivery disabled.
 
 ## Stable decision
