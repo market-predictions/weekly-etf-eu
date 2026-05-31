@@ -1,0 +1,82 @@
+{
+  "created_at_utc": "2026-05-31T21:19:57.412190+00:00",
+  "funding_authority": false,
+  "portfolio_mutation": false,
+  "production_delivery": false,
+  "rows": [
+    {
+      "adapter_name": "euronext_live",
+      "blockers": [
+        "adapter_scaffold_only",
+        "stable_euronext_quote_endpoint_not_integrated",
+        "candidate_close_not_parsed",
+        "candidate_date_not_verified",
+        "completed_session_not_verified"
+      ],
+      "candidate_close": null,
+      "candidate_currency": null,
+      "candidate_date": null,
+      "completed_session": false,
+      "confidence": "none",
+      "exchange": "Euronext Amsterdam",
+      "exchange_ticker": "CSPX",
+      "funding_authority": false,
+      "isin": "IE00B5BMR087",
+      "observation_status": "adapter_scaffold_pending_endpoint_integration",
+      "parser_status": "not_integrated",
+      "portfolio_mutation": false,
+      "production_delivery": false,
+      "provider_symbol": "IE00B5BMR087-XAMS",
+      "registry_id": "core_us_equity_cspx",
+      "source_id": "euronext_live",
+      "source_lineage": {
+        "accept_as_valuation_grade": false,
+        "authority": "preferred_official_exchange_discovery",
+        "expected_currency": "EUR",
+        "mic_code": "XAMS"
+      },
+      "source_url": "https://live.euronext.com/en/product/etfs/IE00B5BMR087-XAMS",
+      "trading_currency": "EUR",
+      "valuation_authority": false
+    },
+    {
+      "adapter_name": "deutsche_boerse_live",
+      "blockers": [
+        "adapter_scaffold_only",
+        "clean_close_label_parser_not_integrated",
+        "candidate_close_not_parsed",
+        "candidate_date_not_verified",
+        "completed_session_not_verified"
+      ],
+      "candidate_close": null,
+      "candidate_currency": "EUR",
+      "candidate_date": null,
+      "completed_session": false,
+      "confidence": "none",
+      "exchange": "Xetra",
+      "exchange_ticker": "SXR8",
+      "funding_authority": false,
+      "isin": "IE00B5BMR087",
+      "observation_status": "adapter_scaffold_pending_parser_integration",
+      "parser_status": "not_integrated",
+      "portfolio_mutation": false,
+      "production_delivery": false,
+      "provider_symbol": "SXR8 GY",
+      "registry_id": "core_us_equity_cspx",
+      "source_id": "deutsche_boerse_live",
+      "source_lineage": {
+        "accept_as_valuation_grade": false,
+        "authority": "official_exchange_discovery",
+        "expected_currency": "EUR",
+        "mic_code": "XETR"
+      },
+      "source_url": "https://live.deutsche-boerse.com/etf/ishares-core-s-p-500-ucits-etf-usd-acc",
+      "trading_currency": "EUR",
+      "valuation_authority": false
+    }
+  ],
+  "run_id": "20260531_211950",
+  "schema_version": "ucits_close_observations_v1",
+  "source_policy": "config/ucits_pricing_source_policy.yml",
+  "valuation_authority": false
+}
