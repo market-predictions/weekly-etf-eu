@@ -138,20 +138,18 @@
 ### 14. Build initial UCITS candidate registry
 
 - Owner: `[JOINT]`
-- Status: next
+- Status: done for bootstrap seed
 - Target file:
   - `config/ucits_symbol_registry.yml`
-- Action:
-  - identify candidate UCITS ETFs by theme;
-  - verify ISIN, provider, trading line, exchange, trading currency, TER, UCITS status and KID status;
-  - keep `investability_status=candidate_requires_verification` until checked;
-  - only promote candidates to `verified_candidate` or `fundable` when validation evidence is sufficient.
-- Done when: registry contains verified candidates ready for pricing tests.
+- Result:
+  - registry seeded with CSPX, VanEck Semiconductor UCITS placeholder, iShares Physical Gold ETC policy-blocked candidate, and infrastructure placeholder;
+  - only CSPX is currently `verified_candidate_not_funded`;
+  - no candidate is funded.
 
 ### 15. Add UCITS registry validator
 
 - Owner: `[ASSISTANT]`
-- Status: next
+- Status: done
 - Target file:
   - `tools/validate_ucits_symbol_registry.py`
 - Done when: registry fails if required ISIN/trading-line/investability fields are missing or inconsistent.
@@ -159,22 +157,53 @@
 ### 16. Add UCITS investability validator
 
 - Owner: `[ASSISTANT]`
-- Status: planned
+- Status: done
 - Target file:
   - `tools/validate_ucits_investability_contract.py`
 - Done when: a candidate cannot become fundable without ISIN, UCITS status, PRIIPs/KID status, exchange line, trading currency and pricing symbol.
 
-### 17. Adapt pricing to UCITS exchange lines
+### 17. Confirm UCITS registry validation passed
+
+- Owner: `[USER]`
+- Status: done
+- Result: GitHub Actions validation passed after YAML syntax fix.
+
+### 18. Add UCITS pricing-line contract
+
+- Owner: `[ASSISTANT]`
+- Status: next
+- Target file:
+  - `control/UCITS_PRICING_LINE_CONTRACT_V1.md`
+- Done when: pricing-line authority is explicit for UCITS exchange ticker + exchange + trading currency + provider symbol.
+
+### 19. Add UCITS pricing candidate extractor
+
+- Owner: `[ASSISTANT]`
+- Status: next
+- Target file:
+  - `pricing/build_ucits_pricing_candidates.py`
+- Done when: verified-but-not-funded UCITS trading lines can be extracted into a pricing candidate artifact without changing portfolio state.
+
+### 20. Add UCITS pricing candidate validator
+
+- Owner: `[ASSISTANT]`
+- Status: next
+- Target file:
+  - `tools/validate_ucits_pricing_candidates.py`
+- Done when: pricing tests are limited to registry-approved UCITS candidates and exclude U.S. proxy holdings.
+
+### 21. Run first UCITS pricing-line preflight
 
 - Owner: `[ASSISTANT]`
 - Status: planned
 - Action:
-  - price exchange ticker + exchange + trading currency;
-  - retain U.S. proxy pricing only as research benchmark input;
-  - add provider symbol and exchange lineage.
-- Done when: EU holdings price from UCITS trading lines, not U.S. proxies.
+  - test CSPX.L and SXR8.DE style symbols from the registry;
+  - do not mutate portfolio state;
+  - do not mark candidates fundable from pricing alone;
+  - keep delivery disabled.
+- Done when: a non-authoritative pricing candidate artifact is produced and validated.
 
-### 18. Build Dutch-first EU report renderer
+### 22. Build Dutch-first EU report renderer
 
 - Owner: `[ASSISTANT]`
 - Status: planned
@@ -185,7 +214,7 @@
   - convert skeleton into full UCITS candidate and eventually funded-position report.
 - Done when: Dutch/EU report is client-native, not a translation of a U.S. investable-universe report.
 
-### 19. Enable EU delivery only after validators pass
+### 23. Enable EU delivery only after validators pass
 
 - Owner: `[JOINT]`
 - Status: blocked until Phase 3 validates
