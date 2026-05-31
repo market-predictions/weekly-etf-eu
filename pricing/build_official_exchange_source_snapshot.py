@@ -28,6 +28,10 @@ def build_rows(policy: dict[str, Any]) -> list[dict[str, Any]]:
             source_id = source.get("source_id")
             if source_id not in OFFICIAL_SOURCE_IDS:
                 continue
+            if source.get("valuation_grade_eligible") is not True:
+                continue
+            if not source.get("product_url") or not source.get("expected_currency"):
+                continue
             rows.append({
                 "registry_id": line.get("registry_id"),
                 "isin": line.get("isin"),
