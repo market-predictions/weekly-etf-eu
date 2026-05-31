@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import html
+import json
 import re
 import urllib.parse
 import urllib.request
@@ -13,6 +14,22 @@ EURONEXT_HINTS = ["currentPath", "baseUrlSearchQuote", "dynamic_quotes_display",
 QUOTED_STRING_RE = re.compile(r"[\"']([^\"']{2,700})[\"']")
 CANONICAL_HREF_RE = re.compile(r"<link\b[^>]*rel=[\"']canonical[\"'][^>]*href=[\"']([^\"']+)[\"']", re.IGNORECASE)
 CANONICAL_HREF_RE_REVERSED = re.compile(r"<link\b[^>]*href=[\"']([^\"']+)[\"'][^>]*rel=[\"']canonical[\"']", re.IGNORECASE)
+DRUPAL_SETTINGS_RE = re.compile(
+    r"<script\b[^>]*data-drupal-selector=[\"']drupal-settings-json[\"'][^>]*>(.*?)</script>",
+    re.IGNORECASE | re.DOTALL,
+)
+SIGNAL_TERMS = [
+    "dynamic_quotes_display",
+    "product_data",
+    "baseUrlSearchQuote",
+    "currentPath",
+    "ajaxPageState",
+    "ajaxTrustedUrl",
+    "ajax_secure",
+    "ewl_related_instruments",
+    "nameInstrument",
+]
+ENDPOINT_TERMS = ["quote", "quotes", "instrument", "product", "ajax", "api", "search", "market", "price", "chart"]
 
 
 @dataclass(frozen=True)
@@ -147,11 +164,12 @@ class EuronextAdapter:
             "endpoint_hint_samples": endpoint_hints[:20],
             "search_endpoint_probe_results": search_probe_results,
             "resolved_product_url_candidates": self._resolved_product_url_candidates(search_probe_results, source.source_url),
+            "product_page_signal_diagnostics": self._product_page_signal_diagnostics(raw, source.source_url, line),
             "script_tag_count": len(re.findall(r"<script\b", raw, flags=re.IGNORECASE)),
             "raw_page_bytes": len(raw.encode("utf-8", errors="replace")),
-            "next_step": "select a stable Euronext product or quote endpoint from probe diagnostics before any candidate close parsing",
+            "next_step": "select a stable Euronext product or quote endpoint from typed product-page diagnostics before any candidate close parsing",
         }
-        parser_status = "endpoint_probe_completed" if search_probe_results else "endpoint_hints_observed" if present_hints or endpoint_hints else "endpoint_hints_not_observed"
+        parser_status = "product_page_signal_diagnostics_collected" if diagnostics["product_page_signal_diagnostics"].get("signal_terms_present") else "endpoint_probe_completed" if search_probe_results else "endpoint_hints_observed" if present_hints or endpoint_hints else "endpoint_hints_not_observed"
         confidence = "low" if parser_status != "endpoint_hints_not_observed" else "none"
         return DiagnosticResult(parser_status=parser_status, confidence=confidence, diagnostics=diagnostics)
 
@@ -175,7 +193,7 @@ class EuronextAdapter:
             lower = value.lower()
             if value.startswith(("data:", "javascript:")):
                 continue
-            if not any(term in lower for term in ["quote", "quotes", "instrument", "product", "ajax", "api", "search"]):
+            if not any(term in lower for term in ENDPOINT_TERMS):
                 continue
             normalized = urllib.parse.urljoin(source_url or "", value) if value.startswith("/") else value
             if normalized not in hints:
@@ -289,6 +307,111 @@ class EuronextAdapter:
             if len(candidates) >= 20:
                 break
         return candidates
+
+    @classmethod
+    def _product_page_signal_diagnostics(cls, raw: str, source_url: str | None, line: TradingLine) -> dict[str, Any]:
+        signal_counts = {term: len(re.findall(re.escape(term), raw, flags=re.IGNORECASE)) for term in SIGNAL_TERMS}
+        settings_payload = cls._extract_drupal_settings(raw)
+        settings_summary = cls._summarize_drupal_settings(settings_payload, source_url)
+        endpoint_candidates = cls._extract_endpoint_hints(raw, source_url)[:30]
+        return {
+            "signal_terms_present": [term for term, count in signal_counts.items() if count > 0],
+            "signal_term_counts": signal_counts,
+            "signal_context_samples": cls._signal_context_samples(raw, SIGNAL_TERMS, limit=20),
+            "endpoint_candidate_samples": endpoint_candidates,
+            "endpoint_candidate_count": len(endpoint_candidates),
+            "drupal_settings_present": settings_payload is not None,
+            "drupal_settings_summary": settings_summary,
+            "product_identity_tokens_present": {
+                "isin": line.isin.lower() in raw.lower(),
+                "exchange_ticker": line.exchange_ticker.lower() in raw.lower(),
+                "currency_token": cls._contains_currency_token(raw, line.trading_currency),
+            },
+            "diagnostic_only": True,
+        }
+
+    @staticmethod
+    def _extract_drupal_settings(raw: str) -> dict[str, Any] | None:
+        match = DRUPAL_SETTINGS_RE.search(raw)
+        if not match:
+            return None
+        payload = html.unescape(match.group(1)).strip()
+        if not payload:
+            return None
+        try:
+            loaded = json.loads(payload)
+        except json.JSONDecodeError as exc:
+            return {"_parse_error": str(exc), "_raw_sample": payload[:500]}
+        return loaded if isinstance(loaded, dict) else {"_non_object_settings_type": type(loaded).__name__}
+
+    @classmethod
+    def _summarize_drupal_settings(cls, settings: dict[str, Any] | None, source_url: str | None) -> dict[str, Any]:
+        if settings is None:
+            return {"parse_status": "settings_not_found"}
+        if "_parse_error" in settings:
+            return {
+                "parse_status": "json_parse_failed",
+                "parse_error": settings.get("_parse_error"),
+                "raw_sample": settings.get("_raw_sample"),
+            }
+        endpoint_like_values = cls._walk_endpoint_like_values(settings, source_url)
+        signal_key_paths = cls._walk_signal_key_paths(settings)
+        return {
+            "parse_status": "parsed",
+            "top_level_keys": sorted(str(key) for key in settings.keys())[:40],
+            "ajax_keys_present": cls._safe_dict_keys(settings.get("ajax")),
+            "ajax_page_state_keys_present": cls._safe_dict_keys(settings.get("ajaxPageState")),
+            "signal_key_paths": signal_key_paths[:40],
+            "endpoint_like_values": endpoint_like_values[:40],
+            "endpoint_like_value_count": len(endpoint_like_values),
+        }
+
+    @classmethod
+    def _walk_endpoint_like_values(cls, value: Any, source_url: str | None, path: str = "$") -> list[dict[str, Any]]:
+        found: list[dict[str, Any]] = []
+        if isinstance(value, dict):
+            for key, child in value.items():
+                found.extend(cls._walk_endpoint_like_values(child, source_url, f"{path}.{key}"))
+        elif isinstance(value, list):
+            for idx, child in enumerate(value):
+                found.extend(cls._walk_endpoint_like_values(child, source_url, f"{path}[{idx}]"))
+        elif isinstance(value, str):
+            lowered = value.lower()
+            if any(term in lowered for term in ENDPOINT_TERMS) or value.startswith("/"):
+                normalized = urllib.parse.urljoin(source_url or "", html.unescape(value)) if value.startswith("/") else html.unescape(value)
+                found.append({"path": path, "value": normalized[:500]})
+        return found
+
+    @classmethod
+    def _walk_signal_key_paths(cls, value: Any, path: str = "$") -> list[str]:
+        found: list[str] = []
+        if isinstance(value, dict):
+            for key, child in value.items():
+                child_path = f"{path}.{key}"
+                if any(term.lower() in str(key).lower() for term in [*SIGNAL_TERMS, *ENDPOINT_TERMS]):
+                    found.append(child_path)
+                found.extend(cls._walk_signal_key_paths(child, child_path))
+        elif isinstance(value, list):
+            for idx, child in enumerate(value):
+                found.extend(cls._walk_signal_key_paths(child, f"{path}[{idx}]"))
+        return found
+
+    @staticmethod
+    def _safe_dict_keys(value: Any) -> list[str]:
+        return sorted(str(key) for key in value.keys())[:40] if isinstance(value, dict) else []
+
+    @staticmethod
+    def _signal_context_samples(raw: str, terms: list[str], limit: int) -> list[dict[str, str]]:
+        samples: list[dict[str, str]] = []
+        for term in terms:
+            for match in re.finditer(re.escape(term), raw, flags=re.IGNORECASE):
+                samples.append({
+                    "term": term,
+                    "context": re.sub(r"\s+", " ", raw[max(0, match.start() - 120): match.end() + 180]).strip(),
+                })
+                if len(samples) >= limit:
+                    return samples
+        return samples
 
     @staticmethod
     def _contains_currency_token(text: str, currency: str) -> bool:
