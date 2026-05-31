@@ -2,6 +2,9 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
+import urllib.parse
+import urllib.request
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -15,6 +18,8 @@ DEFAULT_REGISTRY = Path("config/ucits_symbol_registry.yml")
 DEFAULT_SOURCE_POLICY = Path("config/ucits_pricing_source_policy.yml")
 DEFAULT_OUTPUT_DIR = Path("output/pricing")
 PENDING_STATUS = "valuation_grade_pending"
+BLOCKED_NO_AUTHORITATIVE_SOURCE = "blocked_no_authoritative_source"
+TWELVE_DATA_BASE_URL = "https://api.twelvedata.com"
 
 
 def _load_yaml(path: Path) -> dict[str, Any]:
@@ -75,6 +80,8 @@ def _validate_policy(policy: dict[str, Any], policy_path: Path) -> None:
             errors.append(f"rules.{field}_must_be_false")
     if rules.get("yfinance_default_authority") != "non_authoritative_connectivity_only":
         errors.append("rules.yfinance_default_authority_must_remain_non_authoritative_connectivity_only")
+    if rules.get("twelve_data_default_accept_as_valuation_grade") is not False:
+        errors.append("rules.twelve_data_default_accept_as_valuation_grade_must_be_false")
     if not policy.get("source_authority_hierarchy"):
         errors.append("source_authority_hierarchy_required")
     if not policy.get("trading_line_policies"):
@@ -88,11 +95,22 @@ def _validate_policy(policy: dict[str, Any], policy_path: Path) -> None:
         if not source_order:
             errors.append(f"{label}:source_order_required")
         for source in source_order:
-            if source.get("source_id") == "yahoo_yfinance":
+            source_id = source.get("source_id")
+            if source_id == "yahoo_yfinance":
                 if source.get("authority") != "non_authoritative_connectivity_only":
                     errors.append(f"{label}:yahoo_yfinance_must_be_connectivity_only")
                 if source.get("valuation_grade_eligible") is not False:
                     errors.append(f"{label}:yahoo_yfinance_must_not_be_valuation_grade_eligible")
+            if source_id == "twelve_data":
+                for field in ["symbol", "exchange", "expected_currency"]:
+                    if not _as_str(source.get(field)):
+                        errors.append(f"{label}:twelve_data_missing_{field}")
+                if source.get("authority") != "candidate_valuation_source":
+                    errors.append(f"{label}:twelve_data_authority_must_be_candidate_valuation_source")
+                if source.get("valuation_grade_eligible") is not True:
+                    errors.append(f"{label}:twelve_data_must_be_valuation_grade_eligible_candidate")
+                if source.get("accept_as_valuation_grade") is not False:
+                    errors.append(f"{label}:twelve_data_accept_as_valuation_grade_must_start_false")
     if errors:
         raise RuntimeError("UCITS valuation pricing source policy invalid: " + "; ".join(errors))
     print(f"UCITS_VALUATION_PRICING_POLICY_OK | policy={policy_path}")
@@ -123,6 +141,127 @@ def _non_authoritative_evidence(preflight_row: dict[str, Any] | None) -> dict[st
     return evidence
 
 
+def _http_get_json(url: str, timeout: int = 20) -> dict[str, Any]:
+    req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
+    with urllib.request.urlopen(req, timeout=timeout) as resp:  # noqa: S310 - controlled provider URL
+        return json.loads(resp.read().decode("utf-8"))
+
+
+def _query(params: dict[str, Any]) -> str:
+    return urllib.parse.urlencode({k: v for k, v in params.items() if v is not None and v != ""})
+
+
+def _twelve_data_api_key() -> str | None:
+    return os.environ.get("TWELVE_DATA_API_KEY") or os.environ.get("TWELVEDATA_API_KEY")
+
+
+def _fetch_twelve_data_evidence(source_policy: dict[str, Any]) -> dict[str, Any]:
+    symbol = _as_str(source_policy.get("symbol"))
+    exchange = _as_str(source_policy.get("exchange"))
+    expected_currency = _as_str(source_policy.get("expected_currency"))
+    accept_as_valuation_grade = source_policy.get("accept_as_valuation_grade") is True
+    api_key = _twelve_data_api_key()
+
+    base_evidence: dict[str, Any] = {
+        "source_id": "twelve_data",
+        "authority": "candidate_valuation_source",
+        "symbol": symbol,
+        "exchange": exchange,
+        "expected_currency": expected_currency,
+        "accept_as_valuation_grade": accept_as_valuation_grade,
+        "endpoint": "time_series",
+        "interval": source_policy.get("interval") or "1day",
+        "outputsize": source_policy.get("outputsize") or 5,
+    }
+
+    if not api_key:
+        return {
+            **base_evidence,
+            "status": "unresolved_dependency_missing",
+            "error": "Missing TWELVE_DATA_API_KEY or TWELVEDATA_API_KEY",
+        }
+
+    try:
+        url = f"{TWELVE_DATA_BASE_URL}/time_series?" + _query({
+            "symbol": symbol,
+            "exchange": exchange,
+            "interval": source_policy.get("interval") or "1day",
+            "outputsize": source_policy.get("outputsize") or 5,
+            "format": "JSON",
+            "apikey": api_key,
+        })
+        data = _http_get_json(url)
+        if data.get("status") == "error" or data.get("code"):
+            return {
+                **base_evidence,
+                "status": "unresolved_provider_error",
+                "error": data.get("message") or data.get("status") or "Twelve Data error response",
+                "provider_code": data.get("code"),
+            }
+        values = data.get("values") or []
+        meta = data.get("meta") or {}
+        provider_currency = _as_str(meta.get("currency"))
+        provider_exchange = _as_str(meta.get("exchange") or meta.get("mic_code"))
+        if not values:
+            return {
+                **base_evidence,
+                "status": "unresolved_no_values",
+                "provider_currency": provider_currency or None,
+                "provider_exchange": provider_exchange or None,
+            }
+        latest = values[0]
+        observed_date = _as_str(latest.get("datetime"))[:10]
+        close = latest.get("close")
+        try:
+            close_value = float(close)
+        except (TypeError, ValueError):
+            return {
+                **base_evidence,
+                "status": "unresolved_invalid_close",
+                "observed_date": observed_date or None,
+                "raw_close": close,
+                "provider_currency": provider_currency or None,
+                "provider_exchange": provider_exchange or None,
+            }
+        currency_matches = bool(provider_currency and expected_currency and provider_currency.upper() == expected_currency.upper())
+        return {
+            **base_evidence,
+            "status": "candidate_price_observed",
+            "observed_date": observed_date,
+            "close": close_value,
+            "currency": provider_currency or None,
+            "provider_exchange": provider_exchange or None,
+            "currency_matches_expected": currency_matches,
+            "completed_session": True,
+            "selected_bar_index": 0,
+            "raw_meta": {
+                "symbol": meta.get("symbol"),
+                "exchange": meta.get("exchange"),
+                "mic_code": meta.get("mic_code"),
+                "currency": meta.get("currency"),
+            },
+        }
+    except Exception as exc:  # pragma: no cover - depends on remote provider
+        return {
+            **base_evidence,
+            "status": "unresolved_provider_exception",
+            "error": str(exc),
+        }
+
+
+def _source_by_id(line_policy: dict[str, Any] | None, source_id: str) -> dict[str, Any] | None:
+    if not line_policy:
+        return None
+    for source in line_policy.get("source_order") or []:
+        if source.get("source_id") == source_id:
+            return source
+    return None
+
+
+def _line_source_lineage(line_policy: dict[str, Any] | None) -> list[dict[str, Any]]:
+    return list((line_policy or {}).get("source_order") or [])
+
+
 def build_valuation_artifact(
     registry_path: Path,
     source_policy_path: Path,
@@ -147,14 +286,11 @@ def build_valuation_artifact(
         key = _policy_key(candidate)
         line_policy = policy_index.get(key)
         preflight_row = preflight_rows.get(key)
-        source_lineage = []
+        source_lineage = _line_source_lineage(line_policy)
         valuation_status = PENDING_STATUS
         blockers: list[str] = []
 
-        if line_policy:
-            source_lineage = line_policy.get("source_order") or []
-            blockers.append("no_integrated_authoritative_completed_session_close")
-        else:
+        if not line_policy:
             blockers.append("missing_trading_line_policy")
             missing_policy.append({
                 "registry_id": candidate.get("registry_id"),
@@ -163,10 +299,25 @@ def build_valuation_artifact(
                 "exchange_ticker": candidate.get("exchange_ticker"),
                 "trading_currency": candidate.get("trading_currency"),
             })
+        else:
+            blockers.append("no_integrated_preferred_exchange_official_close")
 
         non_authoritative = _non_authoritative_evidence(preflight_row)
         if non_authoritative and non_authoritative.get("status") == "priced_non_authoritative":
             blockers.append("non_authoritative_preflight_price_excluded_from_valuation_grade")
+
+        twelve_source_policy = _source_by_id(line_policy, "twelve_data")
+        twelve_data_evidence = _fetch_twelve_data_evidence(twelve_source_policy) if twelve_source_policy else None
+        if twelve_data_evidence:
+            status = twelve_data_evidence.get("status")
+            if status == "candidate_price_observed":
+                blockers.append("twelve_data_candidate_price_observed_but_not_accepted_as_valuation_grade")
+                if twelve_data_evidence.get("currency_matches_expected") is not True:
+                    blockers.append("twelve_data_currency_mismatch_or_unverified")
+                if twelve_data_evidence.get("accept_as_valuation_grade") is not True:
+                    blockers.append("twelve_data_accept_as_valuation_grade_false")
+            else:
+                blockers.append(f"twelve_data_{status or 'unresolved'}")
 
         rows.append({
             "registry_id": candidate.get("registry_id"),
@@ -193,6 +344,7 @@ def build_valuation_artifact(
             "completed_session": False,
             "session_rule": "completed_regular_session_required_before_valuation_grade",
             "source_lineage": source_lineage,
+            "twelve_data_candidate_evidence": twelve_data_evidence,
             "non_authoritative_preflight_evidence": non_authoritative,
             "valuation_blockers": blockers,
             "portfolio_mutation": False,
@@ -240,10 +392,15 @@ def write_valuation_artifact(
     )
     path = output_dir / f"ucits_valuation_prices_{run_id}.json"
     path.write_text(json.dumps(artifact, indent=2, sort_keys=True), encoding="utf-8")
+    observed_twelve_data = sum(
+        1 for row in artifact["rows"]
+        if (row.get("twelve_data_candidate_evidence") or {}).get("status") == "candidate_price_observed"
+    )
     print(
         "UCITS_VALUATION_PRICES_OK"
         f" | artifact={path}"
         f" | rows={len(artifact['rows'])}"
+        f" | twelve_data_candidate_observed={observed_twelve_data}"
         f" | valuation_grade_rows={artifact['valuation_grade_row_count']}"
         " | portfolio_mutation=false | delivery=false"
     )
