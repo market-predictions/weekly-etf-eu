@@ -18,6 +18,7 @@ rules:
   require_positive_close: true
   max_price_age_calendar_days: 7
   default_pending_status: valuation_grade_pending
+  twelve_data_default_accept_as_valuation_grade: false
 
 source_authority_hierarchy:
   - source_id: exchange_official
@@ -27,7 +28,7 @@ source_authority_hierarchy:
   - source_id: twelve_data
     authority: candidate_valuation_source
     valuation_grade_eligible: true
-    notes: May become valuation-grade per trading line after symbol, exchange, observed date and trading currency are verified.
+    notes: May become valuation-grade per trading line only after symbol, exchange, observed date and trading currency are verified and accept_as_valuation_grade is explicitly true for that line.
   - source_id: issuer_factsheet
     authority: reference_only_or_stale_check
     valuation_grade_eligible: false
@@ -50,15 +51,22 @@ trading_line_policies:
         valuation_grade_eligible: true
         status: not_integrated_yet
       - source_id: twelve_data
+        symbol: CSPX
+        exchange: LSE
+        expected_currency: USD
+        endpoint: time_series
+        interval: 1day
+        outputsize: 5
         authority: candidate_valuation_source
         valuation_grade_eligible: true
-        status: pending_symbol_and_currency_verification
+        accept_as_valuation_grade: false
+        status: candidate_live_source_test
       - source_id: yahoo_yfinance
         symbol: CSPX.L
         authority: non_authoritative_connectivity_only
         valuation_grade_eligible: false
         status: connectivity_preflight_only
-    current_phase4_status: valuation_grade_pending
+    current_phase4_status: twelve_data_candidate_source_integration
 
   - registry_id: core_us_equity_cspx
     isin: IE00B5BMR087
@@ -72,15 +80,22 @@ trading_line_policies:
         valuation_grade_eligible: true
         status: not_integrated_yet
       - source_id: twelve_data
+        symbol: SXR8
+        exchange: XETRA
+        expected_currency: EUR
+        endpoint: time_series
+        interval: 1day
+        outputsize: 5
         authority: candidate_valuation_source
         valuation_grade_eligible: true
-        status: pending_symbol_and_currency_verification
+        accept_as_valuation_grade: false
+        status: candidate_live_source_test
       - source_id: yahoo_yfinance
         symbol: SXR8.DE
         authority: non_authoritative_connectivity_only
         valuation_grade_eligible: false
         status: connectivity_preflight_only
-    current_phase4_status: valuation_grade_pending
+    current_phase4_status: twelve_data_candidate_source_integration
 
 blocked_defaults:
   candidate_requires_verification: no_valuation_authority_until_registry_verification
@@ -91,4 +106,6 @@ notes:
   - This policy does not fund any ETF.
   - This policy does not mutate portfolio state.
   - A source being listed as valuation-grade eligible does not mean it is integrated or accepted for a row.
+  - Twelve Data evidence is collected as candidate valuation evidence first.
+  - A Twelve Data row becomes valuation-grade only when accept_as_valuation_grade is explicitly true for the trading line and the artifact passes source/date/close/currency/completed-session validation.
   - A row becomes valuation-grade only when the valuation artifact contains source/date/close/currency/completed-session evidence and passes validation.
