@@ -32,7 +32,7 @@ The clone still contains many U.S.-ETF artifacts, old workflow names and histori
 
 ## Current migration status
 
-The repo is in **Phase 3 — UCITS registry and pricing-line preparation**.
+The repo is in **Phase 3 — UCITS pricing-line preflight and candidate-report preparation**.
 
 Completed:
 
@@ -56,25 +56,37 @@ Completed:
 - UCITS investability contract validator added;
 - EU workflow now validates UCITS registry and investability contract;
 - registry YAML syntax fix applied;
-- UCITS registry validation run passed in GitHub Actions.
+- UCITS registry validation run passed in GitHub Actions;
+- UCITS pricing-line contract added;
+- UCITS pricing candidate extractor added;
+- UCITS pricing candidate validator added;
+- non-authoritative UCITS pricing preflight added;
+- UCITS pricing preflight validator added;
+- EU workflow now runs and validates UCITS pricing-line preflight;
+- UCITS pricing-line preflight validation passed in GitHub Actions;
+- non-delivery pricing candidate and preflight artifacts are committed under `output/pricing/` by the workflow.
 
 Not yet completed:
 
-- UCITS pricing line support;
-- verified pricing-source mapping for UCITS exchange tickers;
+- valuation-grade UCITS pricing authority;
+- verified pricing-source lineage beyond non-authoritative yfinance connectivity;
 - funded EU model portfolio;
 - Dutch-first production report renderer with real UCITS positions;
 - production PDF/email delivery enablement.
 
 ## Latest validation result
 
-The latest `Weekly ETF EU UCITS bootstrap validation` GitHub Actions run passed after the YAML syntax fix.
+The latest `Weekly ETF EU UCITS bootstrap validation` GitHub Actions run passed after adding the UCITS pricing-line preflight layer.
 
 Validated markers now include:
 
 ```text
 UCITS symbol registry validation
 UCITS investability contract validation
+UCITS pricing candidate extraction
+UCITS pricing candidate validation
+non-authoritative UCITS pricing preflight
+UCITS pricing preflight validation
 EU cash-only state validation
 no U.S.-listed ETF appears as an EU holding
 EU markdown report skeleton rendered
@@ -83,22 +95,16 @@ inherited U.S. production sender is disabled
 no delivery is attempted
 ```
 
-Generated non-delivery outputs remain:
+Generated non-delivery outputs include:
 
 ```text
 output/weekly_etf_eu_review_260531.md
 output/weekly_etf_eu_review_nl_260531.md
+output/pricing/ucits_pricing_candidates_*.json
+output/pricing/ucits_pricing_preflight_*.json
 ```
 
-These reports show:
-
-- cash-only bootstrap;
-- no funded UCITS holdings;
-- U.S. ETFs labelled as research proxies only;
-- UCITS candidates requiring ISIN, KID/PRIIPs and trading-line verification;
-- production delivery disabled.
-
-This is a bootstrap validation and report-skeleton commit only. It is not a production report delivery receipt.
+These artifacts are bootstrap/preflight outputs only. They are not production pricing authority and not a production report delivery receipt.
 
 ## Current UCITS registry status
 
@@ -119,12 +125,24 @@ infrastructure_ishares_global_infr
 
 Current authority posture:
 
-- `core_us_equity_cspx` is the only `verified_candidate_not_funded` seed.
+- `core_us_equity_cspx` is the only `verified_candidate_not_funded` seed and is eligible for non-authoritative pricing-line preflight.
 - `semiconductor_vaneck_smh_ucits` remains `candidate_requires_verification` until domicile, distribution policy, replication method and pricing symbol are verified.
 - `gold_ishares_physical_gold_etc` remains policy-blocked because it is an ETC, not a UCITS ETF.
 - `infrastructure_ishares_global_infr` remains a placeholder requiring issuer confirmation.
 
 No candidate is funded.
+
+## Current pricing-line status
+
+The first pricing-line phase is non-authoritative and cannot mutate portfolio state.
+
+Current pricing-preflight rules:
+
+- source of truth: `config/ucits_symbol_registry.yml`;
+- eligible status: `verified_candidate_not_funded` only;
+- output artifacts: `output/pricing/ucits_pricing_candidates_*.json` and `output/pricing/ucits_pricing_preflight_*.json`;
+- authority flags: `portfolio_mutation=false`, `production_delivery=false`, `funding_authority=false`;
+- pricing success does not promote candidates to `fundable`.
 
 ## Current authority rules
 
@@ -133,7 +151,8 @@ No candidate is funded.
 3. EU holdings must become UCITS ETFs with ISIN-first identity.
 4. Dutch/EU investability requires UCITS status and PRIIPs/KID availability before funding.
 5. The starting EU portfolio state is cash-only until instruments pass the UCITS investability contract.
-6. Any existing cloned U.S. reports, pricing audits or portfolio entries are historical clone artifacts, not EU current-position truth.
+6. Pricing-line connectivity alone is not funding authority.
+7. Any existing cloned U.S. reports, pricing audits or portfolio entries are historical clone artifacts, not EU current-position truth.
 
 ## Current state files
 
@@ -184,9 +203,9 @@ The repo currently inherits U.S. ETF output and state artifacts. They must not b
 
 The repo has an initial validated registry structure, but most candidates are not yet verified enough for pricing or funding.
 
-### 3. Pricing still assumes the U.S. pipeline
+### 3. Pricing is only a non-authoritative connectivity preflight
 
-Pricing code and workflows still need to be adapted to UCITS exchange tickers and trading currency lines.
+The first pricing-line layer uses non-authoritative connectivity tests. It is useful for validating symbols and plumbing, but not yet enough for valuation-grade report authority.
 
 ### 4. Report output is only a skeleton
 
@@ -194,16 +213,16 @@ The current EU report is a cash-only bootstrap skeleton. It is not yet a full Du
 
 ### 5. Delivery remains blocked
 
-Production delivery remains blocked until EU state, UCITS registry, UCITS pricing, no-U.S.-holding validation and output contracts pass.
+Production delivery remains blocked until EU state, UCITS registry, valuation-grade UCITS pricing, no-U.S.-holding validation and output contracts pass.
 
 ## Immediate priority
 
-Begin UCITS pricing-line preparation.
+Begin the UCITS candidate-report phase.
 
-1. Add a UCITS pricing-line contract.
-2. Add a pricing-line candidate extraction script from `config/ucits_symbol_registry.yml`.
-3. Validate that only non-funded verified candidates can enter pricing tests.
-4. Test CSPX / SXR8 style exchange symbols without mutating the portfolio.
+1. Extend the Dutch-first skeleton renderer to include a UCITS candidate table from `config/ucits_symbol_registry.yml`.
+2. Surface pricing-preflight status as non-authoritative connectivity information only.
+3. Keep portfolio state cash-only.
+4. Add a validator that prevents pricing-preflight rows from being interpreted as funded positions.
 5. Keep delivery disabled.
 
 ## Stable decision
