@@ -171,7 +171,7 @@
 ### 18. Add UCITS pricing-line contract
 
 - Owner: `[ASSISTANT]`
-- Status: next
+- Status: done
 - Target file:
   - `control/UCITS_PRICING_LINE_CONTRACT_V1.md`
 - Done when: pricing-line authority is explicit for UCITS exchange ticker + exchange + trading currency + provider symbol.
@@ -179,7 +179,7 @@
 ### 19. Add UCITS pricing candidate extractor
 
 - Owner: `[ASSISTANT]`
-- Status: next
+- Status: done
 - Target file:
   - `pricing/build_ucits_pricing_candidates.py`
 - Done when: verified-but-not-funded UCITS trading lines can be extracted into a pricing candidate artifact without changing portfolio state.
@@ -187,7 +187,7 @@
 ### 20. Add UCITS pricing candidate validator
 
 - Owner: `[ASSISTANT]`
-- Status: next
+- Status: done
 - Target file:
   - `tools/validate_ucits_pricing_candidates.py`
 - Done when: pricing tests are limited to registry-approved UCITS candidates and exclude U.S. proxy holdings.
@@ -195,15 +195,48 @@
 ### 21. Run first UCITS pricing-line preflight
 
 - Owner: `[ASSISTANT]`
+- Status: done
+- Result:
+  - GitHub Actions passed;
+  - UCITS pricing candidate artifact built and validated;
+  - non-authoritative pricing preflight artifact built and validated;
+  - no portfolio mutation, no funding authority, no PDF, no email.
+
+### 22. Extend Dutch-first EU report skeleton with UCITS candidate table
+
+- Owner: `[ASSISTANT]`
+- Status: next
+- Target file:
+  - `runtime/render_etf_eu_report.py`
+- Done when: Dutch and English skeletons display candidate registry rows, investability status and non-authoritative pricing-preflight status while keeping portfolio state cash-only.
+
+### 23. Add candidate-report validator
+
+- Owner: `[ASSISTANT]`
+- Status: next
+- Target file:
+  - `tools/validate_etf_eu_candidate_report.py`
+- Done when: report fails if UCITS candidate rows are presented as funded holdings or if pricing-preflight status is presented as valuation authority.
+
+### 24. Add candidate-report run validation
+
+- Owner: `[ASSISTANT]`
 - Status: planned
 - Action:
-  - test CSPX.L and SXR8.DE style symbols from the registry;
-  - do not mutate portfolio state;
-  - do not mark candidates fundable from pricing alone;
+  - wire candidate-report validator into `.github/workflows/send-weekly-etf-eu-report.yml`;
+  - queue validation run;
   - keep delivery disabled.
-- Done when: a non-authoritative pricing candidate artifact is produced and validated.
 
-### 22. Build Dutch-first EU report renderer
+### 25. Move toward valuation-grade UCITS pricing
+
+- Owner: `[JOINT]`
+- Status: planned after candidate-report validation
+- Action:
+  - define authoritative pricing source order for UCITS exchange lines;
+  - decide whether Twelve Data, Yahoo, issuer factsheets or exchange data are valuation-grade per line;
+  - retain yfinance as connectivity/research-grade until explicitly promoted.
+
+### 26. Build Dutch-first EU production report renderer
 
 - Owner: `[ASSISTANT]`
 - Status: planned
@@ -214,8 +247,8 @@
   - convert skeleton into full UCITS candidate and eventually funded-position report.
 - Done when: Dutch/EU report is client-native, not a translation of a U.S. investable-universe report.
 
-### 23. Enable EU delivery only after validators pass
+### 27. Enable EU delivery only after validators pass
 
 - Owner: `[JOINT]`
-- Status: blocked until Phase 3 validates
+- Status: blocked until Phase 3/4 validates
 - Done when: EU validator stack passes and a real delivery manifest/receipt exists.
