@@ -348,16 +348,93 @@ Created a separate decision log for stable EU architecture decisions.
 
 ---
 
-## Current status after this changelog creation
+## 2026-05-30 — EU output contract and report skeleton added
 
-The EU repo is safely separated at control/state/config/workflow level.
+### Files added
+
+```text
+control/ETF_EU_OUTPUT_CONTRACT_V1.md
+runtime/render_etf_eu_report.py
+tools/validate_etf_eu_output_contract.py
+```
+
+### Workflow changed
+
+```text
+.github/workflows/send-weekly-etf-eu-report.yml
+```
+
+### Commits
+
+```text
+fd27e661eb2321b6d902e318e0d14640b60ed800
+c6d7f881e79ceb6ff07a9a13a256d94e0742bdcb
+106aff730cb7242a6704463af3e3cfe6b6a48d18
+c2a222fbd42477ea849853b7af897f36625f7f35
+```
+
+### Change
+
+Added the first EU output contract and a Dutch-first cash-only report skeleton renderer.
+
+The renderer creates:
+
+```text
+output/weekly_etf_eu_review_YYMMDD.md
+output/weekly_etf_eu_review_nl_YYMMDD.md
+```
+
+### Required report wording
+
+The skeleton must state:
+
+```text
+Current state: cash-only bootstrap
+No UCITS holdings funded yet
+U.S. ETFs are research proxies only
+UCITS candidates require ISIN / KID / trading-line verification
+Production delivery is disabled
+```
+
+The Dutch report communicates the same contract in Dutch and is treated as the primary EU client-facing output.
+
+### Validator behavior
+
+`tools/validate_etf_eu_output_contract.py` validates:
+
+- EU-specific filenames;
+- English companion and Dutch primary outputs both exist;
+- U.S. ETF tickers appear only in proxy / benchmark / research-only context;
+- required cash-only / no-funded-UCITS / no-delivery wording is present;
+- inherited U.S. report names do not leak into the EU report body.
+
+### Workflow behavior
+
+The EU bootstrap workflow now:
+
+1. validates control/config/state;
+2. renders the EU cash-only markdown skeleton;
+3. validates the EU output contract;
+4. confirms inherited U.S. sender remains disabled;
+5. confirms no pricing, portfolio mutation, PDF generation or email delivery is attempted;
+6. commits generated EU markdown report skeletons back to `output/`.
+
+### Important note
+
+This is still non-delivery. No PDF or email is produced.
+
+---
+
+## Current status after this changelog update
+
+The EU repo is safely separated at control/state/config/workflow level and now has a first non-delivery EU report output surface.
 
 Production delivery remains blocked.
 
 The next material implementation step should be:
 
 ```text
-add EU output contract
-add report-surface validator blocking U.S. ETFs as holdings
-add first Dutch-first cash-only EU report skeleton
+run EU bootstrap validation
+inspect generated weekly_etf_eu_review_nl_*.md and weekly_etf_eu_review_*.md
+then begin UCITS registry population with verified ISIN/trading-line candidates
 ```
