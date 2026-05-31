@@ -30,6 +30,18 @@ SIGNAL_TERMS = [
     "nameInstrument",
 ]
 ENDPOINT_TERMS = ["quote", "quotes", "instrument", "product", "ajax", "api", "search", "market", "price", "chart"]
+CUSTOM_INSTRUMENT_FIELDS = [
+    "url_type",
+    "default_period",
+    "type",
+    "name",
+    "symbol",
+    "isin",
+    "mic",
+    "product_data",
+    "issuer_code",
+]
+CUSTOM_CONTEXT_FIELDS = ["nb_session", "date_restriction", "product_data", "language", "theme_name", "asset_files_path"]
 
 
 @dataclass(frozen=True)
@@ -155,6 +167,7 @@ class EuronextAdapter:
             product_code=product_code,
             line=line,
         )
+        product_page_signal_diagnostics = self._product_page_signal_diagnostics(raw, source.source_url, line)
         diagnostics = {
             "product_code": product_code or None,
             "product_code_present": bool(product_code and product_code.lower() in raw.lower()),
@@ -164,12 +177,12 @@ class EuronextAdapter:
             "endpoint_hint_samples": endpoint_hints[:20],
             "search_endpoint_probe_results": search_probe_results,
             "resolved_product_url_candidates": self._resolved_product_url_candidates(search_probe_results, source.source_url),
-            "product_page_signal_diagnostics": self._product_page_signal_diagnostics(raw, source.source_url, line),
+            "product_page_signal_diagnostics": product_page_signal_diagnostics,
             "script_tag_count": len(re.findall(r"<script\b", raw, flags=re.IGNORECASE)),
             "raw_page_bytes": len(raw.encode("utf-8", errors="replace")),
             "next_step": "select a stable Euronext product or quote endpoint from typed product-page diagnostics before any candidate close parsing",
         }
-        parser_status = "product_page_signal_diagnostics_collected" if diagnostics["product_page_signal_diagnostics"].get("signal_terms_present") else "endpoint_probe_completed" if search_probe_results else "endpoint_hints_observed" if present_hints or endpoint_hints else "endpoint_hints_not_observed"
+        parser_status = "custom_instrument_diagnostics_collected" if product_page_signal_diagnostics.get("custom_instrument_summary", {}).get("present") else "product_page_signal_diagnostics_collected" if product_page_signal_diagnostics.get("signal_terms_present") else "endpoint_probe_completed" if search_probe_results else "endpoint_hints_observed" if present_hints or endpoint_hints else "endpoint_hints_not_observed"
         confidence = "low" if parser_status != "endpoint_hints_not_observed" else "none"
         return DiagnosticResult(parser_status=parser_status, confidence=confidence, diagnostics=diagnostics)
 
@@ -313,6 +326,7 @@ class EuronextAdapter:
         signal_counts = {term: len(re.findall(re.escape(term), raw, flags=re.IGNORECASE)) for term in SIGNAL_TERMS}
         settings_payload = cls._extract_drupal_settings(raw)
         settings_summary = cls._summarize_drupal_settings(settings_payload, source_url)
+        custom_instrument_summary = cls._summarize_custom_instrument(settings_payload, line)
         endpoint_candidates = cls._extract_endpoint_hints(raw, source_url)[:30]
         return {
             "signal_terms_present": [term for term, count in signal_counts.items() if count > 0],
@@ -322,6 +336,7 @@ class EuronextAdapter:
             "endpoint_candidate_count": len(endpoint_candidates),
             "drupal_settings_present": settings_payload is not None,
             "drupal_settings_summary": settings_summary,
+            "custom_instrument_summary": custom_instrument_summary,
             "product_identity_tokens_present": {
                 "isin": line.isin.lower() in raw.lower(),
                 "exchange_ticker": line.exchange_ticker.lower() in raw.lower(),
@@ -364,6 +379,44 @@ class EuronextAdapter:
             "signal_key_paths": signal_key_paths[:40],
             "endpoint_like_values": endpoint_like_values[:40],
             "endpoint_like_value_count": len(endpoint_like_values),
+        }
+
+    @staticmethod
+    def _summarize_custom_instrument(settings: dict[str, Any] | None, line: TradingLine) -> dict[str, Any]:
+        if settings is None:
+            return {"present": False, "reason": "drupal_settings_not_found"}
+        if "_parse_error" in settings or "_non_object_settings_type" in settings:
+            return {"present": False, "reason": "drupal_settings_not_parsed"}
+        custom = settings.get("custom")
+        if not isinstance(custom, dict):
+            return {"present": False, "reason": "custom_block_not_found"}
+        instrument = custom.get("instrument")
+        if not isinstance(instrument, dict):
+            return {"present": False, "reason": "custom_instrument_not_found"}
+        instrument_fields = {key: instrument.get(key) for key in CUSTOM_INSTRUMENT_FIELDS if key in instrument}
+        custom_context = {key: custom.get(key) for key in CUSTOM_CONTEXT_FIELDS if key in custom}
+        expected_matches = {
+            "isin_matches_registry_line": str(instrument.get("isin") or "").upper() == line.isin.upper(),
+            "symbol_matches_exchange_ticker": str(instrument.get("symbol") or "").upper() == line.exchange_ticker.upper(),
+            "product_data_matches_provider_symbol": str(instrument.get("product_data") or "").upper() == line.provider_symbol.upper(),
+            "custom_product_data_matches_provider_symbol": str(custom.get("product_data") or "").upper() == line.provider_symbol.upper(),
+        }
+        return {
+            "present": True,
+            "diagnostic_only": True,
+            "instrument_fields": instrument_fields,
+            "custom_context_fields": custom_context,
+            "expected_registry_identity": {
+                "isin": line.isin,
+                "exchange_ticker": line.exchange_ticker,
+                "provider_symbol": line.provider_symbol,
+                "trading_currency": line.trading_currency,
+            },
+            "expected_matches": expected_matches,
+            "identity_match_count": sum(1 for value in expected_matches.values() if value is True),
+            "identity_match_total": len(expected_matches),
+            "date_restriction_is_session_hint_only": "date_restriction" in custom_context,
+            "nb_session_is_request_window_hint_only": "nb_session" in custom_context,
         }
 
     @classmethod
