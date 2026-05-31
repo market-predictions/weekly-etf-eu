@@ -64,7 +64,7 @@ class EuronextAdapter:
                 ),
             )
 
-        diagnostics = self._diagnose_page(fetch_result.get("text") or "", source)
+        diagnostics = self._diagnose_page(fetch_result.get("text") or "", source, line)
         blockers = list(base_blockers)
         if diagnostics.parser_status == "endpoint_hints_not_observed":
             blockers.append("euronext_endpoint_hints_not_observed")
@@ -124,12 +124,18 @@ class EuronextAdapter:
         except Exception as exc:  # pragma: no cover - remote provider dependent
             return {"http_status": None, "final_url": url, "text": "", "error": str(exc)}
 
-    def _diagnose_page(self, raw: str, source: SourcePolicy) -> DiagnosticResult:
+    def _diagnose_page(self, raw: str, source: SourcePolicy, line: TradingLine) -> DiagnosticResult:
         product_code = str(source.raw.get("product_code") or source.raw.get("provider_symbol") or "")
         present_hints = [hint for hint in EURONEXT_HINTS if hint.lower() in raw.lower()]
         current_path = self._extract_assignment(raw, "currentPath")
         base_url_search_quote = self._extract_assignment(raw, "baseUrlSearchQuote")
         endpoint_hints = self._extract_endpoint_hints(raw, source.source_url)
+        search_probe_results = self._probe_search_endpoints(
+            source_url=source.source_url,
+            base_url_search_quote=base_url_search_quote,
+            product_code=product_code,
+            line=line,
+        )
         diagnostics = {
             "product_code": product_code or None,
             "product_code_present": bool(product_code and product_code.lower() in raw.lower()),
@@ -137,12 +143,13 @@ class EuronextAdapter:
             "current_path_hint": current_path,
             "base_url_search_quote_hint": base_url_search_quote,
             "endpoint_hint_samples": endpoint_hints[:20],
+            "search_endpoint_probe_results": search_probe_results,
             "script_tag_count": len(re.findall(r"<script\b", raw, flags=re.IGNORECASE)),
             "raw_page_bytes": len(raw.encode("utf-8", errors="replace")),
-            "next_step": "integrate stable Euronext quote endpoint before candidate close parsing",
+            "next_step": "select a stable Euronext endpoint from successful probes before any candidate close parsing",
         }
-        parser_status = "endpoint_hints_observed" if present_hints or endpoint_hints else "endpoint_hints_not_observed"
-        confidence = "low" if parser_status == "endpoint_hints_observed" else "none"
+        parser_status = "endpoint_probe_completed" if search_probe_results else "endpoint_hints_observed" if present_hints or endpoint_hints else "endpoint_hints_not_observed"
+        confidence = "low" if parser_status != "endpoint_hints_not_observed" else "none"
         return DiagnosticResult(parser_status=parser_status, confidence=confidence, diagnostics=diagnostics)
 
     @staticmethod
@@ -173,3 +180,80 @@ class EuronextAdapter:
             if len(hints) >= 40:
                 break
         return hints
+
+    def _probe_search_endpoints(
+        self,
+        source_url: str | None,
+        base_url_search_quote: str | None,
+        product_code: str,
+        line: TradingLine,
+    ) -> list[dict[str, Any]]:
+        if not source_url or not base_url_search_quote:
+            return []
+        base_path = self._normalize_hint_path(base_url_search_quote)
+        query_values = [value for value in [product_code, line.isin, line.exchange_ticker] if value]
+        candidate_urls: list[tuple[str, str]] = []
+        for value in query_values:
+            encoded = urllib.parse.quote(value)
+            candidate_urls.extend([
+                (f"search_path:{value}", urllib.parse.urljoin(source_url, base_path + encoded)),
+                (f"search_query:{value}", urllib.parse.urljoin(source_url, base_path + "?search=" + encoded)),
+                (f"search_q:{value}", urllib.parse.urljoin(source_url, base_path + "?q=" + encoded)),
+            ])
+        results: list[dict[str, Any]] = []
+        seen_urls: set[str] = set()
+        for probe_name, url in candidate_urls:
+            if url in seen_urls:
+                continue
+            seen_urls.add(url)
+            results.append(self._fetch_probe(probe_name, url, line))
+            if len(results) >= 9:
+                break
+        return results
+
+    @staticmethod
+    def _normalize_hint_path(value: str) -> str:
+        normalized = html.unescape(value).replace("\\/", "/").strip()
+        if not normalized.startswith("/"):
+            normalized = "/" + normalized
+        if not normalized.endswith("/") and "?" not in normalized:
+            normalized += "/"
+        return normalized
+
+    @staticmethod
+    def _fetch_probe(probe_name: str, url: str, line: TradingLine) -> dict[str, Any]:
+        try:
+            req = urllib.request.Request(
+                url,
+                headers={
+                    "User-Agent": "Mozilla/5.0",
+                    "Accept": "application/json,text/html;q=0.9,*/*;q=0.8",
+                    "X-Requested-With": "XMLHttpRequest",
+                },
+            )
+            with urllib.request.urlopen(req, timeout=12) as response:
+                raw = response.read(2400)
+                text = raw.decode("utf-8", errors="replace")
+                lowered = text.lower()
+                return {
+                    "probe_name": probe_name,
+                    "url": url,
+                    "http_status": getattr(response, "status", None),
+                    "content_type": response.headers.get("content-type"),
+                    "bytes_sampled": len(raw),
+                    "looks_json": text.lstrip().startswith(("{", "[")),
+                    "contains_isin": line.isin.lower() in lowered,
+                    "contains_exchange_ticker": line.exchange_ticker.lower() in lowered,
+                    "contains_trading_currency": line.trading_currency.lower() in lowered,
+                    "contains_close_terms": any(term in lowered for term in ["close", "closing", "last", "price", "currency"]),
+                    "body_sample": re.sub(r"\s+", " ", text[:500]).strip(),
+                }
+        except Exception as exc:  # pragma: no cover - remote provider dependent
+            return {
+                "probe_name": probe_name,
+                "url": url,
+                "http_status": None,
+                "content_type": None,
+                "bytes_sampled": 0,
+                "error": str(exc),
+            }
