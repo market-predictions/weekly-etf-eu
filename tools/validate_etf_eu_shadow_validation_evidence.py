@@ -17,6 +17,7 @@ REQUIRED_ARTIFACT_KINDS = {
     "official_exchange_page_evidence",
     "close_observations",
     "euronext_endpoint_evidence",
+    "euronext_product_page_evidence",
     "twelve_data_symbol_discovery",
     "english_companion_report",
     "dutch_primary_report",
