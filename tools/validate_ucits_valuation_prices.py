@@ -23,6 +23,14 @@ VALUATION_GRADE_AUTHORITIES = {
     "preferred_valuation_source",
     "candidate_valuation_source",
 }
+ALLOWED_TWELVE_DATA_STATUSES = {
+    "candidate_price_observed",
+    "unresolved_dependency_missing",
+    "unresolved_provider_error",
+    "unresolved_no_values",
+    "unresolved_invalid_close",
+    "unresolved_provider_exception",
+}
 
 
 def _load_json(path: Path) -> dict[str, Any]:
@@ -82,8 +90,49 @@ def _validate_policy(policy: dict[str, Any], policy_path: Path) -> list[str]:
             errors.append(f"policy.rules.{field}_must_be_false")
     if rules.get("yfinance_default_authority") != "non_authoritative_connectivity_only":
         errors.append("policy.rules.yfinance_default_authority_must_be_non_authoritative_connectivity_only")
+    if rules.get("twelve_data_default_accept_as_valuation_grade") is not False:
+        errors.append("policy.rules.twelve_data_default_accept_as_valuation_grade_must_be_false")
     if not _policy_source_authorities(policy):
         errors.append(f"policy_missing_source_authority_hierarchy:{policy_path}")
+    return errors
+
+
+def _validate_twelve_data_evidence(label: str, row: dict[str, Any]) -> list[str]:
+    errors: list[str] = []
+    evidence = row.get("twelve_data_candidate_evidence")
+    if evidence is None:
+        return errors
+    if not isinstance(evidence, dict):
+        return [f"{label}:twelve_data_candidate_evidence_must_be_object"]
+    if evidence.get("source_id") != "twelve_data":
+        errors.append(f"{label}:twelve_data_evidence_source_id_must_be_twelve_data")
+    if evidence.get("authority") != "candidate_valuation_source":
+        errors.append(f"{label}:twelve_data_evidence_authority_must_be_candidate_valuation_source")
+    status = evidence.get("status")
+    if status not in ALLOWED_TWELVE_DATA_STATUSES:
+        errors.append(f"{label}:unexpected_twelve_data_status:{status}")
+    for field in ["symbol", "exchange", "expected_currency", "endpoint", "interval"]:
+        if not _as_str(evidence.get(field)):
+            errors.append(f"{label}:twelve_data_evidence_missing_{field}")
+    if evidence.get("accept_as_valuation_grade") is not False:
+        errors.append(f"{label}:twelve_data_accept_as_valuation_grade_must_remain_false_until_policy_promotion")
+    if status == "candidate_price_observed":
+        for field in ["observed_date", "close", "currency"]:
+            if evidence.get(field) in (None, ""):
+                errors.append(f"{label}:twelve_data_observed_missing_{field}")
+        if not _positive_number(evidence.get("close")):
+            errors.append(f"{label}:twelve_data_close_must_be_positive")
+        if not _valid_iso_date(evidence.get("observed_date")):
+            errors.append(f"{label}:twelve_data_observed_date_must_be_iso_date")
+        if evidence.get("completed_session") is not True:
+            errors.append(f"{label}:twelve_data_completed_session_must_be_true_for_observed_candidate")
+        if _as_str(evidence.get("currency")).upper() != _as_str(row.get("trading_currency")).upper():
+            errors.append(f"{label}:twelve_data_currency_must_match_trading_currency_for_candidate_observed")
+        if evidence.get("currency_matches_expected") is not True:
+            errors.append(f"{label}:twelve_data_currency_matches_expected_must_be_true_for_candidate_observed")
+        blockers = row.get("valuation_blockers") or []
+        if "twelve_data_accept_as_valuation_grade_false" not in blockers:
+            errors.append(f"{label}:observed_twelve_data_candidate_must_remain_blocked_by_accept_flag")
     return errors
 
 
@@ -106,6 +155,7 @@ def validate(path: Path, source_policy_path: Path) -> None:
         errors.append("at_least_one_valuation_price_row_required")
 
     valuation_grade_count = 0
+    twelve_data_observed_count = 0
     for idx, row in enumerate(rows):
         label = f"row:{idx}:{row.get('registry_id') or 'unknown'}"
         for field in [
@@ -124,6 +174,11 @@ def validate(path: Path, source_policy_path: Path) -> None:
         for field in ["portfolio_mutation", "production_delivery", "funding_authority"]:
             if row.get(field) is not False:
                 errors.append(f"{label}:{field}_must_be_false")
+
+        evidence = row.get("twelve_data_candidate_evidence") or {}
+        if evidence.get("status") == "candidate_price_observed":
+            twelve_data_observed_count += 1
+        errors.extend(_validate_twelve_data_evidence(label, row))
 
         valuation_grade = row.get("valuation_grade")
         valuation_status = row.get("valuation_status")
@@ -176,6 +231,7 @@ def validate(path: Path, source_policy_path: Path) -> None:
         "UCITS_VALUATION_PRICES_VALIDATION_OK"
         f" | artifact={path}"
         f" | rows={len(rows)}"
+        f" | twelve_data_candidate_observed={twelve_data_observed_count}"
         f" | valuation_grade_rows={valuation_grade_count}"
         " | portfolio_mutation=false | delivery=false"
     )
