@@ -205,7 +205,7 @@
 ### 22. Extend Dutch-first EU report skeleton with UCITS candidate table
 
 - Owner: `[ASSISTANT]`
-- Status: next
+- Status: done
 - Target file:
   - `runtime/render_etf_eu_report.py`
 - Done when: Dutch and English skeletons display candidate registry rows, investability status and non-authoritative pricing-preflight status while keeping portfolio state cash-only.
@@ -213,7 +213,7 @@
 ### 23. Add candidate-report validator
 
 - Owner: `[ASSISTANT]`
-- Status: next
+- Status: done
 - Target file:
   - `tools/validate_etf_eu_candidate_report.py`
 - Done when: report fails if UCITS candidate rows are presented as funded holdings or if pricing-preflight status is presented as valuation authority.
@@ -221,22 +221,62 @@
 ### 24. Add candidate-report run validation
 
 - Owner: `[ASSISTANT]`
-- Status: planned
-- Action:
-  - wire candidate-report validator into `.github/workflows/send-weekly-etf-eu-report.yml`;
-  - queue validation run;
-  - keep delivery disabled.
+- Status: done
+- Result:
+  - GitHub Actions passed;
+  - candidate-aware Dutch and English reports were rendered;
+  - EU output contract and candidate-report contract passed;
+  - no portfolio mutation, no funding authority, no PDF, no email.
 
-### 25. Move toward valuation-grade UCITS pricing
+---
+
+## Phase 4 — valuation-grade UCITS pricing authority
+
+### 25. Add valuation-grade UCITS pricing authority contract
+
+- Owner: `[ASSISTANT]`
+- Status: next
+- Target file:
+  - `control/UCITS_VALUATION_PRICING_CONTRACT_V1.md`
+- Done when: the distinction between connectivity preflight and valuation-grade pricing authority is explicit.
+
+### 26. Define authoritative pricing source order per UCITS trading line
 
 - Owner: `[JOINT]`
-- Status: planned after candidate-report validation
+- Status: next
+- Target file:
+  - `config/ucits_pricing_source_policy.yml`
 - Action:
-  - define authoritative pricing source order for UCITS exchange lines;
-  - decide whether Twelve Data, Yahoo, issuer factsheets or exchange data are valuation-grade per line;
-  - retain yfinance as connectivity/research-grade until explicitly promoted.
+  - define source order for each eligible exchange line;
+  - identify which sources can be valuation-grade;
+  - keep yfinance as non-authoritative unless explicitly promoted;
+  - define source/date/close/currency evidence requirements.
 
-### 26. Build Dutch-first EU production report renderer
+### 27. Add valuation-grade pricing artifact builder
+
+- Owner: `[ASSISTANT]`
+- Status: planned
+- Target file:
+  - `pricing/build_ucits_valuation_prices.py`
+- Done when: a separate valuation-grade candidate artifact can be produced without mutating portfolio state.
+
+### 28. Add valuation-grade pricing validator
+
+- Owner: `[ASSISTANT]`
+- Status: planned
+- Target file:
+  - `tools/validate_ucits_valuation_prices.py`
+- Done when: a price row cannot become valuation-grade unless symbol, source, date, close, currency and source lineage are valid.
+
+### 29. Decide promotion path from candidate to fundable
+
+- Owner: `[JOINT]`
+- Status: planned
+- Action:
+  - define when `verified_candidate_not_funded` can become `fundable`;
+  - include instrument verification, pricing authority, liquidity, spread, role, risk and portfolio concentration gates.
+
+### 30. Build Dutch-first EU production report renderer
 
 - Owner: `[ASSISTANT]`
 - Status: planned
@@ -247,8 +287,8 @@
   - convert skeleton into full UCITS candidate and eventually funded-position report.
 - Done when: Dutch/EU report is client-native, not a translation of a U.S. investable-universe report.
 
-### 27. Enable EU delivery only after validators pass
+### 31. Enable EU delivery only after validators pass
 
 - Owner: `[JOINT]`
-- Status: blocked until Phase 3/4 validates
+- Status: blocked until Phase 4 validates
 - Done when: EU validator stack passes and a real delivery manifest/receipt exists.
