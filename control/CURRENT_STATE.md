@@ -2,7 +2,7 @@
 
 ## Snapshot date
 
-2026-05-30
+2026-05-31
 
 ## What this repository currently is
 
@@ -32,7 +32,7 @@ The clone still contains many U.S.-ETF artifacts, old workflow names and histori
 
 ## Current migration status
 
-The repo is in **Phase 1 / Phase 2 bootstrap**.
+The repo is in **Phase 2 / Phase 3 transition**.
 
 Completed:
 
@@ -44,19 +44,25 @@ Completed:
 - `tools/validate_no_us_etf_as_eu_holding.py` added;
 - inherited U.S. production send workflow disabled;
 - EU bootstrap validation workflow added;
-- first EU bootstrap validation run passed in GitHub Actions.
+- first EU bootstrap validation run passed in GitHub Actions;
+- EU output contract added;
+- Dutch-first / English companion cash-only report skeleton renderer added;
+- EU output contract validator added;
+- output validator markdown-normalization fix added;
+- normalized EU output-contract validation passed in GitHub Actions;
+- generated EU markdown skeletons committed under `output/`.
 
 Not yet completed:
 
-- EU output filename separation;
-- UCITS pricing line support;
 - verified UCITS symbol registry;
-- Dutch-first EU report renderer;
-- production delivery enablement.
+- UCITS pricing line support;
+- funded EU model portfolio;
+- Dutch-first production report renderer with real UCITS positions;
+- production PDF/email delivery enablement.
 
 ## Latest validation result
 
-The first `Weekly ETF EU UCITS bootstrap validation` GitHub Actions run passed.
+The latest `Weekly ETF EU UCITS bootstrap validation` GitHub Actions run passed.
 
 Validated markers:
 
@@ -65,11 +71,28 @@ EU control files exist
 EU config files exist
 EU cash-only state exists
 no U.S.-listed ETF appears as an EU holding
+EU markdown report skeleton rendered
+EU output contract passed
 inherited U.S. production sender is disabled
 no delivery is attempted
 ```
 
-This is a bootstrap validation only. It is not a production report delivery receipt.
+Generated non-delivery outputs:
+
+```text
+output/weekly_etf_eu_review_260531.md
+output/weekly_etf_eu_review_nl_260531.md
+```
+
+These reports show:
+
+- cash-only bootstrap;
+- no funded UCITS holdings;
+- U.S. ETFs labelled as research proxies only;
+- UCITS candidates requiring ISIN, KID/PRIIPs and trading-line verification;
+- production delivery disabled.
+
+This is a bootstrap validation and report-skeleton commit only. It is not a production report delivery receipt.
 
 ## Current authority rules
 
@@ -92,6 +115,17 @@ output/etf_eu_recommendation_scorecard.csv
 ```
 
 Temporary compatibility files may exist while the cloned runtime is refactored, but EU work should move toward the EU-specific names above.
+
+## Current output files
+
+The current non-delivery EU report skeleton files are:
+
+```text
+output/weekly_etf_eu_review_260531.md
+output/weekly_etf_eu_review_nl_260531.md
+```
+
+The Dutch file is the primary EU client-facing skeleton. The English file is a companion/operator-facing skeleton during bootstrap.
 
 ## Stable inherited capabilities worth preserving
 
@@ -122,22 +156,22 @@ The repo does not yet have a validated UCITS symbol registry with ISIN, exchange
 
 Pricing code and workflows still need to be adapted to UCITS exchange tickers and trading currency lines.
 
-### 4. Report output is not yet Dutch/EU-native
+### 4. Report output is only a skeleton
 
-The inherited report is bilingual U.S.-ETF reporting. The EU report must become Dutch-client native, with UCITS/tradability disclosure and U.S. proxies clearly marked as research-only.
+The current EU report is a cash-only bootstrap skeleton. It is not yet a full Dutch/EU UCITS investment report.
 
 ### 5. Delivery remains blocked
 
-Production delivery remains blocked until EU state, UCITS registry, no-U.S.-holding validation and output contracts pass.
+Production delivery remains blocked until EU state, UCITS registry, UCITS pricing, no-U.S.-holding validation and output contracts pass.
 
 ## Immediate priority
 
-Build the EU output contract and first non-delivery report skeleton:
+Begin Phase 3: build and validate an initial UCITS candidate registry.
 
-1. Define EU output filenames.
-2. Add output validator that blocks U.S. ETFs as holdings in the report surface.
-3. Add Dutch-first EU report skeleton using cash-only state and UCITS candidate registry.
-4. Keep production delivery disabled.
+1. Identify candidate UCITS ETFs by theme.
+2. Verify ISIN, provider, exchange ticker, exchange, trading currency, TER, UCITS status and PRIIPs/KID status.
+3. Keep candidates as `candidate_requires_verification` until checked.
+4. Only after registry validation, add UCITS pricing-line tests.
 
 ## Stable decision
 
