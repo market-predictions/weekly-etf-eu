@@ -1,0 +1,54 @@
+{
+  "created_at_utc": "2026-05-31T20:51:10.166390+00:00",
+  "funding_authority": false,
+  "portfolio_mutation": false,
+  "pricing_authority": "non_authoritative_connectivity_preflight",
+  "production_delivery": false,
+  "results": [
+    {
+      "exchange": "London Stock Exchange",
+      "exchange_ticker": "CSPX",
+      "fund_name": "iShares Core S&P 500 UCITS ETF USD (Acc)",
+      "funding_authority": false,
+      "isin": "IE00B5BMR087",
+      "portfolio_mutation": false,
+      "preflight_result": {
+        "close": 816.52001953125,
+        "currency_warning": "trading_currency_from_registry_not_verified_by_yfinance",
+        "observed_date": "2026-05-29",
+        "source": "yfinance",
+        "status": "priced_non_authoritative"
+      },
+      "pricing_symbol_yahoo": "CSPX.L",
+      "production_delivery": false,
+      "provider_symbol": "CSPX LN",
+      "registry_id": "core_us_equity_cspx",
+      "trading_currency": "USD",
+      "us_research_proxy": "SPY"
+    },
+    {
+      "exchange": "Xetra",
+      "exchange_ticker": "SXR8",
+      "fund_name": "iShares Core S&P 500 UCITS ETF USD (Acc)",
+      "funding_authority": false,
+      "isin": "IE00B5BMR087",
+      "portfolio_mutation": false,
+      "preflight_result": {
+        "close": 698.9000244140625,
+        "currency_warning": "trading_currency_from_registry_not_verified_by_yfinance",
+        "observed_date": "2026-05-29",
+        "source": "yfinance",
+        "status": "priced_non_authoritative"
+      },
+      "pricing_symbol_yahoo": "SXR8.DE",
+      "production_delivery": false,
+      "provider_symbol": "SXR8 GY",
+      "registry_id": "core_us_equity_cspx",
+      "trading_currency": "EUR",
+      "us_research_proxy": "SPY"
+    }
+  ],
+  "run_id": "20260531_205108",
+  "schema_version": "ucits_pricing_preflight_v1",
+  "source_candidate_artifact": "output/pricing/ucits_pricing_candidates_20260531_205108.json"
+}
