@@ -1,0 +1,187 @@
+{
+  "created_at_utc": "2026-05-31T19:22:13.533245+00:00",
+  "funding_authority": false,
+  "missing_policy_rows": [],
+  "portfolio_mutation": false,
+  "pricing_authority_mode": "valuation_grade_pending",
+  "production_delivery": false,
+  "registry_schema_version": "ucits_symbol_registry_v1",
+  "rows": [
+    {
+      "close": null,
+      "completed_session": false,
+      "currency": null,
+      "exchange": "London Stock Exchange",
+      "exchange_ticker": "CSPX",
+      "fund_name": "iShares Core S&P 500 UCITS ETF USD (Acc)",
+      "fundable_status": "not_funded_requires_broker_and_pricing_line_confirmation",
+      "funding_authority": false,
+      "instrument_type": "ETF",
+      "investability_status": "verified_candidate_not_funded",
+      "isin": "IE00B5BMR087",
+      "non_authoritative_preflight_evidence": {
+        "authority": "non_authoritative_connectivity_only",
+        "close": 816.52001953125,
+        "currency_warning": "trading_currency_from_registry_not_verified_by_yfinance",
+        "excluded_from_valuation_authority_reason": "source_policy_marks_yahoo_yfinance_as_non_authoritative_connectivity_only",
+        "observed_date": "2026-05-29",
+        "source": "yfinance",
+        "source_id": "yahoo_yfinance",
+        "status": "priced_non_authoritative"
+      },
+      "observed_date": null,
+      "portfolio_mutation": false,
+      "pricing_source": null,
+      "pricing_symbol_yahoo": "CSPX.L",
+      "priips_kid_status": "available",
+      "production_delivery": false,
+      "provider": "iShares / BlackRock",
+      "provider_symbol": "CSPX LN",
+      "registry_id": "core_us_equity_cspx",
+      "session_rule": "completed_regular_session_required_before_valuation_grade",
+      "source_authority": null,
+      "source_lineage": [
+        {
+          "authority": "preferred_valuation_source",
+          "source_id": "exchange_official",
+          "status": "not_integrated_yet",
+          "valuation_grade_eligible": true
+        },
+        {
+          "accept_as_valuation_grade": false,
+          "authority": "candidate_valuation_source",
+          "endpoint": "time_series",
+          "exchange": "LSE",
+          "expected_currency": "USD",
+          "interval": "1day",
+          "outputsize": 5,
+          "source_id": "twelve_data",
+          "status": "candidate_live_source_test",
+          "symbol": "CSPX",
+          "valuation_grade_eligible": true
+        },
+        {
+          "authority": "non_authoritative_connectivity_only",
+          "source_id": "yahoo_yfinance",
+          "status": "connectivity_preflight_only",
+          "symbol": "CSPX.L",
+          "valuation_grade_eligible": false
+        }
+      ],
+      "trading_currency": "USD",
+      "twelve_data_candidate_evidence": {
+        "accept_as_valuation_grade": false,
+        "authority": "candidate_valuation_source",
+        "endpoint": "time_series",
+        "error": "HTTP Error 404: Not Found",
+        "exchange": "LSE",
+        "expected_currency": "USD",
+        "interval": "1day",
+        "outputsize": 5,
+        "source_id": "twelve_data",
+        "status": "unresolved_provider_exception",
+        "symbol": "CSPX"
+      },
+      "ucits_status": "confirmed",
+      "valuation_blockers": [
+        "no_integrated_preferred_exchange_official_close",
+        "non_authoritative_preflight_price_excluded_from_valuation_grade",
+        "twelve_data_unresolved_provider_exception"
+      ],
+      "valuation_grade": false,
+      "valuation_status": "valuation_grade_pending"
+    },
+    {
+      "close": null,
+      "completed_session": false,
+      "currency": null,
+      "exchange": "Xetra",
+      "exchange_ticker": "SXR8",
+      "fund_name": "iShares Core S&P 500 UCITS ETF USD (Acc)",
+      "fundable_status": "not_funded_requires_broker_and_pricing_line_confirmation",
+      "funding_authority": false,
+      "instrument_type": "ETF",
+      "investability_status": "verified_candidate_not_funded",
+      "isin": "IE00B5BMR087",
+      "non_authoritative_preflight_evidence": {
+        "authority": "non_authoritative_connectivity_only",
+        "close": 698.9000244140625,
+        "currency_warning": "trading_currency_from_registry_not_verified_by_yfinance",
+        "excluded_from_valuation_authority_reason": "source_policy_marks_yahoo_yfinance_as_non_authoritative_connectivity_only",
+        "observed_date": "2026-05-29",
+        "source": "yfinance",
+        "source_id": "yahoo_yfinance",
+        "status": "priced_non_authoritative"
+      },
+      "observed_date": null,
+      "portfolio_mutation": false,
+      "pricing_source": null,
+      "pricing_symbol_yahoo": "SXR8.DE",
+      "priips_kid_status": "available",
+      "production_delivery": false,
+      "provider": "iShares / BlackRock",
+      "provider_symbol": "SXR8 GY",
+      "registry_id": "core_us_equity_cspx",
+      "session_rule": "completed_regular_session_required_before_valuation_grade",
+      "source_authority": null,
+      "source_lineage": [
+        {
+          "authority": "preferred_valuation_source",
+          "source_id": "exchange_official",
+          "status": "not_integrated_yet",
+          "valuation_grade_eligible": true
+        },
+        {
+          "accept_as_valuation_grade": false,
+          "authority": "candidate_valuation_source",
+          "endpoint": "time_series",
+          "exchange": "XETRA",
+          "expected_currency": "EUR",
+          "interval": "1day",
+          "outputsize": 5,
+          "source_id": "twelve_data",
+          "status": "candidate_live_source_test",
+          "symbol": "SXR8",
+          "valuation_grade_eligible": true
+        },
+        {
+          "authority": "non_authoritative_connectivity_only",
+          "source_id": "yahoo_yfinance",
+          "status": "connectivity_preflight_only",
+          "symbol": "SXR8.DE",
+          "valuation_grade_eligible": false
+        }
+      ],
+      "trading_currency": "EUR",
+      "twelve_data_candidate_evidence": {
+        "accept_as_valuation_grade": false,
+        "authority": "candidate_valuation_source",
+        "endpoint": "time_series",
+        "error": "HTTP Error 404: Not Found",
+        "exchange": "XETRA",
+        "expected_currency": "EUR",
+        "interval": "1day",
+        "outputsize": 5,
+        "source_id": "twelve_data",
+        "status": "unresolved_provider_exception",
+        "symbol": "SXR8"
+      },
+      "ucits_status": "confirmed",
+      "valuation_blockers": [
+        "no_integrated_preferred_exchange_official_close",
+        "non_authoritative_preflight_price_excluded_from_valuation_grade",
+        "twelve_data_unresolved_provider_exception"
+      ],
+      "valuation_grade": false,
+      "valuation_status": "valuation_grade_pending"
+    }
+  ],
+  "run_id": "20260531_192209",
+  "schema_version": "ucits_valuation_prices_v1",
+  "source_candidate_artifact": "output/pricing/ucits_pricing_candidates_20260531_192209.json",
+  "source_policy": "config/ucits_pricing_source_policy.yml",
+  "source_preflight_artifact": "output/pricing/ucits_pricing_preflight_20260531_192209.json",
+  "source_registry": "config/ucits_symbol_registry.yml",
+  "valuation_grade_row_count": 0,
+  "valuation_pending_row_count": 2
+}
