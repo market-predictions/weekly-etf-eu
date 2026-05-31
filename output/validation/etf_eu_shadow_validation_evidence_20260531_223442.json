@@ -1,0 +1,158 @@
+{
+  "created_at_utc": "2026-05-31T22:34:53.809439+00:00",
+  "delivery_receipt": false,
+  "email_delivery": false,
+  "evidence_type": "non_production_shadow_validation",
+  "funding_authority": false,
+  "next_verification_instruction": "Future chats can verify this run by fetching this JSON file from output/validation/ and checking schema_version, validation_status, false authority flags, required_artifacts and safety_checks.",
+  "not_delivery_receipt": true,
+  "pdf_render": false,
+  "portfolio_mutation": false,
+  "production_delivery": false,
+  "report_date": "2026-05-31",
+  "repository": "market-predictions/weekly-etf-eu",
+  "required_artifacts": [
+    {
+      "exists": true,
+      "kind": "pricing_candidates",
+      "path": "output/pricing/ucits_pricing_candidates_20260531_223442.json",
+      "sha256": "18a2f4bc493d7db66e2828fee25dde0e6d05df2c0a1986be9e350bdba5328d74",
+      "size_bytes": 2785
+    },
+    {
+      "exists": true,
+      "kind": "pricing_preflight",
+      "path": "output/pricing/ucits_pricing_preflight_20260531_223442.json",
+      "sha256": "3e00e81861a34f7bb41345d11ad91318d899a6384607b7f1c758b4ad404630e5",
+      "size_bytes": 1890
+    },
+    {
+      "exists": true,
+      "kind": "valuation_prices",
+      "path": "output/pricing/ucits_valuation_prices_20260531_223442.json",
+      "sha256": "c935e900d1732f57261adc59c5fec96832f706b16cebe5895f7bb68d51d7595a",
+      "size_bytes": 8871
+    },
+    {
+      "exists": true,
+      "kind": "official_exchange_source_snapshot",
+      "path": "output/pricing/ucits_official_exchange_source_snapshot_20260531_223442.json",
+      "sha256": "71974f4afdff2646d1f9b438655adaaa2f99d59117e25ad1c3749527678ae046",
+      "size_bytes": 2281
+    },
+    {
+      "exists": true,
+      "kind": "official_exchange_page_evidence",
+      "path": "output/pricing/ucits_official_exchange_page_evidence_20260531_223442.json",
+      "sha256": "b7e8b921bf947a0d922909a90638188b23626fdc816967e514d3ae7b5af68cdd",
+      "size_bytes": 14091
+    },
+    {
+      "exists": true,
+      "kind": "close_observations",
+      "path": "output/pricing/ucits_close_observations_20260531_223442.json",
+      "sha256": "9bc7eae85ee4b3f52e1766cb824e3e4d9c308c655508169fad67a1d361b92515",
+      "size_bytes": 20830
+    },
+    {
+      "exists": true,
+      "kind": "twelve_data_symbol_discovery",
+      "path": "output/pricing/ucits_twelve_data_symbol_discovery_20260531_223442.json",
+      "sha256": "aa01d032b92dd0485e84ef2d9ae2b4e63297a39de2db472c2771e37b8f134697",
+      "size_bytes": 28853
+    },
+    {
+      "exists": true,
+      "kind": "english_companion_report",
+      "path": "output/weekly_etf_eu_review_260531.md",
+      "sha256": "b2a58e498dd8a6430ee087b8dd1ac8ce4b420a574748ae173d84aa104cf03eb8",
+      "size_bytes": 4578
+    },
+    {
+      "exists": true,
+      "kind": "dutch_primary_report",
+      "path": "output/weekly_etf_eu_review_nl_260531.md",
+      "sha256": "01f571875dd4f6a6af56c58ffa361c84390b1a0539257a52f5bc4b5c6dee679e",
+      "size_bytes": 4851
+    }
+  ],
+  "run_id": "20260531_223442",
+  "safety_checks": [
+    {
+      "authority_flags_false_where_present": true,
+      "completed_session_not_true_where_present": true,
+      "path": "output/pricing/ucits_pricing_candidates_20260531_223442.json",
+      "valuation_grade_not_true_where_present": true
+    },
+    {
+      "authority_flags_false_where_present": true,
+      "completed_session_not_true_where_present": true,
+      "path": "output/pricing/ucits_pricing_preflight_20260531_223442.json",
+      "valuation_grade_not_true_where_present": true
+    },
+    {
+      "authority_flags_false_where_present": true,
+      "completed_session_not_true_where_present": true,
+      "path": "output/pricing/ucits_valuation_prices_20260531_223442.json",
+      "valuation_grade_not_true_where_present": true
+    },
+    {
+      "authority_flags_false_where_present": true,
+      "completed_session_not_true_where_present": true,
+      "path": "output/pricing/ucits_official_exchange_source_snapshot_20260531_223442.json",
+      "valuation_grade_not_true_where_present": true
+    },
+    {
+      "authority_flags_false_where_present": true,
+      "completed_session_not_true_where_present": true,
+      "path": "output/pricing/ucits_official_exchange_page_evidence_20260531_223442.json",
+      "valuation_grade_not_true_where_present": true
+    },
+    {
+      "authority_flags_false_where_present": true,
+      "completed_session_not_true_where_present": true,
+      "path": "output/pricing/ucits_close_observations_20260531_223442.json",
+      "valuation_grade_not_true_where_present": true
+    },
+    {
+      "authority_flags_false_where_present": true,
+      "completed_session_not_true_where_present": true,
+      "path": "output/pricing/ucits_twelve_data_symbol_discovery_20260531_223442.json",
+      "valuation_grade_not_true_where_present": true
+    }
+  ],
+  "schema_version": "etf_eu_shadow_validation_evidence_v1",
+  "shadow_validation_only": true,
+  "validated_step_markers": [
+    "EU control files exist",
+    "EU config files exist",
+    "UCITS symbol registry validation passed",
+    "UCITS investability contract validation passed",
+    "UCITS pricing candidates built and validated",
+    "UCITS pricing preflight built and validated",
+    "UCITS valuation-pricing artifact built and validated",
+    "Official exchange source snapshot built and validated",
+    "Official exchange page evidence built and validated",
+    "Generic UCITS close observations built and validated",
+    "Twelve Data symbol discovery built and validated as diagnostic only",
+    "EU cash-only state validated",
+    "No U.S.-listed ETF appears as a funded EU holding",
+    "EU candidate report skeleton rendered",
+    "EU output and candidate-report contracts validated",
+    "Inherited U.S. production sender is disabled",
+    "No portfolio mutation, PDF generation or email delivery attempted"
+  ],
+  "validation_basis": "This artifact is written after all prior EU bootstrap validation workflow steps completed successfully.",
+  "validation_status": "passed",
+  "valuation_authority": false,
+  "workflow": {
+    "actor": "market-predictions",
+    "name": "Weekly ETF EU UCITS bootstrap validation",
+    "ref_name": "main",
+    "run_attempt": "1",
+    "run_id": "26726441509",
+    "run_number": "22",
+    "run_url": "https://github.com/market-predictions/weekly-etf-eu/actions/runs/26726441509",
+    "sha": "5e99d26e55ee85be1e3a98836e7b1f5c45dc95e5"
+  }
+}
