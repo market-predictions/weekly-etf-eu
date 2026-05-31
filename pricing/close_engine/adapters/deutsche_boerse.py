@@ -10,6 +10,24 @@ from pricing.close_engine.contracts import CloseObservation, SourcePolicy, Tradi
 
 NUMBER_RE = re.compile(r"\b[0-9]{1,5}(?:[.,][0-9]{1,6})?\b")
 DATE_RE = re.compile(r"\b(?:20[0-9]{2}-[01][0-9]-[0-3][0-9]|[0-3]?[0-9][./-][01]?[0-9][./-]20[0-9]{2})\b")
+QUOTED_STRING_RE = re.compile(r"[\"']([^\"']{2,400})[\"']")
+SCRIPT_RE = re.compile(r"<script\b[^>]*>(.*?)</script>", flags=re.IGNORECASE | re.DOTALL)
+QUOTE_KEY_HINTS = [
+    "lastPrice",
+    "last_price",
+    "lastValue",
+    "previousClose",
+    "closingPrice",
+    "closePrice",
+    "close",
+    "currency",
+    "isin",
+    "wkn",
+    "mic",
+    "securityId",
+    "instrumentId",
+    "quote",
+]
 
 
 @dataclass(frozen=True)
@@ -131,8 +149,10 @@ class DeutscheBoerseAdapter:
         last_price_window = self._window_after_label(text, "Letzter Preis", 260)
         currency_window = self._window_after_label(text, "Handelswährung", 120)
 
-        close_candidates = self._plausible_price_candidates(close_window)
-        last_price_candidates = self._plausible_price_candidates(last_price_window)
+        close_audit = self._numeric_candidate_audit(close_window)
+        last_price_audit = self._numeric_candidate_audit(last_price_window)
+        close_candidates = self._accepted_values(close_audit)
+        last_price_candidates = self._accepted_values(last_price_audit)
         date_candidates = DATE_RE.findall(close_window + " " + last_price_window)
 
         candidate_close = close_candidates[0] if close_candidates else None
@@ -150,6 +170,7 @@ class DeutscheBoerseAdapter:
 
         parser_status = "candidate_close_parsed_unverified" if candidate_close is not None else "no_clean_close_candidate_found"
         confidence = "low" if candidate_close is not None else "none"
+        script_diagnostics = self._script_diagnostics(raw)
         return ParseResult(
             candidate_close=candidate_close,
             candidate_date=candidate_date,
@@ -165,7 +186,15 @@ class DeutscheBoerseAdapter:
                 "currency_window": currency_window[:180] if currency_window else None,
                 "close_numeric_candidates": close_candidates[:10],
                 "last_price_numeric_candidates": last_price_candidates[:10],
+                "close_numeric_candidate_audit": close_audit[:12],
+                "last_price_numeric_candidate_audit": last_price_audit[:12],
                 "date_candidates": date_candidates[:10],
+                "label_offsets": {
+                    "close": self._label_offset(text, "Schlusspreis des letzten Handelstages"),
+                    "last_price": self._label_offset(text, "Letzter Preis"),
+                    "currency": self._label_offset(text, "Handelswährung"),
+                },
+                **script_diagnostics,
             },
         )
 
@@ -177,14 +206,88 @@ class DeutscheBoerseAdapter:
         return text[idx: idx + window].strip()
 
     @staticmethod
-    def _plausible_price_candidates(text: str) -> list[float]:
-        candidates: list[float] = []
-        for token in NUMBER_RE.findall(text):
-            value = float(token.replace(".", "").replace(",", ".")) if "," in token else float(token)
-            # Guard against 52-week labels, trading hours, zero placeholders and tiny navigation numbers.
+    def _label_offset(text: str, label: str) -> int | None:
+        idx = text.lower().find(label.lower())
+        return idx if idx >= 0 else None
+
+    @staticmethod
+    def _accepted_values(audit: list[dict[str, Any]]) -> list[float]:
+        values: list[float] = []
+        for item in audit:
+            value = item.get("value")
+            if item.get("accepted") is True and isinstance(value, (int, float)) and value not in values:
+                values.append(float(value))
+        return values
+
+    def _numeric_candidate_audit(self, text: str) -> list[dict[str, Any]]:
+        audit: list[dict[str, Any]] = []
+        seen_accepted: set[float] = set()
+        for match in NUMBER_RE.finditer(text):
+            token = match.group(0)
+            value = self._parse_number(token)
+            context = self._context(text, match.start(), match.end())
+            rejection_reasons: list[str] = []
             if value <= 100 or value > 2000:
+                rejection_reasons.append("outside_bootstrap_price_range")
+            context_reason = self._non_price_context_reason(text, match.start(), match.end())
+            if context_reason:
+                rejection_reasons.append(context_reason)
+            if not rejection_reasons and value in seen_accepted:
+                rejection_reasons.append("duplicate_candidate")
+            accepted = not rejection_reasons
+            if accepted:
+                seen_accepted.add(value)
+            audit.append({
+                "token": token,
+                "value": value,
+                "accepted": accepted,
+                "rejection_reasons": rejection_reasons,
+                "context": context,
+            })
+        return audit
+
+    @staticmethod
+    def _parse_number(token: str) -> float:
+        return float(token.replace(".", "").replace(",", ".")) if "," in token else float(token)
+
+    @staticmethod
+    def _context(text: str, start: int, end: int, radius: int = 36) -> str:
+        return text[max(0, start - radius):min(len(text), end + radius)].strip()
+
+    @staticmethod
+    def _non_price_context_reason(text: str, start: int, end: int) -> str | None:
+        before = text[max(0, start - 28):start].lower()
+        after = text[end:min(len(text), end + 48)].lower()
+        around = f"{before}{text[start:end].lower()}{after}"
+        if re.search(r"s\s*&\s*p\s*$", before) or re.search(r"s\s*&\s*p\s*\d+\s+ucits", around):
+            return "index_name_context"
+        if any(term in around for term in ["52-wochen", "52-woche", "handelszeiten", "wkn", "isin"]):
+            return "metadata_or_layout_context"
+        if re.search(r"\b[0-2]?\d:[0-5]\d\b", around):
+            return "time_range_context"
+        return None
+
+    @staticmethod
+    def _script_diagnostics(raw: str) -> dict[str, Any]:
+        script_bodies = SCRIPT_RE.findall(raw)
+        script_text = "\n".join(script_bodies)
+        key_hits = [key for key in QUOTE_KEY_HINTS if re.search(re.escape(key), script_text, flags=re.IGNORECASE)]
+        endpoint_hints: list[str] = []
+        for match in QUOTED_STRING_RE.finditer(script_text + "\n" + raw):
+            value = html.unescape(match.group(1)).strip()
+            lower = value.lower()
+            if value.startswith(("data:", "javascript:")):
                 continue
-            if value in candidates:
+            if not any(term in lower for term in ["quote", "price", "instrument", "security", "api", "chart", "history", "xetra"]):
                 continue
-            candidates.append(value)
-        return candidates
+            if value not in endpoint_hints:
+                endpoint_hints.append(value)
+            if len(endpoint_hints) >= 40:
+                break
+        return {
+            "script_tag_count": len(script_bodies),
+            "script_text_bytes": len(script_text.encode("utf-8", errors="replace")),
+            "embedded_quote_key_hits": key_hits[:30],
+            "endpoint_hint_samples": endpoint_hints[:20],
+            "next_step": "inspect endpoint hints before promoting any candidate close",
+        }
