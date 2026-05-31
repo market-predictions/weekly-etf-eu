@@ -26,6 +26,11 @@ jobs:
         with:
           python-version: "3.11"
 
+      - name: Install Python validation dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pyyaml
+
       - name: Resolve EU run identity
         run: |
           RUN_ID="$(date -u +'%Y%m%d_%H%M%S')"
@@ -54,6 +59,11 @@ jobs:
           test -f config/ucits_benchmark_proxy_map.yml
           test -f config/nl_client_investability_rules.yml
           echo "ETF_EU_CONFIG_FILES_OK"
+
+      - name: Validate UCITS symbol registry and investability contract
+        run: |
+          python tools/validate_ucits_symbol_registry.py --registry config/ucits_symbol_registry.yml
+          python tools/validate_ucits_investability_contract.py --registry config/ucits_symbol_registry.yml
 
       - name: Validate EU cash-only state and no US ETF holdings
         run: |
