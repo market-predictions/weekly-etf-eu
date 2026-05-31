@@ -32,7 +32,37 @@ def build_quote_endpoint_candidate_evidence(
         "product_data": str(instrument.get("product_data") or ""),
         "url_type": str(instrument.get("url_type") or "etfs"),
     }
-    candidate_urls = _candidate_urls(settings=settings, source_url=source_url, identity=identity)
+    candidate_urls = _candidate_urls(base_settings=settings, source_url=source_url, identity=identity)
+    return _payload(identity=identity, registry_identity=registry_identity, candidate_urls=candidate_urls, identity_source="drupal_settings.custom.instrument")
+
+
+def build_quote_endpoint_candidate_evidence_from_summary(
+    custom_instrument_summary: dict[str, Any] | None,
+    source_url: str | None,
+    registry_identity: dict[str, str],
+) -> dict[str, Any]:
+    """Build diagnostic-only candidates from an existing adapter summary.
+
+    This is used by the engine as a post-processing enrichment step when the
+    adapter already emitted custom_instrument_summary but did not attach endpoint
+    candidates directly.
+    """
+    if not isinstance(custom_instrument_summary, dict) or custom_instrument_summary.get("present") is not True:
+        return {"schema_version": CANDIDATE_SCHEMA_VERSION, "diagnostic_only": True, "reason": "custom_instrument_summary_not_available"}
+    instrument_fields = custom_instrument_summary.get("instrument_fields") if isinstance(custom_instrument_summary.get("instrument_fields"), dict) else {}
+    identity = {
+        "isin": str(instrument_fields.get("isin") or ""),
+        "symbol": str(instrument_fields.get("symbol") or ""),
+        "mic": str(instrument_fields.get("mic") or ""),
+        "product_data": str(instrument_fields.get("product_data") or ""),
+        "url_type": str(instrument_fields.get("url_type") or "etfs"),
+    }
+    base_settings = {"baseUrlSearchQuote": "/en/search_instruments/", "path": {"baseUrl": "/"}}
+    candidate_urls = _candidate_urls(base_settings=base_settings, source_url=source_url, identity=identity)
+    return _payload(identity=identity, registry_identity=registry_identity, candidate_urls=candidate_urls, identity_source="adapter_diagnostics.custom_instrument_summary")
+
+
+def _payload(identity: dict[str, str], registry_identity: dict[str, str], candidate_urls: list[dict[str, str]], identity_source: str) -> dict[str, Any]:
     return {
         "schema_version": CANDIDATE_SCHEMA_VERSION,
         "diagnostic_only": True,
@@ -40,7 +70,7 @@ def build_quote_endpoint_candidate_evidence(
         "candidate_close_extraction": False,
         "completed_session_validation": False,
         "fetch_attempted": False,
-        "identity_source": "drupal_settings.custom.instrument",
+        "identity_source": identity_source,
         "identity": identity,
         "registry_identity": registry_identity,
         "candidate_count": len(candidate_urls),
@@ -49,9 +79,9 @@ def build_quote_endpoint_candidate_evidence(
     }
 
 
-def _candidate_urls(settings: dict[str, Any], source_url: str | None, identity: dict[str, str]) -> list[dict[str, str]]:
-    base_url = _settings_base_url(settings=settings, source_url=source_url)
-    base_search = str(settings.get("baseUrlSearchQuote") or "/en/search_instruments/").rstrip("/")
+def _candidate_urls(base_settings: dict[str, Any], source_url: str | None, identity: dict[str, str]) -> list[dict[str, str]]:
+    base_url = _settings_base_url(settings=base_settings, source_url=source_url)
+    base_search = str(base_settings.get("baseUrlSearchQuote") or "/en/search_instruments/").rstrip("/")
     product_data = urllib.parse.quote(identity.get("product_data") or "")
     symbol = urllib.parse.quote(identity.get("symbol") or "")
     isin = urllib.parse.quote(identity.get("isin") or "")
