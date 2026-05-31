@@ -10,6 +10,7 @@ The EU/UCITS version of the Weekly ETF Review is in bootstrap mode.
 - **Funded UCITS holdings:** none.
 - **U.S. ETFs:** research proxies only, not investable portfolio instruments in this EU model.
 - **UCITS candidates:** require ISIN, KID/PRIIPs and trading-line verification.
+- **Pricing preflight:** non-authoritative connectivity test, no valuation authority.
 - **Production delivery:** disabled.
 
 ## 2. Current portfolio state
@@ -51,18 +52,29 @@ U.S. ETFs may be used only as research proxies or benchmark references. They mus
 | Gold / hard-asset hedge | GLD — research proxy only | Gold or commodity hedge through EU-listed product | UCITS candidate verification required |
 | Infrastructure / real asset capex | PAVE — research proxy only | Infrastructure exposure through UCITS ETF | UCITS candidate verification required |
 
-## 5. UCITS registry status
+## 5. UCITS candidate registry
 
-The UCITS registry is not yet populated with verified instruments. Candidates remain `candidate_requires_verification` until ISIN, KID/PRIIPs, trading line, currency and pricing are checked.
+The table below shows registry candidates and optional pricing preflight status. This table is **not a portfolio**, **not a buy recommendation** and **not valuation authority**.
 
-## 6. Next build steps
+| Role | Instrument | ISIN | Trading line | Status | U.S. proxy | Pricing preflight | Portfolio status |
+|---|---|---|---|---|---|---|---|
+| Core U.S. equity exposure | iShares Core S&P 500 UCITS ETF USD (Acc) | IE00B5BMR087 | CSPX / USD / London Stock Exchange | verified_candidate_not_funded | SPY — research proxy only | non-authoritative price observed CSPX.L: 816.52 on 2026-05-29; non-authoritative price observed SXR8.DE: 698.90 on 2026-05-29 | not funded; no valuation authority |
+| Semiconductor thematic exposure | VanEck Semiconductor UCITS ETF | IE00BMC38736 | SMH / USD / primary_line_pending_verification | candidate_requires_verification | SMH — research proxy only | not tested / not applicable | not funded; no valuation authority |
+| Gold / hard-asset hedge | iShares Physical Gold ETC | TBD | SGLN / pending_verification / pending_verification | policy_review_required_not_ucits | GLD — research proxy only | not tested / not applicable | not funded; no valuation authority |
+| Infrastructure / real-asset capex exposure | iShares Global Infrastructure UCITS ETF | TBD | INFR / pending_verification / pending_verification | candidate_requires_verification | PAVE — research proxy only | not tested / not applicable | not funded; no valuation authority |
 
-1. Populate the UCITS symbol registry with verified ISINs and trading lines.
+## 6. UCITS registry status
+
+The UCITS registry now contains bootstrap candidates, but there is no funded model portfolio yet. Candidates remain unfunded until ISIN, KID/PRIIPs, trading line, currency, pricing quality, liquidity and portfolio role are sufficiently checked.
+
+## 7. Next build steps
+
+1. Enrich the UCITS symbol registry with additional verified ISINs and trading lines.
 2. Map research proxies to actual UCITS candidates.
-3. Add pricing for European trading lines and currencies.
+3. Promote pricing from connectivity test to valuation-grade only after a separate pricing-lineage decision.
 4. Only then build a funded model portfolio.
 5. Keep production delivery disabled until all EU validations pass.
 
-## 7. Delivery status
+## 8. Delivery status
 
 This output is a non-delivered bootstrap report only. No PDF rendering, portfolio execution or email delivery was performed.
