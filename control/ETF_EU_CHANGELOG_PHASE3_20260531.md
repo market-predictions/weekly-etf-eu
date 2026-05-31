@@ -144,6 +144,42 @@ no email delivery
 
 ---
 
+## 2026-05-31 — UCITS registry YAML syntax fix
+
+### Current issue
+
+The first registry-validation run failed before semantic validation because the YAML parser hit an unquoted scalar containing markdown backticks in `bootstrap_notes`:
+
+```text
+- `verified_candidate_not_funded` means ...
+```
+
+Backticks can be problematic in plain YAML scalar contexts and should not appear unquoted inside operational config files.
+
+### File changed
+
+```text
+config/ucits_symbol_registry.yml
+```
+
+### Commit
+
+```text
+6b2f50c8f3cc315790765c661a8299bedbbae2b6
+```
+
+### Change
+
+- Quoted the bootstrap note that contains `verified_candidate_not_funded`.
+- Demoted the VanEck Semiconductor UCITS entry from `verified_candidate_not_funded` to `candidate_requires_verification` because domicile, distribution policy, replication method and pricing symbol are still pending.
+- Kept CSPX as the only `verified_candidate_not_funded` seed until more fields are verified for other candidates.
+
+### Result expected
+
+The next validation run should parse the registry successfully and proceed to semantic UCITS registry validation.
+
+---
+
 ## Next expected validation
 
 Queue and run a new EU bootstrap validation request. Expected new markers include:
