@@ -102,18 +102,17 @@
 ### 10. Add EU output contract
 
 - Owner: `[ASSISTANT]`
-- Status: next
-- Target output names:
+- Status: done
+- Target files:
+  - `control/ETF_EU_OUTPUT_CONTRACT_V1.md`
   - `output/weekly_etf_eu_review_YYMMDD.md`
   - `output/weekly_etf_eu_review_nl_YYMMDD.md`
-  - `output/weekly_etf_eu_review_YYMMDD.pdf`
-  - `output/weekly_etf_eu_review_nl_YYMMDD.pdf`
 - Done when: EU reports cannot be confused with U.S. weekly ETF reports.
 
 ### 11. Add no-U.S.-ETF-as-report-holding validator
 
 - Owner: `[ASSISTANT]`
-- Status: next
+- Status: done
 - Target file:
   - `tools/validate_etf_eu_output_contract.py`
 - Done when: EU report markdown fails validation if U.S. ETF tickers appear as investable holdings rather than research proxies.
@@ -121,26 +120,51 @@
 ### 12. Add first Dutch-first EU report skeleton
 
 - Owner: `[ASSISTANT]`
-- Status: next
+- Status: done
 - Target file:
   - `runtime/render_etf_eu_report.py`
 - Done when: the repo can generate a non-delivery cash-only EU report skeleton with UCITS/proxy disclosure.
 
+### 13. Confirm EU output-contract validation passed
+
+- Owner: `[USER]`
+- Status: done
+- Result: GitHub Actions validation passed and generated markdown skeletons were committed.
+
 ---
 
-## Phase 3 — UCITS pricing and reporting
+## Phase 3 — UCITS registry, pricing and reporting
 
-### 13. Build initial UCITS candidate registry
+### 14. Build initial UCITS candidate registry
 
 - Owner: `[JOINT]`
-- Status: planned
+- Status: next
+- Target file:
+  - `config/ucits_symbol_registry.yml`
 - Action:
   - identify candidate UCITS ETFs by theme;
   - verify ISIN, provider, trading line, exchange, trading currency, TER, UCITS status and KID status;
-  - keep `investability_status=candidate_requires_verification` until checked.
+  - keep `investability_status=candidate_requires_verification` until checked;
+  - only promote candidates to `verified_candidate` or `fundable` when validation evidence is sufficient.
 - Done when: registry contains verified candidates ready for pricing tests.
 
-### 14. Adapt pricing to UCITS exchange lines
+### 15. Add UCITS registry validator
+
+- Owner: `[ASSISTANT]`
+- Status: next
+- Target file:
+  - `tools/validate_ucits_symbol_registry.py`
+- Done when: registry fails if required ISIN/trading-line/investability fields are missing or inconsistent.
+
+### 16. Add UCITS investability validator
+
+- Owner: `[ASSISTANT]`
+- Status: planned
+- Target file:
+  - `tools/validate_ucits_investability_contract.py`
+- Done when: a candidate cannot become fundable without ISIN, UCITS status, PRIIPs/KID status, exchange line, trading currency and pricing symbol.
+
+### 17. Adapt pricing to UCITS exchange lines
 
 - Owner: `[ASSISTANT]`
 - Status: planned
@@ -150,18 +174,19 @@
   - add provider symbol and exchange lineage.
 - Done when: EU holdings price from UCITS trading lines, not U.S. proxies.
 
-### 15. Build Dutch-first EU report renderer
+### 18. Build Dutch-first EU report renderer
 
 - Owner: `[ASSISTANT]`
 - Status: planned
 - Action:
   - render Dutch report as primary client output;
   - mark U.S. proxies as research-only;
-  - disclose UCITS / PRIIPs / trading line status.
+  - disclose UCITS / PRIIPs / trading line status;
+  - convert skeleton into full UCITS candidate and eventually funded-position report.
 - Done when: Dutch/EU report is client-native, not a translation of a U.S. investable-universe report.
 
-### 16. Enable EU delivery only after validators pass
+### 19. Enable EU delivery only after validators pass
 
 - Owner: `[JOINT]`
-- Status: blocked until Phases 1-3 are complete
+- Status: blocked until Phase 3 validates
 - Done when: EU validator stack passes and a real delivery manifest/receipt exists.
