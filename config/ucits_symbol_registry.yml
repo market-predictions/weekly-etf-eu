@@ -68,8 +68,8 @@ funds:
     instrument_type: ETF
     ucits_status: confirmed_by_fund_name
     priips_kid_status: available
-    investability_status: verified_candidate_not_funded
-    fundable_status: not_funded_requires_broker_and_pricing_line_confirmation
+    investability_status: candidate_requires_verification
+    fundable_status: not_funded_requires_full_verification
     domicile: pending_verification
     base_currency: USD
     distribution_policy: pending_verification
@@ -183,5 +183,5 @@ funds:
 bootstrap_notes:
   - No UCITS ETF is funded yet.
   - U.S. ETFs from the cloned weekly-etf repo are research proxies only.
-  - `verified_candidate_not_funded` means registry facts are sufficiently useful for pricing tests, not that a portfolio allocation has been approved.
+  - "verified_candidate_not_funded means registry facts are sufficiently useful for pricing tests, not that a portfolio allocation has been approved."
   - Gold remains a policy question because iShares explicitly describes Physical ETCs as exchange traded commodities, neither funds nor ETFs.
