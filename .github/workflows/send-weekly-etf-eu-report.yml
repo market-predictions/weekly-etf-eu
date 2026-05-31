@@ -29,7 +29,7 @@ jobs:
       - name: Install Python validation dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install pyyaml
+          pip install pyyaml yfinance
 
       - name: Resolve EU run identity
         run: |
@@ -49,6 +49,7 @@ jobs:
           test -f control/UCITS_SYMBOL_REGISTRY_CONTRACT.md
           test -f control/UCITS_MIGRATION_PLAN.md
           test -f control/ETF_EU_OUTPUT_CONTRACT_V1.md
+          test -f control/UCITS_PRICING_LINE_CONTRACT_V1.md
           test -f control/ETF_EU_CHANGELOG.md
           echo "ETF_EU_CONTROL_FILES_OK"
 
@@ -64,6 +65,24 @@ jobs:
         run: |
           python tools/validate_ucits_symbol_registry.py --registry config/ucits_symbol_registry.yml
           python tools/validate_ucits_investability_contract.py --registry config/ucits_symbol_registry.yml
+
+      - name: Build and validate UCITS pricing candidates
+        run: |
+          python -m pricing.build_ucits_pricing_candidates \
+            --registry config/ucits_symbol_registry.yml \
+            --output-dir output/pricing \
+            --run-id "$ETF_EU_RUN_ID"
+          python tools/validate_ucits_pricing_candidates.py \
+            --artifact "output/pricing/ucits_pricing_candidates_${ETF_EU_RUN_ID}.json"
+
+      - name: Run non-authoritative UCITS pricing preflight
+        run: |
+          python -m pricing.run_ucits_pricing_preflight \
+            --candidate-artifact "output/pricing/ucits_pricing_candidates_${ETF_EU_RUN_ID}.json" \
+            --output-dir output/pricing \
+            --run-id "$ETF_EU_RUN_ID"
+          python tools/validate_ucits_pricing_preflight.py \
+            --artifact "output/pricing/ucits_pricing_preflight_${ETF_EU_RUN_ID}.json"
 
       - name: Validate EU cash-only state and no US ETF holdings
         run: |
@@ -107,16 +126,17 @@ jobs:
       - name: Confirm no delivery is attempted
         run: |
           echo "ETF_EU_BOOTSTRAP_VALIDATION_ONLY"
-          echo "No pricing pass, portfolio mutation, PDF generation or email delivery is performed by this workflow."
+          echo "No portfolio mutation, PDF generation or email delivery is performed by this workflow."
+          echo "UCITS pricing preflight is non-authoritative and cannot promote candidates to fundable status."
 
-      - name: Commit EU bootstrap report artifacts
+      - name: Commit EU bootstrap report and pricing preflight artifacts
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add output/weekly_etf_eu_review_*.md || true
+          git add output/weekly_etf_eu_review_*.md output/pricing/ucits_pricing_candidates_*.json output/pricing/ucits_pricing_preflight_*.json || true
           if git diff --cached --quiet; then
-            echo "No EU bootstrap report artifacts to commit."
+            echo "No EU bootstrap artifacts to commit."
             exit 0
           fi
-          git commit -m "Persist Weekly ETF EU bootstrap report skeleton [skip ci]"
+          git commit -m "Persist Weekly ETF EU bootstrap pricing preflight artifacts [skip ci]"
           git push origin HEAD:main
