@@ -22,6 +22,12 @@ ALLOWED_PENDING_STATUSES = {
 VALUATION_GRADE_AUTHORITIES = {
     "preferred_valuation_source",
     "candidate_valuation_source",
+    "preferred_official_exchange_discovery",
+    "official_exchange_discovery",
+}
+ALLOWED_TWELVE_DATA_AUTHORITIES = {
+    "candidate_valuation_source",
+    "diagnostic_candidate_source",
 }
 ALLOWED_TWELVE_DATA_STATUSES = {
     "candidate_price_observed",
@@ -81,11 +87,7 @@ def _validate_policy(policy: dict[str, Any], policy_path: Path) -> list[str]:
     if policy.get("schema_version") != "ucits_pricing_source_policy_v1":
         errors.append("policy_schema_version_must_be_ucits_pricing_source_policy_v1")
     rules = policy.get("rules") or {}
-    for field in [
-        "portfolio_mutation_from_pricing",
-        "production_delivery_from_pricing",
-        "funding_authority_from_pricing",
-    ]:
+    for field in ["portfolio_mutation_from_pricing", "production_delivery_from_pricing", "funding_authority_from_pricing"]:
         if rules.get(field) is not False:
             errors.append(f"policy.rules.{field}_must_be_false")
     if rules.get("yfinance_default_authority") != "non_authoritative_connectivity_only":
@@ -106,8 +108,8 @@ def _validate_twelve_data_evidence(label: str, row: dict[str, Any]) -> list[str]
         return [f"{label}:twelve_data_candidate_evidence_must_be_object"]
     if evidence.get("source_id") != "twelve_data":
         errors.append(f"{label}:twelve_data_evidence_source_id_must_be_twelve_data")
-    if evidence.get("authority") != "candidate_valuation_source":
-        errors.append(f"{label}:twelve_data_evidence_authority_must_be_candidate_valuation_source")
+    if evidence.get("authority") not in ALLOWED_TWELVE_DATA_AUTHORITIES:
+        errors.append(f"{label}:unexpected_twelve_data_evidence_authority:{evidence.get('authority')}")
     status = evidence.get("status")
     if status not in ALLOWED_TWELVE_DATA_STATUSES:
         errors.append(f"{label}:unexpected_twelve_data_status:{status}")
@@ -158,19 +160,9 @@ def validate(path: Path, source_policy_path: Path) -> None:
     twelve_data_observed_count = 0
     for idx, row in enumerate(rows):
         label = f"row:{idx}:{row.get('registry_id') or 'unknown'}"
-        for field in [
-            "registry_id",
-            "isin",
-            "fund_name",
-            "exchange",
-            "exchange_ticker",
-            "trading_currency",
-            "provider_symbol",
-            "valuation_status",
-        ]:
+        for field in ["registry_id", "isin", "fund_name", "exchange", "exchange_ticker", "trading_currency", "provider_symbol", "valuation_status"]:
             if not _as_str(row.get(field)):
                 errors.append(f"{label}:missing_{field}")
-
         for field in ["portfolio_mutation", "production_delivery", "funding_authority"]:
             if row.get(field) is not False:
                 errors.append(f"{label}:{field}_must_be_false")
@@ -206,8 +198,8 @@ def validate(path: Path, source_policy_path: Path) -> None:
                     errors.append(f"{label}:pricing_source_not_valuation_grade_eligible:{source_id}")
                 if _as_str(source_policy.get("authority")) not in VALUATION_GRADE_AUTHORITIES:
                     errors.append(f"{label}:invalid_source_authority:{source_policy.get('authority')}")
-            if source_id == "yahoo_yfinance":
-                errors.append(f"{label}:yahoo_yfinance_cannot_be_valuation_grade_under_current_policy")
+            if source_id in {"yahoo_yfinance", "twelve_data"}:
+                errors.append(f"{label}:{source_id}_cannot_be_valuation_grade_under_current_policy")
         else:
             if valuation_grade is not False:
                 errors.append(f"{label}:valuation_grade_must_be_boolean")
@@ -223,18 +215,9 @@ def validate(path: Path, source_policy_path: Path) -> None:
     declared_grade_count = payload.get("valuation_grade_row_count")
     if declared_grade_count != valuation_grade_count:
         errors.append(f"valuation_grade_row_count_mismatch:declared={declared_grade_count}:actual={valuation_grade_count}")
-
     if errors:
         raise RuntimeError("UCITS valuation price validation failed: " + "; ".join(errors))
-
-    print(
-        "UCITS_VALUATION_PRICES_VALIDATION_OK"
-        f" | artifact={path}"
-        f" | rows={len(rows)}"
-        f" | twelve_data_candidate_observed={twelve_data_observed_count}"
-        f" | valuation_grade_rows={valuation_grade_count}"
-        " | portfolio_mutation=false | delivery=false"
-    )
+    print("UCITS_VALUATION_PRICES_VALIDATION_OK" f" | artifact={path}" f" | rows={len(rows)}" f" | twelve_data_candidate_observed={twelve_data_observed_count}" f" | valuation_grade_rows={valuation_grade_count}" " | portfolio_mutation=false | delivery=false")
 
 
 def main() -> None:
