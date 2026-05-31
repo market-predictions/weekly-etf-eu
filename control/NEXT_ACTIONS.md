@@ -235,40 +235,66 @@
 ### 25. Add valuation-grade UCITS pricing authority contract
 
 - Owner: `[ASSISTANT]`
-- Status: next
+- Status: done
 - Target file:
   - `control/UCITS_VALUATION_PRICING_CONTRACT_V1.md`
-- Done when: the distinction between connectivity preflight and valuation-grade pricing authority is explicit.
+- Result: distinction between connectivity preflight and valuation-grade pricing authority is explicit.
 
 ### 26. Define authoritative pricing source order per UCITS trading line
 
 - Owner: `[JOINT]`
-- Status: next
+- Status: done for initial conservative policy
 - Target file:
   - `config/ucits_pricing_source_policy.yml`
-- Action:
-  - define source order for each eligible exchange line;
-  - identify which sources can be valuation-grade;
-  - keep yfinance as non-authoritative unless explicitly promoted;
-  - define source/date/close/currency evidence requirements.
+- Result:
+  - `exchange_official` is preferred valuation source but not yet integrated;
+  - `twelve_data` is candidate valuation source pending trading-line symbol/date/currency verification;
+  - `issuer_factsheet` is reference/stale-check only;
+  - `yahoo_yfinance` remains non-authoritative connectivity only.
 
 ### 27. Add valuation-grade pricing artifact builder
 
 - Owner: `[ASSISTANT]`
-- Status: planned
+- Status: done
 - Target file:
   - `pricing/build_ucits_valuation_prices.py`
-- Done when: a separate valuation-grade candidate artifact can be produced without mutating portfolio state.
+- Result: separate valuation-price artifact can be produced without mutating portfolio state.
 
 ### 28. Add valuation-grade pricing validator
 
 - Owner: `[ASSISTANT]`
-- Status: planned
+- Status: done
 - Target file:
   - `tools/validate_ucits_valuation_prices.py`
-- Done when: a price row cannot become valuation-grade unless symbol, source, date, close, currency and source lineage are valid.
+- Result: validator blocks valuation-grade status unless source, date, close, currency, completed-session and source-lineage requirements are met.
 
-### 29. Decide promotion path from candidate to fundable
+### 29. Wire valuation artifact into EU workflow and validate
+
+- Owner: `[ASSISTANT]`
+- Status: done
+- Target file:
+  - `.github/workflows/send-weekly-etf-eu-report.yml`
+- Result:
+  - GitHub Actions passed;
+  - `output/pricing/ucits_valuation_prices_20260531_133912.json` committed;
+  - artifact contains 2 pending valuation rows and 0 valuation-grade rows;
+  - no portfolio mutation, no funding authority, no PDF, no email.
+
+### 30. Integrate first authoritative valuation data source
+
+- Owner: `[JOINT]`
+- Status: next
+- Target files:
+  - `pricing/build_ucits_valuation_prices.py`
+  - `config/ucits_pricing_source_policy.yml`
+  - `tools/validate_ucits_valuation_prices.py` if stricter source-specific fields are needed
+- Action:
+  - decide whether first implementation uses Twelve Data or exchange-official close;
+  - define exact provider symbols for CSPX London and SXR8 Xetra;
+  - verify trading currency and completed-session date evidence;
+  - keep artifact non-mutating until promotion/funding contract exists.
+
+### 31. Decide promotion path from candidate to fundable
 
 - Owner: `[JOINT]`
 - Status: planned
@@ -276,7 +302,7 @@
   - define when `verified_candidate_not_funded` can become `fundable`;
   - include instrument verification, pricing authority, liquidity, spread, role, risk and portfolio concentration gates.
 
-### 30. Build Dutch-first EU production report renderer
+### 32. Build Dutch-first EU production report renderer
 
 - Owner: `[ASSISTANT]`
 - Status: planned
@@ -287,8 +313,8 @@
   - convert skeleton into full UCITS candidate and eventually funded-position report.
 - Done when: Dutch/EU report is client-native, not a translation of a U.S. investable-universe report.
 
-### 31. Enable EU delivery only after validators pass
+### 33. Enable EU delivery only after validators pass
 
 - Owner: `[JOINT]`
-- Status: blocked until Phase 4 validates
+- Status: blocked until valuation-source integration, funded-state contract and production output validators pass
 - Done when: EU validator stack passes and a real delivery manifest/receipt exists.
