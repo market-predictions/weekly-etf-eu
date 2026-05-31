@@ -130,6 +130,15 @@ jobs:
           python tools/validate_ucits_close_observations.py \
             --artifact "output/pricing/ucits_close_observations_${ETF_EU_RUN_ID}.json"
 
+      - name: Build and validate Euronext endpoint evidence
+        run: |
+          python -m pricing.build_euronext_endpoint_evidence \
+            --close-observations "output/pricing/ucits_close_observations_${ETF_EU_RUN_ID}.json" \
+            --output-dir output/pricing \
+            --run-id "$ETF_EU_RUN_ID"
+          python tools/validate_euronext_endpoint_evidence.py \
+            --artifact "output/pricing/euronext_endpoint_evidence_${ETF_EU_RUN_ID}.json"
+
       - name: Discover Twelve Data UCITS provider symbols
         env:
           TWELVE_DATA_API_KEY: ${{ secrets.TWELVE_DATA_API_KEY }}
@@ -193,6 +202,7 @@ jobs:
           echo "Official exchange source snapshot is diagnostic only and cannot create valuation or funding authority."
           echo "Official exchange page evidence is identity evidence only and cannot create valuation or funding authority."
           echo "Generic UCITS close observations are adapter-scaffold evidence only and cannot create valuation or funding authority."
+          echo "Euronext endpoint evidence is diagnostic only and cannot create valuation or funding authority."
           echo "Twelve Data symbol discovery is diagnostic only and cannot create valuation or funding authority."
 
       - name: Build and validate non-production shadow validation evidence
@@ -208,7 +218,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add output/weekly_etf_eu_review_*.md output/pricing/ucits_pricing_candidates_*.json output/pricing/ucits_pricing_preflight_*.json output/pricing/ucits_valuation_prices_*.json output/pricing/ucits_official_exchange_source_snapshot_*.json output/pricing/ucits_official_exchange_page_evidence_*.json output/pricing/ucits_close_observations_*.json output/pricing/ucits_twelve_data_symbol_discovery_*.json output/validation/etf_eu_shadow_validation_evidence_*.json || true
+          git add output/weekly_etf_eu_review_*.md output/pricing/ucits_pricing_candidates_*.json output/pricing/ucits_pricing_preflight_*.json output/pricing/ucits_valuation_prices_*.json output/pricing/ucits_official_exchange_source_snapshot_*.json output/pricing/ucits_official_exchange_page_evidence_*.json output/pricing/ucits_close_observations_*.json output/pricing/euronext_endpoint_evidence_*.json output/pricing/ucits_twelve_data_symbol_discovery_*.json output/validation/etf_eu_shadow_validation_evidence_*.json || true
           if git diff --cached --quiet; then
             echo "No EU bootstrap artifacts to commit."
             exit 0
