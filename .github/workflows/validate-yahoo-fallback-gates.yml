@@ -44,6 +44,7 @@ jobs:
           test -f control/NEXT_ACTIONS.md
           test -f control/YAHOO_VERIFIED_FALLBACK_CONTRACT_V1.md
           test -f config/ucits_pricing_source_policy.yml
+          test -f config/ucits_exchange_session_policy.yml
           echo "YAHOO_FALLBACK_CONTRACT_FILES_OK"
 
       - name: Build and validate Yahoo UCITS close diagnostics
@@ -64,6 +65,16 @@ jobs:
           python tools/validate_yahoo_fallback_gate_evaluation.py \
             --artifact "output/pricing/yahoo_fallback_gate_evaluation_${YAHOO_GATE_RUN_ID}.json"
 
+      - name: Build and validate Yahoo completed-session gate
+        run: |
+          python -m pricing.build_yahoo_completed_session_gate \
+            --fallback-gate-evaluation "output/pricing/yahoo_fallback_gate_evaluation_${YAHOO_GATE_RUN_ID}.json" \
+            --session-policy config/ucits_exchange_session_policy.yml \
+            --output-dir output/pricing \
+            --run-id "$YAHOO_GATE_RUN_ID"
+          python tools/validate_yahoo_completed_session_gate.py \
+            --artifact "output/pricing/yahoo_completed_session_gate_${YAHOO_GATE_RUN_ID}.json"
+
       - name: Build and validate Yahoo fallback gate shadow evidence
         run: |
           python tools/build_yahoo_fallback_gate_shadow_evidence.py \
@@ -75,13 +86,14 @@ jobs:
       - name: Confirm no authority is created
         run: |
           echo "Yahoo fallback gate evaluation is diagnostic-only."
+          echo "Completed-session gate is diagnostic-only."
           echo "No valuation authority, funding authority, portfolio mutation, PDF generation or email delivery is created."
 
       - name: Commit Yahoo fallback gate artifacts
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add output/pricing/yahoo_ucits_close_diagnostics_*.json output/pricing/yahoo_fallback_gate_evaluation_*.json output/validation/yahoo_fallback_gate_shadow_evidence_*.json || true
+          git add output/pricing/yahoo_ucits_close_diagnostics_*.json output/pricing/yahoo_fallback_gate_evaluation_*.json output/pricing/yahoo_completed_session_gate_*.json output/validation/yahoo_fallback_gate_shadow_evidence_*.json || true
           if git diff --cached --quiet; then
             echo "No Yahoo fallback gate artifacts to commit."
             exit 0
