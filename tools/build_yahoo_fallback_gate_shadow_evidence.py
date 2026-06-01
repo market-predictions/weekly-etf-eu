@@ -41,6 +41,7 @@ def build(run_id: str, output_dir: Path) -> Path:
         record(pricing_dir / f"ucits_twelve_data_symbol_discovery_{run_id}.json", "twelve_data_symbol_discovery"),
         record(pricing_dir / f"yahoo_cross_source_gate_{run_id}.json", "yahoo_cross_source_gate"),
         record(pricing_dir / f"issuer_reference_sanity_gate_{run_id}.json", "issuer_reference_sanity_gate"),
+        record(pricing_dir / f"ishares_reference_endpoint_discovery_{run_id}.json", "ishares_reference_endpoint_discovery"),
     ]
     payload = {
         "schema_version": SCHEMA_VERSION,
@@ -63,6 +64,7 @@ def build(run_id: str, output_dir: Path) -> Path:
         "completed_session_gate_evidence_present": True,
         "cross_source_gate_evidence_present": True,
         "issuer_reference_sanity_gate_evidence_present": True,
+        "ishares_reference_endpoint_discovery_evidence_present": True,
         "valuation_authority": False,
         "funding_authority": False,
         "portfolio_mutation": False,
