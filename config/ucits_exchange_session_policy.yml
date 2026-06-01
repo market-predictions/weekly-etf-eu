@@ -1,0 +1,51 @@
+schema_version: ucits_exchange_session_policy_v1
+purpose: >-
+  Deterministic diagnostic policy for validating whether an observed Yahoo close
+  date can be treated as a completed regular session date for the relevant UCITS
+  trading venue. This policy is not a production exchange calendar feed.
+authority: diagnostic_only
+valuation_authority: false
+funding_authority: false
+portfolio_mutation: false
+production_delivery: false
+max_staleness_days: 5
+post_close_buffer_minutes: 30
+venues:
+  Euronext Amsterdam:
+    mic: XAMS
+    timezone: Europe/Amsterdam
+    regular_weekdays: [0, 1, 2, 3, 4]
+    regular_close_local: "17:30"
+    static_holiday_dates_2026:
+      - "2026-01-01"
+      - "2026-04-03"
+      - "2026-04-06"
+      - "2026-05-01"
+      - "2026-12-25"
+  London Stock Exchange:
+    mic: XLON
+    timezone: Europe/London
+    regular_weekdays: [0, 1, 2, 3, 4]
+    regular_close_local: "16:30"
+    static_holiday_dates_2026:
+      - "2026-01-01"
+      - "2026-04-03"
+      - "2026-04-06"
+      - "2026-05-04"
+      - "2026-05-25"
+      - "2026-08-31"
+      - "2026-12-25"
+      - "2026-12-28"
+  Xetra:
+    mic: XETR
+    timezone: Europe/Berlin
+    regular_weekdays: [0, 1, 2, 3, 4]
+    regular_close_local: "17:30"
+    static_holiday_dates_2026:
+      - "2026-01-01"
+      - "2026-04-03"
+      - "2026-04-06"
+      - "2026-05-01"
+      - "2026-12-24"
+      - "2026-12-25"
+      - "2026-12-31"
