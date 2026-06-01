@@ -75,6 +75,29 @@ jobs:
           python tools/validate_yahoo_completed_session_gate.py \
             --artifact "output/pricing/yahoo_completed_session_gate_${YAHOO_GATE_RUN_ID}.json"
 
+      - name: Discover Twelve Data UCITS provider symbols
+        env:
+          TWELVE_DATA_API_KEY: ${{ secrets.TWELVE_DATA_API_KEY }}
+          TWELVEDATA_API_KEY: ${{ secrets.TWELVEDATA_API_KEY }}
+        run: |
+          python -m pricing.discover_twelve_data_ucits_symbols \
+            --source-policy config/ucits_pricing_source_policy.yml \
+            --output-dir output/pricing \
+            --run-id "$YAHOO_GATE_RUN_ID"
+          python tools/validate_ucits_twelve_data_symbol_discovery.py \
+            --artifact "output/pricing/ucits_twelve_data_symbol_discovery_${YAHOO_GATE_RUN_ID}.json"
+
+      - name: Build and validate Yahoo cross-source gate
+        run: |
+          python -m pricing.build_yahoo_cross_source_gate \
+            --yahoo-diagnostics "output/pricing/yahoo_ucits_close_diagnostics_${YAHOO_GATE_RUN_ID}.json" \
+            --completed-session-gate "output/pricing/yahoo_completed_session_gate_${YAHOO_GATE_RUN_ID}.json" \
+            --twelve-data-discovery "output/pricing/ucits_twelve_data_symbol_discovery_${YAHOO_GATE_RUN_ID}.json" \
+            --output-dir output/pricing \
+            --run-id "$YAHOO_GATE_RUN_ID"
+          python tools/validate_yahoo_cross_source_gate.py \
+            --artifact "output/pricing/yahoo_cross_source_gate_${YAHOO_GATE_RUN_ID}.json"
+
       - name: Build and validate Yahoo fallback gate shadow evidence
         run: |
           python tools/build_yahoo_fallback_gate_shadow_evidence.py \
@@ -87,13 +110,14 @@ jobs:
         run: |
           echo "Yahoo fallback gate evaluation is diagnostic-only."
           echo "Completed-session gate is diagnostic-only."
+          echo "Cross-source gate is diagnostic-only and remains blocked without independent close data."
           echo "No valuation authority, funding authority, portfolio mutation, PDF generation or email delivery is created."
 
       - name: Commit Yahoo fallback gate artifacts
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add output/pricing/yahoo_ucits_close_diagnostics_*.json output/pricing/yahoo_fallback_gate_evaluation_*.json output/pricing/yahoo_completed_session_gate_*.json output/validation/yahoo_fallback_gate_shadow_evidence_*.json || true
+          git add output/pricing/yahoo_ucits_close_diagnostics_*.json output/pricing/yahoo_fallback_gate_evaluation_*.json output/pricing/yahoo_completed_session_gate_*.json output/pricing/ucits_twelve_data_symbol_discovery_*.json output/pricing/yahoo_cross_source_gate_*.json output/validation/yahoo_fallback_gate_shadow_evidence_*.json || true
           if git diff --cached --quiet; then
             echo "No Yahoo fallback gate artifacts to commit."
             exit 0
