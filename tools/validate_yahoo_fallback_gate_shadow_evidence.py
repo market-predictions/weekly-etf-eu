@@ -12,6 +12,8 @@ REQUIRED_KINDS = {
     "yahoo_completed_session_gate",
     "twelve_data_symbol_discovery",
     "yahoo_cross_source_gate",
+    "issuer_reference_sanity_gate",
+    "ishares_reference_endpoint_discovery",
 }
 
 
@@ -28,10 +30,14 @@ def validate(path: Path) -> None:
         errors.append("validation_status_must_be_passed")
     if payload.get("all_rows_blocked_until_contract_gates_pass") is not True:
         errors.append("all_rows_blocked_flag_required")
-    if payload.get("completed_session_gate_evidence_present") is not True:
-        errors.append("completed_session_gate_evidence_present_required")
-    if payload.get("cross_source_gate_evidence_present") is not True:
-        errors.append("cross_source_gate_evidence_present_required")
+    for flag in [
+        "completed_session_gate_evidence_present",
+        "cross_source_gate_evidence_present",
+        "issuer_reference_sanity_gate_evidence_present",
+        "ishares_reference_endpoint_discovery_evidence_present",
+    ]:
+        if payload.get(flag) is not True:
+            errors.append(f"{flag}_required")
     for field in ["valuation_authority", "funding_authority", "portfolio_mutation", "production_delivery"]:
         if payload.get(field) is not False:
             errors.append(f"{field}_must_be_false")
