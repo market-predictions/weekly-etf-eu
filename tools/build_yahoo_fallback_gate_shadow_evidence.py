@@ -40,6 +40,7 @@ def build(run_id: str, output_dir: Path) -> Path:
         record(pricing_dir / f"yahoo_completed_session_gate_{run_id}.json", "yahoo_completed_session_gate"),
         record(pricing_dir / f"ucits_twelve_data_symbol_discovery_{run_id}.json", "twelve_data_symbol_discovery"),
         record(pricing_dir / f"yahoo_cross_source_gate_{run_id}.json", "yahoo_cross_source_gate"),
+        record(pricing_dir / f"issuer_reference_sanity_gate_{run_id}.json", "issuer_reference_sanity_gate"),
     ]
     payload = {
         "schema_version": SCHEMA_VERSION,
@@ -56,10 +57,12 @@ def build(run_id: str, output_dir: Path) -> Path:
         },
         "contract": "control/YAHOO_VERIFIED_FALLBACK_CONTRACT_V1.md",
         "session_policy": "config/ucits_exchange_session_policy.yml",
+        "issuer_reference_policy": "config/issuer_reference_policy.yml",
         "required_artifacts": artifacts,
         "all_rows_blocked_until_contract_gates_pass": True,
         "completed_session_gate_evidence_present": True,
         "cross_source_gate_evidence_present": True,
+        "issuer_reference_sanity_gate_evidence_present": True,
         "valuation_authority": False,
         "funding_authority": False,
         "portfolio_mutation": False,
