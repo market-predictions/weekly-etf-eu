@@ -1,0 +1,708 @@
+{
+  "created_at_utc": "2026-06-01T18:40:39.629094+00:00",
+  "funding_authority": false,
+  "portfolio_mutation": false,
+  "production_delivery": false,
+  "rows": [
+    {
+      "accept_as_valuation_grade": false,
+      "attempts": [
+        {
+          "probe_note": "policy_primary_guess",
+          "symbol_search": {
+            "body_preview": "{\"data\":[{\"symbol\":\"CSPX\",\"instrument_name\":\"iShares Core S\\u0026P 500 UCITS ETF USD\",\"exchange\":\"LSE\",\"mic_code\":\"XLON\",\"exchange_timezone\":\"Europe/London\",\"instrument_type\":\"ETF\",\"country\":\"United Kingdom\",\"currency\":\"USD\"},{\"symbol\":\"CSPX\",\"instrument_name\":\"iShares Core S\\u0026P 500 UCITS ETF US",
+            "endpoint": "symbol_search",
+            "exchange": "LSE",
+            "http_status": 200,
+            "matches": [
+              {
+                "country": "United Kingdom",
+                "currency": "USD",
+                "exchange": "LSE",
+                "instrument_name": "iShares Core S&P 500 UCITS ETF USD",
+                "mic_code": "XLON",
+                "symbol": "CSPX",
+                "type": null
+              },
+              {
+                "country": "Netherlands",
+                "currency": "EUR",
+                "exchange": "Euronext",
+                "instrument_name": "iShares Core S&P 500 UCITS ETF USD (Acc)",
+                "mic_code": "XAMS",
+                "symbol": "CSPX",
+                "type": null
+              },
+              {
+                "country": "Chile",
+                "currency": "USD",
+                "exchange": "BVS",
+                "instrument_name": "iShares Core S&P 500 UCITS ETF USD (Acc)",
+                "mic_code": "XSGO",
+                "symbol": "CSPX",
+                "type": null
+              },
+              {
+                "country": "United Kingdom",
+                "currency": "EUR",
+                "exchange": "CBOE",
+                "instrument_name": "iShares Core S&P 500 UCITS ETF USD (Acc)",
+                "mic_code": "BCXE",
+                "symbol": "CSPXA",
+                "type": null
+              },
+              {
+                "country": "Italy",
+                "currency": "EUR",
+                "exchange": "MTA",
+                "instrument_name": "iShares Core MSCI Pacific ex Japan UCITS ETF",
+                "mic_code": "XMIL",
+                "symbol": "CSPXJ",
+                "type": null
+              },
+              {
+                "country": "Switzerland",
+                "currency": "USD",
+                "exchange": "SIX",
+                "instrument_name": "iShares Core MSCI Pacific ex Japan UCITS ETF",
+                "mic_code": "XSWX",
+                "symbol": "CSPXJ",
+                "type": null
+              },
+              {
+                "country": "United Kingdom",
+                "currency": "EUR",
+                "exchange": "CBOE",
+                "instrument_name": "iShares Core MSCI Pacific ex Japan UCITS ETF",
+                "mic_code": "BCXE",
+                "symbol": "CSPXJM",
+                "type": null
+              },
+              {
+                "country": "United Kingdom",
+                "currency": "USD",
+                "exchange": "CBOE",
+                "instrument_name": "iShares Core MSCI Pacific ex Japan UCITS ETF",
+                "mic_code": "BCXE",
+                "symbol": "CSPXJZ",
+                "type": null
+              },
+              {
+                "country": "United Kingdom",
+                "currency": "USD",
+                "exchange": "CBOE",
+                "instrument_name": "iShares Core S&P 500 UCITS ETF USD (Acc)",
+                "mic_code": "BCXE",
+                "symbol": "CSPXL",
+                "type": null
+              },
+              {
+                "country": "Mexico",
+                "currency": "MXN",
+                "exchange": "BMV",
+                "instrument_name": "iShares Core S&P 500 UCITS ETF USD (Acc)",
+                "mic_code": "XMEX",
+                "symbol": "CSPXN",
+                "type": null
+              }
+            ],
+            "matches_count": 10,
+            "provider_code": null,
+            "provider_message": null,
+            "provider_status": "ok",
+            "status": "candidate_symbol_matches_found",
+            "symbol": "CSPX"
+          },
+          "time_series": {
+            "body_preview": "{\"code\":404,\"message\":\"This symbol is available starting with the Grow or Venture plan. Consider upgrading now at https://twelvedata.com/pricing\",\"status\":\"error\"}",
+            "endpoint": "time_series",
+            "exchange": "LSE",
+            "http_status": 404,
+            "latest_close": null,
+            "latest_datetime": null,
+            "meta": null,
+            "provider_code": 404,
+            "provider_message": "This symbol is available starting with the Grow or Venture plan. Consider upgrading now at https://twelvedata.com/pricing",
+            "provider_status": "error",
+            "status": "candidate_time_series_unresolved",
+            "symbol": "CSPX",
+            "values_count": 0
+          }
+        },
+        {
+          "probe_note": "mic_code_guess",
+          "symbol_search": {
+            "body_preview": "{\"data\":[{\"symbol\":\"CSPX\",\"instrument_name\":\"iShares Core S\\u0026P 500 UCITS ETF USD\",\"exchange\":\"LSE\",\"mic_code\":\"XLON\",\"exchange_timezone\":\"Europe/London\",\"instrument_type\":\"ETF\",\"country\":\"United Kingdom\",\"currency\":\"USD\"},{\"symbol\":\"CSPX\",\"instrument_name\":\"iShares Core S\\u0026P 500 UCITS ETF US",
+            "endpoint": "symbol_search",
+            "exchange": "XLON",
+            "http_status": 200,
+            "matches": [
+              {
+                "country": "United Kingdom",
+                "currency": "USD",
+                "exchange": "LSE",
+                "instrument_name": "iShares Core S&P 500 UCITS ETF USD",
+                "mic_code": "XLON",
+                "symbol": "CSPX",
+                "type": null
+              },
+              {
+                "country": "Netherlands",
+                "currency": "EUR",
+                "exchange": "Euronext",
+                "instrument_name": "iShares Core S&P 500 UCITS ETF USD (Acc)",
+                "mic_code": "XAMS",
+                "symbol": "CSPX",
+                "type": null
+              },
+              {
+                "country": "Chile",
+                "currency": "USD",
+                "exchange": "BVS",
+                "instrument_name": "iShares Core S&P 500 UCITS ETF USD (Acc)",
+                "mic_code": "XSGO",
+                "symbol": "CSPX",
+                "type": null
+              },
+              {
+                "country": "United Kingdom",
+                "currency": "EUR",
+                "exchange": "CBOE",
+                "instrument_name": "iShares Core S&P 500 UCITS ETF USD (Acc)",
+                "mic_code": "BCXE",
+                "symbol": "CSPXA",
+                "type": null
+              },
+              {
+                "country": "Italy",
+                "currency": "EUR",
+                "exchange": "MTA",
+                "instrument_name": "iShares Core MSCI Pacific ex Japan UCITS ETF",
+                "mic_code": "XMIL",
+                "symbol": "CSPXJ",
+                "type": null
+              },
+              {
+                "country": "Switzerland",
+                "currency": "USD",
+                "exchange": "SIX",
+                "instrument_name": "iShares Core MSCI Pacific ex Japan UCITS ETF",
+                "mic_code": "XSWX",
+                "symbol": "CSPXJ",
+                "type": null
+              },
+              {
+                "country": "United Kingdom",
+                "currency": "EUR",
+                "exchange": "CBOE",
+                "instrument_name": "iShares Core MSCI Pacific ex Japan UCITS ETF",
+                "mic_code": "BCXE",
+                "symbol": "CSPXJM",
+                "type": null
+              },
+              {
+                "country": "United Kingdom",
+                "currency": "USD",
+                "exchange": "CBOE",
+                "instrument_name": "iShares Core MSCI Pacific ex Japan UCITS ETF",
+                "mic_code": "BCXE",
+                "symbol": "CSPXJZ",
+                "type": null
+              },
+              {
+                "country": "United Kingdom",
+                "currency": "USD",
+                "exchange": "CBOE",
+                "instrument_name": "iShares Core S&P 500 UCITS ETF USD (Acc)",
+                "mic_code": "BCXE",
+                "symbol": "CSPXL",
+                "type": null
+              },
+              {
+                "country": "Mexico",
+                "currency": "MXN",
+                "exchange": "BMV",
+                "instrument_name": "iShares Core S&P 500 UCITS ETF USD (Acc)",
+                "mic_code": "XMEX",
+                "symbol": "CSPXN",
+                "type": null
+              }
+            ],
+            "matches_count": 10,
+            "provider_code": null,
+            "provider_message": null,
+            "provider_status": "ok",
+            "status": "candidate_symbol_matches_found",
+            "symbol": "CSPX"
+          },
+          "time_series": {
+            "body_preview": "{\"code\":404,\"message\":\"**symbol** or **figi** parameter is missing or invalid. Please provide a valid symbol according to API documentation: https://twelvedata.com/docs#reference-data\",\"status\":\"error\"}",
+            "endpoint": "time_series",
+            "exchange": "XLON",
+            "http_status": 404,
+            "latest_close": null,
+            "latest_datetime": null,
+            "meta": null,
+            "provider_code": 404,
+            "provider_message": "**symbol** or **figi** parameter is missing or invalid. Please provide a valid symbol according to API documentation: https://twelvedata.com/docs#reference-data",
+            "provider_status": "error",
+            "status": "candidate_time_series_unresolved",
+            "symbol": "CSPX",
+            "values_count": 0
+          }
+        },
+        {
+          "probe_note": "yahoo_style_suffix_probe",
+          "symbol_search": {
+            "body_preview": "{\"data\":[{\"symbol\":\"CSPXL\",\"instrument_name\":\"iShares Core S\\u0026P 500 UCITS ETF USD (Acc)\",\"exchange\":\"CBOE\",\"mic_code\":\"BCXE\",\"exchange_timezone\":\"Europe/London\",\"instrument_type\":\"ETF\",\"country\":\"United Kingdom\",\"currency\":\"USD\"}],\"status\":\"ok\"}",
+            "endpoint": "symbol_search",
+            "exchange": null,
+            "http_status": 200,
+            "matches": [
+              {
+                "country": "United Kingdom",
+                "currency": "USD",
+                "exchange": "CBOE",
+                "instrument_name": "iShares Core S&P 500 UCITS ETF USD (Acc)",
+                "mic_code": "BCXE",
+                "symbol": "CSPXL",
+                "type": null
+              }
+            ],
+            "matches_count": 1,
+            "provider_code": null,
+            "provider_message": null,
+            "provider_status": "ok",
+            "status": "candidate_symbol_matches_found",
+            "symbol": "CSPX.L"
+          },
+          "time_series": {
+            "body_preview": "{\"code\":404,\"message\":\"**symbol** or **figi** parameter is missing or invalid. Please provide a valid symbol according to API documentation: https://twelvedata.com/docs#reference-data\",\"status\":\"error\"}",
+            "endpoint": "time_series",
+            "exchange": null,
+            "http_status": 404,
+            "latest_close": null,
+            "latest_datetime": null,
+            "meta": null,
+            "provider_code": 404,
+            "provider_message": "**symbol** or **figi** parameter is missing or invalid. Please provide a valid symbol according to API documentation: https://twelvedata.com/docs#reference-data",
+            "provider_status": "error",
+            "status": "candidate_time_series_unresolved",
+            "symbol": "CSPX.L",
+            "values_count": 0
+          }
+        },
+        {
+          "probe_note": "bloomberg_style_probe",
+          "symbol_search": {
+            "body_preview": "{\"data\":[],\"status\":\"ok\"}",
+            "endpoint": "symbol_search",
+            "exchange": null,
+            "http_status": 200,
+            "matches": [],
+            "matches_count": 0,
+            "provider_code": null,
+            "provider_message": null,
+            "provider_status": "ok",
+            "status": "candidate_symbol_matches_not_found",
+            "symbol": "CSPX:LN"
+          },
+          "time_series": {
+            "body_preview": "{\"code\":404,\"message\":\"**symbol** or **figi** parameter is missing or invalid. Please provide a valid symbol according to API documentation: https://twelvedata.com/docs#reference-data\",\"status\":\"error\"}",
+            "endpoint": "time_series",
+            "exchange": null,
+            "http_status": 404,
+            "latest_close": null,
+            "latest_datetime": null,
+            "meta": null,
+            "provider_code": 404,
+            "provider_message": "**symbol** or **figi** parameter is missing or invalid. Please provide a valid symbol according to API documentation: https://twelvedata.com/docs#reference-data",
+            "provider_status": "error",
+            "status": "candidate_time_series_unresolved",
+            "symbol": "CSPX:LN",
+            "values_count": 0
+          }
+        },
+        {
+          "probe_note": "isin_search_probe",
+          "symbol_search": {
+            "body_preview": "{\"data\":[{\"symbol\":\"CSP1\",\"instrument_name\":\"iShares Core S\\u0026P 500 UCITS ETF USD (Acc)\",\"exchange\":\"LSE\",\"mic_code\":\"XLON\",\"exchange_timezone\":\"Europe/London\",\"instrument_type\":\"ETF\",\"country\":\"United Kingdom\",\"currency\":\"GBp\"},{\"symbol\":\"IS.FF702\",\"instrument_name\":\"iShares Core S\\u0026P 500 UC",
+            "endpoint": "symbol_search",
+            "exchange": null,
+            "http_status": 200,
+            "matches": [
+              {
+                "country": "United Kingdom",
+                "currency": "GBp",
+                "exchange": "LSE",
+                "instrument_name": "iShares Core S&P 500 UCITS ETF USD (Acc)",
+                "mic_code": "XLON",
+                "symbol": "CSP1",
+                "type": null
+              },
+              {
+                "country": "Israel",
+                "currency": "ILA",
+                "exchange": "TASE",
+                "instrument_name": "iShares Core S&P 500 UCITS ETF USD (Acc)",
+                "mic_code": "XTAE",
+                "symbol": "IS.FF702",
+                "type": null
+              },
+              {
+                "country": "United Kingdom",
+                "currency": "USD",
+                "exchange": "LSE",
+                "instrument_name": "iShares Core S&P 500 UCITS ETF USD",
+                "mic_code": "XLON",
+                "symbol": "CSPX",
+                "type": null
+              },
+              {
+                "country": "Hungary",
+                "currency": "HUF",
+                "exchange": "BSE",
+                "instrument_name": "iShares Core S&P 500 UCITS ETF USD (Acc)",
+                "mic_code": "XBUD",
+                "symbol": "SXR8",
+                "type": null
+              },
+              {
+                "country": "Germany",
+                "currency": "EUR",
+                "exchange": "XETR",
+                "instrument_name": "iShares Core S&P 500 UCITS ETF USD (Acc)",
+                "mic_code": "XETR",
+                "symbol": "SXR8",
+                "type": null
+              },
+              {
+                "country": "Italy",
+                "currency": "EUR",
+                "exchange": "MTA",
+                "instrument_name": "iShares Core S&P 500 UCITS ETF USD (Acc)",
+                "mic_code": "XMIL",
+                "symbol": "CSSPX",
+                "type": null
+              },
+              {
+                "country": "United States",
+                "currency": "USD",
+                "exchange": "OTC",
+                "instrument_name": "iShares Core S&P 500 UCITS ETF USD (Acc)",
+                "mic_code": "PINX",
+                "symbol": "CSTNL",
+                "type": null
+              },
+              {
+                "country": "Netherlands",
+                "currency": "EUR",
+                "exchange": "Euronext",
+                "instrument_name": "iShares Core S&P 500 UCITS ETF USD (Acc)",
+                "mic_code": "XAMS",
+                "symbol": "CSPX",
+                "type": null
+              },
+              {
+                "country": "Germany",
+                "currency": "EUR",
+                "exchange": "FSX",
+                "instrument_name": "iShares Core S&P 500 UCITS ETF USD (Acc)",
+                "mic_code": "XFRA",
+                "symbol": "SXR8",
+                "type": null
+              },
+              {
+                "country": "Germany",
+                "currency": "EUR",
+                "exchange": "XDUS",
+                "instrument_name": "iShares Core S&P 500 UCITS ETF USD (Acc)",
+                "mic_code": "XDUS",
+                "symbol": "SXR8",
+                "type": null
+              }
+            ],
+            "matches_count": 10,
+            "provider_code": null,
+            "provider_message": null,
+            "provider_status": "ok",
+            "status": "candidate_symbol_matches_found",
+            "symbol": "IE00B5BMR087"
+          },
+          "time_series": {
+            "body_preview": "{\"code\":404,\"message\":\"**symbol** or **figi** parameter is missing or invalid. Please provide a valid symbol according to API documentation: https://twelvedata.com/docs#reference-data\",\"status\":\"error\"}",
+            "endpoint": "time_series",
+            "exchange": null,
+            "http_status": 404,
+            "latest_close": null,
+            "latest_datetime": null,
+            "meta": null,
+            "provider_code": 404,
+            "provider_message": "**symbol** or **figi** parameter is missing or invalid. Please provide a valid symbol according to API documentation: https://twelvedata.com/docs#reference-data",
+            "provider_status": "error",
+            "status": "candidate_time_series_unresolved",
+            "symbol": "IE00B5BMR087",
+            "values_count": 0
+          }
+        }
+      ],
+      "authority": "candidate_valuation_source",
+      "exchange": "London Stock Exchange",
+      "exchange_ticker": "CSPX",
+      "expected_currency": "USD",
+      "isin": "IE00B5BMR087",
+      "policy_exchange": "LSE",
+      "policy_symbol": "CSPX",
+      "provider_symbol": "CSPX LN",
+      "registry_id": "core_us_equity_cspx",
+      "source_id": "twelve_data",
+      "trading_currency": "USD"
+    },
+    {
+      "accept_as_valuation_grade": false,
+      "attempts": [
+        {
+          "probe_note": "confirmed_symbol_search_mic_code",
+          "symbol_search": {
+            "body_preview": "{\"data\":[{\"symbol\":\"SXR8\",\"instrument_name\":\"iShares Core S\\u0026P 500 UCITS ETF USD (Acc)\",\"exchange\":\"BSE\",\"mic_code\":\"XBUD\",\"exchange_timezone\":\"Europe/Budapest\",\"instrument_type\":\"ETF\",\"country\":\"Hungary\",\"currency\":\"HUF\"},{\"symbol\":\"SXR8\",\"instrument_name\":\"iShares Core S\\u0026P 500 UCITS ETF U",
+            "endpoint": "symbol_search",
+            "exchange": "XETR",
+            "http_status": 200,
+            "matches": [
+              {
+                "country": "Hungary",
+                "currency": "HUF",
+                "exchange": "BSE",
+                "instrument_name": "iShares Core S&P 500 UCITS ETF USD (Acc)",
+                "mic_code": "XBUD",
+                "symbol": "SXR8",
+                "type": null
+              },
+              {
+                "country": "Germany",
+                "currency": "EUR",
+                "exchange": "XETR",
+                "instrument_name": "iShares Core S&P 500 UCITS ETF USD (Acc)",
+                "mic_code": "XETR",
+                "symbol": "SXR8",
+                "type": null
+              },
+              {
+                "country": "Germany",
+                "currency": "EUR",
+                "exchange": "FSX",
+                "instrument_name": "iShares Core S&P 500 UCITS ETF USD (Acc)",
+                "mic_code": "XFRA",
+                "symbol": "SXR8",
+                "type": null
+              },
+              {
+                "country": "Germany",
+                "currency": "EUR",
+                "exchange": "XDUS",
+                "instrument_name": "iShares Core S&P 500 UCITS ETF USD (Acc)",
+                "mic_code": "XDUS",
+                "symbol": "SXR8",
+                "type": null
+              },
+              {
+                "country": "Germany",
+                "currency": "EUR",
+                "exchange": "Munich",
+                "instrument_name": "iShares Core S&P 500 UCITS ETF USD (Acc)",
+                "mic_code": "XMUN",
+                "symbol": "SXR8",
+                "type": null
+              },
+              {
+                "country": "Germany",
+                "currency": "EUR",
+                "exchange": "XHAM",
+                "instrument_name": "iShares Core S&P 500 UCITS ETF USD (Acc)",
+                "mic_code": "XHAM",
+                "symbol": "SXR8",
+                "type": null
+              },
+              {
+                "country": "Germany",
+                "currency": "EUR",
+                "exchange": "XHAN",
+                "instrument_name": "iShares Core S&P 500 UCITS ETF USD (Acc)",
+                "mic_code": "XHAN",
+                "symbol": "SXR8",
+                "type": null
+              },
+              {
+                "country": "United Kingdom",
+                "currency": "EUR",
+                "exchange": "CBOE",
+                "instrument_name": "iShares Core S&P 500 UCITS ETF USD (Acc)",
+                "mic_code": "BCXE",
+                "symbol": "SXR8D",
+                "type": null
+              }
+            ],
+            "matches_count": 8,
+            "provider_code": null,
+            "provider_message": null,
+            "provider_status": "ok",
+            "status": "candidate_symbol_matches_found",
+            "symbol": "SXR8"
+          },
+          "time_series": {
+            "body_preview": "{\"code\":404,\"message\":\"This symbol is available starting with the Grow or Venture plan. Consider upgrading now at https://twelvedata.com/pricing\",\"status\":\"error\"}",
+            "endpoint": "time_series",
+            "exchange": "XETR",
+            "http_status": 404,
+            "latest_close": null,
+            "latest_datetime": null,
+            "meta": null,
+            "provider_code": 404,
+            "provider_message": "This symbol is available starting with the Grow or Venture plan. Consider upgrading now at https://twelvedata.com/pricing",
+            "provider_status": "error",
+            "status": "candidate_time_series_unresolved",
+            "symbol": "SXR8",
+            "values_count": 0
+          }
+        },
+        {
+          "probe_note": "isin_search_probe",
+          "symbol_search": {
+            "body_preview": "{\"data\":[{\"symbol\":\"CSP1\",\"instrument_name\":\"iShares Core S\\u0026P 500 UCITS ETF USD (Acc)\",\"exchange\":\"LSE\",\"mic_code\":\"XLON\",\"exchange_timezone\":\"Europe/London\",\"instrument_type\":\"ETF\",\"country\":\"United Kingdom\",\"currency\":\"GBp\"},{\"symbol\":\"IS.FF702\",\"instrument_name\":\"iShares Core S\\u0026P 500 UC",
+            "endpoint": "symbol_search",
+            "exchange": null,
+            "http_status": 200,
+            "matches": [
+              {
+                "country": "United Kingdom",
+                "currency": "GBp",
+                "exchange": "LSE",
+                "instrument_name": "iShares Core S&P 500 UCITS ETF USD (Acc)",
+                "mic_code": "XLON",
+                "symbol": "CSP1",
+                "type": null
+              },
+              {
+                "country": "Israel",
+                "currency": "ILA",
+                "exchange": "TASE",
+                "instrument_name": "iShares Core S&P 500 UCITS ETF USD (Acc)",
+                "mic_code": "XTAE",
+                "symbol": "IS.FF702",
+                "type": null
+              },
+              {
+                "country": "United Kingdom",
+                "currency": "USD",
+                "exchange": "LSE",
+                "instrument_name": "iShares Core S&P 500 UCITS ETF USD",
+                "mic_code": "XLON",
+                "symbol": "CSPX",
+                "type": null
+              },
+              {
+                "country": "Hungary",
+                "currency": "HUF",
+                "exchange": "BSE",
+                "instrument_name": "iShares Core S&P 500 UCITS ETF USD (Acc)",
+                "mic_code": "XBUD",
+                "symbol": "SXR8",
+                "type": null
+              },
+              {
+                "country": "Germany",
+                "currency": "EUR",
+                "exchange": "XETR",
+                "instrument_name": "iShares Core S&P 500 UCITS ETF USD (Acc)",
+                "mic_code": "XETR",
+                "symbol": "SXR8",
+                "type": null
+              },
+              {
+                "country": "Italy",
+                "currency": "EUR",
+                "exchange": "MTA",
+                "instrument_name": "iShares Core S&P 500 UCITS ETF USD (Acc)",
+                "mic_code": "XMIL",
+                "symbol": "CSSPX",
+                "type": null
+              },
+              {
+                "country": "United States",
+                "currency": "USD",
+                "exchange": "OTC",
+                "instrument_name": "iShares Core S&P 500 UCITS ETF USD (Acc)",
+                "mic_code": "PINX",
+                "symbol": "CSTNL",
+                "type": null
+              },
+              {
+                "country": "Netherlands",
+                "currency": "EUR",
+                "exchange": "Euronext",
+                "instrument_name": "iShares Core S&P 500 UCITS ETF USD (Acc)",
+                "mic_code": "XAMS",
+                "symbol": "CSPX",
+                "type": null
+              },
+              {
+                "country": "Germany",
+                "currency": "EUR",
+                "exchange": "FSX",
+                "instrument_name": "iShares Core S&P 500 UCITS ETF USD (Acc)",
+                "mic_code": "XFRA",
+                "symbol": "SXR8",
+                "type": null
+              },
+              {
+                "country": "Germany",
+                "currency": "EUR",
+                "exchange": "XDUS",
+                "instrument_name": "iShares Core S&P 500 UCITS ETF USD (Acc)",
+                "mic_code": "XDUS",
+                "symbol": "SXR8",
+                "type": null
+              }
+            ],
+            "matches_count": 10,
+            "provider_code": null,
+            "provider_message": null,
+            "provider_status": "ok",
+            "status": "candidate_symbol_matches_found",
+            "symbol": "IE00B5BMR087"
+          },
+          "time_series": {
+            "body_preview": "{\"code\":429,\"message\":\"You have run out of API credits for the current minute. 9 API credits were used, with the current limit being 8. Wait for the next minute or consider switching to a higher tier plan at https://twelvedata.com/pricing\",\"status\":\"error\"}",
+            "endpoint": "time_series",
+            "exchange": null,
+            "http_status": 429,
+            "latest_close": null,
+            "latest_datetime": null,
+            "meta": null,
+            "provider_code": 429,
+            "provider_message": "You have run out of API credits for the current minute. 9 API credits were used, with the current limit being 8. Wait for the next minute or consider switching to a higher tier plan at https://twelvedata.com/pricing",
+            "provider_status": "error",
+            "status": "candidate_time_series_unresolved",
+            "symbol": "IE00B5BMR087",
+            "values_count": 0
+          }
+        }
+      ],
+      "authority": "candidate_valuation_source",
+      "exchange": "Xetra",
+      "exchange_ticker": "SXR8",
+      "expected_currency": "EUR",
+      "isin": "IE00B5BMR087",
+      "policy_exchange": "XETR",
+      "policy_symbol": "SXR8",
+      "provider_symbol": "SXR8 GY",
+      "registry_id": "core_us_equity_cspx",
+      "source_id": "twelve_data",
+      "trading_currency": "EUR"
+    }
+  ],
+  "run_id": "20260601_184022",
+  "schema_version": "ucits_twelve_data_symbol_discovery_v1",
+  "source_policy": "config/ucits_pricing_source_policy.yml",
+  "valuation_authority": false
+}

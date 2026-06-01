@@ -1,0 +1,108 @@
+{
+  "authority": false,
+  "candidate_close_extraction": false,
+  "completed_session_validation": false,
+  "created_at_utc": "2026-06-01T18:40:35.251215+00:00",
+  "diagnostic_only": true,
+  "funding_authority": false,
+  "portfolio_mutation": false,
+  "production_delivery": false,
+  "rows": [
+    {
+      "authority": false,
+      "candidate_close_extraction": false,
+      "completed_session_validation": false,
+      "custom_instrument_evidence": {
+        "custom_context_fields": {
+          "asset_files_path": "/themes/custom/euronext_live/frontend-library/public/assets/",
+          "date_restriction": "2024-06-01",
+          "language": "en",
+          "nb_session": 5,
+          "product_data": "BE0003604155-XBRU",
+          "theme_name": "euronext_live"
+        },
+        "date_restriction_is_session_hint_only": true,
+        "diagnostic_only": true,
+        "expected_matches": {
+          "custom_product_data_matches_provider_symbol": false,
+          "isin_matches_registry_line": true,
+          "product_data_matches_provider_symbol": true,
+          "symbol_matches_exchange_ticker": true
+        },
+        "expected_registry_identity": {
+          "exchange_ticker": "CSPX",
+          "isin": "IE00B5BMR087",
+          "provider_symbol": "IE00B5BMR087-XAMS",
+          "trading_currency": "EUR"
+        },
+        "identity_match_count": 3,
+        "identity_match_total": 4,
+        "identity_usable_for_endpoint_design": true,
+        "instrument_fields": {
+          "default_period": {
+            "range": "1D",
+            "type": "intraday"
+          },
+          "isin": "IE00B5BMR087",
+          "issuer_code": "164386",
+          "mic": "XAMS",
+          "name": "iSHR S&P500 B A",
+          "product_data": "IE00B5BMR087-XAMS",
+          "symbol": "CSPX",
+          "type": "TRACK",
+          "url_type": "etfs"
+        },
+        "nb_session_is_request_window_hint_only": true,
+        "present": true
+      },
+      "decision": {
+        "product_page_parser_path": "continue_with_custom_instrument_and_dynamic_quotes_display",
+        "promotion_blocked_until": [
+          "source_lineage_validated",
+          "close_value_validated",
+          "close_date_validated",
+          "currency_validated",
+          "completed_session_validated",
+          "staleness_validated"
+        ],
+        "search_endpoint_path_disposition": "stopped_after_loopback_evidence"
+      },
+      "dynamic_quotes_display_evidence": {
+        "candidate_close_extraction": false,
+        "completed_session_validation": false,
+        "context_samples": [
+          {
+            "context": "\"cas_server_url\":\"https:\\/\\/connect2.euronext.com\\/\",\"language\":\"en\",\"baseUrlSearchQuote\":\"\\/en\\/search_instruments\\/\",\"dynamic_quotes_display\":{\"config\":{\"timer\":30}},\"globalRefresh\":30000,\"cas_login_url\":\"\\/en\\/caslogin\",\"csp\":{\"nonce\":\"Nfk6qrjAWbFvCpK4JwAwEw\"},\"user\":{\"uid\":0,\"permissionsHash\":\"530de943fa713a80d331502",
+            "term": "dynamic_quotes_display"
+          }
+        ],
+        "diagnostic_only": true,
+        "key_paths": [
+          "$.dynamic_quotes_display"
+        ],
+        "next_step": "design a controlled product-page quote response fetcher from dynamic_quotes_display only after the endpoint contract is explicit",
+        "observed_config": {
+          "timer": 30
+        },
+        "present": true,
+        "quote_response_fetch": false,
+        "signal_term_count": 1
+      },
+      "exchange_ticker": "CSPX",
+      "funding_authority": false,
+      "isin": "IE00B5BMR087",
+      "portfolio_mutation": false,
+      "product_page_evidence_status": "product_page_signals_observed",
+      "production_delivery": false,
+      "provider_symbol": "IE00B5BMR087-XAMS",
+      "registry_id": "core_us_equity_cspx",
+      "source_id": "euronext_live",
+      "source_url": "https://live.euronext.com/en/product/etfs/IE00B5BMR087-XAMS",
+      "valuation_authority": false
+    }
+  ],
+  "run_id": "20260601_184022",
+  "schema_version": "euronext_product_page_evidence_v1",
+  "source_artifact": "output/pricing/ucits_close_observations_20260601_184022.json",
+  "valuation_authority": false
+}
