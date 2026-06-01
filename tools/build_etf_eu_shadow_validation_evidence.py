@@ -27,6 +27,7 @@ VALIDATED_STEP_MARKERS = [
     "Euronext product-page evidence built and validated as diagnostic only",
     "Euronext dynamic quote response discovery built and validated as diagnostic only",
     "Euronext JS asset inspection built and validated as diagnostic only",
+    "Yahoo UCITS close diagnostics built and validated as connectivity only",
     "Twelve Data symbol discovery built and validated as diagnostic only",
     "EU cash-only state validated",
     "No U.S.-listed ETF appears as a funded EU holding",
@@ -45,7 +46,7 @@ def _suffix(report_date: str) -> str:
 def _sha256(path: Path) -> str:
     digest = hashlib.sha256()
     with path.open("rb") as handle:
-        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+        for chunk in iter(lambda: handle.read(1024 * 1024), b=""):
             digest.update(chunk)
     return digest.hexdigest()
 
@@ -124,6 +125,7 @@ def build(run_id: str, report_date: str, output_dir: Path) -> Path:
         (pricing_dir / f"euronext_product_page_evidence_{run_id}.json", "euronext_product_page_evidence"),
         (pricing_dir / f"euronext_dynamic_quote_response_discovery_{run_id}.json", "euronext_dynamic_quote_response_discovery"),
         (pricing_dir / f"euronext_js_asset_inspection_{run_id}.json", "euronext_js_asset_inspection"),
+        (pricing_dir / f"yahoo_ucits_close_diagnostics_{run_id}.json", "yahoo_ucits_close_diagnostics"),
         (pricing_dir / f"ucits_twelve_data_symbol_discovery_{run_id}.json", "twelve_data_symbol_discovery"),
         (Path("output") / f"weekly_etf_eu_review_{suffix}.md", "english_companion_report"),
         (Path("output") / f"weekly_etf_eu_review_nl_{suffix}.md", "dutch_primary_report"),
