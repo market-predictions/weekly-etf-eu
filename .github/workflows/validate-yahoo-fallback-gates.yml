@@ -1,0 +1,90 @@
+name: Yahoo fallback gate validation
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "control/run_queue/yahoo_fallback_gate_validation_*.md"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  validate-yahoo-fallback-gates:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pyyaml yfinance
+
+      - name: Resolve run identity
+        run: |
+          RUN_ID="$(date -u +'%Y%m%d_%H%M%S')"
+          echo "YAHOO_GATE_RUN_ID=$RUN_ID" >> "$GITHUB_ENV"
+          echo "YAHOO_GATE_RUN_ID=$RUN_ID"
+
+      - name: Validate contract files exist
+        run: |
+          test -f control/SYSTEM_INDEX.md
+          test -f control/CURRENT_STATE.md
+          test -f control/NEXT_ACTIONS.md
+          test -f control/YAHOO_VERIFIED_FALLBACK_CONTRACT_V1.md
+          test -f config/ucits_pricing_source_policy.yml
+          echo "YAHOO_FALLBACK_CONTRACT_FILES_OK"
+
+      - name: Build and validate Yahoo UCITS close diagnostics
+        run: |
+          python -m pricing.build_yahoo_ucits_close_diagnostics \
+            --source-policy config/ucits_pricing_source_policy.yml \
+            --output-dir output/pricing \
+            --run-id "$YAHOO_GATE_RUN_ID"
+          python tools/validate_yahoo_ucits_close_diagnostics.py \
+            --artifact "output/pricing/yahoo_ucits_close_diagnostics_${YAHOO_GATE_RUN_ID}.json"
+
+      - name: Build and validate Yahoo fallback gate evaluation
+        run: |
+          python -m pricing.build_yahoo_fallback_gate_evaluation \
+            --yahoo-diagnostics "output/pricing/yahoo_ucits_close_diagnostics_${YAHOO_GATE_RUN_ID}.json" \
+            --output-dir output/pricing \
+            --run-id "$YAHOO_GATE_RUN_ID"
+          python tools/validate_yahoo_fallback_gate_evaluation.py \
+            --artifact "output/pricing/yahoo_fallback_gate_evaluation_${YAHOO_GATE_RUN_ID}.json"
+
+      - name: Build and validate Yahoo fallback gate shadow evidence
+        run: |
+          python tools/build_yahoo_fallback_gate_shadow_evidence.py \
+            --run-id "$YAHOO_GATE_RUN_ID" \
+            --output-dir output/validation
+          python tools/validate_yahoo_fallback_gate_shadow_evidence.py \
+            --artifact "output/validation/yahoo_fallback_gate_shadow_evidence_${YAHOO_GATE_RUN_ID}.json"
+
+      - name: Confirm no authority is created
+        run: |
+          echo "Yahoo fallback gate evaluation is diagnostic-only."
+          echo "No valuation authority, funding authority, portfolio mutation, PDF generation or email delivery is created."
+
+      - name: Commit Yahoo fallback gate artifacts
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add output/pricing/yahoo_ucits_close_diagnostics_*.json output/pricing/yahoo_fallback_gate_evaluation_*.json output/validation/yahoo_fallback_gate_shadow_evidence_*.json || true
+          if git diff --cached --quiet; then
+            echo "No Yahoo fallback gate artifacts to commit."
+            exit 0
+          fi
+          git commit -m "Persist Yahoo fallback gate validation artifacts [skip ci]"
+          git push origin HEAD:main
