@@ -20,6 +20,7 @@ REQUIRED_ARTIFACT_KINDS = {
     "euronext_product_page_evidence",
     "euronext_dynamic_quote_response_discovery",
     "euronext_js_asset_inspection",
+    "yahoo_ucits_close_diagnostics",
     "twelve_data_symbol_discovery",
     "english_companion_report",
     "dutch_primary_report",
