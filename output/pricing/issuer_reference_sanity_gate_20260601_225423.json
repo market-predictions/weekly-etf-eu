@@ -1,0 +1,162 @@
+{
+  "created_at_utc": "2026-06-01T22:54:29.272818+00:00",
+  "diagnostic_only": true,
+  "funding_authority": false,
+  "issuer_policy": "config/issuer_reference_policy.yml",
+  "portfolio_mutation": false,
+  "production_delivery": false,
+  "rows": [
+    {
+      "diagnostic_only": true,
+      "diagnostic_status": "issuer_reference_blocked",
+      "exchange": "Euronext Amsterdam",
+      "exchange_ticker": "CSPX",
+      "failed_gates": [
+        "issuer_identity_match",
+        "reference_price_found",
+        "broad_tolerance_check_passed",
+        "cross_source_gate_already_passed"
+      ],
+      "funding_authority": false,
+      "gates": {
+        "broad_tolerance_check_passed": false,
+        "cross_source_gate_already_passed": false,
+        "issuer_identity_match": false,
+        "issuer_page_fetch_ok": true,
+        "issuer_policy_present": true,
+        "reference_price_found": false
+      },
+      "identity_token_matches": {
+        "IE00B5BMR087": false,
+        "S&P 500": false,
+        "UCITS": true,
+        "iShares": true
+      },
+      "isin": "IE00B5BMR087",
+      "issuer": "BlackRock iShares",
+      "issuer_fetch": {
+        "body_sample": "<!DOCTYPE html> <html xmlns=\"http://www.w3.org/1999/xhtml\" prefix=\"og: http://ogp.me/ns#\" lang=\"en-GB\" xml:lang=\"en-GB\"> <head> <link rel=\"preload\" href=\"/uk-retail-c-assets/include/bundles/minified-473c2f9ed7d7db02850bcd4aa7a7c86a.css\" as=\"style\" /> <link rel=\"preload\" href=\"/uk-retail-c-assets/include/bundles/minified-7defdbb9b612248b48bf56c84d2e4188.css\" as=\"style\" /> <link rel=\"preload\" href=\"/uk-retail-c-assets/include/bundles/minified-a1d8ca773adfe5c43ad3ecb1032be21e.css\" as=\"style\" /> <link rel=\"preload\" href=\"/uk-retail-c-assets/include/bundles/minified-943ed2d3b103eb5ced499a7106113ddd.css\" as=\"style\" /> <link rel=\"preload\" href=\"/uk-retail-c-assets/include/bundles/minified-bafa112cbe4a3335c51f3659fcb09590.css\" as=\"style\" /> <link rel=\"preload\" href=\"/uk-retail-c-assets/include/bundles/minified-9dfca4cc8251fcc73fc37faa8d794bb1.css\" as=\"style\" /> <link rel=\"preload\" href=\"/uk-reta",
+        "bytes_sampled": 90000,
+        "content_type": "text/html;charset=UTF-8",
+        "fetch_error": null,
+        "final_url": "https://www.ishares.com/uk/individual/en/products/253743/ishares-core-sp-500-ucits-etf",
+        "http_status": 200
+      },
+      "issuer_product_name": "iShares Core S&P 500 UCITS ETF USD Acc",
+      "issuer_product_url": "https://www.ishares.com/uk/individual/en/products/253743/ishares-core-sp-500-ucits-etf",
+      "issuer_reference_sanity_passed": false,
+      "notes": "Issuer page identity is reference evidence only. Reference price/NAV extraction is intentionally not implemented in this gate version.",
+      "portfolio_mutation": false,
+      "production_delivery": false,
+      "registry_id": "core_us_equity_cspx",
+      "trading_currency": "EUR",
+      "valuation_authority": false,
+      "yahoo_symbol": "CSPX.AS"
+    },
+    {
+      "diagnostic_only": true,
+      "diagnostic_status": "issuer_reference_blocked",
+      "exchange": "London Stock Exchange",
+      "exchange_ticker": "CSPX",
+      "failed_gates": [
+        "issuer_identity_match",
+        "reference_price_found",
+        "broad_tolerance_check_passed",
+        "cross_source_gate_already_passed"
+      ],
+      "funding_authority": false,
+      "gates": {
+        "broad_tolerance_check_passed": false,
+        "cross_source_gate_already_passed": false,
+        "issuer_identity_match": false,
+        "issuer_page_fetch_ok": true,
+        "issuer_policy_present": true,
+        "reference_price_found": false
+      },
+      "identity_token_matches": {
+        "IE00B5BMR087": false,
+        "S&P 500": false,
+        "UCITS": true,
+        "iShares": true
+      },
+      "isin": "IE00B5BMR087",
+      "issuer": "BlackRock iShares",
+      "issuer_fetch": {
+        "body_sample": "<!DOCTYPE html> <html xmlns=\"http://www.w3.org/1999/xhtml\" prefix=\"og: http://ogp.me/ns#\" lang=\"en-GB\" xml:lang=\"en-GB\"> <head> <link rel=\"preload\" href=\"/uk-retail-c-assets/include/bundles/minified-473c2f9ed7d7db02850bcd4aa7a7c86a.css\" as=\"style\" /> <link rel=\"preload\" href=\"/uk-retail-c-assets/include/bundles/minified-7defdbb9b612248b48bf56c84d2e4188.css\" as=\"style\" /> <link rel=\"preload\" href=\"/uk-retail-c-assets/include/bundles/minified-a1d8ca773adfe5c43ad3ecb1032be21e.css\" as=\"style\" /> <link rel=\"preload\" href=\"/uk-retail-c-assets/include/bundles/minified-943ed2d3b103eb5ced499a7106113ddd.css\" as=\"style\" /> <link rel=\"preload\" href=\"/uk-retail-c-assets/include/bundles/minified-bafa112cbe4a3335c51f3659fcb09590.css\" as=\"style\" /> <link rel=\"preload\" href=\"/uk-retail-c-assets/include/bundles/minified-9dfca4cc8251fcc73fc37faa8d794bb1.css\" as=\"style\" /> <link rel=\"preload\" href=\"/uk-reta",
+        "bytes_sampled": 90000,
+        "content_type": "text/html;charset=UTF-8",
+        "fetch_error": null,
+        "final_url": "https://www.ishares.com/uk/individual/en/products/253743/ishares-core-sp-500-ucits-etf",
+        "http_status": 200
+      },
+      "issuer_product_name": "iShares Core S&P 500 UCITS ETF USD Acc",
+      "issuer_product_url": "https://www.ishares.com/uk/individual/en/products/253743/ishares-core-sp-500-ucits-etf",
+      "issuer_reference_sanity_passed": false,
+      "notes": "Issuer page identity is reference evidence only. Reference price/NAV extraction is intentionally not implemented in this gate version.",
+      "portfolio_mutation": false,
+      "production_delivery": false,
+      "registry_id": "core_us_equity_cspx",
+      "trading_currency": "USD",
+      "valuation_authority": false,
+      "yahoo_symbol": "CSPX.L"
+    },
+    {
+      "diagnostic_only": true,
+      "diagnostic_status": "issuer_reference_blocked",
+      "exchange": "Xetra",
+      "exchange_ticker": "SXR8",
+      "failed_gates": [
+        "issuer_identity_match",
+        "reference_price_found",
+        "broad_tolerance_check_passed",
+        "cross_source_gate_already_passed"
+      ],
+      "funding_authority": false,
+      "gates": {
+        "broad_tolerance_check_passed": false,
+        "cross_source_gate_already_passed": false,
+        "issuer_identity_match": false,
+        "issuer_page_fetch_ok": true,
+        "issuer_policy_present": true,
+        "reference_price_found": false
+      },
+      "identity_token_matches": {
+        "IE00B5BMR087": false,
+        "S&P 500": false,
+        "UCITS": true,
+        "iShares": true
+      },
+      "isin": "IE00B5BMR087",
+      "issuer": "BlackRock iShares",
+      "issuer_fetch": {
+        "body_sample": "<!DOCTYPE html> <html xmlns=\"http://www.w3.org/1999/xhtml\" prefix=\"og: http://ogp.me/ns#\" lang=\"en-GB\" xml:lang=\"en-GB\"> <head> <link rel=\"preload\" href=\"/uk-retail-c-assets/include/bundles/minified-473c2f9ed7d7db02850bcd4aa7a7c86a.css\" as=\"style\" /> <link rel=\"preload\" href=\"/uk-retail-c-assets/include/bundles/minified-7defdbb9b612248b48bf56c84d2e4188.css\" as=\"style\" /> <link rel=\"preload\" href=\"/uk-retail-c-assets/include/bundles/minified-a1d8ca773adfe5c43ad3ecb1032be21e.css\" as=\"style\" /> <link rel=\"preload\" href=\"/uk-retail-c-assets/include/bundles/minified-943ed2d3b103eb5ced499a7106113ddd.css\" as=\"style\" /> <link rel=\"preload\" href=\"/uk-retail-c-assets/include/bundles/minified-bafa112cbe4a3335c51f3659fcb09590.css\" as=\"style\" /> <link rel=\"preload\" href=\"/uk-retail-c-assets/include/bundles/minified-9dfca4cc8251fcc73fc37faa8d794bb1.css\" as=\"style\" /> <link rel=\"preload\" href=\"/uk-reta",
+        "bytes_sampled": 90000,
+        "content_type": "text/html;charset=UTF-8",
+        "fetch_error": null,
+        "final_url": "https://www.ishares.com/uk/individual/en/products/253743/ishares-core-sp-500-ucits-etf",
+        "http_status": 200
+      },
+      "issuer_product_name": "iShares Core S&P 500 UCITS ETF USD Acc",
+      "issuer_product_url": "https://www.ishares.com/uk/individual/en/products/253743/ishares-core-sp-500-ucits-etf",
+      "issuer_reference_sanity_passed": false,
+      "notes": "Issuer page identity is reference evidence only. Reference price/NAV extraction is intentionally not implemented in this gate version.",
+      "portfolio_mutation": false,
+      "production_delivery": false,
+      "registry_id": "core_us_equity_cspx",
+      "trading_currency": "EUR",
+      "valuation_authority": false,
+      "yahoo_symbol": "SXR8.DE"
+    }
+  ],
+  "run_id": "20260601_225423",
+  "schema_version": "issuer_reference_sanity_gate_v1",
+  "source_cross_source_gate": "output/pricing/yahoo_cross_source_gate_20260601_225423.json",
+  "source_yahoo_diagnostics": "output/pricing/yahoo_ucits_close_diagnostics_20260601_225423.json",
+  "summary": {
+    "authority_note": "Issuer reference sanity is diagnostic-only and not a trading-line official close source.",
+    "issuer_reference_blocked_count": 3,
+    "issuer_reference_sanity_passed_count": 0,
+    "row_count": 3
+  },
+  "valuation_authority": false
+}
