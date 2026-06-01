@@ -6,7 +6,7 @@ from pathlib import Path
 from typing import Any
 
 SCHEMA_VERSION = "yahoo_fallback_gate_shadow_evidence_v1"
-REQUIRED_KINDS = {"yahoo_ucits_close_diagnostics", "yahoo_fallback_gate_evaluation"}
+REQUIRED_KINDS = {"yahoo_ucits_close_diagnostics", "yahoo_fallback_gate_evaluation", "yahoo_completed_session_gate"}
 
 
 def load_json(path: Path) -> dict[str, Any]:
@@ -22,6 +22,8 @@ def validate(path: Path) -> None:
         errors.append("validation_status_must_be_passed")
     if payload.get("all_rows_blocked_until_contract_gates_pass") is not True:
         errors.append("all_rows_blocked_flag_required")
+    if payload.get("completed_session_gate_evidence_present") is not True:
+        errors.append("completed_session_gate_evidence_present_required")
     for field in ["valuation_authority", "funding_authority", "portfolio_mutation", "production_delivery"]:
         if payload.get(field) is not False:
             errors.append(f"{field}_must_be_false")
