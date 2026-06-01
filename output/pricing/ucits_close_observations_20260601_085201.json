@@ -1,0 +1,709 @@
+{
+  "created_at_utc": "2026-06-01T08:52:13.657584+00:00",
+  "funding_authority": false,
+  "portfolio_mutation": false,
+  "production_delivery": false,
+  "rows": [
+    {
+      "adapter_name": "euronext_live",
+      "blockers": [
+        "adapter_scaffold_only",
+        "stable_euronext_quote_endpoint_not_integrated",
+        "candidate_close_not_parsed",
+        "candidate_date_not_verified",
+        "completed_session_not_verified"
+      ],
+      "candidate_close": null,
+      "candidate_currency": null,
+      "candidate_date": null,
+      "completed_session": false,
+      "confidence": "low",
+      "exchange": "Euronext Amsterdam",
+      "exchange_ticker": "CSPX",
+      "funding_authority": false,
+      "isin": "IE00B5BMR087",
+      "observation_status": "adapter_scaffold_pending_endpoint_integration",
+      "parser_status": "quote_endpoint_candidate_evidence_collected",
+      "portfolio_mutation": false,
+      "production_delivery": false,
+      "provider_symbol": "IE00B5BMR087-XAMS",
+      "registry_id": "core_us_equity_cspx",
+      "source_id": "euronext_live",
+      "source_lineage": {
+        "accept_as_valuation_grade": false,
+        "adapter_diagnostics": {
+          "base_url_search_quote_hint": "\\/en\\/search_instruments\\/",
+          "current_path_hint": "product\\/etfs\\/IE00B5BMR087-XAMS",
+          "endpoint_hint_samples": [
+            "Trackers iShares Core S&P 500 UCITS ETF USD (Acc) ETF IE00B5BMR087 XAMS Euronext Amsterdam Live Euronext quotes, realtime prices, charts and regulated news",
+            "https://live.euronext.com/en/product/etfs/IE00B5BMR087-XAMS",
+            "https://live.euronext.com/en/products/etfs",
+            "https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/10.4.0/css/bootstrap-slider.css",
+            "https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/css/select2.min.css",
+            "https://www.amcharts.com/lib/3/plugins/export/export.css",
+            "https://www.amcharts.com/lib/3/style.css",
+            "product\\/etfs\\/IE00B5BMR087-XAMS",
+            "ajaxPageState",
+            "ajaxTrustedUrl",
+            "ajax_secure",
+            "ewl_related_instruments",
+            "product_type",
+            "instrument",
+            "product_data",
+            "nameInstrument",
+            "awl_intraday_and_chart_included_non_traded_days_info",
+            "Ticking this checkbox will display the indicative \\u003Cb\\u003Eclosing price\\u003C\\/b\\u003E for the days for which the instrument did not trade",
+            "baseUrlSearchQuote",
+            "\\/en\\/search_instruments\\/"
+          ],
+          "endpoint_hints_present": [
+            "currentPath",
+            "baseUrlSearchQuote",
+            "dynamic_quotes_display",
+            "product_data",
+            "Live quotes"
+          ],
+          "final_url": "https://live.euronext.com/en/product/etfs/IE00B5BMR087-XAMS",
+          "http_status": 200,
+          "next_step": "select a stable Euronext product or quote endpoint from typed product-page diagnostics before any candidate close parsing",
+          "product_code": "IE00B5BMR087-XAMS",
+          "product_code_present": true,
+          "product_page_signal_diagnostics": {
+            "custom_instrument_summary": {
+              "custom_context_fields": {
+                "asset_files_path": "/themes/custom/euronext_live/frontend-library/public/assets/",
+                "date_restriction": "2024-06-01",
+                "language": "en",
+                "nb_session": 5,
+                "product_data": "BE0003604155-XBRU",
+                "theme_name": "euronext_live"
+              },
+              "date_restriction_is_session_hint_only": true,
+              "diagnostic_only": true,
+              "expected_matches": {
+                "custom_product_data_matches_provider_symbol": false,
+                "isin_matches_registry_line": true,
+                "product_data_matches_provider_symbol": true,
+                "symbol_matches_exchange_ticker": true
+              },
+              "expected_registry_identity": {
+                "exchange_ticker": "CSPX",
+                "isin": "IE00B5BMR087",
+                "provider_symbol": "IE00B5BMR087-XAMS",
+                "trading_currency": "EUR"
+              },
+              "identity_match_count": 3,
+              "identity_match_total": 4,
+              "instrument_fields": {
+                "default_period": {
+                  "range": "1D",
+                  "type": "intraday"
+                },
+                "isin": "IE00B5BMR087",
+                "issuer_code": "164386",
+                "mic": "XAMS",
+                "name": "iSHR S&P500 B A",
+                "product_data": "IE00B5BMR087-XAMS",
+                "symbol": "CSPX",
+                "type": "TRACK",
+                "url_type": "etfs"
+              },
+              "nb_session_is_request_window_hint_only": true,
+              "present": true
+            },
+            "diagnostic_only": true,
+            "drupal_settings_present": true,
+            "drupal_settings_summary": {
+              "ajax_keys_present": [],
+              "ajax_page_state_keys_present": [
+                "libraries",
+                "theme",
+                "theme_token"
+              ],
+              "endpoint_like_value_count": 6,
+              "endpoint_like_values": [
+                {
+                  "path": "$.path.baseUrl",
+                  "value": "https://live.euronext.com/"
+                },
+                {
+                  "path": "$.path.currentPath",
+                  "value": "product/etfs/IE00B5BMR087-XAMS"
+                },
+                {
+                  "path": "$.custom.asset_files_path",
+                  "value": "https://live.euronext.com/themes/custom/euronext_live/frontend-library/public/assets/"
+                },
+                {
+                  "path": "$.awl_intraday_and_chart_included_non_traded_days_info",
+                  "value": "Ticking this checkbox will display the indicative <b>closing price</b> for the days for which the instrument did not trade"
+                },
+                {
+                  "path": "$.baseUrlSearchQuote",
+                  "value": "https://live.euronext.com/en/search_instruments/"
+                },
+                {
+                  "path": "$.cas_login_url",
+                  "value": "https://live.euronext.com/en/caslogin"
+                }
+              ],
+              "parse_status": "parsed",
+              "signal_key_paths": [
+                "$.path.currentPath",
+                "$.path.currentPathIsAdmin",
+                "$.ajaxPageState",
+                "$.ajaxTrustedUrl",
+                "$.ajax_secure",
+                "$.ewl_related_instruments",
+                "$.ewl_related_instruments.product_type",
+                "$.custom.instrument",
+                "$.custom.instrument.product_data",
+                "$.custom.product_data",
+                "$.nameInstrument",
+                "$.awl_intraday_and_chart_included_non_traded_days_info",
+                "$.baseUrlSearchQuote",
+                "$.dynamic_quotes_display"
+              ],
+              "top_level_keys": [
+                "ajaxPageState",
+                "ajaxTrustedUrl",
+                "ajax_secure",
+                "awl_intraday_and_chart_included_non_traded_days_info",
+                "baseUrlSearchQuote",
+                "cas_login_url",
+                "cas_server_url",
+                "csp",
+                "custom",
+                "data",
+                "dataLayer",
+                "dynamic_quotes_display",
+                "eu_cookie_compliance",
+                "ewl_related_instruments",
+                "globalRefresh",
+                "gtag",
+                "gtm",
+                "jquery",
+                "language",
+                "nameInstrument",
+                "path",
+                "pluralDelimiter",
+                "responsive_menu",
+                "suppressDeprecationErrors",
+                "user"
+              ]
+            },
+            "endpoint_candidate_count": 30,
+            "endpoint_candidate_samples": [
+              "Trackers iShares Core S&P 500 UCITS ETF USD (Acc) ETF IE00B5BMR087 XAMS Euronext Amsterdam Live Euronext quotes, realtime prices, charts and regulated news",
+              "https://live.euronext.com/en/product/etfs/IE00B5BMR087-XAMS",
+              "https://live.euronext.com/en/products/etfs",
+              "https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/10.4.0/css/bootstrap-slider.css",
+              "https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/css/select2.min.css",
+              "https://www.amcharts.com/lib/3/plugins/export/export.css",
+              "https://www.amcharts.com/lib/3/style.css",
+              "product\\/etfs\\/IE00B5BMR087-XAMS",
+              "ajaxPageState",
+              "ajaxTrustedUrl",
+              "ajax_secure",
+              "ewl_related_instruments",
+              "product_type",
+              "instrument",
+              "product_data",
+              "nameInstrument",
+              "awl_intraday_and_chart_included_non_traded_days_info",
+              "Ticking this checkbox will display the indicative \\u003Cb\\u003Eclosing price\\u003C\\/b\\u003E for the days for which the instrument did not trade",
+              "baseUrlSearchQuote",
+              "\\/en\\/search_instruments\\/",
+              "dynamic_quotes_display",
+              "layout-no-sidebars path-product",
+              "https://live.euronext.com/><button  search_type=",
+              ">Search</span>\n  <svg viewBox=",
+              ">\n    Search\n  </a>\n  <nav id=",
+              ">Quote alerts</span>\n      \n    \n                          <a href=",
+              ">\n            Markets\n          </a>\n                                      <div aria-labelledby=",
+              ">Structured products</a>\n                                </li>\n                <li class=",
+              ">Structured Products</a>\n                                </li>\n                <li class=",
+              ">\n          <p>Together for a unified, stronger European capital market.</p>\n        </div>\n                    <a class="
+            ],
+            "product_identity_tokens_present": {
+              "currency_token": false,
+              "exchange_ticker": true,
+              "isin": true
+            },
+            "quote_endpoint_candidate_evidence": {
+              "authority": false,
+              "candidate_close_extraction": false,
+              "candidate_count": 4,
+              "candidate_urls": [
+                {
+                  "name": "product_page_identity",
+                  "url": "https://live.euronext.com/en/product/etfs/IE00B5BMR087-XAMS"
+                },
+                {
+                  "name": "settings_search_product_data",
+                  "url": "https://live.euronext.com/en/search_instruments/IE00B5BMR087-XAMS"
+                },
+                {
+                  "name": "settings_search_symbol",
+                  "url": "https://live.euronext.com/en/search_instruments/CSPX"
+                },
+                {
+                  "name": "settings_search_isin",
+                  "url": "https://live.euronext.com/en/search_instruments/IE00B5BMR087"
+                }
+              ],
+              "completed_session_validation": false,
+              "diagnostic_only": true,
+              "fetch_attempted": false,
+              "identity": {
+                "isin": "IE00B5BMR087",
+                "mic": "XAMS",
+                "product_data": "IE00B5BMR087-XAMS",
+                "symbol": "CSPX",
+                "url_type": "etfs"
+              },
+              "identity_source": "adapter_diagnostics.custom_instrument_summary",
+              "next_step": "select one candidate URL for a controlled endpoint evidence fetch before any quote parser exists",
+              "registry_identity": {
+                "exchange_ticker": "CSPX",
+                "isin": "IE00B5BMR087",
+                "provider_symbol": "IE00B5BMR087-XAMS",
+                "trading_currency": "EUR"
+              },
+              "schema_version": "euronext_quote_endpoint_candidate_evidence_v1"
+            },
+            "signal_context_samples": [
+              {
+                "context": "\"cas_server_url\":\"https:\\/\\/connect2.euronext.com\\/\",\"language\":\"en\",\"baseUrlSearchQuote\":\"\\/en\\/search_instruments\\/\",\"dynamic_quotes_display\":{\"config\":{\"timer\":30}},\"globalRefresh\":30000,\"cas_login_url\":\"\\/en\\/caslogin\",\"csp\":{\"nonce\":\"F3-__J-2HDbT8pkb6O20OA\"},\"user\":{\"uid\":0,\"permissionsHash\":\"530de943fa713a80d331502",
+                "term": "dynamic_quotes_display"
+              },
+              {
+                "context": "1D\",\"type\":\"intraday\"},\"type\":\"TRACK\",\"name\":\"iSHR S\\u0026P500 B A\",\"symbol\":\"CSPX\",\"isin\":\"IE00B5BMR087\",\"mic\":\"XAMS\",\"product_data\":\"IE00B5BMR087-XAMS\",\"issuer_code\":\"164386\"},\"nb_session\":5,\"date_restriction\":\"2024-06-01\",\"product_data\":\"BE0003604155-XBRU\",\"language\":\"en\",\"theme_name\":\"euronext_live\",\"asset_",
+                "term": "product_data"
+              },
+              {
+                "context": "\"mic\":\"XAMS\",\"product_data\":\"IE00B5BMR087-XAMS\",\"issuer_code\":\"164386\"},\"nb_session\":5,\"date_restriction\":\"2024-06-01\",\"product_data\":\"BE0003604155-XBRU\",\"language\":\"en\",\"theme_name\":\"euronext_live\",\"asset_files_path\":\"\\/themes\\/custom\\/euronext_live\\/frontend-library\\/public\\/assets\\/\"},\"nameInstrument\":\"LOTUS",
+                "term": "product_data"
+              },
+              {
+                "context": "the days for which the instrument did not trade\",\"cas_server_url\":\"https:\\/\\/connect2.euronext.com\\/\",\"language\":\"en\",\"baseUrlSearchQuote\":\"\\/en\\/search_instruments\\/\",\"dynamic_quotes_display\":{\"config\":{\"timer\":30}},\"globalRefresh\":30000,\"cas_login_url\":\"\\/en\\/caslogin\",\"csp\":{\"nonce\":\"F3-__J-2HDbT8pkb6O20OA\"},\"use",
+                "term": "baseUrlSearchQuote"
+              },
+              {
+                "context": "script type=\"application/json\" data-drupal-selector=\"drupal-settings-json\">{\"path\":{\"baseUrl\":\"\\/\",\"pathPrefix\":\"en\\/\",\"currentPath\":\"product\\/etfs\\/IE00B5BMR087-XAMS\",\"currentPathIsAdmin\":false,\"isFront\":false,\"currentLanguage\":\"en\"},\"pluralDelimiter\":\"\\u0003\",\"suppressDeprecationErrors\":true,\"ajaxPageState\":",
+                "term": "currentPath"
+              },
+              {
+                "context": "or=\"drupal-settings-json\">{\"path\":{\"baseUrl\":\"\\/\",\"pathPrefix\":\"en\\/\",\"currentPath\":\"product\\/etfs\\/IE00B5BMR087-XAMS\",\"currentPathIsAdmin\":false,\"isFront\":false,\"currentLanguage\":\"en\"},\"pluralDelimiter\":\"\\u0003\",\"suppressDeprecationErrors\":true,\"ajaxPageState\":{\"libraries\":\"eJyVV9t22zgM_CEr6tn2Yf8Gh6IgiQlFaHn",
+                "term": "currentPath"
+              },
+              {
+                "context": "PathIsAdmin\":false,\"isFront\":false,\"currentLanguage\":\"en\"},\"pluralDelimiter\":\"\\u0003\",\"suppressDeprecationErrors\":true,\"ajaxPageState\":{\"libraries\":\"eJyVV9t22zgM_CEr6tn2Yf8Gh6IgiQlFaHnxpV-_Q8iKU0dK24fEJjgAQWAA0ObVXCmxLZFbg-_N-v1kPMdMqXTJRtdhr66b9_XJpMSZXHhlmyW2NqUXM9FNSi4d0-LNzbuUqXepgypZ7-wbSaDoxinT2fUsadfITEQT",
+                "term": "ajaxPageState"
+              },
+              {
+                "context": "lU4n7au-FyzB3K439WRfXofumnz4iF5KUFpnCa8_9KtvhHaziQ-6ROz1f8vM8ai5_8Bu8Zu7w\",\"theme\":\"euronext_live\",\"theme_token\":null},\"ajaxTrustedUrl\":{\"form_action_p_pvdeGsVG5zNF_XLGPTvYSKCf43t8qZYSwcfZl2uzM\":true},\"jquery\":{\"ui\":{\"datepicker\":{\"isRTL\":null,\"firstDay\":null,\"langCode\":\"drupal-locale\"}}},\"gtag\":{\"tagId\":\"\",\"cons",
+                "term": "ajaxTrustedUrl"
+              },
+              {
+                "context": "\"open_by_default\":false,\"modules_allow_popup\":true,\"hide_the_banner\":false,\"geoip_match\":true,\"unverified_scripts\":[]},\"ajax_secure\":{\"kye\":\"24ayqVo7yJma\"},\"ewl_related_instruments\":{\"defaulttab\":null,\"product_type\":\"etfs\",\"no_data\":true},\"custom\":{\"instrument\":{\"url_type\":\"etfs\",\"default_period\":{\"range\":\"1D\"",
+                "term": "ajax_secure"
+              },
+              {
+                "context": "w_popup\":true,\"hide_the_banner\":false,\"geoip_match\":true,\"unverified_scripts\":[]},\"ajax_secure\":{\"kye\":\"24ayqVo7yJma\"},\"ewl_related_instruments\":{\"defaulttab\":null,\"product_type\":\"etfs\",\"no_data\":true},\"custom\":{\"instrument\":{\"url_type\":\"etfs\",\"default_period\":{\"range\":\"1D\",\"type\":\"intraday\"},\"type\":\"TRACK\",\"name\":\"iSHR S",
+                "term": "ewl_related_instruments"
+              },
+              {
+                "context": "\"theme_name\":\"euronext_live\",\"asset_files_path\":\"\\/themes\\/custom\\/euronext_live\\/frontend-library\\/public\\/assets\\/\"},\"nameInstrument\":\"LOTUS BAKERIES\",\"awl_intraday_and_chart_included_non_traded_days_info\":\"Ticking this checkbox will display the indicative \\u003Cb\\u003Eclosing price\\u003C\\/b\\u003E for the days",
+                "term": "nameInstrument"
+              }
+            ],
+            "signal_term_counts": {
+              "ajaxPageState": 1,
+              "ajaxTrustedUrl": 1,
+              "ajax_secure": 1,
+              "baseUrlSearchQuote": 1,
+              "currentPath": 2,
+              "dynamic_quotes_display": 1,
+              "ewl_related_instruments": 1,
+              "nameInstrument": 1,
+              "product_data": 2
+            },
+            "signal_terms_present": [
+              "dynamic_quotes_display",
+              "product_data",
+              "baseUrlSearchQuote",
+              "currentPath",
+              "ajaxPageState",
+              "ajaxTrustedUrl",
+              "ajax_secure",
+              "ewl_related_instruments",
+              "nameInstrument"
+            ]
+          },
+          "raw_page_bytes": 237561,
+          "resolved_product_url_candidates": [
+            "https://live.euronext.com/en/product/etfs/IE00B5BMR087-XAMS"
+          ],
+          "script_tag_count": 144,
+          "search_endpoint_probe_results": [
+            {
+              "body_sample": "<!DOCTYPE html> <html lang=\"en\" dir=\"ltr\"> <head> <meta charset=\"utf-8\" /> <noscript><style>form.antibot * :not(.antibot-message) { display: none !important; }</style> </noscript><meta name=\"description\" content=\"- Live Euronext stock exchange quotes, realtime prices, charts and regulated news\" /> <link rel=\"canonical\" href=\"https://live.euronext.com/en/search_instruments/IE00B5BMR087-XAMS\" /> <meta name=\"google\" content=\"notranslate\" /> <meta name=\"Generator\" content=\"Drupal 10 (https://www.drupal.org); Commerce 2\" /> <meta name=\"MobileOptimized\" content=\"width\" /> <meta name=\"HandheldFriendly\" content=\"true\" /> <meta name=\"viewport\" content=\"width=device-width, initial-scale=1, shrin",
+              "bytes_sampled": 6000,
+              "canonical_matches_source_line_pattern": true,
+              "canonical_url": "https://live.euronext.com/en/search_instruments/IE00B5BMR087-XAMS",
+              "contains_close_terms": true,
+              "contains_exchange_ticker": false,
+              "contains_isin": true,
+              "contains_trading_currency_token": false,
+              "content_type": "text/html; charset=UTF-8",
+              "http_status": 200,
+              "looks_json": false,
+              "probe_name": "search_path:IE00B5BMR087-XAMS",
+              "product_link_candidate_count": 0,
+              "product_link_candidates": [],
+              "url": "https://live.euronext.com/en/search_instruments/IE00B5BMR087-XAMS"
+            },
+            {
+              "bytes_sampled": 0,
+              "content_type": null,
+              "error": "HTTP Error 404: Not Found",
+              "http_status": null,
+              "probe_name": "search_query:IE00B5BMR087-XAMS",
+              "url": "https://live.euronext.com/en/search_instruments/?search=IE00B5BMR087-XAMS"
+            },
+            {
+              "bytes_sampled": 0,
+              "content_type": null,
+              "error": "HTTP Error 404: Not Found",
+              "http_status": null,
+              "probe_name": "search_q:IE00B5BMR087-XAMS",
+              "url": "https://live.euronext.com/en/search_instruments/?q=IE00B5BMR087-XAMS"
+            },
+            {
+              "body_sample": "<!DOCTYPE html> <html lang=\"en\" dir=\"ltr\"> <head> <meta charset=\"utf-8\" /> <noscript><style>form.antibot * :not(.antibot-message) { display: none !important; }</style> </noscript><meta name=\"description\" content=\"- Live Euronext stock exchange quotes, realtime prices, charts and regulated news\" /> <link rel=\"canonical\" href=\"https://live.euronext.com/en/search_instruments/IE00B5BMR087\" /> <meta name=\"google\" content=\"notranslate\" /> <meta name=\"Generator\" content=\"Drupal 10 (https://www.drupal.org); Commerce 2\" /> <meta name=\"MobileOptimized\" content=\"width\" /> <meta name=\"HandheldFriendly\" content=\"true\" /> <meta name=\"viewport\" content=\"width=device-width, initial-scale=1, shrink-to-",
+              "bytes_sampled": 6000,
+              "canonical_matches_source_line_pattern": true,
+              "canonical_url": "https://live.euronext.com/en/search_instruments/IE00B5BMR087",
+              "contains_close_terms": true,
+              "contains_exchange_ticker": false,
+              "contains_isin": true,
+              "contains_trading_currency_token": false,
+              "content_type": "text/html; charset=UTF-8",
+              "http_status": 200,
+              "looks_json": false,
+              "probe_name": "search_path:IE00B5BMR087",
+              "product_link_candidate_count": 0,
+              "product_link_candidates": [],
+              "url": "https://live.euronext.com/en/search_instruments/IE00B5BMR087"
+            },
+            {
+              "bytes_sampled": 0,
+              "content_type": null,
+              "error": "HTTP Error 404: Not Found",
+              "http_status": null,
+              "probe_name": "search_query:IE00B5BMR087",
+              "url": "https://live.euronext.com/en/search_instruments/?search=IE00B5BMR087"
+            },
+            {
+              "bytes_sampled": 0,
+              "content_type": null,
+              "error": "HTTP Error 404: Not Found",
+              "http_status": null,
+              "probe_name": "search_q:IE00B5BMR087",
+              "url": "https://live.euronext.com/en/search_instruments/?q=IE00B5BMR087"
+            },
+            {
+              "body_sample": "<!DOCTYPE html> <html lang=\"en\" dir=\"ltr\"> <head> <meta charset=\"utf-8\" /> <noscript><style>form.antibot * :not(.antibot-message) { display: none !important; }</style> </noscript><meta name=\"description\" content=\"Trackers iShares Core S&amp;P 500 UCITS ETF USD (Acc) ETF IE00B5BMR087 XAMS Euronext Amsterdam Live Euronext quotes, realtime prices, charts and regulated news\" /> <link rel=\"canonical\" href=\"https://live.euronext.com/en/product/etfs/IE00B5BMR087-XAMS\" /> <meta name=\"google\" content=\"notranslate\" /> <meta name=\"Generator\" content=\"Drupal 10 (https://www.drupal.org); Commerce 2\" /> <meta name=\"MobileOptimized\" content=\"width\" /> <meta name=\"HandheldFriendly\" content=\"true\" /> <",
+              "bytes_sampled": 6000,
+              "canonical_matches_source_line_pattern": true,
+              "canonical_url": "https://live.euronext.com/en/product/etfs/IE00B5BMR087-XAMS",
+              "contains_close_terms": true,
+              "contains_exchange_ticker": false,
+              "contains_isin": true,
+              "contains_trading_currency_token": false,
+              "content_type": "text/html; charset=UTF-8",
+              "http_status": 200,
+              "looks_json": false,
+              "probe_name": "search_path:CSPX",
+              "product_link_candidate_count": 1,
+              "product_link_candidates": [
+                "https://live.euronext.com/en/product/etfs/IE00B5BMR087-XAMS"
+              ],
+              "url": "https://live.euronext.com/en/search_instruments/CSPX"
+            },
+            {
+              "bytes_sampled": 0,
+              "content_type": null,
+              "error": "HTTP Error 404: Not Found",
+              "http_status": null,
+              "probe_name": "search_query:CSPX",
+              "url": "https://live.euronext.com/en/search_instruments/?search=CSPX"
+            },
+            {
+              "bytes_sampled": 0,
+              "content_type": null,
+              "error": "HTTP Error 404: Not Found",
+              "http_status": null,
+              "probe_name": "search_q:CSPX",
+              "url": "https://live.euronext.com/en/search_instruments/?q=CSPX"
+            }
+          ]
+        },
+        "authority": "preferred_official_exchange_discovery",
+        "expected_currency": "EUR",
+        "mic_code": "XAMS"
+      },
+      "source_url": "https://live.euronext.com/en/product/etfs/IE00B5BMR087-XAMS",
+      "trading_currency": "EUR",
+      "valuation_authority": false
+    },
+    {
+      "adapter_name": "deutsche_boerse_live",
+      "blockers": [
+        "candidate_observation_only",
+        "valuation_grade_promotion_not_allowed_in_adapter",
+        "completed_session_not_verified",
+        "candidate_close_not_parsed",
+        "candidate_date_not_verified",
+        "official_completed_session_not_verified"
+      ],
+      "candidate_close": null,
+      "candidate_currency": null,
+      "candidate_date": null,
+      "completed_session": false,
+      "confidence": "none",
+      "exchange": "Xetra",
+      "exchange_ticker": "SXR8",
+      "funding_authority": false,
+      "isin": "IE00B5BMR087",
+      "observation_status": "candidate_close_not_observed",
+      "parser_status": "no_clean_close_candidate_found",
+      "portfolio_mutation": false,
+      "production_delivery": false,
+      "provider_symbol": "SXR8 GY",
+      "registry_id": "core_us_equity_cspx",
+      "source_id": "deutsche_boerse_live",
+      "source_lineage": {
+        "accept_as_valuation_grade": false,
+        "adapter_diagnostics": {
+          "close_label_present": true,
+          "close_label_window": "Schlusspreis des letzten Handelstages Tagestief/-hoch / 52-Wochentief/-hoch / Handelszeiten 08:00-22:00 Bid/Ask-\u00dcbersicht \u25ba Performance Stammdaten Handelsw\u00e4hrung EUR Fondsw\u00e4hrung Ertragsverwendung Art der Indexabbildung Bloomberg Ticker Reuters RIC Listingdatum Geb\u00fchren Verwaltungsgeb\u00fchr Gesamtkostenquote Verwaltetes Fondsverm\u00f6gen Verwaltetes Fondsverm\u00f6gen i",
+          "close_numeric_candidate_audit": [
+            {
+              "accepted": false,
+              "context": "zten Handelstages Tagestief/-hoch / 52-Wochentief/-hoch / Handelszeiten 08",
+              "rejection_reasons": [
+                "outside_bootstrap_price_range",
+                "metadata_or_layout_context"
+              ],
+              "token": "52",
+              "value": 52.0
+            },
+            {
+              "accepted": false,
+              "context": "52-Wochentief/-hoch / Handelszeiten 08:00-22:00 Bid/Ask-\u00dcbersicht \u25ba Perfor",
+              "rejection_reasons": [
+                "outside_bootstrap_price_range",
+                "metadata_or_layout_context"
+              ],
+              "token": "08",
+              "value": 8.0
+            },
+            {
+              "accepted": false,
+              "context": "Wochentief/-hoch / Handelszeiten 08:00-22:00 Bid/Ask-\u00dcbersicht \u25ba Performan",
+              "rejection_reasons": [
+                "outside_bootstrap_price_range",
+                "metadata_or_layout_context"
+              ],
+              "token": "00",
+              "value": 0.0
+            },
+            {
+              "accepted": false,
+              "context": "hentief/-hoch / Handelszeiten 08:00-22:00 Bid/Ask-\u00dcbersicht \u25ba Performance",
+              "rejection_reasons": [
+                "outside_bootstrap_price_range",
+                "metadata_or_layout_context"
+              ],
+              "token": "22",
+              "value": 22.0
+            },
+            {
+              "accepted": false,
+              "context": "tief/-hoch / Handelszeiten 08:00-22:00 Bid/Ask-\u00dcbersicht \u25ba Performance Sta",
+              "rejection_reasons": [
+                "outside_bootstrap_price_range",
+                "metadata_or_layout_context"
+              ],
+              "token": "00",
+              "value": 0.0
+            }
+          ],
+          "close_numeric_candidates": [],
+          "currency_label_present": true,
+          "currency_window": "Handelsw\u00e4hrung EUR Fondsw\u00e4hrung Ertragsverwendung Art der Indexabbildung Bloomberg Ticker Reuters RIC Listingdatum Geb\u00fch",
+          "date_candidates": [],
+          "embedded_quote_key_hits": [
+            "lastPrice",
+            "last_price",
+            "closingPrice",
+            "close",
+            "currency",
+            "isin",
+            "wkn",
+            "mic",
+            "quote"
+          ],
+          "endpoint_hint_samples": [
+            "Xetra",
+            "Wertpapiere in der Zeichnung",
+            "An dieser Stelle sind allgemeine Informationen ver\u00f6ffentlicht sowie Angaben, die Folgepflichten des Unternehmens im Rahmen der Zugeh\u00f6rigkeit zu einem Transparenzstandard an der Frankfurter Wertpapierb\u00f6rse darstellen. Diese Pflichtangaben sind mit einem Stern gekennzeichnet. Welche Angaben je nach Transparenzstandard und Assetklasse erforderlich sind, k\u00f6nnen Sie auf",
+            "charts",
+            "Charts",
+            "price-history",
+            "chart-year-1",
+            "1 Jahr\\u003Cbr>Chart",
+            "date-time-last-price",
+            "price",
+            "last-price",
+            "Das Segment Scale ist ein registrierter KMU-Wachstumsmarkt. Es erleichtert kleinen und mittleren Unternehmen die Finanzierung mit Fremdkapital \u00fcber die B\u00f6rse. Die Unternehmen erf\u00fcllen zudem eine Reihe von Transparenzpflichten wie die Bereitstellung eines Wertpapierprospekts, gepr\u00fcfte Jahresabschl\u00fcsse, Unternehmens- oder Anleiheratings, Unternehmenskennzahlen, etc.",
+            "F\u00fcr dieses Wertpapier k\u00f6nnen leider keine Renditen berechnet werden.",
+            "clean-price",
+            "Aktueller Kurs\\u003Cbr>(Clean Price) in\u00a0%",
+            "dirty-price",
+            "Kurs inkl. St\u00fcckzinsen\\u003Cbr>(Dirty Price) in\u00a0%",
+            "capital-market-partner",
+            "Deutsche B\u00f6rse Capital Market Partner",
+            "Rohstoff-Charts"
+          ],
+          "http_status": 200,
+          "label_offsets": {
+            "close": 791,
+            "currency": 938,
+            "last_price": 529
+          },
+          "last_price_label_present": true,
+          "last_price_numeric_candidate_audit": [
+            {
+              "accepted": false,
+              "context": "zter Preis - Ver\u00e4nderung zum Vortag 0 0 Geld Brief 0 f\u00fcr 0 St\u00fcck 0 f\u00fcr 0",
+              "rejection_reasons": [
+                "outside_bootstrap_price_range"
+              ],
+              "token": "0",
+              "value": 0.0
+            },
+            {
+              "accepted": false,
+              "context": "er Preis - Ver\u00e4nderung zum Vortag 0 0 Geld Brief 0 f\u00fcr 0 St\u00fcck 0 f\u00fcr 0 St",
+              "rejection_reasons": [
+                "outside_bootstrap_price_range"
+              ],
+              "token": "0",
+              "value": 0.0
+            },
+            {
+              "accepted": false,
+              "context": "r\u00e4nderung zum Vortag 0 0 Geld Brief 0 f\u00fcr 0 St\u00fcck 0 f\u00fcr 0 St\u00fcck Differenz",
+              "rejection_reasons": [
+                "outside_bootstrap_price_range"
+              ],
+              "token": "0",
+              "value": 0.0
+            },
+            {
+              "accepted": false,
+              "context": "ung zum Vortag 0 0 Geld Brief 0 f\u00fcr 0 St\u00fcck 0 f\u00fcr 0 St\u00fcck Differenz zum V",
+              "rejection_reasons": [
+                "outside_bootstrap_price_range"
+              ],
+              "token": "0",
+              "value": 0.0
+            },
+            {
+              "accepted": false,
+              "context": "Vortag 0 0 Geld Brief 0 f\u00fcr 0 St\u00fcck 0 f\u00fcr 0 St\u00fcck Differenz zum Vortag 0",
+              "rejection_reasons": [
+                "outside_bootstrap_price_range"
+              ],
+              "token": "0",
+              "value": 0.0
+            },
+            {
+              "accepted": false,
+              "context": "0 0 Geld Brief 0 f\u00fcr 0 St\u00fcck 0 f\u00fcr 0 St\u00fcck Differenz zum Vortag 0 / 0% S",
+              "rejection_reasons": [
+                "outside_bootstrap_price_range"
+              ],
+              "token": "0",
+              "value": 0.0
+            },
+            {
+              "accepted": false,
+              "context": "0 f\u00fcr 0 St\u00fcck Differenz zum Vortag 0 / 0% Spread absolut / relativ 0 / 0",
+              "rejection_reasons": [
+                "outside_bootstrap_price_range"
+              ],
+              "token": "0",
+              "value": 0.0
+            },
+            {
+              "accepted": false,
+              "context": "\u00fcr 0 St\u00fcck Differenz zum Vortag 0 / 0% Spread absolut / relativ 0 / 0% Ku",
+              "rejection_reasons": [
+                "outside_bootstrap_price_range"
+              ],
+              "token": "0",
+              "value": 0.0
+            },
+            {
+              "accepted": false,
+              "context": "tag 0 / 0% Spread absolut / relativ 0 / 0% Kursinformationen iShares Core",
+              "rejection_reasons": [
+                "outside_bootstrap_price_range"
+              ],
+              "token": "0",
+              "value": 0.0
+            },
+            {
+              "accepted": false,
+              "context": "0 / 0% Spread absolut / relativ 0 / 0% Kursinformationen iShares Core S&P",
+              "rejection_reasons": [
+                "outside_bootstrap_price_range",
+                "index_name_context"
+              ],
+              "token": "0",
+              "value": 0.0
+            },
+            {
+              "accepted": false,
+              "context": "Kursinformationen iShares Core S&P 500 UCITS ETF USD (Acc) Tagesumsatz in",
+              "rejection_reasons": [
+                "index_name_context"
+              ],
+              "token": "500",
+              "value": 500.0
+            }
+          ],
+          "last_price_numeric_candidates": [],
+          "last_price_window": "Letzter Preis - Ver\u00e4nderung zum Vortag 0 0 Geld Brief 0 f\u00fcr 0 St\u00fcck 0 f\u00fcr 0 St\u00fcck Differenz zum Vortag 0 / 0% Spread absolut / relativ 0 / 0% Kursinformationen iShares Core S&P 500 UCITS ETF USD (Acc) Tagesumsatz in Euro Tagesumsatz in St\u00fcck Preisfeststellunge",
+          "next_step": "inspect endpoint hints before promoting any candidate close",
+          "script_tag_count": 6,
+          "script_text_bytes": 271193
+        },
+        "authority": "official_exchange_discovery",
+        "expected_currency": "EUR",
+        "mic_code": "XETR"
+      },
+      "source_url": "https://live.deutsche-boerse.com/etf/ishares-core-s-p-500-ucits-etf-usd-acc",
+      "trading_currency": "EUR",
+      "valuation_authority": false
+    }
+  ],
+  "run_id": "20260601_085201",
+  "schema_version": "ucits_close_observations_v1",
+  "source_policy": "config/ucits_pricing_source_policy.yml",
+  "valuation_authority": false
+}

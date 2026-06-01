@@ -58,7 +58,7 @@ The table below shows registry candidates and optional pricing preflight status.
 
 | Role | Instrument | ISIN | Trading line | Status | U.S. proxy | Pricing preflight | Portfolio status |
 |---|---|---|---|---|---|---|---|
-| Core U.S. equity exposure | iShares Core S&P 500 UCITS ETF USD (Acc) | IE00B5BMR087 | CSPX / USD / London Stock Exchange | verified_candidate_not_funded | SPY — research proxy only | non-authoritative price observed CSPX.L: 817.60 on 2026-06-01; non-authoritative price observed SXR8.DE: 698.90 on 2026-05-29 | not funded; no valuation authority |
+| Core U.S. equity exposure | iShares Core S&P 500 UCITS ETF USD (Acc) | IE00B5BMR087 | CSPX / USD / London Stock Exchange | verified_candidate_not_funded | SPY — research proxy only | non-authoritative price observed CSPX.L: 816.93 on 2026-06-01; non-authoritative price observed SXR8.DE: 700.70 on 2026-06-01 | not funded; no valuation authority |
 | Semiconductor thematic exposure | VanEck Semiconductor UCITS ETF | IE00BMC38736 | SMH / USD / primary_line_pending_verification | candidate_requires_verification | SMH — research proxy only | not tested / not applicable | not funded; no valuation authority |
 | Gold / hard-asset hedge | iShares Physical Gold ETC | TBD | SGLN / pending_verification / pending_verification | policy_review_required_not_ucits | GLD — research proxy only | not tested / not applicable | not funded; no valuation authority |
 | Infrastructure / real-asset capex exposure | iShares Global Infrastructure UCITS ETF | TBD | INFR / pending_verification / pending_verification | candidate_requires_verification | PAVE — research proxy only | not tested / not applicable | not funded; no valuation authority |
