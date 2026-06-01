@@ -1,0 +1,26 @@
+schema_version: issuer_reference_policy_v1
+purpose: >-
+  Diagnostic issuer-reference policy for sanity checking Yahoo/yfinance UCITS fallback rows.
+  Issuer reference evidence is not a trading-line official close source and cannot create valuation authority.
+authority: issuer_reference_or_nav_sanity_check
+valuation_authority: false
+funding_authority: false
+portfolio_mutation: false
+production_delivery: false
+rules:
+  require_issuer_identity_match: true
+  require_reference_price_for_sanity_pass: true
+  require_broad_tolerance_check: true
+  broad_reference_tolerance_pct: 5.0
+issuer_products:
+  - registry_id: core_us_equity_cspx
+    isin: IE00B5BMR087
+    issuer: BlackRock iShares
+    product_name: iShares Core S&P 500 UCITS ETF USD Acc
+    product_url: https://www.ishares.com/uk/individual/en/products/253743/ishares-core-sp-500-ucits-etf
+    expected_tokens:
+      - IE00B5BMR087
+      - iShares
+      - S&P 500
+      - UCITS
+    status: diagnostic_reference_only
