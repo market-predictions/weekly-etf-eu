@@ -1,0 +1,160 @@
+{
+  "authority": false,
+  "candidate_close_extraction": false,
+  "completed_session_validation": false,
+  "created_at_utc": "2026-06-01T21:57:39.461890+00:00",
+  "diagnostic_only": true,
+  "funding_authority": false,
+  "portfolio_mutation": false,
+  "production_delivery": false,
+  "rows": [
+    {
+      "authority": false,
+      "candidate_close_extraction": false,
+      "completed_session_validation": false,
+      "diagnostic_only": true,
+      "diagnostic_status": "close_observed",
+      "exchange": "Euronext Amsterdam",
+      "exchange_ticker": "CSPX",
+      "funding_authority": false,
+      "isin": "IE00B5BMR087",
+      "mapping_diagnostics": {
+        "ambiguity_flags": [
+          "isin_not_verified_by_yahoo_diagnostic"
+        ],
+        "currency_matches_registry": true,
+        "isin_match_status": "not_verified",
+        "line_mapping_unambiguous": false,
+        "symbol_has_exchange_suffix": true
+      },
+      "observed": {
+        "fast_info_error": null,
+        "fast_info_subset": {
+          "currency": "EUR",
+          "exchange": "AMS",
+          "quoteType": "ETF",
+          "timezone": "Europe/Amsterdam"
+        },
+        "fetch_status": "history_observed",
+        "history_end": "2026-06-01",
+        "history_rows": 10,
+        "history_start": "2026-05-19",
+        "observed_currency": "EUR",
+        "observed_last_close": 702.010009765625,
+        "observed_last_close_date": "2026-06-01"
+      },
+      "portfolio_mutation": false,
+      "production_delivery": false,
+      "provider_symbol": "IE00B5BMR087-XAMS",
+      "registry_id": "core_us_equity_cspx",
+      "source_id": "yahoo_yfinance",
+      "source_policy_authority": "non_authoritative_connectivity_only",
+      "source_policy_status": "connectivity_preflight_only",
+      "trading_currency": "EUR",
+      "valuation_authority": false,
+      "yahoo_symbol": "CSPX.AS"
+    },
+    {
+      "authority": false,
+      "candidate_close_extraction": false,
+      "completed_session_validation": false,
+      "diagnostic_only": true,
+      "diagnostic_status": "close_observed",
+      "exchange": "London Stock Exchange",
+      "exchange_ticker": "CSPX",
+      "funding_authority": false,
+      "isin": "IE00B5BMR087",
+      "mapping_diagnostics": {
+        "ambiguity_flags": [
+          "isin_not_verified_by_yahoo_diagnostic"
+        ],
+        "currency_matches_registry": true,
+        "isin_match_status": "not_verified",
+        "line_mapping_unambiguous": false,
+        "symbol_has_exchange_suffix": true
+      },
+      "observed": {
+        "fast_info_error": null,
+        "fast_info_subset": {
+          "currency": "USD",
+          "exchange": "LSE",
+          "quoteType": "ETF",
+          "timezone": "Europe/London"
+        },
+        "fetch_status": "history_observed",
+        "history_end": "2026-06-01",
+        "history_rows": 10,
+        "history_start": "2026-05-18",
+        "observed_currency": "USD",
+        "observed_last_close": 816.1799926757812,
+        "observed_last_close_date": "2026-06-01"
+      },
+      "portfolio_mutation": false,
+      "production_delivery": false,
+      "provider_symbol": "CSPX LN",
+      "registry_id": "core_us_equity_cspx",
+      "source_id": "yahoo_yfinance",
+      "source_policy_authority": "non_authoritative_connectivity_only",
+      "source_policy_status": "connectivity_preflight_only",
+      "trading_currency": "USD",
+      "valuation_authority": false,
+      "yahoo_symbol": "CSPX.L"
+    },
+    {
+      "authority": false,
+      "candidate_close_extraction": false,
+      "completed_session_validation": false,
+      "diagnostic_only": true,
+      "diagnostic_status": "close_observed",
+      "exchange": "Xetra",
+      "exchange_ticker": "SXR8",
+      "funding_authority": false,
+      "isin": "IE00B5BMR087",
+      "mapping_diagnostics": {
+        "ambiguity_flags": [
+          "isin_not_verified_by_yahoo_diagnostic"
+        ],
+        "currency_matches_registry": true,
+        "isin_match_status": "not_verified",
+        "line_mapping_unambiguous": false,
+        "symbol_has_exchange_suffix": true
+      },
+      "observed": {
+        "fast_info_error": null,
+        "fast_info_subset": {
+          "currency": "EUR",
+          "exchange": "GER",
+          "quoteType": "ETF",
+          "timezone": "Europe/Berlin"
+        },
+        "fetch_status": "history_observed",
+        "history_end": "2026-06-01",
+        "history_rows": 10,
+        "history_start": "2026-05-19",
+        "observed_currency": "EUR",
+        "observed_last_close": 702.4199829101562,
+        "observed_last_close_date": "2026-06-01"
+      },
+      "portfolio_mutation": false,
+      "production_delivery": false,
+      "provider_symbol": "SXR8 GY",
+      "registry_id": "core_us_equity_cspx",
+      "source_id": "yahoo_yfinance",
+      "source_policy_authority": "non_authoritative_connectivity_only",
+      "source_policy_status": "connectivity_preflight_only",
+      "trading_currency": "EUR",
+      "valuation_authority": false,
+      "yahoo_symbol": "SXR8.DE"
+    }
+  ],
+  "run_id": "20260601_215737",
+  "schema_version": "yahoo_ucits_close_diagnostics_v1",
+  "source_policy": "config/ucits_pricing_source_policy.yml",
+  "summary": {
+    "authority_note": "Yahoo/yfinance rows remain connectivity diagnostics only and cannot feed valuation until policy is explicitly revised.",
+    "close_observed_count": 3,
+    "row_count": 3,
+    "unambiguous_mapping_count": 0
+  },
+  "valuation_authority": false
+}

@@ -1,0 +1,69 @@
+{
+  "all_rows_blocked_until_contract_gates_pass": true,
+  "completed_session_gate_evidence_present": true,
+  "contract": "control/YAHOO_VERIFIED_FALLBACK_CONTRACT_V1.md",
+  "created_at_utc": "2026-06-01T21:57:42.086875+00:00",
+  "cross_source_gate_evidence_present": true,
+  "funding_authority": false,
+  "issuer_reference_policy": "config/issuer_reference_policy.yml",
+  "issuer_reference_sanity_gate_evidence_present": true,
+  "portfolio_mutation": false,
+  "production_delivery": false,
+  "repository": "market-predictions/weekly-etf-eu",
+  "required_artifacts": [
+    {
+      "exists": true,
+      "kind": "yahoo_ucits_close_diagnostics",
+      "path": "output/pricing/yahoo_ucits_close_diagnostics_20260601_215737.json",
+      "sha256": "2910c6cd06c7ff5cc5db921d2c69e9ee7449f426c6998342baf36b84e4e7356b",
+      "size_bytes": 5461
+    },
+    {
+      "exists": true,
+      "kind": "yahoo_fallback_gate_evaluation",
+      "path": "output/pricing/yahoo_fallback_gate_evaluation_20260601_215737.json",
+      "sha256": "28249d3713c7fb2783a91c709a966d8694a4e98d66068470112e126b2078de83",
+      "size_bytes": 3893
+    },
+    {
+      "exists": true,
+      "kind": "yahoo_completed_session_gate",
+      "path": "output/pricing/yahoo_completed_session_gate_20260601_215737.json",
+      "sha256": "ac5dfb9b44cb6bf6bb51e7f7f85a93a15113311bd651c369fffaabe9dd973cb8",
+      "size_bytes": 4304
+    },
+    {
+      "exists": true,
+      "kind": "twelve_data_symbol_discovery",
+      "path": "output/pricing/ucits_twelve_data_symbol_discovery_20260601_215737.json",
+      "sha256": "131f4e30f459a4cd330e13da8deef53f9ac72f3ff2f9d81d371dc74c9a6d3e70",
+      "size_bytes": 28743
+    },
+    {
+      "exists": true,
+      "kind": "yahoo_cross_source_gate",
+      "path": "output/pricing/yahoo_cross_source_gate_20260601_215737.json",
+      "sha256": "b9755b122d143ecb16872b4506d328fc50d803fec174017eea9cee287fc1082e",
+      "size_bytes": 5504
+    },
+    {
+      "exists": true,
+      "kind": "issuer_reference_sanity_gate",
+      "path": "output/pricing/issuer_reference_sanity_gate_20260601_215737.json",
+      "sha256": "93dae241d491d1a1e95920e2ff1237197d34b3c8c0960fb5d6516aa23e02c2f0",
+      "size_bytes": 9023
+    }
+  ],
+  "run_id": "20260601_215737",
+  "schema_version": "yahoo_fallback_gate_shadow_evidence_v1",
+  "session_policy": "config/ucits_exchange_session_policy.yml",
+  "validation_status": "passed",
+  "valuation_authority": false,
+  "workflow": {
+    "name": "Yahoo fallback gate validation",
+    "run_id": "26784519666",
+    "run_number": "5",
+    "run_url": "https://github.com/market-predictions/weekly-etf-eu/actions/runs/26784519666",
+    "sha": "5bac68361a881d88d485d4f713af93689dbc1746"
+  }
+}
