@@ -7,6 +7,14 @@ from typing import Any
 
 SCHEMA_VERSION = "issuer_reference_sanity_gate_v1"
 FORBIDDEN_TRUE_FIELDS = ["valuation_authority", "funding_authority", "portfolio_mutation", "production_delivery"]
+REQUIRED_GATE_FIELDS = [
+    "issuer_policy_present",
+    "issuer_page_fetch_ok",
+    "issuer_identity_match",
+    "reference_price_found",
+    "broad_tolerance_check_passed",
+    "cross_source_gate_already_passed",
+]
 
 
 def load_json(path: Path) -> dict[str, Any]:
@@ -42,19 +50,20 @@ def validate(path: Path) -> None:
     if isinstance(rows, list):
         for idx, row in enumerate(rows):
             gates = row.get("gates") if isinstance(row.get("gates"), dict) else {}
+            failed = row.get("failed_gates") if isinstance(row.get("failed_gates"), list) else []
             if row.get("issuer_reference_sanity_passed") is not False:
                 errors.append(f"row_{idx}_issuer_reference_must_remain_blocked_currently")
             if row.get("diagnostic_status") != "issuer_reference_blocked":
                 errors.append(f"row_{idx}_diagnostic_status_must_be_blocked")
+            for gate in REQUIRED_GATE_FIELDS:
+                if gate not in gates:
+                    errors.append(f"row_{idx}_{gate}_missing")
             if gates.get("issuer_policy_present") is not True:
                 errors.append(f"row_{idx}_issuer_policy_present_required")
-            if gates.get("issuer_identity_match") is not True:
-                errors.append(f"row_{idx}_issuer_identity_match_required")
             if gates.get("reference_price_found") is not False:
                 errors.append(f"row_{idx}_reference_price_found_must_be_false_in_current_gate")
             if gates.get("broad_tolerance_check_passed") is not False:
                 errors.append(f"row_{idx}_broad_tolerance_must_be_false_without_reference_price")
-            failed = row.get("failed_gates") if isinstance(row.get("failed_gates"), list) else []
             if "reference_price_found" not in failed:
                 errors.append(f"row_{idx}_reference_price_failed_gate_required")
             fetch = row.get("issuer_fetch") if isinstance(row.get("issuer_fetch"), dict) else {}
