@@ -1,0 +1,93 @@
+{
+  "all_rows_blocked_until_contract_gates_pass": true,
+  "completed_session_gate_evidence_present": true,
+  "contract": "control/YAHOO_VERIFIED_FALLBACK_CONTRACT_V1.md",
+  "created_at_utc": "2026-06-02T17:34:03.126553+00:00",
+  "cross_source_gate_evidence_present": true,
+  "funding_authority": false,
+  "ishares_endpoint_evidence_present": true,
+  "ishares_endpoint_structure_probe_evidence_present": true,
+  "ishares_reference_endpoint_discovery_evidence_present": true,
+  "issuer_reference_policy": "config/issuer_reference_policy.yml",
+  "issuer_reference_sanity_gate_evidence_present": true,
+  "portfolio_mutation": false,
+  "production_delivery": false,
+  "repository": "market-predictions/weekly-etf-eu",
+  "required_artifacts": [
+    {
+      "exists": true,
+      "kind": "yahoo_ucits_close_diagnostics",
+      "path": "output/pricing/yahoo_ucits_close_diagnostics_20260602_173351.json",
+      "sha256": "a88edb2435f088a5b18c068840b96a649542c271bda4fcf1d79649676b851a81",
+      "size_bytes": 5461
+    },
+    {
+      "exists": true,
+      "kind": "yahoo_fallback_gate_evaluation",
+      "path": "output/pricing/yahoo_fallback_gate_evaluation_20260602_173351.json",
+      "sha256": "60b58f818b8618361eafd849ab992efc94a1a485c921914d14ac4501cee3e559",
+      "size_bytes": 3893
+    },
+    {
+      "exists": true,
+      "kind": "yahoo_completed_session_gate",
+      "path": "output/pricing/yahoo_completed_session_gate_20260602_173351.json",
+      "sha256": "813e0049337257c8dd191ac73f0ceda280b4d0ebee3d040459829589d9700535",
+      "size_bytes": 4304
+    },
+    {
+      "exists": true,
+      "kind": "twelve_data_symbol_discovery",
+      "path": "output/pricing/ucits_twelve_data_symbol_discovery_20260602_173351.json",
+      "sha256": "e7e6ef70bb024dd4e6d9bfba6ef66993cb4212867b145773e53baa12c492d981",
+      "size_bytes": 28747
+    },
+    {
+      "exists": true,
+      "kind": "yahoo_cross_source_gate",
+      "path": "output/pricing/yahoo_cross_source_gate_20260602_173351.json",
+      "sha256": "512d4ee5c8f9f6db3d627c22fdb30075be8c662c653197413a4b025a949fdb31",
+      "size_bytes": 5504
+    },
+    {
+      "exists": true,
+      "kind": "issuer_reference_sanity_gate",
+      "path": "output/pricing/issuer_reference_sanity_gate_20260602_173351.json",
+      "sha256": "783dd3283e2659da1b5cd047a226f82b01fb7dabb75b746be348b774dcc3be2b",
+      "size_bytes": 9023
+    },
+    {
+      "exists": true,
+      "kind": "ishares_reference_endpoint_discovery",
+      "path": "output/pricing/ishares_reference_endpoint_discovery_20260602_173351.json",
+      "sha256": "a7ce4556e344dfe5d9e9af4d44d525f9b861353dc29bdaaf3e828c81425973f5",
+      "size_bytes": 27173
+    },
+    {
+      "exists": true,
+      "kind": "ishares_endpoint_evidence",
+      "path": "output/pricing/ishares_endpoint_evidence_20260602_173351.json",
+      "sha256": "7d227ab2f03cfffd79b749583ee169d9db3836fcae879d13423b43d3a2bdbc6c",
+      "size_bytes": 5894
+    },
+    {
+      "exists": true,
+      "kind": "ishares_endpoint_structure_probe",
+      "path": "output/pricing/ishares_endpoint_structure_probe_20260602_173351.json",
+      "sha256": "e527782f0a72dedf54b3c26608b493aff288851e1a6a698b710e5d40821087cf",
+      "size_bytes": 4060
+    }
+  ],
+  "run_id": "20260602_173351",
+  "schema_version": "yahoo_fallback_gate_shadow_evidence_v1",
+  "session_policy": "config/ucits_exchange_session_policy.yml",
+  "validation_status": "passed",
+  "valuation_authority": false,
+  "workflow": {
+    "name": "Yahoo fallback gate validation",
+    "run_id": "26836949633",
+    "run_number": "8",
+    "run_url": "https://github.com/market-predictions/weekly-etf-eu/actions/runs/26836949633",
+    "sha": "c8053d5745973a69871f6790f9f63213cb9acf5e"
+  }
+}
