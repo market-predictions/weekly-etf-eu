@@ -45,6 +45,7 @@ def build(run_id: str, output_dir: Path) -> Path:
         record(pricing_dir / f"ishares_endpoint_evidence_{run_id}.json", "ishares_endpoint_evidence"),
         record(pricing_dir / f"ishares_endpoint_structure_probe_{run_id}.json", "ishares_endpoint_structure_probe"),
         record(pricing_dir / f"ishares_controlled_parser_probe_{run_id}.json", "ishares_controlled_parser_probe"),
+        record(pricing_dir / f"ishares_reference_value_candidates_{run_id}.json", "ishares_reference_value_candidates"),
     ]
     payload = {
         "schema_version": SCHEMA_VERSION,
@@ -71,6 +72,7 @@ def build(run_id: str, output_dir: Path) -> Path:
         "ishares_endpoint_evidence_present": True,
         "ishares_endpoint_structure_probe_evidence_present": True,
         "ishares_controlled_parser_probe_evidence_present": True,
+        "ishares_reference_value_candidates_evidence_present": True,
         "valuation_authority": False,
         "funding_authority": False,
         "portfolio_mutation": False,
