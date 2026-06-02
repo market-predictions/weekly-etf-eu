@@ -14,6 +14,7 @@ REQUIRED_KINDS = {
     "yahoo_cross_source_gate",
     "issuer_reference_sanity_gate",
     "ishares_reference_endpoint_discovery",
+    "ishares_endpoint_evidence",
 }
 
 
@@ -35,6 +36,7 @@ def validate(path: Path) -> None:
         "cross_source_gate_evidence_present",
         "issuer_reference_sanity_gate_evidence_present",
         "ishares_reference_endpoint_discovery_evidence_present",
+        "ishares_endpoint_evidence_present",
     ]:
         if payload.get(flag) is not True:
             errors.append(f"{flag}_required")
