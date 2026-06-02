@@ -139,6 +139,15 @@ jobs:
           python tools/validate_ishares_endpoint_structure_probe.py \
             --artifact "output/pricing/ishares_endpoint_structure_probe_${YAHOO_GATE_RUN_ID}.json"
 
+      - name: Build and validate iShares controlled parser probe
+        run: |
+          python -m pricing.build_ishares_controlled_parser_probe \
+            --structure-probe "output/pricing/ishares_endpoint_structure_probe_${YAHOO_GATE_RUN_ID}.json" \
+            --output-dir output/pricing \
+            --run-id "$YAHOO_GATE_RUN_ID"
+          python tools/validate_ishares_controlled_parser_probe.py \
+            --artifact "output/pricing/ishares_controlled_parser_probe_${YAHOO_GATE_RUN_ID}.json"
+
       - name: Build and validate Yahoo fallback gate shadow evidence
         run: |
           python tools/build_yahoo_fallback_gate_shadow_evidence.py \
@@ -156,13 +165,14 @@ jobs:
           echo "iShares endpoint discovery is diagnostic-only and does not extract NAV/reference prices."
           echo "iShares endpoint evidence is diagnostic-only and records structure/field signals only."
           echo "iShares endpoint structure probe is diagnostic-only and extracts no values."
+          echo "iShares controlled parser probe is diagnostic-only and extracts no values."
           echo "No valuation authority, funding authority, portfolio mutation, PDF generation or email delivery is created."
 
       - name: Commit Yahoo fallback gate artifacts
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add output/pricing/yahoo_ucits_close_diagnostics_*.json output/pricing/yahoo_fallback_gate_evaluation_*.json output/pricing/yahoo_completed_session_gate_*.json output/pricing/ucits_twelve_data_symbol_discovery_*.json output/pricing/yahoo_cross_source_gate_*.json output/pricing/issuer_reference_sanity_gate_*.json output/pricing/ishares_reference_endpoint_discovery_*.json output/pricing/ishares_endpoint_evidence_*.json output/pricing/ishares_endpoint_structure_probe_*.json output/validation/yahoo_fallback_gate_shadow_evidence_*.json || true
+          git add output/pricing/yahoo_ucits_close_diagnostics_*.json output/pricing/yahoo_fallback_gate_evaluation_*.json output/pricing/yahoo_completed_session_gate_*.json output/pricing/ucits_twelve_data_symbol_discovery_*.json output/pricing/yahoo_cross_source_gate_*.json output/pricing/issuer_reference_sanity_gate_*.json output/pricing/ishares_reference_endpoint_discovery_*.json output/pricing/ishares_endpoint_evidence_*.json output/pricing/ishares_endpoint_structure_probe_*.json output/pricing/ishares_controlled_parser_probe_*.json output/validation/yahoo_fallback_gate_shadow_evidence_*.json || true
           if git diff --cached --quiet; then
             echo "No Yahoo fallback gate artifacts to commit."
             exit 0
