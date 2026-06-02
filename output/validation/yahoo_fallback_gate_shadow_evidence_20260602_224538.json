@@ -1,0 +1,101 @@
+{
+  "all_rows_blocked_until_contract_gates_pass": true,
+  "completed_session_gate_evidence_present": true,
+  "contract": "control/YAHOO_VERIFIED_FALLBACK_CONTRACT_V1.md",
+  "created_at_utc": "2026-06-02T22:45:50.332388+00:00",
+  "cross_source_gate_evidence_present": true,
+  "funding_authority": false,
+  "ishares_controlled_parser_probe_evidence_present": true,
+  "ishares_endpoint_evidence_present": true,
+  "ishares_endpoint_structure_probe_evidence_present": true,
+  "ishares_reference_endpoint_discovery_evidence_present": true,
+  "issuer_reference_policy": "config/issuer_reference_policy.yml",
+  "issuer_reference_sanity_gate_evidence_present": true,
+  "portfolio_mutation": false,
+  "production_delivery": false,
+  "repository": "market-predictions/weekly-etf-eu",
+  "required_artifacts": [
+    {
+      "exists": true,
+      "kind": "yahoo_ucits_close_diagnostics",
+      "path": "output/pricing/yahoo_ucits_close_diagnostics_20260602_224538.json",
+      "sha256": "6bc95b4dec76e2ca6e3164f55032c29908389ae5e0f9706eb3c61bde819124c7",
+      "size_bytes": 5461
+    },
+    {
+      "exists": true,
+      "kind": "yahoo_fallback_gate_evaluation",
+      "path": "output/pricing/yahoo_fallback_gate_evaluation_20260602_224538.json",
+      "sha256": "761f083afeefd4a2d5694b4e5bc419d894d20eb5cf5613b533e903cbcda268d9",
+      "size_bytes": 3893
+    },
+    {
+      "exists": true,
+      "kind": "yahoo_completed_session_gate",
+      "path": "output/pricing/yahoo_completed_session_gate_20260602_224538.json",
+      "sha256": "8ad1b1c0a1628c1e1c061eca6cb0d92dc5eee898eb8bbaca3291cdce33d52f25",
+      "size_bytes": 4304
+    },
+    {
+      "exists": true,
+      "kind": "twelve_data_symbol_discovery",
+      "path": "output/pricing/ucits_twelve_data_symbol_discovery_20260602_224538.json",
+      "sha256": "500e99a0a53ac06da6e2d334eae5ea77e07d7931c2acf171b4b91c887cd3c240",
+      "size_bytes": 28747
+    },
+    {
+      "exists": true,
+      "kind": "yahoo_cross_source_gate",
+      "path": "output/pricing/yahoo_cross_source_gate_20260602_224538.json",
+      "sha256": "60b7ecede4df49cb122418984636516689e1d44f476ac26d09dcea5778c2789a",
+      "size_bytes": 5504
+    },
+    {
+      "exists": true,
+      "kind": "issuer_reference_sanity_gate",
+      "path": "output/pricing/issuer_reference_sanity_gate_20260602_224538.json",
+      "sha256": "f939ea9b97a538596f52e40bba0d306e04343a20f4fb7629a48864bde7a5f92b",
+      "size_bytes": 9023
+    },
+    {
+      "exists": true,
+      "kind": "ishares_reference_endpoint_discovery",
+      "path": "output/pricing/ishares_reference_endpoint_discovery_20260602_224538.json",
+      "sha256": "8c492bfeaabe8b36b6ec643460fbdde5d35f58517a3d58f3c4fff444c56cd754",
+      "size_bytes": 27173
+    },
+    {
+      "exists": true,
+      "kind": "ishares_endpoint_evidence",
+      "path": "output/pricing/ishares_endpoint_evidence_20260602_224538.json",
+      "sha256": "95df5a14721092b461cdba4e2878abba80dbd3450c74e1879580f6df1451b42b",
+      "size_bytes": 5894
+    },
+    {
+      "exists": true,
+      "kind": "ishares_endpoint_structure_probe",
+      "path": "output/pricing/ishares_endpoint_structure_probe_20260602_224538.json",
+      "sha256": "a31e60b7baa1db28ca38ce2f8a04271aa12ad2f98a6e936e98affa21c40efbf1",
+      "size_bytes": 4060
+    },
+    {
+      "exists": true,
+      "kind": "ishares_controlled_parser_probe",
+      "path": "output/pricing/ishares_controlled_parser_probe_20260602_224538.json",
+      "sha256": "29f85d579f591af036b7bd56531fc836ce5a13df6a167f8ccc5dac53daa49870",
+      "size_bytes": 19633
+    }
+  ],
+  "run_id": "20260602_224538",
+  "schema_version": "yahoo_fallback_gate_shadow_evidence_v1",
+  "session_policy": "config/ucits_exchange_session_policy.yml",
+  "validation_status": "passed",
+  "valuation_authority": false,
+  "workflow": {
+    "name": "Yahoo fallback gate validation",
+    "run_id": "26852479012",
+    "run_number": "9",
+    "run_url": "https://github.com/market-predictions/weekly-etf-eu/actions/runs/26852479012",
+    "sha": "36cc4b7fd1cb402843af206afa084643df3365d8"
+  }
+}
