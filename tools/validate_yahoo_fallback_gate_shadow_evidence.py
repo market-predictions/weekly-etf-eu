@@ -17,6 +17,7 @@ REQUIRED_KINDS = {
     "ishares_endpoint_evidence",
     "ishares_endpoint_structure_probe",
     "ishares_controlled_parser_probe",
+    "ishares_reference_value_candidates",
 }
 
 
@@ -41,6 +42,7 @@ def validate(path: Path) -> None:
         "ishares_endpoint_evidence_present",
         "ishares_endpoint_structure_probe_evidence_present",
         "ishares_controlled_parser_probe_evidence_present",
+        "ishares_reference_value_candidates_evidence_present",
     ]:
         if payload.get(flag) is not True:
             errors.append(f"{flag}_required")
