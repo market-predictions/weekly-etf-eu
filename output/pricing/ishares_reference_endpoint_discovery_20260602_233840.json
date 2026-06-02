@@ -1,0 +1,514 @@
+{
+  "created_at_utc": "2026-06-02T23:38:44.503659+00:00",
+  "diagnostic_only": true,
+  "funding_authority": false,
+  "issuer_policy": "config/issuer_reference_policy.yml",
+  "portfolio_mutation": false,
+  "production_delivery": false,
+  "reference_price_extraction": false,
+  "rows": [
+    {
+      "answers": {
+        "factsheet_or_document_candidate_found": false,
+        "nav_or_price_related_candidate_found": true,
+        "stable_endpoint_found": true
+      },
+      "candidate_count": 62,
+      "context_samples": [
+        {
+          "context": "='blk-global-prod,blk-uk-ishares-prod'; var globalAnalyticsParams = { googleSiteId: \"UA-51649809-1\", envNet: \"dmz\", envType: \"prod\", pageName: \"site entry\", siteName: \"ishares-uk\", country: \"gb\", languageSelector: \"en\", isInternalTraffic: \"false\", isInternalLogin: \"false\", siteSection: \"home\", siteSubSection: \"home\", siteSubSubSection: \"home\", padlockedContent: \"no\", webTrackingId: \"\", loggedIn: \"no\", analyticsAllowed: \"true\", enableAbTesting: \"false\", analyticsRegime: \"US\", usState: \"VA\", usAccessLevel: \"\" }; var NTPT_GLBLEXTRA = \"site=i",
+          "term": "isin"
+        },
+        {
+          "context": "t\" id=\"c1675416710104\" > <!-- COMPONENT: vi16-page-frame/Masthead --> <a id=\"skip-to-content\" href=\"#bodyWrapper\">Skip to content</a> <div data-componentName=\"Masthead\"> <section brand=\"ishares\" country=\"\"> <ds-global-nav class=\"container-fluid ds-body-xs\"> <header class=\"row\"> <section class=\"ds-col ds-left\"> <ul class=\"ds-l1-menu ds-brand-site-links\"> <li> <a href=\"https://www.blackrock.com/uk/individual\" data-link-event=\"cta:BlackRock\" aria-label=\"Go to the BlackRock homepage\" target=\"_blank\" class=\"ds-link-subdued-secondary\"> Black",
+          "term": "nav"
+        },
+        {
+          "context": "Risks</p> <p>iShares products may not be suitable for all investors and BlackRock does not guarantee the performance of the iShares products. Past performance is not a reliable indicator of future results. The value and price of securities (which may trade in limited markets) of the iShares products and the income from them may fall as well as rise and an investor may not recover the full amount invested. An investor\u2019s income from iShares products is not necessarily fixed and may fluctuate. Where an investor invests in an iShares product d",
+          "term": "price"
+        },
+        {
+          "context": "t such information as confidential and not disseminate it.</p> <p><strong>Risk Warnings</strong></p> <p>Investment Risks</p> <p>iShares products may not be suitable for all investors and BlackRock does not guarantee the performance of the iShares products. Past performance is not a reliable indicator of future results. The value and price of securities (which may trade in limited markets) of the iShares products and the income from them may fall as well as rise and an investor may not recover the full amount invested. An investor\u2019s income from i",
+          "term": "performance"
+        },
+        {
+          "context": "listening\" } } var universalCodeUrl = '//universal.iperceptions.com/wrapper.js'; var universalCodeiPerceptionsKey = '27541646-d00c-423a-bf31-5db25f49c423'; BLK.isCwpUserSignedIn = false; BLK.siteName = \"ishares-uk\"; BLK.apiGatewayUrl = \"https://www.blackrock.com/api-gateway\"; BLK.apigeePath = \"https://api.blackrock.com\"; //]]> </script> <script src=\"//tags.tiqcdn.com/utag/blackrock/main/prod/utag.js\" type=\"text/javascript\" defer=\"defer\"></script> <meta name=\"cmsPageId\" content=\"1675416710097\" /> <meta name=\"viewport\" content=\"width=devic",
+          "term": "api"
+        },
+        {
+          "context": "e/bundles/minified-f13002eb2866da4ed6da97eecfc2be9.js\" defer=\"defer\"></script> <script src=\"/uk-retail-c-assets/include/bundles/minified-29210c05de86271bb371a5bb3f70fd8.js\" defer=\"defer\"></script> <title>Exchange-Traded Funds (ETFs) | iShares UK \u2013 BlackRock</title> <script nonce=\"zM5XSucGSQvlaGDPl9QtHg==\"> var autoBlockScriptTag = document.createElement('script'), head = document.getElementsByTagName('head')[0]; autoBlockScriptTag.defer = true; autoBlockScriptTag.type = 'text/javascript'; autoBlockScriptTag.src = 'https://cdn.cookielaw.or",
+          "term": "fund"
+        }
+      ],
+      "diagnostic_only": true,
+      "endpoint_candidates": [
+        {
+          "looks_api_or_json": false,
+          "looks_document": false,
+          "looks_nav_or_price_related": false,
+          "source": "href",
+          "url": "https://www.ishares.com/uk/individual/en/products/etf-investments"
+        },
+        {
+          "looks_api_or_json": false,
+          "looks_document": false,
+          "looks_nav_or_price_related": false,
+          "source": "href",
+          "url": "https://www.ishares.com/uk/individual/en/products/compare-funds"
+        },
+        {
+          "looks_api_or_json": false,
+          "looks_document": false,
+          "looks_nav_or_price_related": false,
+          "source": "href",
+          "url": "https://www.ishares.com/uk/individual/en/products/etf-investments#/?productView=all&fac=43535|43580|43581|43584|43585|43615&dataView=keyFacts&keyFacts=all"
+        },
+        {
+          "looks_api_or_json": false,
+          "looks_document": false,
+          "looks_nav_or_price_related": false,
+          "source": "href",
+          "url": "https://www.ishares.com/uk/individual/en/products/etf-investments#/?productView=all&fac=43549|43563|43566|43573|43588|43774|43775|OTHR43515&dataView=keyFacts&keyFacts=all"
+        },
+        {
+          "looks_api_or_json": false,
+          "looks_document": false,
+          "looks_nav_or_price_related": false,
+          "source": "href",
+          "url": "https://www.ishares.com/uk/individual/en/products/etf-investments#/?productView=all&fac=43587|43597|43608&dataView=keyFacts&keyFacts=all"
+        },
+        {
+          "looks_api_or_json": false,
+          "looks_document": false,
+          "looks_nav_or_price_related": false,
+          "source": "href",
+          "url": "https://www.ishares.com/uk/individual/en/products/etf-investments#/?productView=all&fac=43776&dataView=keyFacts&keyFacts=all"
+        },
+        {
+          "looks_api_or_json": false,
+          "looks_document": false,
+          "looks_nav_or_price_related": false,
+          "source": "href",
+          "url": "https://www.ishares.com/uk/individual/en/products/getting-started"
+        },
+        {
+          "looks_api_or_json": false,
+          "looks_document": false,
+          "looks_nav_or_price_related": false,
+          "source": "href",
+          "url": "https://www.ishares.com/uk/individual/en/products/343289/"
+        },
+        {
+          "looks_api_or_json": false,
+          "looks_document": false,
+          "looks_nav_or_price_related": false,
+          "source": "href",
+          "url": "https://www.ishares.com/uk/individual/en/products/etf-investments#/?productView=etf&name=value&&fac=43535|43580|43581|43584|43615&&fc=43561|43562|43578|43592|43607|43618|43621|43629|43631|43770&&pageNumber=1&&sortColumn=totalFundSizeInMillions&&sortDirection=desc&&dataView=keyFacts&&keyFacts=all"
+        },
+        {
+          "looks_api_or_json": false,
+          "looks_document": false,
+          "looks_nav_or_price_related": false,
+          "source": "href",
+          "url": "https://www.ishares.com/uk/individual/en/products/etf-investments#/?productView=etf&pageNumber=1&sortColumn=totalFundSizeInMillions&sortDirection=desc&dataView=keyFacts&keyFacts=all&style=44341"
+        },
+        {
+          "looks_api_or_json": false,
+          "looks_document": false,
+          "looks_nav_or_price_related": false,
+          "source": "href",
+          "url": "https://www.ishares.com/uk/individual/en/products/etf-investments#/?productView=all&&search=portfolio etf"
+        },
+        {
+          "looks_api_or_json": false,
+          "looks_document": false,
+          "looks_nav_or_price_related": false,
+          "source": "href",
+          "url": "https://www.ishares.com/uk/individual/en/products/ai-etfs"
+        },
+        {
+          "looks_api_or_json": false,
+          "looks_document": false,
+          "looks_nav_or_price_related": false,
+          "source": "href",
+          "url": "https://www.ishares.com/uk/individual/en/products/253743/ishares-core-sp-500-ucits-etf?switchLocale=y&siteEntryPassthrough=true"
+        },
+        {
+          "looks_api_or_json": false,
+          "looks_document": false,
+          "looks_nav_or_price_related": false,
+          "source": "quoted_string",
+          "url": "https://www.ishares.com/uk/individual/en/products/253743/></script><title>Exchange-Traded Funds (ETFs) | iShares UK \u2013 BlackRock</title><script nonce="
+        },
+        {
+          "looks_api_or_json": false,
+          "looks_document": false,
+          "looks_nav_or_price_related": false,
+          "source": "quoted_string",
+          "url": "https://www.ishares.com/uk/individual/en/products/253743/>/<![CDATA[var adobe_report_suite_id,adobe_portfolio_id,adobe_ticker,adobe_product_type,adobe_logged_in,adobe_logged_out,adobe_registration_submitted,partner_name,partner_user_id,partner_firm_name,ignore_adobe_for_user;adobe_report_suite_id="
+        },
+        {
+          "looks_api_or_json": true,
+          "looks_document": false,
+          "looks_nav_or_price_related": false,
+          "source": "quoted_string",
+          "url": "https://www.blackrock.com/api-gateway"
+        },
+        {
+          "looks_api_or_json": true,
+          "looks_document": false,
+          "looks_nav_or_price_related": false,
+          "source": "quoted_string",
+          "url": "https://api.blackrock.com"
+        },
+        {
+          "looks_api_or_json": false,
+          "looks_document": false,
+          "looks_nav_or_price_related": false,
+          "source": "quoted_string",
+          "url": "https://www.ishares.com/uk/individual/en/products/253743/iShares by BlackRock, the largest provider of exchange-traded-funds (ETFs) in the world, provides exposure to various asset classes. Discover how."
+        },
+        {
+          "looks_api_or_json": false,
+          "looks_document": false,
+          "looks_nav_or_price_related": true,
+          "source": "quoted_string",
+          "url": "https://www.ishares.com/uk/individual/en/products/253743/><ds-global-nav class="
+        },
+        {
+          "looks_api_or_json": false,
+          "looks_document": false,
+          "looks_nav_or_price_related": true,
+          "source": "quoted_string",
+          "url": "https://www.ishares.com/uk/individual/en/products/253743/><ds-navigation-dropdown><button class="
+        },
+        {
+          "looks_api_or_json": false,
+          "looks_document": false,
+          "looks_nav_or_price_related": true,
+          "source": "quoted_string",
+          "url": "https://www.ishares.com/uk/individual/en/products/253743/></i></span></button></ds-navigation-dropdown></div><div class="
+        },
+        {
+          "looks_api_or_json": false,
+          "looks_document": false,
+          "looks_nav_or_price_related": true,
+          "source": "quoted_string",
+          "url": "https://www.ishares.com/uk/individual/en/products/253743/></i></span></button></ds-navigation-dropdown></div></section><ds-global-nav-mobile-menu><ul class="
+        },
+        {
+          "looks_api_or_json": false,
+          "looks_document": false,
+          "looks_nav_or_price_related": true,
+          "source": "quoted_string",
+          "url": "https://www.ishares.com/uk/individual/en/products/253743/></i></a><ds-responsive-nav-menu-drawer class="
+        },
+        {
+          "looks_api_or_json": false,
+          "looks_document": false,
+          "looks_nav_or_price_related": true,
+          "source": "quoted_string",
+          "url": "https://www.ishares.com/uk/individual/en/products/253743/></div></a> </li></ul></ds-investor-type-selector></div></ds-responsive-nav-menu-drawer></li><li class="
+        },
+        {
+          "looks_api_or_json": false,
+          "looks_document": false,
+          "looks_nav_or_price_related": true,
+          "source": "quoted_string",
+          "url": "https://www.ishares.com/uk/individual/en/products/253743/> Location not listed</a> </li></ul></ds-country-selector></div></ds-responsive-nav-menu-drawer></li></ul><ul class="
+        },
+        {
+          "looks_api_or_json": false,
+          "looks_document": false,
+          "looks_nav_or_price_related": true,
+          "source": "quoted_string",
+          "url": "https://www.ishares.com/uk/individual/en/products/253743/> Aladdin</a> </li></ul></ds-global-nav-mobile-menu></header><ds-drawer class="
+        },
+        {
+          "looks_api_or_json": false,
+          "looks_document": false,
+          "looks_nav_or_price_related": true,
+          "source": "quoted_string",
+          "url": "https://www.ishares.com/uk/individual/en/products/253743/></div></div></ds-drawer></ds-global-nav></section></div></div></div></div><div class="
+        },
+        {
+          "looks_api_or_json": false,
+          "looks_document": false,
+          "looks_nav_or_price_related": true,
+          "source": "quoted_string",
+          "url": "https://www.ishares.com/uk/individual/en/products/253743/><!-- COMPONENT: vi16-page-frame/Main Nav --><div data-componentName="
+        },
+        {
+          "looks_api_or_json": false,
+          "looks_document": false,
+          "looks_nav_or_price_related": true,
+          "source": "quoted_string",
+          "url": "https://www.ishares.com/uk/individual/en/products/253743/><ds-primary-nav id="
+        },
+        {
+          "looks_api_or_json": false,
+          "looks_document": false,
+          "looks_nav_or_price_related": true,
+          "source": "quoted_string",
+          "url": "https://www.ishares.com/uk/individual/en/products/253743/>Primary Navigation </span><section class="
+        },
+        {
+          "looks_api_or_json": false,
+          "looks_document": false,
+          "looks_nav_or_price_related": true,
+          "source": "quoted_string",
+          "url": "https://www.ishares.com/uk/individual/en/products/253743/><ds-responsive-nav-menu><nav class="
+        },
+        {
+          "looks_api_or_json": false,
+          "looks_document": false,
+          "looks_nav_or_price_related": false,
+          "source": "quoted_string",
+          "url": "https://www.ishares.com/uk/individual/en/products/253743/>Products </div><span class="
+        },
+        {
+          "looks_api_or_json": false,
+          "looks_document": false,
+          "looks_nav_or_price_related": true,
+          "source": "quoted_string",
+          "url": "https://www.ishares.com/uk/individual/en/products/253743/></span></a><ds-responsive-nav-menu-drawer class="
+        },
+        {
+          "looks_api_or_json": false,
+          "looks_document": false,
+          "looks_nav_or_price_related": false,
+          "source": "quoted_string",
+          "url": "https://www.ishares.com/uk/individual/en/products/253743/></i>Products</a></div><div class="
+        },
+        {
+          "looks_api_or_json": false,
+          "looks_document": false,
+          "looks_nav_or_price_related": false,
+          "source": "quoted_string",
+          "url": "https://www.ishares.com/uk/individual/en/products/253743/>FIND A FUND</div><ul class="
+        },
+        {
+          "looks_api_or_json": false,
+          "looks_document": false,
+          "looks_nav_or_price_related": false,
+          "source": "quoted_string",
+          "url": "https://www.ishares.com/uk/individual/en/products/253743/>View all iShares Products</a> </li><li class="
+        },
+        {
+          "looks_api_or_json": false,
+          "looks_document": false,
+          "looks_nav_or_price_related": false,
+          "source": "quoted_string",
+          "url": "https://www.ishares.com/uk/individual/en/products/253743/>Compare funds</a> </li></ul><span id="
+        },
+        {
+          "looks_api_or_json": false,
+          "looks_document": false,
+          "looks_nav_or_price_related": false,
+          "source": "quoted_string",
+          "url": "https://www.ishares.com/uk/individual/en/products/253743/>FIND A FUND 2 items</span></div><div class="
+        },
+        {
+          "looks_api_or_json": false,
+          "looks_document": false,
+          "looks_nav_or_price_related": true,
+          "source": "quoted_string",
+          "url": "https://www.ishares.com/uk/individual/en/products/253743/>FEATURED 6 items</span></div></div></div></ds-responsive-nav-menu-drawer></li><li class="
+        },
+        {
+          "looks_api_or_json": false,
+          "looks_document": false,
+          "looks_nav_or_price_related": true,
+          "source": "quoted_string",
+          "url": "https://www.ishares.com/uk/individual/en/products/253743/>Navigate a broad range of Fixed Income ETFs</a> </li><li class="
+        },
+        {
+          "looks_api_or_json": false,
+          "looks_document": false,
+          "looks_nav_or_price_related": true,
+          "source": "quoted_string",
+          "url": "https://www.ishares.com/uk/individual/en/products/253743/>MARKET THEMES 1 item</span></div></div></div></ds-responsive-nav-menu-drawer></li><li class="
+        },
+        {
+          "looks_api_or_json": false,
+          "looks_document": false,
+          "looks_nav_or_price_related": true,
+          "source": "quoted_string",
+          "url": "https://www.ishares.com/uk/individual/en/products/253743/>RESEARCH INSIGHTS 1 item</span></div></div></div></ds-responsive-nav-menu-drawer></li><li class="
+        },
+        {
+          "looks_api_or_json": false,
+          "looks_document": false,
+          "looks_nav_or_price_related": true,
+          "source": "quoted_string",
+          "url": "https://www.ishares.com/uk/individual/en/products/253743/>RESOURCES 2 items</span></div></div></div></ds-responsive-nav-menu-drawer></li><li class="
+        },
+        {
+          "looks_api_or_json": false,
+          "looks_document": false,
+          "looks_nav_or_price_related": true,
+          "source": "quoted_string",
+          "url": "https://www.ishares.com/uk/individual/en/products/253743/>GET TO KNOW iSHARES 1 item</span></div></div></div></ds-responsive-nav-menu-drawer></li></ul><div class="
+        },
+        {
+          "looks_api_or_json": false,
+          "looks_document": false,
+          "looks_nav_or_price_related": true,
+          "source": "quoted_string",
+          "url": "https://www.ishares.com/uk/individual/en/products/253743/></section></nav></ds-responsive-nav-menu><ds-drawer class="
+        },
+        {
+          "looks_api_or_json": false,
+          "looks_document": false,
+          "looks_nav_or_price_related": true,
+          "source": "quoted_string",
+          "url": "https://www.ishares.com/uk/individual/en/products/253743/></div></div></div></div></div></div></div></ds-drawer></ds-search-bar></ds-primary-nav></section></div></div></div><div class="
+        },
+        {
+          "looks_api_or_json": false,
+          "looks_document": false,
+          "looks_nav_or_price_related": false,
+          "source": "quoted_string",
+          "url": "https://www.ishares.com/uk/individual/en/product-screener/product-screener-v3.jsn"
+        },
+        {
+          "looks_api_or_json": false,
+          "looks_document": false,
+          "looks_nav_or_price_related": false,
+          "source": "quoted_string",
+          "url": "https://www.ishares.com/uk/individual/en/products/253743/productPage"
+        },
+        {
+          "looks_api_or_json": false,
+          "looks_document": false,
+          "looks_nav_or_price_related": false,
+          "source": "quoted_string",
+          "url": "https://www.ishares.com/uk/individual/en/products"
+        },
+        {
+          "looks_api_or_json": true,
+          "looks_document": false,
+          "looks_nav_or_price_related": false,
+          "source": "quoted_string",
+          "url": "https://www.ishares.com/uk/individual/en/products/253743/cwpScreenerApi"
+        },
+        {
+          "looks_api_or_json": false,
+          "looks_document": false,
+          "looks_nav_or_price_related": false,
+          "source": "quoted_string",
+          "url": "https://www.ishares.com/uk/individual/en/product-data.jsn"
+        },
+        {
+          "looks_api_or_json": true,
+          "looks_document": false,
+          "looks_nav_or_price_related": false,
+          "source": "quoted_string",
+          "url": "https://www.ishares.com/uk/individual/en/products/253743/compareEsgApi"
+        },
+        {
+          "looks_api_or_json": false,
+          "looks_document": false,
+          "looks_nav_or_price_related": false,
+          "source": "quoted_string",
+          "url": "https://www.ishares.com/uk/individual/en/esg-product-data.jsn"
+        },
+        {
+          "looks_api_or_json": true,
+          "looks_document": false,
+          "looks_nav_or_price_related": false,
+          "source": "quoted_string",
+          "url": "https://www.ishares.com/uk/individual/en/products/253743/apigee-path"
+        },
+        {
+          "looks_api_or_json": true,
+          "looks_document": false,
+          "looks_nav_or_price_related": false,
+          "source": "quoted_string",
+          "url": "https://www.ishares.com/uk/individual/en/products/253743/api-gateway"
+        },
+        {
+          "looks_api_or_json": true,
+          "looks_document": false,
+          "looks_nav_or_price_related": false,
+          "source": "quoted_string",
+          "url": "https://www.ishares.com/uk/individual/en/products/253743/productScreenerV3Api"
+        },
+        {
+          "looks_api_or_json": false,
+          "looks_document": false,
+          "looks_nav_or_price_related": false,
+          "source": "quoted_string",
+          "url": "https://www.ishares.com/uk/individual/en/products/253743/s securities laws, (b) the dissemination of information on the iShares products via the Internet is forbidden, and/or BAUL is not authorised or qualified to make such offer or invitation. This website and the information provided on this website should not be construed as an advertisement, an offer to sell, or a solicitation of an offer to buy any securities in the iShares products mentioned in this website, nor shall any such securities be offered or sold, in any country in which to do so is contrary to that country"
+        },
+        {
+          "looks_api_or_json": true,
+          "looks_document": false,
+          "looks_nav_or_price_related": false,
+          "source": "quoted_string",
+          "url": "https://www.ishares.com/uk/individual/en/products/253743/Barclays Capital Inc."
+        },
+        {
+          "looks_api_or_json": false,
+          "looks_document": false,
+          "looks_nav_or_price_related": false,
+          "source": "quoted_string",
+          "url": "https://www.ishares.com/uk/individual/en/products/253743/is a joint product of Dow Jones Indexes, the marketing name and a licensed trademark of CME Group Index Services LLC ("
+        },
+        {
+          "looks_api_or_json": false,
+          "looks_document": false,
+          "looks_nav_or_price_related": false,
+          "source": "quoted_string",
+          "url": "https://www.ishares.com/uk/individual/en/products/253743/) and their respective service marks available for use in connection with the iShares.</p><p>The Dow Jones-UBS Commodity IndexesSM are a joint product of Dow Jones Opco, LLC (\u201cDow Jones Opco\u201d), a subsidiary of S&P Dow Jones Indices LLC, and UBS Securities LLC (\u201cUBS\u201d), and have been licensed for use. Dow Jones\u00ae and DJ are trademarks of Dow Jones Trademark Holdings LLC. UBS\u00ae is a registered trademark of UBS AG. S&P\u00ae is a registered trademark of Standard & Poor\u2019s Financial Services LLC. BlackRock Asset Management Deutschland AG"
+        },
+        {
+          "looks_api_or_json": false,
+          "looks_document": false,
+          "looks_nav_or_price_related": false,
+          "source": "quoted_string",
+          "url": "https://www.ishares.com/uk/individual/en/products/253743/). None of the Exchange, the FT, FTSE, Euronext N.V., NAREIT nor EPRA sponsors, endorses or promotes iShares Asia Property Yield UCITS ETF, iShares Developed Markets Property Yield UCITS ETF, iShares European Property Yield UCITS ETF, iShares UK Property UCITS ETF and iShares US Property Yield UCITS ETF nor is in any way connected to the funds or accepts any liability in relation to their issue, operation and trading. All copyright and database rights within the index values and constituent list vest in FTSE, Euronext N.V., NAREIT and EPRA. BlackRock Advisors (UK) Limited has obtained full licence from FTSE to use such copyright and database rights in the creation of these products.</p><p>"
+        },
+        {
+          "looks_api_or_json": false,
+          "looks_document": false,
+          "looks_nav_or_price_related": false,
+          "source": "quoted_string",
+          "url": "https://www.ishares.com/uk/individual/en/products/253743/). The FTSEurofirst 100 Index and FTSEurofirst 80 Index are compiled and calculated by or on behalf of FTSE. None of the Exchange, the FT, FTSE or Euronext sponsors, endorses or promotes iShares FTSEurofirst 100 UCITS ETF and iShares FTSEurofirst 80 UCITS ETF nor is in any way connected to the funds or accepts any liability in relation to their issue, operation and trading. All copyright and database rights within the index values and constituent list vest in FTSE and Euronext. BlackRock Advisors (UK) Limited has obtained full licence from FTSE to use such copyright and database rights in the creation of these products.</p><p>"
+        }
+      ],
+      "funding_authority": false,
+      "isin": "IE00B5BMR087",
+      "issuer": "BlackRock iShares",
+      "page_fetch": {
+        "bytes_sampled": 150000,
+        "content_type": "text/html;charset=UTF-8",
+        "fetch_error": null,
+        "final_url": "https://www.ishares.com/uk/individual/en/products/253743/ishares-core-sp-500-ucits-etf",
+        "http_status": 200
+      },
+      "portfolio_mutation": false,
+      "product_name": "iShares Core S&P 500 UCITS ETF USD Acc",
+      "product_url": "https://www.ishares.com/uk/individual/en/products/253743/ishares-core-sp-500-ucits-etf",
+      "production_delivery": false,
+      "reference_price_extraction": false,
+      "registry_id": "core_us_equity_cspx",
+      "token_presence": {
+        "IE00B5BMR087": false,
+        "S&P 500": false,
+        "UCITS": true,
+        "iShares": true
+      },
+      "valuation_authority": false
+    }
+  ],
+  "run_id": "20260602_233840",
+  "schema_version": "ishares_reference_endpoint_discovery_v1",
+  "summary": {
+    "authority_note": "Endpoint discovery is diagnostic-only and cannot create issuer reference price, NAV, valuation authority or Yahoo fallback authority.",
+    "products_with_api_or_json_candidates": 1,
+    "products_with_endpoint_candidates": 1,
+    "row_count": 1
+  },
+  "valuation_authority": false
+}

@@ -1,0 +1,123 @@
+{
+  "created_at_utc": "2026-06-02T23:38:45.746240+00:00",
+  "diagnostic_only": true,
+  "funding_authority": false,
+  "issuer_policy": "config/issuer_reference_policy.yml",
+  "portfolio_mutation": false,
+  "production_delivery": false,
+  "reference_price_extraction": false,
+  "rows": [
+    {
+      "allowlist_token": "cwpScreenerApi",
+      "answers": {
+        "issuer_reference_structure_observed": true,
+        "worth_controlled_parser_followup": true
+      },
+      "bytes_sampled": 220000,
+      "content_type": "text/html;charset=UTF-8",
+      "diagnostic_only": true,
+      "expected_isin_present": false,
+      "fetch_error": null,
+      "final_url": "https://www.ishares.com/uk/individual/en/products/253743/cwpScreenerApi",
+      "funding_authority": false,
+      "http_status": 200,
+      "label_counts": {
+        "asof": 0,
+        "currency": 12,
+        "date": 10,
+        "fundname": 6,
+        "isin": 5,
+        "nav": 84,
+        "price": 31,
+        "productname": 0,
+        "ticker": 8
+      },
+      "portfolio_mutation": false,
+      "production_delivery": false,
+      "reference_price_extraction": false,
+      "signals": {
+        "has_data_attributes": true,
+        "has_date_or_currency_label_signal": true,
+        "has_embedded_json_like_blocks": true,
+        "has_identity_label_signal": true,
+        "has_nav_or_price_label_signal": true,
+        "has_table_like_structure": false
+      },
+      "structure_counts": {
+        "brace_pairs_approx": 68,
+        "data_attribute_count": 143,
+        "drupal_settings_marker_count": 0,
+        "json_script_type_count": 0,
+        "next_data_marker_count": 0,
+        "row_tag_count": 0,
+        "script_tag_count": 29,
+        "table_tag_count": 0
+      },
+      "url": "https://www.ishares.com/uk/individual/en/products/253743/cwpScreenerApi",
+      "valuation_authority": false
+    },
+    {
+      "allowlist_token": "productScreenerV3Api",
+      "answers": {
+        "issuer_reference_structure_observed": true,
+        "worth_controlled_parser_followup": true
+      },
+      "bytes_sampled": 220000,
+      "content_type": "text/html;charset=UTF-8",
+      "diagnostic_only": true,
+      "expected_isin_present": false,
+      "fetch_error": null,
+      "final_url": "https://www.ishares.com/uk/individual/en/products/253743/productScreenerV3Api",
+      "funding_authority": false,
+      "http_status": 200,
+      "label_counts": {
+        "asof": 0,
+        "currency": 12,
+        "date": 10,
+        "fundname": 6,
+        "isin": 5,
+        "nav": 84,
+        "price": 31,
+        "productname": 0,
+        "ticker": 8
+      },
+      "portfolio_mutation": false,
+      "production_delivery": false,
+      "reference_price_extraction": false,
+      "signals": {
+        "has_data_attributes": true,
+        "has_date_or_currency_label_signal": true,
+        "has_embedded_json_like_blocks": true,
+        "has_identity_label_signal": true,
+        "has_nav_or_price_label_signal": true,
+        "has_table_like_structure": false
+      },
+      "structure_counts": {
+        "brace_pairs_approx": 68,
+        "data_attribute_count": 143,
+        "drupal_settings_marker_count": 0,
+        "json_script_type_count": 0,
+        "next_data_marker_count": 0,
+        "row_tag_count": 0,
+        "script_tag_count": 29,
+        "table_tag_count": 0
+      },
+      "url": "https://www.ishares.com/uk/individual/en/products/253743/productScreenerV3Api",
+      "valuation_authority": false
+    }
+  ],
+  "run_id": "20260602_233840",
+  "schema_version": "ishares_endpoint_structure_probe_v1",
+  "source_endpoint_evidence": "output/pricing/ishares_endpoint_evidence_20260602_233840.json",
+  "summary": {
+    "authority_note": "Structure probe is diagnostic-only. It detects structures and labels but does not extract reference-price, NAV, dates or currency values.",
+    "controlled_parser_followup_count": 2,
+    "issuer_reference_structure_count": 2,
+    "row_count": 2
+  },
+  "target_tokens": [
+    "cwpScreenerApi",
+    "productScreenerV3Api"
+  ],
+  "valuation_authority": false
+}

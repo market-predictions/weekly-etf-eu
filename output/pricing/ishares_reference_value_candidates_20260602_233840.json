@@ -1,0 +1,1944 @@
+{
+  "created_at_utc": "2026-06-02T23:38:46.854691+00:00",
+  "diagnostic_only": true,
+  "funding_authority": false,
+  "portfolio_mutation": false,
+  "production_delivery": false,
+  "reference_price_extraction": "diagnostic_candidate_only_no_values",
+  "rows": [
+    {
+      "allowlist_token": "cwpScreenerApi",
+      "answers": {
+        "has_date_or_currency_label_candidates": true,
+        "has_identity_label_candidates": true,
+        "has_nav_or_price_label_candidates": true,
+        "safe_value_extraction_candidate_next_step": true
+      },
+      "bytes_sampled": 240000,
+      "candidate_count": 42,
+      "candidate_term_counts": {
+        "currency": 5,
+        "date": 4,
+        "fundname": 6,
+        "isin": 3,
+        "nav": 8,
+        "price": 8,
+        "ticker": 8
+      },
+      "candidates": [
+        {
+          "candidate_kind": "label_or_selector_context",
+          "candidate_term": "isin",
+          "candidate_value": null,
+          "confidence": "low_medium",
+          "context_sha256": "250b1ed6416171cf5ceeaf060323175cd2aa02cb0b44c6e2897039b855d58f62",
+          "nearby_attribute_name_sample": [
+            "adobe_report_suite_id",
+            "globalanalyticsparams",
+            "ntpt_glblextra"
+          ],
+          "nearby_class_token_sample": [],
+          "nearby_id_token_sample": [
+            "blk-global-prodblk-uk-ishares-prod"
+          ],
+          "nearby_tag_sample": [],
+          "occurrence_ordinal": 0,
+          "raw_value_extracted": false
+        },
+        {
+          "candidate_kind": "label_or_selector_context",
+          "candidate_term": "isin",
+          "candidate_value": null,
+          "confidence": "low_medium",
+          "context_sha256": "8ab13dfe7e7fb8b7ee34601d7c7e3e0d4e75f45870bd875d058f2ff19e9be59d",
+          "nearby_attribute_name_sample": [
+            "adobe_report_suite_id",
+            "globalanalyticsparams",
+            "ntpt_glblextra"
+          ],
+          "nearby_class_token_sample": [],
+          "nearby_id_token_sample": [
+            "blk-global-prodblk-uk-ishares-prod"
+          ],
+          "nearby_tag_sample": [],
+          "occurrence_ordinal": 1,
+          "raw_value_extracted": false
+        },
+        {
+          "candidate_kind": "label_or_selector_context",
+          "candidate_term": "isin",
+          "candidate_value": null,
+          "confidence": "low_medium",
+          "context_sha256": "fd3ecee7c4d1e529befce2d0b3ea9e0b74abb8e50a5de15656c3ef1578210e03",
+          "nearby_attribute_name_sample": [],
+          "nearby_class_token_sample": [],
+          "nearby_id_token_sample": [],
+          "nearby_tag_sample": [
+            "p",
+            "strong"
+          ],
+          "occurrence_ordinal": 2,
+          "raw_value_extracted": false
+        },
+        {
+          "candidate_kind": "label_or_selector_context",
+          "candidate_term": "ticker",
+          "candidate_value": null,
+          "confidence": "low_medium",
+          "context_sha256": "45613ab70eb1263e14f44b23a50a1d4e4369f51adaeb6d1700d4c2e5d115ca79",
+          "nearby_attribute_name_sample": [
+            "nonce",
+            "src",
+            "defer",
+            "charset",
+            "data-domain-script",
+            "data-document-language",
+            "adobe_report_suite_id",
+            "globalanalyticsparams"
+          ],
+          "nearby_class_token_sample": [],
+          "nearby_id_token_sample": [
+            "blk-global-prodblk-uk-ishares-prod"
+          ],
+          "nearby_tag_sample": [
+            "script"
+          ],
+          "occurrence_ordinal": 0,
+          "raw_value_extracted": false
+        },
+        {
+          "candidate_kind": "label_or_selector_context",
+          "candidate_term": "ticker",
+          "candidate_value": null,
+          "confidence": "low_medium",
+          "context_sha256": "a1af8744c55943a1e3307937f146a64dad98be0d76f9f777dfcf5961fd93165a",
+          "nearby_attribute_name_sample": [
+            "class",
+            "type",
+            "aria-hidden",
+            "autocomplete",
+            "appearance",
+            "label",
+            "helper-text",
+            "name",
+            "value",
+            "show-clear-button",
+            "clear-button-text",
+            "color",
+            "href",
+            "id",
+            "aria-label",
+            "data-link-event"
+          ],
+          "nearby_class_token_sample": [
+            "ds-button",
+            "ds-search-close-button",
+            "ds-button-container",
+            "ds-body-m-bold",
+            "ds-search-close-label",
+            "fa",
+            "fa-close",
+            "row",
+            "col-lg-8",
+            "ds-col"
+          ],
+          "nearby_id_token_sample": [
+            "ds-search-submit"
+          ],
+          "nearby_tag_sample": [
+            "div",
+            "button",
+            "span",
+            "i",
+            "form",
+            "ds",
+            "a"
+          ],
+          "occurrence_ordinal": 1,
+          "raw_value_extracted": false
+        },
+        {
+          "candidate_kind": "label_or_selector_context",
+          "candidate_term": "ticker",
+          "candidate_value": null,
+          "confidence": "low_medium",
+          "context_sha256": "1cb3fa669152b92f86095b57bfc4c462e32cba647a4f4c1cc00f43ef75266ec4",
+          "nearby_attribute_name_sample": [
+            "class",
+            "href",
+            "target"
+          ],
+          "nearby_class_token_sample": [],
+          "nearby_id_token_sample": [],
+          "nearby_tag_sample": [],
+          "occurrence_ordinal": 2,
+          "raw_value_extracted": false
+        },
+        {
+          "candidate_kind": "label_or_selector_context",
+          "candidate_term": "ticker",
+          "candidate_value": null,
+          "confidence": "low_medium",
+          "context_sha256": "b168093dc2fe043524d30650a3212fab0bebf8e4dc9d51a36ba5c7d2a14e8345",
+          "nearby_attribute_name_sample": [
+            "class",
+            "href",
+            "target"
+          ],
+          "nearby_class_token_sample": [],
+          "nearby_id_token_sample": [],
+          "nearby_tag_sample": [],
+          "occurrence_ordinal": 3,
+          "raw_value_extracted": false
+        },
+        {
+          "candidate_kind": "label_or_selector_context",
+          "candidate_term": "ticker",
+          "candidate_value": null,
+          "confidence": "low",
+          "context_sha256": "339627ea349213f3aebbddcd5e708d942854f568a6950a5bc014747fa1479901",
+          "nearby_attribute_name_sample": [],
+          "nearby_class_token_sample": [],
+          "nearby_id_token_sample": [],
+          "nearby_tag_sample": [],
+          "occurrence_ordinal": 4,
+          "raw_value_extracted": false
+        },
+        {
+          "candidate_kind": "label_or_selector_context",
+          "candidate_term": "ticker",
+          "candidate_value": null,
+          "confidence": "low",
+          "context_sha256": "ce4bc9196dd835e35ffbded6e1de3f60847bc79ce0fb5d40818cd73598eede4e",
+          "nearby_attribute_name_sample": [],
+          "nearby_class_token_sample": [],
+          "nearby_id_token_sample": [],
+          "nearby_tag_sample": [],
+          "occurrence_ordinal": 5,
+          "raw_value_extracted": false
+        },
+        {
+          "candidate_kind": "label_or_selector_context",
+          "candidate_term": "ticker",
+          "candidate_value": null,
+          "confidence": "low",
+          "context_sha256": "0b8eeee2d3121315f6d9750d21019808f6d7ab4c8d86775a1c0c797da7d3a620",
+          "nearby_attribute_name_sample": [],
+          "nearby_class_token_sample": [],
+          "nearby_id_token_sample": [],
+          "nearby_tag_sample": [],
+          "occurrence_ordinal": 6,
+          "raw_value_extracted": false
+        },
+        {
+          "candidate_kind": "label_or_selector_context",
+          "candidate_term": "ticker",
+          "candidate_value": null,
+          "confidence": "low",
+          "context_sha256": "d3b1e4ecc4f1c117b8acf24d698215822ca0be4f507d3e8fa8cd33794c6b5267",
+          "nearby_attribute_name_sample": [],
+          "nearby_class_token_sample": [],
+          "nearby_id_token_sample": [],
+          "nearby_tag_sample": [],
+          "occurrence_ordinal": 7,
+          "raw_value_extracted": false
+        },
+        {
+          "candidate_kind": "label_or_selector_context",
+          "candidate_term": "nav",
+          "candidate_value": null,
+          "confidence": "low_medium",
+          "context_sha256": "c49cc4635fcf2a1c3e65289fe3ebe04350b521b7b0099d15bc5dfec230dc1f2d",
+          "nearby_attribute_name_sample": [
+            "tabindex",
+            "class",
+            "id",
+            "role",
+            "href",
+            "data-componentname",
+            "brand",
+            "country",
+            "data-link-event",
+            "aria-label",
+            "target"
+          ],
+          "nearby_class_token_sample": [
+            "ls-canvas",
+            "content-page-wide-12",
+            "ls-row",
+            "ls-area",
+            "ls-cmp-wrap",
+            "iw_component",
+            "container-fluid",
+            "ds-body-xs",
+            "row",
+            "ds-col"
+          ],
+          "nearby_id_token_sample": [
+            "mastheadWrapper",
+            "w1675416710104",
+            "c1675416710104",
+            "skip-to-content"
+          ],
+          "nearby_tag_sample": [
+            "div",
+            "a",
+            "section",
+            "ds",
+            "header",
+            "ul",
+            "li"
+          ],
+          "occurrence_ordinal": 0,
+          "raw_value_extracted": false
+        },
+        {
+          "candidate_kind": "label_or_selector_context",
+          "candidate_term": "nav",
+          "candidate_value": null,
+          "confidence": "low_medium",
+          "context_sha256": "d6df97f960a152fe67c91c371ec925a50ccc3c8ef8413aaed982619e76099dde",
+          "nearby_attribute_name_sample": [
+            "target",
+            "class",
+            "href",
+            "data-link-event",
+            "aria-label",
+            "type",
+            "id",
+            "value",
+            "aria-controls",
+            "aria-expanded"
+          ],
+          "nearby_class_token_sample": [
+            "ds-link-subdued-secondary",
+            "ds-col",
+            "ds-right",
+            "ds-investor-type-dropdown",
+            "ds-body-xs",
+            "fa",
+            "fa-caret-down",
+            "ds-country-dropdown"
+          ],
+          "nearby_id_token_sample": [
+            "ds-current-investor-type",
+            "ds-current-country"
+          ],
+          "nearby_tag_sample": [
+            "li",
+            "a",
+            "section",
+            "div",
+            "input",
+            "ds",
+            "button",
+            "span",
+            "i"
+          ],
+          "occurrence_ordinal": 1,
+          "raw_value_extracted": false
+        },
+        {
+          "candidate_kind": "label_or_selector_context",
+          "candidate_term": "nav",
+          "candidate_value": null,
+          "confidence": "low_medium",
+          "context_sha256": "82e3e69970834ea900764daa10d33dcb6ae399388abe05123ae7a9ccdbb1b1c7",
+          "nearby_attribute_name_sample": [
+            "target",
+            "class",
+            "type",
+            "id",
+            "value",
+            "aria-controls",
+            "aria-expanded",
+            "role"
+          ],
+          "nearby_class_token_sample": [
+            "ds-link-subdued-secondary",
+            "ds-col",
+            "ds-right",
+            "ds-investor-type-dropdown",
+            "ds-body-xs",
+            "fa",
+            "fa-caret-down",
+            "ds-country-dropdown",
+            "ds-l1-menu"
+          ],
+          "nearby_id_token_sample": [
+            "ds-current-investor-type",
+            "ds-current-country"
+          ],
+          "nearby_tag_sample": [
+            "section",
+            "div",
+            "input",
+            "ds",
+            "button",
+            "span",
+            "i",
+            "ul"
+          ],
+          "occurrence_ordinal": 2,
+          "raw_value_extracted": false
+        },
+        {
+          "candidate_kind": "label_or_selector_context",
+          "candidate_term": "nav",
+          "candidate_value": null,
+          "confidence": "low_medium",
+          "context_sha256": "b8c27ff1b07c6c06acbce29eaf56bbcdae4c591200d526f60d80f7f11f251587",
+          "nearby_attribute_name_sample": [
+            "type",
+            "id",
+            "value",
+            "class",
+            "aria-controls",
+            "aria-expanded",
+            "role",
+            "href",
+            "aria-haspopup"
+          ],
+          "nearby_class_token_sample": [
+            "ds-body-xs",
+            "fa",
+            "fa-caret-down",
+            "ds-country-dropdown",
+            "ds-l1-menu",
+            "ds-investor-type",
+            "ds-l1-menu-item",
+            "ds-body-m",
+            "ds-l1-menu-item-link"
+          ],
+          "nearby_id_token_sample": [
+            "ds-current-investor-type",
+            "ds-current-country"
+          ],
+          "nearby_tag_sample": [
+            "input",
+            "ds",
+            "button",
+            "span",
+            "i",
+            "div",
+            "ul",
+            "li"
+          ],
+          "occurrence_ordinal": 3,
+          "raw_value_extracted": false
+        },
+        {
+          "candidate_kind": "label_or_selector_context",
+          "candidate_term": "nav",
+          "candidate_value": null,
+          "confidence": "low_medium",
+          "context_sha256": "0bceffc1b635c201b0ea807cd5fab35815332ba28cd0b18dbed56beb5bca72b7",
+          "nearby_attribute_name_sample": [
+            "aria-expanded",
+            "class",
+            "type",
+            "id",
+            "value",
+            "aria-controls",
+            "role",
+            "href",
+            "aria-haspopup",
+            "aria-hidden"
+          ],
+          "nearby_class_token_sample": [
+            "fa",
+            "fa-caret-down",
+            "ds-country-dropdown",
+            "ds-body-xs",
+            "ds-l1-menu",
+            "ds-investor-type",
+            "ds-l1-menu-item",
+            "ds-body-m",
+            "ds-l1-menu-item-link",
+            "ds-l1-link-text"
+          ],
+          "nearby_id_token_sample": [
+            "ds-current-country"
+          ],
+          "nearby_tag_sample": [
+            "span",
+            "i",
+            "div",
+            "input",
+            "ds",
+            "button",
+            "ul",
+            "li",
+            "a"
+          ],
+          "occurrence_ordinal": 4,
+          "raw_value_extracted": false
+        },
+        {
+          "candidate_kind": "label_or_selector_context",
+          "candidate_term": "nav",
+          "candidate_value": null,
+          "confidence": "low_medium",
+          "context_sha256": "964196f8cdc881863d84c15d05e3ccdb7bd16245ce009d69123702b0311c15f6",
+          "nearby_attribute_name_sample": [
+            "class",
+            "type",
+            "id",
+            "value",
+            "aria-controls",
+            "aria-expanded",
+            "role",
+            "href",
+            "aria-haspopup",
+            "aria-hidden"
+          ],
+          "nearby_class_token_sample": [
+            "fa",
+            "fa-caret-down",
+            "ds-country-dropdown",
+            "ds-body-xs",
+            "ds-l1-menu",
+            "ds-investor-type",
+            "ds-l1-menu-item",
+            "ds-body-m",
+            "ds-l1-menu-item-link",
+            "ds-l1-link-text"
+          ],
+          "nearby_id_token_sample": [
+            "ds-current-country"
+          ],
+          "nearby_tag_sample": [
+            "i",
+            "div",
+            "input",
+            "ds",
+            "button",
+            "span",
+            "ul",
+            "li",
+            "a"
+          ],
+          "occurrence_ordinal": 5,
+          "raw_value_extracted": false
+        },
+        {
+          "candidate_kind": "label_or_selector_context",
+          "candidate_term": "nav",
+          "candidate_value": null,
+          "confidence": "low_medium",
+          "context_sha256": "4df1473084722f5f71de0881f798082aaa79969ec77e5318c46877ad8dc17c91",
+          "nearby_attribute_name_sample": [
+            "class",
+            "role",
+            "href",
+            "aria-haspopup",
+            "aria-expanded",
+            "aria-hidden",
+            "data-link-event"
+          ],
+          "nearby_class_token_sample": [
+            "fa",
+            "fa-caret-down",
+            "ds-l1-menu",
+            "ds-investor-type",
+            "ds-l1-menu-item",
+            "ds-body-m",
+            "ds-l1-menu-item-link",
+            "ds-l1-link-text",
+            "fa-chevron-right",
+            "ds-default-rendered"
+          ],
+          "nearby_id_token_sample": [],
+          "nearby_tag_sample": [
+            "i",
+            "ds",
+            "ul",
+            "li",
+            "a",
+            "div"
+          ],
+          "occurrence_ordinal": 6,
+          "raw_value_extracted": false
+        },
+        {
+          "candidate_kind": "label_or_selector_context",
+          "candidate_term": "nav",
+          "candidate_value": null,
+          "confidence": "low_medium",
+          "context_sha256": "5df19154dce7132aa4c19de4236dedc881e0bdbfe3894d2f366b3fc0375d9c4f",
+          "nearby_attribute_name_sample": [
+            "class",
+            "role",
+            "href",
+            "aria-haspopup",
+            "aria-expanded",
+            "aria-hidden",
+            "data-link-event"
+          ],
+          "nearby_class_token_sample": [
+            "ds-l1-menu",
+            "ds-investor-type",
+            "ds-l1-menu-item",
+            "ds-body-m",
+            "ds-l1-menu-item-link",
+            "ds-l1-link-text",
+            "fa",
+            "fa-chevron-right",
+            "ds-default-rendered",
+            "ds-nav-menu-drawer-content"
+          ],
+          "nearby_id_token_sample": [],
+          "nearby_tag_sample": [
+            "ds",
+            "ul",
+            "li",
+            "a",
+            "div",
+            "i"
+          ],
+          "occurrence_ordinal": 7,
+          "raw_value_extracted": false
+        },
+        {
+          "candidate_kind": "label_or_selector_context",
+          "candidate_term": "price",
+          "candidate_value": null,
+          "confidence": "low_medium",
+          "context_sha256": "78b481f32093461a1ec2a1169e2c088e6b13dfea578f28ac7d1640a6637441f4",
+          "nearby_attribute_name_sample": [],
+          "nearby_class_token_sample": [],
+          "nearby_id_token_sample": [],
+          "nearby_tag_sample": [
+            "p",
+            "strong"
+          ],
+          "occurrence_ordinal": 0,
+          "raw_value_extracted": false
+        },
+        {
+          "candidate_kind": "label_or_selector_context",
+          "candidate_term": "price",
+          "candidate_value": null,
+          "confidence": "low_medium",
+          "context_sha256": "ba5f19022e4338c3ddd456f6dd073a542e3bfbb2964375d1ba9991f36af8892d",
+          "nearby_attribute_name_sample": [],
+          "nearby_class_token_sample": [],
+          "nearby_id_token_sample": [],
+          "nearby_tag_sample": [
+            "p"
+          ],
+          "occurrence_ordinal": 1,
+          "raw_value_extracted": false
+        },
+        {
+          "candidate_kind": "label_or_selector_context",
+          "candidate_term": "price",
+          "candidate_value": null,
+          "confidence": "low_medium",
+          "context_sha256": "cee3e2681b4ced0282216ab90f2fdaccae538e5f0158680f6474cb9b16381829",
+          "nearby_attribute_name_sample": [],
+          "nearby_class_token_sample": [],
+          "nearby_id_token_sample": [],
+          "nearby_tag_sample": [
+            "p"
+          ],
+          "occurrence_ordinal": 2,
+          "raw_value_extracted": false
+        },
+        {
+          "candidate_kind": "label_or_selector_context",
+          "candidate_term": "price",
+          "candidate_value": null,
+          "confidence": "low_medium",
+          "context_sha256": "71a68257660895faf7d53bb340dd804629ffd0a6a1d40ab1e949d71f1acfea64",
+          "nearby_attribute_name_sample": [],
+          "nearby_class_token_sample": [],
+          "nearby_id_token_sample": [],
+          "nearby_tag_sample": [
+            "p"
+          ],
+          "occurrence_ordinal": 3,
+          "raw_value_extracted": false
+        },
+        {
+          "candidate_kind": "label_or_selector_context",
+          "candidate_term": "price",
+          "candidate_value": null,
+          "confidence": "low_medium",
+          "context_sha256": "bd1e54b8f11f03cd3dd14ed3c93b7d1c1fd0c7d4c846c61e4ae4068f2500d95e",
+          "nearby_attribute_name_sample": [],
+          "nearby_class_token_sample": [],
+          "nearby_id_token_sample": [],
+          "nearby_tag_sample": [
+            "p"
+          ],
+          "occurrence_ordinal": 4,
+          "raw_value_extracted": false
+        },
+        {
+          "candidate_kind": "label_or_selector_context",
+          "candidate_term": "price",
+          "candidate_value": null,
+          "confidence": "low_medium",
+          "context_sha256": "cedfee8fdf0d8b2359ec09722279c0dc27cac523724b0a3ad3f59d96065687a4",
+          "nearby_attribute_name_sample": [],
+          "nearby_class_token_sample": [],
+          "nearby_id_token_sample": [],
+          "nearby_tag_sample": [
+            "p"
+          ],
+          "occurrence_ordinal": 5,
+          "raw_value_extracted": false
+        },
+        {
+          "candidate_kind": "label_or_selector_context",
+          "candidate_term": "price",
+          "candidate_value": null,
+          "confidence": "low_medium",
+          "context_sha256": "04775ee3164decf1f4b8174a26b430b6aa450965146903a4f74740f804df65bb",
+          "nearby_attribute_name_sample": [],
+          "nearby_class_token_sample": [],
+          "nearby_id_token_sample": [],
+          "nearby_tag_sample": [
+            "p"
+          ],
+          "occurrence_ordinal": 6,
+          "raw_value_extracted": false
+        },
+        {
+          "candidate_kind": "label_or_selector_context",
+          "candidate_term": "price",
+          "candidate_value": null,
+          "confidence": "low_medium",
+          "context_sha256": "5e945a3ea988f8fa2232e8c52cab31aa37aa4f2f466e1da7a657212102ef492d",
+          "nearby_attribute_name_sample": [],
+          "nearby_class_token_sample": [],
+          "nearby_id_token_sample": [],
+          "nearby_tag_sample": [
+            "p",
+            "strong"
+          ],
+          "occurrence_ordinal": 7,
+          "raw_value_extracted": false
+        },
+        {
+          "candidate_kind": "label_or_selector_context",
+          "candidate_term": "currency",
+          "candidate_value": null,
+          "confidence": "low",
+          "context_sha256": "b3750219d6a020af6457c1401eb74f5267c55cce21fa44a96b421a12b480f688",
+          "nearby_attribute_name_sample": [],
+          "nearby_class_token_sample": [],
+          "nearby_id_token_sample": [],
+          "nearby_tag_sample": [],
+          "occurrence_ordinal": 0,
+          "raw_value_extracted": false
+        },
+        {
+          "candidate_kind": "label_or_selector_context",
+          "candidate_term": "currency",
+          "candidate_value": null,
+          "confidence": "low_medium",
+          "context_sha256": "5651fa7008d4873b8dc67b261e666afc0750838661b2e0955ed3ecba220657f4",
+          "nearby_attribute_name_sample": [],
+          "nearby_class_token_sample": [],
+          "nearby_id_token_sample": [],
+          "nearby_tag_sample": [
+            "p"
+          ],
+          "occurrence_ordinal": 1,
+          "raw_value_extracted": false
+        },
+        {
+          "candidate_kind": "label_or_selector_context",
+          "candidate_term": "currency",
+          "candidate_value": null,
+          "confidence": "low_medium",
+          "context_sha256": "6237cf6b68b4c36f673d53813bea5585d87e4bdaee9044897788abe5e85956b8",
+          "nearby_attribute_name_sample": [],
+          "nearby_class_token_sample": [],
+          "nearby_id_token_sample": [],
+          "nearby_tag_sample": [
+            "p"
+          ],
+          "occurrence_ordinal": 2,
+          "raw_value_extracted": false
+        },
+        {
+          "candidate_kind": "label_or_selector_context",
+          "candidate_term": "currency",
+          "candidate_value": null,
+          "confidence": "low_medium",
+          "context_sha256": "a0bb1a7db7194cb39643fd352dc0a924df5b8f330c0ff47d48e0d49a0544d770",
+          "nearby_attribute_name_sample": [],
+          "nearby_class_token_sample": [],
+          "nearby_id_token_sample": [],
+          "nearby_tag_sample": [
+            "p"
+          ],
+          "occurrence_ordinal": 3,
+          "raw_value_extracted": false
+        },
+        {
+          "candidate_kind": "label_or_selector_context",
+          "candidate_term": "currency",
+          "candidate_value": null,
+          "confidence": "low",
+          "context_sha256": "00829e0cd08ec09c9cb0721f78fbea26ffb4922b165b5566e39be66ae2e07c85",
+          "nearby_attribute_name_sample": [],
+          "nearby_class_token_sample": [],
+          "nearby_id_token_sample": [],
+          "nearby_tag_sample": [],
+          "occurrence_ordinal": 4,
+          "raw_value_extracted": false
+        },
+        {
+          "candidate_kind": "label_or_selector_context",
+          "candidate_term": "date",
+          "candidate_value": null,
+          "confidence": "low",
+          "context_sha256": "80308020b4cf34934d5f8bb44cfa261811af27f235d622952d88d472fe0f1ad5",
+          "nearby_attribute_name_sample": [
+            "src",
+            "type",
+            "href",
+            "rel",
+            "nonce",
+            "asset_prefix_path",
+            "blk",
+            "blk.getscriptnonce",
+            "script"
+          ],
+          "nearby_class_token_sample": [],
+          "nearby_id_token_sample": [],
+          "nearby_tag_sample": [
+            "script",
+            "link"
+          ],
+          "occurrence_ordinal": 0,
+          "raw_value_extracted": false
+        },
+        {
+          "candidate_kind": "label_or_selector_context",
+          "candidate_term": "date",
+          "candidate_value": null,
+          "confidence": "low_medium",
+          "context_sha256": "ef3b000b4cb42dfd5f5de33d272d9ec86c637edd8d64102ba0f74a69cfceea15",
+          "nearby_attribute_name_sample": [],
+          "nearby_class_token_sample": [],
+          "nearby_id_token_sample": [],
+          "nearby_tag_sample": [
+            "p"
+          ],
+          "occurrence_ordinal": 1,
+          "raw_value_extracted": false
+        },
+        {
+          "candidate_kind": "label_or_selector_context",
+          "candidate_term": "date",
+          "candidate_value": null,
+          "confidence": "low_medium",
+          "context_sha256": "0fed681ea5608d9893f8f341c66546b1d316dd23f58b4d82f6de1b25c18885ff",
+          "nearby_attribute_name_sample": [],
+          "nearby_class_token_sample": [],
+          "nearby_id_token_sample": [],
+          "nearby_tag_sample": [
+            "p"
+          ],
+          "occurrence_ordinal": 2,
+          "raw_value_extracted": false
+        },
+        {
+          "candidate_kind": "label_or_selector_context",
+          "candidate_term": "date",
+          "candidate_value": null,
+          "confidence": "low_medium",
+          "context_sha256": "1dc1e29a3d2f946958c0c27a3a02b80c6279262f1f7b0ac645f47e8e65283ce1",
+          "nearby_attribute_name_sample": [],
+          "nearby_class_token_sample": [],
+          "nearby_id_token_sample": [],
+          "nearby_tag_sample": [
+            "p",
+            "strong"
+          ],
+          "occurrence_ordinal": 3,
+          "raw_value_extracted": false
+        },
+        {
+          "candidate_kind": "label_or_selector_context",
+          "candidate_term": "fundname",
+          "candidate_value": null,
+          "confidence": "low_medium",
+          "context_sha256": "0425c7c2d11c797e6d234428c496d7e59b126f575476dd043d1e67afe404e5c5",
+          "nearby_attribute_name_sample": [
+            "class",
+            "href",
+            "target"
+          ],
+          "nearby_class_token_sample": [],
+          "nearby_id_token_sample": [],
+          "nearby_tag_sample": [],
+          "occurrence_ordinal": 0,
+          "raw_value_extracted": false
+        },
+        {
+          "candidate_kind": "label_or_selector_context",
+          "candidate_term": "fundname",
+          "candidate_value": null,
+          "confidence": "low_medium",
+          "context_sha256": "e10b2195f860f3815d6df1811105d81c5a3786892666419b66215c264f996e5b",
+          "nearby_attribute_name_sample": [
+            "class",
+            "href",
+            "target"
+          ],
+          "nearby_class_token_sample": [],
+          "nearby_id_token_sample": [],
+          "nearby_tag_sample": [],
+          "occurrence_ordinal": 1,
+          "raw_value_extracted": false
+        },
+        {
+          "candidate_kind": "label_or_selector_context",
+          "candidate_term": "fundname",
+          "candidate_value": null,
+          "confidence": "low",
+          "context_sha256": "9245d62ec22ac7ff4e34f6d6e638dcf6690a61351e413ed1246e2f8467b0ddb5",
+          "nearby_attribute_name_sample": [],
+          "nearby_class_token_sample": [],
+          "nearby_id_token_sample": [],
+          "nearby_tag_sample": [],
+          "occurrence_ordinal": 2,
+          "raw_value_extracted": false
+        },
+        {
+          "candidate_kind": "label_or_selector_context",
+          "candidate_term": "fundname",
+          "candidate_value": null,
+          "confidence": "low",
+          "context_sha256": "1fe970f77d396d09a06de5b5e55b61af7e40e67fe0979664f12c752d0fc800d4",
+          "nearby_attribute_name_sample": [],
+          "nearby_class_token_sample": [],
+          "nearby_id_token_sample": [],
+          "nearby_tag_sample": [],
+          "occurrence_ordinal": 3,
+          "raw_value_extracted": false
+        },
+        {
+          "candidate_kind": "label_or_selector_context",
+          "candidate_term": "fundname",
+          "candidate_value": null,
+          "confidence": "low_medium",
+          "context_sha256": "2b6821307414fa08cd1b8ad96e37afbe46381695df8e1c19653c9e8ce61c3b0e",
+          "nearby_attribute_name_sample": [],
+          "nearby_class_token_sample": [],
+          "nearby_id_token_sample": [],
+          "nearby_tag_sample": [],
+          "occurrence_ordinal": 4,
+          "raw_value_extracted": false
+        },
+        {
+          "candidate_kind": "label_or_selector_context",
+          "candidate_term": "fundname",
+          "candidate_value": null,
+          "confidence": "low_medium",
+          "context_sha256": "07cc98cef8b5b7fcd89d1ead10b453b2fbda60f848b96b97a01151ac2b619794",
+          "nearby_attribute_name_sample": [],
+          "nearby_class_token_sample": [],
+          "nearby_id_token_sample": [],
+          "nearby_tag_sample": [],
+          "occurrence_ordinal": 5,
+          "raw_value_extracted": false
+        }
+      ],
+      "content_type": "text/html;charset=UTF-8",
+      "diagnostic_only": true,
+      "fetch_error": null,
+      "final_url": "https://www.ishares.com/uk/individual/en/products/253743/cwpScreenerApi",
+      "funding_authority": false,
+      "http_status": 200,
+      "portfolio_mutation": false,
+      "production_delivery": false,
+      "reference_price_extraction": "diagnostic_candidate_only_no_values",
+      "text_sha256": "804b4a319c8263efc7b6d9a46d67f21fa743f5b3c3de6aaa739022ede35cf619",
+      "url": "https://www.ishares.com/uk/individual/en/products/253743/cwpScreenerApi",
+      "valuation_authority": false,
+      "value_extraction": false
+    },
+    {
+      "allowlist_token": "productScreenerV3Api",
+      "answers": {
+        "has_date_or_currency_label_candidates": true,
+        "has_identity_label_candidates": true,
+        "has_nav_or_price_label_candidates": true,
+        "safe_value_extraction_candidate_next_step": true
+      },
+      "bytes_sampled": 240000,
+      "candidate_count": 42,
+      "candidate_term_counts": {
+        "currency": 5,
+        "date": 4,
+        "fundname": 6,
+        "isin": 3,
+        "nav": 8,
+        "price": 8,
+        "ticker": 8
+      },
+      "candidates": [
+        {
+          "candidate_kind": "label_or_selector_context",
+          "candidate_term": "isin",
+          "candidate_value": null,
+          "confidence": "low_medium",
+          "context_sha256": "250b1ed6416171cf5ceeaf060323175cd2aa02cb0b44c6e2897039b855d58f62",
+          "nearby_attribute_name_sample": [
+            "adobe_report_suite_id",
+            "globalanalyticsparams",
+            "ntpt_glblextra"
+          ],
+          "nearby_class_token_sample": [],
+          "nearby_id_token_sample": [
+            "blk-global-prodblk-uk-ishares-prod"
+          ],
+          "nearby_tag_sample": [],
+          "occurrence_ordinal": 0,
+          "raw_value_extracted": false
+        },
+        {
+          "candidate_kind": "label_or_selector_context",
+          "candidate_term": "isin",
+          "candidate_value": null,
+          "confidence": "low_medium",
+          "context_sha256": "8ab13dfe7e7fb8b7ee34601d7c7e3e0d4e75f45870bd875d058f2ff19e9be59d",
+          "nearby_attribute_name_sample": [
+            "adobe_report_suite_id",
+            "globalanalyticsparams",
+            "ntpt_glblextra"
+          ],
+          "nearby_class_token_sample": [],
+          "nearby_id_token_sample": [
+            "blk-global-prodblk-uk-ishares-prod"
+          ],
+          "nearby_tag_sample": [],
+          "occurrence_ordinal": 1,
+          "raw_value_extracted": false
+        },
+        {
+          "candidate_kind": "label_or_selector_context",
+          "candidate_term": "isin",
+          "candidate_value": null,
+          "confidence": "low_medium",
+          "context_sha256": "fd3ecee7c4d1e529befce2d0b3ea9e0b74abb8e50a5de15656c3ef1578210e03",
+          "nearby_attribute_name_sample": [],
+          "nearby_class_token_sample": [],
+          "nearby_id_token_sample": [],
+          "nearby_tag_sample": [
+            "p",
+            "strong"
+          ],
+          "occurrence_ordinal": 2,
+          "raw_value_extracted": false
+        },
+        {
+          "candidate_kind": "label_or_selector_context",
+          "candidate_term": "ticker",
+          "candidate_value": null,
+          "confidence": "low_medium",
+          "context_sha256": "d1e60a4894b2390e747ddf2a94047da6b1de6b35b99d5c6adeae4d30bc032980",
+          "nearby_attribute_name_sample": [
+            "nonce",
+            "src",
+            "defer",
+            "charset",
+            "data-domain-script",
+            "data-document-language",
+            "adobe_report_suite_id",
+            "globalanalyticsparams"
+          ],
+          "nearby_class_token_sample": [],
+          "nearby_id_token_sample": [
+            "blk-global-prodblk-uk-ishares-prod"
+          ],
+          "nearby_tag_sample": [
+            "script"
+          ],
+          "occurrence_ordinal": 0,
+          "raw_value_extracted": false
+        },
+        {
+          "candidate_kind": "label_or_selector_context",
+          "candidate_term": "ticker",
+          "candidate_value": null,
+          "confidence": "low_medium",
+          "context_sha256": "a1af8744c55943a1e3307937f146a64dad98be0d76f9f777dfcf5961fd93165a",
+          "nearby_attribute_name_sample": [
+            "class",
+            "type",
+            "aria-hidden",
+            "autocomplete",
+            "appearance",
+            "label",
+            "helper-text",
+            "name",
+            "value",
+            "show-clear-button",
+            "clear-button-text",
+            "color",
+            "href",
+            "id",
+            "aria-label",
+            "data-link-event"
+          ],
+          "nearby_class_token_sample": [
+            "ds-button",
+            "ds-search-close-button",
+            "ds-button-container",
+            "ds-body-m-bold",
+            "ds-search-close-label",
+            "fa",
+            "fa-close",
+            "row",
+            "col-lg-8",
+            "ds-col"
+          ],
+          "nearby_id_token_sample": [
+            "ds-search-submit"
+          ],
+          "nearby_tag_sample": [
+            "div",
+            "button",
+            "span",
+            "i",
+            "form",
+            "ds",
+            "a"
+          ],
+          "occurrence_ordinal": 1,
+          "raw_value_extracted": false
+        },
+        {
+          "candidate_kind": "label_or_selector_context",
+          "candidate_term": "ticker",
+          "candidate_value": null,
+          "confidence": "low_medium",
+          "context_sha256": "1cb3fa669152b92f86095b57bfc4c462e32cba647a4f4c1cc00f43ef75266ec4",
+          "nearby_attribute_name_sample": [
+            "class",
+            "href",
+            "target"
+          ],
+          "nearby_class_token_sample": [],
+          "nearby_id_token_sample": [],
+          "nearby_tag_sample": [],
+          "occurrence_ordinal": 2,
+          "raw_value_extracted": false
+        },
+        {
+          "candidate_kind": "label_or_selector_context",
+          "candidate_term": "ticker",
+          "candidate_value": null,
+          "confidence": "low_medium",
+          "context_sha256": "b168093dc2fe043524d30650a3212fab0bebf8e4dc9d51a36ba5c7d2a14e8345",
+          "nearby_attribute_name_sample": [
+            "class",
+            "href",
+            "target"
+          ],
+          "nearby_class_token_sample": [],
+          "nearby_id_token_sample": [],
+          "nearby_tag_sample": [],
+          "occurrence_ordinal": 3,
+          "raw_value_extracted": false
+        },
+        {
+          "candidate_kind": "label_or_selector_context",
+          "candidate_term": "ticker",
+          "candidate_value": null,
+          "confidence": "low",
+          "context_sha256": "339627ea349213f3aebbddcd5e708d942854f568a6950a5bc014747fa1479901",
+          "nearby_attribute_name_sample": [],
+          "nearby_class_token_sample": [],
+          "nearby_id_token_sample": [],
+          "nearby_tag_sample": [],
+          "occurrence_ordinal": 4,
+          "raw_value_extracted": false
+        },
+        {
+          "candidate_kind": "label_or_selector_context",
+          "candidate_term": "ticker",
+          "candidate_value": null,
+          "confidence": "low",
+          "context_sha256": "ce4bc9196dd835e35ffbded6e1de3f60847bc79ce0fb5d40818cd73598eede4e",
+          "nearby_attribute_name_sample": [],
+          "nearby_class_token_sample": [],
+          "nearby_id_token_sample": [],
+          "nearby_tag_sample": [],
+          "occurrence_ordinal": 5,
+          "raw_value_extracted": false
+        },
+        {
+          "candidate_kind": "label_or_selector_context",
+          "candidate_term": "ticker",
+          "candidate_value": null,
+          "confidence": "low",
+          "context_sha256": "0b8eeee2d3121315f6d9750d21019808f6d7ab4c8d86775a1c0c797da7d3a620",
+          "nearby_attribute_name_sample": [],
+          "nearby_class_token_sample": [],
+          "nearby_id_token_sample": [],
+          "nearby_tag_sample": [],
+          "occurrence_ordinal": 6,
+          "raw_value_extracted": false
+        },
+        {
+          "candidate_kind": "label_or_selector_context",
+          "candidate_term": "ticker",
+          "candidate_value": null,
+          "confidence": "low",
+          "context_sha256": "d3b1e4ecc4f1c117b8acf24d698215822ca0be4f507d3e8fa8cd33794c6b5267",
+          "nearby_attribute_name_sample": [],
+          "nearby_class_token_sample": [],
+          "nearby_id_token_sample": [],
+          "nearby_tag_sample": [],
+          "occurrence_ordinal": 7,
+          "raw_value_extracted": false
+        },
+        {
+          "candidate_kind": "label_or_selector_context",
+          "candidate_term": "nav",
+          "candidate_value": null,
+          "confidence": "low_medium",
+          "context_sha256": "c49cc4635fcf2a1c3e65289fe3ebe04350b521b7b0099d15bc5dfec230dc1f2d",
+          "nearby_attribute_name_sample": [
+            "tabindex",
+            "class",
+            "id",
+            "role",
+            "href",
+            "data-componentname",
+            "brand",
+            "country",
+            "data-link-event",
+            "aria-label",
+            "target"
+          ],
+          "nearby_class_token_sample": [
+            "ls-canvas",
+            "content-page-wide-12",
+            "ls-row",
+            "ls-area",
+            "ls-cmp-wrap",
+            "iw_component",
+            "container-fluid",
+            "ds-body-xs",
+            "row",
+            "ds-col"
+          ],
+          "nearby_id_token_sample": [
+            "mastheadWrapper",
+            "w1675416710104",
+            "c1675416710104",
+            "skip-to-content"
+          ],
+          "nearby_tag_sample": [
+            "div",
+            "a",
+            "section",
+            "ds",
+            "header",
+            "ul",
+            "li"
+          ],
+          "occurrence_ordinal": 0,
+          "raw_value_extracted": false
+        },
+        {
+          "candidate_kind": "label_or_selector_context",
+          "candidate_term": "nav",
+          "candidate_value": null,
+          "confidence": "low_medium",
+          "context_sha256": "d6df97f960a152fe67c91c371ec925a50ccc3c8ef8413aaed982619e76099dde",
+          "nearby_attribute_name_sample": [
+            "target",
+            "class",
+            "href",
+            "data-link-event",
+            "aria-label",
+            "type",
+            "id",
+            "value",
+            "aria-controls",
+            "aria-expanded"
+          ],
+          "nearby_class_token_sample": [
+            "ds-link-subdued-secondary",
+            "ds-col",
+            "ds-right",
+            "ds-investor-type-dropdown",
+            "ds-body-xs",
+            "fa",
+            "fa-caret-down",
+            "ds-country-dropdown"
+          ],
+          "nearby_id_token_sample": [
+            "ds-current-investor-type",
+            "ds-current-country"
+          ],
+          "nearby_tag_sample": [
+            "li",
+            "a",
+            "section",
+            "div",
+            "input",
+            "ds",
+            "button",
+            "span",
+            "i"
+          ],
+          "occurrence_ordinal": 1,
+          "raw_value_extracted": false
+        },
+        {
+          "candidate_kind": "label_or_selector_context",
+          "candidate_term": "nav",
+          "candidate_value": null,
+          "confidence": "low_medium",
+          "context_sha256": "82e3e69970834ea900764daa10d33dcb6ae399388abe05123ae7a9ccdbb1b1c7",
+          "nearby_attribute_name_sample": [
+            "target",
+            "class",
+            "type",
+            "id",
+            "value",
+            "aria-controls",
+            "aria-expanded",
+            "role"
+          ],
+          "nearby_class_token_sample": [
+            "ds-link-subdued-secondary",
+            "ds-col",
+            "ds-right",
+            "ds-investor-type-dropdown",
+            "ds-body-xs",
+            "fa",
+            "fa-caret-down",
+            "ds-country-dropdown",
+            "ds-l1-menu"
+          ],
+          "nearby_id_token_sample": [
+            "ds-current-investor-type",
+            "ds-current-country"
+          ],
+          "nearby_tag_sample": [
+            "section",
+            "div",
+            "input",
+            "ds",
+            "button",
+            "span",
+            "i",
+            "ul"
+          ],
+          "occurrence_ordinal": 2,
+          "raw_value_extracted": false
+        },
+        {
+          "candidate_kind": "label_or_selector_context",
+          "candidate_term": "nav",
+          "candidate_value": null,
+          "confidence": "low_medium",
+          "context_sha256": "b8c27ff1b07c6c06acbce29eaf56bbcdae4c591200d526f60d80f7f11f251587",
+          "nearby_attribute_name_sample": [
+            "type",
+            "id",
+            "value",
+            "class",
+            "aria-controls",
+            "aria-expanded",
+            "role",
+            "href",
+            "aria-haspopup"
+          ],
+          "nearby_class_token_sample": [
+            "ds-body-xs",
+            "fa",
+            "fa-caret-down",
+            "ds-country-dropdown",
+            "ds-l1-menu",
+            "ds-investor-type",
+            "ds-l1-menu-item",
+            "ds-body-m",
+            "ds-l1-menu-item-link"
+          ],
+          "nearby_id_token_sample": [
+            "ds-current-investor-type",
+            "ds-current-country"
+          ],
+          "nearby_tag_sample": [
+            "input",
+            "ds",
+            "button",
+            "span",
+            "i",
+            "div",
+            "ul",
+            "li"
+          ],
+          "occurrence_ordinal": 3,
+          "raw_value_extracted": false
+        },
+        {
+          "candidate_kind": "label_or_selector_context",
+          "candidate_term": "nav",
+          "candidate_value": null,
+          "confidence": "low_medium",
+          "context_sha256": "0bceffc1b635c201b0ea807cd5fab35815332ba28cd0b18dbed56beb5bca72b7",
+          "nearby_attribute_name_sample": [
+            "aria-expanded",
+            "class",
+            "type",
+            "id",
+            "value",
+            "aria-controls",
+            "role",
+            "href",
+            "aria-haspopup",
+            "aria-hidden"
+          ],
+          "nearby_class_token_sample": [
+            "fa",
+            "fa-caret-down",
+            "ds-country-dropdown",
+            "ds-body-xs",
+            "ds-l1-menu",
+            "ds-investor-type",
+            "ds-l1-menu-item",
+            "ds-body-m",
+            "ds-l1-menu-item-link",
+            "ds-l1-link-text"
+          ],
+          "nearby_id_token_sample": [
+            "ds-current-country"
+          ],
+          "nearby_tag_sample": [
+            "span",
+            "i",
+            "div",
+            "input",
+            "ds",
+            "button",
+            "ul",
+            "li",
+            "a"
+          ],
+          "occurrence_ordinal": 4,
+          "raw_value_extracted": false
+        },
+        {
+          "candidate_kind": "label_or_selector_context",
+          "candidate_term": "nav",
+          "candidate_value": null,
+          "confidence": "low_medium",
+          "context_sha256": "964196f8cdc881863d84c15d05e3ccdb7bd16245ce009d69123702b0311c15f6",
+          "nearby_attribute_name_sample": [
+            "class",
+            "type",
+            "id",
+            "value",
+            "aria-controls",
+            "aria-expanded",
+            "role",
+            "href",
+            "aria-haspopup",
+            "aria-hidden"
+          ],
+          "nearby_class_token_sample": [
+            "fa",
+            "fa-caret-down",
+            "ds-country-dropdown",
+            "ds-body-xs",
+            "ds-l1-menu",
+            "ds-investor-type",
+            "ds-l1-menu-item",
+            "ds-body-m",
+            "ds-l1-menu-item-link",
+            "ds-l1-link-text"
+          ],
+          "nearby_id_token_sample": [
+            "ds-current-country"
+          ],
+          "nearby_tag_sample": [
+            "i",
+            "div",
+            "input",
+            "ds",
+            "button",
+            "span",
+            "ul",
+            "li",
+            "a"
+          ],
+          "occurrence_ordinal": 5,
+          "raw_value_extracted": false
+        },
+        {
+          "candidate_kind": "label_or_selector_context",
+          "candidate_term": "nav",
+          "candidate_value": null,
+          "confidence": "low_medium",
+          "context_sha256": "4df1473084722f5f71de0881f798082aaa79969ec77e5318c46877ad8dc17c91",
+          "nearby_attribute_name_sample": [
+            "class",
+            "role",
+            "href",
+            "aria-haspopup",
+            "aria-expanded",
+            "aria-hidden",
+            "data-link-event"
+          ],
+          "nearby_class_token_sample": [
+            "fa",
+            "fa-caret-down",
+            "ds-l1-menu",
+            "ds-investor-type",
+            "ds-l1-menu-item",
+            "ds-body-m",
+            "ds-l1-menu-item-link",
+            "ds-l1-link-text",
+            "fa-chevron-right",
+            "ds-default-rendered"
+          ],
+          "nearby_id_token_sample": [],
+          "nearby_tag_sample": [
+            "i",
+            "ds",
+            "ul",
+            "li",
+            "a",
+            "div"
+          ],
+          "occurrence_ordinal": 6,
+          "raw_value_extracted": false
+        },
+        {
+          "candidate_kind": "label_or_selector_context",
+          "candidate_term": "nav",
+          "candidate_value": null,
+          "confidence": "low_medium",
+          "context_sha256": "5df19154dce7132aa4c19de4236dedc881e0bdbfe3894d2f366b3fc0375d9c4f",
+          "nearby_attribute_name_sample": [
+            "class",
+            "role",
+            "href",
+            "aria-haspopup",
+            "aria-expanded",
+            "aria-hidden",
+            "data-link-event"
+          ],
+          "nearby_class_token_sample": [
+            "ds-l1-menu",
+            "ds-investor-type",
+            "ds-l1-menu-item",
+            "ds-body-m",
+            "ds-l1-menu-item-link",
+            "ds-l1-link-text",
+            "fa",
+            "fa-chevron-right",
+            "ds-default-rendered",
+            "ds-nav-menu-drawer-content"
+          ],
+          "nearby_id_token_sample": [],
+          "nearby_tag_sample": [
+            "ds",
+            "ul",
+            "li",
+            "a",
+            "div",
+            "i"
+          ],
+          "occurrence_ordinal": 7,
+          "raw_value_extracted": false
+        },
+        {
+          "candidate_kind": "label_or_selector_context",
+          "candidate_term": "price",
+          "candidate_value": null,
+          "confidence": "low_medium",
+          "context_sha256": "78b481f32093461a1ec2a1169e2c088e6b13dfea578f28ac7d1640a6637441f4",
+          "nearby_attribute_name_sample": [],
+          "nearby_class_token_sample": [],
+          "nearby_id_token_sample": [],
+          "nearby_tag_sample": [
+            "p",
+            "strong"
+          ],
+          "occurrence_ordinal": 0,
+          "raw_value_extracted": false
+        },
+        {
+          "candidate_kind": "label_or_selector_context",
+          "candidate_term": "price",
+          "candidate_value": null,
+          "confidence": "low_medium",
+          "context_sha256": "ba5f19022e4338c3ddd456f6dd073a542e3bfbb2964375d1ba9991f36af8892d",
+          "nearby_attribute_name_sample": [],
+          "nearby_class_token_sample": [],
+          "nearby_id_token_sample": [],
+          "nearby_tag_sample": [
+            "p"
+          ],
+          "occurrence_ordinal": 1,
+          "raw_value_extracted": false
+        },
+        {
+          "candidate_kind": "label_or_selector_context",
+          "candidate_term": "price",
+          "candidate_value": null,
+          "confidence": "low_medium",
+          "context_sha256": "cee3e2681b4ced0282216ab90f2fdaccae538e5f0158680f6474cb9b16381829",
+          "nearby_attribute_name_sample": [],
+          "nearby_class_token_sample": [],
+          "nearby_id_token_sample": [],
+          "nearby_tag_sample": [
+            "p"
+          ],
+          "occurrence_ordinal": 2,
+          "raw_value_extracted": false
+        },
+        {
+          "candidate_kind": "label_or_selector_context",
+          "candidate_term": "price",
+          "candidate_value": null,
+          "confidence": "low_medium",
+          "context_sha256": "71a68257660895faf7d53bb340dd804629ffd0a6a1d40ab1e949d71f1acfea64",
+          "nearby_attribute_name_sample": [],
+          "nearby_class_token_sample": [],
+          "nearby_id_token_sample": [],
+          "nearby_tag_sample": [
+            "p"
+          ],
+          "occurrence_ordinal": 3,
+          "raw_value_extracted": false
+        },
+        {
+          "candidate_kind": "label_or_selector_context",
+          "candidate_term": "price",
+          "candidate_value": null,
+          "confidence": "low_medium",
+          "context_sha256": "bd1e54b8f11f03cd3dd14ed3c93b7d1c1fd0c7d4c846c61e4ae4068f2500d95e",
+          "nearby_attribute_name_sample": [],
+          "nearby_class_token_sample": [],
+          "nearby_id_token_sample": [],
+          "nearby_tag_sample": [
+            "p"
+          ],
+          "occurrence_ordinal": 4,
+          "raw_value_extracted": false
+        },
+        {
+          "candidate_kind": "label_or_selector_context",
+          "candidate_term": "price",
+          "candidate_value": null,
+          "confidence": "low_medium",
+          "context_sha256": "cedfee8fdf0d8b2359ec09722279c0dc27cac523724b0a3ad3f59d96065687a4",
+          "nearby_attribute_name_sample": [],
+          "nearby_class_token_sample": [],
+          "nearby_id_token_sample": [],
+          "nearby_tag_sample": [
+            "p"
+          ],
+          "occurrence_ordinal": 5,
+          "raw_value_extracted": false
+        },
+        {
+          "candidate_kind": "label_or_selector_context",
+          "candidate_term": "price",
+          "candidate_value": null,
+          "confidence": "low_medium",
+          "context_sha256": "04775ee3164decf1f4b8174a26b430b6aa450965146903a4f74740f804df65bb",
+          "nearby_attribute_name_sample": [],
+          "nearby_class_token_sample": [],
+          "nearby_id_token_sample": [],
+          "nearby_tag_sample": [
+            "p"
+          ],
+          "occurrence_ordinal": 6,
+          "raw_value_extracted": false
+        },
+        {
+          "candidate_kind": "label_or_selector_context",
+          "candidate_term": "price",
+          "candidate_value": null,
+          "confidence": "low_medium",
+          "context_sha256": "5e945a3ea988f8fa2232e8c52cab31aa37aa4f2f466e1da7a657212102ef492d",
+          "nearby_attribute_name_sample": [],
+          "nearby_class_token_sample": [],
+          "nearby_id_token_sample": [],
+          "nearby_tag_sample": [
+            "p",
+            "strong"
+          ],
+          "occurrence_ordinal": 7,
+          "raw_value_extracted": false
+        },
+        {
+          "candidate_kind": "label_or_selector_context",
+          "candidate_term": "currency",
+          "candidate_value": null,
+          "confidence": "low",
+          "context_sha256": "b3750219d6a020af6457c1401eb74f5267c55cce21fa44a96b421a12b480f688",
+          "nearby_attribute_name_sample": [],
+          "nearby_class_token_sample": [],
+          "nearby_id_token_sample": [],
+          "nearby_tag_sample": [],
+          "occurrence_ordinal": 0,
+          "raw_value_extracted": false
+        },
+        {
+          "candidate_kind": "label_or_selector_context",
+          "candidate_term": "currency",
+          "candidate_value": null,
+          "confidence": "low_medium",
+          "context_sha256": "5651fa7008d4873b8dc67b261e666afc0750838661b2e0955ed3ecba220657f4",
+          "nearby_attribute_name_sample": [],
+          "nearby_class_token_sample": [],
+          "nearby_id_token_sample": [],
+          "nearby_tag_sample": [
+            "p"
+          ],
+          "occurrence_ordinal": 1,
+          "raw_value_extracted": false
+        },
+        {
+          "candidate_kind": "label_or_selector_context",
+          "candidate_term": "currency",
+          "candidate_value": null,
+          "confidence": "low_medium",
+          "context_sha256": "6237cf6b68b4c36f673d53813bea5585d87e4bdaee9044897788abe5e85956b8",
+          "nearby_attribute_name_sample": [],
+          "nearby_class_token_sample": [],
+          "nearby_id_token_sample": [],
+          "nearby_tag_sample": [
+            "p"
+          ],
+          "occurrence_ordinal": 2,
+          "raw_value_extracted": false
+        },
+        {
+          "candidate_kind": "label_or_selector_context",
+          "candidate_term": "currency",
+          "candidate_value": null,
+          "confidence": "low_medium",
+          "context_sha256": "a0bb1a7db7194cb39643fd352dc0a924df5b8f330c0ff47d48e0d49a0544d770",
+          "nearby_attribute_name_sample": [],
+          "nearby_class_token_sample": [],
+          "nearby_id_token_sample": [],
+          "nearby_tag_sample": [
+            "p"
+          ],
+          "occurrence_ordinal": 3,
+          "raw_value_extracted": false
+        },
+        {
+          "candidate_kind": "label_or_selector_context",
+          "candidate_term": "currency",
+          "candidate_value": null,
+          "confidence": "low",
+          "context_sha256": "00829e0cd08ec09c9cb0721f78fbea26ffb4922b165b5566e39be66ae2e07c85",
+          "nearby_attribute_name_sample": [],
+          "nearby_class_token_sample": [],
+          "nearby_id_token_sample": [],
+          "nearby_tag_sample": [],
+          "occurrence_ordinal": 4,
+          "raw_value_extracted": false
+        },
+        {
+          "candidate_kind": "label_or_selector_context",
+          "candidate_term": "date",
+          "candidate_value": null,
+          "confidence": "low",
+          "context_sha256": "3ed4f62c39cce0b5b6207470bc10c09bfc47d312efce25970214d73400bd10c9",
+          "nearby_attribute_name_sample": [
+            "src",
+            "type",
+            "href",
+            "rel",
+            "nonce",
+            "asset_prefix_path",
+            "blk",
+            "blk.getscriptnonce",
+            "script"
+          ],
+          "nearby_class_token_sample": [],
+          "nearby_id_token_sample": [],
+          "nearby_tag_sample": [
+            "script",
+            "link"
+          ],
+          "occurrence_ordinal": 0,
+          "raw_value_extracted": false
+        },
+        {
+          "candidate_kind": "label_or_selector_context",
+          "candidate_term": "date",
+          "candidate_value": null,
+          "confidence": "low_medium",
+          "context_sha256": "ef3b000b4cb42dfd5f5de33d272d9ec86c637edd8d64102ba0f74a69cfceea15",
+          "nearby_attribute_name_sample": [],
+          "nearby_class_token_sample": [],
+          "nearby_id_token_sample": [],
+          "nearby_tag_sample": [
+            "p"
+          ],
+          "occurrence_ordinal": 1,
+          "raw_value_extracted": false
+        },
+        {
+          "candidate_kind": "label_or_selector_context",
+          "candidate_term": "date",
+          "candidate_value": null,
+          "confidence": "low_medium",
+          "context_sha256": "0fed681ea5608d9893f8f341c66546b1d316dd23f58b4d82f6de1b25c18885ff",
+          "nearby_attribute_name_sample": [],
+          "nearby_class_token_sample": [],
+          "nearby_id_token_sample": [],
+          "nearby_tag_sample": [
+            "p"
+          ],
+          "occurrence_ordinal": 2,
+          "raw_value_extracted": false
+        },
+        {
+          "candidate_kind": "label_or_selector_context",
+          "candidate_term": "date",
+          "candidate_value": null,
+          "confidence": "low_medium",
+          "context_sha256": "1dc1e29a3d2f946958c0c27a3a02b80c6279262f1f7b0ac645f47e8e65283ce1",
+          "nearby_attribute_name_sample": [],
+          "nearby_class_token_sample": [],
+          "nearby_id_token_sample": [],
+          "nearby_tag_sample": [
+            "p",
+            "strong"
+          ],
+          "occurrence_ordinal": 3,
+          "raw_value_extracted": false
+        },
+        {
+          "candidate_kind": "label_or_selector_context",
+          "candidate_term": "fundname",
+          "candidate_value": null,
+          "confidence": "low_medium",
+          "context_sha256": "0425c7c2d11c797e6d234428c496d7e59b126f575476dd043d1e67afe404e5c5",
+          "nearby_attribute_name_sample": [
+            "class",
+            "href",
+            "target"
+          ],
+          "nearby_class_token_sample": [],
+          "nearby_id_token_sample": [],
+          "nearby_tag_sample": [],
+          "occurrence_ordinal": 0,
+          "raw_value_extracted": false
+        },
+        {
+          "candidate_kind": "label_or_selector_context",
+          "candidate_term": "fundname",
+          "candidate_value": null,
+          "confidence": "low_medium",
+          "context_sha256": "e10b2195f860f3815d6df1811105d81c5a3786892666419b66215c264f996e5b",
+          "nearby_attribute_name_sample": [
+            "class",
+            "href",
+            "target"
+          ],
+          "nearby_class_token_sample": [],
+          "nearby_id_token_sample": [],
+          "nearby_tag_sample": [],
+          "occurrence_ordinal": 1,
+          "raw_value_extracted": false
+        },
+        {
+          "candidate_kind": "label_or_selector_context",
+          "candidate_term": "fundname",
+          "candidate_value": null,
+          "confidence": "low",
+          "context_sha256": "9245d62ec22ac7ff4e34f6d6e638dcf6690a61351e413ed1246e2f8467b0ddb5",
+          "nearby_attribute_name_sample": [],
+          "nearby_class_token_sample": [],
+          "nearby_id_token_sample": [],
+          "nearby_tag_sample": [],
+          "occurrence_ordinal": 2,
+          "raw_value_extracted": false
+        },
+        {
+          "candidate_kind": "label_or_selector_context",
+          "candidate_term": "fundname",
+          "candidate_value": null,
+          "confidence": "low",
+          "context_sha256": "1fe970f77d396d09a06de5b5e55b61af7e40e67fe0979664f12c752d0fc800d4",
+          "nearby_attribute_name_sample": [],
+          "nearby_class_token_sample": [],
+          "nearby_id_token_sample": [],
+          "nearby_tag_sample": [],
+          "occurrence_ordinal": 3,
+          "raw_value_extracted": false
+        },
+        {
+          "candidate_kind": "label_or_selector_context",
+          "candidate_term": "fundname",
+          "candidate_value": null,
+          "confidence": "low_medium",
+          "context_sha256": "2b6821307414fa08cd1b8ad96e37afbe46381695df8e1c19653c9e8ce61c3b0e",
+          "nearby_attribute_name_sample": [],
+          "nearby_class_token_sample": [],
+          "nearby_id_token_sample": [],
+          "nearby_tag_sample": [],
+          "occurrence_ordinal": 4,
+          "raw_value_extracted": false
+        },
+        {
+          "candidate_kind": "label_or_selector_context",
+          "candidate_term": "fundname",
+          "candidate_value": null,
+          "confidence": "low_medium",
+          "context_sha256": "07cc98cef8b5b7fcd89d1ead10b453b2fbda60f848b96b97a01151ac2b619794",
+          "nearby_attribute_name_sample": [],
+          "nearby_class_token_sample": [],
+          "nearby_id_token_sample": [],
+          "nearby_tag_sample": [],
+          "occurrence_ordinal": 5,
+          "raw_value_extracted": false
+        }
+      ],
+      "content_type": "text/html;charset=UTF-8",
+      "diagnostic_only": true,
+      "fetch_error": null,
+      "final_url": "https://www.ishares.com/uk/individual/en/products/253743/productScreenerV3Api",
+      "funding_authority": false,
+      "http_status": 200,
+      "portfolio_mutation": false,
+      "production_delivery": false,
+      "reference_price_extraction": "diagnostic_candidate_only_no_values",
+      "text_sha256": "1d6f5b2ed0dd48f41facaef4d5b5d6f085cc0114d194061390b4f59ec63f7ea7",
+      "url": "https://www.ishares.com/uk/individual/en/products/253743/productScreenerV3Api",
+      "valuation_authority": false,
+      "value_extraction": false
+    }
+  ],
+  "run_id": "20260602_233840",
+  "schema_version": "ishares_reference_value_candidates_v1",
+  "source_controlled_parser_probe": "output/pricing/ishares_controlled_parser_probe_20260602_233840.json",
+  "summary": {
+    "authority_note": "Reference value candidates are labels/selectors/context hashes only. No NAV, price, date or currency values are extracted.",
+    "candidate_count": 84,
+    "row_count": 2,
+    "rows_with_date_or_currency_candidates": 2,
+    "rows_with_nav_or_price_candidates": 2
+  },
+  "target_tokens": [
+    "cwpScreenerApi",
+    "productScreenerV3Api"
+  ],
+  "valuation_authority": false,
+  "value_extraction": false
+}

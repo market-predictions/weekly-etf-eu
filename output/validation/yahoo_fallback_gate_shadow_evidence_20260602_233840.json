@@ -1,0 +1,109 @@
+{
+  "all_rows_blocked_until_contract_gates_pass": true,
+  "completed_session_gate_evidence_present": true,
+  "contract": "control/YAHOO_VERIFIED_FALLBACK_CONTRACT_V1.md",
+  "created_at_utc": "2026-06-02T23:38:46.949898+00:00",
+  "cross_source_gate_evidence_present": true,
+  "funding_authority": false,
+  "ishares_controlled_parser_probe_evidence_present": true,
+  "ishares_endpoint_evidence_present": true,
+  "ishares_endpoint_structure_probe_evidence_present": true,
+  "ishares_reference_endpoint_discovery_evidence_present": true,
+  "ishares_reference_value_candidates_evidence_present": true,
+  "issuer_reference_policy": "config/issuer_reference_policy.yml",
+  "issuer_reference_sanity_gate_evidence_present": true,
+  "portfolio_mutation": false,
+  "production_delivery": false,
+  "repository": "market-predictions/weekly-etf-eu",
+  "required_artifacts": [
+    {
+      "exists": true,
+      "kind": "yahoo_ucits_close_diagnostics",
+      "path": "output/pricing/yahoo_ucits_close_diagnostics_20260602_233840.json",
+      "sha256": "a7ea7bf9122e46a19fc3f485c4e5c4c0f6884afd055a209782544e9f57323dae",
+      "size_bytes": 5461
+    },
+    {
+      "exists": true,
+      "kind": "yahoo_fallback_gate_evaluation",
+      "path": "output/pricing/yahoo_fallback_gate_evaluation_20260602_233840.json",
+      "sha256": "9636bf67ec435507d2b4edef93e3648aac8701a632166fbee4219dc35bbdb554",
+      "size_bytes": 3893
+    },
+    {
+      "exists": true,
+      "kind": "yahoo_completed_session_gate",
+      "path": "output/pricing/yahoo_completed_session_gate_20260602_233840.json",
+      "sha256": "1a9dc1cdaabb20bc1056ad7eb43fccd2f59b89814776c6f335e1d9e05caabdc4",
+      "size_bytes": 4304
+    },
+    {
+      "exists": true,
+      "kind": "twelve_data_symbol_discovery",
+      "path": "output/pricing/ucits_twelve_data_symbol_discovery_20260602_233840.json",
+      "sha256": "a8381d0fb2f0cba2283d2d99fd372e3d3e521b0217d64256be593fdf852e1a1f",
+      "size_bytes": 28747
+    },
+    {
+      "exists": true,
+      "kind": "yahoo_cross_source_gate",
+      "path": "output/pricing/yahoo_cross_source_gate_20260602_233840.json",
+      "sha256": "e6a217c01e5bc36412b2474661ef000ad821f1944f97f1d82583957a7588f907",
+      "size_bytes": 5504
+    },
+    {
+      "exists": true,
+      "kind": "issuer_reference_sanity_gate",
+      "path": "output/pricing/issuer_reference_sanity_gate_20260602_233840.json",
+      "sha256": "22367c31d68158bec2e1c73e0f84ea9c4c6b5417a9e971dc025e70a183585617",
+      "size_bytes": 9023
+    },
+    {
+      "exists": true,
+      "kind": "ishares_reference_endpoint_discovery",
+      "path": "output/pricing/ishares_reference_endpoint_discovery_20260602_233840.json",
+      "sha256": "fbed430bf84696964a12d1afa163b593ffbe09b69a8f0fbea48895aff59873b5",
+      "size_bytes": 27173
+    },
+    {
+      "exists": true,
+      "kind": "ishares_endpoint_evidence",
+      "path": "output/pricing/ishares_endpoint_evidence_20260602_233840.json",
+      "sha256": "bd7e1faa9695edc36fb4b082d7f0a0566b91d9b73479f530d4967d8a788d5b40",
+      "size_bytes": 5894
+    },
+    {
+      "exists": true,
+      "kind": "ishares_endpoint_structure_probe",
+      "path": "output/pricing/ishares_endpoint_structure_probe_20260602_233840.json",
+      "sha256": "e6ea88f449648a4e53387af9329a23f3113e7e36b36dfb024fb561d5e1f646a9",
+      "size_bytes": 4060
+    },
+    {
+      "exists": true,
+      "kind": "ishares_controlled_parser_probe",
+      "path": "output/pricing/ishares_controlled_parser_probe_20260602_233840.json",
+      "sha256": "4c1839a8bec4b640f1994a6a71afca4d927fd698db49f180180962307444ecd9",
+      "size_bytes": 19633
+    },
+    {
+      "exists": true,
+      "kind": "ishares_reference_value_candidates",
+      "path": "output/pricing/ishares_reference_value_candidates_20260602_233840.json",
+      "sha256": "3c837cc4b93c21146fb9e24395b9d4dfbea74f646f59f4dec566634c45669099",
+      "size_bytes": 63910
+    }
+  ],
+  "run_id": "20260602_233840",
+  "schema_version": "yahoo_fallback_gate_shadow_evidence_v1",
+  "session_policy": "config/ucits_exchange_session_policy.yml",
+  "validation_status": "passed",
+  "valuation_authority": false,
+  "workflow": {
+    "name": "Yahoo fallback gate validation",
+    "run_id": "26854496900",
+    "run_number": "10",
+    "run_url": "https://github.com/market-predictions/weekly-etf-eu/actions/runs/26854496900",
+    "sha": "7bb8514c3912be546b50cbd70cd0e146722b4f0a"
+  }
+}
