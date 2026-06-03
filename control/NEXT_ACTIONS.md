@@ -284,10 +284,6 @@
 
 - Owner: `[JOINT]`
 - Status: superseded by pricing-spine path
-- Target files:
-  - `pricing/build_ucits_valuation_prices.py`
-  - `config/ucits_pricing_source_policy.yml`
-  - `tools/validate_ucits_valuation_prices.py` if stricter source-specific fields are needed
 - Updated action:
   - do not integrate a single source directly into the valuation artifact as the next step;
   - first integrate the common `PriceSource` / `PriceResult` interface;
@@ -297,7 +293,7 @@
 ### 31. Decide promotion path from candidate to fundable
 
 - Owner: `[JOINT]`
-- Status: planned
+- Status: planned after agreement-gate valuation path exists
 - Action:
   - define when `verified_candidate_not_funded` can become `fundable`;
   - include instrument verification, pricing authority, liquidity, spread, role, risk and portfolio concentration gates.
@@ -305,7 +301,7 @@
 ### 32. Build Dutch-first EU production report renderer
 
 - Owner: `[ASSISTANT]`
-- Status: planned
+- Status: planned after first report pricing surface and fundability contract
 - Action:
   - render Dutch report as primary client output;
   - mark U.S. proxies as research-only;
@@ -346,58 +342,69 @@
 ### 35. Integrate common pricing interface
 
 - Owner: `[ASSISTANT]`
-- Status: next
-- Work package:
-  - `control/work_packages/WP_M1_PRICING_INTERFACE_20260603.md`
-- Expected branch:
-  - `workstream/pricing-interface`
+- Status: done
+- Integrated PR:
+  - `#3 — M1: Add common pricing interface`
+- Merge commit:
+  - `0c21629aa315f18a0ebceb0a301841d457d2a554`
 - Target files:
+  - `pricing/README.md`
   - `pricing/price_result_schema.py`
   - `pricing/source_selection.py`
-  - `pricing/sources/base.py`
   - `pricing/sources/__init__.py`
-  - `pricing/README.md`
+  - `pricing/sources/base.py`
   - `tests/test_pricing_interface.py`
-  - `tests/fixtures/pricing/*`
-- Done when:
-  - common typed pricing interface exists;
-  - fake-provider tests pass without network;
-  - no workflow, portfolio state or delivery behavior changes.
+  - `tests/fixtures/pricing/fake_price_rows.json`
+- Result:
+  - common typed `PriceSource` / `PriceResult` interface exists;
+  - adapter contract is `PriceSource.fetch_eod_close(request: PriceRequest) -> PriceResult`;
+  - no workflow, portfolio state or delivery behavior changed.
 
 ### 36. Integrate provider adapters after interface
 
 - Owner: `[ASSISTANT]`
-- Status: queued
-- Merge order:
-  1. `workstream/stooq-adapter`
-  2. `workstream/boerse-frankfurt-adapter`
-  3. `workstream/yahoo-adapter`
-  4. `workstream/issuer-nav-adapter`
-- Done when:
+- Status: done
+- Integrated PRs:
+  1. `#4 — M1: Add Stooq pricing adapter` — `c92cff7a973f27f152b4c866515d7c84e28135d6`
+  2. `#5 — M1: Add Börse Frankfurt / Xetra pricing adapter` — `34d6c909e87015de49e31ed3fc25294084faad16`
+  3. `#6 — M1: Add Yahoo fallback pricing adapter` — `9138efd0d5613527bd6ab6f44313596e6cb6907f`
+  4. `#7 — M1: Add issuer NAV reference adapter` — `7b74a36de88b8fdb5b4a4f8709312df533c27a9d`
+- Result:
   - at least two adapters return normalized resolved or unresolved `PriceResult` rows;
   - tests are fixture-backed and network-free;
-  - no adapter creates valuation-grade logic by itself.
+  - no adapter creates valuation-grade logic by itself;
+  - no workflow, portfolio state, output/report, PDF, email or delivery behavior changed.
 
 ### 37. Integrate source metadata policy
 
 - Owner: `[ASSISTANT]`
-- Status: queued; may integrate once it aligns with the pricing interface
+- Status: next
 - Work package:
   - `control/work_packages/WP_M5_SOURCE_METADATA_POLICY_20260603.md`
+- Expected branch:
+  - `workstream/source-metadata-policy`
+- Target files from work package:
+  - `control/DATA_SOURCE_METADATA.md`
+  - `control/CHANGELOG.md`
+  - `pricing/source_metadata_policy.py`
+  - `tests/test_source_metadata_policy.py`
 - Done when:
-  - source metadata categories align with `PriceResult` fields;
+  - source metadata categories align with `PriceResult` / `SourceLineage` fields;
+  - source policy can deterministically classify or filter pricing evidence;
   - tests pass without network;
   - no workflow, portfolio state or delivery behavior changes.
 
 ### 38. Integrate agreement gate
 
 - Owner: `[ASSISTANT]`
-- Status: blocked until at least two adapters are integrated
+- Status: queued after source metadata policy; technically unblocked by adapter availability
 - Work package:
   - `control/work_packages/WP_M1_AGREEMENT_GATE_INTEGRATION_20260603.md`
 - Done when:
   - agreement gate can mark rows `valuation_grade`, `provisional`, or `blocked`;
   - valuation-grade requires configured source agreement conditions;
+  - issuer NAV does not count as independent market-close agreement evidence;
+  - Yahoo/yfinance is not the only route to valuation-grade status;
   - no result creates funding authority or portfolio mutation.
 
 ### 39. Integrate first report pricing surface
@@ -411,3 +418,31 @@
   - report distinguishes priced candidates from funded holdings;
   - cash-only portfolio state remains unchanged;
   - no production delivery is created.
+
+---
+
+## Roadmap after control consolidation
+
+1. Source metadata policy.
+2. Agreement gate.
+3. Valuation artifact integration with agreement output.
+4. First report pricing surface.
+5. Fundability / candidate-promotion contract.
+6. Production Dutch-first report.
+7. Delivery enablement only after validators and manifest/receipt path exist.
+
+## Standing authority boundaries
+
+Until a future decision log entry and validator-backed implementation explicitly change them:
+
+```text
+funding_authority=false
+portfolio_mutation=false
+production_delivery=false
+no PDF generation
+no email delivery
+no delivery receipt
+no candidate promotion to fundable
+```
+
+Adapters produce pricing evidence only. They do not mutate state, fund candidates, render reports, generate PDFs, send email or create delivery receipts.
