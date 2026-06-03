@@ -1,0 +1,20 @@
+schema_version: boerse_frankfurt_source_symbol_overrides_v1
+source_id: boerse_frankfurt_xetra
+license_class: undocumented_free_source_pending_license_review
+authority_tier: exchange_candidate_evidence_only_not_valuation_authority
+valuation_grade_by_source: false
+defaults:
+  venue_mic: XETR
+  query_mode: isin_plus_mic
+  completed_session_required: true
+  portfolio_mutation: false
+  production_delivery: false
+overrides:
+  - registry_id: core_us_equity_cspx
+    isin: IE00B5BMR087
+    exchange: Xetra
+    exchange_ticker: SXR8
+    venue_mic: XETR
+    trading_currency: EUR
+    provider_symbol: IE00B5BMR087.XETR
+    status: candidate_override_not_valuation_authority
