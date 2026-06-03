@@ -283,16 +283,16 @@
 ### 30. Integrate first authoritative valuation data source
 
 - Owner: `[JOINT]`
-- Status: next
+- Status: superseded by pricing-spine path
 - Target files:
   - `pricing/build_ucits_valuation_prices.py`
   - `config/ucits_pricing_source_policy.yml`
   - `tools/validate_ucits_valuation_prices.py` if stricter source-specific fields are needed
-- Action:
-  - decide whether first implementation uses Twelve Data or exchange-official close;
-  - define exact provider symbols for CSPX London and SXR8 Xetra;
-  - verify trading currency and completed-session date evidence;
-  - keep artifact non-mutating until promotion/funding contract exists.
+- Updated action:
+  - do not integrate a single source directly into the valuation artifact as the next step;
+  - first integrate the common `PriceSource` / `PriceResult` interface;
+  - then integrate at least two adapters and an agreement gate;
+  - only then wire agreement-gate output into valuation artifacts.
 
 ### 31. Decide promotion path from candidate to fundable
 
@@ -318,3 +318,96 @@
 - Owner: `[JOINT]`
 - Status: blocked until valuation-source integration, funded-state contract and production output validators pass
 - Done when: EU validator stack passes and a real delivery manifest/receipt exists.
+
+---
+
+## Phase 5 — parallel pricing-spine integration
+
+### 34. Integrate M0 ground-clearing
+
+- Owner: `[ASSISTANT]`
+- Status: done
+- Integrated PR:
+  - `#1 — M0 ground-clearing: pin dependencies and document EU bootstrap workflow`
+- Merge commit:
+  - `c1476171606206d369190bf4c8cf126222a1e753`
+- Result:
+  - `README.md` added for EU bootstrap orientation;
+  - `archive/README.md` added with quarantine notes;
+  - `requirements.txt` pinned;
+  - `.gitignore` added without blocking `control/run_queue` or `output/*` behavior;
+  - `control/CHANGELOG.md` created after integration.
+- Authority result:
+  - no pricing authority changed;
+  - no funding authority changed;
+  - no portfolio mutation changed;
+  - no production delivery, PDF generation or email behavior changed.
+
+### 35. Integrate common pricing interface
+
+- Owner: `[ASSISTANT]`
+- Status: next
+- Work package:
+  - `control/work_packages/WP_M1_PRICING_INTERFACE_20260603.md`
+- Expected branch:
+  - `workstream/pricing-interface`
+- Target files:
+  - `pricing/price_result_schema.py`
+  - `pricing/source_selection.py`
+  - `pricing/sources/base.py`
+  - `pricing/sources/__init__.py`
+  - `pricing/README.md`
+  - `tests/test_pricing_interface.py`
+  - `tests/fixtures/pricing/*`
+- Done when:
+  - common typed pricing interface exists;
+  - fake-provider tests pass without network;
+  - no workflow, portfolio state or delivery behavior changes.
+
+### 36. Integrate provider adapters after interface
+
+- Owner: `[ASSISTANT]`
+- Status: queued
+- Merge order:
+  1. `workstream/stooq-adapter`
+  2. `workstream/boerse-frankfurt-adapter`
+  3. `workstream/yahoo-adapter`
+  4. `workstream/issuer-nav-adapter`
+- Done when:
+  - at least two adapters return normalized resolved or unresolved `PriceResult` rows;
+  - tests are fixture-backed and network-free;
+  - no adapter creates valuation-grade logic by itself.
+
+### 37. Integrate source metadata policy
+
+- Owner: `[ASSISTANT]`
+- Status: queued; may integrate once it aligns with the pricing interface
+- Work package:
+  - `control/work_packages/WP_M5_SOURCE_METADATA_POLICY_20260603.md`
+- Done when:
+  - source metadata categories align with `PriceResult` fields;
+  - tests pass without network;
+  - no workflow, portfolio state or delivery behavior changes.
+
+### 38. Integrate agreement gate
+
+- Owner: `[ASSISTANT]`
+- Status: blocked until at least two adapters are integrated
+- Work package:
+  - `control/work_packages/WP_M1_AGREEMENT_GATE_INTEGRATION_20260603.md`
+- Done when:
+  - agreement gate can mark rows `valuation_grade`, `provisional`, or `blocked`;
+  - valuation-grade requires configured source agreement conditions;
+  - no result creates funding authority or portfolio mutation.
+
+### 39. Integrate first report pricing surface
+
+- Owner: `[ASSISTANT]`
+- Status: blocked until agreement gate exists
+- Work package:
+  - `control/work_packages/WP_M2_FIRST_REPORT_INTEGRATION_20260603.md`
+- Done when:
+  - at least one verified UCITS candidate can display a real priced row when agreement-gate data exists;
+  - report distinguishes priced candidates from funded holdings;
+  - cash-only portfolio state remains unchanged;
+  - no production delivery is created.
