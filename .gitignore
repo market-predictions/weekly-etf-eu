@@ -1,0 +1,23 @@
+# Local Python/runtime clutter
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.venv/
+venv/
+
+# Local environment files
+.env
+.env.*
+!.env.example
+
+# Local build/render artifacts
+*.pdf
+*.html
+*.tmp
+.DS_Store
+
+# Do not ignore control/run_queue or output/* here.
+# The EU bootstrap workflow currently uses run-queue files as triggers
+# and commits validated non-delivery artifacts under output/.
