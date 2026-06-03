@@ -14,7 +14,7 @@ from pricing.price_result_schema import (
     STATUS_UNRESOLVED_NO_DATA,
 )
 from pricing.source_selection import SourceSelection, first_resolved_or_last_unresolved, select_sources
-from pricing.sources import StaticPriceSource
+from pricing.sources import PriceRequest, StaticPriceSource
 
 
 FIXTURE_PATH = Path(__file__).parent / "fixtures" / "pricing" / "fake_price_rows.json"
@@ -83,7 +83,7 @@ def test_static_fake_provider_returns_typed_unresolved_for_missing_symbol() -> N
         rows={},
     )
 
-    result = source.fetch_eod_close(request=__import__("pricing.sources", fromlist=["PriceRequest"]).PriceRequest(identity=_identity("MISSING")))
+    result = source.fetch_eod_close(request=PriceRequest(identity=_identity("MISSING")))
 
     assert result.is_unresolved is True
     assert result.status == STATUS_UNRESOLVED_NO_DATA
