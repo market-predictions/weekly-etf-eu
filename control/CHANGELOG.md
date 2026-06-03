@@ -2,6 +2,282 @@
 
 This file records integration-level changes made to the EU/UCITS ETF review repository.
 
+## 2026-06-04 — Consolidate M1 pricing-spine integration state
+
+Updated control documentation after the M1 pricing-spine worker phase completed.
+
+Files updated:
+
+```text
+control/CURRENT_STATE.md
+control/NEXT_ACTIONS.md
+control/CHANGELOG.md
+control/DECISION_LOG.md
+```
+
+Scope:
+
+- reflected PRs `#3`–`#7` as merged;
+- marked common pricing interface and provider-adapter integration as done;
+- made source metadata policy the next immediate work item;
+- kept agreement gate queued after source metadata policy;
+- kept first report pricing surface blocked until agreement-gate output exists;
+- recorded stable pricing-spine authority decisions in the decision log.
+
+Authority boundaries after consolidation:
+
+```text
+valuation_grade=false
+funding_authority=false
+portfolio_mutation=false
+production_delivery=false
+no PDF generation
+no email delivery
+no delivery receipt
+no candidate promotion to fundable
+```
+
+No pricing execution code, workflow, output file, portfolio state, report renderer, PDF/email or delivery behavior was changed.
+
+---
+
+## 2026-06-03 — Integrate M1 issuer NAV reference adapter
+
+Commit: `7b74a36de88b8fdb5b4a4f8709312df533c27a9d`
+
+Integrated PR:
+
+```text
+#7 — M1: Add issuer NAV reference adapter
+```
+
+Files changed:
+
+```text
+pricing/sources/issuer_nav.py
+tests/test_issuer_nav_adapter.py
+tests/fixtures/pricing/issuer_nav/valid_cspx_nav.json
+tests/fixtures/pricing/issuer_nav/missing_currency_nav.json
+```
+
+Summary:
+
+- added issuer NAV/reference adapter using the shared pricing interface;
+- implemented `PriceSource.fetch_eod_close(request: PriceRequest) -> PriceResult`;
+- kept issuer NAV as reference/stale-check evidence only;
+- confirmed issuer NAV is not exchange EOD close authority and does not count as independent market-close agreement evidence.
+
+Validation reported in PR:
+
+```text
+python -m pytest tests/test_issuer_nav_adapter.py -q
+4 passed in 0.19s
+```
+
+Authority boundaries after merge:
+
+```text
+valuation_grade=false
+funding_authority=false
+portfolio_mutation=false
+production_delivery=false
+no PDF generation
+no email delivery
+```
+
+---
+
+## 2026-06-03 — Integrate M1 Yahoo fallback pricing adapter
+
+Commit: `9138efd0d5613527bd6ab6f44313596e6cb6907f`
+
+Integrated PR:
+
+```text
+#6 — M1: Add Yahoo fallback pricing adapter
+```
+
+Files changed:
+
+```text
+pricing/sources/yahoo.py
+tests/test_yahoo_adapter.py
+tests/fixtures/pricing/yahoo/cspx_history.json
+tests/fixtures/pricing/yahoo/empty_history.json
+tests/fixtures/pricing/yahoo/missing_close_history.json
+```
+
+Summary:
+
+- added Yahoo/yfinance adapter using the shared pricing interface;
+- implemented `PriceSource.fetch_eod_close(request: PriceRequest) -> PriceResult`;
+- kept Yahoo as fallback/provisional evidence only;
+- confirmed Yahoo does not create valuation-grade rows or mutate portfolio state.
+
+Validation reported in PR:
+
+```text
+python -m pytest tests/test_yahoo_adapter.py -q
+8 passed in 0.17s
+```
+
+Authority boundaries after merge:
+
+```text
+valuation_grade=false
+funding_authority=false
+portfolio_mutation=false
+production_delivery=false
+no PDF generation
+no email delivery
+```
+
+---
+
+## 2026-06-03 — Integrate M1 Börse Frankfurt / Xetra pricing adapter
+
+Commit: `34d6c909e87015de49e31ed3fc25294084faad16`
+
+Integrated PR:
+
+```text
+#5 — M1: Add Börse Frankfurt / Xetra pricing adapter
+```
+
+Files changed:
+
+```text
+config/source_symbol_overrides/boerse_frankfurt.yml
+pricing/sources/boerse_frankfurt.py
+tests/fixtures/pricing/boerse_frankfurt/currency_uncertain.json
+tests/fixtures/pricing/boerse_frankfurt/no_close.json
+tests/fixtures/pricing/boerse_frankfurt/resolved_close.json
+tests/test_boerse_frankfurt_adapter.py
+```
+
+Summary:
+
+- added Börse Frankfurt / Xetra adapter using the shared pricing interface;
+- implemented `PriceSource.fetch_eod_close(request: PriceRequest) -> PriceResult`;
+- kept the endpoint as undocumented/free pending source/license review;
+- kept the adapter as exchange-candidate evidence only, not valuation authority.
+
+Validation reported in PR:
+
+```text
+python -m pytest tests/test_boerse_frankfurt_adapter.py -q
+4 passed
+```
+
+Authority boundaries after merge:
+
+```text
+valuation_grade=false
+funding_authority=false
+portfolio_mutation=false
+production_delivery=false
+no PDF generation
+no email delivery
+```
+
+---
+
+## 2026-06-03 — Integrate M1 Stooq pricing adapter
+
+Commit: `c92cff7a973f27f152b4c866515d7c84e28135d6`
+
+Integrated PR:
+
+```text
+#4 — M1: Add Stooq pricing adapter
+```
+
+Files changed:
+
+```text
+pricing/sources/stooq.py
+config/source_symbol_overrides/stooq.yml
+tests/test_stooq_adapter.py
+tests/fixtures/pricing/stooq/cspx_daily.csv
+tests/fixtures/pricing/stooq/no_data.csv
+```
+
+Summary:
+
+- added Stooq adapter using the shared pricing interface;
+- implemented `PriceSource.fetch_eod_close(request: PriceRequest) -> PriceResult`;
+- kept Stooq provisional / cross-check only;
+- retained explicit-only source-symbol mappings.
+
+Validation reported in PR:
+
+```text
+PYTHONPATH=. pytest tests/test_stooq_adapter.py -q
+3 passed
+```
+
+Authority boundaries after merge:
+
+```text
+valuation_grade=false
+funding_authority=false
+portfolio_mutation=false
+production_delivery=false
+no PDF generation
+no email delivery
+```
+
+---
+
+## 2026-06-03 — Integrate M1 common pricing interface
+
+Commit: `0c21629aa315f18a0ebceb0a301841d457d2a554`
+
+Integrated PR:
+
+```text
+#3 — M1: Add common pricing interface
+```
+
+Files changed:
+
+```text
+pricing/README.md
+pricing/price_result_schema.py
+pricing/source_selection.py
+pricing/sources/__init__.py
+pricing/sources/base.py
+tests/fixtures/pricing/fake_price_rows.json
+tests/test_pricing_interface.py
+```
+
+Summary:
+
+- added typed pricing spine only;
+- introduced `PriceIdentity`, `SourceLineage`, `PriceResult`, `PriceRequest`, abstract `PriceSource`, shared status constants, license constants and authority-tier constants;
+- added config-driven source selection helper;
+- documented adapter implementation guidance in `pricing/README.md`.
+
+Validation reported in PR:
+
+```text
+python -m pytest tests/test_pricing_interface.py -q
+5 passed
+```
+
+Authority boundaries after merge:
+
+```text
+funding_authority=false
+portfolio_mutation=false
+production_delivery=false
+no PDF generation
+no email delivery
+no valuation-grade promotion
+```
+
+---
+
 ## 2026-06-03 — Coordinator review of Börse Frankfurt / Xetra adapter draft
 
 Reviewed draft PR:
