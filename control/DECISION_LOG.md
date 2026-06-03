@@ -4,6 +4,71 @@ Use this file to capture stable architecture decisions so future sessions do not
 
 ---
 
+## 2026-06-04 — Weekly ETF EU M1 pricing-spine authority decisions
+
+### Decision
+
+The `market-predictions/weekly-etf-eu` repo now has a typed multi-source pricing evidence spine, but adapter evidence is not valuation authority by itself.
+
+### Chosen architecture
+
+```text
+PriceSource.fetch_eod_close(request: PriceRequest) -> PriceResult
+```
+
+The M1 pricing spine uses:
+
+- `PriceIdentity`
+- `PriceRequest`
+- `PriceResult`
+- `SourceLineage`
+- shared status constants
+- shared license-class constants
+- shared authority-tier constants
+- fixture-backed provider adapters returning typed resolved or unresolved rows
+
+Stable source-role decisions:
+
+- Yahoo/yfinance is fallback/provisional evidence only and must not be the sole path to valuation-grade UCITS pricing.
+- Issuer NAV is reference/stale-check evidence only, not an exchange market-close source and not an independent market-close agreement source.
+- Stooq is provisional / cross-check evidence until provider coverage and source policy allow stronger use.
+- Börse Frankfurt / Xetra is exchange-candidate evidence only while the free endpoint remains undocumented and pending source/license review.
+- Valuation-grade pricing requires source policy plus agreement gate conditions.
+- Pricing adapters return evidence only; they do not mutate portfolio state, promote candidates, render reports, generate PDFs, send email, or produce delivery receipts.
+
+### Reason
+
+European UCITS pricing needs deterministic evidence collection before any valuation-grade, portfolio or delivery authority exists. A single free/public provider should not silently become the authority for client-facing valuation. The adapter layer therefore normalizes evidence; a later source metadata policy and agreement gate decide whether that evidence is valuation-grade, provisional or blocked.
+
+### Consequence
+
+The immediate roadmap after M1 pricing-spine integration is:
+
+```text
+source metadata policy
+→ agreement gate
+→ valuation artifact integration with agreement output
+→ first report pricing surface
+→ fundability / candidate promotion contract
+→ Dutch-first production report
+→ delivery enablement only after validators and receipt/manifest path exist
+```
+
+Standing authority boundaries remain:
+
+```text
+valuation_grade=false
+funding_authority=false
+portfolio_mutation=false
+production_delivery=false
+no PDF generation
+no email delivery
+no delivery receipt
+no candidate promotion to fundable
+```
+
+---
+
 ## 2026-03-28 — Adopt Project + GitHub + Actions architecture
 ### Decision
 The ETF flow will no longer be treated conceptually as one giant prompt-centered system.
