@@ -2,7 +2,7 @@
 
 ## Snapshot date
 
-2026-05-31
+2026-06-03
 
 ## What this repository currently is
 
@@ -32,7 +32,7 @@ The clone still contains many U.S.-ETF artifacts, old workflow names and histori
 
 ## Current migration status
 
-The repo is in **Phase 4 — UCITS valuation-pricing authority scaffolding validated; valuation-source integration still pending**.
+The repo is in **Phase 4 — UCITS valuation-pricing authority scaffolding validated; pricing-spine integration in progress**.
 
 Completed:
 
@@ -75,10 +75,16 @@ Completed:
 - valuation-price artifact validator added;
 - EU workflow now builds and validates the valuation-price artifact;
 - Phase 4 valuation-pricing validation run passed in GitHub Actions;
-- valuation-price artifact committed under `output/pricing/`.
+- valuation-price artifact committed under `output/pricing/`;
+- parallel pricing-spine workstream plan and instruction files added;
+- M0 ground-clearing PR merged: repository README added, archive/quarantine notes added, local clutter `.gitignore` added, and bootstrap/runtime dependencies pinned in `requirements.txt`;
+- `control/CHANGELOG.md` added for integration-level tracking.
 
 Not yet completed:
 
+- common `PriceSource` / `PriceResult` interface integration;
+- at least two fixture-backed provider adapters returning typed resolved or unresolved rows;
+- agreement gate integration;
 - integration of a live authoritative valuation source such as exchange-official close or verified Twelve Data line;
 - verified pricing-source lineage beyond non-authoritative yfinance connectivity;
 - any `valuation_grade: true` UCITS price row;
@@ -89,9 +95,24 @@ Not yet completed:
 
 ## Latest validation result
 
-The latest `Weekly ETF EU UCITS bootstrap validation` GitHub Actions run passed after adding the Phase 4 valuation-pricing layer.
+The latest known `Weekly ETF EU UCITS bootstrap validation` GitHub Actions run passed after adding the Phase 4 valuation-pricing layer.
 
-Validated markers now include:
+M0 ground-clearing was merged on 2026-06-03 as commit:
+
+```text
+c1476171606206d369190bf4c8cf126222a1e753
+```
+
+No GitHub Actions run was attached to the M0 PR head at the time of coordinator review. The merge decision was based on static diff and authority-boundary review because the PR touched only:
+
+```text
+.gitignore
+README.md
+archive/README.md
+requirements.txt
+```
+
+Validated markers from the latest full bootstrap run remain:
 
 ```text
 UCITS symbol registry validation
@@ -138,6 +159,29 @@ valuation_grade_row_count=0
 ```
 
 It is not a production pricing authority artifact, not a portfolio valuation-history mutation and not a production report delivery receipt.
+
+## Current parallel pricing-spine status
+
+The parallel pricing-spine direction is now active.
+
+Current integration state:
+
+- M0 ground-clearing is integrated.
+- Pricing interface workstream is the next merge dependency.
+- Provider adapter branches should be reviewed only after the common interface exists or as explicit draft handbacks against the expected interface.
+- Agreement gate integration must wait until at least two adapters return normalized results or fixture-backed typed unresolved results.
+- First report integration must wait until agreement-gate integration exists.
+
+Current pricing-spine target:
+
+```text
+PriceSource adapter interface
+PriceResult typed result
+source policy driven ordering
+license_class as first-class metadata
+agreement gate before valuation_grade
+Yahoo as tertiary/provisional fallback, not sole valuation authority
+```
 
 ## Current UCITS registry status
 
@@ -196,7 +240,7 @@ Current source-policy posture:
 - `exchange_official` is the preferred valuation source but not yet integrated;
 - `twelve_data` is a candidate valuation source pending symbol/date/currency verification per UCITS trading line;
 - `issuer_factsheet` is reference/stale-check only;
-- `yahoo_yfinance` remains non-authoritative connectivity only.
+- `yahoo_yfinance` remains non-authoritative connectivity only until the pricing-spine and agreement-gate policy explicitly change its role.
 
 Current artifact behavior:
 
@@ -231,6 +275,8 @@ Current report-surface rules:
 7. Valuation-price artifact generation alone is not funding authority.
 8. Candidate-report visibility alone is not portfolio authority.
 9. Any existing cloned U.S. reports, pricing audits or portfolio entries are historical clone artifacts, not EU current-position truth.
+10. Yahoo/yfinance must not become the only path to valuation-grade UCITS pricing.
+11. Valuation-grade status must come after source policy and agreement-gate conditions pass.
 
 ## Current state files
 
@@ -275,7 +321,7 @@ From `weekly-etf`, the EU repo should preserve:
 
 ### 1. U.S. clone artifacts still exist
 
-The repo currently inherits U.S. ETF output and state artifacts. They must not be mistaken for EU portfolio truth.
+The repo currently inherits U.S. ETF output and state artifacts. They must not be mistaken for EU portfolio truth. M0 has documented archive/quarantine policy, but has not moved inherited files yet.
 
 ### 2. UCITS universe is only partially verified
 
@@ -283,26 +329,34 @@ The repo has an initial validated registry structure, but most candidates are no
 
 ### 3. Pricing source authority is still pending
 
-The repo now has valuation-pricing scaffolding, but no integrated authoritative completed-session close source yet. Current yfinance evidence is deliberately preserved as connectivity-only and excluded from valuation authority.
+The repo now has valuation-pricing scaffolding, but no integrated authoritative completed-session close source yet. Current yfinance evidence is deliberately preserved as connectivity-only and excluded from valuation authority until the pricing-spine/agreement-gate policy says otherwise.
 
-### 4. Report output is still a bootstrap candidate report
+### 4. Pricing spine is not yet integrated
+
+The desired `PriceSource` / `PriceResult` spine is documented in the workstream plan, but the common interface and adapters are not yet merged.
+
+### 5. Report output is still a bootstrap candidate report
 
 The current EU report shows cash-only portfolio state and candidate rows. It is not yet a full Dutch/EU UCITS investment report.
 
-### 5. Delivery remains blocked
+### 6. Delivery remains blocked
 
 Production delivery remains blocked until EU state, UCITS registry, valuation-grade UCITS pricing, no-U.S.-holding validation and output contracts pass.
 
 ## Immediate priority
 
-Move from valuation-pricing scaffolding to real valuation-source integration.
+Move from valuation-pricing scaffolding to a clean pricing spine before report integration.
 
-1. Decide whether the first valuation-grade source integration should be Twelve Data or exchange-official close.
-2. Define exact provider symbols and currency evidence for CSPX London and SXR8 Xetra.
-3. Implement source-specific fetch logic without mutating portfolio state.
-4. Keep yfinance as non-authoritative connectivity/research preflight unless explicitly promoted.
-5. Keep portfolio state cash-only and delivery disabled.
+1. Integrate the common `PriceSource` / `PriceResult` interface.
+2. Integrate at least two fixture-backed provider adapters returning typed resolved or unresolved rows.
+3. Integrate source metadata policy if it aligns with the pricing interface.
+4. Integrate agreement gate only after at least two adapters exist.
+5. Wire agreement-gate output into valuation artifacts only after the coordinator confirms the gate is ready.
+6. Keep yfinance as non-authoritative connectivity/research preflight unless explicitly promoted by policy and agreement gates.
+7. Keep portfolio state cash-only and delivery disabled.
 
 ## Stable decision
 
 The EU repo should not be a mechanical ticker replacement. It should be a separate UCITS investment-universe product using the proven runtime/reporting engine as scaffolding.
+
+The current pricing architecture decision is: build a typed multi-source pricing spine first, then allow an agreement gate to classify prices as valuation-grade, provisional or blocked. Yahoo/yfinance can be useful as a tertiary/provisional fallback, but must not be the only route to valuation-grade UCITS pricing.
