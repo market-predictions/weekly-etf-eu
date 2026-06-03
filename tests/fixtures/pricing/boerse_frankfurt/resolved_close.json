@@ -1,0 +1,11 @@
+{
+  "data": {
+    "isin": "IE00B5BMR087",
+    "mic": "XETR",
+    "priceInformation": {
+      "closingPrice": "632.40",
+      "tradingDate": "2026-06-02",
+      "currencyCode": "EUR"
+    }
+  }
+}
