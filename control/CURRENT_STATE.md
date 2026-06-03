@@ -2,7 +2,7 @@
 
 ## Snapshot date
 
-2026-06-03
+2026-06-04
 
 ## What this repository currently is
 
@@ -22,7 +22,7 @@ The original source repo remains:
 market-predictions/weekly-etf = U.S.-ETF model baseline
 ```
 
-This new repo is intended to become:
+This repo is intended to become:
 
 ```text
 market-predictions/weekly-etf-eu = UCITS ETF model for Dutch/EU clients
@@ -32,7 +32,7 @@ The clone still contains many U.S.-ETF artifacts, old workflow names and histori
 
 ## Current migration status
 
-The repo is in **Phase 4 — UCITS valuation-pricing authority scaffolding validated; pricing-spine integration in progress**.
+The repo is in **Phase 5 — M1 typed pricing spine integrated; source metadata and agreement gate next**.
 
 Completed:
 
@@ -78,24 +78,29 @@ Completed:
 - valuation-price artifact committed under `output/pricing/`;
 - parallel pricing-spine workstream plan and instruction files added;
 - M0 ground-clearing PR merged: repository README added, archive/quarantine notes added, local clutter `.gitignore` added, and bootstrap/runtime dependencies pinned in `requirements.txt`;
-- `control/CHANGELOG.md` added for integration-level tracking.
+- `control/CHANGELOG.md` added for integration-level tracking;
+- M1 common `PriceSource` / `PriceResult` interface integrated;
+- M1 Stooq pricing adapter integrated;
+- M1 Börse Frankfurt / Xetra pricing adapter integrated;
+- M1 Yahoo fallback pricing adapter integrated;
+- M1 issuer NAV reference adapter integrated;
+- at least two fixture-backed provider adapters now return typed `PriceResult` evidence or typed unresolved rows;
+- the repo now has a typed multi-source pricing evidence spine.
 
 Not yet completed:
 
-- common `PriceSource` / `PriceResult` interface integration;
-- at least two fixture-backed provider adapters returning typed resolved or unresolved rows;
+- source metadata policy integration;
 - agreement gate integration;
+- valuation artifact consumption of agreement-gate output;
 - integration of a live authoritative valuation source such as exchange-official close or verified Twelve Data line;
-- verified pricing-source lineage beyond non-authoritative yfinance connectivity;
+- verified pricing-source lineage beyond current adapter evidence;
 - any `valuation_grade: true` UCITS price row;
 - candidate promotion path from `verified_candidate_not_funded` to `fundable`;
 - funded EU model portfolio;
 - Dutch-first production report renderer with real UCITS positions;
 - production PDF/email delivery enablement.
 
-## Latest validation result
-
-The latest known `Weekly ETF EU UCITS bootstrap validation` GitHub Actions run passed after adding the Phase 4 valuation-pricing layer.
+## Latest integration result
 
 M0 ground-clearing was merged on 2026-06-03 as commit:
 
@@ -103,74 +108,46 @@ M0 ground-clearing was merged on 2026-06-03 as commit:
 c1476171606206d369190bf4c8cf126222a1e753
 ```
 
-No GitHub Actions run was attached to the M0 PR head at the time of coordinator review. The merge decision was based on static diff and authority-boundary review because the PR touched only:
+The M1 pricing-spine PRs were then merged into `main`:
+
+| PR | Integrated workstream | Merge commit |
+|---|---|---|
+| `#3` | common pricing interface | `0c21629aa315f18a0ebceb0a301841d457d2a554` |
+| `#4` | Stooq pricing adapter | `c92cff7a973f27f152b4c866515d7c84e28135d6` |
+| `#5` | Börse Frankfurt / Xetra pricing adapter | `34d6c909e87015de49e31ed3fc25294084faad16` |
+| `#6` | Yahoo fallback pricing adapter | `9138efd0d5613527bd6ab6f44313596e6cb6907f` |
+| `#7` | issuer NAV reference adapter | `7b74a36de88b8fdb5b4a4f8709312df533c27a9d` |
+
+Authority boundaries after these merges remain:
 
 ```text
-.gitignore
-README.md
-archive/README.md
-requirements.txt
-```
-
-Validated markers from the latest full bootstrap run remain:
-
-```text
-UCITS symbol registry validation
-UCITS investability contract validation
-UCITS pricing candidate extraction
-UCITS pricing candidate validation
-non-authoritative UCITS pricing preflight
-UCITS pricing preflight validation
-UCITS valuation-pricing source policy validation
-UCITS valuation-price artifact build
-UCITS valuation-price artifact validation
-EU cash-only state validation
-no U.S.-listed ETF appears as an EU holding
-EU candidate report skeleton rendered
-EU output contract passed
-EU candidate-report contract passed
-inherited U.S. production sender is disabled
-no delivery is attempted
-```
-
-Generated non-delivery outputs include:
-
-```text
-output/weekly_etf_eu_review_260531.md
-output/weekly_etf_eu_review_nl_260531.md
-output/pricing/ucits_pricing_candidates_*.json
-output/pricing/ucits_pricing_preflight_*.json
-output/pricing/ucits_valuation_prices_*.json
-```
-
-Latest valuation artifact observed:
-
-```text
-output/pricing/ucits_valuation_prices_20260531_133912.json
-```
-
-This artifact is valuation-authority scaffolding only. It contains pending valuation rows and explicitly keeps:
-
-```text
+valuation_grade=false
+funding_authority=false
 portfolio_mutation=false
 production_delivery=false
-funding_authority=false
-valuation_grade_row_count=0
+no PDF generation
+no email delivery
+no delivery receipt
+no candidate promotion to fundable
 ```
 
-It is not a production pricing authority artifact, not a portfolio valuation-history mutation and not a production report delivery receipt.
+The M1 PRs reported fixture-backed local test results in their PR descriptions, but no production delivery or valuation-grade workflow is claimed from those merges.
 
 ## Current parallel pricing-spine status
 
-The parallel pricing-spine direction is now active.
+The parallel pricing-spine integration has completed the M1 interface and adapter layer.
 
 Current integration state:
 
 - M0 ground-clearing is integrated.
-- Pricing interface workstream is the next merge dependency.
-- Provider adapter branches should be reviewed only after the common interface exists or as explicit draft handbacks against the expected interface.
-- Agreement gate integration must wait until at least two adapters return normalized results or fixture-backed typed unresolved results.
-- First report integration must wait until agreement-gate integration exists.
+- Common pricing interface is integrated.
+- Stooq adapter is integrated.
+- Börse Frankfurt / Xetra adapter is integrated.
+- Yahoo fallback adapter is integrated.
+- Issuer NAV reference adapter is integrated.
+- Source metadata policy is the next immediate integration target.
+- Agreement gate integration is now technically unblocked by adapter availability, but should follow source metadata policy alignment.
+- First report pricing-surface integration must wait until agreement-gate output exists.
 
 Current pricing-spine target:
 
@@ -182,6 +159,133 @@ license_class as first-class metadata
 agreement gate before valuation_grade
 Yahoo as tertiary/provisional fallback, not sole valuation authority
 ```
+
+## Integrated M1 pricing-spine details
+
+### Common interface
+
+Integrated files:
+
+```text
+pricing/README.md
+pricing/price_result_schema.py
+pricing/source_selection.py
+pricing/sources/__init__.py
+pricing/sources/base.py
+tests/fixtures/pricing/fake_price_rows.json
+tests/test_pricing_interface.py
+```
+
+Contract:
+
+```text
+PriceSource.fetch_eod_close(request: PriceRequest) -> PriceResult
+```
+
+Key shared concepts:
+
+```text
+PriceIdentity
+PriceRequest
+PriceResult
+SourceLineage
+status constants
+license_class constants
+authority_tier constants
+```
+
+### Stooq adapter
+
+Integrated files:
+
+```text
+pricing/sources/stooq.py
+config/source_symbol_overrides/stooq.yml
+tests/test_stooq_adapter.py
+tests/fixtures/pricing/stooq/cspx_daily.csv
+tests/fixtures/pricing/stooq/no_data.csv
+```
+
+Role:
+
+```text
+provisional / cross-check source
+license_class=provider_free_personal
+authority_tier=diagnostic_candidate_source
+```
+
+Stooq mappings such as `CSPX London USD -> cspx.uk` and `SXR8 Xetra EUR -> sxr8.de` remain provisional and require provider coverage verification before valuation use.
+
+### Börse Frankfurt / Xetra adapter
+
+Integrated files:
+
+```text
+config/source_symbol_overrides/boerse_frankfurt.yml
+pricing/sources/boerse_frankfurt.py
+tests/fixtures/pricing/boerse_frankfurt/currency_uncertain.json
+tests/fixtures/pricing/boerse_frankfurt/no_close.json
+tests/fixtures/pricing/boerse_frankfurt/resolved_close.json
+tests/test_boerse_frankfurt_adapter.py
+```
+
+Role:
+
+```text
+exchange-candidate evidence only
+license_class=unknown
+license_note=undocumented_free_source_pending_license_review
+authority_tier=diagnostic_candidate_source
+authority_note=exchange_candidate_evidence_only_not_valuation_authority
+```
+
+The endpoint is undocumented/free and pending source/license review. It must not become valuation authority by itself.
+
+### Yahoo adapter
+
+Integrated files:
+
+```text
+pricing/sources/yahoo.py
+tests/test_yahoo_adapter.py
+tests/fixtures/pricing/yahoo/cspx_history.json
+tests/fixtures/pricing/yahoo/empty_history.json
+tests/fixtures/pricing/yahoo/missing_close_history.json
+```
+
+Role:
+
+```text
+fallback / provisional evidence only
+source_id=yahoo_yfinance
+license_class=provider_free_personal
+authority_tier=non_authoritative_connectivity_only
+```
+
+Yahoo/yfinance must not be the only path to valuation-grade UCITS pricing.
+
+### Issuer NAV adapter
+
+Integrated files:
+
+```text
+pricing/sources/issuer_nav.py
+tests/test_issuer_nav_adapter.py
+tests/fixtures/pricing/issuer_nav/valid_cspx_nav.json
+tests/fixtures/pricing/issuer_nav/missing_currency_nav.json
+```
+
+Role:
+
+```text
+reference / stale-check evidence only
+value_type=issuer_nav_reference
+not_exchange_trading_line_close=true
+license_class=issuer_public
+authority_tier=diagnostic_candidate_source
+```
+
+Issuer NAV is not an exchange EOD close adapter and must not count as an independent market-close source for valuation-grade agreement.
 
 ## Current UCITS registry status
 
@@ -223,7 +327,7 @@ Current pricing-preflight rules:
 
 ## Current valuation-pricing status
 
-The valuation-pricing layer is now present and validated as a non-mutating authority scaffold.
+The valuation-pricing layer is present and validated as a non-mutating authority scaffold.
 
 Current valuation-pricing files:
 
@@ -252,7 +356,7 @@ Current artifact behavior:
 
 ## Current report-surface status
 
-The Dutch-first and English companion reports now include a UCITS candidate registry table.
+The Dutch-first and English companion reports include a UCITS candidate registry table.
 
 Current report-surface rules:
 
@@ -276,7 +380,9 @@ Current report-surface rules:
 8. Candidate-report visibility alone is not portfolio authority.
 9. Any existing cloned U.S. reports, pricing audits or portfolio entries are historical clone artifacts, not EU current-position truth.
 10. Yahoo/yfinance must not become the only path to valuation-grade UCITS pricing.
-11. Valuation-grade status must come after source policy and agreement-gate conditions pass.
+11. Issuer NAV is reference/stale-check evidence only, not market-close agreement evidence.
+12. Valuation-grade status must come after source policy and agreement-gate conditions pass.
+13. Pricing adapters return evidence; they do not mutate portfolio state, promote candidates, render reports, generate PDFs, send email, or produce delivery receipts.
 
 ## Current state files
 
@@ -329,34 +435,38 @@ The repo has an initial validated registry structure, but most candidates are no
 
 ### 3. Pricing source authority is still pending
 
-The repo now has valuation-pricing scaffolding, but no integrated authoritative completed-session close source yet. Current yfinance evidence is deliberately preserved as connectivity-only and excluded from valuation authority until the pricing-spine/agreement-gate policy says otherwise.
+The repo now has a typed multi-source pricing evidence spine, but no integrated authoritative completed-session close source and no agreement-gated valuation-grade output yet.
 
-### 4. Pricing spine is not yet integrated
+### 4. Source metadata policy is not yet integrated
 
-The desired `PriceSource` / `PriceResult` spine is documented in the workstream plan, but the common interface and adapters are not yet merged.
+The next step is to integrate a deterministic source metadata register so pricing evidence can be filtered and interpreted by policy rather than hardcoded assumptions.
 
-### 5. Report output is still a bootstrap candidate report
+### 5. Agreement gate is not yet integrated
+
+The repo has enough adapter availability to start agreement-gate work after source metadata alignment, but the gate does not yet classify rows as valuation-grade, provisional or blocked.
+
+### 6. Report output is still a bootstrap candidate report
 
 The current EU report shows cash-only portfolio state and candidate rows. It is not yet a full Dutch/EU UCITS investment report.
 
-### 6. Delivery remains blocked
+### 7. Delivery remains blocked
 
-Production delivery remains blocked until EU state, UCITS registry, valuation-grade UCITS pricing, no-U.S.-holding validation and output contracts pass.
+Production delivery remains blocked until EU state, UCITS registry, valuation-grade UCITS pricing, no-U.S.-holding validation and output contracts pass, and until a delivery receipt/manifest path exists.
 
 ## Immediate priority
 
-Move from valuation-pricing scaffolding to a clean pricing spine before report integration.
+Move from the integrated typed pricing evidence spine to a policy-governed valuation path.
 
-1. Integrate the common `PriceSource` / `PriceResult` interface.
-2. Integrate at least two fixture-backed provider adapters returning typed resolved or unresolved rows.
-3. Integrate source metadata policy if it aligns with the pricing interface.
-4. Integrate agreement gate only after at least two adapters exist.
-5. Wire agreement-gate output into valuation artifacts only after the coordinator confirms the gate is ready.
-6. Keep yfinance as non-authoritative connectivity/research preflight unless explicitly promoted by policy and agreement gates.
+1. Integrate source metadata policy.
+2. Integrate agreement gate after source metadata policy alignment.
+3. Wire agreement-gate output into valuation artifacts only after the coordinator confirms the gate is ready.
+4. Add a first report pricing surface only after agreement-gate output exists.
+5. Keep yfinance as non-authoritative connectivity/research preflight unless explicitly promoted by policy and agreement gates.
+6. Keep issuer NAV as reference/stale-check evidence only.
 7. Keep portfolio state cash-only and delivery disabled.
 
 ## Stable decision
 
 The EU repo should not be a mechanical ticker replacement. It should be a separate UCITS investment-universe product using the proven runtime/reporting engine as scaffolding.
 
-The current pricing architecture decision is: build a typed multi-source pricing spine first, then allow an agreement gate to classify prices as valuation-grade, provisional or blocked. Yahoo/yfinance can be useful as a tertiary/provisional fallback, but must not be the only route to valuation-grade UCITS pricing.
+The current pricing architecture decision is: maintain a typed multi-source pricing spine first, then allow an agreement gate to classify prices as valuation-grade, provisional or blocked. Yahoo/yfinance can be useful as a tertiary/provisional fallback, but must not be the only route to valuation-grade UCITS pricing. Issuer NAV can support stale-check/reference context, but it is not an exchange market-close agreement source.
