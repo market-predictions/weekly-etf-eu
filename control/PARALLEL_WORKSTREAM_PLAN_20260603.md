@@ -53,11 +53,12 @@ Preferred branch names:
 |---|---|
 | Coordinator | `workstream/coordinator-pricing-spine` |
 | M0 cleanup | `workstream/m0-ground-clearing` |
-| PriceSource interface | `workstream/pricesource-interface` |
+| Pricing interface | `workstream/pricing-interface` |
 | Stooq adapter | `workstream/stooq-adapter` |
 | Börse Frankfurt/Xetra adapter | `workstream/boerse-frankfurt-adapter` |
-| Yahoo + issuer adapters | `workstream/yahoo-issuer-adapters` |
-| Licensing policy | `workstream/licensing-policy` |
+| Yahoo adapter | `workstream/yahoo-adapter` |
+| Issuer NAV adapter | `workstream/issuer-nav-adapter` |
+| Source metadata policy | `workstream/source-metadata-policy` |
 | Agreement gate integration | `workstream/agreement-gate-integration` |
 | First report integration | `workstream/first-report-integration` |
 
@@ -75,11 +76,12 @@ Rules:
 |---|---|---|
 | Coordinator | `control/work_packages/WP_COORDINATOR_PARALLEL_PRICING_SPINE_20260603.md` | start now |
 | M0 cleanup | `control/work_packages/WP_M0_GROUND_CLEARING_20260603.md` | start now |
-| PriceSource interface | `control/work_packages/WP_M1_PRICESOURCE_INTERFACE_20260603.md` | start now; early dependency |
+| Pricing interface | `control/work_packages/WP_M1_PRICING_INTERFACE_20260603.md` | start now; early dependency |
 | Stooq adapter | `control/work_packages/WP_M1_STOOQ_ADAPTER_20260603.md` | start after interface skeleton exists, or draft against expected interface |
 | Börse Frankfurt/Xetra adapter | `control/work_packages/WP_M1_BOERSE_FRANKFURT_ADAPTER_20260603.md` | start after interface skeleton exists, or draft against expected interface |
-| Yahoo + issuer adapters | `control/work_packages/WP_M1_YAHOO_ISSUER_ADAPTERS_20260603.md` | start after interface skeleton exists, or draft against expected interface |
-| Licensing policy | `control/work_packages/WP_M5_LICENSING_POLICY_20260603.md` | start now |
+| Yahoo adapter | `control/work_packages/WP_M1_YAHOO_ADAPTER_20260603.md` | start after interface skeleton exists, or draft against expected interface |
+| Issuer NAV adapter | `control/work_packages/WP_M1_ISSUER_NAV_ADAPTER_20260603.md` | start after interface skeleton exists, or draft against expected interface |
+| Source metadata policy | `control/work_packages/WP_M5_SOURCE_METADATA_POLICY_20260603.md` | start now |
 | Agreement gate | `control/work_packages/WP_M1_AGREEMENT_GATE_INTEGRATION_20260603.md` | do not implement until at least two adapters exist |
 | First report | `control/work_packages/WP_M2_FIRST_REPORT_INTEGRATION_20260603.md` | do not implement until agreement gate exists |
 
@@ -87,15 +89,16 @@ Rules:
 
 Recommended integration order:
 
-1. PriceSource interface
+1. Pricing interface
 2. Stooq adapter
 3. Börse Frankfurt/Xetra adapter
-4. Yahoo + issuer adapters
-5. Licensing policy
-6. M0 cleanup, if it does not conflict with active files
-7. Agreement gate integration
-8. First report integration
-9. Client-facing report rewrite later
+4. Yahoo adapter
+5. Issuer NAV adapter
+6. Source metadata policy
+7. M0 cleanup, if it does not conflict with active files
+8. Agreement gate integration
+9. First report integration
+10. Client-facing report rewrite later
 
 ## Coordinator checklist
 
