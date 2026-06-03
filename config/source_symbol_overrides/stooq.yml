@@ -1,0 +1,31 @@
+schema_version: stooq_symbol_overrides_v1
+source_id: stooq
+mapping_policy: explicit_only_no_runtime_guessing
+license_class: provider_free_personal
+authority_tier: diagnostic_candidate_source
+valuation_grade_default: false
+portfolio_mutation: false
+production_delivery: false
+funding_authority: false
+symbols:
+  # Stooq symbol mappings are intentionally explicit and reviewable.
+  # These mappings provide adapter-level evidence only. They do not promote
+  # any row to valuation-grade and do not mutate portfolio state.
+  - registry_id: core_us_equity_cspx
+    isin: IE00B5BMR087
+    exchange: London Stock Exchange
+    exchange_ticker: CSPX
+    trading_currency: USD
+    source_symbol: cspx.uk
+    expected_currency: USD
+    mapping_status: provisional_requires_provider_verification
+    notes: "Explicit Stooq symbol candidate for iShares Core S&P 500 UCITS ETF USD line. Verify provider coverage before coordinator integration."
+  - registry_id: core_us_equity_cspx
+    isin: IE00B5BMR087
+    exchange: Xetra
+    exchange_ticker: SXR8
+    trading_currency: EUR
+    source_symbol: sxr8.de
+    expected_currency: EUR
+    mapping_status: provisional_requires_provider_verification
+    notes: "Explicit Stooq symbol candidate for iShares Core S&P 500 UCITS ETF Xetra EUR line. Verify provider coverage before coordinator integration."
