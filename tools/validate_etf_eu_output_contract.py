@@ -5,7 +5,6 @@ import re
 from pathlib import Path
 
 EU_REPORT_RE = re.compile(r"^weekly_etf_eu_review(?:_nl)?_\d{6}\.md$")
-US_REPORT_RE = re.compile(r"^weekly_analysis_pro_.*\.md$")
 US_PROXY_TICKERS = ["SPY", "QQQ", "SMH", "GLD", "GSG", "PPA", "PAVE", "URNM", "IWM", "TLT", "KWEB", "ICLN", "SOXX", "ITA", "GRID", "URA", "NLR"]
 REQUIRED_EN_PHRASES = [
     "cash-only bootstrap",
@@ -23,6 +22,26 @@ REQUIRED_NL_PHRASES = [
     "Productielevering: uitgeschakeld",
     "geen PDF-rendering, portefeuille-executie of e-mailverzending uitgevoerd",
 ]
+STRICT_PRODUCTION_NL_PHRASES = [
+    "Productierapport-volwassenheid",
+    "Nederlandse hoofdrapportage",
+    "primaire clientrapportage",
+    "geen gefinancierde UCITS-posities",
+    "geen koopadvies",
+    "geen portefeuille-mutatie",
+    "geen productielevering",
+    "geen delivery receipt",
+]
+STRICT_PRODUCTION_EN_PHRASES = [
+    "Production report maturity",
+    "Dutch report is the primary client report",
+    "companion/operator-facing version",
+    "no funded UCITS holdings",
+    "no buy recommendation",
+    "no portfolio mutation",
+    "no production delivery",
+    "no delivery receipt",
+]
 ALLOWED_PROXY_CONTEXT = [
     "research proxy",
     "research proxies",
@@ -32,8 +51,8 @@ ALLOWED_PROXY_CONTEXT = [
     "proxy",
     "not investable",
     "niet investeerbaar",
-    "not an investable EU holding",
-    "niet als gefinancierde EU-portefeuillepositie",
+    "not an investable eu holding",
+    "niet als gefinancierde eu-portefeuillepositie",
 ]
 FORBIDDEN_HOLDING_CONTEXT = [
     "funded holding",
@@ -47,6 +66,18 @@ FORBIDDEN_HOLDING_CONTEXT = [
     "huidige positie",
     "portefeuillepositie",
 ]
+FORBIDDEN_PRODUCTION_CLAIMS = [
+    "funding_authority=true",
+    "portfolio_mutation=true",
+    "production_delivery=true",
+    "delivery completed",
+    "delivery receipt exists",
+    "pdf generated",
+    "email sent",
+    "waarderingsautoriteit: ja",
+    "valuation authority: yes",
+    "koopadvies: ja",
+]
 
 
 def _normalized_markdown(text: str) -> str:
@@ -54,10 +85,6 @@ def _normalized_markdown(text: str) -> str:
     text = text.replace("**", "")
     text = text.replace("__", "")
     text = text.replace("`", "")
-    return re.sub(r"\s+", " ", text).strip()
-
-
-def _plain(text: str) -> str:
     return re.sub(r"\s+", " ", text).strip()
 
 
@@ -76,7 +103,20 @@ def _has_forbidden_holding_context(line: str) -> bool:
     return any(token in lower for token in FORBIDDEN_HOLDING_CONTEXT) and not _is_allowed_proxy_line(line)
 
 
-def _validate_report(path: Path) -> None:
+def _validate_strict_production_maturity(path: Path, normalized_text: str, *, is_nl: bool) -> None:
+    required = STRICT_PRODUCTION_NL_PHRASES if is_nl else STRICT_PRODUCTION_EN_PHRASES
+    missing = [phrase for phrase in required if phrase not in normalized_text]
+    if missing:
+        raise RuntimeError(
+            f"EU production Dutch-first contract failed for {path.name}: missing required production maturity phrase(s): {', '.join(missing)}"
+        )
+    lowered = normalized_text.lower()
+    for phrase in FORBIDDEN_PRODUCTION_CLAIMS:
+        if phrase.lower() in lowered:
+            raise RuntimeError(f"EU production Dutch-first contract failed for {path.name}: forbidden production claim present: {phrase}")
+
+
+def _validate_report(path: Path, *, require_production_dutch_first: bool = False) -> None:
     if not EU_REPORT_RE.match(path.name):
         raise RuntimeError(f"EU output contract failed: unexpected EU report filename: {path.name}")
     text = path.read_text(encoding="utf-8")
@@ -97,10 +137,12 @@ def _validate_report(path: Path) -> None:
                 # Permit explicit mapping rows only if the row labels the ticker as proxy/reference.
                 if normalized_line.startswith("|"):
                     raise RuntimeError(f"EU output contract failed for {path.name}: U.S. proxy {ticker} appears in table without proxy context: {normalized_line[:220]}")
+    if require_production_dutch_first or "Productierapport-volwassenheid" in normalized_text or "Production report maturity" in normalized_text:
+        _validate_strict_production_maturity(path, normalized_text, is_nl=is_nl)
     print(f"ETF_EU_OUTPUT_CONTRACT_OK | report={path.name} | language={'nl' if is_nl else 'en'}")
 
 
-def validate(output_dir: Path) -> None:
+def validate(output_dir: Path, *, require_production_dutch_first: bool = False) -> None:
     reports = sorted(path for path in output_dir.glob("weekly_etf_eu_review*.md") if path.is_file())
     if not reports:
         raise RuntimeError("EU output contract failed: no weekly_etf_eu_review*.md reports found")
@@ -112,14 +154,15 @@ def validate(output_dir: Path) -> None:
     if not has_en or not has_nl:
         raise RuntimeError("EU output contract failed: expected both English companion and Dutch primary markdown outputs")
     for report in reports:
-        _validate_report(report)
+        _validate_report(report, require_production_dutch_first=require_production_dutch_first)
 
 
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--output-dir", default="output")
+    parser.add_argument("--require-production-dutch-first", action="store_true")
     args = parser.parse_args()
-    validate(Path(args.output_dir))
+    validate(Path(args.output_dir), require_production_dutch_first=args.require_production_dutch_first)
 
 
 if __name__ == "__main__":
