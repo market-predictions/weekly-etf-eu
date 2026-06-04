@@ -19,6 +19,52 @@ def _price_summary(row: dict[str, Any], *, language: str) -> str:
     return f"status={status}; date={observed}; close={close}; currency={currency}; sources={sources}"
 
 
+def production_report_maturity_section(*, language: str) -> str:
+    """Render the Dutch-first production-quality maturity bridge.
+
+    This section is intentionally authority-neutral. It can be shown before the
+    workflow becomes a production delivery path because it describes report
+    maturity, not funding, valuation authority, or delivery completion.
+    """
+
+    if language == "nl":
+        return """## Productierapport-volwassenheid
+
+Deze laag maakt het rapport geschikt als **Nederlandse hoofdrapportage** voor een Dutch/EU-client review, maar verandert niets aan portefeuille- of leveringsautoriteit.
+
+| Controlepunt | Huidige status |
+|---|---|
+| Rapportrol | primaire clientrapportage in het Nederlands |
+| Engelse versie | companion/operator-facing versie |
+| Clientbesluit | onderzoeks- en bewijsfase; geen koopadvies |
+| UCITS-portefeuille | geen gefinancierde UCITS-posities |
+| Portefeuille-impact | geen portefeuille-mutatie |
+| Pricingkwaliteit | agreement-gate bewijs zichtbaar, geen waarderingsautoriteit |
+| Fundability | geen kandidaat automatisch fundable |
+| Productielevering | geen productielevering |
+| Delivery bewijs | geen delivery receipt |
+
+De tekst is geschreven voor Nederlandse/EU-clientbesluitvorming. Amerikaanse ETF's blijven onderzoeksproxy's en mogen niet als investeerbare EU-portefeuillepositie worden gepresenteerd."""
+
+    return """## Production report maturity
+
+This layer makes the report suitable as a Dutch-first client review surface, but it does not change portfolio or delivery authority.
+
+| Checkpoint | Current status |
+|---|---|
+| Report role | Dutch report is the primary client report |
+| English version | companion/operator-facing version |
+| Client decision | research and evidence phase; no buy recommendation |
+| UCITS portfolio | no funded UCITS holdings |
+| Portfolio impact | no portfolio mutation |
+| Pricing quality | agreement-gate evidence visible, not valuation authority |
+| Fundability | no candidate is automatically fundable |
+| Production delivery | no production delivery |
+| Delivery evidence | no delivery receipt |
+
+The client-facing report is Dutch-first. U.S. ETFs remain research proxies and must not be presented as investable EU portfolio positions."""
+
+
 def pricing_surface_table(payload: dict[str, Any], *, language: str) -> str:
     """Render agreement-aware pricing evidence without funding authority.
 
