@@ -37,6 +37,7 @@ The authoritative inputs are:
 ```text
 config/ucits_symbol_registry.yml
 config/ucits_pricing_source_policy.yml
+control/DATA_SOURCE_METADATA.md
 output/pricing/ucits_pricing_candidates_*.json
 output/pricing/ucits_pricing_preflight_*.json
 ```
@@ -58,7 +59,7 @@ source_lineage
 completed_session
 ```
 
-The non-authoritative preflight may be used as evidence of connectivity only. It cannot create a valuation-grade row unless the source policy explicitly promotes the source for that exact trading line.
+The non-authoritative preflight may be used as evidence of connectivity or display continuity only. It cannot create a valuation-grade row unless the source policy, source metadata, and agreement gate explicitly allow that source for that exact trading line.
 
 ### 3. Output contract
 
@@ -92,7 +93,7 @@ valuation_status: valuation_grade
 valuation_grade: true
 ```
 
-only if the validator can confirm all required source, date, close, currency, completed-session and source-lineage evidence.
+only if the validator can confirm all required source, date, close, currency, completed-session and source-lineage evidence, and only if the agreement gate confirms sufficient independent market-close agreement evidence under source metadata policy.
 
 ### 4. Operational runbook
 
@@ -117,12 +118,38 @@ config/ucits_pricing_source_policy.yml
 
 Default hierarchy:
 
-1. `exchange_official` — preferred valuation source when a completed-session official close is available and attributable.
-2. `twelve_data` — candidate valuation source only after symbol/date/currency evidence is verified for the specific UCITS trading line.
-3. `issuer_factsheet` — reference-only or stale-check source, not a daily close authority unless explicitly upgraded.
-4. `yahoo_yfinance` — non-authoritative connectivity/research source by default.
+1. `exchange_official` / venue-specific official exchange candidates — preferred valuation source when a completed-session official close is available and attributable.
+2. `twelve_data` — diagnostic/candidate source only after symbol/date/currency evidence and plan/source terms are verified for the specific UCITS trading line.
+3. `issuer_factsheet` / issuer NAV references — reference-only or stale-check sources, not daily close authority unless explicitly upgraded by a separate contract.
+4. `yahoo_yfinance` — non-authoritative connectivity/display source by default.
 
-`yahoo_yfinance` must remain non-authoritative unless a future policy change explicitly promotes it for a specific trading line and documents the reason.
+`yahoo_yfinance` must remain non-authoritative unless a future decision log entry and validator-backed implementation explicitly promote it for a specific trading line and document the reason. Under the current policy it cannot be agreement-gate valuation-grade authority.
+
+## Agreement-gate source-counting rule
+
+A source may count as independent market-close agreement evidence only when source metadata and source policy both allow it.
+
+Current non-counting sources:
+
+```text
+yahoo_yfinance
+issuer_nav
+blackrock_issuer_reference
+issuer_factsheet
+stooq
+boerse_frankfurt
+twelve_data
+```
+
+Current candidate counting sources are limited to reviewed or review-pending venue/official close candidates such as:
+
+```text
+euronext_live
+deutsche_boerse_live
+exchange_official
+```
+
+A Yahoo/yfinance observed close may be preserved as provisional connectivity/display evidence, but it must not satisfy `min_independent_sources`, must not populate valuation authority fields, and must not flip `valuation_grade` to `true` under the current agreement-gate policy.
 
 ## Completed-session rule
 
@@ -173,6 +200,7 @@ observed_date
 close
 currency
 source_lineage
+agreement_gate_evidence
 valuation_grade: true
 completed_session: true
 portfolio_mutation: false
