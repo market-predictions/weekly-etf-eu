@@ -35,8 +35,10 @@ jobs:
         run: |
           RUN_ID="$(date -u +'%Y%m%d_%H%M%S')"
           REPORT_DATE="$(date -u +'%Y-%m-%d')"
+          REPORT_SUFFIX="$(date -u +'%y%m%d')"
           echo "ETF_EU_RUN_ID=$RUN_ID" >> "$GITHUB_ENV"
           echo "ETF_EU_REPORT_DATE=$REPORT_DATE" >> "$GITHUB_ENV"
+          echo "ETF_EU_REPORT_SUFFIX=$REPORT_SUFFIX" >> "$GITHUB_ENV"
           echo "ETF_EU_RUN_ID=$RUN_ID | report_date=$REPORT_DATE"
 
       - name: Validate EU control files exist
@@ -87,12 +89,12 @@ jobs:
           python tools/validate_ucits_pricing_preflight.py \
             --artifact "output/pricing/ucits_pricing_preflight_${ETF_EU_RUN_ID}.json"
 
-      - name: Build and validate UCITS valuation pricing artifact
+      - name: Build and validate agreement-aware UCITS valuation pricing artifact
         env:
           TWELVE_DATA_API_KEY: ${{ secrets.TWELVE_DATA_API_KEY }}
           TWELVEDATA_API_KEY: ${{ secrets.TWELVEDATA_API_KEY }}
         run: |
-          python -m pricing.build_ucits_valuation_prices \
+          python -m pricing.build_ucits_valuation_prices_with_agreement \
             --registry config/ucits_symbol_registry.yml \
             --source-policy config/ucits_pricing_source_policy.yml \
             --candidate-artifact "output/pricing/ucits_pricing_candidates_${ETF_EU_RUN_ID}.json" \
@@ -201,20 +203,24 @@ jobs:
           print('ETF_EU_CASH_ONLY_STATE_OK')
           PY
 
-      - name: Render EU candidate report skeleton
+      - name: Render EU candidate report with pricing surface
         run: |
-          python -m runtime.render_etf_eu_report \
+          python -m runtime.render_etf_eu_report_with_pricing_surface \
             --output-dir output \
             --state output/etf_eu_portfolio_state.json \
             --proxy-map config/ucits_benchmark_proxy_map.yml \
             --registry config/ucits_symbol_registry.yml \
             --pricing-preflight "output/pricing/ucits_pricing_preflight_${ETF_EU_RUN_ID}.json" \
+            --valuation-artifact "output/pricing/ucits_valuation_prices_${ETF_EU_RUN_ID}.json" \
             --report-date "$ETF_EU_REPORT_DATE"
 
-      - name: Validate EU output and candidate report contracts
+      - name: Validate EU output, pricing surface and fundability contracts
         run: |
           python tools/validate_etf_eu_output_contract.py --output-dir output
           python tools/validate_etf_eu_candidate_report.py --output-dir output
+          python tools/validate_etf_eu_pricing_surface.py "output/weekly_etf_eu_review_${ETF_EU_REPORT_SUFFIX}.md"
+          python tools/validate_etf_eu_pricing_surface.py "output/weekly_etf_eu_review_nl_${ETF_EU_REPORT_SUFFIX}.md"
+          python tools/validate_ucits_fundability_promotion_contract.py --registry config/ucits_symbol_registry.yml
 
       - name: Validate inherited US production sender is disabled
         run: |
@@ -234,7 +240,8 @@ jobs:
           echo "ETF_EU_BOOTSTRAP_VALIDATION_ONLY"
           echo "No portfolio mutation, PDF generation or email delivery is performed by this workflow."
           echo "UCITS pricing preflight is non-authoritative and cannot promote candidates to fundable status."
-          echo "UCITS valuation pricing artifact is non-mutating and cannot create funding authority."
+          echo "Agreement-aware UCITS valuation artifact is non-mutating and cannot create funding authority."
+          echo "Agreement-gate pricing surface is report evidence only and cannot create valuation or funding authority."
           echo "Official exchange source snapshot is diagnostic only and cannot create valuation or funding authority."
           echo "Official exchange page evidence is identity evidence only and cannot create valuation or funding authority."
           echo "Generic UCITS close observations are adapter-scaffold evidence only and cannot create valuation or funding authority."
@@ -258,7 +265,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add output/weekly_etf_eu_review_*.md output/pricing/ucits_pricing_candidates_*.json output/pricing/ucits_pricing_preflight_*.json output/pricing/ucits_valuation_prices_*.json output/pricing/ucits_official_exchange_source_snapshot_*.json output/pricing/ucits_official_exchange_page_evidence_*.json output/pricing/ucits_close_observations_*.json output/pricing/euronext_endpoint_evidence_*.json output/pricing/euronext_product_page_evidence_*.json output/pricing/euronext_dynamic_quote_response_discovery_*.json output/pricing/euronext_js_asset_inspection_*.json output/pricing/yahoo_ucits_close_diagnostics_*.json output/pricing/ucits_twelve_data_symbol_discovery_*.json output/validation/etf_eu_shadow_validation_evidence_*.json || true
+          git add output/weekly_etf_eu_review_*.md output/pricing/ucits_pricing_candidates_*.json output/pricing/ucits_pricing_preflight_*.json output/pricing/ucits_valuation_prices_*.json output/pricing/ucits_pricing_source_policy_shadow_*.yml output/pricing/ucits_official_exchange_source_snapshot_*.json output/pricing/ucits_official_exchange_page_evidence_*.json output/pricing/ucits_close_observations_*.json output/pricing/euronext_endpoint_evidence_*.json output/pricing/euronext_product_page_evidence_*.json output/pricing/euronext_dynamic_quote_response_discovery_*.json output/pricing/euronext_js_asset_inspection_*.json output/pricing/yahoo_ucits_close_diagnostics_*.json output/pricing/ucits_twelve_data_symbol_discovery_*.json output/validation/etf_eu_shadow_validation_evidence_*.json || true
           if git diff --cached --quiet; then
             echo "No EU bootstrap artifacts to commit."
             exit 0
