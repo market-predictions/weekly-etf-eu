@@ -26,11 +26,14 @@ STRICT_PRODUCTION_NL_PHRASES = [
     "Productierapport-volwassenheid",
     "Nederlandse hoofdrapportage",
     "primaire clientrapportage",
+    "Engelse rapportage is companion/operator-facing",
     "geen gefinancierde UCITS-posities",
     "geen koopadvies",
     "geen portefeuille-mutatie",
     "geen productielevering",
     "geen delivery receipt",
+    "fundability gate status zichtbaar",
+    "candidate_promotion=false",
 ]
 STRICT_PRODUCTION_EN_PHRASES = [
     "Production report maturity",
@@ -41,6 +44,8 @@ STRICT_PRODUCTION_EN_PHRASES = [
     "no portfolio mutation",
     "no production delivery",
     "no delivery receipt",
+    "fundability gate status visible",
+    "candidate_promotion=false",
 ]
 ALLOWED_PROXY_CONTEXT = [
     "research proxy",
@@ -70,13 +75,16 @@ FORBIDDEN_PRODUCTION_CLAIMS = [
     "funding_authority=true",
     "portfolio_mutation=true",
     "production_delivery=true",
+    "candidate_promotion=true",
     "delivery completed",
     "delivery receipt exists",
+    "delivery receipt created",
     "pdf generated",
     "email sent",
     "waarderingsautoriteit: ja",
     "valuation authority: yes",
     "koopadvies: ja",
+    "candidate promoted to fundable",
 ]
 
 
