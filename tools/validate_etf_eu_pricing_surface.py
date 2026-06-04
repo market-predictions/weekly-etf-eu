@@ -15,6 +15,21 @@ REQUIRED_NL = [
     "niet gefinancierd",
 ]
 
+PRODUCTION_MATURITY_EN = [
+    "Production report maturity",
+    "Dutch report is the primary client report",
+    "no production delivery",
+    "no delivery receipt",
+]
+
+PRODUCTION_MATURITY_NL = [
+    "Productierapport-volwassenheid",
+    "Nederlandse hoofdrapportage",
+    "primaire clientrapportage",
+    "geen productielevering",
+    "geen delivery receipt",
+]
+
 FORBIDDEN = [
     "valuation authority: yes",
     "waarderingsautoriteit: ja",
@@ -23,6 +38,10 @@ FORBIDDEN = [
     "funding_authority=true",
     "portfolio_mutation=true",
     "production_delivery=true",
+    "delivery completed",
+    "delivery receipt exists",
+    "pdf generated",
+    "email sent",
 ]
 
 FUNDED_UCITS_TOKENS = [
@@ -65,14 +84,20 @@ def _has_positive_funded_ucits_claim(text: str) -> bool:
     return False
 
 
-def validate_pricing_surface(path: Path) -> None:
+def validate_pricing_surface(path: Path, *, require_production_dutch_first: bool = False) -> None:
     text = path.read_text(encoding="utf-8")
     normalized = _normalize(text)
     lowered = normalized.lower()
-    required = REQUIRED_NL if "_nl_" in path.name else REQUIRED_EN
+    is_nl = "_nl_" in path.name
+    required = REQUIRED_NL if is_nl else REQUIRED_EN
     missing = [item for item in required if item not in normalized]
     if missing:
         raise RuntimeError(f"EU pricing surface validation failed: missing {', '.join(missing)}")
+    if require_production_dutch_first or "Productierapport-volwassenheid" in normalized or "Production report maturity" in normalized:
+        maturity_required = PRODUCTION_MATURITY_NL if is_nl else PRODUCTION_MATURITY_EN
+        missing_maturity = [item for item in maturity_required if item not in normalized]
+        if missing_maturity:
+            raise RuntimeError(f"EU pricing surface validation failed: missing production maturity phrase(s): {', '.join(missing_maturity)}")
     for phrase in FORBIDDEN:
         if phrase.lower() in lowered:
             raise RuntimeError(f"EU pricing surface validation failed: forbidden phrase present: {phrase}")
@@ -84,8 +109,9 @@ def validate_pricing_surface(path: Path) -> None:
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("path")
+    parser.add_argument("--require-production-dutch-first", action="store_true")
     args = parser.parse_args()
-    validate_pricing_surface(Path(args.path))
+    validate_pricing_surface(Path(args.path), require_production_dutch_first=args.require_production_dutch_first)
 
 
 if __name__ == "__main__":
