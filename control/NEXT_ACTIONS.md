@@ -8,434 +8,257 @@
 
 ---
 
-## Phase 0 — repo split
+## Current priority
 
-### 1. Confirm new repo exists
+The repo has moved from the adapter-only pricing spine to an agreement-aware pricing-surface shadow path.
 
-- Owner: `[USER]`
-- Status: done
-- Result: `market-predictions/weekly-etf-eu` was created and mirror-pushed from `market-predictions/weekly-etf`.
+Current critical path:
 
-### 2. Preserve U.S. repo as baseline
+```text
+verify shadow workflow
+→ switch main EU workflow to wrappers only after verification
+→ build production Dutch-first report surface
+→ enable delivery only after validators and receipt/manifest path exist
+```
 
-- Owner: `[JOINT]`
-- Status: standing rule
-- Action: do not destructively change `market-predictions/weekly-etf` for EU/UCITS requirements.
-- Done when: U.S. and EU products remain separated.
-
----
-
-## Phase 1 — EU control and state separation
-
-### 3. Rewrite control layer for EU authority
-
-- Owner: `[ASSISTANT]`
-- Status: done
-- Target files:
-  - `control/SYSTEM_INDEX.md`
-  - `control/CURRENT_STATE.md`
-  - `control/NEXT_ACTIONS.md`
-- Done when: the repo clearly defines itself as the UCITS/Dutch-client environment.
-
-### 4. Add UCITS authority contracts
-
-- Owner: `[ASSISTANT]`
-- Status: done
-- Target files:
-  - `control/UCITS_ETF_REVIEW_CONTRACT_V1.md`
-  - `control/UCITS_INVESTABILITY_RULES.md`
-  - `control/UCITS_SYMBOL_REGISTRY_CONTRACT.md`
-  - `control/UCITS_MIGRATION_PLAN.md`
-- Done when: EU decision framework, investability, symbol identity and migration are explicit.
-
-### 5. Add EU config stubs
-
-- Owner: `[ASSISTANT]`
-- Status: done
-- Target files:
-  - `config/etf_eu_discovery_universe.yml`
-  - `config/ucits_symbol_registry.yml`
-  - `config/ucits_benchmark_proxy_map.yml`
-  - `config/nl_client_investability_rules.yml`
-- Done when: UCITS discovery and proxy mapping are separated from the inherited U.S. universe.
-
-### 6. Add cash-only EU state
-
-- Owner: `[ASSISTANT]`
-- Status: done
-- Target files:
-  - `output/etf_eu_portfolio_state.json`
-  - `output/etf_eu_valuation_history.csv`
-  - `output/etf_eu_trade_ledger.csv`
-  - `output/etf_eu_recommendation_scorecard.csv`
-- Done when: EU model has its own starting state and does not use U.S. holdings as current truth.
-
-### 7. Add no-U.S.-ETF-as-EU-holding validator
-
-- Owner: `[ASSISTANT]`
-- Status: done
-- Target file:
-  - `tools/validate_no_us_etf_as_eu_holding.py`
-- Done when: funded EU positions fail validation if they use U.S.-listed ETF tickers as holdings.
+Do not treat the shadow workflow as passed until GitHub Actions status or committed validation evidence proves it.
 
 ---
 
-## Phase 2 — workflow and output isolation
+## Completed work packages and integrations
 
-### 8. Disable inherited production send path until EU contract is ready
-
-- Owner: `[ASSISTANT]`
-- Status: done
-- Target file:
-  - `.github/workflows/send-weekly-report.yml`
-- Done when: inherited U.S. workflow no longer performs pricing, portfolio mutation, PDF generation or email delivery in the EU repo.
-
-### 9. Add EU run queue and workflow naming
-
-- Owner: `[ASSISTANT]`
-- Status: done
-- Target paths:
-  - `control/run_queue/weekly_etf_eu_report_request_YYYYMMDD_HHMMSS.md`
-  - `.github/workflows/send-weekly-etf-eu-report.yml`
-- Done when: ChatGPT-triggered EU bootstrap validation uses separate names from U.S. runs.
-
-### 10. Add EU output contract
-
-- Owner: `[ASSISTANT]`
-- Status: done
-- Target files:
-  - `control/ETF_EU_OUTPUT_CONTRACT_V1.md`
-  - `output/weekly_etf_eu_review_YYMMDD.md`
-  - `output/weekly_etf_eu_review_nl_YYMMDD.md`
-- Done when: EU reports cannot be confused with U.S. weekly ETF reports.
-
-### 11. Add no-U.S.-ETF-as-report-holding validator
-
-- Owner: `[ASSISTANT]`
-- Status: done
-- Target file:
-  - `tools/validate_etf_eu_output_contract.py`
-- Done when: EU report markdown fails validation if U.S. ETF tickers appear as investable holdings rather than research proxies.
-
-### 12. Add first Dutch-first EU report skeleton
-
-- Owner: `[ASSISTANT]`
-- Status: done
-- Target file:
-  - `runtime/render_etf_eu_report.py`
-- Done when: the repo can generate a non-delivery cash-only EU report skeleton with UCITS/proxy disclosure.
-
-### 13. Confirm EU output-contract validation passed
-
-- Owner: `[USER]`
-- Status: done
-- Result: GitHub Actions validation passed and generated markdown skeletons were committed.
-
----
-
-## Phase 3 — UCITS registry, pricing and reporting
-
-### 14. Build initial UCITS candidate registry
-
-- Owner: `[JOINT]`
-- Status: done for bootstrap seed
-- Target file:
-  - `config/ucits_symbol_registry.yml`
-- Result:
-  - registry seeded with CSPX, VanEck Semiconductor UCITS placeholder, iShares Physical Gold ETC policy-blocked candidate, and infrastructure placeholder;
-  - only CSPX is currently `verified_candidate_not_funded`;
-  - no candidate is funded.
-
-### 15. Add UCITS registry validator
-
-- Owner: `[ASSISTANT]`
-- Status: done
-- Target file:
-  - `tools/validate_ucits_symbol_registry.py`
-- Done when: registry fails if required ISIN/trading-line/investability fields are missing or inconsistent.
-
-### 16. Add UCITS investability validator
-
-- Owner: `[ASSISTANT]`
-- Status: done
-- Target file:
-  - `tools/validate_ucits_investability_contract.py`
-- Done when: a candidate cannot become fundable without ISIN, UCITS status, PRIIPs/KID status, exchange line, trading currency and pricing symbol.
-
-### 17. Confirm UCITS registry validation passed
-
-- Owner: `[USER]`
-- Status: done
-- Result: GitHub Actions validation passed after YAML syntax fix.
-
-### 18. Add UCITS pricing-line contract
-
-- Owner: `[ASSISTANT]`
-- Status: done
-- Target file:
-  - `control/UCITS_PRICING_LINE_CONTRACT_V1.md`
-- Done when: pricing-line authority is explicit for UCITS exchange ticker + exchange + trading currency + provider symbol.
-
-### 19. Add UCITS pricing candidate extractor
-
-- Owner: `[ASSISTANT]`
-- Status: done
-- Target file:
-  - `pricing/build_ucits_pricing_candidates.py`
-- Done when: verified-but-not-funded UCITS trading lines can be extracted into a pricing candidate artifact without changing portfolio state.
-
-### 20. Add UCITS pricing candidate validator
-
-- Owner: `[ASSISTANT]`
-- Status: done
-- Target file:
-  - `tools/validate_ucits_pricing_candidates.py`
-- Done when: pricing tests are limited to registry-approved UCITS candidates and exclude U.S. proxy holdings.
-
-### 21. Run first UCITS pricing-line preflight
+### 1. EU repo split and control/state separation
 
 - Owner: `[ASSISTANT]`
 - Status: done
 - Result:
-  - GitHub Actions passed;
-  - UCITS pricing candidate artifact built and validated;
-  - non-authoritative pricing preflight artifact built and validated;
-  - no portfolio mutation, no funding authority, no PDF, no email.
+  - EU repo exists as `market-predictions/weekly-etf-eu`;
+  - control layer identifies it as a Dutch/EU UCITS product;
+  - EU cash-only state files exist;
+  - inherited U.S. holdings are not EU authority.
 
-### 22. Extend Dutch-first EU report skeleton with UCITS candidate table
-
-- Owner: `[ASSISTANT]`
-- Status: done
-- Target file:
-  - `runtime/render_etf_eu_report.py`
-- Done when: Dutch and English skeletons display candidate registry rows, investability status and non-authoritative pricing-preflight status while keeping portfolio state cash-only.
-
-### 23. Add candidate-report validator
-
-- Owner: `[ASSISTANT]`
-- Status: done
-- Target file:
-  - `tools/validate_etf_eu_candidate_report.py`
-- Done when: report fails if UCITS candidate rows are presented as funded holdings or if pricing-preflight status is presented as valuation authority.
-
-### 24. Add candidate-report run validation
+### 2. EU output and bootstrap validation
 
 - Owner: `[ASSISTANT]`
 - Status: done
 - Result:
-  - GitHub Actions passed;
-  - candidate-aware Dutch and English reports were rendered;
-  - EU output contract and candidate-report contract passed;
-  - no portfolio mutation, no funding authority, no PDF, no email.
+  - inherited U.S. send path disabled;
+  - EU output contract added;
+  - Dutch-first and English companion skeleton reports added;
+  - output-contract and candidate-report validators exist.
 
----
-
-## Phase 4 — valuation-grade UCITS pricing authority
-
-### 25. Add valuation-grade UCITS pricing authority contract
+### 3. UCITS registry, investability and pricing-line scaffold
 
 - Owner: `[ASSISTANT]`
 - Status: done
-- Target file:
-  - `control/UCITS_VALUATION_PRICING_CONTRACT_V1.md`
-- Result: distinction between connectivity preflight and valuation-grade pricing authority is explicit.
-
-### 26. Define authoritative pricing source order per UCITS trading line
-
-- Owner: `[JOINT]`
-- Status: done for initial conservative policy
-- Target file:
-  - `config/ucits_pricing_source_policy.yml`
 - Result:
-  - `exchange_official` is preferred valuation source but not yet integrated;
-  - `twelve_data` is candidate valuation source pending trading-line symbol/date/currency verification;
-  - `issuer_factsheet` is reference/stale-check only;
-  - `yahoo_yfinance` remains non-authoritative connectivity only.
+  - UCITS registry seeded;
+  - UCITS registry validator added;
+  - UCITS investability validator added;
+  - UCITS pricing-line contract, candidate extractor, pricing preflight and validators added.
 
-### 27. Add valuation-grade pricing artifact builder
-
-- Owner: `[ASSISTANT]`
-- Status: done
-- Target file:
-  - `pricing/build_ucits_valuation_prices.py`
-- Result: separate valuation-price artifact can be produced without mutating portfolio state.
-
-### 28. Add valuation-grade pricing validator
+### 4. Initial valuation-pricing scaffold
 
 - Owner: `[ASSISTANT]`
 - Status: done
-- Target file:
-  - `tools/validate_ucits_valuation_prices.py`
-- Result: validator blocks valuation-grade status unless source, date, close, currency, completed-session and source-lineage requirements are met.
-
-### 29. Wire valuation artifact into EU workflow and validate
-
-- Owner: `[ASSISTANT]`
-- Status: done
-- Target file:
-  - `.github/workflows/send-weekly-etf-eu-report.yml`
 - Result:
-  - GitHub Actions passed;
-  - `output/pricing/ucits_valuation_prices_20260531_133912.json` committed;
-  - artifact contains 2 pending valuation rows and 0 valuation-grade rows;
-  - no portfolio mutation, no funding authority, no PDF, no email.
+  - `control/UCITS_VALUATION_PRICING_CONTRACT_V1.md` added;
+  - `config/ucits_pricing_source_policy.yml` added;
+  - `pricing/build_ucits_valuation_prices.py` added;
+  - `tools/validate_ucits_valuation_prices.py` added;
+  - valuation artifacts remain pending/non-mutating with no valuation-grade rows.
 
-### 30. Integrate first authoritative valuation data source
-
-- Owner: `[JOINT]`
-- Status: superseded by pricing-spine path
-- Updated action:
-  - do not integrate a single source directly into the valuation artifact as the next step;
-  - first integrate the common `PriceSource` / `PriceResult` interface;
-  - then integrate at least two adapters and an agreement gate;
-  - only then wire agreement-gate output into valuation artifacts.
-
-### 31. Decide promotion path from candidate to fundable
-
-- Owner: `[JOINT]`
-- Status: planned after agreement-gate valuation path exists
-- Action:
-  - define when `verified_candidate_not_funded` can become `fundable`;
-  - include instrument verification, pricing authority, liquidity, spread, role, risk and portfolio concentration gates.
-
-### 32. Build Dutch-first EU production report renderer
-
-- Owner: `[ASSISTANT]`
-- Status: planned after first report pricing surface and fundability contract
-- Action:
-  - render Dutch report as primary client output;
-  - mark U.S. proxies as research-only;
-  - disclose UCITS / PRIIPs / trading line status;
-  - convert skeleton into full UCITS candidate and eventually funded-position report.
-- Done when: Dutch/EU report is client-native, not a translation of a U.S. investable-universe report.
-
-### 33. Enable EU delivery only after validators pass
-
-- Owner: `[JOINT]`
-- Status: blocked until valuation-source integration, funded-state contract and production output validators pass
-- Done when: EU validator stack passes and a real delivery manifest/receipt exists.
-
----
-
-## Phase 5 — parallel pricing-spine integration
-
-### 34. Integrate M0 ground-clearing
-
-- Owner: `[ASSISTANT]`
-- Status: done
-- Integrated PR:
-  - `#1 — M0 ground-clearing: pin dependencies and document EU bootstrap workflow`
-- Merge commit:
-  - `c1476171606206d369190bf4c8cf126222a1e753`
-- Result:
-  - `README.md` added for EU bootstrap orientation;
-  - `archive/README.md` added with quarantine notes;
-  - `requirements.txt` pinned;
-  - `.gitignore` added without blocking `control/run_queue` or `output/*` behavior;
-  - `control/CHANGELOG.md` created after integration.
-- Authority result:
-  - no pricing authority changed;
-  - no funding authority changed;
-  - no portfolio mutation changed;
-  - no production delivery, PDF generation or email behavior changed.
-
-### 35. Integrate common pricing interface
-
-- Owner: `[ASSISTANT]`
-- Status: done
-- Integrated PR:
-  - `#3 — M1: Add common pricing interface`
-- Merge commit:
-  - `0c21629aa315f18a0ebceb0a301841d457d2a554`
-- Target files:
-  - `pricing/README.md`
-  - `pricing/price_result_schema.py`
-  - `pricing/source_selection.py`
-  - `pricing/sources/__init__.py`
-  - `pricing/sources/base.py`
-  - `tests/test_pricing_interface.py`
-  - `tests/fixtures/pricing/fake_price_rows.json`
-- Result:
-  - common typed `PriceSource` / `PriceResult` interface exists;
-  - adapter contract is `PriceSource.fetch_eod_close(request: PriceRequest) -> PriceResult`;
-  - no workflow, portfolio state or delivery behavior changed.
-
-### 36. Integrate provider adapters after interface
+### 5. M0/M1 pricing spine
 
 - Owner: `[ASSISTANT]`
 - Status: done
 - Integrated PRs:
-  1. `#4 — M1: Add Stooq pricing adapter` — `c92cff7a973f27f152b4c866515d7c84e28135d6`
-  2. `#5 — M1: Add Börse Frankfurt / Xetra pricing adapter` — `34d6c909e87015de49e31ed3fc25294084faad16`
-  3. `#6 — M1: Add Yahoo fallback pricing adapter` — `9138efd0d5613527bd6ab6f44313596e6cb6907f`
-  4. `#7 — M1: Add issuer NAV reference adapter` — `7b74a36de88b8fdb5b4a4f8709312df533c27a9d`
+  - `#1` M0 ground-clearing — `c1476171606206d369190bf4c8cf126222a1e753`
+  - `#3` common pricing interface — `0c21629aa315f18a0ebceb0a301841d457d2a554`
+  - `#4` Stooq pricing adapter — `c92cff7a973f27f152b4c866515d7c84e28135d6`
+  - `#5` Börse Frankfurt / Xetra pricing adapter — `34d6c909e87015de49e31ed3fc25294084faad16`
+  - `#6` Yahoo fallback pricing adapter — `9138efd0d5613527bd6ab6f44313596e6cb6907f`
+  - `#7` issuer NAV reference adapter — `7b74a36de88b8fdb5b4a4f8709312df533c27a9d`
 - Result:
-  - at least two adapters return normalized resolved or unresolved `PriceResult` rows;
-  - tests are fixture-backed and network-free;
-  - no adapter creates valuation-grade logic by itself;
-  - no workflow, portfolio state, output/report, PDF, email or delivery behavior changed.
+  - typed provider evidence spine exists;
+  - adapters return typed `PriceResult` evidence;
+  - adapters do not create valuation authority, portfolio mutation, report output, PDF, email or delivery.
 
-### 37. Integrate source metadata policy
+### 6. Source metadata policy
 
 - Owner: `[ASSISTANT]`
-- Status: next
-- Work package:
-  - `control/work_packages/WP_M5_SOURCE_METADATA_POLICY_20260603.md`
-- Expected branch:
-  - `workstream/source-metadata-policy`
-- Target files from work package:
+- Status: done
+- Integrated PR:
+  - `#8 — M5: Add source metadata policy`
+- Merge commit:
+  - `270446ee54d7f97223b2b94f6207ec2b7c88de22`
+- Target files:
   - `control/DATA_SOURCE_METADATA.md`
-  - `control/CHANGELOG.md`
   - `pricing/source_metadata_policy.py`
   - `tests/test_source_metadata_policy.py`
-- Done when:
-  - source metadata categories align with `PriceResult` / `SourceLineage` fields;
-  - source policy can deterministically classify or filter pricing evidence;
-  - tests pass without network;
-  - no workflow, portfolio state or delivery behavior changes.
+- Result:
+  - source metadata categories align with pricing evidence;
+  - pricing sources can be filtered by deterministic policy modes;
+  - no source was promoted to valuation authority by metadata alone.
 
-### 38. Integrate agreement gate
-
-- Owner: `[ASSISTANT]`
-- Status: queued after source metadata policy; technically unblocked by adapter availability
-- Work package:
-  - `control/work_packages/WP_M1_AGREEMENT_GATE_INTEGRATION_20260603.md`
-- Done when:
-  - agreement gate can mark rows `valuation_grade`, `provisional`, or `blocked`;
-  - valuation-grade requires configured source agreement conditions;
-  - issuer NAV does not count as independent market-close agreement evidence;
-  - Yahoo/yfinance is not the only route to valuation-grade status;
-  - no result creates funding authority or portfolio mutation.
-
-### 39. Integrate first report pricing surface
+### 7. Agreement gate
 
 - Owner: `[ASSISTANT]`
-- Status: blocked until agreement gate exists
-- Work package:
-  - `control/work_packages/WP_M2_FIRST_REPORT_INTEGRATION_20260603.md`
+- Status: done
+- Integrated PR:
+  - `#9 — M1: Add agreement gate integration`
+- Merge commit:
+  - `575f919614690a3a851dc4968dea0cfe3a1a870d`
+- Target files:
+  - `pricing/price_agreement_gate.py`
+  - `tools/validate_price_agreement_gate.py`
+  - `tests/test_price_agreement_gate.py`
+- Result:
+  - gate can classify evidence as `valuation_grade`, `provisional`, or `blocked`;
+  - only metadata-approved market-close agreement sources count toward agreement;
+  - issuer NAV/reference evidence does not count as independent market-close agreement evidence;
+  - Yahoo/yfinance alone cannot become valuation authority;
+  - no funding authority or portfolio mutation was added.
+
+### 8. Valuation agreement bridge
+
+- Owner: `[ASSISTANT]`
+- Status: done as wrapper bridge
+- Integrated PR:
+  - `#10 — Draft: Add agreement-aware valuation artifact bridge`
+- Merge commit:
+  - `51f91751e8df19bc5879b4a6ee4c3280e663c55e`
+- Target files:
+  - `control/VALUATION_AGREEMENT_INTEGRATION_PLAN_20260604.md`
+  - `pricing/valuation_agreement_evidence.py`
+  - `pricing/enrich_ucits_valuation_agreement.py`
+  - `pricing/build_ucits_valuation_prices_with_agreement.py`
+  - `tests/test_valuation_agreement_evidence.py`
+  - `tests/test_build_ucits_valuation_prices_with_agreement.py`
+- Result:
+  - agreement-gate evidence can be attached to valuation artifacts;
+  - valuation promotion remains blocked under current bootstrap posture;
+  - no workflow, output artifact, portfolio state, report renderer, PDF/email or delivery behavior changed by PR #10 itself.
+
+### 9. Pricing-surface wrapper
+
+- Owner: `[ASSISTANT]`
+- Status: done
+- Target files:
+  - `runtime/render_etf_eu_report_with_pricing_surface.py`
+  - `runtime/etf_eu_pricing_surface.py`
+  - `tools/validate_etf_eu_pricing_surface.py`
+  - `tests/test_etf_eu_pricing_surface.py`
+  - `tests/test_etf_eu_report_pricing_surface_wrapper.py`
+- Result:
+  - report wrapper can display agreement-gate pricing evidence;
+  - Dutch and English pricing-surface validation exists;
+  - pricing surface remains evidence-only and not valuation/funding authority.
+
+### 10. Fundability promotion contract
+
+- Owner: `[ASSISTANT]`
+- Status: done
+- Target files:
+  - `control/UCITS_FUNDABILITY_PROMOTION_CONTRACT_V1.md`
+  - `tools/validate_ucits_fundability_promotion_contract.py`
+  - `tests/test_ucits_fundability_promotion_contract.py`
+- Result:
+  - candidate promotion requires explicit identity, investability, trading-line, pricing-quality, tradability/liquidity, portfolio-role and decision gates;
+  - no automatic promotion from pricing success or report visibility is allowed;
+  - all current candidates remain not funded and not fundable.
+
+### 11. Non-production pricing-surface shadow workflow
+
+- Owner: `[ASSISTANT]`
+- Status: created, verification pending
+- Target file:
+  - `.github/workflows/weekly-etf-eu-pricing-surface-shadow.yml`
+- Created by:
+  - `03e7b539b8bc26c746db51c1db383f728e773e71`
+- Queue-triggerable update:
+  - `4b458a30405958b06e833bdb4de73cabf48c6d8c`
+- Result:
+  - workflow can run the wrapper path outside production;
+  - it is designed to avoid delivery, PDF generation, email, portfolio mutation and candidate promotion;
+  - latest queue commits have not yet produced connector-visible workflow-run evidence.
+
+---
+
+## Pending work
+
+### 12. Verify shadow workflow
+
+- Owner: `[ASSISTANT]`
+- Status: pending
+- Target:
+  - `.github/workflows/weekly-etf-eu-pricing-surface-shadow.yml`
+  - `output/validation/etf_eu_pricing_surface_shadow_*.json`
 - Done when:
-  - at least one verified UCITS candidate can display a real priced row when agreement-gate data exists;
-  - report distinguishes priced candidates from funded holdings;
-  - cash-only portfolio state remains unchanged;
-  - no production delivery is created.
+  - GitHub Actions run/job status confirms success, or
+  - a validation artifact with `schema_version=etf_eu_pricing_surface_shadow_validation_v1` and `status=passed` is committed.
+- Do not claim:
+  - shadow workflow passed;
+  - delivery succeeded;
+  - PDF/email was produced;
+  - candidates were promoted.
+
+### 13. Switch main EU workflow to wrapper path
+
+- Owner: `[ASSISTANT]`
+- Status: pending until shadow workflow is verified
+- Target file:
+  - `.github/workflows/send-weekly-etf-eu-report.yml`
+- Action:
+  - replace the legacy valuation build step with `pricing.build_ucits_valuation_prices_with_agreement`;
+  - replace the report render step with `runtime.render_etf_eu_report_with_pricing_surface`;
+  - add pricing-surface and fundability validators;
+  - keep the workflow non-delivery until production gates are ready.
+- Done when:
+  - main workflow passes with wrapper path;
+  - authority boundaries remain unchanged.
+
+### 14. Build production Dutch-first report surface
+
+- Owner: `[ASSISTANT]`
+- Status: pending after main wrapper switch
+- Action:
+  - convert the bootstrap skeleton into a full Dutch-first UCITS report surface;
+  - keep U.S. proxies research-only;
+  - present UCITS candidates, pricing evidence and fundability status without funded-position claims;
+  - keep English as companion/operator surface unless a later decision changes this.
+- Done when:
+  - Dutch report is client-native, not a U.S. report translation;
+  - output validators pass;
+  - report does not imply funding authority.
+
+### 15. Enable delivery only after validators and receipt/manifest path exist
+
+- Owner: `[JOINT]`
+- Status: blocked
+- Action:
+  - enable PDF/email only after EU state, pricing, report, localization and delivery contracts pass;
+  - require a real delivery receipt or manifest before claiming delivery success.
+- Done when:
+  - production delivery workflow produces a real manifest/receipt;
+  - no delivery claim is made without evidence.
 
 ---
 
 ## Roadmap after control consolidation
 
-1. Source metadata policy.
-2. Agreement gate.
-3. Valuation artifact integration with agreement output.
-4. First report pricing surface.
-5. Fundability / candidate-promotion contract.
-6. Production Dutch-first report.
-7. Delivery enablement only after validators and manifest/receipt path exist.
+1. Shadow workflow verification.
+2. Main workflow wrapper switch.
+3. Production Dutch-first UCITS report surface.
+4. Candidate/fundability enrichment only after explicit gates pass.
+5. Delivery enablement only after validators and manifest/receipt path exist.
 
 ## Standing authority boundaries
 
-Until a future decision log entry and validator-backed implementation explicitly change them:
+Until a future decision log entry and validator-backed implementation explicitly changes them:
 
 ```text
+valuation_grade=false
 funding_authority=false
 portfolio_mutation=false
 production_delivery=false
@@ -445,4 +268,4 @@ no delivery receipt
 no candidate promotion to fundable
 ```
 
-Adapters produce pricing evidence only. They do not mutate state, fund candidates, render reports, generate PDFs, send email or create delivery receipts.
+Adapters, wrappers, report surfaces and validators produce evidence and checks only. They do not fund candidates, mutate portfolio state, generate production PDFs, send email or create delivery receipts.
