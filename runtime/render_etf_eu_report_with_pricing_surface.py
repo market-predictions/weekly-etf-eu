@@ -5,6 +5,7 @@ import json
 from datetime import date
 from pathlib import Path
 
+from runtime.etf_eu_fundability_surface import fundability_surface_section
 from runtime.etf_eu_pricing_surface import pricing_surface_section, production_report_maturity_section
 from runtime.render_etf_eu_report import (
     DEFAULT_PROXY_MAP,
@@ -23,6 +24,20 @@ def _read_pricing_payload(path: Path | None) -> dict:
     return json.loads(path.read_text(encoding="utf-8"))
 
 
+def _read_fundability_payload(path: Path | None) -> dict:
+    if path is None or not path.exists():
+        return {
+            "candidate_promotion": False,
+            "funding_authority": False,
+            "portfolio_mutation": False,
+            "production_delivery": False,
+            "candidate_count": 0,
+            "not_fundable_count": 0,
+            "rows": [],
+        }
+    return json.loads(path.read_text(encoding="utf-8"))
+
+
 def _insert_before_delivery_status(report: str, section: str, *, language: str) -> str:
     marker = "## 8. Leveringsstatus" if language == "nl" else "## 8. Delivery status"
     if marker not in report:
@@ -30,8 +45,14 @@ def _insert_before_delivery_status(report: str, section: str, *, language: str) 
     return report.replace(marker, section + "\n\n" + marker, 1)
 
 
-def _production_maturity_and_surface(payload: dict, *, language: str) -> str:
-    return production_report_maturity_section(language=language) + "\n\n" + pricing_surface_section(payload, language=language)
+def _production_surface_bundle(pricing_payload: dict, fundability_payload: dict, *, language: str) -> str:
+    return (
+        production_report_maturity_section(language=language)
+        + "\n\n"
+        + pricing_surface_section(pricing_payload, language=language)
+        + "\n\n"
+        + fundability_surface_section(fundability_payload, language=language)
+    )
 
 
 def render_nl_with_pricing_surface(
@@ -42,10 +63,12 @@ def render_nl_with_pricing_surface(
     pricing_preflight: Path | None,
     output_dir: Path,
     valuation_artifact: Path | None,
+    fundability_artifact: Path | None = None,
 ) -> str:
     base = render_nl(state, report_date, proxy_map, registry, pricing_preflight, output_dir)
-    payload = _read_pricing_payload(valuation_artifact)
-    surface = _production_maturity_and_surface(payload, language="nl")
+    pricing_payload = _read_pricing_payload(valuation_artifact)
+    fundability_payload = _read_fundability_payload(fundability_artifact)
+    surface = _production_surface_bundle(pricing_payload, fundability_payload, language="nl")
     return _insert_before_delivery_status(base, surface, language="nl")
 
 
@@ -57,10 +80,12 @@ def render_en_with_pricing_surface(
     pricing_preflight: Path | None,
     output_dir: Path,
     valuation_artifact: Path | None,
+    fundability_artifact: Path | None = None,
 ) -> str:
     base = render_en(state, report_date, proxy_map, registry, pricing_preflight, output_dir)
-    payload = _read_pricing_payload(valuation_artifact)
-    surface = _production_maturity_and_surface(payload, language="en")
+    pricing_payload = _read_pricing_payload(valuation_artifact)
+    fundability_payload = _read_fundability_payload(fundability_artifact)
+    surface = _production_surface_bundle(pricing_payload, fundability_payload, language="en")
     return _insert_before_delivery_status(base, surface, language="en")
 
 
@@ -72,6 +97,7 @@ def write_reports_with_pricing_surface(
     pricing_preflight: Path | None,
     valuation_artifact: Path | None,
     report_date: str,
+    fundability_artifact: Path | None = None,
 ) -> tuple[Path, Path]:
     state = _read_json(state_path)
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -79,11 +105,29 @@ def write_reports_with_pricing_surface(
     en_path = output_dir / f"weekly_etf_eu_review_{suffix}.md"
     nl_path = output_dir / f"weekly_etf_eu_review_nl_{suffix}.md"
     en_path.write_text(
-        render_en_with_pricing_surface(state, report_date, proxy_map, registry, pricing_preflight, output_dir, valuation_artifact),
+        render_en_with_pricing_surface(
+            state,
+            report_date,
+            proxy_map,
+            registry,
+            pricing_preflight,
+            output_dir,
+            valuation_artifact,
+            fundability_artifact,
+        ),
         encoding="utf-8",
     )
     nl_path.write_text(
-        render_nl_with_pricing_surface(state, report_date, proxy_map, registry, pricing_preflight, output_dir, valuation_artifact),
+        render_nl_with_pricing_surface(
+            state,
+            report_date,
+            proxy_map,
+            registry,
+            pricing_preflight,
+            output_dir,
+            valuation_artifact,
+            fundability_artifact,
+        ),
         encoding="utf-8",
     )
     return en_path, nl_path
@@ -97,6 +141,7 @@ def main() -> None:
     parser.add_argument("--registry", default=str(DEFAULT_REGISTRY))
     parser.add_argument("--pricing-preflight", default=None)
     parser.add_argument("--valuation-artifact", default=None)
+    parser.add_argument("--fundability-artifact", default=None)
     parser.add_argument("--report-date", default=date.today().isoformat())
     args = parser.parse_args()
     en_path, nl_path = write_reports_with_pricing_surface(
@@ -107,8 +152,12 @@ def main() -> None:
         Path(args.pricing_preflight) if args.pricing_preflight else None,
         Path(args.valuation_artifact) if args.valuation_artifact else None,
         args.report_date,
+        Path(args.fundability_artifact) if args.fundability_artifact else None,
     )
-    print(f"ETF_EU_REPORT_PRICING_SURFACE_RENDER_OK | en={en_path} | nl={nl_path} | dutch_first_maturity=true | delivery=false")
+    print(
+        f"ETF_EU_REPORT_PRICING_SURFACE_RENDER_OK | en={en_path} | nl={nl_path}"
+        " | dutch_first_maturity=true | fundability_surface=true | delivery=false"
+    )
 
 
 if __name__ == "__main__":
