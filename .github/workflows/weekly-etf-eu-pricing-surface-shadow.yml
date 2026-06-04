@@ -1,0 +1,101 @@
+name: Weekly ETF EU pricing surface shadow validation
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  pricing-surface-shadow:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install validation dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pyyaml yfinance pytest
+
+      - name: Resolve shadow run identity
+        run: |
+          RUN_ID="$(date -u +'%Y%m%d_%H%M%S')"
+          REPORT_DATE="$(date -u +'%Y-%m-%d')"
+          REPORT_SUFFIX="$(date -u +'%y%m%d')"
+          echo "ETF_EU_RUN_ID=$RUN_ID" >> "$GITHUB_ENV"
+          echo "ETF_EU_REPORT_DATE=$REPORT_DATE" >> "$GITHUB_ENV"
+          echo "ETF_EU_REPORT_SUFFIX=$REPORT_SUFFIX" >> "$GITHUB_ENV"
+          echo "ETF_EU_PRICING_SURFACE_SHADOW_RUN=$RUN_ID | report_date=$REPORT_DATE"
+
+      - name: Run wrapper and fundability tests
+        run: |
+          python -m pytest \
+            tests/test_valuation_agreement_evidence.py \
+            tests/test_build_ucits_valuation_prices_with_agreement.py \
+            tests/test_etf_eu_pricing_surface.py \
+            tests/test_etf_eu_report_pricing_surface_wrapper.py \
+            tests/test_ucits_fundability_promotion_contract.py \
+            -q
+
+      - name: Build UCITS pricing candidates
+        run: |
+          python -m pricing.build_ucits_pricing_candidates \
+            --registry config/ucits_symbol_registry.yml \
+            --output-dir output/pricing \
+            --run-id "$ETF_EU_RUN_ID"
+          python tools/validate_ucits_pricing_candidates.py \
+            --artifact "output/pricing/ucits_pricing_candidates_${ETF_EU_RUN_ID}.json"
+
+      - name: Run non-authoritative UCITS pricing preflight
+        run: |
+          python -m pricing.run_ucits_pricing_preflight \
+            --candidate-artifact "output/pricing/ucits_pricing_candidates_${ETF_EU_RUN_ID}.json" \
+            --output-dir output/pricing \
+            --run-id "$ETF_EU_RUN_ID"
+          python tools/validate_ucits_pricing_preflight.py \
+            --artifact "output/pricing/ucits_pricing_preflight_${ETF_EU_RUN_ID}.json"
+
+      - name: Build agreement-aware UCITS valuation artifact
+        run: |
+          python -m pricing.build_ucits_valuation_prices_with_agreement \
+            --registry config/ucits_symbol_registry.yml \
+            --source-policy config/ucits_pricing_source_policy.yml \
+            --candidate-artifact "output/pricing/ucits_pricing_candidates_${ETF_EU_RUN_ID}.json" \
+            --preflight-artifact "output/pricing/ucits_pricing_preflight_${ETF_EU_RUN_ID}.json" \
+            --output-dir output/pricing \
+            --run-id "$ETF_EU_RUN_ID"
+          python tools/validate_ucits_valuation_prices.py \
+            --artifact "output/pricing/ucits_valuation_prices_${ETF_EU_RUN_ID}.json" \
+            --source-policy config/ucits_pricing_source_policy.yml
+
+      - name: Render EU report with pricing surface
+        run: |
+          python -m runtime.render_etf_eu_report_with_pricing_surface \
+            --output-dir output \
+            --state output/etf_eu_portfolio_state.json \
+            --proxy-map config/ucits_benchmark_proxy_map.yml \
+            --registry config/ucits_symbol_registry.yml \
+            --pricing-preflight "output/pricing/ucits_pricing_preflight_${ETF_EU_RUN_ID}.json" \
+            --valuation-artifact "output/pricing/ucits_valuation_prices_${ETF_EU_RUN_ID}.json" \
+            --report-date "$ETF_EU_REPORT_DATE"
+
+      - name: Validate EU report and pricing surface contracts
+        run: |
+          python tools/validate_etf_eu_output_contract.py --output-dir output
+          python tools/validate_etf_eu_candidate_report.py --output-dir output
+          python tools/validate_etf_eu_pricing_surface.py "output/weekly_etf_eu_review_${ETF_EU_REPORT_SUFFIX}.md"
+          python tools/validate_etf_eu_pricing_surface.py "output/weekly_etf_eu_review_nl_${ETF_EU_REPORT_SUFFIX}.md"
+          python tools/validate_ucits_fundability_promotion_contract.py --registry config/ucits_symbol_registry.yml
+
+      - name: Confirm non-production authority boundaries
+        run: |
+          echo "ETF_EU_PRICING_SURFACE_SHADOW_OK"
+          echo "No portfolio mutation, PDF generation, email delivery, delivery receipt, or candidate promotion is performed."
+          echo "Agreement-gate pricing surface is evidence-only and cannot create funding authority."
