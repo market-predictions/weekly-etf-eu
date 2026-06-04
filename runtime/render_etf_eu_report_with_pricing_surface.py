@@ -5,7 +5,7 @@ import json
 from datetime import date
 from pathlib import Path
 
-from runtime.etf_eu_pricing_surface import pricing_surface_section
+from runtime.etf_eu_pricing_surface import pricing_surface_section, production_report_maturity_section
 from runtime.render_etf_eu_report import (
     DEFAULT_PROXY_MAP,
     DEFAULT_REGISTRY,
@@ -30,6 +30,10 @@ def _insert_before_delivery_status(report: str, section: str, *, language: str) 
     return report.replace(marker, section + "\n\n" + marker, 1)
 
 
+def _production_maturity_and_surface(payload: dict, *, language: str) -> str:
+    return production_report_maturity_section(language=language) + "\n\n" + pricing_surface_section(payload, language=language)
+
+
 def render_nl_with_pricing_surface(
     state: dict,
     report_date: str,
@@ -40,7 +44,8 @@ def render_nl_with_pricing_surface(
     valuation_artifact: Path | None,
 ) -> str:
     base = render_nl(state, report_date, proxy_map, registry, pricing_preflight, output_dir)
-    surface = pricing_surface_section(_read_pricing_payload(valuation_artifact), language="nl")
+    payload = _read_pricing_payload(valuation_artifact)
+    surface = _production_maturity_and_surface(payload, language="nl")
     return _insert_before_delivery_status(base, surface, language="nl")
 
 
@@ -54,7 +59,8 @@ def render_en_with_pricing_surface(
     valuation_artifact: Path | None,
 ) -> str:
     base = render_en(state, report_date, proxy_map, registry, pricing_preflight, output_dir)
-    surface = pricing_surface_section(_read_pricing_payload(valuation_artifact), language="en")
+    payload = _read_pricing_payload(valuation_artifact)
+    surface = _production_maturity_and_surface(payload, language="en")
     return _insert_before_delivery_status(base, surface, language="en")
 
 
@@ -102,7 +108,7 @@ def main() -> None:
         Path(args.valuation_artifact) if args.valuation_artifact else None,
         args.report_date,
     )
-    print(f"ETF_EU_REPORT_PRICING_SURFACE_RENDER_OK | en={en_path} | nl={nl_path} | delivery=false")
+    print(f"ETF_EU_REPORT_PRICING_SURFACE_RENDER_OK | en={en_path} | nl={nl_path} | dutch_first_maturity=true | delivery=false")
 
 
 if __name__ == "__main__":
