@@ -35,12 +35,12 @@ Deze laag maakt het rapport geschikt als **Nederlandse hoofdrapportage** voor ee
 | Controlepunt | Huidige status |
 |---|---|
 | Rapportrol | primaire clientrapportage in het Nederlands |
-| Engelse versie | companion/operator-facing versie |
+| Engelse rapportage | Engelse rapportage is companion/operator-facing |
 | Clientbesluit | onderzoeks- en bewijsfase; geen koopadvies |
 | UCITS-portefeuille | geen gefinancierde UCITS-posities |
 | Portefeuille-impact | geen portefeuille-mutatie |
 | Pricingkwaliteit | agreement-gate bewijs zichtbaar, geen waarderingsautoriteit |
-| Fundability | geen kandidaat automatisch fundable |
+| Fundability | fundability gate status zichtbaar; geen kandidaat automatisch fundable |
 | Productielevering | geen productielevering |
 | Delivery bewijs | geen delivery receipt |
 
@@ -58,7 +58,7 @@ This layer makes the report suitable as a Dutch-first client review surface, but
 | UCITS portfolio | no funded UCITS holdings |
 | Portfolio impact | no portfolio mutation |
 | Pricing quality | agreement-gate evidence visible, not valuation authority |
-| Fundability | no candidate is automatically fundable |
+| Fundability | fundability gate status visible; no candidate is automatically fundable |
 | Production delivery | no production delivery |
 | Delivery evidence | no delivery receipt |
 
