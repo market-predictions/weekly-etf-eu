@@ -4,6 +4,33 @@ Use this file to capture stable architecture decisions so future sessions do not
 
 ---
 
+## 2026-06-04 — Reconcile Yahoo UCITS pricing policy authority boundary
+
+### Decision
+
+Yahoo/yfinance may remain in UCITS source policy as temporary connectivity/display evidence, but it is not agreement-gate valuation-grade authority.
+
+### Chosen architecture
+
+- `config/ucits_pricing_source_policy.yml` keeps Yahoo symbols only as `non_authoritative_connectivity_only` evidence.
+- Yahoo rows must set `valuation_grade_eligible=false`, `accept_as_valuation_grade=false`, and `counts_for_market_close_agreement=false`.
+- `control/DATA_SOURCE_METADATA.md` remains the source-role register for source-category behavior.
+- The agreement gate may preserve Yahoo evidence for diagnostics/display, but cannot count Yahoo toward `min_independent_sources` or populate valuation authority fields.
+
+### Reason
+
+Previous policy wording described a temporary Yahoo verified fallback and marked Yahoo as valuation-grade eligible. That conflicted with source metadata and the agreement gate, which treat Yahoo as connectivity/provisional evidence only.
+
+### Consequence
+
+- Yahoo can support symbol reachability and display continuity.
+- Yahoo cannot create `valuation_grade=true`.
+- Yahoo cannot satisfy agreement-gate market-close agreement by itself or as a counted source.
+- Future promotion requires a new explicit decision log entry plus validator-backed implementation.
+- No funding authority, portfolio mutation, report delivery, PDF generation, or email behavior changes.
+
+---
+
 ## 2026-06-04 — Weekly ETF EU M1 pricing-spine authority decisions
 
 ### Decision
