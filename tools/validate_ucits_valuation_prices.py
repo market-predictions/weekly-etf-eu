@@ -37,6 +37,8 @@ ALLOWED_TWELVE_DATA_STATUSES = {
     "unresolved_invalid_close",
     "unresolved_provider_exception",
 }
+ALLOWED_POLICY_MODES = {"valuation_grade_pending", "temporary_yahoo_verified_fallback"}
+ALLOWED_YFINANCE_AUTHORITIES = {"non_authoritative_connectivity_only", "temporary_yahoo_verified_fallback"}
 
 
 def _load_json(path: Path) -> dict[str, Any]:
@@ -86,12 +88,14 @@ def _validate_policy(policy: dict[str, Any], policy_path: Path) -> list[str]:
     errors: list[str] = []
     if policy.get("schema_version") != "ucits_pricing_source_policy_v1":
         errors.append("policy_schema_version_must_be_ucits_pricing_source_policy_v1")
+    if policy.get("pricing_authority_mode") not in ALLOWED_POLICY_MODES:
+        errors.append("policy_pricing_authority_mode_must_be_known_conservative_mode")
     rules = policy.get("rules") or {}
     for field in ["portfolio_mutation_from_pricing", "production_delivery_from_pricing", "funding_authority_from_pricing"]:
         if rules.get(field) is not False:
             errors.append(f"policy.rules.{field}_must_be_false")
-    if rules.get("yfinance_default_authority") != "non_authoritative_connectivity_only":
-        errors.append("policy.rules.yfinance_default_authority_must_be_non_authoritative_connectivity_only")
+    if rules.get("yfinance_default_authority") not in ALLOWED_YFINANCE_AUTHORITIES:
+        errors.append("policy.rules.yfinance_default_authority_must_be_known_conservative_mode")
     if rules.get("twelve_data_default_accept_as_valuation_grade") is not False:
         errors.append("policy.rules.twelve_data_default_accept_as_valuation_grade_must_be_false")
     if not _policy_source_authorities(policy):
@@ -138,6 +142,24 @@ def _validate_twelve_data_evidence(label: str, row: dict[str, Any]) -> list[str]
     return errors
 
 
+def _validate_agreement_gate_evidence(label: str, row: dict[str, Any]) -> list[str]:
+    errors: list[str] = []
+    evidence = row.get("agreement_gate_evidence")
+    if evidence is None:
+        return errors
+    if not isinstance(evidence, dict):
+        return [f"{label}:agreement_gate_evidence_must_be_object"]
+    if evidence.get("funding_authority") is not False:
+        errors.append(f"{label}:agreement_gate_funding_authority_must_be_false")
+    if evidence.get("portfolio_mutation") is not False:
+        errors.append(f"{label}:agreement_gate_portfolio_mutation_must_be_false")
+    if evidence.get("production_delivery") is not False:
+        errors.append(f"{label}:agreement_gate_production_delivery_must_be_false")
+    if evidence.get("valuation_grade_promoted_by_artifact") is not False:
+        errors.append(f"{label}:agreement_gate_must_not_promote_valuation_grade")
+    return errors
+
+
 def validate(path: Path, source_policy_path: Path) -> None:
     payload = _load_json(path)
     policy = _load_yaml(source_policy_path)
@@ -146,8 +168,8 @@ def validate(path: Path, source_policy_path: Path) -> None:
 
     if payload.get("schema_version") != "ucits_valuation_prices_v1":
         errors.append("schema_version_must_be_ucits_valuation_prices_v1")
-    if payload.get("pricing_authority_mode") != "valuation_grade_pending":
-        errors.append("pricing_authority_mode_must_be_valuation_grade_pending")
+    if payload.get("pricing_authority_mode") not in ALLOWED_POLICY_MODES:
+        errors.append("pricing_authority_mode_must_be_known_conservative_mode")
     for field in ["portfolio_mutation", "production_delivery", "funding_authority"]:
         if payload.get(field) is not False:
             errors.append(f"top_level_{field}_must_be_false")
@@ -171,6 +193,7 @@ def validate(path: Path, source_policy_path: Path) -> None:
         if evidence.get("status") == "candidate_price_observed":
             twelve_data_observed_count += 1
         errors.extend(_validate_twelve_data_evidence(label, row))
+        errors.extend(_validate_agreement_gate_evidence(label, row))
 
         valuation_grade = row.get("valuation_grade")
         valuation_status = row.get("valuation_status")
