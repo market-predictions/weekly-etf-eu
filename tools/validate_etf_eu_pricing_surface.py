@@ -3,10 +3,16 @@ from __future__ import annotations
 import argparse
 from pathlib import Path
 
-REQUIRED = [
+REQUIRED_EN = [
     "Agreement-gate pricing",
     "not valuation authority",
     "not funded",
+]
+
+REQUIRED_NL = [
+    "Agreement-gate pricing",
+    "geen waarderingsautoriteit",
+    "niet gefinancierd",
 ]
 
 FORBIDDEN = [
@@ -20,7 +26,8 @@ FORBIDDEN = [
 def validate_pricing_surface(path: Path) -> None:
     text = path.read_text(encoding="utf-8")
     normalized = " ".join(text.replace("**", "").split())
-    missing = [item for item in REQUIRED if item not in normalized]
+    required = REQUIRED_NL if "_nl_" in path.name else REQUIRED_EN
+    missing = [item for item in required if item not in normalized]
     if missing:
         raise RuntimeError(f"EU pricing surface validation failed: missing {', '.join(missing)}")
     for phrase in FORBIDDEN:
