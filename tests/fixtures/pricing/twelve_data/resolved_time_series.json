@@ -1,0 +1,20 @@
+{
+  "meta": {
+    "symbol": "SXR8",
+    "interval": "1day",
+    "currency": "EUR",
+    "exchange_timezone": "Europe/Berlin",
+    "exchange": "XETR"
+  },
+  "values": [
+    {
+      "datetime": "2026-06-02",
+      "open": "630.10",
+      "high": "634.20",
+      "low": "628.90",
+      "close": "632.40",
+      "volume": "123456"
+    }
+  ],
+  "status": "ok"
+}
