@@ -2,9 +2,11 @@
 
 ## Purpose
 
-This contract defines the next maturity phase after the bootstrap pricing-surface shadow workflow: a Dutch-first production-quality EU/UCITS report.
+This contract defines the next maturity phase after the bootstrap candidate/pricing-surface report: a Dutch-first, production-quality EU/UCITS client report.
 
-It is not a delivery contract and does not enable email, PDF generation, portfolio mutation, or candidate promotion.
+It is **not** a delivery contract and does not enable email, PDF generation, portfolio mutation, valuation-grade promotion, or candidate promotion.
+
+This work can proceed as design, renderer structure, validator logic and tests while final workflow integration waits for the shadow workflow and wrapper path to be verified.
 
 ## Required separation
 
@@ -16,15 +18,93 @@ portfolio mutation
 PDF/email delivery
 delivery receipt or manifest
 candidate promotion to fundable
+valuation-grade promotion
+main workflow switch before shadow verification
 ```
 
-## Report authority model
+## Four-layer operating model
+
+### 1. Decision framework
+
+The report may explain candidate quality, pricing evidence, missing gates and next decisions.
+
+It must distinguish:
+
+```text
+funded holding
+fundable candidate
+verified candidate not funded
+research proxy
+blocked instrument
+```
+
+Current bootstrap status remains:
+
+```text
+no funded UCITS holdings
+no fundable candidates
+research and pricing evidence only
+```
+
+### 2. Input/state contract
+
+The report may read:
+
+```text
+output/etf_eu_portfolio_state.json
+config/ucits_symbol_registry.yml
+config/ucits_benchmark_proxy_map.yml
+output/pricing/ucits_pricing_preflight_*.json
+output/pricing/ucits_valuation_prices_*.json
+```
+
+The report must not treat markdown text, inherited U.S. outputs or U.S. ETF tickers as EU portfolio state.
+
+### 3. Output contract
 
 The Dutch report is the primary client-facing report.
 
 The English report is a companion/operator-facing report unless explicitly changed later.
 
 The Dutch report must be independently written for Dutch/EU clients. It must not be a mechanical translation of a U.S.-ETF report.
+
+The Dutch report must include a production-maturity layer before the delivery-status block with these visible concepts:
+
+```text
+Nederlandse hoofdrapportage
+primaire clientrapportage
+geen gefinancierde UCITS-posities
+geen koopadvies
+geen portefeuille-mutatie
+geen productielevering
+geen delivery receipt
+```
+
+The English companion must state that the Dutch report is primary and the English version is an operator companion.
+
+### 4. Operational runbook
+
+During this work package, implementation may add:
+
+```text
+contract text
+renderer sections
+validator strict mode
+tests
+```
+
+It must not:
+
+```text
+switch the main workflow
+claim the shadow workflow passed
+create a production report delivery
+render a PDF
+send email
+create a delivery receipt
+mutate portfolio state
+promote candidates to fundable
+```
 
 ## Required report sections before production quality
 
@@ -52,7 +132,15 @@ The Dutch report must be independently written for Dutch/EU clients. It must not
    - fundability status;
    - U.S. proxy as research-only if shown.
 
-4. **Agreement-gate pricing surface**
+4. **Production report maturity / Productierapport-volwassenheid**
+   - Dutch report primacy;
+   - current client decision status;
+   - portfolio impact;
+   - pricing-quality status;
+   - fundability gate status;
+   - delivery boundary.
+
+5. **Agreement-gate pricing surface**
    - source agreement status;
    - observed date;
    - close;
@@ -61,25 +149,34 @@ The Dutch report must be independently written for Dutch/EU clients. It must not
    - staleness / blockers;
    - explicit no-valuation-authority statement when not valuation-grade.
 
-5. **Fundability gate status**
+6. **Fundability gate status**
    - which required gates are passed/missing;
    - no automatic promotion from pricing success;
    - no funded position unless separate promotion decision exists.
 
-6. **Risk and role discussion**
+7. **Risk and role discussion**
    - why each candidate is being watched;
    - role versus U.S. research proxy;
    - key risks and overlap.
 
-7. **Next actions**
+8. **Next actions**
    - missing source evidence;
    - missing broker/liquidity checks;
    - missing KID/PRIIPs or issuer verification;
    - decision items before funding.
 
-8. **Delivery status**
+9. **Delivery status**
    - explicit whether report is shadow/bootstrap/non-delivered;
    - no delivery claim without manifest/receipt.
+
+## Validator expectations
+
+Validators should support a transitional model:
+
+- default mode remains compatible with the existing bootstrap report;
+- strict production-Dutch-first mode requires the production-maturity layer;
+- if the production-maturity layer is present, validators must confirm it is client-safe;
+- strict mode must validate both Dutch primary and English companion outputs.
 
 ## Hard prohibitions
 
@@ -88,20 +185,36 @@ The report must not say or imply:
 ```text
 buy recommendation
 funded holding
+fundable candidate
 valuation authority
 delivery completed
 PDF generated
 email sent
+delivery receipt exists
 ```
 
-unless the corresponding state, validator, and receipt/manifest layer exists.
+unless the corresponding state, validator and receipt/manifest layer exists and a later decision log entry explicitly changes the authority boundary.
 
-## Current next step
-
-Run the manual shadow workflow:
+## Current authority boundaries
 
 ```text
-Weekly ETF EU pricing surface shadow validation
+valuation_grade=false
+funding_authority=false
+portfolio_mutation=false
+production_delivery=false
+no PDF generation
+no email delivery
+no delivery receipt
+no candidate promotion to fundable
 ```
 
-Only after that passes should the existing EU bootstrap workflow be switched to the wrapper path.
+## Integration gate
+
+This work package can add design and tests now.
+
+Final integration waits until:
+
+1. WP1 shadow workflow is verified end-to-end.
+2. WP4 main workflow wrapper switch is reviewed and ready.
+3. Production Dutch-first report validators pass in strict mode.
+4. Delivery remains disabled unless a later delivery work package explicitly changes it.
