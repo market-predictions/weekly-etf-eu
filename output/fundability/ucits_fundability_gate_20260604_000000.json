@@ -1,0 +1,101 @@
+{
+  "schema_version": "ucits_fundability_gate_v1",
+  "run_id": "20260604_000000",
+  "created_at_utc": "2026-06-04T00:00:00+00:00",
+  "source_registry": "config/ucits_symbol_registry.yml",
+  "source_valuation_artifact": "output/pricing/ucits_valuation_prices_20260531_133912.json",
+  "portfolio_mutation": false,
+  "production_delivery": false,
+  "funding_authority": false,
+  "candidate_promotion": false,
+  "candidate_count": 4,
+  "gate_passed_no_promotion_count": 0,
+  "not_fundable_count": 4,
+  "required_gates": [
+    "instrument_identity",
+    "eu_investability",
+    "trading_line",
+    "pricing_quality",
+    "tradability_liquidity",
+    "portfolio_role",
+    "decision"
+  ],
+  "rows": [
+    {
+      "registry_id": "core_us_equity_cspx",
+      "fundability_gate_status": "not_fundable_blocked",
+      "gate_blockers": [
+        "pricing_quality:valuation_grade_false",
+        "tradability_liquidity:liquidity_check_missing_or_not_passed",
+        "decision:portfolio_promotion_decision_missing"
+      ],
+      "gates": {
+        "instrument_identity": {"status": "passed", "blockers": [], "details": {}},
+        "eu_investability": {"status": "passed", "blockers": [], "details": {}},
+        "trading_line": {"status": "passed", "blockers": [], "details": {}},
+        "pricing_quality": {"status": "blocked", "blockers": ["valuation_grade_false"], "details": {}},
+        "tradability_liquidity": {"status": "blocked", "blockers": ["liquidity_check_missing_or_not_passed"], "details": {}},
+        "portfolio_role": {"status": "blocked", "blockers": ["portfolio_role_review_missing"], "details": {}},
+        "decision": {"status": "blocked", "blockers": ["portfolio_promotion_decision_missing"], "details": {}}
+      },
+      "candidate_promotion": false,
+      "funding_authority": false,
+      "portfolio_mutation": false,
+      "production_delivery": false
+    },
+    {
+      "registry_id": "semiconductor_vaneck_smh_ucits",
+      "fundability_gate_status": "not_fundable_blocked",
+      "gate_blockers": ["trading_line:no_verified_trading_line", "pricing_quality:agreement_gate_valuation_status_missing", "decision:portfolio_promotion_decision_missing"],
+      "gates": {
+        "instrument_identity": {"status": "passed", "blockers": [], "details": {}},
+        "eu_investability": {"status": "blocked", "blockers": ["ucits_status_not_fully_confirmed"], "details": {}},
+        "trading_line": {"status": "blocked", "blockers": ["no_verified_trading_line"], "details": {}},
+        "pricing_quality": {"status": "blocked", "blockers": ["agreement_gate_valuation_status_missing"], "details": {}},
+        "tradability_liquidity": {"status": "blocked", "blockers": ["liquidity_check_missing_or_not_passed"], "details": {}},
+        "portfolio_role": {"status": "blocked", "blockers": ["portfolio_role_review_missing"], "details": {}},
+        "decision": {"status": "blocked", "blockers": ["portfolio_promotion_decision_missing"], "details": {}}
+      },
+      "candidate_promotion": false,
+      "funding_authority": false,
+      "portfolio_mutation": false,
+      "production_delivery": false
+    },
+    {
+      "registry_id": "gold_ishares_physical_gold_etc",
+      "fundability_gate_status": "not_fundable_blocked",
+      "gate_blockers": ["instrument_identity:instrument_type_not_ucits_etf_under_current_policy", "pricing_quality:agreement_gate_valuation_status_missing", "decision:portfolio_promotion_decision_missing"],
+      "gates": {
+        "instrument_identity": {"status": "blocked", "blockers": ["instrument_type_not_ucits_etf_under_current_policy"], "details": {}},
+        "eu_investability": {"status": "blocked", "blockers": ["ucits_status_not_fully_confirmed"], "details": {}},
+        "trading_line": {"status": "blocked", "blockers": ["no_verified_trading_line"], "details": {}},
+        "pricing_quality": {"status": "blocked", "blockers": ["agreement_gate_valuation_status_missing"], "details": {}},
+        "tradability_liquidity": {"status": "blocked", "blockers": ["liquidity_check_missing_or_not_passed"], "details": {}},
+        "portfolio_role": {"status": "blocked", "blockers": ["portfolio_role_review_missing"], "details": {}},
+        "decision": {"status": "blocked", "blockers": ["portfolio_promotion_decision_missing"], "details": {}}
+      },
+      "candidate_promotion": false,
+      "funding_authority": false,
+      "portfolio_mutation": false,
+      "production_delivery": false
+    },
+    {
+      "registry_id": "infrastructure_ishares_global_infr",
+      "fundability_gate_status": "not_fundable_blocked",
+      "gate_blockers": ["instrument_identity:isin_missing_or_placeholder", "pricing_quality:agreement_gate_valuation_status_missing", "decision:portfolio_promotion_decision_missing"],
+      "gates": {
+        "instrument_identity": {"status": "blocked", "blockers": ["isin_missing_or_placeholder"], "details": {}},
+        "eu_investability": {"status": "blocked", "blockers": ["ucits_status_not_fully_confirmed"], "details": {}},
+        "trading_line": {"status": "blocked", "blockers": ["no_verified_trading_line"], "details": {}},
+        "pricing_quality": {"status": "blocked", "blockers": ["agreement_gate_valuation_status_missing"], "details": {}},
+        "tradability_liquidity": {"status": "blocked", "blockers": ["liquidity_check_missing_or_not_passed"], "details": {}},
+        "portfolio_role": {"status": "blocked", "blockers": ["portfolio_role_review_missing"], "details": {}},
+        "decision": {"status": "blocked", "blockers": ["portfolio_promotion_decision_missing"], "details": {}}
+      },
+      "candidate_promotion": false,
+      "funding_authority": false,
+      "portfolio_mutation": false,
+      "production_delivery": false
+    }
+  ]
+}
