@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import json
 from pathlib import Path
 from typing import Any
 
@@ -10,6 +11,16 @@ except ImportError as exc:  # pragma: no cover
     raise RuntimeError("PyYAML is required for UCITS fundability validation") from exc
 
 PLACEHOLDER_VALUES = {"", "TBD", "pending_verification", "primary_line_pending_verification"}
+REQUIRED_GATES = {
+    "instrument_identity",
+    "eu_investability",
+    "trading_line",
+    "pricing_quality",
+    "tradability_liquidity",
+    "portfolio_role",
+    "decision",
+}
+ALLOWED_GATE_ROW_STATUSES = {"not_fundable_blocked", "gate_passed_no_promotion"}
 
 
 def _as_str(value: Any) -> str:
@@ -58,7 +69,6 @@ def validate_registry(path: Path) -> None:
             if not _has_verified_trading_line(fund):
                 errors.append(f"{registry_id}:fundable_status_requires_verified_trading_line")
             if us_proxy and us_proxy != "TBD":
-                # U.S. proxy is allowed only as research context, never as the funded holding.
                 pass
 
         if instrument_type == "ETC" and "fundable" in fundable_status and "not_fundable" not in fundable_status:
@@ -73,11 +83,77 @@ def validate_registry(path: Path) -> None:
     print(f"UCITS_FUNDABILITY_PROMOTION_CONTRACT_OK | registry={path} | fundable_candidates=0")
 
 
+def validate_gate_artifact(path: Path) -> None:
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    errors: list[str] = []
+
+    if payload.get("schema_version") != "ucits_fundability_gate_v1":
+        errors.append("schema_version_must_be_ucits_fundability_gate_v1")
+    for field in ["funding_authority", "portfolio_mutation", "production_delivery", "candidate_promotion"]:
+        if payload.get(field) is not False:
+            errors.append(f"top_level_{field}_must_be_false")
+    if set(payload.get("required_gates") or []) != REQUIRED_GATES:
+        errors.append("required_gates_must_match_contract")
+
+    rows = payload.get("rows") or []
+    if not isinstance(rows, list) or not rows:
+        errors.append("at_least_one_fundability_gate_row_required")
+        rows = []
+
+    gate_passed_count = 0
+    not_fundable_count = 0
+    for idx, row in enumerate(rows):
+        registry_id = _as_str(row.get("registry_id")) or f"row_{idx}"
+        label = f"row:{idx}:{registry_id}"
+        status = row.get("fundability_gate_status")
+        if status not in ALLOWED_GATE_ROW_STATUSES:
+            errors.append(f"{label}:unexpected_fundability_gate_status:{status}")
+        if status == "gate_passed_no_promotion":
+            gate_passed_count += 1
+        if status == "not_fundable_blocked":
+            not_fundable_count += 1
+        for field in ["funding_authority", "portfolio_mutation", "production_delivery", "candidate_promotion"]:
+            if row.get(field) is not False:
+                errors.append(f"{label}:{field}_must_be_false")
+        gates = row.get("gates") or {}
+        if set(gates) != REQUIRED_GATES:
+            errors.append(f"{label}:gates_must_match_required_contract")
+        for gate_name, gate in gates.items():
+            gate_status = gate.get("status")
+            blockers = gate.get("blockers")
+            if gate_status not in {"passed", "blocked"}:
+                errors.append(f"{label}:{gate_name}:unexpected_gate_status:{gate_status}")
+            if not isinstance(blockers, list):
+                errors.append(f"{label}:{gate_name}:blockers_must_be_list")
+            elif gate_status == "blocked" and not blockers:
+                errors.append(f"{label}:{gate_name}:blocked_gate_requires_blockers")
+            elif gate_status == "passed" and blockers:
+                errors.append(f"{label}:{gate_name}:passed_gate_must_not_have_blockers")
+        gate_blockers = row.get("gate_blockers") or []
+        if status == "not_fundable_blocked" and not gate_blockers:
+            errors.append(f"{label}:not_fundable_blocked_requires_gate_blockers")
+        if status == "gate_passed_no_promotion" and gate_blockers:
+            errors.append(f"{label}:gate_passed_no_promotion_must_not_have_gate_blockers")
+
+    if payload.get("candidate_count") != len(rows):
+        errors.append(f"candidate_count_mismatch:declared={payload.get('candidate_count')}:actual={len(rows)}")
+    if payload.get("gate_passed_no_promotion_count") != gate_passed_count:
+        errors.append("gate_passed_no_promotion_count_mismatch")
+    if payload.get("not_fundable_count") != not_fundable_count:
+        errors.append("not_fundable_count_mismatch")
+    if errors:
+        raise RuntimeError("UCITS fundability gate artifact validation failed: " + "; ".join(errors))
+    print("UCITS_FUNDABILITY_GATE_ARTIFACT_OK" f" | artifact={path}" f" | candidates={len(rows)}" f" | not_fundable={not_fundable_count}" " | candidate_promotion=false" " | portfolio_mutation=false" " | delivery=false")
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--registry", default="config/ucits_symbol_registry.yml")
+    parser.add_argument("--artifact", default=None)
     args = parser.parse_args()
     validate_registry(Path(args.registry))
+    if args.artifact:
+        validate_gate_artifact(Path(args.artifact))
 
 
 if __name__ == "__main__":
