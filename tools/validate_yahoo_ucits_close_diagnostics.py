@@ -15,6 +15,10 @@ FORBIDDEN_TRUE_FIELDS = [
     "portfolio_mutation",
     "production_delivery",
 ]
+ALLOWED_YAHOO_SOURCE_POLICY_AUTHORITIES = {
+    "non_authoritative_connectivity_only",
+    "temporary_yahoo_verified_fallback",
+}
 
 
 def _load_json(path: Path) -> dict[str, Any]:
@@ -75,8 +79,8 @@ def validate(path: Path) -> None:
                         errors.append(f"row_{idx}_close_must_be_positive_if_present")
                 except Exception:
                     errors.append(f"row_{idx}_close_must_be_numeric_if_present")
-            if row.get("source_policy_authority") != "non_authoritative_connectivity_only":
-                errors.append(f"row_{idx}_source_policy_authority_must_remain_connectivity_only")
+            if row.get("source_policy_authority") not in ALLOWED_YAHOO_SOURCE_POLICY_AUTHORITIES:
+                errors.append(f"row_{idx}_source_policy_authority_must_be_known_conservative_yahoo_mode")
     if errors:
         raise RuntimeError("YAHOO_UCITS_CLOSE_DIAGNOSTICS_VALIDATION_FAILED: " + "; ".join(sorted(set(errors))))
     print(f"YAHOO_UCITS_CLOSE_DIAGNOSTICS_VALIDATION_OK | artifact={path} | rows={len(rows or [])}")
