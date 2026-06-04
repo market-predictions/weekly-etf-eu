@@ -20,14 +20,19 @@ PRODUCTION_MATURITY_EN = [
     "Dutch report is the primary client report",
     "no production delivery",
     "no delivery receipt",
+    "fundability gate status visible",
+    "candidate_promotion=false",
 ]
 
 PRODUCTION_MATURITY_NL = [
     "Productierapport-volwassenheid",
     "Nederlandse hoofdrapportage",
     "primaire clientrapportage",
+    "Engelse rapportage is companion/operator-facing",
     "geen productielevering",
     "geen delivery receipt",
+    "fundability gate status zichtbaar",
+    "candidate_promotion=false",
 ]
 
 FORBIDDEN = [
@@ -38,10 +43,13 @@ FORBIDDEN = [
     "funding_authority=true",
     "portfolio_mutation=true",
     "production_delivery=true",
+    "candidate_promotion=true",
     "delivery completed",
     "delivery receipt exists",
+    "delivery receipt created",
     "pdf generated",
     "email sent",
+    "candidate promoted to fundable",
 ]
 
 FUNDED_UCITS_TOKENS = [
