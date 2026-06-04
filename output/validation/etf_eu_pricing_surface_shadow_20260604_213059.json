@@ -1,0 +1,16 @@
+{
+  "schema_version": "etf_eu_pricing_surface_shadow_validation_v1",
+  "run_id": "20260604_213059",
+  "report_date": "2026-06-04",
+  "status": "passed",
+  "workflow": "weekly-etf-eu-pricing-surface-shadow.yml",
+  "authority": {
+    "funding_authority": false,
+    "portfolio_mutation": false,
+    "production_delivery": false,
+    "pdf_generation": false,
+    "email_delivery": false,
+    "delivery_receipt": false,
+    "candidate_promotion_to_fundable": false
+  }
+}
