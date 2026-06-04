@@ -66,6 +66,15 @@ def _query(params: dict[str, Any]) -> str:
     return urllib.parse.urlencode({key: value for key, value in params.items() if value not in (None, "")})
 
 
+def _redacted_url(url: str | None) -> str | None:
+    if not url:
+        return None
+    parsed = urllib.parse.urlsplit(url)
+    pairs = urllib.parse.parse_qsl(parsed.query, keep_blank_values=True)
+    redacted = [(key, "REDACTED" if key.lower() == "apikey" else value) for key, value in pairs]
+    return urllib.parse.urlunsplit((parsed.scheme, parsed.netloc, parsed.path, urllib.parse.urlencode(redacted), parsed.fragment))
+
+
 def _http_get_json(url: str, timeout: int = 20) -> dict[str, Any]:
     req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0 weekly-etf-eu pricing evidence"})
     try:
@@ -141,10 +150,10 @@ class TwelveDataPriceSource(PriceSource):
         try:
             payload = _http_get_json(endpoint)
         except Exception as exc:  # pragma: no cover - fixture tests monkeypatch _http_get_json
-            return self._unresolved(identity, endpoint, STATUS_UNRESOLVED_PROVIDER_ERROR, [ERROR_PROVIDER_EXCEPTION, str(exc)])
+            return self._unresolved(identity, _redacted_url(endpoint), STATUS_UNRESOLVED_PROVIDER_ERROR, [ERROR_PROVIDER_EXCEPTION, str(exc)])
 
         raw_path = self._write_raw_evidence(identity, symbol, payload)
-        lineage = self._lineage(identity, endpoint, symbol, exchange, raw_path, payload)
+        lineage = self._lineage(identity, _redacted_url(endpoint), symbol, exchange, raw_path, payload)
 
         provider_error = _provider_error(payload)
         if provider_error:
