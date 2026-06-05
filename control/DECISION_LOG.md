@@ -4,6 +4,58 @@ Use this file to capture stable architecture decisions so future sessions do not
 
 ---
 
+## 2026-06-05 — WP9 blocked delivery manifest operational integration decision
+
+### Decision
+
+WP9 operationalizes a blocked delivery manifest in the main workflow.
+
+The delivery manifest is evidence/control metadata only. It does not enable production delivery, PDF generation, email delivery, delivery receipts, portfolio mutation, funding authority, valuation authority, or candidate promotion.
+
+Delivery remains blocked until a later explicit delivery implementation creates and validates a real receipt path.
+
+### Chosen architecture
+
+```text
+main EU bootstrap workflow
+→ runtime.build_etf_eu_delivery_manifest
+→ output/delivery/etf_eu_delivery_manifest_<run_id>.json
+→ tools/validate_etf_eu_delivery_manifest.py
+→ artifact commit as evidence
+```
+
+The verified WP9 artifact is:
+
+```text
+output/delivery/etf_eu_delivery_manifest_20260605_074604.json
+```
+
+### Stable authority rules
+
+```text
+status=blocked_design_only
+delivery_enabled=false
+receipt_status=not_created
+funding_authority=false
+portfolio_mutation=false
+valuation_grade_promotion=false
+candidate_promotion_to_fundable=false
+pdf_generation=false
+email_delivery=false
+delivery_receipt=false
+production_delivery=false
+```
+
+### Reason
+
+The report workflow needs a deterministic delivery-control artifact before any future send layer can be considered. A manifest can prove that all current delivery gates remain blocked without becoming delivery itself.
+
+### Consequence
+
+WP9 is completed as blocked delivery manifest operational integration. The main workflow can produce and commit a delivery manifest as evidence, but real delivery remains unavailable until a separate receipt path, recipient policy, secrets policy, and explicit delivery authorization exist.
+
+---
+
 ## 2026-06-05 — WP11 shadow PDF rendering design/test authority decision
 
 ### Decision
@@ -358,208 +410,3 @@ The new discipline layer forces the model to ask whether each holding would be b
 - Weak or replaceable holdings now need a named next action, alternative comparison, or explicit override.
 - The next live ETF report should force clear review of SPY, PPA, PAVE, GLD, and cash policy.
 - ETF state now includes portfolio state, valuation history, trade ledger, lane artifacts, pricing audits, and recommendation discipline memory.
-
----
-
-## 2026-05-07 — Lock runtime-driven bilingual production baseline
-
-### Decision
-
-ETF now treats the runtime-driven pipeline as the stable production baseline.
-
-### Chosen architecture
-
-```text
-pricing audit
-→ lane discovery
-→ runtime state
-→ EN/NL report render
-→ polish/linkify
-→ validation
-→ PDF/email delivery
-```
-
-### Reason
-
-This path has produced received bilingual reports and resolves the prior architecture problem where markdown reports acted as hidden state, pricing source, continuity memory, and delivery artifact all at once.
-
-### Consequence
-
-- Markdown reports are presentation output, not primary state authority.
-- Future changes should preserve the runtime flow and avoid manual markdown patching.
-- Renderer changes should be limited to concrete output defects or validated improvements.
-- The next discovery-maturity phase is historical relative-strength scoring.
-- The next pricing-maturity phase is two-pass challenger pricing.
-
----
-
-## 2026-05-07 — Validate historical relative-strength and two-pass challenger pricing baseline
-
-### Decision
-
-ETF now treats historical relative-strength scoring and two-pass challenger pricing as part of the validated production baseline.
-
-### Chosen architecture
-
-```text
-pricing audit
-→ historical relative strength
-→ first-pass lane discovery
-→ targeted challenger pricing
-→ final lane discovery
-→ runtime state
-→ EN/NL report render
-→ polish/linkify
-→ validation
-→ PDF/email delivery
-```
-
-### Reason
-
-The workflow successfully passed after adding:
-
-- `runtime/fetch_etf_relative_strength.py`
-- historical 1m/3m return, trend, drawdown, volatility and relative-strength inputs
-- `pricing/augment_challenger_pricing.py`
-- targeted challenger pricing between first-pass and final discovery
-
-### Consequence
-
-- The Structural Opportunity Radar is now less dependent on configured priors.
-- Top discovery challengers can receive targeted pricing before final scoring.
-- Priced challengers are not automatically fundable; they only enable a fairer comparison.
-- The next maturity steps are liquidity/tradability filtering, relative strength versus current holdings, and macro/fundamental freshness inputs.
-
----
-
-## 2026-05-08 — Move strict branded sections to delivery HTML and validate rendered contract
-
-### Decision
-
-Sections with strict layout or clickable behavior are delivery-HTML responsibilities, not markdown-polish responsibilities.
-
-### Chosen architecture
-
-```text
-runtime state
-→ EN/NL markdown render
-→ polish/linkify
-→ delivery HTML overrides for strict sections
-→ dynamic delivery HTML contract validator
-→ PDF/email delivery
-```
-
-### Scope
-
-This applies specifically to:
-
-- Portfolio Action Snapshot
-- Current Position Review
-
-### Reason
-
-Repeated markdown-level fixes could not reliably guarantee clickable ticker formatting or a stable Current Position Review table because the branded PDF renderer uses special panel logic. The stable solution is to render these strict sections directly from runtime state at the delivery HTML layer.
-
-### Consequence
-
-- `runtime/delivery_html_overrides.py` owns the final HTML for strict branded sections.
-- `send_report_runtime_html.py` is the workflow delivery entrypoint.
-- `tools/validate_etf_delivery_html_contract.py` dynamically reads holdings from runtime state and validates rendered delivery HTML before email send.
-- The validator checks for real TradingView anchors, prevents raw markdown links, and ensures Current Position Review is a real HTML table.
-- Future PDF layout defects in these sections should be fixed in the delivery HTML layer, not by more markdown post-processing.
-
----
-
-## 2026-05-10 — Treat Dutch localization as a language-contract layer
-
-### Decision
-
-The Dutch ETF companion report is governed by a language-contract layer, not by ad-hoc markdown replacements or a separate research pass.
-
-### Chosen architecture
-
-```text
-runtime state
-→ English canonical report
-→ Dutch companion render
-→ Dutch localization contract pass
-→ Dutch language quality validation
-→ bilingual numeric parity validation
-→ bilingual delivery HTML validation
-→ PDF/email delivery
-```
-
-### Scope
-
-This applies to:
-
-- Dutch section titles
-- Dutch table labels
-- Dutch decision/status strings
-- Dutch trigger phrases
-- Dutch disclaimer wording
-- allowed English financial terminology
-- internal source labels that must never appear in client-facing Dutch text
-- Dutch aliases used by validators and delivery checks
-
-### Reason
-
-The production debugging cycle showed that one-failure-at-a-time phrase fixes are fragile. The real issue was validator drift between:
-
-- `runtime/nl_localization.py`
-- `runtime/apply_nl_localization.py`
-- `tools/validate_etf_dutch_language_quality.py`
-- `send_report.py`
-- `tools/validate_etf_delivery_html_contract.py`
-
-Dutch output quality must be handled as an explicit contract across render, markdown validation, send-time parity validation, delivery HTML validation, and final email/PDF delivery.
-
-### Consequence
-
-- English remains the canonical analytical report.
-- Dutch remains a derived companion, not an independent research pass.
-- Dutch client-facing text should read as premium Dutch, not translated English with system artifacts.
-- Validators must support both English canonical titles and Dutch companion titles.
-- Numeric parity between English and Dutch must remain strict.
-- Strict branded sections remain delivery HTML responsibilities.
-- The next cleanup is to consolidate bilingual aliases so one Dutch label change does not require patches across several validators.
-
----
-
-## 2026-05-11 — Render Section 7 equity curve from full valuation history
-
-### Decision
-
-Section 7 equity curve rendering must use the full machine-readable valuation history, not a hardcoded start/latest pair.
-
-### Chosen architecture
-
-```text
-output/etf_valuation_history.csv
-→ runtime/render_etf_report_from_state.py
-→ Section 7 valuation table
-→ embedded equity-curve chart
-→ tools/validate_etf_equity_curve_history.py
-→ ETF_EQUITY_CURVE_HISTORY_OK
-```
-
-### Scope
-
-This applies to:
-
-- Section 7 table rows
-- embedded equity-curve chart
-- latest NAV reconciliation with Section 15
-- future regression protection before delivery
-
-### Reason
-
-A production report showed the equity curve with only two dots: the initial start date and the latest report date. The intermediate valuation dates existed in `output/etf_valuation_history.csv`, but the renderer ignored that file and hardcoded only start/latest. Because the chart generator uses Section 7 as its primary source, the chart also collapsed to two points.
-
-### Consequence
-
-- `runtime/render_etf_report_from_state.py` now reads `output/etf_valuation_history.csv` and adds or replaces the current runtime NAV for the report date.
-- Section 7 now shows the full valuation history plus current NAV.
-- The embedded chart now shows intermediate valuation dates.
-- `tools/validate_etf_equity_curve_history.py` is wired into the send workflow.
-- Fresh delivery fails before email if Section 7 has too few points, duplicate dates, or latest NAV does not reconcile with Section 15 total NAV.
