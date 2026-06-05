@@ -1,0 +1,305 @@
+{
+  "agreement_gate_enriched_at_utc": "2026-06-05T07:46:07.506433+00:00",
+  "agreement_gate_row_count": 2,
+  "agreement_gate_valuation_grade_evidence_count": 0,
+  "agreement_wrapper_policy_mode": "shadow_non_authoritative_yahoo_no_promotion",
+  "created_at_utc": "2026-06-05T07:46:07.506283+00:00",
+  "funding_authority": false,
+  "missing_policy_rows": [],
+  "portfolio_mutation": false,
+  "pricing_authority_mode": "valuation_grade_pending",
+  "pricing_authority_mode_original": "valuation_grade_pending",
+  "production_delivery": false,
+  "registry_schema_version": "ucits_symbol_registry_v1",
+  "rows": [
+    {
+      "agreement_gate_evidence": {
+        "agreed_close": null,
+        "agreed_currency": null,
+        "agreed_observed_date": null,
+        "agreement_source_ids": [],
+        "evidence_count": 0,
+        "excluded_source_ids": [],
+        "funding_authority": false,
+        "identity": null,
+        "max_abs_diff": null,
+        "max_bps_diff": null,
+        "portfolio_mutation": false,
+        "production_delivery": false,
+        "reason_codes": [
+          "no_price_results_supplied"
+        ],
+        "resolved_source_ids": [],
+        "status": "provisional",
+        "valuation_artifact_action": "evidence_only_no_promotion",
+        "valuation_grade_promoted_by_artifact": false
+      },
+      "close": null,
+      "completed_session": false,
+      "currency": null,
+      "exchange": "London Stock Exchange",
+      "exchange_ticker": "CSPX",
+      "fund_name": "iShares Core S&P 500 UCITS ETF USD (Acc)",
+      "fundable_status": "not_funded_requires_broker_and_pricing_line_confirmation",
+      "funding_authority": false,
+      "instrument_type": "ETF",
+      "investability_status": "verified_candidate_not_funded",
+      "isin": "IE00B5BMR087",
+      "non_authoritative_preflight_evidence": {
+        "authority": "non_authoritative_connectivity_only",
+        "close": 811.02001953125,
+        "currency_warning": "trading_currency_from_registry_not_verified_by_yfinance",
+        "excluded_from_valuation_authority_reason": "source_policy_marks_yahoo_yfinance_as_non_authoritative_connectivity_only",
+        "observed_date": "2026-06-05",
+        "source": "yfinance",
+        "source_id": "yahoo_yfinance",
+        "status": "priced_non_authoritative"
+      },
+      "observed_date": null,
+      "portfolio_mutation": false,
+      "pricing_source": null,
+      "pricing_symbol_yahoo": "CSPX.L",
+      "priips_kid_status": "available",
+      "production_delivery": false,
+      "provider": "iShares / BlackRock",
+      "provider_symbol": "CSPX LN",
+      "registry_id": "core_us_equity_cspx",
+      "session_rule": "completed_regular_session_required_before_valuation_grade",
+      "source_authority": null,
+      "source_lineage": [
+        {
+          "authority": "not_applicable_other_venue",
+          "counts_for_market_close_agreement": false,
+          "source_id": "euronext_live",
+          "status": "not_applicable_for_lse_line",
+          "valuation_grade_eligible": false
+        },
+        {
+          "accept_as_valuation_grade": false,
+          "authority": "diagnostic_candidate_source",
+          "candidate_symbol_queries": [
+            {
+              "exchange": "LSE",
+              "note": "policy_primary_guess",
+              "symbol": "CSPX"
+            },
+            {
+              "exchange": "XLON",
+              "note": "mic_code_guess",
+              "symbol": "CSPX"
+            },
+            {
+              "exchange": null,
+              "note": "yahoo_style_suffix_probe",
+              "symbol": "CSPX.L"
+            },
+            {
+              "exchange": null,
+              "note": "bloomberg_style_probe",
+              "symbol": "CSPX:LN"
+            },
+            {
+              "exchange": null,
+              "note": "isin_search_probe",
+              "symbol": "IE00B5BMR087"
+            }
+          ],
+          "counts_for_market_close_agreement": false,
+          "endpoint": "time_series",
+          "exchange": "LSE",
+          "expected_currency": "USD",
+          "interval": "1day",
+          "outputsize": 5,
+          "source_id": "twelve_data",
+          "status": "plan_gated_current_tier_diagnostic_only",
+          "symbol": "CSPX",
+          "valuation_grade_eligible": false
+        },
+        {
+          "accept_as_valuation_grade": false,
+          "authority": "non_authoritative_connectivity_only",
+          "counts_for_market_close_agreement": false,
+          "expected_currency": "USD",
+          "notes": "Temporary Yahoo connectivity/display evidence for LSE line until official exchange or premium provider replaces it; not agreement-gate valuation authority.",
+          "source_id": "yahoo_yfinance",
+          "status": "shadow_non_authoritative_connectivity_only",
+          "symbol": "CSPX.L",
+          "valuation_grade_eligible": false
+        }
+      ],
+      "trading_currency": "USD",
+      "twelve_data_candidate_evidence": {
+        "accept_as_valuation_grade": false,
+        "authority": "diagnostic_candidate_source",
+        "endpoint": "time_series",
+        "error": "HTTP Error 404: Not Found",
+        "exchange": "LSE",
+        "expected_currency": "USD",
+        "interval": "1day",
+        "outputsize": 5,
+        "source_id": "twelve_data",
+        "status": "unresolved_provider_exception",
+        "symbol": "CSPX"
+      },
+      "ucits_status": "confirmed",
+      "valuation_blockers": [
+        "no_integrated_preferred_exchange_official_close",
+        "non_authoritative_preflight_price_excluded_from_valuation_grade",
+        "twelve_data_unresolved_provider_exception",
+        "agreement_gate_no_valuation_grade_agreement"
+      ],
+      "valuation_grade": false,
+      "valuation_status": "valuation_grade_pending"
+    },
+    {
+      "agreement_gate_evidence": {
+        "agreed_close": null,
+        "agreed_currency": null,
+        "agreed_observed_date": null,
+        "agreement_source_ids": [],
+        "evidence_count": 0,
+        "excluded_source_ids": [],
+        "funding_authority": false,
+        "identity": null,
+        "max_abs_diff": null,
+        "max_bps_diff": null,
+        "portfolio_mutation": false,
+        "production_delivery": false,
+        "reason_codes": [
+          "no_price_results_supplied"
+        ],
+        "resolved_source_ids": [],
+        "status": "provisional",
+        "valuation_artifact_action": "evidence_only_no_promotion",
+        "valuation_grade_promoted_by_artifact": false
+      },
+      "close": null,
+      "completed_session": false,
+      "currency": null,
+      "exchange": "Xetra",
+      "exchange_ticker": "SXR8",
+      "fund_name": "iShares Core S&P 500 UCITS ETF USD (Acc)",
+      "fundable_status": "not_funded_requires_broker_and_pricing_line_confirmation",
+      "funding_authority": false,
+      "instrument_type": "ETF",
+      "investability_status": "verified_candidate_not_funded",
+      "isin": "IE00B5BMR087",
+      "non_authoritative_preflight_evidence": {
+        "authority": "non_authoritative_connectivity_only",
+        "close": 698.0999755859375,
+        "currency_warning": "trading_currency_from_registry_not_verified_by_yfinance",
+        "excluded_from_valuation_authority_reason": "source_policy_marks_yahoo_yfinance_as_non_authoritative_connectivity_only",
+        "observed_date": "2026-06-05",
+        "source": "yfinance",
+        "source_id": "yahoo_yfinance",
+        "status": "priced_non_authoritative"
+      },
+      "observed_date": null,
+      "portfolio_mutation": false,
+      "pricing_source": null,
+      "pricing_symbol_yahoo": "SXR8.DE",
+      "priips_kid_status": "available",
+      "production_delivery": false,
+      "provider": "iShares / BlackRock",
+      "provider_symbol": "SXR8 GY",
+      "registry_id": "core_us_equity_cspx",
+      "session_rule": "completed_regular_session_required_before_valuation_grade",
+      "source_authority": null,
+      "source_lineage": [
+        {
+          "accept_as_valuation_grade": false,
+          "authority": "official_exchange_discovery",
+          "counts_for_market_close_agreement": true,
+          "expected_currency": "EUR",
+          "expected_tokens": [
+            "IE00B5BMR087",
+            "SXR8",
+            "Handelsw\u00e4hrung EUR"
+          ],
+          "mic_code": "XETR",
+          "product_url": "https://live.deutsche-boerse.com/etf/ishares-core-s-p-500-ucits-etf-usd-acc",
+          "source_id": "deutsche_boerse_live",
+          "status": "official_source_discovery_only",
+          "valuation_grade_eligible": true
+        },
+        {
+          "accept_as_valuation_grade": false,
+          "authority": "non_authoritative_connectivity_only",
+          "counts_for_market_close_agreement": false,
+          "expected_currency": "EUR",
+          "notes": "Temporary Yahoo connectivity/display evidence for Xetra line until official exchange or premium provider replaces it; not agreement-gate valuation authority.",
+          "source_id": "yahoo_yfinance",
+          "status": "shadow_non_authoritative_connectivity_only",
+          "symbol": "SXR8.DE",
+          "valuation_grade_eligible": false
+        },
+        {
+          "authority": "issuer_reference_or_nav_sanity_check",
+          "counts_for_market_close_agreement": false,
+          "source_id": "blackrock_issuer_reference",
+          "status": "reference_only",
+          "valuation_grade_eligible": false
+        },
+        {
+          "accept_as_valuation_grade": false,
+          "authority": "diagnostic_candidate_source",
+          "candidate_symbol_queries": [
+            {
+              "exchange": "XETR",
+              "note": "confirmed_symbol_search_mic_code",
+              "symbol": "SXR8"
+            },
+            {
+              "exchange": null,
+              "note": "isin_search_probe",
+              "symbol": "IE00B5BMR087"
+            }
+          ],
+          "counts_for_market_close_agreement": false,
+          "endpoint": "time_series",
+          "exchange": "XETR",
+          "expected_currency": "EUR",
+          "interval": "1day",
+          "outputsize": 5,
+          "source_id": "twelve_data",
+          "status": "diagnostic_only_do_not_upgrade_plan",
+          "symbol": "SXR8",
+          "valuation_grade_eligible": false
+        }
+      ],
+      "trading_currency": "EUR",
+      "twelve_data_candidate_evidence": {
+        "accept_as_valuation_grade": false,
+        "authority": "diagnostic_candidate_source",
+        "endpoint": "time_series",
+        "error": "HTTP Error 404: Not Found",
+        "exchange": "XETR",
+        "expected_currency": "EUR",
+        "interval": "1day",
+        "outputsize": 5,
+        "source_id": "twelve_data",
+        "status": "unresolved_provider_exception",
+        "symbol": "SXR8"
+      },
+      "ucits_status": "confirmed",
+      "valuation_blockers": [
+        "no_integrated_preferred_exchange_official_close",
+        "non_authoritative_preflight_price_excluded_from_valuation_grade",
+        "twelve_data_unresolved_provider_exception",
+        "agreement_gate_no_valuation_grade_agreement"
+      ],
+      "valuation_grade": false,
+      "valuation_status": "valuation_grade_pending"
+    }
+  ],
+  "run_id": "20260605_074604",
+  "schema_version": "ucits_valuation_prices_v1",
+  "source_candidate_artifact": "output/pricing/ucits_pricing_candidates_20260605_074604.json",
+  "source_policy": "output/pricing/ucits_pricing_source_policy_shadow_20260605_074604.yml",
+  "source_policy_original": "config/ucits_pricing_source_policy.yml",
+  "source_policy_shadow": "output/pricing/ucits_pricing_source_policy_shadow_20260605_074604.yml",
+  "source_preflight_artifact": "output/pricing/ucits_pricing_preflight_20260605_074604.json",
+  "source_registry": "config/ucits_symbol_registry.yml",
+  "valuation_grade_row_count": 0,
+  "valuation_pending_row_count": 2
+}
