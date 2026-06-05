@@ -20,6 +20,7 @@ def build_blocked_design_manifest(
     dutch_report_path: str,
     english_report_path: str,
     valuation_artifact_path: str,
+    fundability_artifact_path: str,
     validation_evidence_paths: list[str] | None = None,
     created_at_utc: str | None = None,
 ) -> dict[str, Any]:
@@ -41,6 +42,7 @@ def build_blocked_design_manifest(
             "dutch_report_path": dutch_report_path,
             "english_report_path": english_report_path,
             "valuation_artifact_path": valuation_artifact_path,
+            "fundability_artifact_path": fundability_artifact_path,
             "validation_evidence_paths": validation_evidence_paths or [],
         },
         "receipt": {
@@ -55,6 +57,7 @@ def build_blocked_design_manifest(
             "candidate_promotion_to_fundable": False,
             "pdf_generation": False,
             "email_delivery": False,
+            "delivery_receipt": False,
             "production_delivery": False,
         },
         "blockers": [
@@ -74,6 +77,7 @@ def write_blocked_design_manifest(
     dutch_report_path: str,
     english_report_path: str,
     valuation_artifact_path: str,
+    fundability_artifact_path: str,
     validation_evidence_paths: list[str] | None = None,
     created_at_utc: str | None = None,
 ) -> Path:
@@ -84,6 +88,7 @@ def write_blocked_design_manifest(
         dutch_report_path=dutch_report_path,
         english_report_path=english_report_path,
         valuation_artifact_path=valuation_artifact_path,
+        fundability_artifact_path=fundability_artifact_path,
         validation_evidence_paths=validation_evidence_paths,
         created_at_utc=created_at_utc,
     )
@@ -100,6 +105,7 @@ def main() -> None:
     parser.add_argument("--dutch-report-path", required=True)
     parser.add_argument("--english-report-path", required=True)
     parser.add_argument("--valuation-artifact-path", required=True)
+    parser.add_argument("--fundability-artifact-path", required=True)
     parser.add_argument("--validation-evidence-path", action="append", default=[])
     args = parser.parse_args()
     path = write_blocked_design_manifest(
@@ -109,6 +115,7 @@ def main() -> None:
         dutch_report_path=args.dutch_report_path,
         english_report_path=args.english_report_path,
         valuation_artifact_path=args.valuation_artifact_path,
+        fundability_artifact_path=args.fundability_artifact_path,
         validation_evidence_paths=list(args.validation_evidence_path),
     )
     print(f"ETF_EU_DELIVERY_MANIFEST_DESIGN_ONLY_OK | manifest={path} | delivery_enabled=false | receipt_status=not_created")
