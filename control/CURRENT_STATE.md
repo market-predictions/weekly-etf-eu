@@ -161,6 +161,42 @@ not email delivery
 not a delivery receipt
 ```
 
+WP12 email delivery dry-run contract proof:
+
+```text
+control/ETF_EU_EMAIL_DRY_RUN_CONTRACT_V1.md
+runtime/build_etf_eu_email_dry_run.py
+tools/validate_etf_eu_email_dry_run.py
+tests/test_etf_eu_email_dry_run.py
+output/delivery/email_dry_run_20260605_000000.json
+python -m pytest tests/test_etf_eu_email_dry_run.py -q
+5 passed
+```
+
+WP12 status:
+
+```text
+completed as email delivery dry-run contract only
+design-only blocked artifact
+send_attempted=false
+email_delivery=false
+delivery_receipt=false
+production_delivery=false
+not workflow-integrated
+not real delivery
+```
+
+WP12 sample artifact status fields:
+
+```text
+delivery_manifest_status=not_available
+pdf_status=not_available
+send_attempted=false
+email_delivery=false
+delivery_receipt=false
+production_delivery=false
+```
+
 ## Current workflow posture
 
 The main EU bootstrap workflow now uses:
@@ -190,6 +226,8 @@ WP9 added a blocked delivery manifest operational integration path. The manifest
 WP10 added an operator-friendly run bundle manifest path. It is an evidence package only and is not workflow-integrated delivery.
 
 WP11 added a shadow-only PDF helper/validator/test path, but this path is not workflow-integrated.
+
+WP12 added an email delivery dry-run contract/helper/validator/test path. It is metadata/control only and is not workflow-integrated real delivery.
 
 ## Verified report-surface content
 
@@ -223,6 +261,7 @@ The generated English report remains companion/operator-facing and confirms the 
 3. Twelve Data source path remains separate and is not workflow/authority integrated as valuation authority.
 4. PDF workflow integration remains blocked until a later explicit decision authorizes it.
 5. WP10 may optionally be extended to reference the available WP9 delivery manifest while remaining an evidence package only.
+6. WP13 real delivery enablement remains blocked until recipient allowlist, SMTP/secrets policy and delivery receipt validator exist.
 
 ## Boundary rule
 
@@ -237,6 +276,7 @@ candidate_promotion=false
 run_bundle=evidence_package_only
 pdf_generation=shadow_only for local/shadow artifacts only
 workflow_integrated=false for PDF
+send_attempted=false
 no email delivery
 no delivery receipt
 ```
