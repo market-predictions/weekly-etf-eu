@@ -230,7 +230,7 @@ jobs:
 
       - name: Validate EU output, pricing surface and fundability contracts
         run: |
-          python tools/validate_etf_eu_output_contract.py --output-dir output --require-production-dutch-first
+          python tools/validate_etf_eu_output_contract.py --output-dir output --require-production-dutch-first --report-suffix "$ETF_EU_REPORT_SUFFIX"
           python tools/validate_etf_eu_candidate_report.py --output-dir output
           python tools/validate_etf_eu_pricing_surface.py "output/weekly_etf_eu_review_${ETF_EU_REPORT_SUFFIX}.md" --require-production-dutch-first
           python tools/validate_etf_eu_pricing_surface.py "output/weekly_etf_eu_review_nl_${ETF_EU_REPORT_SUFFIX}.md" --require-production-dutch-first
