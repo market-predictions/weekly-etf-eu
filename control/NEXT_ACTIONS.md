@@ -10,6 +10,7 @@ Completed:
 - WP9 delivery manifest operational integration
 - WP10 run artifact bundle / evidence package
 - WP11 shadow PDF rendering design/tests only
+- WP12 email delivery dry-run contract only
 
 Evidence:
 
@@ -37,6 +38,8 @@ Evidence:
 - tools/validate_etf_eu_shadow_pdf.py
 - tests/test_etf_eu_shadow_pdf.py
 - focused WP11 test: `python -m pytest tests/test_etf_eu_shadow_pdf.py -q` = `3 passed`
+- output/delivery/email_dry_run_20260605_000000.json
+- focused WP12 test: `python -m pytest tests/test_etf_eu_email_dry_run.py -q` = `5 passed`
 
 WP9 status:
 
@@ -83,6 +86,19 @@ pdf_generation=false
 delivery_receipt=false
 ```
 
+WP12 status:
+
+```text
+completed as email delivery dry-run contract only
+design-only blocked artifact
+send_attempted=false
+email_delivery=false
+delivery_receipt=false
+production_delivery=false
+not workflow-integrated
+not real delivery
+```
+
 Next:
 
 - keep delivery blocked until a real delivery receipt path is separately implemented, validated and explicitly authorized
@@ -105,6 +121,7 @@ candidate_promotion=false
 run_bundle=evidence_package_only
 pdf_generation=shadow_only for local/shadow artifacts only
 workflow_integrated=false for PDF
+send_attempted=false
 no email delivery
 no delivery receipt
 ```
