@@ -1,17 +1,18 @@
 # UCITS valuation pricing source policy.
 # Pricing is evaluated at ISIN + exchange trading-line level.
-# Temporary 2026-06 decision: Yahoo/yfinance may be used as a verified fallback
-# close-price source until an official exchange or paid data-provider source is integrated.
+# 2026-06 reconciliation: Yahoo/yfinance may be used as temporary
+# connectivity/display evidence only. It is not agreement-gate valuation-grade
+# authority and must not count as independent market-close agreement evidence.
 
 schema_version: ucits_pricing_source_policy_v1
-pricing_authority_mode: temporary_yahoo_verified_fallback
-last_reviewed: 2026-06-02
+pricing_authority_mode: valuation_grade_pending
+last_reviewed: 2026-06-04
 
 rules:
   portfolio_mutation_from_pricing: false
   production_delivery_from_pricing: false
   funding_authority_from_pricing: false
-  yfinance_default_authority: temporary_yahoo_verified_fallback
+  yfinance_default_authority: non_authoritative_connectivity_only
   require_observed_date: true
   require_trading_currency_match: true
   require_source_lineage: true
@@ -22,35 +23,44 @@ rules:
   twelve_data_default_accept_as_valuation_grade: false
   official_exchange_discovery_mutates_state: false
   yahoo_temporary_fallback_review_required: true
+  yahoo_counts_for_market_close_agreement: false
+  yahoo_display_or_connectivity_only: true
 
 source_authority_hierarchy:
   - source_id: euronext_live
     authority: preferred_official_exchange_discovery
     valuation_grade_eligible: true
+    counts_for_market_close_agreement: true
     notes: Preferred Dutch/EU trading-line discovery source for Euronext Amsterdam / XAMS. Discovery does not equal valuation authority until close/date/currency/session evidence is validated.
   - source_id: deutsche_boerse_live
     authority: official_exchange_discovery
     valuation_grade_eligible: true
+    counts_for_market_close_agreement: true
     notes: Official Deutsche Börse / Xetra discovery source for SXR8. Discovery does not equal valuation authority until close/date/currency/session evidence is validated.
   - source_id: exchange_official
     authority: preferred_valuation_source_legacy_bucket
     valuation_grade_eligible: true
+    counts_for_market_close_agreement: true
     notes: Legacy generic bucket retained for compatibility; prefer venue-specific official sources above.
   - source_id: yahoo_yfinance
-    authority: temporary_yahoo_verified_fallback
-    valuation_grade_eligible: true
-    notes: Temporary fallback close-price source approved by user on 2026-06-02. Must record Yahoo symbol, observed date, close, currency match, completed-session assumption and lineage. Does not create funding authority or portfolio mutation.
+    authority: non_authoritative_connectivity_only
+    valuation_grade_eligible: false
+    counts_for_market_close_agreement: false
+    notes: Temporary connectivity/display fallback evidence only. Yahoo may help prove symbol reachability or show provisional/display close evidence, but it is not agreement-gate valuation-grade authority and cannot be the sole or counted market-close agreement source.
   - source_id: blackrock_issuer_reference
     authority: issuer_reference_or_nav_sanity_check
     valuation_grade_eligible: false
+    counts_for_market_close_agreement: false
     notes: Useful for product facts, identity, KID/NAV sanity checks; not a trading-line official close source by default.
   - source_id: twelve_data
     authority: diagnostic_candidate_source
     valuation_grade_eligible: false
+    counts_for_market_close_agreement: false
     notes: Current plan is not upgraded; use for symbol discovery only, not valuation authority.
   - source_id: issuer_factsheet
     authority: reference_only_or_stale_check
     valuation_grade_eligible: false
+    counts_for_market_close_agreement: false
     notes: Useful for instrument facts and stale sanity checks, not daily report valuation by default.
 
 trading_line_policies:
@@ -64,6 +74,7 @@ trading_line_policies:
       - source_id: euronext_live
         authority: preferred_official_exchange_discovery
         valuation_grade_eligible: true
+        counts_for_market_close_agreement: true
         accept_as_valuation_grade: false
         status: official_source_discovery_only
         product_url: https://live.euronext.com/en/product/etfs/IE00B5BMR087-XAMS
@@ -76,17 +87,19 @@ trading_line_policies:
           - ETF
       - source_id: yahoo_yfinance
         symbol: CSPX.AS
-        authority: temporary_yahoo_verified_fallback
-        valuation_grade_eligible: true
-        accept_as_valuation_grade: true
-        status: temporary_valuation_fallback
+        authority: non_authoritative_connectivity_only
+        valuation_grade_eligible: false
+        counts_for_market_close_agreement: false
+        accept_as_valuation_grade: false
+        status: temporary_connectivity_display_fallback
         expected_currency: EUR
-        notes: Temporary Yahoo close-price source for Amsterdam line until official exchange or premium provider replaces it.
+        notes: Temporary Yahoo connectivity/display evidence for Amsterdam line until official exchange or premium provider replaces it; not agreement-gate valuation authority.
       - source_id: blackrock_issuer_reference
         authority: issuer_reference_or_nav_sanity_check
         valuation_grade_eligible: false
+        counts_for_market_close_agreement: false
         status: reference_only
-    current_phase4_status: yahoo_temporary_fallback_enabled
+    current_phase4_status: valuation_grade_pending_yahoo_connectivity_only
 
   - registry_id: core_us_equity_cspx
     isin: IE00B5BMR087
@@ -98,6 +111,7 @@ trading_line_policies:
       - source_id: euronext_live
         authority: not_applicable_other_venue
         valuation_grade_eligible: false
+        counts_for_market_close_agreement: false
         status: not_applicable_for_lse_line
       - source_id: twelve_data
         symbol: CSPX
@@ -108,6 +122,7 @@ trading_line_policies:
         outputsize: 5
         authority: diagnostic_candidate_source
         valuation_grade_eligible: false
+        counts_for_market_close_agreement: false
         accept_as_valuation_grade: false
         status: plan_gated_current_tier_diagnostic_only
         candidate_symbol_queries:
@@ -128,13 +143,14 @@ trading_line_policies:
             note: isin_search_probe
       - source_id: yahoo_yfinance
         symbol: CSPX.L
-        authority: temporary_yahoo_verified_fallback
-        valuation_grade_eligible: true
-        accept_as_valuation_grade: true
-        status: temporary_valuation_fallback
+        authority: non_authoritative_connectivity_only
+        valuation_grade_eligible: false
+        counts_for_market_close_agreement: false
+        accept_as_valuation_grade: false
+        status: temporary_connectivity_display_fallback
         expected_currency: USD
-        notes: Temporary Yahoo close-price source for LSE line until official exchange or premium provider replaces it.
-    current_phase4_status: yahoo_temporary_fallback_enabled
+        notes: Temporary Yahoo connectivity/display evidence for LSE line until official exchange or premium provider replaces it; not agreement-gate valuation authority.
+    current_phase4_status: valuation_grade_pending_yahoo_connectivity_only
 
   - registry_id: core_us_equity_cspx
     isin: IE00B5BMR087
@@ -146,6 +162,7 @@ trading_line_policies:
       - source_id: deutsche_boerse_live
         authority: official_exchange_discovery
         valuation_grade_eligible: true
+        counts_for_market_close_agreement: true
         accept_as_valuation_grade: false
         status: official_source_discovery_only
         product_url: https://live.deutsche-boerse.com/etf/ishares-core-s-p-500-ucits-etf-usd-acc
@@ -157,15 +174,17 @@ trading_line_policies:
           - Handelswährung EUR
       - source_id: yahoo_yfinance
         symbol: SXR8.DE
-        authority: temporary_yahoo_verified_fallback
-        valuation_grade_eligible: true
-        accept_as_valuation_grade: true
-        status: temporary_valuation_fallback
+        authority: non_authoritative_connectivity_only
+        valuation_grade_eligible: false
+        counts_for_market_close_agreement: false
+        accept_as_valuation_grade: false
+        status: temporary_connectivity_display_fallback
         expected_currency: EUR
-        notes: Temporary Yahoo close-price source for Xetra line until official exchange or premium provider replaces it.
+        notes: Temporary Yahoo connectivity/display evidence for Xetra line until official exchange or premium provider replaces it; not agreement-gate valuation authority.
       - source_id: blackrock_issuer_reference
         authority: issuer_reference_or_nav_sanity_check
         valuation_grade_eligible: false
+        counts_for_market_close_agreement: false
         status: reference_only
       - source_id: twelve_data
         symbol: SXR8
@@ -176,6 +195,7 @@ trading_line_policies:
         outputsize: 5
         authority: diagnostic_candidate_source
         valuation_grade_eligible: false
+        counts_for_market_close_agreement: false
         accept_as_valuation_grade: false
         status: diagnostic_only_do_not_upgrade_plan
         candidate_symbol_queries:
@@ -185,7 +205,7 @@ trading_line_policies:
           - symbol: IE00B5BMR087
             exchange: null
             note: isin_search_probe
-    current_phase4_status: yahoo_temporary_fallback_enabled
+    current_phase4_status: valuation_grade_pending_yahoo_connectivity_only
 
 blocked_defaults:
   candidate_requires_verification: no_valuation_authority_until_registry_verification
@@ -195,8 +215,9 @@ blocked_defaults:
 notes:
   - This policy does not fund any ETF.
   - This policy does not mutate portfolio state.
-  - A source being listed as valuation-grade eligible does not mean it creates funding authority.
+  - A source being listed as connectivity/display evidence does not mean it creates valuation authority.
   - Twelve Data is not being upgraded and must not become the primary EU valuation path.
   - Venue-specific official discovery sources remain preferred long term.
-  - Yahoo/yfinance is approved as a temporary close-price fallback until an official exchange endpoint or premium data provider is integrated.
-  - Candidate symbol queries are diagnostic probes only, not approved valuation identifiers unless listed as yahoo_yfinance temporary_valuation_fallback for that exact trading line.
+  - Yahoo/yfinance is approved only as a temporary connectivity/display fallback until an official exchange endpoint or premium data provider is integrated.
+  - Yahoo/yfinance must not count for agreement-gate market-close agreement and must not populate valuation-grade authority fields under current policy.
+  - Candidate symbol queries are diagnostic probes only, not approved valuation identifiers.
