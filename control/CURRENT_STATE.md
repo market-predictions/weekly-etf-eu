@@ -44,6 +44,59 @@ output/fundability/ucits_fundability_gate_20260605_070115.json
 output/validation/etf_eu_shadow_validation_evidence_20260605_070115.json
 ```
 
+WP9 delivery manifest operational integration proof:
+
+```text
+GitHub Actions run #37 on main: success
+trigger commit: d31a1c82f157f82288f7bc548762ea3e783c9ced
+artifact commit: 5ac94fb42b12e4a80aeb8b9a8a44d5006283215e
+ETF_EU_RUN_ID: 20260605_074604
+output/delivery/etf_eu_delivery_manifest_20260605_074604.json
+python -m pytest tests/test_etf_eu_delivery_manifest.py -q
+3 passed
+python tools/validate_etf_eu_delivery_manifest.py output/delivery/etf_eu_delivery_manifest_20260605_074604.json
+ETF_EU_DELIVERY_MANIFEST_OK
+```
+
+WP9 status:
+
+```text
+completed as blocked delivery manifest operational integration
+main workflow verified
+manifest artifact committed
+not real delivery
+not PDF generation
+not email delivery
+not a delivery receipt
+```
+
+WP9 manifest status fields:
+
+```text
+schema_version=etf_eu_delivery_manifest_v1
+status=blocked_design_only
+delivery_enabled=false
+receipt_status=not_created
+funding_authority=false
+portfolio_mutation=false
+valuation_grade_promotion=false
+candidate_promotion_to_fundable=false
+pdf_generation=false
+email_delivery=false
+delivery_receipt=false
+production_delivery=false
+```
+
+WP9 manifest references:
+
+```text
+output/weekly_etf_eu_review_nl_260605.md
+output/weekly_etf_eu_review_260605.md
+output/pricing/ucits_valuation_prices_20260605_074604.json
+output/fundability/ucits_fundability_gate_20260605_074604.json
+output/validation/etf_eu_shadow_validation_evidence_20260605_074604.json
+```
+
 WP10 run artifact bundle / evidence package proof:
 
 ```text
@@ -116,6 +169,7 @@ The main EU bootstrap workflow now uses:
 pricing.build_ucits_valuation_prices_with_agreement
 runtime.render_etf_eu_report_with_pricing_surface
 runtime.etf_eu_fundability_surface
+runtime.build_etf_eu_delivery_manifest
 ```
 
 The workflow now:
@@ -127,8 +181,11 @@ passes the fundability artifact into the report renderer
 validates strict Dutch-first output for the current report pair
 validates pricing surface in strict mode
 validates fundability surface
-commits report, pricing, fundability and validation artifacts as evidence
+builds and validates a blocked/design-only delivery manifest
+commits report, pricing, fundability, validation and delivery manifest artifacts as evidence
 ```
+
+WP9 added a blocked delivery manifest operational integration path. The manifest is evidence/control metadata only and is not real delivery.
 
 WP10 added an operator-friendly run bundle manifest path. It is an evidence package only and is not workflow-integrated delivery.
 
@@ -161,11 +218,11 @@ The generated English report remains companion/operator-facing and confirms the 
 
 ## Pending items
 
-1. Later operational send path only after a separate manifest/receipt path exists.
+1. Later operational send path only after a separate real receipt path exists and is explicitly authorized.
 2. Future candidate promotion only after explicit fundability and portfolio-decision gates pass.
 3. Twelve Data source path remains separate and is not workflow/authority integrated as valuation authority.
-4. PDF workflow integration remains blocked until WP9 delivery manifest operational integration is complete and a later explicit decision authorizes it.
-5. After WP9 delivery manifest operational integration is complete, WP10 may be extended to reference an available delivery manifest while remaining an evidence package only.
+4. PDF workflow integration remains blocked until a later explicit decision authorizes it.
+5. WP10 may optionally be extended to reference the available WP9 delivery manifest while remaining an evidence package only.
 
 ## Boundary rule
 
