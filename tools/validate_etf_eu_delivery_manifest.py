@@ -32,6 +32,7 @@ REQUIRED_ARTIFACTS = {
     "dutch_report_path",
     "english_report_path",
     "valuation_artifact_path",
+    "fundability_artifact_path",
     "validation_evidence_paths",
 }
 REQUIRED_RECEIPT = {"receipt_required", "receipt_path", "receipt_status"}
@@ -41,7 +42,7 @@ REQUIRED_AUTHORITY_FALSE = {
     "valuation_grade_promotion",
     "candidate_promotion_to_fundable",
 }
-DELIVERY_AUTHORITY_FLAGS = {"pdf_generation", "email_delivery", "production_delivery"}
+DELIVERY_AUTHORITY_FLAGS = {"pdf_generation", "email_delivery", "delivery_receipt", "production_delivery"}
 
 
 def _load(path: Path) -> dict[str, Any]:
