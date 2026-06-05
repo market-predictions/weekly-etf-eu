@@ -92,3 +92,32 @@ def test_wrapper_renders_strict_dutch_first_maturity_reports(tmp_path: Path):
     validate_pricing_surface(nl_path, require_production_dutch_first=True)
     validate_fundability_surface(en_path)
     validate_fundability_surface(nl_path)
+
+
+def test_strict_validation_can_target_current_report_pair_with_historical_outputs(tmp_path: Path):
+    output, state, proxy, registry, valuation, fundability = _write_inputs(tmp_path)
+    output.mkdir(parents=True, exist_ok=True)
+    (output / "weekly_etf_eu_review_260531.md").write_text(
+        "# Weekly ETF EU Review — 2026-05-31\n\n"
+        "cash-only bootstrap\n\n"
+        "Funded UCITS holdings: none\n\n"
+        "research proxies only\n\n"
+        "require ISIN, KID/PRIIPs and trading-line verification\n\n"
+        "Production delivery: disabled\n\n"
+        "No PDF rendering, portfolio execution or email delivery was performed\n",
+        encoding="utf-8",
+    )
+    (output / "weekly_etf_eu_review_nl_260531.md").write_text(
+        "# Weekly ETF EU Review NL — 2026-05-31\n\n"
+        "cash-only bootstrap\n\n"
+        "Gefinancierde UCITS-posities: geen\n\n"
+        "alleen onderzoeksproxy\n\n"
+        "vereisen ISIN-, KID-/PRIIPs- en handelslijnverificatie\n\n"
+        "Productielevering: uitgeschakeld\n\n"
+        "geen PDF-rendering, portefeuille-executie of e-mailverzending uitgevoerd\n",
+        encoding="utf-8",
+    )
+
+    write_reports_with_pricing_surface(output, state, proxy, registry, None, valuation, "2026-06-04", fundability)
+
+    validate(output, require_production_dutch_first=True, report_suffix="260604")
