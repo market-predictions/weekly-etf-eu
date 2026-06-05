@@ -44,6 +44,27 @@ output/fundability/ucits_fundability_gate_20260605_070115.json
 output/validation/etf_eu_shadow_validation_evidence_20260605_070115.json
 ```
 
+WP11 shadow PDF design/test proof:
+
+```text
+control/ETF_EU_SHADOW_PDF_CONTRACT_V1.md
+runtime/render_etf_eu_shadow_pdf.py
+tools/validate_etf_eu_shadow_pdf.py
+tests/test_etf_eu_shadow_pdf.py
+python -m pytest tests/test_etf_eu_shadow_pdf.py -q
+3 passed
+```
+
+WP11 status:
+
+```text
+completed as shadow PDF design/test path only
+not workflow-integrated
+not production delivery
+not email delivery
+not a delivery receipt
+```
+
 ## Current workflow posture
 
 The main EU bootstrap workflow now uses:
@@ -65,6 +86,8 @@ validates pricing surface in strict mode
 validates fundability surface
 commits report, pricing, fundability and validation artifacts as evidence
 ```
+
+WP11 added a shadow-only PDF helper/validator/test path, but this path is not workflow-integrated.
 
 ## Verified report-surface content
 
@@ -96,6 +119,7 @@ The generated English report remains companion/operator-facing and confirms the 
 1. Later operational send path only after a separate manifest/receipt path exists.
 2. Future candidate promotion only after explicit fundability and portfolio-decision gates pass.
 3. Twelve Data source path remains separate and is not workflow/authority integrated as valuation authority.
+4. PDF workflow integration remains blocked until WP9 delivery manifest operational integration is complete and a later explicit decision authorizes it.
 
 ## Boundary rule
 
@@ -107,7 +131,8 @@ funding_authority=false
 portfolio_mutation=false
 production_delivery=false
 candidate_promotion=false
-no PDF generation
+pdf_generation=shadow_only for local/shadow artifacts only
+workflow_integrated=false for PDF
 no email delivery
 no delivery receipt
 ```
