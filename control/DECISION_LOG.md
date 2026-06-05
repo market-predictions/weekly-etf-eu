@@ -56,6 +56,56 @@ WP9 is completed as blocked delivery manifest operational integration. The main 
 
 ---
 
+## 2026-06-05 — WP12 email delivery dry-run authority decision
+
+### Decision
+
+WP12 email delivery dry-run is a metadata/control package only.
+
+It may describe future delivery packaging, subject/body previews, attachment paths, delivery-manifest references, and shadow-PDF references, but it does not authorize or perform sending.
+
+No SMTP, external mail API, recipient activation, delivery receipt, PDF generation, production delivery, portfolio mutation, funding authority, valuation authority, or candidate promotion is enabled.
+
+### Chosen architecture
+
+```text
+control/ETF_EU_EMAIL_DRY_RUN_CONTRACT_V1.md
+→ runtime/build_etf_eu_email_dry_run.py
+→ output/delivery/email_dry_run_<run_id>.json
+→ tools/validate_etf_eu_email_dry_run.py
+```
+
+The verified WP12 sample artifact is:
+
+```text
+output/delivery/email_dry_run_20260605_000000.json
+```
+
+### Stable authority rules
+
+```text
+status=design_only_blocked
+send_attempted=false
+email_delivery=false
+delivery_receipt=false
+production_delivery=false
+mail_transport_configured=false
+external_mail_api_enabled=false
+send_function_present=false
+recipient_activation=false
+pdf_generation=false
+```
+
+### Reason
+
+The future delivery layer needs a deterministic preview/control package before any real sending can be considered. A dry-run artifact can describe what would be packaged later while proving that no send attempt, recipient activation, mail transport, PDF generation, delivery receipt, or production delivery exists.
+
+### Consequence
+
+WP12 is completed as an email delivery dry-run contract only. It is not workflow-integrated real delivery. WP13 real delivery remains blocked until WP9, WP10, WP11 and WP12 are verified and recipient allowlist, SMTP/secrets policy and delivery receipt validator exist.
+
+---
+
 ## 2026-06-05 — WP11 shadow PDF rendering design/test authority decision
 
 ### Decision
