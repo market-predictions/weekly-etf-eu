@@ -4,6 +4,56 @@ Use this file to capture stable architecture decisions so future sessions do not
 
 ---
 
+## 2026-06-05 — WP11 shadow PDF rendering design/test authority decision
+
+### Decision
+
+WP11 shadow PDF rendering is allowed only as a local/shadow artifact path.
+
+PDF generation remains:
+
+```text
+pdf_generation=shadow_only
+```
+
+No production delivery, email delivery, delivery receipt, or workflow integration is authorized.
+
+Workflow integration must wait until WP9 delivery manifest operational integration is complete and a later explicit decision authorizes it.
+
+### Chosen architecture
+
+```text
+Dutch Markdown report + English Markdown report
+→ runtime/render_etf_eu_shadow_pdf.py
+→ output/pdf/weekly_etf_eu_review_nl_<date>.pdf
+→ output/pdf/weekly_etf_eu_review_<date>.pdf
+→ output/pdf/etf_eu_shadow_pdf_manifest_<run_id>.json
+→ tools/validate_etf_eu_shadow_pdf.py
+```
+
+### Stable authority rules
+
+```text
+production_delivery=false
+email_delivery=false
+delivery_receipt=false
+portfolio_mutation=false
+funding_authority=false
+valuation_grade=false
+candidate_promotion=false
+workflow_integrated=false
+```
+
+### Reason
+
+PDF rendering can be prepared as an artifact-format capability without converting it into client delivery. A rendered PDF is not a delivery receipt and must not be used to claim production delivery.
+
+### Consequence
+
+WP11 is completed as a shadow PDF design/test path only. It is not workflow-integrated, not production delivery, not email delivery, and not a delivery receipt.
+
+---
+
 ## 2026-06-04 — ETF EU agreement-aware pricing-surface authority decisions
 
 ### Decision
