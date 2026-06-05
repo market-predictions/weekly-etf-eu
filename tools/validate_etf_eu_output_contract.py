@@ -4,7 +4,7 @@ import argparse
 import re
 from pathlib import Path
 
-EU_REPORT_RE = re.compile(r"^weekly_etf_eu_review(?:_nl)?_\d{6}\.md$")
+EU_REPORT_RE = re.compile(r"^weekly_etf_eu_review(?:_nl)?_(\d{6})\.md$")
 US_PROXY_TICKERS = ["SPY", "QQQ", "SMH", "GLD", "GSG", "PPA", "PAVE", "URNM", "IWM", "TLT", "KWEB", "ICLN", "SOXX", "ITA", "GRID", "URA", "NLR"]
 REQUIRED_EN_PHRASES = [
     "cash-only bootstrap",
@@ -96,6 +96,13 @@ def _normalized_markdown(text: str) -> str:
     return re.sub(r"\s+", " ", text).strip()
 
 
+def _report_suffix(path: Path) -> str:
+    match = EU_REPORT_RE.match(path.name)
+    if not match:
+        raise RuntimeError(f"EU output contract failed: unexpected EU report filename: {path.name}")
+    return match.group(1)
+
+
 def _lines_with_ticker(text: str, ticker: str) -> list[str]:
     pattern = re.compile(rf"\b{re.escape(ticker)}\b")
     return [line.strip() for line in text.splitlines() if pattern.search(line)]
@@ -150,18 +157,36 @@ def _validate_report(path: Path, *, require_production_dutch_first: bool = False
     print(f"ETF_EU_OUTPUT_CONTRACT_OK | report={path.name} | language={'nl' if is_nl else 'en'}")
 
 
-def validate(output_dir: Path, *, require_production_dutch_first: bool = False) -> None:
+def _select_reports_for_suffix(reports: list[Path], report_suffix: str) -> list[Path]:
+    selected = [path for path in reports if _report_suffix(path) == report_suffix]
+    if not selected:
+        raise RuntimeError(f"EU output contract failed: no reports found for requested report_suffix={report_suffix}")
+    return selected
+
+
+def _select_latest_report_pair(reports: list[Path]) -> list[Path]:
+    latest_suffix = max(_report_suffix(path) for path in reports)
+    return _select_reports_for_suffix(reports, latest_suffix)
+
+
+def validate(output_dir: Path, *, require_production_dutch_first: bool = False, report_suffix: str | None = None) -> None:
     reports = sorted(path for path in output_dir.glob("weekly_etf_eu_review*.md") if path.is_file())
     if not reports:
         raise RuntimeError("EU output contract failed: no weekly_etf_eu_review*.md reports found")
     us_named = [path.name for path in output_dir.glob("weekly_analysis_pro_*.md") if path.is_file()]
     if us_named:
         print("ETF_EU_OUTPUT_WARNING | inherited_us_named_reports_present_as_clone_artifacts=" + ",".join(us_named[:5]))
-    has_en = any("_nl_" not in path.name for path in reports)
-    has_nl = any("_nl_" in path.name for path in reports)
+    if report_suffix:
+        reports_to_validate = _select_reports_for_suffix(reports, report_suffix)
+    elif require_production_dutch_first:
+        reports_to_validate = _select_latest_report_pair(reports)
+    else:
+        reports_to_validate = reports
+    has_en = any("_nl_" not in path.name for path in reports_to_validate)
+    has_nl = any("_nl_" in path.name for path in reports_to_validate)
     if not has_en or not has_nl:
         raise RuntimeError("EU output contract failed: expected both English companion and Dutch primary markdown outputs")
-    for report in reports:
+    for report in reports_to_validate:
         _validate_report(report, require_production_dutch_first=require_production_dutch_first)
 
 
@@ -169,8 +194,13 @@ def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--output-dir", default="output")
     parser.add_argument("--require-production-dutch-first", action="store_true")
+    parser.add_argument("--report-suffix", default=None, help="Validate only the report pair for YYMMDD suffix, e.g. 260605")
     args = parser.parse_args()
-    validate(Path(args.output_dir), require_production_dutch_first=args.require_production_dutch_first)
+    validate(
+        Path(args.output_dir),
+        require_production_dutch_first=args.require_production_dutch_first,
+        report_suffix=args.report_suffix,
+    )
 
 
 if __name__ == "__main__":
