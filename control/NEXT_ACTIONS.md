@@ -9,6 +9,7 @@ Completed:
 - WP5 production Dutch-first report surface verification
 - WP9 delivery manifest operational integration
 - WP10 run artifact bundle / evidence package
+- WP10B run bundle delivery-manifest reference extension
 - WP11 shadow PDF rendering design/tests only
 - WP12 email delivery dry-run contract only
 
@@ -33,6 +34,15 @@ Evidence:
 - direct WP9 manifest validation: `python tools/validate_etf_eu_delivery_manifest.py output/delivery/etf_eu_delivery_manifest_20260605_074604.json` = `ETF_EU_DELIVERY_MANIFEST_OK`
 - output/runs/20260605_070115/etf_eu_run_bundle_manifest.json
 - focused WP10 test: `python -m pytest tests/test_etf_eu_run_bundle.py -q` = `4 passed`
+- WP10B implementation commit f4aae64f0a6d2fefaf73c48d47feed5ccd49a61d
+- GitHub Actions run #38 on main: success
+- WP10B trigger commit 4ba6caa28412b12c35bf9e3f6a4fb04a7ec796a9
+- WP10B artifact commit 66e19d5ab1860a663a729ddddb9ff92aad341a70
+- WP10B ETF_EU_RUN_ID 20260616_221743
+- output/runs/20260616_221743/etf_eu_run_bundle_manifest.json
+- output/delivery/etf_eu_delivery_manifest_20260616_221743.json
+- WP10B run bundle fields: `delivery_manifest_status=available`, `delivery_manifest_path_or_null=output/delivery/etf_eu_delivery_manifest_20260616_221743.json`, `production_delivery=false`, `email_delivery=false`, `pdf_generation=false`, `delivery_receipt=false`
+- WP10B delivery manifest authority fields: `funding_authority=false`, `portfolio_mutation=false`, `candidate_promotion_to_fundable=false`, `production_delivery=false`, `email_delivery=false`, `pdf_generation=false`, `delivery_receipt=false`
 - control/ETF_EU_SHADOW_PDF_CONTRACT_V1.md
 - runtime/render_etf_eu_shadow_pdf.py
 - tools/validate_etf_eu_shadow_pdf.py
@@ -70,20 +80,22 @@ delivery_receipt=false
 production_delivery=false
 ```
 
-WP10 status:
+WP10B status:
 
 ```text
-completed as run artifact bundle / evidence package
-not delivery
-not PDF generation
-not email delivery
-not a delivery receipt
-delivery_manifest_status=not_available
-delivery_manifest_path_or_null=null
+completed as run bundle delivery-manifest reference extension
+main workflow verified
+run bundle artifact committed
+delivery_manifest_status=available
+delivery_manifest_path_or_null=output/delivery/etf_eu_delivery_manifest_20260616_221743.json
 production_delivery=false
 email_delivery=false
 pdf_generation=false
 delivery_receipt=false
+not real delivery
+not PDF generation
+not email delivery
+not a delivery receipt
 ```
 
 WP12 status:
@@ -105,10 +117,9 @@ Next:
 - keep U.S. ETFs as research proxies only
 - keep candidate enrichment and promotion behind explicit fundability and portfolio-decision gates
 - keep Twelve Data as a separate source-policy path; do not treat it as valuation authority unless a later decision and validator-backed integration explicitly allow it
-- optionally extend WP10 bundles to reference `delivery_manifest_status=available` and `delivery_manifest_path_or_null=output/delivery/etf_eu_delivery_manifest_<run_id>.json` while keeping WP10 as evidence package only
 - keep WP11 PDF rendering as local/shadow artifacts only
 - do not integrate PDF rendering into the workflow until a later explicit decision authorizes it
-- do not start WP13 real delivery enablement until WP9, WP10, WP11 and WP12 are all verified and recipient allowlist, SMTP/secrets policy and delivery receipt validator exist
+- do not start WP13 real delivery enablement until recipient allowlist, SMTP/secrets policy and delivery receipt validator exist
 
 Boundary rule: existing decision-log boundaries remain unchanged.
 
