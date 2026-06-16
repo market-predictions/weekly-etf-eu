@@ -1,6 +1,6 @@
 # Weekly ETF EU Review OS — Next Actions
 
-Current priority: post-WP12B delivery-gated operational maturity.
+Current priority: post-WP12C delivery-gated operational maturity.
 
 Completed:
 
@@ -13,6 +13,7 @@ Completed:
 - WP11 shadow PDF rendering design/tests only
 - WP12 email delivery dry-run contract only
 - WP12B delivery readiness preflight contract
+- WP12C recipient allowlist contract, inactive/sample-only
 
 Evidence:
 
@@ -56,6 +57,13 @@ Evidence:
 - focused WP12B test: `python -m pytest tests/test_etf_eu_delivery_readiness_preflight.py -q` = `15 passed`
 - related WP12B regression checks: `python -m pytest tests/test_etf_eu_email_dry_run.py -q` = `5 passed`; `python -m pytest tests/test_etf_eu_delivery_manifest.py -q` = `3 passed`; `python -m pytest tests/test_etf_eu_run_bundle.py -q` = `4 passed`
 - direct WP12B sample validation: `python tools/validate_etf_eu_delivery_readiness_preflight.py output/delivery/etf_eu_delivery_readiness_preflight_20260617_000000.json` = `ETF_EU_DELIVERY_READINESS_PREFLIGHT_OK`
+- control/ETF_EU_RECIPIENT_ALLOWLIST_CONTRACT_V1.md
+- config/etf_eu_recipient_allowlist.sample.yml
+- tools/validate_etf_eu_recipient_allowlist.py
+- tests/test_etf_eu_recipient_allowlist.py
+- focused WP12C test: `python -m pytest tests/test_etf_eu_recipient_allowlist.py -q` = `22 passed`
+- related WP12C regression checks: `python -m pytest tests/test_etf_eu_delivery_readiness_preflight.py -q` = `15 passed`; `python -m pytest tests/test_etf_eu_email_dry_run.py -q` = `5 passed`; `python -m pytest tests/test_etf_eu_delivery_manifest.py -q` = `3 passed`
+- direct WP12C sample validation: `python tools/validate_etf_eu_recipient_allowlist.py config/etf_eu_recipient_allowlist.sample.yml` = `ETF_EU_RECIPIENT_ALLOWLIST_OK`
 
 WP9 status:
 
@@ -122,6 +130,30 @@ not workflow-integrated
 not real delivery
 ```
 
+WP12C status:
+
+```text
+completed as recipient allowlist contract, inactive/sample-only
+sample allowlist path=config/etf_eu_recipient_allowlist.sample.yml
+recipient_activation=false
+real_recipients=false
+all_recipients_active=false
+all_recipients_delivery_enabled=false
+all_recipient_emails_placeholder_domain=example.invalid
+send_attempted=false
+email_delivery=false
+delivery_receipt=false
+production_delivery=false
+pdf_generation=false
+funding_authority=false
+portfolio_mutation=false
+candidate_promotion=false
+valuation_grade_promotion=false
+ready_for_wp13=false
+not workflow-integrated
+not real delivery
+```
+
 Next:
 
 - keep delivery blocked until a real delivery receipt path is separately implemented, validated and explicitly authorized
@@ -130,13 +162,12 @@ Next:
 - keep Twelve Data as a separate source-policy path; do not treat it as valuation authority unless a later decision and validator-backed integration explicitly allow it
 - keep WP11 PDF rendering as local/shadow artifacts only
 - do not integrate PDF rendering into the workflow until a later explicit decision authorizes it
-- do not start WP13 real delivery enablement until recipient allowlist, SMTP/secrets policy and delivery receipt validator exist
+- do not start WP13 real delivery enablement until recipient allowlist activation, SMTP/secrets policy and delivery receipt validator exist
 
 Recommended next preparatory packages before WP13:
 
-1. recipient allowlist contract, inactive/sample-only
-2. SMTP/secrets policy contract, documentation-only/no secrets
-3. delivery receipt validator contract, sample-only/no real delivery receipt
+1. SMTP/secrets policy contract, documentation-only/no secrets
+2. delivery receipt validator contract, sample-only/no real delivery receipt
 
 Boundary rule: existing decision-log boundaries remain unchanged.
 
@@ -152,5 +183,7 @@ workflow_integrated=false for PDF
 send_attempted=false
 no email delivery
 no delivery receipt
+recipient_activation=false
+real_recipients=false
 ready_for_wp13=false
 ```
