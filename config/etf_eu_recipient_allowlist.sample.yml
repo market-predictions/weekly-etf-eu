@@ -1,0 +1,23 @@
+schema_version: etf_eu_recipient_allowlist_v1
+status: sample_only_inactive
+recipient_activation: false
+real_recipients: false
+send_attempted: false
+email_delivery: false
+production_delivery: false
+delivery_receipt: false
+recipients:
+  - recipient_id: sample_operator
+    display_name: Sample Operator
+    email: sample-operator@example.invalid
+    role: operator_review_only
+    active: false
+    delivery_enabled: false
+    notes: Sample placeholder only. Not a real recipient.
+  - recipient_id: sample_client
+    display_name: Sample Client
+    email: sample-client@example.invalid
+    role: client_placeholder_only
+    active: false
+    delivery_enabled: false
+    notes: Sample placeholder only. Not a real recipient.
