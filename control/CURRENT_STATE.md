@@ -30,6 +30,9 @@ send_attempted=false
 email_delivery=false
 delivery_receipt=false
 pdf_generation=false for production workflow
+recipient_activation=false
+real_recipients=false
+ready_for_wp13=false
 ```
 
 ## Verified evidence
@@ -242,6 +245,58 @@ not a delivery receipt
 ready_for_wp13=false
 ```
 
+WP12C recipient allowlist proof:
+
+```text
+control/ETF_EU_RECIPIENT_ALLOWLIST_CONTRACT_V1.md
+config/etf_eu_recipient_allowlist.sample.yml
+tools/validate_etf_eu_recipient_allowlist.py
+tests/test_etf_eu_recipient_allowlist.py
+python -m pytest tests/test_etf_eu_recipient_allowlist.py -q
+22 passed
+python -m pytest tests/test_etf_eu_delivery_readiness_preflight.py -q
+15 passed
+python -m pytest tests/test_etf_eu_email_dry_run.py -q
+5 passed
+python -m pytest tests/test_etf_eu_delivery_manifest.py -q
+3 passed
+python tools/validate_etf_eu_recipient_allowlist.py config/etf_eu_recipient_allowlist.sample.yml
+ETF_EU_RECIPIENT_ALLOWLIST_OK
+```
+
+WP12C sample allowlist status fields:
+
+```text
+schema_version=etf_eu_recipient_allowlist_v1
+status=sample_only_inactive
+recipient_activation=false
+real_recipients=false
+send_attempted=false
+email_delivery=false
+production_delivery=false
+delivery_receipt=false
+recipient_count=2
+all_recipient_active=false
+all_recipient_delivery_enabled=false
+all_recipient_emails_placeholder_domain=example.invalid
+```
+
+WP12C status:
+
+```text
+completed as recipient allowlist contract, inactive/sample-only
+contract/sample allowlist/validator/tests committed
+sample-only inactive artifact
+not workflow-integrated
+not real recipients
+not recipient activation
+not real delivery
+not PDF generation
+not email delivery
+not a delivery receipt
+ready_for_wp13=false
+```
+
 ## Current workflow posture
 
 The main EU bootstrap workflow now uses:
@@ -268,7 +323,7 @@ builds and validates a run bundle manifest referencing the blocked delivery mani
 commits report, pricing, fundability, validation, delivery manifest and run bundle artifacts as evidence
 ```
 
-WP12B is intentionally not workflow-integrated. It is a design-only readiness gate for later WP13 review.
+WP12B and WP12C are intentionally not workflow-integrated. They are design-only readiness gates for later WP13 review.
 
 ## Verified report-surface content
 
@@ -297,10 +352,10 @@ The generated English report remains companion/operator-facing and confirms the 
 
 ## Pending items
 
-1. Recipient allowlist contract remains missing.
-2. SMTP/secrets policy remains missing.
-3. Delivery receipt validator remains missing.
-4. WP13 real delivery enablement remains blocked until those three prerequisites exist and an explicit delivery authority decision is recorded.
+1. SMTP/secrets policy remains missing.
+2. Delivery receipt validator remains missing.
+3. Recipient allowlist contract exists only as inactive/sample-only; no real recipients and no activation authority exist.
+4. WP13 real delivery enablement remains blocked until recipient allowlist activation, SMTP/secrets policy and delivery receipt validator exist and an explicit delivery authority decision is recorded.
 5. Later operational send path only after a separate real receipt path exists and is explicitly authorized.
 6. Future candidate promotion only after explicit fundability and portfolio-decision gates pass.
 7. Twelve Data source path remains separate and is not workflow/authority integrated as valuation authority.
@@ -322,5 +377,7 @@ workflow_integrated=false for PDF
 send_attempted=false
 no email delivery
 no delivery receipt
+recipient_activation=false
+real_recipients=false
 ready_for_wp13=false
 ```
