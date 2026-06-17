@@ -1,0 +1,82 @@
+{
+  "activation_allowed_in_this_package": false,
+  "authority": {
+    "candidate_promotion": false,
+    "external_mail_api_enabled": false,
+    "funding_authority": false,
+    "mail_transport_enabled": false,
+    "portfolio_mutation": false,
+    "production_delivery": false,
+    "ready_for_wp13_preflight_only": true,
+    "real_recipients": false,
+    "recipient_activation": false,
+    "secrets_present": false,
+    "smtp_configured": false,
+    "valuation_grade": false,
+    "wp13_authority": false
+  },
+  "authority_created": false,
+  "basis": [
+    "WP13D selected WP13E as the next review-only step",
+    "secure transport setup gap remains open",
+    "current transport policy is sample-only and contains no live values",
+    "preflight readiness is not authority"
+  ],
+  "created_at_utc": "2026-06-17T00:00:00Z",
+  "current_transport_state": {
+    "external_mail_api_enabled": false,
+    "mail_transport_enabled": false,
+    "production_transport_exists": false,
+    "secrets_present": false,
+    "smtp_configured": false,
+    "source_path": "config/etf_eu_smtp_secrets_policy.sample.yml",
+    "status": "sample_only_no_secrets"
+  },
+  "explicitly_out_of_scope": [
+    "review-only package",
+    "no authority change",
+    "no activation step",
+    "no transport state change",
+    "no credential state change",
+    "no production state change",
+    "no portfolio state change",
+    "no candidate state change"
+  ],
+  "future_policy_required_fields": [
+    "schema_version",
+    "status",
+    "smtp_configured",
+    "secrets_present",
+    "mail_transport_enabled",
+    "external_mail_api_enabled",
+    "credential_storage_policy",
+    "transport_policy",
+    "send_authority_reference",
+    "receipt_correlation_policy",
+    "disable_runbook",
+    "authority_reference"
+  ],
+  "implementation_allowed_in_this_package": false,
+  "live_transport_values_allowed": false,
+  "required_future_production_controls": [
+    "production transport policy contract",
+    "production transport validator",
+    "non-repo credential storage policy",
+    "named credential reference convention",
+    "transport provider classification",
+    "secure connection requirements",
+    "send authorization reference",
+    "dry-run versus future live separation",
+    "timeout and retry policy",
+    "receipt correlation requirements",
+    "transport disable or rollback runbook",
+    "audit evidence for any future activation"
+  ],
+  "review_id": "20260617_000000",
+  "review_scope": "secure_transport_setup_review_only",
+  "schema_version": "etf_eu_secure_transport_setup_contract_review_v1",
+  "secrets_allowed_in_repo": false,
+  "selected_next_package": "WP13F",
+  "selected_next_package_title": "receipt proof contract review, review-only",
+  "status": "secure_transport_setup_contract_review_completed"
+}
