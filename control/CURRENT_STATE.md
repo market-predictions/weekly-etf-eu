@@ -52,49 +52,38 @@ WP13H
 WP13I
 ```
 
-## WP13I status
+## WP14A status
 
 ```text
-completed
-focused and related Codespace validation passed
-selected_next_package=WP14A
-selected_next_package_title=post-WP13 roadmap lane selection, review-only
-decision=blocked_state_closed
+implemented
+selected_next_package=WP14B
+selected_next_package_title=post-WP13 roadmap lane implementation plan, review-only
 wp13_review_chain_complete=true
-delivery_authority_not_granted=true
+authority_not_granted=true
 operational_prerequisites_complete=false
 production_delivery=false
 wp13_authority=false
 roadmap_loop_closed=true
-review-only blocked-state closeout artifact committed
+lane_selection_deferred_to_wp14b=true
+review-only roadmap lane selection artifact committed
 not workflow-integrated
+related Codespace validation still pending before full closeout
+safe compact artifact schema used because the full requested artifact text was blocked by safety checks
 ```
 
-Validation proof:
+Focused files:
 
 ```text
-WP13I tests: 27 passed
-WP13I validator: OK
-WP13H tests: 33 passed
-WP13G tests: 27 passed
-WP13F tests: 23 passed
-WP13E tests: 27 passed
-WP13D tests: 21 passed
-WP13C tests: 18 passed
-WP13B tests: 13 passed
-WP13A tests: 27 passed
-readiness preflight tests: 15 passed
-recipient allowlist tests: 22 passed
-mail setup policy tests: 30 passed
-receipt tests: 22 passed
-email dry-run tests: 5 passed
-delivery manifest tests: 3 passed
+output/roadmap/etf_eu_wp14a_roadmap_lane_selection_20260617_000000.json
+tools/validate_etf_eu_wp14a_roadmap_lane_selection.py
+tests/test_etf_eu_wp14a_roadmap_lane_selection.py
 ```
 
 ## Pending items
 
-1. Next selected package is WP14A review-only planning.
-2. Future operational work requires a separate explicit decision.
+1. Finish WP14A related Codespace validation before closing WP14A.
+2. Next selected package is WP14B review-only planning.
+3. Future operational work requires a separate explicit decision.
 
 ## Boundary rule
 
