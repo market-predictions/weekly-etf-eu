@@ -1,6 +1,6 @@
 # Weekly ETF EU Review OS — Next Actions
 
-Current priority: finish WP12E validation, then decide whether a readiness preflight refresh is needed.
+Current priority: decide whether to run a readiness preflight refresh after WP12E closeout.
 
 Completed:
 
@@ -15,12 +15,13 @@ Completed:
 - WP12B delivery readiness preflight contract
 - WP12C recipient allowlist contract, inactive/sample-only
 - WP12D mail setup policy contract, sample-only/no-live-values
+- WP12E delivery receipt validator contract, sample-only/no real delivery receipt
 
-WP12E current status:
+WP12E closeout status:
 
 ```text
-implemented
-focused local validation passed
+completed
+focused and related Codespace validation passed
 sample-only receipt artifact committed
 not workflow-integrated
 not delivery proof
@@ -35,45 +36,27 @@ pdf_generation=false
 recipient_activation=false
 mail_transport_enabled=false
 ready_for_wp13=false
-related full-repo regression validation pending before full closeout
 ```
 
-WP12E files:
+WP12E validation evidence:
 
 ```text
-control/ETF_EU_DELIVERY_RECEIPT_CONTRACT_V1.md
-output/delivery/etf_eu_delivery_receipt_sample_20260617_000000.json
-tools/validate_etf_eu_delivery_receipt.py
-tests/test_etf_eu_delivery_receipt.py
+focused WP12E test: 22 passed
+sample receipt validator: OK
+readiness preflight tests: 15 passed
+recipient allowlist tests: 22 passed
+mail setup policy tests: 30 passed
+email dry-run tests: 5 passed
+delivery manifest tests: 3 passed
 ```
 
-WP12E focused validation already run:
-
-```text
-python -m pytest tests/test_etf_eu_delivery_receipt.py -q
-22 passed
-
-python tools/validate_etf_eu_delivery_receipt.py output/delivery/etf_eu_delivery_receipt_sample_20260617_000000.json
-ETF_EU_DELIVERY_RECEIPT_SAMPLE_OK
-```
-
-Next immediate action:
-
-```text
-python -m pytest tests/test_etf_eu_delivery_readiness_preflight.py -q
-python -m pytest tests/test_etf_eu_recipient_allowlist.py -q
-python -m pytest tests/test_etf_eu_smtp_secrets_policy.py -q
-python -m pytest tests/test_etf_eu_email_dry_run.py -q
-python -m pytest tests/test_etf_eu_delivery_manifest.py -q
-```
-
-Only after these pass should WP12E be marked fully closed.
-
-After WP12E closeout, recommended next package:
+Recommended next package:
 
 ```text
 WP12F — readiness preflight refresh after all three prerequisite contract paths exist
 ```
+
+WP12F should be preflight-only. It may show prerequisite paths are present, but it must not enable delivery or create delivery authority.
 
 Standing next rules:
 
