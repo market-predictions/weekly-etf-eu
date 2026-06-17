@@ -247,7 +247,7 @@ def build_smoke_artifact(
         },
         "prices": prices,
         "failures": failures,
-        "authority": AUTHORITY_FALSE,
+        "authority": dict(AUTHORITY_FALSE),
         "selected_next_package": selected_next,
         "selected_next_package_title": selected_title,
     }
