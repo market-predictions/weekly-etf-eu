@@ -1,6 +1,6 @@
 # Weekly ETF EU Review OS — Next Actions
 
-Current priority: prepare WP13I review-only instructions.
+Current priority: finish WP13I related Codespace validation.
 
 Completed:
 
@@ -25,48 +25,50 @@ WP13G
 WP13H
 ```
 
-WP13H closeout status:
+WP13I current status:
 
 ```text
-completed
-focused and related Codespace validation passed
-selected_next_package=WP13I
-selected_next_package_title=blocked-state closeout and roadmap decision, review-only
-decision=not_granted
-review_chain_complete=true
+implemented
+selected_next_package=WP14A
+selected_next_package_title=post-WP13 roadmap lane selection, review-only
+decision=blocked_state_closed
+wp13_review_chain_complete=true
+delivery_authority_not_granted=true
 operational_prerequisites_complete=false
-authority_can_be_granted=false
-authority_created=false
 production_delivery=false
 wp13_authority=false
+roadmap_loop_closed=true
 not workflow-integrated
-safe WP13H artifact path used because the original artifact path was blocked by safety checks
+related Codespace validation pending before full closeout
 ```
 
-WP13H validation evidence:
+Next immediate action:
 
 ```text
-WP13H tests: 33 passed
-WP13H validator: OK
-WP13G tests: 27 passed
-WP13F tests: 23 passed
-WP13E tests: 27 passed
-WP13D tests: 21 passed
-WP13C tests: 18 passed
-WP13B tests: 13 passed
-WP13A tests: 27 passed
-readiness preflight tests: 15 passed
-recipient allowlist tests: 22 passed
-mail setup policy tests: 30 passed
-receipt tests: 22 passed
-email dry-run tests: 5 passed
-delivery manifest tests: 3 passed
+python -m pytest tests/test_etf_eu_wp13i_blocked_state_closeout.py -q
+python tools/validate_etf_eu_wp13i_blocked_state_closeout.py output/delivery/authority/etf_eu_wp13i_blocked_state_closeout_20260617_000000.json
+python -m pytest tests/test_etf_eu_wp13h_explicit_authority_review.py -q
+python -m pytest tests/test_etf_eu_delivery_authority_prerequisite_reconciliation.py -q
+python -m pytest tests/test_etf_eu_receipt_proof_contract_review.py -q
+python -m pytest tests/test_etf_eu_secure_transport_setup_contract_review.py -q
+python -m pytest tests/test_etf_eu_recipient_policy_contract_review.py -q
+python -m pytest tests/test_etf_eu_production_prerequisite_gap_review.py -q
+python -m pytest tests/test_etf_eu_next_review_step_decision.py -q
+python -m pytest tests/test_etf_eu_delivery_authority_review.py -q
+python -m pytest tests/test_etf_eu_delivery_readiness_preflight.py -q
+python -m pytest tests/test_etf_eu_recipient_allowlist.py -q
+python -m pytest tests/test_etf_eu_smtp_secrets_policy.py -q
+python -m pytest tests/test_etf_eu_delivery_receipt.py -q
+python -m pytest tests/test_etf_eu_email_dry_run.py -q
+python -m pytest tests/test_etf_eu_delivery_manifest.py -q
 ```
 
-Recommended next package:
+Only after these pass should WP13I be marked fully closed.
+
+After WP13I closeout, next selected package:
 
 ```text
-WP13I — blocked-state closeout and roadmap decision, review-only
+WP14A — post-WP13 roadmap lane selection, review-only
 ```
 
 Boundary rule:
