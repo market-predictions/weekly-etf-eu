@@ -1,6 +1,6 @@
 # Weekly ETF EU Review OS — Next Actions
 
-Current priority: finish WP13H related Codespace validation.
+Current priority: prepare WP13I review-only instructions.
 
 Completed:
 
@@ -22,12 +22,14 @@ WP13D
 WP13E
 WP13F
 WP13G
+WP13H
 ```
 
-WP13H current status:
+WP13H closeout status:
 
 ```text
-implemented
+completed
+focused and related Codespace validation passed
 selected_next_package=WP13I
 selected_next_package_title=blocked-state closeout and roadmap decision, review-only
 decision=not_granted
@@ -38,33 +40,30 @@ authority_created=false
 production_delivery=false
 wp13_authority=false
 not workflow-integrated
-related Codespace validation pending before full closeout
 safe WP13H artifact path used because the original artifact path was blocked by safety checks
 ```
 
-Next immediate action:
+WP13H validation evidence:
 
 ```text
-python -m pytest tests/test_etf_eu_wp13h_explicit_authority_review.py -q
-python tools/validate_etf_eu_wp13h_explicit_authority_review.py output/delivery/authority/etf_eu_wp13h_explicit_authority_review_20260617_000000.json
-python -m pytest tests/test_etf_eu_delivery_authority_prerequisite_reconciliation.py -q
-python -m pytest tests/test_etf_eu_receipt_proof_contract_review.py -q
-python -m pytest tests/test_etf_eu_secure_transport_setup_contract_review.py -q
-python -m pytest tests/test_etf_eu_recipient_policy_contract_review.py -q
-python -m pytest tests/test_etf_eu_production_prerequisite_gap_review.py -q
-python -m pytest tests/test_etf_eu_next_review_step_decision.py -q
-python -m pytest tests/test_etf_eu_delivery_authority_review.py -q
-python -m pytest tests/test_etf_eu_delivery_readiness_preflight.py -q
-python -m pytest tests/test_etf_eu_recipient_allowlist.py -q
-python -m pytest tests/test_etf_eu_smtp_secrets_policy.py -q
-python -m pytest tests/test_etf_eu_delivery_receipt.py -q
-python -m pytest tests/test_etf_eu_email_dry_run.py -q
-python -m pytest tests/test_etf_eu_delivery_manifest.py -q
+WP13H tests: 33 passed
+WP13H validator: OK
+WP13G tests: 27 passed
+WP13F tests: 23 passed
+WP13E tests: 27 passed
+WP13D tests: 21 passed
+WP13C tests: 18 passed
+WP13B tests: 13 passed
+WP13A tests: 27 passed
+readiness preflight tests: 15 passed
+recipient allowlist tests: 22 passed
+mail setup policy tests: 30 passed
+receipt tests: 22 passed
+email dry-run tests: 5 passed
+delivery manifest tests: 3 passed
 ```
 
-Only after these pass should WP13H be marked fully closed.
-
-After WP13H closeout, next selected package:
+Recommended next package:
 
 ```text
 WP13I — blocked-state closeout and roadmap decision, review-only
