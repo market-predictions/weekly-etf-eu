@@ -1,0 +1,82 @@
+{
+  "authority": {
+    "authority_granted": false,
+    "candidate_promotion": false,
+    "external_mail_api_enabled": false,
+    "funding_authority": false,
+    "mail_transport_enabled": false,
+    "portfolio_mutation": false,
+    "production_delivery": false,
+    "proof_claimed": false,
+    "real_receipt": false,
+    "real_recipients": false,
+    "recipient_activation": false,
+    "secrets_present": false,
+    "send_attempted": false,
+    "smtp_configured": false,
+    "valuation_grade": false,
+    "wp14_authority": false
+  },
+  "created_at_utc": "2026-06-18T00:00:00Z",
+  "failures": [
+    {
+      "exchange_ticker": "SMH",
+      "pricing_symbol": "pending_verification",
+      "reason": "pricing symbol is pending verification",
+      "registry_id": "semiconductor_vaneck_smh_ucits",
+      "status": "skipped_pending_symbol"
+    },
+    {
+      "exchange_ticker": "SGLN",
+      "pricing_symbol": "pending_verification",
+      "reason": "pricing symbol is pending verification",
+      "registry_id": "gold_ishares_physical_gold_etc",
+      "status": "skipped_pending_symbol"
+    },
+    {
+      "exchange_ticker": "INFR",
+      "pricing_symbol": "pending_verification",
+      "reason": "pricing symbol is pending verification",
+      "registry_id": "infrastructure_ishares_global_infr",
+      "status": "skipped_pending_symbol"
+    },
+    {
+      "exchange_ticker": "CSPX",
+      "pricing_symbol": "CSPX.L",
+      "reason": "source error for CSPX.L: Too Many Requests. Rate limited. Try after a while.",
+      "registry_id": "core_us_equity_cspx",
+      "status": "source_error"
+    },
+    {
+      "exchange_ticker": "SXR8",
+      "pricing_symbol": "SXR8.DE",
+      "reason": "source error for SXR8.DE: Too Many Requests. Rate limited. Try after a while.",
+      "registry_id": "core_us_equity_cspx",
+      "status": "source_error"
+    }
+  ],
+  "prices": [],
+  "purpose": "ucits_closing_price_source_smoke_test",
+  "registry_path": "config/ucits_symbol_registry.yml",
+  "run_id": "20260618_000000",
+  "schema_version": "etf_eu_ucits_closing_price_smoke_v1",
+  "selected_next_package": "WP14F_SOURCE_REVIEW",
+  "selected_next_package_title": "UCITS pricing source review and fallback selection",
+  "source_policy": {
+    "fallback_source": "none_for_wp14e",
+    "paid_api_required": false,
+    "primary_source": "yahoo_or_yfinance",
+    "secrets_required": false,
+    "us_proxy_substitution_allowed": false
+  },
+  "status": "completed",
+  "summary": {
+    "funds_seen": 4,
+    "prices_found": 0,
+    "prices_missing": 0,
+    "pricing_symbols_attempted": 2,
+    "source_errors": 2,
+    "symbols_skipped": 3,
+    "trading_lines_seen": 5
+  }
+}
