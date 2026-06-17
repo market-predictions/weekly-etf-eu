@@ -1,6 +1,6 @@
 # Weekly ETF EU Review OS — Next Actions
 
-Current priority: decide whether to run a readiness preflight refresh after WP12E closeout.
+Current priority: finish WP12F validation, then decide whether WP13 delivery-authority review is appropriate.
 
 Completed:
 
@@ -17,46 +17,56 @@ Completed:
 - WP12D mail setup policy contract, sample-only/no-live-values
 - WP12E delivery receipt validator contract, sample-only/no real delivery receipt
 
-WP12E closeout status:
+WP12F current status:
 
 ```text
-completed
-focused and related Codespace validation passed
-sample-only receipt artifact committed
+implemented
+refreshed readiness preflight artifact committed
+status=ready_for_wp13_preflight_only
+ready_for_wp13=true
+all three prerequisite contract paths present
+real delivery not authorized remains present
 not workflow-integrated
-not delivery proof
-no real delivery receipt
-delivery_attempted=false
-delivery_success=false
+not delivery authority
 send_attempted=false
 email_delivery=false
 delivery_receipt=false
 production_delivery=false
 pdf_generation=false
-recipient_activation=false
-mail_transport_enabled=false
-ready_for_wp13=false
+funding_authority=false
+portfolio_mutation=false
+candidate_promotion=false
+valuation_grade_promotion=false
+related Codespace validation pending before full closeout
 ```
 
-WP12E validation evidence:
+WP12F artifact:
 
 ```text
-focused WP12E test: 22 passed
-sample receipt validator: OK
-readiness preflight tests: 15 passed
-recipient allowlist tests: 22 passed
-mail setup policy tests: 30 passed
-email dry-run tests: 5 passed
-delivery manifest tests: 3 passed
+output/delivery/etf_eu_delivery_readiness_preflight_20260617_000001.json
 ```
 
-Recommended next package:
+Next immediate action:
 
 ```text
-WP12F — readiness preflight refresh after all three prerequisite contract paths exist
+python tools/validate_etf_eu_delivery_readiness_preflight.py output/delivery/etf_eu_delivery_readiness_preflight_20260617_000001.json
+python -m pytest tests/test_etf_eu_delivery_readiness_preflight.py -q
+python -m pytest tests/test_etf_eu_recipient_allowlist.py -q
+python -m pytest tests/test_etf_eu_smtp_secrets_policy.py -q
+python -m pytest tests/test_etf_eu_delivery_receipt.py -q
+python -m pytest tests/test_etf_eu_email_dry_run.py -q
+python -m pytest tests/test_etf_eu_delivery_manifest.py -q
 ```
 
-WP12F should be preflight-only. It may show prerequisite paths are present, but it must not enable delivery or create delivery authority.
+Only after these pass should WP12F be marked fully closed.
+
+After WP12F closeout, next likely package:
+
+```text
+WP13A — explicit delivery-authority review decision, no send/no production delivery
+```
+
+WP13A should decide whether delivery authority may be prepared, but it should not send reports or enable production delivery unless a later package explicitly does so.
 
 Standing next rules:
 
@@ -66,7 +76,7 @@ Standing next rules:
 - keep Twelve Data as a separate source-policy path; do not treat it as valuation authority unless a later decision and validator-backed integration explicitly allow it
 - keep WP11 PDF rendering as local/shadow artifacts only
 - do not integrate PDF rendering into the workflow until a later explicit decision authorizes it
-- do not start WP13 real delivery enablement until explicit authority exists
+- do not start any operational send package until explicit authority exists and is recorded
 
 Boundary rule: existing decision-log boundaries remain unchanged.
 
@@ -87,5 +97,6 @@ real_recipients=false
 mail_setup_active=false
 mail_transport_enabled=false
 external_mail_api_enabled=false
-ready_for_wp13=false
+ready_for_wp13_preflight_only=true
+wp13_delivery_authority=false
 ```
