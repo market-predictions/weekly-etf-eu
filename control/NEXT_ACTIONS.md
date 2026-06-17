@@ -1,6 +1,6 @@
 # Weekly ETF EU Review OS — Next Actions
 
-Current priority: prepare WP14C as a larger practical UCITS identity audit.
+Current priority: finish WP14C related Codespace validation.
 
 Completed:
 
@@ -28,46 +28,40 @@ WP14A
 WP14B
 ```
 
-WP14B closeout status:
+WP14C current status:
 
 ```text
-completed
-focused and related Codespace validation passed
-selected_next_package=WP14C
-selected_next_package_title=UCITS instrument identity audit and plan, review-only
+implemented
+selected_next_package=WP14D
+selected_next_package_title=UCITS identity contract/validator implementation, review-only
 selected_implementation_lane=ucits_instrument_identity_lane
-plan_only=true
-implementation_allowed_in_wp14b=false
+ucits_identity_audit_completed=true
+meaningful_findings=true
+total_findings=9
+high_severity_findings=3
+medium_severity_findings=6
+low_severity_findings=0
+registry_mutation_allowed_in_wp14c=false
+report_renderer_mutation_allowed_in_wp14c=false
 wp14_authority=false
 not workflow-integrated
+related Codespace validation pending before full closeout
 ```
 
-WP14B validation evidence:
+Next immediate action:
 
 ```text
-WP14B tests: 36 passed
-WP14B validator: OK
-WP14A tests: 32 passed
-WP13I tests: 27 passed
-WP13H tests: 33 passed
-WP13G tests: 27 passed
-WP13F tests: 23 passed
-WP13E tests: 27 passed
-WP13D tests: 21 passed
-WP13C tests: 18 passed
-WP13B tests: 13 passed
-WP13A tests: 27 passed
-readiness preflight tests: 15 passed
+Run the focused WP14C test and validator, then rerun the related review-only gates before closeout.
 ```
 
-Recommended next package:
+After WP14C closeout, next selected package:
 
 ```text
-WP14C — UCITS instrument identity audit and plan, review-only
+WP14D — UCITS identity contract/validator implementation, review-only
 ```
 
 Operating note:
 
 ```text
-Stop the tiny meta-package loop. WP14C should directly inspect UCITS identity contracts, registry structure, validator coverage and fixture gaps, then produce one useful audit artifact.
+Stop the tiny meta-package loop. WP14D should implement useful identity validators and fixtures.
 ```
