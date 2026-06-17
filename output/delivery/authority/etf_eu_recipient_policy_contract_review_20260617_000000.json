@@ -1,0 +1,67 @@
+{
+  "activation_allowed_in_this_package": false,
+  "authority": {
+    "candidate_promotion": false,
+    "funding_authority": false,
+    "portfolio_mutation": false,
+    "production_delivery": false,
+    "ready_for_wp13_preflight_only": true,
+    "real_recipients": false,
+    "recipient_activation": false,
+    "valuation_grade": false,
+    "wp13_authority": false
+  },
+  "authority_created": false,
+  "basis": [
+    "WP13C selected WP13D as the next review-only step",
+    "recipient policy gap remains open",
+    "current recipient allowlist is sample-only and inactive",
+    "preflight readiness is not authority"
+  ],
+  "created_at_utc": "2026-06-17T00:00:00Z",
+  "current_recipient_policy_state": {
+    "production_policy_exists": false,
+    "real_recipients": false,
+    "recipient_activation": false,
+    "source_path": "config/etf_eu_recipient_allowlist.sample.yml",
+    "status": "sample_only_inactive"
+  },
+  "explicitly_out_of_scope": [
+    "review-only package",
+    "no authority change",
+    "no activation step",
+    "no recipient state change",
+    "no production state change",
+    "no portfolio state change",
+    "no candidate state change"
+  ],
+  "future_policy_required_fields": [
+    "schema_version",
+    "status",
+    "recipient_activation",
+    "real_recipients",
+    "production_policy",
+    "recipients",
+    "approval_reference",
+    "deactivation_runbook",
+    "authority_reference"
+  ],
+  "implementation_allowed_in_this_package": false,
+  "required_future_production_controls": [
+    "production recipient policy contract",
+    "production recipient validator",
+    "recipient owner or approver field",
+    "recipient role classification",
+    "approval evidence reference",
+    "recipient activation decision artifact",
+    "scope per recipient",
+    "deactivation procedure",
+    "audit evidence for any future activation"
+  ],
+  "review_id": "20260617_000000",
+  "review_scope": "recipient_policy_review_only",
+  "schema_version": "etf_eu_recipient_policy_contract_review_v1",
+  "selected_next_package": "WP13E",
+  "selected_next_package_title": "secure transport setup contract review, review-only",
+  "status": "recipient_policy_contract_review_completed"
+}
