@@ -32,194 +32,39 @@ delivery_receipt=false
 pdf_generation=false for production workflow
 recipient_activation=false
 real_recipients=false
+smtp_configured=false
+secrets_present=false
+mail_transport_enabled=false
+external_mail_api_enabled=false
 ready_for_wp13=false
 ```
 
-## Verified evidence
+## Verified evidence summary
 
-WP1 shadow workflow proof:
+WP1, WP4, WP5, WP9, WP10, WP10B, WP11, WP12, WP12B and WP12C remain verified/closed according to prior control-state evidence.
+
+Key current closed delivery-gating packages:
 
 ```text
-output/validation/etf_eu_pricing_surface_shadow_20260604_213059.json
+WP9   — blocked delivery manifest operational integration
+WP10  — run artifact bundle / evidence package
+WP10B — run bundle delivery-manifest reference extension
+WP11  — shadow PDF rendering design/tests only
+WP12  — email delivery dry-run contract only
+WP12B — delivery readiness preflight contract
+WP12C — recipient allowlist contract, inactive/sample-only
 ```
 
-WP4 main workflow proof:
+WP12C status remains:
 
 ```text
-GitHub Actions run #34 on main: success
-artifact commit: 373bffb74745047aa79f3109ae62afd79e03abe1
-output/validation/etf_eu_shadow_validation_evidence_20260604_220814.json
-```
-
-WP5 production Dutch-first report surface proof:
-
-```text
-GitHub Actions run #36 on main: success
-trigger commit: 6c7851de339259baa258687196fc3e3dd68bd56a
-artifact commit: f3ad95bb4b94eab8be54ae80e0eefc2e00fce478
-output/weekly_etf_eu_review_260605.md
-output/weekly_etf_eu_review_nl_260605.md
-output/fundability/ucits_fundability_gate_20260605_070115.json
-output/validation/etf_eu_shadow_validation_evidence_20260605_070115.json
-```
-
-WP9 delivery manifest operational integration proof:
-
-```text
-GitHub Actions run #37 on main: success
-trigger commit: d31a1c82f157f82288f7bc548762ea3e783c9ced
-artifact commit: 5ac94fb42b12e4a80aeb8b9a8a44d5006283215e
-ETF_EU_RUN_ID: 20260605_074604
-output/delivery/etf_eu_delivery_manifest_20260605_074604.json
-python -m pytest tests/test_etf_eu_delivery_manifest.py -q
-3 passed
-python tools/validate_etf_eu_delivery_manifest.py output/delivery/etf_eu_delivery_manifest_20260605_074604.json
-ETF_EU_DELIVERY_MANIFEST_OK
-```
-
-WP9 status:
-
-```text
-completed as blocked delivery manifest operational integration
-main workflow verified
-manifest artifact committed
-not real delivery
-not PDF generation
-not email delivery
-not a delivery receipt
-```
-
-WP10 run artifact bundle / evidence package proof:
-
-```text
-runtime/build_etf_eu_run_bundle.py
-tools/validate_etf_eu_run_bundle.py
-tests/test_etf_eu_run_bundle.py
-output/runs/20260605_070115/etf_eu_run_bundle_manifest.json
-python -m pytest tests/test_etf_eu_run_bundle.py -q
-4 passed
-```
-
-WP10 status:
-
-```text
-completed as run artifact bundle / evidence package
-not delivery
-not PDF generation
-not email delivery
-not a delivery receipt
-```
-
-WP10B run bundle delivery-manifest reference extension proof:
-
-```text
-GitHub Actions run #38 on main: success
-implementation commit: f4aae64f0a6d2fefaf73c48d47feed5ccd49a61d
-trigger commit: 4ba6caa28412b12c35bf9e3f6a4fb04a7ec796a9
-artifact commit: 66e19d5ab1860a663a729ddddb9ff92aad341a70
-ETF_EU_RUN_ID: 20260616_221743
-output/runs/20260616_221743/etf_eu_run_bundle_manifest.json
-output/delivery/etf_eu_delivery_manifest_20260616_221743.json
-python -m pytest tests/test_etf_eu_run_bundle.py -q
-4 passed
-python -m pytest tests/test_etf_eu_delivery_manifest.py -q
-3 passed
-```
-
-WP10B status:
-
-```text
-completed as run bundle delivery-manifest reference extension
-main workflow verified
-run bundle artifact committed
-blocked delivery manifest artifact committed
-delivery_manifest_status=available
-delivery_manifest_path_or_null=output/delivery/etf_eu_delivery_manifest_20260616_221743.json
-production_delivery=false
-email_delivery=false
-pdf_generation=false
-delivery_receipt=false
-not real delivery
-not PDF generation
-not email delivery
-not a delivery receipt
-```
-
-WP11 shadow PDF design/test proof:
-
-```text
-control/ETF_EU_SHADOW_PDF_CONTRACT_V1.md
-runtime/render_etf_eu_shadow_pdf.py
-tools/validate_etf_eu_shadow_pdf.py
-tests/test_etf_eu_shadow_pdf.py
-python -m pytest tests/test_etf_eu_shadow_pdf.py -q
-3 passed
-```
-
-WP11 status:
-
-```text
-completed as shadow PDF design/test path only
-not workflow-integrated
-not production delivery
-not email delivery
-not a delivery receipt
-```
-
-WP12 email delivery dry-run contract proof:
-
-```text
-control/ETF_EU_EMAIL_DRY_RUN_CONTRACT_V1.md
-runtime/build_etf_eu_email_dry_run.py
-tools/validate_etf_eu_email_dry_run.py
-tests/test_etf_eu_email_dry_run.py
-output/delivery/email_dry_run_20260605_000000.json
-python -m pytest tests/test_etf_eu_email_dry_run.py -q
-5 passed
-```
-
-WP12 status:
-
-```text
-completed as email delivery dry-run contract only
-design-only blocked artifact
-send_attempted=false
-email_delivery=false
-delivery_receipt=false
-production_delivery=false
-not workflow-integrated
-not real delivery
-```
-
-WP12B delivery readiness preflight proof:
-
-```text
-control/ETF_EU_DELIVERY_READINESS_PREFLIGHT_CONTRACT_V1.md
-runtime/build_etf_eu_delivery_readiness_preflight.py
-tools/validate_etf_eu_delivery_readiness_preflight.py
-tests/test_etf_eu_delivery_readiness_preflight.py
-output/delivery/etf_eu_delivery_readiness_preflight_20260617_000000.json
-python -m pytest tests/test_etf_eu_delivery_readiness_preflight.py -q
-15 passed
-python -m pytest tests/test_etf_eu_email_dry_run.py -q
-5 passed
-python -m pytest tests/test_etf_eu_delivery_manifest.py -q
-3 passed
-python -m pytest tests/test_etf_eu_run_bundle.py -q
-4 passed
-python tools/validate_etf_eu_delivery_readiness_preflight.py output/delivery/etf_eu_delivery_readiness_preflight_20260617_000000.json
-ETF_EU_DELIVERY_READINESS_PREFLIGHT_OK
-```
-
-WP12B sample artifact status fields:
-
-```text
-schema_version=etf_eu_delivery_readiness_preflight_v1
-status=blocked_not_ready_for_wp13
-ready_for_wp13=false
-recipient_allowlist_status=missing
-smtp_secrets_policy_status=missing
-delivery_receipt_validator_status=missing
+completed as recipient allowlist contract, inactive/sample-only
+sample allowlist path=config/etf_eu_recipient_allowlist.sample.yml
+recipient_activation=false
+real_recipients=false
+all_recipients_active=false
+all_recipients_delivery_enabled=false
+all_recipient_emails_placeholder_domain=example.invalid
 send_attempted=false
 email_delivery=false
 delivery_receipt=false
@@ -229,77 +74,82 @@ funding_authority=false
 portfolio_mutation=false
 candidate_promotion=false
 valuation_grade_promotion=false
-```
-
-WP12B status:
-
-```text
-completed as delivery readiness preflight contract
-contract/builder/validator/tests/sample artifact committed
-design-only blocked artifact
+ready_for_wp13=false
 not workflow-integrated
 not real delivery
-not PDF generation
-not email delivery
-not a delivery receipt
-ready_for_wp13=false
 ```
 
-WP12C recipient allowlist proof:
+## WP12D SMTP/secrets policy status
+
+WP12D implementation files are now present:
 
 ```text
-control/ETF_EU_RECIPIENT_ALLOWLIST_CONTRACT_V1.md
-config/etf_eu_recipient_allowlist.sample.yml
-tools/validate_etf_eu_recipient_allowlist.py
-tests/test_etf_eu_recipient_allowlist.py
-python -m pytest tests/test_etf_eu_recipient_allowlist.py -q
-22 passed
-python -m pytest tests/test_etf_eu_delivery_readiness_preflight.py -q
-15 passed
-python -m pytest tests/test_etf_eu_email_dry_run.py -q
-5 passed
-python -m pytest tests/test_etf_eu_delivery_manifest.py -q
-3 passed
-python tools/validate_etf_eu_recipient_allowlist.py config/etf_eu_recipient_allowlist.sample.yml
-ETF_EU_RECIPIENT_ALLOWLIST_OK
+control/ETF_EU_SMTP_SECRETS_POLICY_CONTRACT_V1.md
+config/etf_eu_smtp_secrets_policy.sample.yml
+tools/validate_etf_eu_smtp_secrets_policy.py
+tests/test_etf_eu_smtp_secrets_policy.py
 ```
 
-WP12C sample allowlist status fields:
+WP12D focused local validation:
 
 ```text
-schema_version=etf_eu_recipient_allowlist_v1
-status=sample_only_inactive
-recipient_activation=false
-real_recipients=false
+python -m pytest tests/test_etf_eu_smtp_secrets_policy.py -q
+30 passed
+```
+
+WP12D sample policy status fields:
+
+```text
+schema_version=etf_eu_smtp_secrets_policy_v1
+status=sample_only_no_secrets
+smtp_configured=false
+secrets_present=false
+mail_transport_enabled=false
+external_mail_api_enabled=false
 send_attempted=false
 email_delivery=false
 production_delivery=false
 delivery_receipt=false
-recipient_count=2
-all_recipient_active=false
-all_recipient_delivery_enabled=false
-all_recipient_emails_placeholder_domain=example.invalid
+smtp_host=placeholder.invalid
+smtp_port=0
+smtp_username=placeholder_only
+smtp_secret_reference=placeholder_only
+provider=placeholder_only
+active=false
+delivery_enabled=false
 ```
 
-WP12C status:
+WP12D current status:
 
 ```text
-completed as recipient allowlist contract, inactive/sample-only
-contract/sample allowlist/validator/tests committed
-sample-only inactive artifact
+implemented
+focused local validation passed
+sample no-secrets SMTP policy committed
 not workflow-integrated
-not real recipients
-not recipient activation
+no real SMTP hostnames
+no real credentials
+no secrets in repo
 not real delivery
 not PDF generation
 not email delivery
 not a delivery receipt
 ready_for_wp13=false
+related regression commands still need to be run from a full repo checkout before marking WP12D fully closed
+```
+
+Required related regression commands still pending for WP12D closeout:
+
+```text
+python -m pytest tests/test_etf_eu_delivery_readiness_preflight.py -q
+python -m pytest tests/test_etf_eu_recipient_allowlist.py -q
+python -m pytest tests/test_etf_eu_email_dry_run.py -q
+python -m pytest tests/test_etf_eu_delivery_manifest.py -q
+python tools/validate_etf_eu_smtp_secrets_policy.py config/etf_eu_smtp_secrets_policy.sample.yml
 ```
 
 ## Current workflow posture
 
-The main EU bootstrap workflow now uses:
+The main EU bootstrap workflow currently uses:
 
 ```text
 pricing.build_ucits_valuation_prices_with_agreement
@@ -309,57 +159,19 @@ runtime.build_etf_eu_delivery_manifest
 runtime.build_etf_eu_run_bundle
 ```
 
-The workflow now:
-
-```text
-builds the WP6 fundability gate artifact
-validates the fundability artifact
-passes the fundability artifact into the report renderer
-validates strict Dutch-first output for the current report pair
-validates pricing surface in strict mode
-validates fundability surface
-builds and validates a blocked/design-only delivery manifest
-builds and validates a run bundle manifest referencing the blocked delivery manifest
-commits report, pricing, fundability, validation, delivery manifest and run bundle artifacts as evidence
-```
-
-WP12B and WP12C are intentionally not workflow-integrated. They are design-only readiness gates for later WP13 review.
-
-## Verified report-surface content
-
-The generated Dutch report includes:
-
-```text
-Productierapport-volwassenheid
-Nederlandse hoofdrapportage
-primaire clientrapportage
-Engelse rapportage is companion/operator-facing
-agreement-gate pricing evidence
-fundability gate status
-gate blockers
-gate-level status
-candidate_promotion=false
-funding_authority=false
-portfolio_mutation=false
-production_delivery=false
-geen gefinancierde UCITS-posities
-geen koopadvies
-geen productielevering
-geen delivery receipt
-```
-
-The generated English report remains companion/operator-facing and confirms the Dutch report is the primary client report.
+The workflow builds and validates report/pricing/fundability/delivery-manifest/run-bundle evidence only. WP12B, WP12C and WP12D are intentionally not workflow-integrated.
 
 ## Pending items
 
-1. SMTP/secrets policy remains missing.
+1. Finish WP12D related regression validation before closing WP12D.
 2. Delivery receipt validator remains missing.
 3. Recipient allowlist contract exists only as inactive/sample-only; no real recipients and no activation authority exist.
-4. WP13 real delivery enablement remains blocked until recipient allowlist activation, SMTP/secrets policy and delivery receipt validator exist and an explicit delivery authority decision is recorded.
-5. Later operational send path only after a separate real receipt path exists and is explicitly authorized.
-6. Future candidate promotion only after explicit fundability and portfolio-decision gates pass.
-7. Twelve Data source path remains separate and is not workflow/authority integrated as valuation authority.
-8. PDF workflow integration remains blocked until a later explicit decision authorizes it.
+4. SMTP/secrets policy exists only as sample-only/no-secrets; no SMTP/secrets authority exists.
+5. WP13 real delivery enablement remains blocked until recipient allowlist activation, SMTP/secrets policy, delivery receipt validator and an explicit delivery authority decision exist.
+6. Later operational send path only after a separate real receipt path exists and is explicitly authorized.
+7. Future candidate promotion only after explicit fundability and portfolio-decision gates pass.
+8. Twelve Data source path remains separate and is not workflow/authority integrated as valuation authority.
+9. PDF workflow integration remains blocked until a later explicit decision authorizes it.
 
 ## Boundary rule
 
@@ -379,5 +191,9 @@ no email delivery
 no delivery receipt
 recipient_activation=false
 real_recipients=false
+smtp_configured=false
+secrets_present=false
+mail_transport_enabled=false
+external_mail_api_enabled=false
 ready_for_wp13=false
 ```
