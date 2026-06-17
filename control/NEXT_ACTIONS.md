@@ -1,6 +1,6 @@
 # Weekly ETF EU Review OS — Next Actions
 
-Current priority: finish WP13D related Codespace validation.
+Current priority: prepare WP13E review-only instructions.
 
 Completed:
 
@@ -18,12 +18,14 @@ WP12F
 WP13A
 WP13B
 WP13C
+WP13D
 ```
 
-WP13D current status:
+WP13D closeout status:
 
 ```text
-implemented
+completed
+focused and related Codespace validation passed
 selected_next_package=WP13E
 selected_next_package_title=secure transport setup contract review, review-only
 recipient_policy_state=sample_only_inactive
@@ -33,28 +35,25 @@ real_recipients=false
 wp13_authority=false
 production_delivery=false
 not workflow-integrated
-related Codespace validation pending before full closeout
 ```
 
-Next immediate action:
+WP13D validation evidence:
 
 ```text
-python -m pytest tests/test_etf_eu_recipient_policy_contract_review.py -q
-python tools/validate_etf_eu_recipient_policy_contract_review.py output/delivery/authority/etf_eu_recipient_policy_contract_review_20260617_000000.json
-python -m pytest tests/test_etf_eu_production_prerequisite_gap_review.py -q
-python -m pytest tests/test_etf_eu_next_review_step_decision.py -q
-python -m pytest tests/test_etf_eu_delivery_authority_review.py -q
-python -m pytest tests/test_etf_eu_delivery_readiness_preflight.py -q
-python -m pytest tests/test_etf_eu_recipient_allowlist.py -q
-python -m pytest tests/test_etf_eu_smtp_secrets_policy.py -q
-python -m pytest tests/test_etf_eu_delivery_receipt.py -q
-python -m pytest tests/test_etf_eu_email_dry_run.py -q
-python -m pytest tests/test_etf_eu_delivery_manifest.py -q
+WP13D tests: 21 passed
+recipient policy review validator: OK
+WP13C tests: 18 passed
+WP13B tests: 13 passed
+WP13A tests: 27 passed
+readiness preflight tests: 15 passed
+recipient allowlist tests: 22 passed
+mail setup policy tests: 30 passed
+receipt tests: 22 passed
+email dry-run tests: 5 passed
+delivery manifest tests: 3 passed
 ```
 
-Only after these pass should WP13D be marked fully closed.
-
-After WP13D closeout, next selected package:
+Recommended next package:
 
 ```text
 WP13E — secure transport setup contract review, review-only
