@@ -1,0 +1,204 @@
+{
+  "schema_version": "etf_eu_wp14c_ucits_identity_audit_v1",
+  "review_id": "20260617_000000",
+  "created_at_utc": "2026-06-17T00:00:00Z",
+  "status": "ucits_identity_audit_completed",
+  "review_scope": "ucits_identity_audit_review_only",
+  "basis": [
+    "WP14B selected ucits_instrument_identity_lane",
+    "WP14B was plan-only",
+    "UCITS identity is foundational for EU ETF report correctness"
+  ],
+  "input_state": {
+    "wp13_review_chain_complete": true,
+    "authority_not_granted": true,
+    "operational_prerequisites_complete": false,
+    "production_delivery": false,
+    "wp13_authority": false,
+    "roadmap_loop_closed": true,
+    "selected_implementation_lane": "ucits_instrument_identity_lane",
+    "plan_only": true
+  },
+  "audited_files": [
+    "control/UCITS_SYMBOL_REGISTRY_CONTRACT.md",
+    "control/UCITS_ETF_REVIEW_CONTRACT_V1.md",
+    "control/UCITS_INVESTABILITY_RULES.md",
+    "control/UCITS_MIGRATION_PLAN.md",
+    "config/ucits_symbol_registry.yml"
+  ],
+  "audit_dimensions": {
+    "isin_first_identity": "reviewed",
+    "exchange_line_identity": "reviewed",
+    "currency_identity": "reviewed",
+    "fund_name_identity": "reviewed",
+    "proxy_vs_candidate_separation": "reviewed",
+    "investability_rule_alignment": "reviewed",
+    "registry_schema_completeness": "reviewed",
+    "validator_coverage": "reviewed",
+    "fixture_coverage": "reviewed",
+    "report_surface_dependency_risk": "reviewed"
+  },
+  "findings": [
+    {
+      "id": "UCITS-ID-001",
+      "dimension": "isin_first_identity",
+      "status": "gap",
+      "severity": "high",
+      "finding": "The registry is ISIN-first by contract, but multiple bootstrap candidates still use TBD for ISIN, so the audit layer must treat them as non-authoritative until verified.",
+      "evidence_files": [
+        "control/UCITS_SYMBOL_REGISTRY_CONTRACT.md",
+        "config/ucits_symbol_registry.yml"
+      ],
+      "recommended_next_action": "Create validator coverage requiring verified ISIN before any candidate can be treated as fundable or client-surface current truth.",
+      "implementation_allowed_in_wp14c": false
+    },
+    {
+      "id": "UCITS-ID-002",
+      "dimension": "exchange_line_identity",
+      "status": "risk",
+      "severity": "high",
+      "finding": "The SMH UCITS candidate carries a ticker string that can collide with the U.S. research proxy, while the exchange line remains pending verification.",
+      "evidence_files": [
+        "config/ucits_symbol_registry.yml"
+      ],
+      "recommended_next_action": "Add a check that exchange ticker is never accepted without ISIN plus exchange plus provider/pricing symbol context.",
+      "implementation_allowed_in_wp14c": false
+    },
+    {
+      "id": "UCITS-ID-003",
+      "dimension": "currency_identity",
+      "status": "gap",
+      "severity": "medium",
+      "finding": "Trading currency is present for some lines but remains pending for several candidates, creating risk if a report row shows a ticker without line currency context.",
+      "evidence_files": [
+        "control/UCITS_ETF_REVIEW_CONTRACT_V1.md",
+        "config/ucits_symbol_registry.yml"
+      ],
+      "recommended_next_action": "Require trading_currency and exchange line status before an ETF can appear as an actionable EU candidate.",
+      "implementation_allowed_in_wp14c": false
+    },
+    {
+      "id": "UCITS-ID-004",
+      "dimension": "proxy_vs_candidate_separation",
+      "status": "needs_followup",
+      "severity": "medium",
+      "finding": "The registry includes proxy_must_not_be_funded markers, but the codebase needs explicit validator coverage proving U.S. proxies cannot leak into EU holdings or current-position rows.",
+      "evidence_files": [
+        "control/UCITS_ETF_REVIEW_CONTRACT_V1.md",
+        "config/ucits_symbol_registry.yml"
+      ],
+      "recommended_next_action": "Add tests around proxy-only symbols and EU holdings tables before any report-surface expansion.",
+      "implementation_allowed_in_wp14c": false
+    },
+    {
+      "id": "UCITS-ID-005",
+      "dimension": "investability_rule_alignment",
+      "status": "gap",
+      "severity": "medium",
+      "finding": "Investability rules require investability status, but the symbol registry contract minimum field block does not list investability_status or fundable_status as minimum fields.",
+      "evidence_files": [
+        "control/UCITS_SYMBOL_REGISTRY_CONTRACT.md",
+        "control/UCITS_INVESTABILITY_RULES.md"
+      ],
+      "recommended_next_action": "Align the registry contract minimum fields with investability and fundability status requirements.",
+      "implementation_allowed_in_wp14c": false
+    },
+    {
+      "id": "UCITS-ID-006",
+      "dimension": "registry_schema_completeness",
+      "status": "risk",
+      "severity": "high",
+      "finding": "The registry is still bootstrap_seed and contains ETC/policy-question entries alongside UCITS ETF candidates, so schema validation must distinguish ETF, ETC, proxy, candidate and policy-review states.",
+      "evidence_files": [
+        "control/UCITS_MIGRATION_PLAN.md",
+        "config/ucits_symbol_registry.yml"
+      ],
+      "recommended_next_action": "Create schema checks for instrument_type, UCITS status, policy-review status and fundable status consistency.",
+      "implementation_allowed_in_wp14c": false
+    },
+    {
+      "id": "UCITS-ID-007",
+      "dimension": "validator_coverage",
+      "status": "gap",
+      "severity": "medium",
+      "finding": "The required UCITS identity controls are described in contracts, but dedicated validator coverage for registry schema, ISIN-first identity, line currency and proxy separation still needs to be implemented or strengthened.",
+      "evidence_files": [
+        "control/UCITS_ETF_REVIEW_CONTRACT_V1.md",
+        "control/UCITS_SYMBOL_REGISTRY_CONTRACT.md"
+      ],
+      "recommended_next_action": "Implement WP14D validator coverage for registry identity and line-level constraints.",
+      "implementation_allowed_in_wp14c": false
+    },
+    {
+      "id": "UCITS-ID-008",
+      "dimension": "fixture_coverage",
+      "status": "needs_followup",
+      "severity": "medium",
+      "finding": "Fixture coverage should include at least one verified UCITS ETF, one pending candidate, one U.S. proxy collision case, and one non-UCITS ETC policy case.",
+      "evidence_files": [
+        "config/ucits_symbol_registry.yml"
+      ],
+      "recommended_next_action": "Add fixtures that exercise the known bootstrap registry edge cases before using the registry in report generation.",
+      "implementation_allowed_in_wp14c": false
+    },
+    {
+      "id": "UCITS-ID-009",
+      "dimension": "report_surface_dependency_risk",
+      "status": "risk",
+      "severity": "medium",
+      "finding": "The Dutch-first report is expected to disclose UCITS, ISIN, KID, trading line and currency, so report-surface work should wait until the registry can reliably label verified versus pending identity facts.",
+      "evidence_files": [
+        "control/UCITS_ETF_REVIEW_CONTRACT_V1.md",
+        "control/UCITS_MIGRATION_PLAN.md",
+        "config/ucits_symbol_registry.yml"
+      ],
+      "recommended_next_action": "Before report-surface expansion, require registry-derived disclosure fields to carry verified/pending labels.",
+      "implementation_allowed_in_wp14c": false
+    }
+  ],
+  "summary": {
+    "total_findings": 9,
+    "high_severity_findings": 3,
+    "medium_severity_findings": 6,
+    "low_severity_findings": 0,
+    "implementation_required": true,
+    "registry_mutation_required_later": "unknown_until_wp14d",
+    "safe_to_continue_to_wp14d": true
+  },
+  "implementation_allowed_in_this_package": false,
+  "registry_mutation_allowed_in_this_package": false,
+  "report_renderer_mutation_allowed_in_this_package": false,
+  "activation_allowed_in_this_package": false,
+  "authority_created": false,
+  "selected_next_package": "WP14D",
+  "selected_next_package_title": "UCITS identity contract/validator implementation, review-only",
+  "explicitly_out_of_scope": [
+    "review-only package",
+    "no authority change",
+    "no activation step",
+    "no production state change",
+    "no portfolio state change",
+    "no candidate state change",
+    "no registry mutation in WP14C",
+    "no report renderer mutation in WP14C"
+  ],
+  "authority": {
+    "valuation_grade": false,
+    "funding_authority": false,
+    "portfolio_mutation": false,
+    "production_delivery": false,
+    "candidate_promotion": false,
+    "recipient_activation": false,
+    "real_recipients": false,
+    "smtp_configured": false,
+    "secrets_present": false,
+    "mail_transport_enabled": false,
+    "external_mail_api_enabled": false,
+    "real_receipt": false,
+    "proof_claimed": false,
+    "send_attempted": false,
+    "authority_granted": false,
+    "ready_for_wp13_preflight_only": true,
+    "wp14_authority": false
+  }
+}
