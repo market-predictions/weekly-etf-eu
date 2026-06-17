@@ -1,4 +1,45 @@
 {
   "schema_version": "etf_eu_receipt_proof_contract_review_v1",
-  "status": "placeholder_pending_review_content"
+  "review_id": "20260617_000000",
+  "created_at_utc": "2026-06-17T00:00:00Z",
+  "status": "receipt_proof_contract_review_completed",
+  "review_scope": "receipt_proof_review_only",
+  "basis": [
+    "WP13E selected WP13F",
+    "sample evidence remains non-authoritative",
+    "preflight readiness is not authority"
+  ],
+  "current_receipt_state": {
+    "source_path": "output/delivery/etf_eu_delivery_receipt_sample_20260617_000000.json",
+    "status": "sample_only_not_delivery_proof",
+    "real_receipt": false,
+    "delivery_proof": false,
+    "production_delivery": false
+  },
+  "required_future_production_controls": [
+    "future contract",
+    "future validator",
+    "authority reference",
+    "artifact reference",
+    "manifest reference",
+    "independent evidence rule"
+  ],
+  "implementation_allowed_in_this_package": false,
+  "activation_allowed_in_this_package": false,
+  "real_receipt_allowed_in_this_package": false,
+  "delivery_proof_allowed_in_this_package": false,
+  "authority_created": false,
+  "selected_next_package": "WP13G",
+  "selected_next_package_title": "delivery authority prerequisite reconciliation, review-only",
+  "authority": {
+    "valuation_grade": false,
+    "funding_authority": false,
+    "portfolio_mutation": false,
+    "production_delivery": false,
+    "candidate_promotion": false,
+    "real_receipt": false,
+    "delivery_proof": false,
+    "ready_for_wp13_preflight_only": true,
+    "wp13_authority": false
+  }
 }
