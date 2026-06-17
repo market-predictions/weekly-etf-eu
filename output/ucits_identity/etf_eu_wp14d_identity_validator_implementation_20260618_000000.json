@@ -1,0 +1,45 @@
+{
+  "schema_version": "etf_eu_wp14d_identity_validator_implementation_v1",
+  "review_id": "20260618_000000",
+  "created_at_utc": "2026-06-18T00:00:00Z",
+  "status": "identity_validator_implemented_review_only",
+  "selected_implementation_lane": "ucits_instrument_identity_lane",
+  "basis": [
+    "WP14C completed UCITS identity audit",
+    "WP14C found 9 meaningful identity findings",
+    "WP14D implements validator and fixture coverage only"
+  ],
+  "implemented_files": [
+    "tools/validate_etf_eu_ucits_symbol_registry_identity.py",
+    "tests/test_etf_eu_ucits_symbol_registry_identity.py",
+    "fixtures/ucits_identity/valid_bootstrap_registry.yml",
+    "fixtures/ucits_identity/bad_verified_candidate_missing_isin.yml",
+    "fixtures/ucits_identity/bad_proxy_marked_fundable.yml",
+    "fixtures/ucits_identity/bad_exchange_line_missing_currency.yml",
+    "fixtures/ucits_identity/bad_etc_marked_fundable.yml",
+    "fixtures/ucits_identity/bad_research_proxy_missing_block_flag.yml"
+  ],
+  "covered_wp14c_findings": [
+    "UCITS-ID-001",
+    "UCITS-ID-002",
+    "UCITS-ID-003",
+    "UCITS-ID-004",
+    "UCITS-ID-006",
+    "UCITS-ID-007",
+    "UCITS-ID-008"
+  ],
+  "not_covered_yet": [
+    "UCITS-ID-005",
+    "UCITS-ID-009"
+  ],
+  "not_covered_reason": {
+    "UCITS-ID-005": "requires contract-field alignment decision before editing canonical contract",
+    "UCITS-ID-009": "requires report-surface integration package after identity validator is stable"
+  },
+  "registry_mutation": false,
+  "report_renderer_mutation": false,
+  "production_delivery": false,
+  "wp14_authority": false,
+  "selected_next_package": "WP14E",
+  "selected_next_package_title": "UCITS identity contract alignment or report-surface disclosure gate, review-only"
+}
