@@ -1,6 +1,6 @@
 # Weekly ETF EU Review OS — Next Actions
 
-Current priority: finish WP13B related Codespace validation.
+Current priority: prepare WP13C review-only instructions.
 
 Completed:
 
@@ -16,43 +16,34 @@ WP12D
 WP12E
 WP12F
 WP13A
+WP13B
 ```
 
-WP13B current status:
+WP13B closeout status:
 
 ```text
-implemented
-focused local validation passed
+completed
+focused and related Codespace validation passed
 selected_next_package=WP13C
 selected_next_package_title=production prerequisite gap review, review-only
 not workflow-integrated
-related Codespace validation pending before full closeout
 ```
 
-WP13B focused validation:
+WP13B validation evidence:
 
 ```text
-focused WP13B tests: 13 passed
+WP13B tests: 13 passed
 next review step validator: OK
+WP13A tests: 27 passed
+readiness preflight tests: 15 passed
+recipient allowlist tests: 22 passed
+mail setup policy tests: 30 passed
+receipt tests: 22 passed
+email dry-run tests: 5 passed
+delivery manifest tests: 3 passed
 ```
 
-Next immediate action:
-
-```text
-python -m pytest tests/test_etf_eu_next_review_step_decision.py -q
-python tools/validate_etf_eu_next_review_step_decision.py output/delivery/authority/etf_eu_next_review_step_decision_20260617_000000.json
-python -m pytest tests/test_etf_eu_delivery_authority_review.py -q
-python -m pytest tests/test_etf_eu_delivery_readiness_preflight.py -q
-python -m pytest tests/test_etf_eu_recipient_allowlist.py -q
-python -m pytest tests/test_etf_eu_smtp_secrets_policy.py -q
-python -m pytest tests/test_etf_eu_delivery_receipt.py -q
-python -m pytest tests/test_etf_eu_email_dry_run.py -q
-python -m pytest tests/test_etf_eu_delivery_manifest.py -q
-```
-
-Only after these pass should WP13B be marked fully closed.
-
-After WP13B closeout, next selected package:
+Recommended next package:
 
 ```text
 WP13C — production prerequisite gap review, review-only
