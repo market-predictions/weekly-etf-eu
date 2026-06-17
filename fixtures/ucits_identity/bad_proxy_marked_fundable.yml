@@ -1,0 +1,33 @@
+schema_version: ucits_symbol_registry_v1
+canonical_identity: isin_first
+registry_status: fixture_bad
+funds:
+  - registry_id: bad_proxy_fundable
+    role: Proxy collision exposure
+    us_research_proxy: SMH
+    isin: IE00BMC38736
+    fund_name: VanEck Semiconductor UCITS ETF
+    provider: VanEck
+    instrument_type: ETF
+    ucits_status: confirmed
+    priips_kid_status: available
+    investability_status: fundable
+    fundable_status: fundable
+    domicile: Ireland
+    base_currency: USD
+    distribution_policy: accumulating
+    replication_method: physical_replication
+    benchmark_index: Semiconductor Index
+    ter_pct: 0.35
+    trading_lines:
+      - exchange: London Stock Exchange
+        exchange_ticker: SMH
+        trading_currency: USD
+        provider_symbol: SMH LN
+        pricing_symbol_yahoo: SMH.L
+        line_verification_status: issuer_verified_bloomberg_ticker
+        pricing_status: verified
+    research_proxies:
+      - us_proxy: SMH
+        purpose: benchmark_reference_only
+        proxy_must_not_be_funded: true
