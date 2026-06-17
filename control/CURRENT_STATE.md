@@ -53,46 +53,41 @@ WP13I
 WP14A
 WP14B
 WP14C
+WP14D
 ```
 
-## WP14C status
+## WP14D status
 
 ```text
 completed
 focused and related Codespace validation passed
-selected_next_package=WP14D
-selected_next_package_title=UCITS identity contract/validator implementation, review-only
-selected_implementation_lane=ucits_instrument_identity_lane
-ucits_identity_audit_completed=true
-meaningful_findings=true
-total_findings=9
-high_severity_findings=3
-medium_severity_findings=6
-low_severity_findings=0
-registry_mutation_allowed_in_wp14c=false
-report_renderer_mutation_allowed_in_wp14c=false
+selected_next_package=WP14E
+selected_next_package_title=UCITS identity contract alignment or report-surface disclosure gate, review-only
+ucits_identity_validator_implemented=true
+live_registry_bootstrap_validation_passed=true
+unsafe_fixture_states_blocked=true
+registry_mutation=false
+report_renderer_mutation=false
 production_delivery=false
 wp14_authority=false
-review-only UCITS identity audit artifact committed
+review-only UCITS identity validator and fixture suite committed
 not workflow-integrated
 ```
 
 Validation proof:
 
 ```text
+WP14D identity tests: 20 passed
+WP14D live registry validator: OK
 WP14C tests: 34 passed
-WP14C validator: OK
 WP14B tests: 36 passed
 WP14A tests: 32 passed
-WP13I tests: 27 passed
-WP13H tests: 33 passed
-WP13G tests: 27 passed
 ```
 
 ## Pending items
 
-1. Next selected package is WP14D review-only implementation planning.
-2. Keep WP14D practical: implement identity validators/fixtures, not another meta selector.
+1. Next selected package is WP14E review-only planning.
+2. Keep WP14E practical: contract alignment or report-surface disclosure gate.
 3. Future operational work requires a separate explicit decision.
 
 ## Boundary rule
