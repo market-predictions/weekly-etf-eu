@@ -1,0 +1,33 @@
+schema_version: ucits_symbol_registry_v1
+canonical_identity: isin_first
+registry_status: fixture_bad
+funds:
+  - registry_id: bad_missing_isin
+    role: Core exposure
+    us_research_proxy: SPY
+    isin: TBD
+    fund_name: Missing ISIN UCITS ETF
+    provider: Example Provider
+    instrument_type: ETF
+    ucits_status: confirmed
+    priips_kid_status: available
+    investability_status: verified_candidate_not_funded
+    fundable_status: not_funded_requires_broker_and_pricing_line_confirmation
+    domicile: Ireland
+    base_currency: USD
+    distribution_policy: accumulating
+    replication_method: physical_replication
+    benchmark_index: Example Index
+    ter_pct: 0.10
+    trading_lines:
+      - exchange: London Stock Exchange
+        exchange_ticker: MISS
+        trading_currency: USD
+        provider_symbol: MISS LN
+        pricing_symbol_yahoo: MISS.L
+        line_verification_status: issuer_verified_bloomberg_ticker
+        pricing_status: pending_pipeline_test
+    research_proxies:
+      - us_proxy: SPY
+        purpose: benchmark_reference_only
+        proxy_must_not_be_funded: true
