@@ -1,0 +1,76 @@
+{
+  "activation_allowed_in_this_package": false,
+  "authority": {
+    "candidate_promotion": false,
+    "delivery_authority": false,
+    "delivery_proof": false,
+    "external_mail_api_enabled": false,
+    "funding_authority": false,
+    "mail_transport_enabled": false,
+    "portfolio_mutation": false,
+    "production_delivery": false,
+    "ready_for_wp13_preflight_only": true,
+    "real_receipt": false,
+    "real_recipients": false,
+    "recipient_activation": false,
+    "secrets_present": false,
+    "send_attempted": false,
+    "smtp_configured": false,
+    "valuation_grade": false,
+    "wp13_authority": false
+  },
+  "authority_created": false,
+  "basis": [
+    "WP13D recipient policy review completed",
+    "WP13E secure transport setup review completed",
+    "WP13F receipt proof review completed",
+    "WP13A authority review remains not granted",
+    "preflight readiness is not authority"
+  ],
+  "created_at_utc": "2026-06-17T00:00:00Z",
+  "explicitly_out_of_scope": [
+    "review-only package",
+    "no authority change",
+    "no activation step",
+    "no production state change",
+    "no portfolio state change",
+    "no candidate state change"
+  ],
+  "implementation_allowed_in_this_package": false,
+  "prerequisite_domains": {
+    "receipt_proof_path": {
+      "activation_status": "not_activated",
+      "authority_created": false,
+      "production_ready": false,
+      "review_artifact": "output/delivery/authority/etf_eu_receipt_proof_contract_review_20260617_000000.json",
+      "review_status": "completed"
+    },
+    "recipient_policy": {
+      "activation_status": "not_activated",
+      "authority_created": false,
+      "production_ready": false,
+      "review_artifact": "output/delivery/authority/etf_eu_recipient_policy_contract_review_20260617_000000.json",
+      "review_status": "completed"
+    },
+    "secure_transport_setup": {
+      "activation_status": "not_activated",
+      "authority_created": false,
+      "production_ready": false,
+      "review_artifact": "output/delivery/authority/etf_eu_secure_transport_setup_contract_review_20260617_000000.json",
+      "review_status": "completed"
+    }
+  },
+  "reconciliation_result": {
+    "delivery_authority_can_be_granted": false,
+    "delivery_authority_review_can_be_considered_later": true,
+    "operational_prerequisites_complete": false,
+    "reason": "review chain exists while production inputs remain inactive",
+    "review_chain_complete": true
+  },
+  "review_id": "20260617_000000",
+  "review_scope": "delivery_authority_prerequisite_reconciliation_only",
+  "schema_version": "etf_eu_delivery_authority_prerequisite_reconciliation_v1",
+  "selected_next_package": "WP13H",
+  "selected_next_package_title": "explicit delivery authority decision review, review-only",
+  "status": "delivery_authority_prerequisite_reconciliation_completed"
+}
