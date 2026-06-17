@@ -35,7 +35,8 @@ real_recipients=false
 mail_setup_active=false
 mail_transport_enabled=false
 external_mail_api_enabled=false
-ready_for_wp13=false
+ready_for_wp13_preflight_only=true
+wp13_delivery_authority=false
 ```
 
 ## Verified evidence summary
@@ -54,71 +55,14 @@ WP12D — mail setup policy contract, sample-only/no-live-values
 WP12E — delivery receipt validator contract, sample-only/no real delivery receipt
 ```
 
-WP12D remains closed:
+WP12E remains closed:
 
 ```text
-focused and related Codespace validation passed
-not workflow-integrated
-mail_setup_active=false
-mail_transport_enabled=false
-external_mail_api_enabled=false
-send_attempted=false
-email_delivery=false
-delivery_receipt=false
-production_delivery=false
-ready_for_wp13=false
-```
-
-## WP12E status
-
-WP12E implementation files are present and committed:
-
-```text
-control/ETF_EU_DELIVERY_RECEIPT_CONTRACT_V1.md
-output/delivery/etf_eu_delivery_receipt_sample_20260617_000000.json
-tools/validate_etf_eu_delivery_receipt.py
-tests/test_etf_eu_delivery_receipt.py
-```
-
-WP12E validation proof:
-
-```text
-python -m pytest tests/test_etf_eu_delivery_receipt.py -q
-22 passed
-
-python tools/validate_etf_eu_delivery_receipt.py output/delivery/etf_eu_delivery_receipt_sample_20260617_000000.json
-ETF_EU_DELIVERY_RECEIPT_SAMPLE_OK
-
-python -m pytest tests/test_etf_eu_delivery_readiness_preflight.py -q
-15 passed
-
-python -m pytest tests/test_etf_eu_recipient_allowlist.py -q
-22 passed
-
-python -m pytest tests/test_etf_eu_smtp_secrets_policy.py -q
-30 passed
-
-python -m pytest tests/test_etf_eu_email_dry_run.py -q
-5 passed
-
-python -m pytest tests/test_etf_eu_delivery_manifest.py -q
-3 passed
-```
-
-WP12E current status:
-
-```text
-completed as delivery receipt validator contract, sample-only/no real delivery receipt
 focused and related Codespace validation passed
 sample-only receipt artifact committed
 not workflow-integrated
 not delivery proof
 no real delivery receipt
-no provider confirmation
-no transport message id
-no real recipient reference
-delivery_attempted=false
-delivery_success=false
 send_attempted=false
 email_delivery=false
 delivery_receipt=false
@@ -126,7 +70,49 @@ production_delivery=false
 pdf_generation=false
 recipient_activation=false
 mail_transport_enabled=false
-ready_for_wp13=false
+```
+
+## WP12F status
+
+WP12F refreshed preflight artifact is present and committed:
+
+```text
+output/delivery/etf_eu_delivery_readiness_preflight_20260617_000001.json
+```
+
+WP12F artifact status:
+
+```text
+implemented
+refreshed readiness preflight artifact committed
+status=ready_for_wp13_preflight_only
+ready_for_wp13=true
+all three prerequisite contract paths present
+real delivery not authorized remains present
+not workflow-integrated
+not delivery authority
+send_attempted=false
+email_delivery=false
+delivery_receipt=false
+production_delivery=false
+pdf_generation=false
+funding_authority=false
+portfolio_mutation=false
+candidate_promotion=false
+valuation_grade_promotion=false
+related Codespace validation commands still need to be run before marking WP12F fully closed
+```
+
+Required related validation commands still pending for WP12F closeout:
+
+```text
+python tools/validate_etf_eu_delivery_readiness_preflight.py output/delivery/etf_eu_delivery_readiness_preflight_20260617_000001.json
+python -m pytest tests/test_etf_eu_delivery_readiness_preflight.py -q
+python -m pytest tests/test_etf_eu_recipient_allowlist.py -q
+python -m pytest tests/test_etf_eu_smtp_secrets_policy.py -q
+python -m pytest tests/test_etf_eu_delivery_receipt.py -q
+python -m pytest tests/test_etf_eu_email_dry_run.py -q
+python -m pytest tests/test_etf_eu_delivery_manifest.py -q
 ```
 
 ## Current workflow posture
@@ -141,11 +127,11 @@ runtime.build_etf_eu_delivery_manifest
 runtime.build_etf_eu_run_bundle
 ```
 
-The workflow builds and validates report/pricing/fundability/delivery-manifest/run-bundle evidence only. WP12B, WP12C, WP12D and WP12E are intentionally not workflow-integrated.
+The workflow builds and validates report/pricing/fundability/delivery-manifest/run-bundle evidence only. WP12B, WP12C, WP12D, WP12E and WP12F are intentionally not workflow-integrated.
 
 ## Pending items
 
-1. Consider WP12F readiness preflight refresh after all three prerequisite contract paths now exist.
+1. Finish WP12F related Codespace validation before closing WP12F.
 2. Recipient allowlist contract exists only as inactive/sample-only; no real recipients and no activation authority exist.
 3. Mail setup policy exists only as sample-only/no-live-values; no mail-transport authority exists.
 4. Receipt validator exists only as sample-only/not-delivery-proof; no real receipt authority exists.
@@ -176,5 +162,6 @@ real_recipients=false
 mail_setup_active=false
 mail_transport_enabled=false
 external_mail_api_enabled=false
-ready_for_wp13=false
+ready_for_wp13_preflight_only=true
+wp13_delivery_authority=false
 ```
