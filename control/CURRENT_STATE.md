@@ -42,32 +42,38 @@ WP12D
 WP12E
 WP12F
 WP13A
+WP13B
 ```
 
 ## WP13B status
 
 ```text
-implemented
-focused local validation passed
+completed
+focused and related Codespace validation passed
 selected_next_package=WP13C
 selected_next_package_title=production prerequisite gap review, review-only
 review-only decision artifact committed
 not workflow-integrated
-related Codespace validation still pending before full closeout
 ```
 
-Focused validation:
+Validation proof:
 
 ```text
-focused WP13B tests: 13 passed
+WP13B tests: 13 passed
 next review step validator: OK
+WP13A tests: 27 passed
+readiness preflight tests: 15 passed
+recipient allowlist tests: 22 passed
+mail setup policy tests: 30 passed
+receipt tests: 22 passed
+email dry-run tests: 5 passed
+delivery manifest tests: 3 passed
 ```
 
 ## Pending items
 
-1. Finish WP13B related Codespace validation before closing WP13B.
-2. Next selected package is WP13C review-only planning.
-3. Future operational work requires a separate explicit decision.
+1. Next selected package is WP13C review-only planning.
+2. Future operational work requires a separate explicit decision.
 
 ## Boundary rule
 
