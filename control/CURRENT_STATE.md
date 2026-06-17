@@ -2,7 +2,7 @@
 
 ## Snapshot date
 
-2026-06-17
+2026-06-18
 
 ## Repository identity
 
@@ -52,12 +52,14 @@ WP13H
 WP13I
 WP14A
 WP14B
+WP14C
 ```
 
 ## WP14C status
 
 ```text
-implemented
+completed
+focused and related Codespace validation passed
 selected_next_package=WP14D
 selected_next_package_title=UCITS identity contract/validator implementation, review-only
 selected_implementation_lane=ucits_instrument_identity_lane
@@ -73,22 +75,25 @@ production_delivery=false
 wp14_authority=false
 review-only UCITS identity audit artifact committed
 not workflow-integrated
-related Codespace validation still pending before full closeout
 ```
 
-Focused files:
+Validation proof:
 
 ```text
-output/ucits_identity/etf_eu_wp14c_ucits_identity_audit_20260617_000000.json
-tools/validate_etf_eu_wp14c_ucits_identity_audit.py
-tests/test_etf_eu_wp14c_ucits_identity_audit.py
+WP14C tests: 34 passed
+WP14C validator: OK
+WP14B tests: 36 passed
+WP14A tests: 32 passed
+WP13I tests: 27 passed
+WP13H tests: 33 passed
+WP13G tests: 27 passed
 ```
 
 ## Pending items
 
-1. Finish WP14C related Codespace validation before closing WP14C.
-2. Next selected package is WP14D review-only implementation planning.
-3. Keep WP14D practical: implement identity validators/fixtures, not another meta selector.
+1. Next selected package is WP14D review-only implementation planning.
+2. Keep WP14D practical: implement identity validators/fixtures, not another meta selector.
+3. Future operational work requires a separate explicit decision.
 
 ## Boundary rule
 
