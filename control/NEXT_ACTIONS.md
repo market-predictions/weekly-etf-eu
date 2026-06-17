@@ -1,6 +1,6 @@
 # Weekly ETF EU Review OS — Next Actions
 
-Current priority: finish WP14C related Codespace validation.
+Current priority: prepare WP14D as a practical UCITS identity validator and fixture implementation package.
 
 Completed:
 
@@ -26,12 +26,14 @@ WP13H
 WP13I
 WP14A
 WP14B
+WP14C
 ```
 
-WP14C current status:
+WP14C closeout status:
 
 ```text
-implemented
+completed
+focused and related Codespace validation passed
 selected_next_package=WP14D
 selected_next_package_title=UCITS identity contract/validator implementation, review-only
 selected_implementation_lane=ucits_instrument_identity_lane
@@ -45,16 +47,21 @@ registry_mutation_allowed_in_wp14c=false
 report_renderer_mutation_allowed_in_wp14c=false
 wp14_authority=false
 not workflow-integrated
-related Codespace validation pending before full closeout
 ```
 
-Next immediate action:
+WP14C validation evidence:
 
 ```text
-Run the focused WP14C test and validator, then rerun the related review-only gates before closeout.
+WP14C tests: 34 passed
+WP14C validator: OK
+WP14B tests: 36 passed
+WP14A tests: 32 passed
+WP13I tests: 27 passed
+WP13H tests: 33 passed
+WP13G tests: 27 passed
 ```
 
-After WP14C closeout, next selected package:
+Recommended next package:
 
 ```text
 WP14D — UCITS identity contract/validator implementation, review-only
@@ -63,5 +70,5 @@ WP14D — UCITS identity contract/validator implementation, review-only
 Operating note:
 
 ```text
-Stop the tiny meta-package loop. WP14D should implement useful identity validators and fixtures.
+Stop the tiny meta-package loop. WP14D should implement useful identity validators and fixtures based on the 9 WP14C findings.
 ```
