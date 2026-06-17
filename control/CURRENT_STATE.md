@@ -51,49 +51,37 @@ WP13G
 WP13H
 ```
 
-## WP13H status
+## WP13I status
 
 ```text
-completed
-focused and related Codespace validation passed
-selected_next_package=WP13I
-selected_next_package_title=blocked-state closeout and roadmap decision, review-only
-decision=not_granted
-review_chain_complete=true
+implemented
+selected_next_package=WP14A
+selected_next_package_title=post-WP13 roadmap lane selection, review-only
+decision=blocked_state_closed
+wp13_review_chain_complete=true
+delivery_authority_not_granted=true
 operational_prerequisites_complete=false
-authority_can_be_granted=false
-authority_created=false
 production_delivery=false
 wp13_authority=false
-review-only explicit authority artifact committed
+roadmap_loop_closed=true
+review-only blocked-state closeout artifact committed
 not workflow-integrated
-safe WP13H artifact path used because the original artifact path was blocked by safety checks
+related Codespace validation still pending before full closeout
 ```
 
-Validation proof:
+Focused files:
 
 ```text
-WP13H tests: 33 passed
-WP13H validator: OK
-WP13G tests: 27 passed
-WP13F tests: 23 passed
-WP13E tests: 27 passed
-WP13D tests: 21 passed
-WP13C tests: 18 passed
-WP13B tests: 13 passed
-WP13A tests: 27 passed
-readiness preflight tests: 15 passed
-recipient allowlist tests: 22 passed
-mail setup policy tests: 30 passed
-receipt tests: 22 passed
-email dry-run tests: 5 passed
-delivery manifest tests: 3 passed
+output/delivery/authority/etf_eu_wp13i_blocked_state_closeout_20260617_000000.json
+tools/validate_etf_eu_wp13i_blocked_state_closeout.py
+tests/test_etf_eu_wp13i_blocked_state_closeout.py
 ```
 
 ## Pending items
 
-1. Next selected package is WP13I review-only planning.
-2. Future operational work requires a separate explicit decision.
+1. Finish WP13I related Codespace validation before closing WP13I.
+2. Next selected package is WP14A review-only planning.
+3. Future operational work requires a separate explicit decision.
 
 ## Boundary rule
 
