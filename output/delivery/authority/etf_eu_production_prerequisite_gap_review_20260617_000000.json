@@ -1,0 +1,66 @@
+{
+  "authority": {
+    "candidate_promotion": false,
+    "funding_authority": false,
+    "portfolio_mutation": false,
+    "production_delivery": false,
+    "ready_for_wp13_preflight_only": true,
+    "valuation_grade": false,
+    "wp13_authority": false
+  },
+  "basis": [
+    "WP13A review status is not granted",
+    "WP13B selected WP13C as the next review-only step",
+    "current prerequisite files are sample-only or inactive",
+    "preflight readiness is not authority"
+  ],
+  "created_at_utc": "2026-06-17T00:00:00Z",
+  "explicitly_out_of_scope": [
+    "review-only package",
+    "no authority change",
+    "no activation step",
+    "no production state change",
+    "no portfolio state change",
+    "no candidate state change"
+  ],
+  "gap_domains": [
+    {
+      "activation_allowed_in_this_package": false,
+      "authority_created": false,
+      "current_state": "sample_only_inactive",
+      "domain": "recipient_policy",
+      "gap_status": "gap_open",
+      "implementation_allowed_in_this_package": false,
+      "required_future_review": "production recipient policy contract and validator review"
+    },
+    {
+      "activation_allowed_in_this_package": false,
+      "authority_created": false,
+      "current_state": "sample_only_no_live_values",
+      "domain": "secure_transport_setup",
+      "gap_status": "gap_open",
+      "implementation_allowed_in_this_package": false,
+      "required_future_review": "secure transport setup contract and validator review"
+    },
+    {
+      "activation_allowed_in_this_package": false,
+      "authority_created": false,
+      "current_state": "sample_only_not_delivery_proof",
+      "domain": "receipt_proof_path",
+      "gap_status": "gap_open",
+      "implementation_allowed_in_this_package": false,
+      "required_future_review": "receipt proof contract and validator review"
+    }
+  ],
+  "recommended_gap_closure_sequence": [
+    "WP13D recipient policy contract review-only",
+    "WP13E secure transport setup contract review-only",
+    "WP13F receipt proof contract review-only"
+  ],
+  "review_id": "20260617_000000",
+  "review_scope": "production_prerequisites_review_only",
+  "schema_version": "etf_eu_production_prerequisite_gap_review_v1",
+  "selected_next_package": "WP13D",
+  "selected_next_package_title": "production recipient policy contract review, review-only",
+  "status": "gap_review_completed"
+}
