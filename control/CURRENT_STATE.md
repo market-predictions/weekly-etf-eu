@@ -45,12 +45,14 @@ WP13A
 WP13B
 WP13C
 WP13D
+WP13E
 ```
 
 ## WP13E status
 
 ```text
-implemented
+completed
+focused and related Codespace validation passed
 selected_next_package=WP13F
 selected_next_package_title=receipt proof contract review, review-only
 transport_state=sample_only_no_secrets
@@ -63,22 +65,29 @@ wp13_authority=false
 production_delivery=false
 review-only secure transport artifact committed
 not workflow-integrated
-related Codespace validation still pending before full closeout
 ```
 
-Focused files:
+Validation proof:
 
 ```text
-output/delivery/authority/etf_eu_secure_transport_setup_contract_review_20260617_000000.json
-tools/validate_etf_eu_secure_transport_setup_contract_review.py
-tests/test_etf_eu_secure_transport_setup_contract_review.py
+WP13E tests: 27 passed
+secure transport setup review validator: OK
+WP13D tests: 21 passed
+WP13C tests: 18 passed
+WP13B tests: 13 passed
+WP13A tests: 27 passed
+readiness preflight tests: 15 passed
+recipient allowlist tests: 22 passed
+mail setup policy tests: 30 passed
+receipt tests: 22 passed
+email dry-run tests: 5 passed
+delivery manifest tests: 3 passed
 ```
 
 ## Pending items
 
-1. Finish WP13E related Codespace validation before closing WP13E.
-2. Next selected package is WP13F review-only planning.
-3. Future operational work requires a separate explicit decision.
+1. Next selected package is WP13F review-only planning.
+2. Future operational work requires a separate explicit decision.
 
 ## Boundary rule
 
