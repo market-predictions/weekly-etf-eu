@@ -1,6 +1,6 @@
 # Weekly ETF EU Review OS — Next Actions
 
-Current priority: prepare WP13G review-only instructions.
+Current priority: finish WP13G related Codespace validation.
 
 Completed:
 
@@ -23,46 +23,36 @@ WP13E
 WP13F
 ```
 
-WP13F closeout status:
+WP13G current status:
 
 ```text
-completed
-focused and related Codespace validation passed
-selected_next_package=WP13G
-selected_next_package_title=delivery authority prerequisite reconciliation, review-only
-receipt_state=sample_only_not_delivery_proof
-future_receipt_controls_defined=true
-real_receipt=false
-delivery_proof=false
-send_attempted=false
+implemented
+selected_next_package=WP13H
+selected_next_package_title=explicit authority decision review, review-only
+review_chain_complete=true
+operational_prerequisites_complete=false
+authority_can_be_granted=false
+authority_created=false
 production_delivery=false
 wp13_authority=false
 not workflow-integrated
-minimal artifact schema used because broader review text was blocked by safety checks
+related Codespace validation pending before full closeout
 ```
 
-WP13F validation evidence:
+Next immediate action:
 
 ```text
-WP13F tests: 23 passed
-receipt proof review validator: OK
-WP13E tests: 27 passed
-WP13D tests: 21 passed
-WP13C tests: 18 passed
-WP13B tests: 13 passed
-WP13A tests: 27 passed
-readiness preflight tests: 15 passed
-recipient allowlist tests: 22 passed
-mail setup policy tests: 30 passed
-receipt tests: 22 passed
-email dry-run tests: 5 passed
-delivery manifest tests: 3 passed
+Run the WP13G focused pytest module.
+Run the WP13G focused validator against the committed WP13G artifact.
+Run the related WP13A-F review-gate regression tests.
 ```
 
-Recommended next package:
+Only after these pass should WP13G be marked fully closed.
+
+After WP13G closeout, next selected package:
 
 ```text
-WP13G — delivery authority prerequisite reconciliation, review-only
+WP13H — explicit authority decision review, review-only
 ```
 
 Boundary rule:
