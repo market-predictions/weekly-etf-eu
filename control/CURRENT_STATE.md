@@ -46,38 +46,36 @@ WP13B
 WP13C
 ```
 
-## WP13C status
+## WP13D status
 
 ```text
-completed
-focused and related Codespace validation passed
-selected_next_package=WP13D
-selected_next_package_title=production recipient policy contract review, review-only
-gap_domains_reviewed=recipient_policy, secure_transport_setup, receipt_proof_path
-all_gap_statuses=gap_open
-review-only gap artifact committed
+implemented
+selected_next_package=WP13E
+selected_next_package_title=secure transport setup contract review, review-only
+recipient_policy_state=sample_only_inactive
+future_controls_defined=true
+recipient_activation=false
+real_recipients=false
+wp13_authority=false
+production_delivery=false
+review-only recipient policy artifact committed
 not workflow-integrated
+related Codespace validation still pending before full closeout
 ```
 
-Validation proof:
+Focused files:
 
 ```text
-WP13C tests: 18 passed
-gap review validator: OK
-WP13B tests: 13 passed
-WP13A tests: 27 passed
-readiness preflight tests: 15 passed
-recipient allowlist tests: 22 passed
-mail setup policy tests: 30 passed
-receipt tests: 22 passed
-email dry-run tests: 5 passed
-delivery manifest tests: 3 passed
+output/delivery/authority/etf_eu_recipient_policy_contract_review_20260617_000000.json
+tools/validate_etf_eu_recipient_policy_contract_review.py
+tests/test_etf_eu_recipient_policy_contract_review.py
 ```
 
 ## Pending items
 
-1. Next selected package is WP13D review-only planning.
-2. Future operational work requires a separate explicit decision.
+1. Finish WP13D related Codespace validation before closing WP13D.
+2. Next selected package is WP13E review-only planning.
+3. Future operational work requires a separate explicit decision.
 
 ## Boundary rule
 
