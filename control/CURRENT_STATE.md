@@ -54,46 +54,41 @@ WP14A
 WP14B
 ```
 
-## WP14B status
+## WP14C status
 
 ```text
-completed
-focused and related Codespace validation passed
-selected_next_package=WP14C
-selected_next_package_title=UCITS instrument identity audit and plan, review-only
+implemented
+selected_next_package=WP14D
+selected_next_package_title=UCITS identity contract/validator implementation, review-only
 selected_implementation_lane=ucits_instrument_identity_lane
-plan_only=true
-implementation_allowed_in_wp14b=false
+ucits_identity_audit_completed=true
+meaningful_findings=true
+total_findings=9
+high_severity_findings=3
+medium_severity_findings=6
+low_severity_findings=0
+registry_mutation_allowed_in_wp14c=false
+report_renderer_mutation_allowed_in_wp14c=false
 production_delivery=false
 wp14_authority=false
-review-only roadmap implementation-plan artifact committed
+review-only UCITS identity audit artifact committed
 not workflow-integrated
-compact validator wording used because the first validator write was blocked by safety checks
+related Codespace validation still pending before full closeout
 ```
 
-Validation proof:
+Focused files:
 
 ```text
-WP14B tests: 36 passed
-WP14B validator: OK
-WP14A tests: 32 passed
-WP13I tests: 27 passed
-WP13H tests: 33 passed
-WP13G tests: 27 passed
-WP13F tests: 23 passed
-WP13E tests: 27 passed
-WP13D tests: 21 passed
-WP13C tests: 18 passed
-WP13B tests: 13 passed
-WP13A tests: 27 passed
-readiness preflight tests: 15 passed
+output/ucits_identity/etf_eu_wp14c_ucits_identity_audit_20260617_000000.json
+tools/validate_etf_eu_wp14c_ucits_identity_audit.py
+tests/test_etf_eu_wp14c_ucits_identity_audit.py
 ```
 
 ## Pending items
 
-1. Next selected package is WP14C review-only planning.
-2. Future operational work requires a separate explicit decision.
-3. Avoid further micro-package looping; WP14C should be a larger practical UCITS identity audit.
+1. Finish WP14C related Codespace validation before closing WP14C.
+2. Next selected package is WP14D review-only implementation planning.
+3. Keep WP14D practical: implement identity validators/fixtures, not another meta selector.
 
 ## Boundary rule
 
