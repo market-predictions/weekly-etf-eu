@@ -1,0 +1,61 @@
+{
+  "schema_version": "etf_eu_wp13h_explicit_authority_review_v1",
+  "review_id": "20260617_000000",
+  "created_at_utc": "2026-06-17T00:00:00Z",
+  "status": "explicit_authority_review_completed",
+  "review_scope": "authority_decision_review_only",
+  "decision": "not_granted",
+  "decision_reason": [
+    "WP13G reconciliation completed the review chain",
+    "operational prerequisites remain incomplete",
+    "authority cannot be granted",
+    "preflight readiness is not authority"
+  ],
+  "input_state": {
+    "review_chain_complete": true,
+    "operational_prerequisites_complete": false,
+    "authority_can_be_granted": false,
+    "recipient_policy_reviewed": true,
+    "secure_transport_setup_reviewed": true,
+    "receipt_proof_path_reviewed": true,
+    "recipient_activation": false,
+    "real_recipients": false,
+    "mail_transport_enabled": false,
+    "external_mail_api_enabled": false,
+    "real_receipt": false,
+    "proof_claimed": false,
+    "send_attempted": false
+  },
+  "decision_result": {
+    "authority_granted": false,
+    "wp13_authority": false,
+    "production_delivery": false,
+    "operational_package_allowed": false,
+    "activation_allowed": false,
+    "future_review_allowed_after_new_authority": true
+  },
+  "implementation_allowed_in_this_package": false,
+  "activation_allowed_in_this_package": false,
+  "authority_created": false,
+  "selected_next_package": "WP13I",
+  "selected_next_package_title": "blocked-state closeout and roadmap decision, review-only",
+  "authority": {
+    "valuation_grade": false,
+    "funding_authority": false,
+    "portfolio_mutation": false,
+    "production_delivery": false,
+    "candidate_promotion": false,
+    "recipient_activation": false,
+    "real_recipients": false,
+    "smtp_configured": false,
+    "secrets_present": false,
+    "mail_transport_enabled": false,
+    "external_mail_api_enabled": false,
+    "real_receipt": false,
+    "proof_claimed": false,
+    "send_attempted": false,
+    "authority_granted": false,
+    "ready_for_wp13_preflight_only": true,
+    "wp13_authority": false
+  }
+}
