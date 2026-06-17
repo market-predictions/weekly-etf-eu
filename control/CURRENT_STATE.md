@@ -41,32 +41,38 @@ WP12C
 WP12D
 WP12E
 WP12F
+WP13A
 ```
 
 ## WP13A status
 
 ```text
-implemented
-focused local validation passed
+completed
+focused and related Codespace validation passed
 review_status=not_granted
 review_decision=do_not_prepare_yet
 preflight readiness is not authority
 not workflow-integrated
-related Codespace validation still pending before full closeout
 ```
 
-Focused validation:
+Validation proof:
 
 ```text
-focused WP13A tests: 27 passed
+WP13A tests: 27 passed
 review validator: OK
+readiness preflight tests: 15 passed
+recipient allowlist tests: 22 passed
+mail setup policy tests: 30 passed
+receipt tests: 22 passed
+email dry-run tests: 5 passed
+delivery manifest tests: 3 passed
 ```
 
 ## Pending items
 
-1. Finish WP13A related Codespace validation before closing WP13A.
-2. Review status remains not granted.
-3. Future operational work requires a separate explicit decision.
+1. Review status remains not granted.
+2. Future operational work requires a separate explicit decision.
+3. Next likely package is WP13B review-only planning.
 
 ## Boundary rule
 
