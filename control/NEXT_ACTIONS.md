@@ -1,6 +1,6 @@
 # Weekly ETF EU Review OS — Next Actions
 
-Current priority: finish WP12F validation, then decide whether WP13 delivery-authority review is appropriate.
+Current priority: decide whether WP13A delivery-authority review is appropriate.
 
 Completed:
 
@@ -16,12 +16,13 @@ Completed:
 - WP12C recipient allowlist contract, inactive/sample-only
 - WP12D mail setup policy contract, sample-only/no-live-values
 - WP12E delivery receipt validator contract, sample-only/no real delivery receipt
+- WP12F readiness preflight refresh after all three prerequisite paths exist
 
-WP12F current status:
+WP12F closeout status:
 
 ```text
-implemented
-refreshed readiness preflight artifact committed
+completed
+focused and related Codespace validation passed
 status=ready_for_wp13_preflight_only
 ready_for_wp13=true
 all three prerequisite contract paths present
@@ -37,36 +38,27 @@ funding_authority=false
 portfolio_mutation=false
 candidate_promotion=false
 valuation_grade_promotion=false
-related Codespace validation pending before full closeout
 ```
 
-WP12F artifact:
+WP12F validation evidence:
 
 ```text
-output/delivery/etf_eu_delivery_readiness_preflight_20260617_000001.json
+preflight refresh validator: OK
+readiness preflight tests: 15 passed
+recipient allowlist tests: 22 passed
+mail setup policy tests: 30 passed
+delivery receipt tests: 22 passed
+email dry-run tests: 5 passed
+delivery manifest tests: 3 passed
 ```
 
-Next immediate action:
-
-```text
-python tools/validate_etf_eu_delivery_readiness_preflight.py output/delivery/etf_eu_delivery_readiness_preflight_20260617_000001.json
-python -m pytest tests/test_etf_eu_delivery_readiness_preflight.py -q
-python -m pytest tests/test_etf_eu_recipient_allowlist.py -q
-python -m pytest tests/test_etf_eu_smtp_secrets_policy.py -q
-python -m pytest tests/test_etf_eu_delivery_receipt.py -q
-python -m pytest tests/test_etf_eu_email_dry_run.py -q
-python -m pytest tests/test_etf_eu_delivery_manifest.py -q
-```
-
-Only after these pass should WP12F be marked fully closed.
-
-After WP12F closeout, next likely package:
+Recommended next package:
 
 ```text
 WP13A — explicit delivery-authority review decision, no send/no production delivery
 ```
 
-WP13A should decide whether delivery authority may be prepared, but it should not send reports or enable production delivery unless a later package explicitly does so.
+WP13A should only decide whether delivery authority may be prepared. It must not send reports, enable production delivery, activate real recipients, generate production PDFs, or create a real delivery receipt.
 
 Standing next rules:
 
