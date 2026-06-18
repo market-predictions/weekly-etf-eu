@@ -1,0 +1,12 @@
+{
+  "derived_from_english_eu_source_artifact": true,
+  "dutch_companion_independent_research_pass": false,
+  "english_source_report": "output/weekly_etf_eu_review_260618_draft.md",
+  "funding_authority": false,
+  "portfolio_mutation": false,
+  "production_delivery": false,
+  "review_only": true,
+  "schema_version": "etf_eu_bilingual_surface_readiness_v1",
+  "status": "minimal_readiness",
+  "valuation_grade": false
+}
