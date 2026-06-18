@@ -1,11 +1,14 @@
 from __future__ import annotations
 
-import copy
 from pathlib import Path
+from typing import Any
 
 import pytest
 
 from tools.fetch_etf_eu_ucits_closing_price_smoke import (
+    PriceCandidate,
+    _latest_non_null_yahoo_close,
+    _live_fetch,
     build_smoke_artifact,
     extract_price_candidates,
 )
@@ -17,6 +20,43 @@ from tools.validate_etf_eu_ucits_closing_price_smoke import (
 PRICING_REGISTRY_FIXTURE = Path("fixtures/pricing/etf_eu_ucits_symbol_registry_pricing_fixture.yml")
 PRICE_FIXTURE = Path("fixtures/pricing/etf_eu_ucits_closing_price_smoke_fixture.json")
 LIVE_REGISTRY = Path("config/ucits_symbol_registry.yml")
+
+
+class FakeResponse:
+    def __init__(self, status_code: int, payload: dict[str, Any]):
+        self.status_code = status_code
+        self._payload = payload
+
+    def json(self) -> dict[str, Any]:
+        return self._payload
+
+
+def _candidate(symbol: str = "CSPX.L") -> PriceCandidate:
+    return PriceCandidate(
+        registry_id="core_us_equity_cspx_fixture",
+        isin="IE00B5BMR087",
+        fund_name="iShares Core S&P 500 UCITS ETF USD (Acc)",
+        exchange="London Stock Exchange",
+        exchange_ticker="CSPX",
+        trading_currency="USD",
+        provider_symbol="CSPX LN",
+        pricing_symbol=symbol,
+    )
+
+
+def _yahoo_payload(closes: list[Any] | None = None) -> dict[str, Any]:
+    return {
+        "chart": {
+            "error": None,
+            "result": [
+                {
+                    "meta": {"currency": "USD", "exchangeName": "LSE"},
+                    "timestamp": [1780988400, 1781074800, 1781161200],
+                    "indicators": {"quote": [{"close": closes if closes is not None else [788.15, 811.98, None]}]},
+                }
+            ],
+        }
+    }
 
 
 def _artifact(tmp_path: Path) -> dict:
@@ -201,3 +241,101 @@ def test_zero_price_artifact_selects_source_review(tmp_path: Path):
     payload["selected_next_package"] = "WP14F_SOURCE_REVIEW"
     result = validate_closing_price_smoke(_write_json(tmp_path, payload))
     assert result["selected_next_package"] == "WP14F_SOURCE_REVIEW"
+
+
+def test_direct_yahoo_trailing_none_returns_latest_non_null_close():
+    result = _latest_non_null_yahoo_close("CSPX.L", _yahoo_payload())
+    assert result is not None
+    assert result["source"] == "yahoo_chart"
+    assert result["close"] == 811.98
+    assert result["close_date"] == "2026-06-10"
+
+
+def test_direct_yahoo_preserves_source_currency():
+    result = _latest_non_null_yahoo_close("CSPX.L", _yahoo_payload())
+    assert result is not None
+    assert result["source_currency"] == "USD"
+
+
+def test_direct_yahoo_preserves_source_exchange():
+    result = _latest_non_null_yahoo_close("CSPX.L", _yahoo_payload())
+    assert result is not None
+    assert result["source_exchange"] == "LSE"
+
+
+def test_direct_yahoo_http_error_becomes_source_error(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
+    def fake_get(*args, **kwargs):
+        return FakeResponse(503, {"chart": {"result": None, "error": {"code": "Unavailable"}}})
+
+    monkeypatch.setattr("tools.fetch_etf_eu_ucits_closing_price_smoke.requests.get", fake_get)
+    output = tmp_path / "price_smoke.json"
+    payload = build_smoke_artifact(
+        registry=PRICING_REGISTRY_FIXTURE,
+        output=output,
+        run_id="test_run",
+    )
+    source_errors = [row for row in payload["failures"] if row["status"] == "source_error"]
+    assert source_errors
+    validate_closing_price_smoke(output)
+
+
+def test_direct_yahoo_empty_result_becomes_price_unavailable(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
+    def fake_get(*args, **kwargs):
+        return FakeResponse(200, {"chart": {"result": [], "error": None}})
+
+    monkeypatch.setattr("tools.fetch_etf_eu_ucits_closing_price_smoke.requests.get", fake_get)
+    output = tmp_path / "price_smoke.json"
+    payload = build_smoke_artifact(
+        registry=PRICING_REGISTRY_FIXTURE,
+        output=output,
+        run_id="test_run",
+    )
+    missing = [row for row in payload["failures"] if row["status"] == "price_unavailable"]
+    assert missing
+    validate_closing_price_smoke(output)
+
+
+def test_direct_yahoo_only_none_closes_becomes_price_unavailable(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
+    def fake_get(*args, **kwargs):
+        return FakeResponse(200, _yahoo_payload(closes=[None, None, None]))
+
+    monkeypatch.setattr("tools.fetch_etf_eu_ucits_closing_price_smoke.requests.get", fake_get)
+    output = tmp_path / "price_smoke.json"
+    payload = build_smoke_artifact(
+        registry=PRICING_REGISTRY_FIXTURE,
+        output=output,
+        run_id="test_run",
+    )
+    missing = [row for row in payload["failures"] if row["status"] == "price_unavailable"]
+    assert missing
+    validate_closing_price_smoke(output)
+
+
+def test_live_fetch_uses_direct_yahoo_endpoint(monkeypatch: pytest.MonkeyPatch):
+    calls = []
+
+    def fake_get(url, **kwargs):
+        calls.append((url, kwargs))
+        return FakeResponse(200, _yahoo_payload())
+
+    monkeypatch.setattr("tools.fetch_etf_eu_ucits_closing_price_smoke.requests.get", fake_get)
+    result = _live_fetch(_candidate("CSPX.L"))
+    assert result is not None
+    assert result["source"] == "yahoo_chart"
+    assert "query1.finance.yahoo.com/v8/finance/chart/CSPX.L" in calls[0][0]
+    assert calls[0][1]["params"] == {"range": "7d", "interval": "1d"}
+    assert calls[0][1]["headers"] == {"User-Agent": "Mozilla/5.0"}
+
+
+def test_fixture_mode_still_works_after_direct_yahoo_patch(tmp_path: Path):
+    output = _artifact_path(tmp_path)
+    result = validate_closing_price_smoke(output)
+    assert result["prices_found"] == 1
+
+
+def test_live_fetcher_does_not_use_us_proxy_substitution():
+    candidates, _failures, _seen = extract_price_candidates(LIVE_REGISTRY)
+    symbols = {candidate.pricing_symbol.upper() for candidate in candidates}
+    assert "SPY" not in symbols
+    assert "SMH" not in symbols
+    assert "GLD" not in symbols
