@@ -1,19 +1,16 @@
 # Weekly ETF EU Review OS — Next Actions
 
-Current priority: **ETF EU HTML/PDF render dry run from mature bilingual reports, no recipients**.
+Current priority: **ETF EU recipient/secrets policy and delivery authorization gate, no send**.
 
 ## Adopted strategy
 
 ```text
 Keep market-predictions/weekly-etf-eu as the EU/UCITS source-of-truth repo.
-Use market-predictions/weekly-etf as an upstream donor for mature report/runtime/bilingual/macro/delivery safeguards.
-Port mature layers in controlled slices.
-Adapt all donor behavior to EU-specific UCITS identity, pricing and investability contracts.
+Use market-predictions/weekly-etf as an upstream donor for mature implementation layers.
+Port behavior, not U.S. assumptions.
 ```
 
-Do not fresh-clone `weekly-etf` over `weekly-etf-eu`.
-
-## Completed
+## Completed through latest package
 
 ```text
 WP9
@@ -45,17 +42,17 @@ WP14F
 WP14G
 WP14H
 WP14I
+WP14J
 ```
 
-## WP14I completion evidence
+## WP14J completion evidence
 
 ```text
-mature_english_report_created=true
-mature_dutch_companion_created=true
-bilingual_report_surface_created=true
-derived_from_english_eu_source_artifact=true
-dutch_companion_independent_research_pass=false
-meaning_parity_checked=true
+html_pdf_render_dry_run_created=true
+english_html_dry_run_created=true
+dutch_html_dry_run_created=true
+pdf_generation_status=not_generated_manifest_only
+dry_run_only=true
 production_delivery=false
 recipient_activation=false
 send_attempted=false
@@ -63,52 +60,49 @@ real_receipt=false
 portfolio_mutation=false
 funding_authority=false
 valuation_grade=false
-english_report_path=output/weekly_etf_eu_review_260618_mature_draft.md
-dutch_report_path=output/weekly_etf_eu_review_nl_260618_mature_draft.md
-bilingual_report_surface_artifact=output/bilingual/etf_eu_bilingual_report_surface_20260618_000000.json
-selected_next_package=WP14J
+english_html_output_path=output/delivery/weekly_etf_eu_review_260618_mature_dry_run.html
+dutch_html_output_path=output/delivery/weekly_etf_eu_review_nl_260618_mature_dry_run.html
+render_dry_run_manifest=output/delivery/etf_eu_html_pdf_render_dry_run_20260618_000000.json
+selected_next_package=WP14K
 ```
 
 Validation evidence supplied from Codespaces:
 
 ```text
-ETF_EU_MATURE_BILINGUAL_REPORT_OK: output/bilingual/etf_eu_bilingual_report_surface_20260618_000000.json selected_next_package=WP14J
-ETF_EU_DUTCH_LANGUAGE_QUALITY_OK: output/weekly_etf_eu_review_nl_260618_mature_draft.md
-tests/test_etf_eu_mature_bilingual_report.py: 10 passed
-tests/test_etf_eu_dutch_language_quality.py: 5 passed
+ETF_EU_HTML_PDF_DRY_RUN_OK: output/delivery/etf_eu_html_pdf_render_dry_run_20260618_000000.json selected_next_package=WP14K
+tests/test_etf_eu_html_pdf_dry_run.py: 23 passed
 All prior EU gates also passed.
 ```
-
-No PDF, HTML, live outbound transport, recipient activation, receipt creation, production delivery claim, portfolio mutation, candidate promotion, funding authority, or valuation-grade authority occurred.
 
 ## Active next package
 
 ```text
-WP14J — ETF EU HTML/PDF render dry run from mature bilingual reports, no recipients
+WP14K — ETF EU recipient/secrets policy and delivery authorization gate, no send
 ```
 
 Purpose:
 
 ```text
-perform an HTML/PDF render dry run from the mature English and Dutch ETF EU reports while keeping delivery blocked
+create explicit policy and authorization gates before any future delivery can be considered
 ```
 
 Likely inputs:
 
 ```text
-output/weekly_etf_eu_review_260618_mature_draft.md
-output/weekly_etf_eu_review_nl_260618_mature_draft.md
+output/delivery/etf_eu_html_pdf_render_dry_run_20260618_000000.json
+output/delivery/weekly_etf_eu_review_260618_mature_dry_run.html
+output/delivery/weekly_etf_eu_review_nl_260618_mature_dry_run.html
 output/bilingual/etf_eu_bilingual_report_surface_20260618_000000.json
-output/delivery/etf_eu_delivery_pdf_dry_run_20260618_000000.json
 ```
 
-WP14J should create:
+WP14K should create:
 
 ```text
-HTML dry-run outputs for EN/NL mature reports
-PDF/render dry-run manifest
-HTML/PDF dry-run validator
-no-recipient/no-transport/no-receipt protections
+recipient policy artifact
+secrets policy artifact
+delivery authorization gate artifact
+validators for all three policies
+no-send control-layer contract
 ```
 
 ## Delivery remains blocked until
