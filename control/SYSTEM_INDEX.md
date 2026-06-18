@@ -12,7 +12,7 @@ It must not be treated as a translated copy of the U.S.-ETF model. The current p
 Dutch/EU-client ETF review using UCITS ETFs as investable instruments.
 ```
 
-The original `market-predictions/weekly-etf` repository remains the U.S.-ETF model baseline.
+The original `market-predictions/weekly-etf` repository remains the U.S.-ETF model baseline and upstream donor for mature implementation layers.
 
 ## Four-layer operating model
 
@@ -34,10 +34,11 @@ For ETF EU architecture, debugging, prompt, workflow, state, pricing, discovery,
 
 ## Canonical EU control files
 
+- `control/ETF_EU_PORTING_STRATEGY_DECISION_20260618.md` — stable decision to keep `weekly-etf-eu` as EU source-of-truth and use `weekly-etf` only as an upstream donor for mature report/runtime/bilingual/macro/delivery safeguards.
 - `control/UCITS_ETF_REVIEW_CONTRACT_V1.md` — authority contract for the EU/UCITS ETF review product.
 - `control/UCITS_INVESTABILITY_RULES.md` — Dutch/EU investability rules for UCITS, PRIIPs/KID, trading line, liquidity and disclosure.
 - `control/UCITS_SYMBOL_REGISTRY_CONTRACT.md` — ISIN-first instrument identity and proxy/candidate separation.
-- `control/UCITS_MIGRATION_PLAN.md` — staged migration from the cloned U.S.-ETF codebase to the EU/UCITS model.
+- `control/UCITS_MIGRATION_PLAN.md` — staged migration and donor-port roadmap from the cloned U.S.-ETF codebase to the EU/UCITS model.
 
 ## Canonical EU config files
 
@@ -67,6 +68,7 @@ Compatibility files from the U.S. clone may remain temporarily, but they are not
 - Do not reuse the U.S. portfolio state as EU portfolio truth.
 - Do not claim EU report production delivery until EU-specific validators pass and a delivery receipt or manifest exists.
 - Keep decision framework, input/state contract, output contract and runbook separate.
+- Port mature behavior from `weekly-etf`; do not port U.S. assumptions as EU authority.
 
 ## GitHub run verification discipline
 
@@ -86,17 +88,16 @@ Never rely on the user as the default run-status checker when GitHub tool access
 
 ## Current direction of travel
 
-The EU repo is in bootstrap/migration mode:
+The EU repo is in product-assembly mode:
 
 ```text
-clone baseline
-→ freeze U.S. state as non-authoritative
-→ add UCITS control contracts
-→ add ISIN-first registry
-→ seed EU cash-only state
-→ add no-U.S.-ETF-as-holding validator
-→ rename workflow/run queue/output files
-→ price UCITS trading lines
-→ render Dutch-first EU report
-→ only then enable production delivery
+keep weekly-etf-eu as EU/UCITS source-of-truth
+→ use weekly-etf as upstream donor for mature implementation layers
+→ preserve U.S. state as non-authoritative
+→ preserve UCITS control contracts and ISIN-first registry
+→ price UCITS trading lines using EU exchange-line symbols
+→ produce first EU markdown draft report
+→ port runtime/bilingual/report-quality/leakage safeguards from weekly-etf
+→ run shadow PDF/delivery dry run with no recipients
+→ only then enable production delivery after explicit receipt/manifest authority
 ```
