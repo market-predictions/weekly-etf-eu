@@ -1,0 +1,20 @@
+{
+  "candidate_promotion": false,
+  "derived_from_english_eu_source_artifact": true,
+  "dutch_companion_independent_research_pass": false,
+  "dutch_report_path": "output/weekly_etf_eu_review_nl_260618_mature_draft.md",
+  "english_report_path": "output/weekly_etf_eu_review_260618_mature_draft.md",
+  "funding_authority": false,
+  "meaning_parity_checked": true,
+  "portfolio_mutation": false,
+  "production_delivery": false,
+  "recipient_activation": false,
+  "review_only": true,
+  "run_id": "20260618_000000",
+  "schema_version": "etf_eu_bilingual_report_surface_v1",
+  "selected_next_package": "WP14J",
+  "selected_next_package_title": "ETF EU HTML/PDF render dry run from mature bilingual reports, no recipients",
+  "send_attempted": false,
+  "status": "completed",
+  "valuation_grade": false
+}
