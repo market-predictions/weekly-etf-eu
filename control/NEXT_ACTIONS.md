@@ -1,6 +1,6 @@
 # Weekly ETF EU Review OS — Next Actions
 
-Current priority: **port mature report/runtime/bilingual/report-quality safeguards from `weekly-etf` into `weekly-etf-eu`, without importing U.S. portfolio truth**.
+Current priority: **ETF EU delivery/PDF dry run with no recipients, no live send, and no delivery success claim**.
 
 ## Adopted strategy
 
@@ -42,21 +42,24 @@ WP14D
 WP14E
 WP14E-FIX
 WP14F
+WP14G
 ```
 
-## WP14F completion evidence
+## WP14G completion evidence
 
 ```text
-first_etf_eu_draft_report_created=true
-report_output_path=output/weekly_etf_eu_review_260618_draft.md
-pricing_artifact_used=output/pricing/etf_eu_ucits_closing_price_smoke_20260618_000000.json
-pricing_symbols_included=CSPX.L,SXR8.DE
-review_only=true
+donor_port_strategy_followed=true
+weekly_etf_used_as_donor_only=true
+eu_source_of_truth_preserved=true
+report_quality_layer_ported=true
+bilingual_runtime_port_status=minimal_readiness
+porting_artifact=output/porting/etf_eu_wp14g_donor_comparison_20260618_000000.json
+bilingual_readiness_artifact=output/bilingual/etf_eu_bilingual_surface_readiness_20260618_000000.json
 production_delivery=false
 portfolio_mutation=false
 funding_authority=false
 valuation_grade=false
-selected_next_package=WP14G
+selected_next_package=WP14H
 ```
 
 Validation evidence supplied from Codespaces:
@@ -64,6 +67,10 @@ Validation evidence supplied from Codespaces:
 ```text
 ETF_EU_UCITS_CLOSING_PRICE_SMOKE_OK: attempted=2 prices_found=2 skipped=3 source_errors=0 selected_next_package=WP14F
 ETF_EU_DRAFT_REPORT_SURFACE_OK: output/weekly_etf_eu_review_260618_draft.md
+ETF_EU_REPORT_QUALITY_OK: output/weekly_etf_eu_review_260618_draft.md
+ETF_EU_BILINGUAL_SURFACE_OK: output/bilingual/etf_eu_bilingual_surface_readiness_20260618_000000.json
+tests/test_etf_eu_report_quality.py: 6 passed
+tests/test_etf_eu_bilingual_surface.py: 4 passed
 tests/test_etf_eu_draft_report_surface.py: 5 passed
 tests/test_etf_eu_ucits_closing_price_smoke.py: 30 passed
 tests/test_etf_eu_ucits_symbol_registry_identity.py: 20 passed
@@ -77,57 +84,48 @@ No PDF, email, recipient activation, production delivery, portfolio mutation, ca
 ## Active next package
 
 ```text
-WP14G — Port weekly-etf runtime/bilingual/report-quality layers into weekly-etf-eu
+WP14H — ETF EU delivery/PDF dry run, no recipients
 ```
 
 Purpose:
 
 ```text
-bring mature weekly-etf report/runtime/bilingual/report-quality safeguards into the EU repo without importing U.S. portfolio truth
+create a deterministic dry-run package for ETF EU report delivery/PDF readiness without sending anything and without activating recipients
 ```
 
-Likely donor layers from `market-predictions/weekly-etf`:
+WP14H may inspect donor delivery/PDF patterns from `market-predictions/weekly-etf`, but it must remain EU-specific and dry-run only.
+
+Likely inputs:
 
 ```text
-runtime/render_etf_report_from_state.py
-runtime/polish_runtime_reports.py
-runtime/link_runtime_report_tickers.py
-runtime/delivery_html_overrides.py
-etf-pro.txt
-etf-pro-nl.txt
-bilingual parity tests
-Dutch language quality validators
-macro/report-surface leakage validators
-report decision clarity tests
+output/weekly_etf_eu_review_260618_draft.md
+output/pricing/etf_eu_ucits_closing_price_smoke_20260618_000000.json
+output/porting/etf_eu_wp14g_donor_comparison_20260618_000000.json
+output/bilingual/etf_eu_bilingual_surface_readiness_20260618_000000.json
 ```
 
-Rule:
+WP14H must create evidence such as:
 
 ```text
-Port behavior, not U.S. assumptions.
+output/delivery/etf_eu_delivery_pdf_dry_run_<run_id>.json
 ```
 
-WP14G must not:
+WP14H must not:
 
 ```text
-reuse U.S. ETF holdings as EU holdings
-present U.S. tickers as EU investable instruments
+send reports
+generate production delivery
+activate recipients
+configure SMTP
+add secrets
+add real recipients
+claim delivery success
 mutate portfolio state
 promote candidates to fundable
 claim valuation-grade authority
-generate production PDFs
-send email
-activate recipients
-claim production delivery
 ```
 
-## Later package
-
-```text
-WP14H — ETF EU delivery/PDF dry run, no recipients
-```
-
-Delivery remains blocked until:
+## Delivery remains blocked until
 
 ```text
 EU markdown report quality passes
@@ -143,10 +141,7 @@ explicit control-layer delivery authorization is recorded
 
 ## Do not do next
 
-Do not create another abstract Stage-2 or review-only package unless it directly unblocks one of:
-
-```text
-runtime/bilingual donor-port
-pricing artifact integration into mature report state
-shadow PDF/render dry run
-```
+Do not enable production delivery.
+Do not send email.
+Do not add recipients or secrets.
+Do not convert dry-run evidence into a delivery success claim.
