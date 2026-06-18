@@ -1,0 +1,34 @@
+{
+  "authorization_decision_artifact_path": "output/delivery/etf_eu_delivery_authorization_decision_20260618_000000.json",
+  "candidate_promotion": false,
+  "client_surface_created": true,
+  "created_at_utc": "2026-06-18T00:00:00Z",
+  "debug_surface_reduced": true,
+  "delivery_authorization_decision": "remain_blocked",
+  "delivery_authorized": false,
+  "dutch_poc_html_path": "output/client_surface/weekly_etf_eu_review_260618_client_surface_nl.html",
+  "dutch_poc_markdown_path": "output/client_surface/weekly_etf_eu_review_nl_260618_client_surface.md",
+  "dutch_source_report_path": "output/weekly_etf_eu_review_nl_260618_mature_draft.md",
+  "english_poc_html_path": "output/client_surface/weekly_etf_eu_review_260618_client_surface.html",
+  "english_poc_markdown_path": "output/client_surface/weekly_etf_eu_review_260618_client_surface.md",
+  "english_source_report_path": "output/weekly_etf_eu_review_260618_mature_draft.md",
+  "funding_authority": false,
+  "pricing_evidence_preserved": true,
+  "portfolio_mutation": false,
+  "production_delivery": false,
+  "proxy_separation_preserved": true,
+  "run_id": "20260618_000000",
+  "schema_version": "etf_eu_client_poc_surface_v1",
+  "selected_next_package": "WP14N",
+  "selected_next_package_title": "ETF EU POC review and roadmap consolidation, no delivery",
+  "status": "completed",
+  "technical_evidence_moved_to_appendix": true,
+  "tests_expected": [
+    "tests/test_etf_eu_client_poc_surface.py"
+  ],
+  "ucits_identity_preserved": true,
+  "valuation_grade": false,
+  "validators_run": [
+    "tools/validate_etf_eu_client_poc_surface.py"
+  ]
+}
