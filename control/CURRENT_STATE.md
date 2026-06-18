@@ -59,6 +59,7 @@ WP14E
 WP14E-FIX
 WP14F
 WP14G
+WP14H
 ```
 
 ## Current strategic decision
@@ -204,21 +205,62 @@ tests/test_etf_eu_wp14a_roadmap_lane_selection.py: 32 passed
 
 No PDF, email, recipient activation, production delivery, portfolio mutation, candidate promotion, funding authority, or valuation-grade authority occurred.
 
+## WP14H status
+
+```text
+completed
+delivery_pdf_dry_run_created=true
+dry_run_only=true
+production_delivery=false
+recipient_activation=false
+send_attempted=false
+real_receipt=false
+portfolio_mutation=false
+funding_authority=false
+valuation_grade=false
+pdf_generation_status=not_generated_dry_run_manifest_only
+html_generation_status=not_generated
+dry_run_artifact=output/delivery/etf_eu_delivery_pdf_dry_run_20260618_000000.json
+selected_next_package=WP14I
+selected_next_package_title=ETF EU mature bilingual draft/report rendering integration, no delivery
+```
+
+WP14H validation evidence:
+
+```text
+ETF_EU_UCITS_CLOSING_PRICE_SMOKE_OK: attempted=2 prices_found=2 skipped=3 source_errors=0 selected_next_package=WP14F
+ETF_EU_DRAFT_REPORT_SURFACE_OK: output/weekly_etf_eu_review_260618_draft.md
+ETF_EU_REPORT_QUALITY_OK: output/weekly_etf_eu_review_260618_draft.md
+ETF_EU_BILINGUAL_SURFACE_OK: output/bilingual/etf_eu_bilingual_surface_readiness_20260618_000000.json
+ETF_EU_DELIVERY_PDF_DRY_RUN_OK: output/delivery/etf_eu_delivery_pdf_dry_run_20260618_000000.json selected_next_package=WP14I
+tests/test_etf_eu_delivery_pdf_dry_run.py: 19 passed
+tests/test_etf_eu_report_quality.py: 6 passed
+tests/test_etf_eu_bilingual_surface.py: 4 passed
+tests/test_etf_eu_draft_report_surface.py: 5 passed
+tests/test_etf_eu_ucits_closing_price_smoke.py: 30 passed
+tests/test_etf_eu_ucits_symbol_registry_identity.py: 20 passed
+tests/test_etf_eu_wp14c_ucits_identity_audit.py: 34 passed
+tests/test_etf_eu_wp14b_roadmap_lane_implementation_plan.py: 36 passed
+tests/test_etf_eu_wp14a_roadmap_lane_selection.py: 32 passed
+```
+
+No PDF, HTML, email, recipient activation, live send, real receipt, production delivery claim, portfolio mutation, candidate promotion, funding authority, or valuation-grade authority occurred.
+
 ## Active product roadmap
 
 ```text
-WP14H — ETF EU delivery/PDF dry run, no recipients
+WP14I — ETF EU mature bilingual draft/report rendering integration, no delivery
 Delivery enablement — blocked until explicit receipt/manifest authority
 ```
 
 ## Immediate next action
 
-Start WP14H.
+Start WP14I.
 
 Goal:
 
 ```text
-perform an ETF EU delivery/PDF dry run with no recipients, no live send, and no delivery success claim
+integrate a mature bilingual draft/report rendering path for ETF EU while keeping delivery blocked
 ```
 
 Boundary:
@@ -227,7 +269,10 @@ Boundary:
 no recipients
 no live send
 no production delivery
-manifest-only evidence
+no portfolio mutation
+no candidate promotion
+no funding authority
+no valuation-grade authority
 ```
 
 ## Boundary rule
