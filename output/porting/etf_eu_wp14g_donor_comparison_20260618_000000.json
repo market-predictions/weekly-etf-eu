@@ -1,0 +1,53 @@
+{
+  "schema_version": "etf_eu_wp14g_donor_comparison_v1",
+  "run_id": "20260618_000000",
+  "status": "completed",
+  "strategy": "port_behavior_not_us_assumptions",
+  "weekly_etf_used_as_donor_only": true,
+  "eu_source_of_truth_preserved": true,
+  "production_delivery": false,
+  "portfolio_mutation": false,
+  "funding_authority": false,
+  "valuation_grade": false,
+  "candidate_promotion": false,
+  "comparisons": [
+    {
+      "donor_file": "runtime/polish_runtime_reports.py",
+      "eu_target_file": "runtime/polish_etf_eu_reports.py",
+      "ported_behavior": "decision cockpit insertion and client-surface wording cleanup",
+      "not_ported_us_assumption": "U.S. tickers, U.S. holdings, rotation intent, macro allocation claims",
+      "reason": "EU report needs mature clarity and authority labels while preserving UCITS/proxy separation."
+    },
+    {
+      "donor_file": "tests/test_report_decision_clarity.py",
+      "eu_target_file": "tests/test_etf_eu_report_quality.py",
+      "ported_behavior": "tests for decision cockpit, softer role wording and no delivery receipt claim",
+      "not_ported_us_assumption": "SMH concentration, SPY overlap, PAVE/GRID and GSG hedge context",
+      "reason": "EU quality tests should guard client clarity without importing U.S. portfolio facts."
+    },
+    {
+      "donor_file": "tools/validate_etf_dutch_language_quality.py",
+      "eu_target_file": "tools/validate_etf_eu_bilingual_surface.py",
+      "ported_behavior": "bilingual readiness gate and no independent Dutch research pass rule",
+      "not_ported_us_assumption": "weekly_analysis_pro_nl filename contract and U.S. report language markers",
+      "reason": "EU Dutch companion is planned for WP14G/WP14H path but must remain derived from EU artifacts."
+    },
+    {
+      "donor_file": "runtime/render_etf_report_from_state.py",
+      "eu_target_file": "runtime/render_etf_eu_report_from_state.py",
+      "ported_behavior": "runtime-state bridge pattern and explicit state-artifact provenance",
+      "not_ported_us_assumption": "U.S. ETF_NAMES, U.S. portfolio state, action tables and allocation logic",
+      "reason": "EU report state must read UCITS registry, UCITS pricing artifact and EU draft report only."
+    }
+  ],
+  "deferred": [
+    {
+      "donor_file": "runtime/delivery_html_overrides.py",
+      "reason": "Delivery/PDF/HTML strict layout belongs to WP14H dry-run, not WP14G."
+    },
+    {
+      "donor_file": "etf-pro.txt and etf-pro-nl.txt",
+      "reason": "Full premium prompts are deferred until EU report state and bilingual surface are stable."
+    }
+  ]
+}
