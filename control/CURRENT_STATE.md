@@ -58,6 +58,7 @@ WP14D
 WP14E
 WP14E-FIX
 WP14F
+WP14G
 ```
 
 ## Current strategic decision
@@ -161,28 +162,72 @@ tests/test_etf_eu_wp14a_roadmap_lane_selection.py: 32 passed
 
 No PDF, email, recipient activation, production delivery, portfolio mutation, candidate promotion, funding authority, or valuation-grade authority occurred.
 
+## WP14G status
+
+```text
+completed
+donor_port_strategy_followed=true
+weekly_etf_used_as_donor_only=true
+eu_source_of_truth_preserved=true
+report_quality_layer_ported=true
+bilingual_runtime_port_status=minimal_readiness
+report_quality_validator_created=true
+bilingual_surface_validator_created=true
+runtime_state_bridge_created=true
+polish_bridge_created=true
+porting_artifact=output/porting/etf_eu_wp14g_donor_comparison_20260618_000000.json
+bilingual_readiness_artifact=output/bilingual/etf_eu_bilingual_surface_readiness_20260618_000000.json
+production_delivery=false
+portfolio_mutation=false
+funding_authority=false
+valuation_grade=false
+selected_next_package=WP14H
+selected_next_package_title=ETF EU delivery/PDF dry run, no recipients
+```
+
+WP14G validation evidence:
+
+```text
+ETF_EU_UCITS_CLOSING_PRICE_SMOKE_OK: attempted=2 prices_found=2 skipped=3 source_errors=0 selected_next_package=WP14F
+ETF_EU_DRAFT_REPORT_SURFACE_OK: output/weekly_etf_eu_review_260618_draft.md
+ETF_EU_REPORT_QUALITY_OK: output/weekly_etf_eu_review_260618_draft.md
+ETF_EU_BILINGUAL_SURFACE_OK: output/bilingual/etf_eu_bilingual_surface_readiness_20260618_000000.json
+tests/test_etf_eu_report_quality.py: 6 passed
+tests/test_etf_eu_bilingual_surface.py: 4 passed
+tests/test_etf_eu_draft_report_surface.py: 5 passed
+tests/test_etf_eu_ucits_closing_price_smoke.py: 30 passed
+tests/test_etf_eu_ucits_symbol_registry_identity.py: 20 passed
+tests/test_etf_eu_wp14c_ucits_identity_audit.py: 34 passed
+tests/test_etf_eu_wp14b_roadmap_lane_implementation_plan.py: 36 passed
+tests/test_etf_eu_wp14a_roadmap_lane_selection.py: 32 passed
+```
+
+No PDF, email, recipient activation, production delivery, portfolio mutation, candidate promotion, funding authority, or valuation-grade authority occurred.
+
 ## Active product roadmap
 
 ```text
-WP14G — Port weekly-etf runtime/bilingual/report-quality layers into weekly-etf-eu
 WP14H — ETF EU delivery/PDF dry run, no recipients
 Delivery enablement — blocked until explicit receipt/manifest authority
 ```
 
 ## Immediate next action
 
-Start WP14G.
+Start WP14H.
 
 Goal:
 
 ```text
-bring mature weekly-etf report/runtime/bilingual/report-quality safeguards into weekly-etf-eu without importing U.S. portfolio truth
+perform an ETF EU delivery/PDF dry run with no recipients, no live send, and no delivery success claim
 ```
 
 Boundary:
 
 ```text
-Port behavior, not U.S. assumptions.
+no recipients
+no live send
+no production delivery
+manifest-only evidence
 ```
 
 ## Boundary rule
