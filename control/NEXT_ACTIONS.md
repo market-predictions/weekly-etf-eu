@@ -1,6 +1,6 @@
 # Weekly ETF EU Review OS — Next Actions
 
-Current priority: **product assembly, not recloning and not another control-loop package**.
+Current priority: **port mature report/runtime/bilingual/report-quality safeguards from `weekly-etf` into `weekly-etf-eu`, without importing U.S. portfolio truth**.
 
 ## Adopted strategy
 
@@ -41,80 +41,40 @@ WP14C
 WP14D
 WP14E
 WP14E-FIX
+WP14F
 ```
 
-## Pricing status
+## WP14F completion evidence
 
 ```text
-ucits_closing_price_smoke_completed=true
-direct_yahoo_chart_endpoint_validated=true
-prices_found=2
-pricing_symbols_found=CSPX.L,SXR8.DE
-pricing_symbols_attempted=2
-symbols_skipped=3
-source_errors=0
-selected_next_package=WP14F
-```
-
-This proves first UCITS closing-price source feasibility for the tested exchange-line symbols.
-
-It does not grant:
-
-```text
-valuation_grade=false
-funding_authority=false
-portfolio_mutation=false
+first_etf_eu_draft_report_created=true
+report_output_path=output/weekly_etf_eu_review_260618_draft.md
+pricing_artifact_used=output/pricing/etf_eu_ucits_closing_price_smoke_20260618_000000.json
+pricing_symbols_included=CSPX.L,SXR8.DE
+review_only=true
 production_delivery=false
-candidate_promotion=false
-wp14_authority=false
+portfolio_mutation=false
+funding_authority=false
+valuation_grade=false
+selected_next_package=WP14G
 ```
+
+Validation evidence supplied from Codespaces:
+
+```text
+ETF_EU_UCITS_CLOSING_PRICE_SMOKE_OK: attempted=2 prices_found=2 skipped=3 source_errors=0 selected_next_package=WP14F
+ETF_EU_DRAFT_REPORT_SURFACE_OK: output/weekly_etf_eu_review_260618_draft.md
+tests/test_etf_eu_draft_report_surface.py: 5 passed
+tests/test_etf_eu_ucits_closing_price_smoke.py: 30 passed
+tests/test_etf_eu_ucits_symbol_registry_identity.py: 20 passed
+tests/test_etf_eu_wp14c_ucits_identity_audit.py: 34 passed
+tests/test_etf_eu_wp14b_roadmap_lane_implementation_plan.py: 36 passed
+tests/test_etf_eu_wp14a_roadmap_lane_selection.py: 32 passed
+```
+
+No PDF, email, recipient activation, production delivery, portfolio mutation, candidate promotion, funding authority, or valuation-grade authority occurred.
 
 ## Active next package
-
-```text
-WP14F — First ETF EU draft report from UCITS identity and closing-price smoke data, review-only
-```
-
-Purpose:
-
-```text
-produce the first markdown EU ETF report draft from real UCITS identity and pricing artifacts
-```
-
-WP14F must use:
-
-```text
-config/ucits_symbol_registry.yml
-output/pricing/etf_eu_ucits_closing_price_smoke_20260618_000000.json
-```
-
-WP14F must visibly disclose:
-
-```text
-UCITS identity
-ISIN
-exchange ticker
-trading currency
-Yahoo chart source symbol
-latest close date
-latest close
-U.S. proxy labels as research-only
-source/freshness limitations
-```
-
-WP14F must not:
-
-```text
-send reports
-generate production PDFs
-activate recipients
-mutate portfolio state
-promote candidates to fundable
-claim valuation-grade authority
-claim production delivery
-```
-
-## Next planned package after WP14F
 
 ```text
 WP14G — Port weekly-etf runtime/bilingual/report-quality layers into weekly-etf-eu
@@ -147,6 +107,20 @@ Rule:
 Port behavior, not U.S. assumptions.
 ```
 
+WP14G must not:
+
+```text
+reuse U.S. ETF holdings as EU holdings
+present U.S. tickers as EU investable instruments
+mutate portfolio state
+promote candidates to fundable
+claim valuation-grade authority
+generate production PDFs
+send email
+activate recipients
+claim production delivery
+```
+
 ## Later package
 
 ```text
@@ -172,8 +146,7 @@ explicit control-layer delivery authorization is recorded
 Do not create another abstract Stage-2 or review-only package unless it directly unblocks one of:
 
 ```text
-first EU report draft
 runtime/bilingual donor-port
-pricing artifact integration
+pricing artifact integration into mature report state
 shadow PDF/render dry run
 ```
