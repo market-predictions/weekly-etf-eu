@@ -1,6 +1,6 @@
 # Weekly ETF EU Review OS — Next Actions
 
-Current priority: **ETF EU report interface polish and client-surface cleanup, no delivery**.
+Current priority: **ETF EU POC review and roadmap consolidation, no delivery**.
 
 ## Adopted strategy
 
@@ -45,61 +45,69 @@ WP14I
 WP14J
 WP14K
 WP14L
+WP14M
 ```
 
-## WP14L completion evidence
+## WP14M completion evidence
 
 ```text
-delivery_authorization_decision_created=true
+client_poc_surface_created=true
+english_poc_markdown_created=true
+dutch_poc_markdown_created=true
+english_poc_html_created=true
+dutch_poc_html_created=true
+debug_surface_reduced=true
+technical_evidence_moved_to_appendix=true
+ucits_identity_preserved=true
+proxy_separation_preserved=true
+pricing_evidence_preserved=true
 delivery_authorization_decision=remain_blocked
-send_design_allowed=false
-delivery_authorized=false
 production_delivery=false
 portfolio_mutation=false
 funding_authority=false
 valuation_grade=false
-decision_artifact=output/delivery/etf_eu_delivery_authorization_decision_20260618_000000.json
-selected_next_package=WP14M
+client_poc_manifest=output/client_surface/etf_eu_client_surface_20260618_000000.json
+selected_next_package=WP14N
 ```
 
 Validation evidence supplied from Codespaces:
 
 ```text
-ETF_EU_DELIVERY_AUTHORIZATION_DECISION_OK: output/delivery/etf_eu_delivery_authorization_decision_20260618_000000.json decision=remain_blocked selected_next_package=WP14M
-tests/test_etf_eu_delivery_authorization_decision.py: 23 passed
+ETF_EU_CLIENT_POC_SURFACE_OK: output/client_surface/etf_eu_client_surface_20260618_000000.json selected_next_package=WP14N
+tests/test_etf_eu_client_poc_surface.py: 8 passed
 All prior EU gates also passed.
 ```
 
 ## Active next package
 
 ```text
-WP14M — ETF EU report interface polish and client-surface cleanup, no delivery
+WP14N — ETF EU POC review and roadmap consolidation, no delivery
 ```
 
 Purpose:
 
 ```text
-improve the mature ETF EU client-facing report surface and remove debug-like friction while preserving all authority gates
+review the first client-facing ETF EU POC surface, consolidate roadmap status, and decide the next product-facing package
 ```
 
 Likely inputs:
 
 ```text
-output/weekly_etf_eu_review_260618_mature_draft.md
-output/weekly_etf_eu_review_nl_260618_mature_draft.md
-output/delivery/weekly_etf_eu_review_260618_mature_dry_run.html
-output/delivery/weekly_etf_eu_review_nl_260618_mature_dry_run.html
-output/bilingual/etf_eu_bilingual_report_surface_20260618_000000.json
+output/client_surface/weekly_etf_eu_review_260618_client_surface.md
+output/client_surface/weekly_etf_eu_review_nl_260618_client_surface.md
+output/client_surface/weekly_etf_eu_review_260618_client_surface.html
+output/client_surface/weekly_etf_eu_review_260618_client_surface_nl.html
+output/client_surface/etf_eu_client_surface_20260618_000000.json
 output/delivery/etf_eu_delivery_authorization_decision_20260618_000000.json
 ```
 
-WP14M should create:
+WP14N should create:
 
 ```text
-interface cleanup plan or artifact
-report-surface polish validator
-client-surface regression tests
-no-delivery contract preservation
+POC review artifact
+roadmap consolidation artifact
+next-package recommendation
+cleanup note for output/client_surface/test_placeholder.md
 ```
 
 ## Delivery remains blocked until
@@ -113,4 +121,4 @@ explicit control-layer delivery authorization is recorded
 
 Do not enable production delivery.
 Do not add recipients or secrets.
-Do not convert dry-run evidence into a delivery success claim.
+Do not convert POC/render evidence into a delivery success claim.
