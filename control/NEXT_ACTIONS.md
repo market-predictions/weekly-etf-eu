@@ -1,6 +1,6 @@
 # Weekly ETF EU Review OS — Next Actions
 
-Current priority: **ETF EU delivery authorization decision review, no send**.
+Current priority: **ETF EU report interface polish and client-surface cleanup, no delivery**.
 
 ## Adopted strategy
 
@@ -44,67 +44,67 @@ WP14H
 WP14I
 WP14J
 WP14K
+WP14L
 ```
 
-## WP14K completion evidence
+## WP14L completion evidence
 
 ```text
-recipient_policy_created=true
-secrets_policy_created=true
-delivery_authorization_gate_created=true
-delivery_authorization_gate_artifact_created=true
+delivery_authorization_decision_created=true
+delivery_authorization_decision=remain_blocked
+send_design_allowed=false
 delivery_authorized=false
 production_delivery=false
 portfolio_mutation=false
 funding_authority=false
 valuation_grade=false
-delivery_authorization_gate_artifact=output/delivery/etf_eu_delivery_authorization_gate_20260618_000000.json
-selected_next_package=WP14L
+decision_artifact=output/delivery/etf_eu_delivery_authorization_decision_20260618_000000.json
+selected_next_package=WP14M
 ```
 
 Validation evidence supplied from Codespaces:
 
 ```text
-ETF_EU_DELIVERY_AUTHORIZATION_GATE_OK: output/delivery/etf_eu_delivery_authorization_gate_20260618_000000.json selected_next_package=WP14L
-tests/test_etf_eu_delivery_authorization_gate.py: 23 passed
+ETF_EU_DELIVERY_AUTHORIZATION_DECISION_OK: output/delivery/etf_eu_delivery_authorization_decision_20260618_000000.json decision=remain_blocked selected_next_package=WP14M
+tests/test_etf_eu_delivery_authorization_decision.py: 23 passed
 All prior EU gates also passed.
 ```
 
 ## Active next package
 
 ```text
-WP14L — ETF EU delivery authorization decision review, no send
+WP14M — ETF EU report interface polish and client-surface cleanup, no delivery
 ```
 
 Purpose:
 
 ```text
-make an explicit review decision on delivery authorization while keeping all current delivery controls disabled
+improve the mature ETF EU client-facing report surface and remove debug-like friction while preserving all authority gates
 ```
 
 Likely inputs:
 
 ```text
-control/ETF_EU_RECIPIENT_POLICY.md
-control/ETF_EU_SECRETS_POLICY.md
-control/ETF_EU_DELIVERY_AUTHORIZATION_GATE.md
-output/delivery/etf_eu_delivery_authorization_gate_20260618_000000.json
-output/delivery/etf_eu_html_pdf_render_dry_run_20260618_000000.json
+output/weekly_etf_eu_review_260618_mature_draft.md
+output/weekly_etf_eu_review_nl_260618_mature_draft.md
+output/delivery/weekly_etf_eu_review_260618_mature_dry_run.html
+output/delivery/weekly_etf_eu_review_nl_260618_mature_dry_run.html
+output/bilingual/etf_eu_bilingual_report_surface_20260618_000000.json
+output/delivery/etf_eu_delivery_authorization_decision_20260618_000000.json
 ```
 
-WP14L should create:
+WP14M should create:
 
 ```text
-review decision artifact
-validator for the decision artifact
-clear outcome: remain_blocked or explicitly defer send design
+interface cleanup plan or artifact
+report-surface polish validator
+client-surface regression tests
+no-delivery contract preservation
 ```
 
 ## Delivery remains blocked until
 
 ```text
-recipient policy exists
-secrets policy exists
 real delivery receipt/manifest path exists
 explicit control-layer delivery authorization is recorded
 ```
