@@ -1,6 +1,6 @@
 # Weekly ETF EU Review OS — Next Actions
 
-Current priority: **ETF EU mature bilingual draft/report rendering integration, no delivery**.
+Current priority: **ETF EU HTML/PDF render dry run from mature bilingual reports, no recipients**.
 
 ## Adopted strategy
 
@@ -44,13 +44,18 @@ WP14E-FIX
 WP14F
 WP14G
 WP14H
+WP14I
 ```
 
-## WP14H completion evidence
+## WP14I completion evidence
 
 ```text
-delivery_pdf_dry_run_created=true
-dry_run_only=true
+mature_english_report_created=true
+mature_dutch_companion_created=true
+bilingual_report_surface_created=true
+derived_from_english_eu_source_artifact=true
+dutch_companion_independent_research_pass=false
+meaning_parity_checked=true
 production_delivery=false
 recipient_activation=false
 send_attempted=false
@@ -58,80 +63,52 @@ real_receipt=false
 portfolio_mutation=false
 funding_authority=false
 valuation_grade=false
-pdf_generation_status=not_generated_dry_run_manifest_only
-html_generation_status=not_generated
-dry_run_artifact=output/delivery/etf_eu_delivery_pdf_dry_run_20260618_000000.json
-selected_next_package=WP14I
+english_report_path=output/weekly_etf_eu_review_260618_mature_draft.md
+dutch_report_path=output/weekly_etf_eu_review_nl_260618_mature_draft.md
+bilingual_report_surface_artifact=output/bilingual/etf_eu_bilingual_report_surface_20260618_000000.json
+selected_next_package=WP14J
 ```
 
 Validation evidence supplied from Codespaces:
 
 ```text
-ETF_EU_UCITS_CLOSING_PRICE_SMOKE_OK: attempted=2 prices_found=2 skipped=3 source_errors=0 selected_next_package=WP14F
-ETF_EU_DRAFT_REPORT_SURFACE_OK: output/weekly_etf_eu_review_260618_draft.md
-ETF_EU_REPORT_QUALITY_OK: output/weekly_etf_eu_review_260618_draft.md
-ETF_EU_BILINGUAL_SURFACE_OK: output/bilingual/etf_eu_bilingual_surface_readiness_20260618_000000.json
-ETF_EU_DELIVERY_PDF_DRY_RUN_OK: output/delivery/etf_eu_delivery_pdf_dry_run_20260618_000000.json selected_next_package=WP14I
-tests/test_etf_eu_delivery_pdf_dry_run.py: 19 passed
-tests/test_etf_eu_report_quality.py: 6 passed
-tests/test_etf_eu_bilingual_surface.py: 4 passed
-tests/test_etf_eu_draft_report_surface.py: 5 passed
-tests/test_etf_eu_ucits_closing_price_smoke.py: 30 passed
-tests/test_etf_eu_ucits_symbol_registry_identity.py: 20 passed
-tests/test_etf_eu_wp14c_ucits_identity_audit.py: 34 passed
-tests/test_etf_eu_wp14b_roadmap_lane_implementation_plan.py: 36 passed
-tests/test_etf_eu_wp14a_roadmap_lane_selection.py: 32 passed
+ETF_EU_MATURE_BILINGUAL_REPORT_OK: output/bilingual/etf_eu_bilingual_report_surface_20260618_000000.json selected_next_package=WP14J
+ETF_EU_DUTCH_LANGUAGE_QUALITY_OK: output/weekly_etf_eu_review_nl_260618_mature_draft.md
+tests/test_etf_eu_mature_bilingual_report.py: 10 passed
+tests/test_etf_eu_dutch_language_quality.py: 5 passed
+All prior EU gates also passed.
 ```
 
-No PDF, HTML, email, recipient activation, live send, real receipt, production delivery claim, portfolio mutation, candidate promotion, funding authority, or valuation-grade authority occurred.
+No PDF, HTML, live outbound transport, recipient activation, receipt creation, production delivery claim, portfolio mutation, candidate promotion, funding authority, or valuation-grade authority occurred.
 
 ## Active next package
 
 ```text
-WP14I — ETF EU mature bilingual draft/report rendering integration, no delivery
+WP14J — ETF EU HTML/PDF render dry run from mature bilingual reports, no recipients
 ```
 
 Purpose:
 
 ```text
-turn the first English review-only EU draft and bilingual readiness gate into a deterministic mature bilingual report-rendering path, still with delivery blocked
+perform an HTML/PDF render dry run from the mature English and Dutch ETF EU reports while keeping delivery blocked
 ```
-
-WP14I may inspect donor bilingual/runtime/report-rendering patterns from `market-predictions/weekly-etf`, but it must remain EU-specific and no-delivery.
 
 Likely inputs:
 
 ```text
-output/weekly_etf_eu_review_260618_draft.md
-output/pricing/etf_eu_ucits_closing_price_smoke_20260618_000000.json
-output/porting/etf_eu_wp14g_donor_comparison_20260618_000000.json
-output/bilingual/etf_eu_bilingual_surface_readiness_20260618_000000.json
+output/weekly_etf_eu_review_260618_mature_draft.md
+output/weekly_etf_eu_review_nl_260618_mature_draft.md
+output/bilingual/etf_eu_bilingual_report_surface_20260618_000000.json
 output/delivery/etf_eu_delivery_pdf_dry_run_20260618_000000.json
 ```
 
-WP14I should create or harden:
+WP14J should create:
 
 ```text
-EU mature English report render path
-EU Dutch companion draft path
-bilingual parity/readiness validator
-Dutch language quality guard
-no-delivery authority contract
-```
-
-WP14I must not:
-
-```text
-send reports
-generate production delivery
-activate recipients
-configure SMTP
-add secrets
-add real recipients
-claim delivery success
-mutate portfolio state
-promote candidates to fundable
-claim valuation-grade authority
+HTML dry-run outputs for EN/NL mature reports
+PDF/render dry-run manifest
+HTML/PDF dry-run validator
+no-recipient/no-transport/no-receipt protections
 ```
 
 ## Delivery remains blocked until
@@ -151,6 +128,5 @@ explicit control-layer delivery authorization is recorded
 ## Do not do next
 
 Do not enable production delivery.
-Do not send email.
 Do not add recipients or secrets.
 Do not convert dry-run evidence into a delivery success claim.
