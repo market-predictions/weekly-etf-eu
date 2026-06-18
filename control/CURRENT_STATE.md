@@ -57,6 +57,7 @@ WP14C
 WP14D
 WP14E
 WP14E-FIX
+WP14F
 ```
 
 ## Current strategic decision
@@ -128,10 +129,41 @@ The EU repo can fetch real UCITS daily closes from Yahoo direct chart endpoint f
 This is source evidence, not valuation-grade authority, not funding authority, and not delivery authority.
 ```
 
+## WP14F status
+
+```text
+completed
+first_etf_eu_draft_report_created=true
+review_only=true
+production_delivery=false
+portfolio_mutation=false
+funding_authority=false
+valuation_grade=false
+report_output_path=output/weekly_etf_eu_review_260618_draft.md
+pricing_artifact_used=output/pricing/etf_eu_ucits_closing_price_smoke_20260618_000000.json
+pricing_symbols_included=CSPX.L,SXR8.DE
+selected_next_package=WP14G
+selected_next_package_title=Port weekly-etf runtime/bilingual/report-quality layers into weekly-etf-eu
+```
+
+WP14F validation evidence:
+
+```text
+ETF_EU_UCITS_CLOSING_PRICE_SMOKE_OK: attempted=2 prices_found=2 skipped=3 source_errors=0 selected_next_package=WP14F
+ETF_EU_DRAFT_REPORT_SURFACE_OK: output/weekly_etf_eu_review_260618_draft.md
+tests/test_etf_eu_draft_report_surface.py: 5 passed
+tests/test_etf_eu_ucits_closing_price_smoke.py: 30 passed
+tests/test_etf_eu_ucits_symbol_registry_identity.py: 20 passed
+tests/test_etf_eu_wp14c_ucits_identity_audit.py: 34 passed
+tests/test_etf_eu_wp14b_roadmap_lane_implementation_plan.py: 36 passed
+tests/test_etf_eu_wp14a_roadmap_lane_selection.py: 32 passed
+```
+
+No PDF, email, recipient activation, production delivery, portfolio mutation, candidate promotion, funding authority, or valuation-grade authority occurred.
+
 ## Active product roadmap
 
 ```text
-WP14F — First ETF EU draft report from UCITS identity and closing-price smoke data, review-only
 WP14G — Port weekly-etf runtime/bilingual/report-quality layers into weekly-etf-eu
 WP14H — ETF EU delivery/PDF dry run, no recipients
 Delivery enablement — blocked until explicit receipt/manifest authority
@@ -139,23 +171,18 @@ Delivery enablement — blocked until explicit receipt/manifest authority
 
 ## Immediate next action
 
-Start WP14F.
+Start WP14G.
 
 Goal:
 
 ```text
-produce the first markdown ETF EU draft report using UCITS registry and real UCITS close data
+bring mature weekly-etf report/runtime/bilingual/report-quality safeguards into weekly-etf-eu without importing U.S. portfolio truth
 ```
 
-Boundaries:
+Boundary:
 
 ```text
-review-only
-no production delivery
-no email
-no PDF requirement yet
-no portfolio mutation
-no candidate funding/promotion authority
+Port behavior, not U.S. assumptions.
 ```
 
 ## Boundary rule
