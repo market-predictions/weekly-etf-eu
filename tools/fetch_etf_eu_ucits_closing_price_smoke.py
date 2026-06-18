@@ -7,6 +7,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
+import requests
 import yaml
 
 PENDING_VALUES = {"", "tbd", "pending_verification", "none", "null"}
@@ -28,6 +29,8 @@ AUTHORITY_FALSE = {
     "authority_granted": False,
     "wp14_authority": False,
 }
+YAHOO_CHART_URL = "https://query1.finance.yahoo.com/v8/finance/chart/{symbol}"
+YAHOO_HEADERS = {"User-Agent": "Mozilla/5.0"}
 
 
 @dataclass(frozen=True)
@@ -129,31 +132,60 @@ def _fixture_fetch(candidate: PriceCandidate, fixture_prices: dict[str, dict[str
     }
 
 
+def _latest_non_null_yahoo_close(symbol: str, payload: dict[str, Any]) -> dict[str, Any] | None:
+    chart = payload.get("chart")
+    if not isinstance(chart, dict):
+        raise RuntimeError(f"Yahoo chart payload missing chart object for {symbol}")
+    if chart.get("error"):
+        raise RuntimeError(f"Yahoo chart error for {symbol}: {chart['error']}")
+    results = chart.get("result")
+    if not isinstance(results, list) or not results:
+        return None
+    result = results[0]
+    if not isinstance(result, dict):
+        return None
+    meta = result.get("meta") if isinstance(result.get("meta"), dict) else {}
+    timestamps = result.get("timestamp") or []
+    quotes = result.get("indicators", {}).get("quote", [{}])
+    quote = quotes[0] if quotes and isinstance(quotes[0], dict) else {}
+    closes = quote.get("close") or []
+    if not isinstance(timestamps, list) or not isinstance(closes, list):
+        return None
+    latest: tuple[int, float] | None = None
+    for timestamp, close in zip(timestamps, closes):
+        if timestamp is None or close is None:
+            continue
+        close_float = float(close)
+        if close_float <= 0:
+            continue
+        latest = (int(timestamp), close_float)
+    if latest is None:
+        return None
+    close_date = datetime.fromtimestamp(latest[0], tz=timezone.utc).date().isoformat()
+    return {
+        "source": "yahoo_chart",
+        "close_date": close_date,
+        "close": latest[1],
+        "source_currency": meta.get("currency"),
+        "source_exchange": meta.get("exchangeName"),
+    }
+
+
 def _live_fetch(candidate: PriceCandidate) -> dict[str, Any] | None:
-    try:
-        import yfinance as yf  # type: ignore
-    except Exception as exc:  # pragma: no cover - environment dependent
-        raise RuntimeError(f"yfinance import failed: {exc}") from exc
-    try:
-        history = yf.Ticker(candidate.pricing_symbol).history(period="7d", interval="1d", auto_adjust=False)
-    except Exception as exc:  # pragma: no cover - network/source dependent
-        raise RuntimeError(f"source error for {candidate.pricing_symbol}: {exc}") from exc
-    if history is None or history.empty or "Close" not in history:
-        return None
-    closes = history["Close"].dropna()
-    if closes.empty:
-        return None
-    close = float(closes.iloc[-1])
-    close_date = closes.index[-1]
-    try:
-        close_date_text = close_date.date().isoformat()
-    except AttributeError:
-        close_date_text = str(close_date)[:10]
-    return {"source": "yfinance", "close_date": close_date_text, "close": close}
+    url = YAHOO_CHART_URL.format(symbol=candidate.pricing_symbol)
+    response = requests.get(
+        url,
+        params={"range": "7d", "interval": "1d"},
+        headers=YAHOO_HEADERS,
+        timeout=20,
+    )
+    if response.status_code != 200:
+        raise RuntimeError(f"Yahoo chart HTTP {response.status_code} for {candidate.pricing_symbol}")
+    return _latest_non_null_yahoo_close(candidate.pricing_symbol, response.json())
 
 
 def _price_row(candidate: PriceCandidate, result: dict[str, Any]) -> dict[str, Any]:
-    return {
+    row = {
         "registry_id": candidate.registry_id,
         "isin": candidate.isin,
         "fund_name": candidate.fund_name,
@@ -168,6 +200,10 @@ def _price_row(candidate: PriceCandidate, result: dict[str, Any]) -> dict[str, A
         "currency_checked": True,
         "status": "price_found",
     }
+    for optional_key in ("source_currency", "source_exchange"):
+        if result.get(optional_key):
+            row[optional_key] = result[optional_key]
+    return row
 
 
 def build_smoke_artifact(
