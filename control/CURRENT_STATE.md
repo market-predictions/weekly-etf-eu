@@ -72,48 +72,66 @@ WP14I
 WP14J
 WP14K
 WP14L
+WP14M
 ```
 
-## Latest completed package — WP14L
+## Latest completed package — WP14M
 
 ```text
-WP14L=completed
-delivery_authorization_decision_created=true
+WP14M=completed
+client_poc_surface_created=true
+english_poc_markdown_created=true
+dutch_poc_markdown_created=true
+english_poc_html_created=true
+dutch_poc_html_created=true
+debug_surface_reduced=true
+technical_evidence_moved_to_appendix=true
+ucits_identity_preserved=true
+proxy_separation_preserved=true
+pricing_evidence_preserved=true
 delivery_authorization_decision=remain_blocked
-send_design_allowed=false
-delivery_authorized=false
 production_delivery=false
 portfolio_mutation=false
 funding_authority=false
 valuation_grade=false
-decision_artifact=output/delivery/etf_eu_delivery_authorization_decision_20260618_000000.json
-selected_next_package=WP14M
-selected_next_package_title=ETF EU report interface polish and client-surface cleanup, no delivery
+english_poc_markdown_path=output/client_surface/weekly_etf_eu_review_260618_client_surface.md
+dutch_poc_markdown_path=output/client_surface/weekly_etf_eu_review_nl_260618_client_surface.md
+english_poc_html_path=output/client_surface/weekly_etf_eu_review_260618_client_surface.html
+dutch_poc_html_path=output/client_surface/weekly_etf_eu_review_260618_client_surface_nl.html
+client_poc_manifest=output/client_surface/etf_eu_client_surface_20260618_000000.json
+selected_next_package=WP14N
+selected_next_package_title=ETF EU POC review and roadmap consolidation, no delivery
 ```
 
 Validation evidence supplied from Codespaces:
 
 ```text
-ETF_EU_DELIVERY_AUTHORIZATION_DECISION_OK: output/delivery/etf_eu_delivery_authorization_decision_20260618_000000.json decision=remain_blocked selected_next_package=WP14M
-tests/test_etf_eu_delivery_authorization_decision.py: 23 passed
+ETF_EU_CLIENT_POC_SURFACE_OK: output/client_surface/etf_eu_client_surface_20260618_000000.json selected_next_package=WP14N
+tests/test_etf_eu_client_poc_surface.py: 8 passed
 All prior EU gates also passed.
+```
+
+Known cleanup item:
+
+```text
+output/client_surface/test_placeholder.md remains and should be removed in WP14N or a small cleanup commit.
 ```
 
 ## Active product roadmap
 
 ```text
-WP14M — ETF EU report interface polish and client-surface cleanup, no delivery
+WP14N — ETF EU POC review and roadmap consolidation, no delivery
 Delivery enablement — blocked until explicit receipt/manifest authority
 ```
 
 ## Immediate next action
 
-Start WP14M.
+Start WP14N.
 
 Goal:
 
 ```text
-polish the mature ETF EU report interface and remove remaining debug-like client-surface friction while preserving no-delivery authority boundaries
+review the first client-facing ETF EU POC surface, consolidate roadmap status, and decide the next product-facing package
 ```
 
 ## Boundary rule
