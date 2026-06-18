@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>ETF EU dry-run render</title>
+<style id="etf-eu-dry-run-style">
+  body { font-family: Arial, sans-serif; margin: 32px; line-height: 1.45; color: #111; }
+  h1, h2, h3 { page-break-after: avoid; }
+  table { border-collapse: collapse; width: 100%; margin: 14px 0; }
+  th, td { border: 1px solid #ccc; padding: 6px 8px; vertical-align: top; }
+  pre { background: #f6f6f6; padding: 10px; border: 1px solid #ddd; overflow-x: auto; }
+  .dry-run-contract { border: 2px solid #999; padding: 12px; margin-bottom: 18px; }
+  @media print {
+    table { page-break-inside: auto; break-inside: auto; border-collapse: collapse; }
+    thead { display: table-header-group; }
+    tr, th, td { page-break-inside: avoid; break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+<section class="dry-run-contract"><h2>Dry-run contract</h2><pre>dry_run_only=true
+production_delivery=false
+recipient_activation=false
+send_attempted=false
+real_receipt=false</pre></section>
+<h1>ETF EU Review — Mature Bilingual Draft</h1>
+<h2>ETF EU mature draft status</h2>
+<pre>review_only=true
+production_delivery=false
+recipient_activation=false
+send_attempted=false
+portfolio_mutation=false
+funding_authority=false
+valuation_grade=false</pre>
+<p>This mature English draft is derived from EU source artifacts only. It is not a delivery artifact and does not create funding, valuation-grade, portfolio or recipient authority.</p>
+<h2>Source artifact provenance</h2>
+<table><thead><tr><th>Artifact</th><th>Path</th></tr></thead><tbody>
+<tr><td>Source draft report</td><td>output/weekly_etf_eu_review_260618_draft.md</td></tr>
+<tr><td>UCITS pricing evidence</td><td>output/pricing/etf_eu_ucits_closing_price_smoke_20260618_000000.json</td></tr>
+<tr><td>Donor-port comparison</td><td>output/porting/etf_eu_wp14g_donor_comparison_20260618_000000.json</td></tr>
+<tr><td>Bilingual readiness gate</td><td>output/bilingual/etf_eu_bilingual_surface_readiness_20260618_000000.json</td></tr>
+<tr><td>Delivery/PDF dry-run manifest</td><td>output/delivery/etf_eu_delivery_pdf_dry_run_20260618_000000.json</td></tr>
+</tbody></table>
+<p>Pricing evidence summary: prices_found=2, pricing_symbols_attempted=2, source_errors=0.</p>
+<h2>UCITS pricing evidence used</h2>
+<table><thead><tr><th>fund_name</th><th>isin</th><th>exchange_ticker</th><th>pricing_symbol</th><th>close_date</th><th>close</th><th>trading_currency</th><th>source_exchange</th></tr></thead><tbody>
+<tr><td>iShares Core S&amp;P 500 UCITS ETF USD (Acc)</td><td>IE00B5BMR087</td><td>CSPX</td><td>CSPX.L</td><td>2026-06-17</td><td>809.239990234375</td><td>USD</td><td>LSE</td></tr>
+<tr><td>iShares Core S&amp;P 500 UCITS ETF USD (Acc)</td><td>IE00B5BMR087</td><td>SXR8</td><td>SXR8.DE</td><td>2026-06-17</td><td>698.02001953125</td><td>EUR</td><td>GER</td></tr>
+</tbody></table>
+<p>Source/freshness disclosure: the prices above come from the direct Yahoo chart endpoint as daily close evidence for UCITS exchange-line symbols.</p>
+<h2>UCITS identity table</h2>
+<table><thead><tr><th>registry_id</th><th>fund_name</th><th>isin</th><th>exchange</th><th>exchange_ticker</th><th>trading_currency</th><th>pricing_symbol_yahoo</th><th>status</th></tr></thead><tbody>
+<tr><td>core_us_equity_cspx</td><td>iShares Core S&amp;P 500 UCITS ETF USD (Acc)</td><td>IE00B5BMR087</td><td>London Stock Exchange</td><td>CSPX</td><td>USD</td><td>CSPX.L</td><td>confirmed</td></tr>
+<tr><td>core_us_equity_cspx</td><td>iShares Core S&amp;P 500 UCITS ETF USD (Acc)</td><td>IE00B5BMR087</td><td>Xetra</td><td>SXR8</td><td>EUR</td><td>SXR8.DE</td><td>confirmed</td></tr>
+</tbody></table>
+<h2>Research proxy separation</h2>
+<p>U.S. ETFs are research proxies only and are not EU investable holdings.</p>
+<table><thead><tr><th>registry_id</th><th>fund_name</th><th>us_research_proxy</th><th>purpose</th></tr></thead><tbody>
+<tr><td>core_us_equity_cspx</td><td>iShares Core S&amp;P 500 UCITS ETF USD (Acc)</td><td>SPY</td><td>benchmark_reference_only</td></tr>
+</tbody></table>
+<p>SPY may be used only as benchmark reference or research comparator. It is not an EU holding in this report.</p>
+<h2>EU decision cockpit</h2>
+<ul><li><strong>Draft status:</strong> review-only; no production delivery or portfolio mutation.</li><li><strong>Pricing basis:</strong> UCITS exchange-line close evidence from the committed smoke artifact.</li><li><strong>Main active boundary:</strong> U.S. ETFs remain research proxies only, not EU investable holdings.</li><li><strong>Next action trigger:</strong> expand the EU report runtime and bilingual quality gates before any delivery dry run.</li></ul>
+<h2>Open gaps before production use</h2>
+<ul><li>Broader UCITS coverage.</li><li>KID/PRIIPs validation across the investable universe.</li><li>Liquidity, spread, exchange suitability and TER enrichment.</li><li>Valuation-grade agreement gate and source policy promotion.</li><li>Receipt/manifest path for any later production delivery claim.</li></ul>
+<h2>Mature bilingual rendering next development step</h2>
+<pre>WP14J — ETF EU HTML/PDF render dry run from mature bilingual reports, no recipients</pre>
+<p>Delivery remains blocked. This package produces mature bilingual report surfaces only.</p>
+<h2>Authority and delivery disclaimer</h2>
+<p>This report is review-only. No production delivery occurred. No live send occurred. No recipient activation occurred. No portfolio mutation occurred. No candidate was promoted to fundable. Yahoo chart pricing is source evidence only and not valuation-grade authority by itself.</p>
+</body>
+</html>
