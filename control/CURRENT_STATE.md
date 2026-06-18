@@ -71,52 +71,49 @@ WP14H
 WP14I
 WP14J
 WP14K
+WP14L
 ```
 
-## Latest completed package — WP14K
+## Latest completed package — WP14L
 
 ```text
-WP14K=completed
-recipient_policy_created=true
-secrets_policy_created=true
-delivery_authorization_gate_created=true
-delivery_authorization_gate_artifact_created=true
+WP14L=completed
+delivery_authorization_decision_created=true
+delivery_authorization_decision=remain_blocked
+send_design_allowed=false
 delivery_authorized=false
 production_delivery=false
 portfolio_mutation=false
 funding_authority=false
 valuation_grade=false
-recipient_policy_path=control/ETF_EU_RECIPIENT_POLICY.md
-secrets_policy_path=control/ETF_EU_SECRETS_POLICY.md
-delivery_authorization_gate_path=control/ETF_EU_DELIVERY_AUTHORIZATION_GATE.md
-delivery_authorization_gate_artifact=output/delivery/etf_eu_delivery_authorization_gate_20260618_000000.json
-selected_next_package=WP14L
-selected_next_package_title=ETF EU delivery authorization decision review, no send
+decision_artifact=output/delivery/etf_eu_delivery_authorization_decision_20260618_000000.json
+selected_next_package=WP14M
+selected_next_package_title=ETF EU report interface polish and client-surface cleanup, no delivery
 ```
 
 Validation evidence supplied from Codespaces:
 
 ```text
-ETF_EU_DELIVERY_AUTHORIZATION_GATE_OK: output/delivery/etf_eu_delivery_authorization_gate_20260618_000000.json selected_next_package=WP14L
-tests/test_etf_eu_delivery_authorization_gate.py: 23 passed
+ETF_EU_DELIVERY_AUTHORIZATION_DECISION_OK: output/delivery/etf_eu_delivery_authorization_decision_20260618_000000.json decision=remain_blocked selected_next_package=WP14M
+tests/test_etf_eu_delivery_authorization_decision.py: 23 passed
 All prior EU gates also passed.
 ```
 
 ## Active product roadmap
 
 ```text
-WP14L — ETF EU delivery authorization decision review, no send
+WP14M — ETF EU report interface polish and client-surface cleanup, no delivery
 Delivery enablement — blocked until explicit receipt/manifest authority
 ```
 
 ## Immediate next action
 
-Start WP14L.
+Start WP14M.
 
 Goal:
 
 ```text
-review the delivery authorization decision using the completed policy gates and decide whether delivery remains blocked or moves to a later controlled send-design package
+polish the mature ETF EU report interface and remove remaining debug-like client-surface friction while preserving no-delivery authority boundaries
 ```
 
 ## Boundary rule
