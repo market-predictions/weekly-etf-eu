@@ -13,7 +13,7 @@ market-predictions/weekly-etf-eu
 ## Current phase
 
 ```text
-Phase 8 — production Dutch-first report surface verified; delivery remains blocked
+Phase 9 — EU product assembly via donor-port strategy
 ```
 
 ## Core boundary
@@ -26,6 +26,7 @@ production_delivery=false
 candidate_promotion=false
 ready_for_wp13_preflight_only=true
 wp13_authority=false
+wp14_authority=false
 ```
 
 ## Closed packages
@@ -54,7 +55,26 @@ WP14A
 WP14B
 WP14C
 WP14D
+WP14E
+WP14E-FIX
 ```
+
+## Current strategic decision
+
+```text
+Do not reclone weekly-etf over weekly-etf-eu.
+Keep weekly-etf-eu as the EU/UCITS source-of-truth repository.
+Use weekly-etf as an upstream donor for mature report/runtime/bilingual/macro/delivery safeguards.
+Port mature layers in controlled slices and adapt them to EU-specific UCITS identity, pricing and investability contracts.
+```
+
+Authority rule:
+
+```text
+Port behavior, not U.S. assumptions.
+```
+
+This means donor imports from `market-predictions/weekly-etf` must not bring across U.S. ETF portfolio truth, U.S. tickers as EU investable holdings, production delivery settings, recipient activation, funding authority, or candidate promotion authority.
 
 ## WP14D status
 
@@ -84,11 +104,59 @@ WP14B tests: 36 passed
 WP14A tests: 32 passed
 ```
 
-## Pending items
+## WP14E / WP14E-FIX status
 
-1. Next selected package is WP14E review-only planning.
-2. Keep WP14E practical: contract alignment or report-surface disclosure gate.
-3. Future operational work requires a separate explicit decision.
+```text
+completed
+ucits_closing_price_smoke_completed=true
+direct_yahoo_chart_endpoint_validated=true
+prices_found=2
+pricing_symbols_found=CSPX.L,SXR8.DE
+pricing_symbols_attempted=2
+symbols_skipped=3
+source_errors=0
+selected_next_package=WP14F
+selected_next_package_title=First ETF EU draft report from UCITS identity and closing-price smoke data, review-only
+production_delivery=false
+wp14_authority=false
+```
+
+Meaning:
+
+```text
+The EU repo can fetch real UCITS daily closes from Yahoo direct chart endpoint for the first tested UCITS exchange-line symbols.
+This is source evidence, not valuation-grade authority, not funding authority, and not delivery authority.
+```
+
+## Active product roadmap
+
+```text
+WP14F — First ETF EU draft report from UCITS identity and closing-price smoke data, review-only
+WP14G — Port weekly-etf runtime/bilingual/report-quality layers into weekly-etf-eu
+WP14H — ETF EU delivery/PDF dry run, no recipients
+Delivery enablement — blocked until explicit receipt/manifest authority
+```
+
+## Immediate next action
+
+Start WP14F.
+
+Goal:
+
+```text
+produce the first markdown ETF EU draft report using UCITS registry and real UCITS close data
+```
+
+Boundaries:
+
+```text
+review-only
+no production delivery
+no email
+no PDF requirement yet
+no portfolio mutation
+no candidate funding/promotion authority
+```
 
 ## Boundary rule
 
@@ -100,4 +168,5 @@ production_delivery=false
 candidate_promotion=false
 ready_for_wp13_preflight_only=true
 wp13_authority=false
+wp14_authority=false
 ```
