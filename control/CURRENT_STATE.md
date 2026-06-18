@@ -70,64 +70,53 @@ WP14G
 WP14H
 WP14I
 WP14J
+WP14K
 ```
 
-## Latest completed package — WP14J
+## Latest completed package — WP14K
 
 ```text
-WP14J=completed
-html_pdf_render_dry_run_created=true
-english_html_dry_run_created=true
-dutch_html_dry_run_created=true
-pdf_generation_status=not_generated_manifest_only
-dry_run_only=true
+WP14K=completed
+recipient_policy_created=true
+secrets_policy_created=true
+delivery_authorization_gate_created=true
+delivery_authorization_gate_artifact_created=true
+delivery_authorized=false
 production_delivery=false
-recipient_activation=false
-send_attempted=false
-real_receipt=false
 portfolio_mutation=false
 funding_authority=false
 valuation_grade=false
-english_html_output_path=output/delivery/weekly_etf_eu_review_260618_mature_dry_run.html
-dutch_html_output_path=output/delivery/weekly_etf_eu_review_nl_260618_mature_dry_run.html
-render_dry_run_manifest=output/delivery/etf_eu_html_pdf_render_dry_run_20260618_000000.json
-selected_next_package=WP14K
-selected_next_package_title=ETF EU recipient/secrets policy and delivery authorization gate, no send
+recipient_policy_path=control/ETF_EU_RECIPIENT_POLICY.md
+secrets_policy_path=control/ETF_EU_SECRETS_POLICY.md
+delivery_authorization_gate_path=control/ETF_EU_DELIVERY_AUTHORIZATION_GATE.md
+delivery_authorization_gate_artifact=output/delivery/etf_eu_delivery_authorization_gate_20260618_000000.json
+selected_next_package=WP14L
+selected_next_package_title=ETF EU delivery authorization decision review, no send
 ```
 
 Validation evidence supplied from Codespaces:
 
 ```text
-ETF_EU_HTML_PDF_DRY_RUN_OK: output/delivery/etf_eu_html_pdf_render_dry_run_20260618_000000.json selected_next_package=WP14K
-tests/test_etf_eu_html_pdf_dry_run.py: 23 passed
-tests/test_etf_eu_mature_bilingual_report.py: 10 passed
-tests/test_etf_eu_dutch_language_quality.py: 5 passed
-tests/test_etf_eu_delivery_pdf_dry_run.py: 19 passed
-tests/test_etf_eu_report_quality.py: 6 passed
-tests/test_etf_eu_bilingual_surface.py: 4 passed
-tests/test_etf_eu_draft_report_surface.py: 5 passed
-tests/test_etf_eu_ucits_closing_price_smoke.py: 30 passed
-tests/test_etf_eu_ucits_symbol_registry_identity.py: 20 passed
-tests/test_etf_eu_wp14c_ucits_identity_audit.py: 34 passed
-tests/test_etf_eu_wp14b_roadmap_lane_implementation_plan.py: 36 passed
-tests/test_etf_eu_wp14a_roadmap_lane_selection.py: 32 passed
+ETF_EU_DELIVERY_AUTHORIZATION_GATE_OK: output/delivery/etf_eu_delivery_authorization_gate_20260618_000000.json selected_next_package=WP14L
+tests/test_etf_eu_delivery_authorization_gate.py: 23 passed
+All prior EU gates also passed.
 ```
 
 ## Active product roadmap
 
 ```text
-WP14K — ETF EU recipient/secrets policy and delivery authorization gate, no send
+WP14L — ETF EU delivery authorization decision review, no send
 Delivery enablement — blocked until explicit receipt/manifest authority
 ```
 
 ## Immediate next action
 
-Start WP14K.
+Start WP14L.
 
 Goal:
 
 ```text
-create a recipient/secrets policy and explicit delivery authorization gate while keeping delivery disabled
+review the delivery authorization decision using the completed policy gates and decide whether delivery remains blocked or moves to a later controlled send-design package
 ```
 
 ## Boundary rule
