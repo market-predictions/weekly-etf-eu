@@ -4,7 +4,7 @@ This proof-of-concept report is review-only and shows a cleaner reader-facing ET
 
 ## 1. Executive summary
 
-The report surface is designed for a Dutch/EU ETF review context.
+The report surface is designed for a Dutch/EU ETF review context. It uses UCITS instruments as the report focus and keeps research proxies separate from investable instruments.
 
 ## 2. Market and portfolio context
 
@@ -12,15 +12,21 @@ The current version is a report concept and not a portfolio action.
 
 ## 3. UCITS candidates currently visible
 
-Candidate table to be populated from the validated UCITS evidence layer.
+| Fund | ISIN | Trading line | Currency |
+| --- | --- | --- | --- |
+| iShares Core S&P 500 UCITS ETF | IE00B5BMR087 | CSPX.L | USD |
+| iShares Core S&P 500 UCITS ETF | IE00B5BMR087 | SXR8.DE | EUR |
 
 ## 4. Pricing evidence used
 
-Pricing table to be populated from the validated price evidence layer.
+| Pricing symbol | Close date | Close | Currency |
+| --- | --- | ---: | --- |
+| CSPX.L | 2026-06-17 | 809.24 | USD |
+| SXR8.DE | 2026-06-17 | 698.02 | EUR |
 
 ## 5. Research proxy separation
 
-Research proxies are separated from EU investable instruments.
+SPY is used only as a benchmark or research proxy. SPY is not shown as a UCITS instrument.
 
 ## 6. Watchlist and next development priorities
 
