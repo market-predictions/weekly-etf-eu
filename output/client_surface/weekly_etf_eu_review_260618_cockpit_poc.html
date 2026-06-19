@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Weekly ETF EU Review — Premium Cockpit POC</title>
+<style>
+body{margin:0;background:#f5f7fb;color:#172033;font-family:Arial,Helvetica,sans-serif}.page{max-width:1120px;margin:0 auto;padding:34px 22px 48px}.hero{background:linear-gradient(135deg,#18253d,#315377);color:#fff;border-radius:24px;padding:34px;box-shadow:0 18px 45px rgba(30,48,80,.18)}.eyebrow{text-transform:uppercase;letter-spacing:.14em;font-size:12px;opacity:.82;margin-bottom:12px}h1{margin:0 0 12px;font-size:34px;line-height:1.1}.subtitle{font-size:17px;max-width:820px;opacity:.94}.hero-grid,.cards{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-top:24px}.hero-chip,.card{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.22);border-radius:16px;padding:14px;font-weight:700}.cards{grid-template-columns:repeat(4,1fr)}section{background:#fff;border:1px solid #d9e0ec;border-radius:20px;margin-top:18px;padding:24px;box-shadow:0 8px 20px rgba(29,45,70,.05)}.card{background:#eaf0f8;color:#172033;font-weight:400}.card-kicker{color:#5c667a;font-size:12px;text-transform:uppercase;letter-spacing:.08em}.card-status{font-size:20px;font-weight:800;margin:8px 0}table{width:100%;border-collapse:collapse;margin-top:8px}th,td{border-bottom:1px solid #d9e0ec;text-align:left;padding:11px 10px;vertical-align:top}th{color:#5c667a;font-size:12px;text-transform:uppercase;letter-spacing:.06em}.panel{border-left:5px solid #223a5e;background:#f8fafc;border-radius:14px;padding:16px 18px}.blocked{border-left-color:#9a3412}.good{border-left-color:#0f766e}code{background:#eef2f7;padding:2px 6px;border-radius:6px}@media(max-width:900px){.hero-grid,.cards{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="hero">
+    <div class="eyebrow">Review-only cockpit</div>
+    <h1>Weekly ETF EU Review — Premium Cockpit POC</h1>
+    <div class="subtitle">Proof-of-concept / review-only surface for UCITS visibility, pricing evidence, proxy separation and blocked delivery authority.</div>
+    <div class="hero-grid"><div class="hero-chip">Proof of concept</div><div class="hero-chip">No portfolio action</div><div class="hero-chip">UCITS candidate visible</div><div class="hero-chip">Delivery remains blocked</div><div class="hero-chip">Next: expand UCITS universe</div></div>
+  </div>
+  <section><h2>At-a-glance cards</h2><div class="cards"><div class="card"><div class="card-kicker">UCITS visibility</div><div class="card-status">Visible</div><p>IE00B5BMR087 via CSPX.L and SXR8.DE.</p></div><div class="card"><div class="card-kicker">Pricing evidence</div><div class="card-status">Present</div><p>CSPX.L and SXR8.DE close evidence exists.</p></div><div class="card"><div class="card-kicker">Research proxy</div><div class="card-status">Separated</div><p>SPY is benchmark / research proxy only.</p></div><div class="card"><div class="card-kicker">Authority</div><div class="card-status">Blocked</div><p>No delivery, funding, mutation or valuation-grade authority.</p></div></div></section>
+  <section><h2>Evidence snapshot</h2><table><tr><th>Fund</th><th>ISIN</th><th>Trading line</th><th>Close</th><th>Use</th></tr><tr><td>iShares Core S&amp;P 500 UCITS ETF</td><td>IE00B5BMR087</td><td>CSPX.L</td><td>809.24 USD</td><td>UCITS price-line evidence</td></tr><tr><td>iShares Core S&amp;P 500 UCITS ETF</td><td>IE00B5BMR087</td><td>SXR8.DE</td><td>698.02 EUR</td><td>EUR trading-line evidence</td></tr></table></section>
+  <section><h2>Proxy separation</h2><div class="panel good">SPY is benchmark / research proxy only. SPY is not a UCITS instrument, not a portfolio holding, and not a fundable EU candidate in this cockpit.</div></section>
+  <section><h2>Reader action map</h2><table><tr><th>Question</th><th>Cockpit answer</th><th>Action now</th></tr><tr><td>Status</td><td>POC / review-only</td><td>Review evidence, do not trade</td></tr><tr><td>Visible UCITS</td><td>IE00B5BMR087</td><td>Check CSPX.L and SXR8.DE</td></tr><tr><td>Not actionable</td><td>Delivery / funding / valuation</td><td>Keep blocked</td></tr></table></section>
+  <section><h2>Current blockers</h2><div class="panel blocked">Delivery authorization remains <code>remain_blocked</code>. Production delivery, portfolio mutation, candidate promotion, funding authority and valuation-grade authority all remain false.</div></section>
+  <section><h2>Technical appendix</h2><p>Source manifest: <code>output/client_surface/etf_eu_client_surface_20260618_000000.json</code></p><p>Authorization decision: <code>output/delivery/etf_eu_delivery_authorization_decision_20260618_000000.json</code></p></section>
+</div>
+</body>
+</html>
