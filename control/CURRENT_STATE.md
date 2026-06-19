@@ -81,23 +81,18 @@ WP14R
 WP14S
 ```
 
-## Latest completed package — WP14S
+## Latest implemented package — WP14T, validation pending
 
 ```text
-WP14S=completed
-readiness_gate_created=true
-client_surface_readiness_assessed=true
-pricing_evidence_clarity_assessed=true
-authority_boundary_clarity_assessed=true
-proxy_separation_clarity_assessed=true
-candidate_status_clarity_assessed=true
-dutch_english_surface_parity_assessed=true
-debug_surface_hygiene_assessed=true
-no_delivery_guard_preserved=true
-no_portfolio_mutation_guard_preserved=true
-no_candidate_promotion_guard_preserved=true
-no_funding_authority_guard_preserved=true
-no_valuation_grade_guard_preserved=true
+WP14T=implemented_pending_validation
+proof_of_concept_package_created=true
+client_surface_package_index_created=true
+readiness_gate_preserved=true
+pricing_integration_preserved=true
+pricing_line_evidence_preserved=true
+authority_boundary_preserved=true
+proxy_separation_preserved=true
+debug_surface_hygiene_preserved=true
 overall_readiness_status=ready_for_client_surface_review
 delivery_authorization_decision=remain_blocked
 production_delivery=false
@@ -106,15 +101,39 @@ candidate_promotion=false
 funding_authority=false
 valuation_grade=false
 visible_candidate_count=4
-readiness_artifact=output/client_surface/etf_eu_cockpit_client_surface_readiness_20260618_000000.json
-readiness_notes=output/client_surface/etf_eu_cockpit_client_surface_readiness_notes_20260618_000000.md
-readiness_validator=tools/validate_etf_eu_cockpit_client_surface_readiness.py
-readiness_tests=tests/test_etf_eu_cockpit_client_surface_readiness.py
-selected_next_package=WP14T
-selected_next_package_title=ETF EU cockpit proof-of-concept package assembly, no delivery
+package_manifest=output/client_surface/etf_eu_cockpit_poc_package_20260618_000000.json
+package_index=output/client_surface/etf_eu_cockpit_poc_package_index_20260618_000000.md
+package_validator=tools/validate_etf_eu_cockpit_poc_package.py
+package_tests=tests/test_etf_eu_cockpit_poc_package.py
+selected_next_package_after_validation=WP14U
+selected_next_package_after_validation_title=ETF EU cockpit proof-of-concept coordinator review closeout, no delivery
 ```
 
-WP14S validation evidence from Codespaces:
+WP14T implementation evidence:
+
+```text
+proof_of_concept_package_manifest_committed=true
+proof_of_concept_package_index_committed=true
+package_validator_committed=true
+package_tests_committed=true
+```
+
+WP14T validation status:
+
+```text
+validator_execution_status=not_run_in_chatgpt_github_connector
+test_execution_status=not_run_in_chatgpt_github_connector
+required_coordinator_codespaces_validation=true
+```
+
+Commands required for coordinator/Codespaces validation:
+
+```text
+python tools/validate_etf_eu_cockpit_poc_package.py output/client_surface/etf_eu_cockpit_poc_package_20260618_000000.json
+python -m pytest tests/test_etf_eu_cockpit_poc_package.py -q
+```
+
+WP14S validation evidence from Codespaces remains preserved:
 
 ```text
 python tools/validate_etf_eu_cockpit_client_surface_readiness.py output/client_surface/etf_eu_cockpit_client_surface_readiness_20260618_000000.json
@@ -127,7 +146,7 @@ git status
 On branch main; branch up to date with origin/main; working tree clean
 ```
 
-Pricing-line evidence covered by the readiness gate:
+Pricing-line evidence covered by the package:
 
 ```text
 IE00B5BMR087=iShares Core S&P 500 UCITS ETF USD (Acc)=source_evidence_available=usable_for_review_only=CSPX.L/SXR8.DE baseline
@@ -151,18 +170,19 @@ safe_for_candidate_promotion=false_for_all_candidates
 ## Active product roadmap
 
 ```text
-WP14T — ETF EU cockpit proof-of-concept package assembly, no delivery
+WP14T validation closeout — run package validator/tests in Codespaces
+WP14U — ETF EU cockpit proof-of-concept coordinator review closeout, no delivery, only after WP14T validation passes
 Delivery enablement — blocked until explicit receipt/manifest authority
 ```
 
 ## Immediate next action
 
-Start WP14T.
+Validate WP14T in Codespaces.
 
 Goal:
 
 ```text
-assemble the validated pricing-integrated cockpit proof-of-concept package for review while preserving review-only status and blocked delivery authority
+run the WP14T package validator and tests, then promote WP14T from implemented_pending_validation to completed only if validation passes
 ```
 
 ## Boundary rule
