@@ -1,6 +1,6 @@
 # Weekly ETF EU Review OS — Next Actions
 
-Current priority: **WP14V — ETF EU cockpit review feedback intake, no delivery**.
+Current priority: **WP15A — ETF EU cockpit first PDF MVP renderer, no delivery**.
 
 ## Adopted strategy
 
@@ -60,15 +60,6 @@ WP14U
 
 ```text
 WP14U=completed
-coordinator_closeout_created=true
-review_acceptance_checklist_created=true
-proof_of_concept_package_preserved=true
-readiness_gate_preserved=true
-pricing_integration_preserved=true
-pricing_line_evidence_preserved=true
-authority_boundary_preserved=true
-proxy_separation_preserved=true
-debug_surface_hygiene_preserved=true
 coordinator_review_status=ready_for_coordinator_review
 overall_readiness_status=ready_for_client_surface_review
 delivery_authorization_decision=remain_blocked
@@ -77,13 +68,6 @@ portfolio_mutation=false
 candidate_promotion=false
 funding_authority=false
 valuation_grade=false
-visible_candidate_count=4
-coordinator_closeout_artifact=output/client_surface/etf_eu_cockpit_poc_coordinator_closeout_20260618_000000.json
-coordinator_closeout_checklist=output/client_surface/etf_eu_cockpit_poc_coordinator_closeout_checklist_20260618_000000.md
-coordinator_closeout_validator=tools/validate_etf_eu_cockpit_poc_coordinator_closeout.py
-coordinator_closeout_tests=tests/test_etf_eu_cockpit_poc_coordinator_closeout.py
-selected_next_package=WP14V
-selected_next_package_title=ETF EU cockpit review feedback intake, no delivery
 ```
 
 Codespaces validation evidence:
@@ -94,39 +78,64 @@ ETF_EU_COCKPIT_POC_COORDINATOR_CLOSEOUT_OK
 working tree clean
 ```
 
+## Review-loop redirect
+
+```text
+WP14V=skipped
+skip_reason=avoid_review_loop_after_validated_poc_closeout
+selected_next_package=WP15A
+selected_next_package_title=ETF EU cockpit first PDF MVP renderer, no delivery
+```
+
+The project is intentionally exiting the review-loop after WP14U and routing to the first minimum viable PDF output.
+
 ## Active next package
 
 ```text
-WP14V — ETF EU cockpit review feedback intake, no delivery
+WP15A — ETF EU cockpit first PDF MVP renderer, no delivery
 ```
 
 Purpose:
 
 ```text
-create a safe review feedback intake layer for coordinator observations while preserving review-only status and all blocked authority flags
+create the first PDF output from the validated cockpit proof-of-concept package while preserving review-only status and all blocked authority flags
 ```
 
-Likely inputs:
+Target output:
+
+```text
+output/client_surface/weekly_etf_eu_cockpit_mvp_20260618_000000.pdf
+```
+
+Expected support files:
+
+```text
+tools/render_etf_eu_cockpit_pdf_mvp.py
+tools/validate_etf_eu_cockpit_pdf_mvp.py
+tests/test_etf_eu_cockpit_pdf_mvp.py
+```
+
+Expected inputs:
 
 ```text
 output/client_surface/etf_eu_cockpit_poc_coordinator_closeout_20260618_000000.json
-output/client_surface/etf_eu_cockpit_poc_coordinator_closeout_checklist_20260618_000000.md
 output/client_surface/etf_eu_cockpit_poc_package_20260618_000000.json
-output/client_surface/etf_eu_cockpit_poc_package_index_20260618_000000.md
-```
-
-WP14V should create:
-
-```text
-review feedback intake artifact
-review feedback intake template/checklist
-validator/test coverage for feedback intake boundaries
-updated control state
+output/client_surface/weekly_etf_eu_review_260618_cockpit_pricing_integrated.html
+output/client_surface/weekly_etf_eu_review_nl_260618_cockpit_pricing_integrated.html
+output/client_surface/weekly_etf_eu_review_260618_cockpit_pricing_integrated.md
+output/client_surface/weekly_etf_eu_review_nl_260618_cockpit_pricing_integrated.md
 ```
 
 ## Boundary remains
 
 ```text
+first_pdf_mvp_not_yet_implemented=true
+pdf_mvp_is_not_production_delivery=true
+pdf_mvp_does_not_authorize_sending_reports=true
+pdf_mvp_does_not_authorize_portfolio_mutation=true
+pdf_mvp_does_not_authorize_candidate_promotion=true
+pdf_mvp_does_not_authorize_funding=true
+pdf_mvp_does_not_create_valuation_grade_authority=true
 delivery_authorization_decision=remain_blocked
 production_delivery=false
 portfolio_mutation=false
