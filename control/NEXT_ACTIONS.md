@@ -1,6 +1,6 @@
 # Weekly ETF EU Review OS — Next Actions
 
-Current priority: **ETF EU cockpit pricing evidence integration, no delivery**.
+Current priority: **ETF EU cockpit client-surface readiness gate, no delivery**.
 
 ## Adopted strategy
 
@@ -50,22 +50,27 @@ WP14N
 WP14O
 WP14P
 WP14Q
+WP14R
 ```
 
-## WP14Q completion evidence
+## WP14R completion evidence
 
 ```text
-WP14Q=completed
-pricing_line_expansion_created=true
-candidate_pricing_evidence_map_created=true
-pricing_line_status_map_created=true
-proxy_ambiguity_guard_created=true
-valuation_grade_guard_created=true
-funding_authority_guard_created=true
-candidate_promotion_guard_created=true
+WP14R=completed
+pricing_integration_created=true
+pricing_integrated_cockpit_surface_created=true
+pricing_line_evidence_rendered=true
+candidate_pricing_evidence_preserved=true
+pricing_line_status_map_preserved=true
+unsafe_pricing_symbol_guard_rendered=true
+proxy_ambiguity_guard_rendered=true
+valuation_grade_guard_rendered=true
+funding_authority_guard_rendered=true
+candidate_promotion_guard_rendered=true
 ucits_identity_preserved=true
 proxy_separation_preserved=true
 pricing_evidence_preserved=true
+debug_surface_reduced=true
 delivery_authorization_decision=remain_blocked
 production_delivery=false
 portfolio_mutation=false
@@ -73,67 +78,70 @@ candidate_promotion=false
 funding_authority=false
 valuation_grade=false
 visible_candidate_count=4
-pricing_line_expansion_manifest=output/pricing/etf_eu_pricing_line_expansion_20260618_000000.json
-pricing_line_expansion_notes=output/pricing/etf_eu_pricing_line_expansion_notes_20260618_000000.md
-selected_next_package=WP14R
-selected_next_package_title=ETF EU cockpit pricing evidence integration, no delivery
+pricing_integration_manifest=output/client_surface/etf_eu_cockpit_pricing_integration_20260618_000000.json
+selected_next_package=WP14S
+selected_next_package_title=ETF EU cockpit client-surface readiness gate, no delivery
 ```
 
-Pricing-line evidence summary:
+Pricing-integrated cockpit evidence summary:
 
 ```text
 CSPX.L=current_review_only_baseline
 SXR8.DE=current_review_only_baseline
-SMH=ambiguous_or_pending_not_safe_ucits_pricing_evidence
-GLD=research_proxy_only_not_eu_holding
-PAVE=research_proxy_only_not_eu_holding
+IE00B5BMR087=usable_for_review_only
+SMH=pricing_symbol_ambiguous_not_safe_ucits_pricing_evidence
+Gold/ETC=policy_blocked
+Infrastructure=identity_incomplete
+SPY/SMH/GLD/PAVE=research_proxy_only
 ```
 
-Validation evidence from WP14Q local sandbox mirror execution:
+Validation evidence from WP14R local sandbox mirror execution:
 
 ```text
-python tools/validate_etf_eu_pricing_line_expansion.py output/pricing/etf_eu_pricing_line_expansion_20260618_000000.json
-ETF_EU_PRICING_LINE_EXPANSION_OK | artifact=output/pricing/etf_eu_pricing_line_expansion_20260618_000000.json | visible_candidate_count=4 | selected_next_package=WP14R
+python tools/render_etf_eu_pricing_integrated_cockpit.py output/client_surface/etf_eu_cockpit_universe_enrichment_20260618_000000.json output/pricing/etf_eu_pricing_line_expansion_20260618_000000.json
+ETF_EU_COCKPIT_PRICING_INTEGRATION_CREATED | artifact=output/client_surface/etf_eu_cockpit_pricing_integration_20260618_000000.json | visible_candidate_count=4 | selected_next_package=WP14S
 
-python -m pytest tests/test_etf_eu_pricing_line_expansion.py -q
-10 passed in local sandbox mirror
+python tools/validate_etf_eu_cockpit_pricing_integration.py output/client_surface/etf_eu_cockpit_pricing_integration_20260618_000000.json
+ETF_EU_COCKPIT_PRICING_INTEGRATION_OK | artifact=output/client_surface/etf_eu_cockpit_pricing_integration_20260618_000000.json | visible_candidate_count=4 | selected_next_package=WP14S
+
+python -m pytest tests/test_etf_eu_cockpit_pricing_integration.py -q
+15 passed in local sandbox mirror
 ```
 
-Existing gates listed in the WP14Q manifest remain expected gates for coordinator/Codespaces verification.
+Existing gates listed in the WP14R manifest remain expected gates for coordinator/Codespaces verification.
 
 ## Active next package
 
 ```text
-WP14R — ETF EU cockpit pricing evidence integration, no delivery
+WP14S — ETF EU cockpit client-surface readiness gate, no delivery
 ```
 
 Purpose:
 
 ```text
-integrate the WP14Q pricing-line evidence map into the enriched cockpit surface and renderer output without changing delivery, portfolio, funding, candidate promotion or valuation-grade authority
+validate the pricing-integrated cockpit as a client-facing readiness surface while preserving review-only status, blocked delivery, blocked portfolio mutation, blocked candidate promotion, blocked funding authority and blocked valuation-grade authority
 ```
 
 Likely inputs:
 
 ```text
+output/client_surface/etf_eu_cockpit_pricing_integration_20260618_000000.json
+output/client_surface/weekly_etf_eu_review_260618_cockpit_pricing_integrated.md
+output/client_surface/weekly_etf_eu_review_nl_260618_cockpit_pricing_integrated.md
+output/client_surface/weekly_etf_eu_review_260618_cockpit_pricing_integrated.html
+output/client_surface/weekly_etf_eu_review_nl_260618_cockpit_pricing_integrated.html
 output/pricing/etf_eu_pricing_line_expansion_20260618_000000.json
 output/pricing/etf_eu_pricing_line_expansion_notes_20260618_000000.md
-output/client_surface/etf_eu_enriched_cockpit_render_20260618_000000.json
-output/client_surface/etf_eu_cockpit_universe_enrichment_20260618_000000.json
-config/ucits_symbol_registry.yml
-config/ucits_benchmark_proxy_map.yml
-control/UCITS_SYMBOL_REGISTRY_CONTRACT.md
-control/UCITS_ETF_REVIEW_CONTRACT_V1.md
 output/delivery/etf_eu_delivery_authorization_decision_20260618_000000.json
 ```
 
-WP14R should create:
+WP14S should create:
 
 ```text
-cockpit pricing evidence integration artifact
-updated/rendered cockpit surface that includes pricing evidence status map
-validator/test coverage for pricing evidence integration and authority guards
-updated control state with delivery still blocked
+client-surface readiness gate artifact
+readiness validator/test coverage
+explicit client-surface readiness result with delivery still blocked
+updated control state
 ```
 
 ## Delivery remains blocked until
@@ -147,7 +155,8 @@ explicit control-layer delivery authorization is recorded
 
 Do not enable production delivery.
 Do not add recipients or secrets.
+Do not convert readiness into delivery authorization.
 Do not convert pricing evidence into valuation-grade authority.
 Do not promote candidates or mutate portfolio state.
 Do not create funding authority.
-Do not treat SMH, GLD or PAVE as safe EU pricing lines.
+Do not treat SMH, GLD, PAVE or SPY as safe EU pricing lines or EU holdings.
