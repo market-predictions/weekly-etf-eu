@@ -1,6 +1,6 @@
 # Weekly ETF EU Review OS — Next Actions
 
-Current priority: **WP14U validation closeout — run coordinator closeout validator/tests in Codespaces**.
+Current priority: **WP14V — ETF EU cockpit review feedback intake, no delivery**.
 
 ## Adopted strategy
 
@@ -53,12 +53,13 @@ WP14Q
 WP14R
 WP14S
 WP14T
+WP14U
 ```
 
-## Latest implementation awaiting validation
+## WP14U completion evidence
 
 ```text
-WP14U=implemented_pending_validation
+WP14U=completed
 coordinator_closeout_created=true
 review_acceptance_checklist_created=true
 proof_of_concept_package_preserved=true
@@ -81,45 +82,55 @@ coordinator_closeout_artifact=output/client_surface/etf_eu_cockpit_poc_coordinat
 coordinator_closeout_checklist=output/client_surface/etf_eu_cockpit_poc_coordinator_closeout_checklist_20260618_000000.md
 coordinator_closeout_validator=tools/validate_etf_eu_cockpit_poc_coordinator_closeout.py
 coordinator_closeout_tests=tests/test_etf_eu_cockpit_poc_coordinator_closeout.py
-selected_next_package_after_validation=WP14V
-selected_next_package_after_validation_title=ETF EU cockpit review feedback intake, no delivery
+selected_next_package=WP14V
+selected_next_package_title=ETF EU cockpit review feedback intake, no delivery
 ```
 
-Validation status:
+Codespaces validation evidence:
 
 ```text
-validator_execution_status=not_run_in_chatgpt_github_connector
-test_execution_status=not_run_in_chatgpt_github_connector
-required_coordinator_codespaces_validation=true
+ETF_EU_COCKPIT_POC_COORDINATOR_CLOSEOUT_OK
+11 passed in 0.11s
+working tree clean
 ```
 
-## Active next action
-
-Run in Codespaces:
-
-```text
-python tools/validate_etf_eu_cockpit_poc_coordinator_closeout.py output/client_surface/etf_eu_cockpit_poc_coordinator_closeout_20260618_000000.json
-python -m pytest tests/test_etf_eu_cockpit_poc_coordinator_closeout.py -q
-```
-
-## Next package after successful validation
+## Active next package
 
 ```text
 WP14V — ETF EU cockpit review feedback intake, no delivery
 ```
 
-## Delivery remains blocked until
+Purpose:
 
 ```text
-real delivery receipt/manifest path exists
-explicit control-layer delivery authorization is recorded
+create a safe review feedback intake layer for coordinator observations while preserving review-only status and all blocked authority flags
 ```
 
-## Do not do next
+Likely inputs:
 
-Do not enable production delivery.
-Do not convert coordinator closeout into delivery authorization.
-Do not convert pricing evidence into valuation-grade authority.
-Do not promote candidates or mutate portfolio state.
-Do not create funding authority.
-Do not treat SMH, GLD, PAVE or SPY as safe EU pricing lines or EU holdings.
+```text
+output/client_surface/etf_eu_cockpit_poc_coordinator_closeout_20260618_000000.json
+output/client_surface/etf_eu_cockpit_poc_coordinator_closeout_checklist_20260618_000000.md
+output/client_surface/etf_eu_cockpit_poc_package_20260618_000000.json
+output/client_surface/etf_eu_cockpit_poc_package_index_20260618_000000.md
+```
+
+WP14V should create:
+
+```text
+review feedback intake artifact
+review feedback intake template/checklist
+validator/test coverage for feedback intake boundaries
+updated control state
+```
+
+## Boundary remains
+
+```text
+delivery_authorization_decision=remain_blocked
+production_delivery=false
+portfolio_mutation=false
+candidate_promotion=false
+funding_authority=false
+valuation_grade=false
+```
