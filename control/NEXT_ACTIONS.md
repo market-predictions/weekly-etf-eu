@@ -1,6 +1,6 @@
 # Weekly ETF EU Review OS — Next Actions
 
-Current priority: **WP14T validation closeout**.
+Current priority: **WP14U — ETF EU cockpit proof-of-concept coordinator review closeout, no delivery**.
 
 ## Adopted strategy
 
@@ -52,12 +52,13 @@ WP14P
 WP14Q
 WP14R
 WP14S
+WP14T
 ```
 
-## Latest implementation awaiting validation
+## WP14T completion evidence
 
 ```text
-WP14T=implemented_pending_validation
+WP14T=completed
 proof_of_concept_package_created=true
 client_surface_package_index_created=true
 readiness_gate_preserved=true
@@ -78,32 +79,62 @@ package_manifest=output/client_surface/etf_eu_cockpit_poc_package_20260618_00000
 package_index=output/client_surface/etf_eu_cockpit_poc_package_index_20260618_000000.md
 package_validator=tools/validate_etf_eu_cockpit_poc_package.py
 package_tests=tests/test_etf_eu_cockpit_poc_package.py
-selected_next_package_after_validation=WP14U
-selected_next_package_after_validation_title=ETF EU cockpit proof-of-concept coordinator review closeout, no delivery
+selected_next_package=WP14U
+selected_next_package_title=ETF EU cockpit proof-of-concept coordinator review closeout, no delivery
 ```
 
-## Active next action
-
-Run in Codespaces:
+Codespaces validation evidence:
 
 ```text
-python tools/validate_etf_eu_cockpit_poc_package.py output/client_surface/etf_eu_cockpit_poc_package_20260618_000000.json
-python -m pytest tests/test_etf_eu_cockpit_poc_package.py -q
+ETF_EU_COCKPIT_POC_PACKAGE_OK
+12 passed in 0.04s
+working tree clean
 ```
 
-## Next package after successful validation
+## Active next package
 
 ```text
 WP14U — ETF EU cockpit proof-of-concept coordinator review closeout, no delivery
 ```
 
-## Boundary remains
+Purpose:
 
 ```text
-delivery_authorization_decision=remain_blocked
-production_delivery=false
-portfolio_mutation=false
-candidate_promotion=false
-funding_authority=false
-valuation_grade=false
+perform coordinator review closeout for the validated proof-of-concept package while preserving review-only status, blocked delivery, blocked portfolio mutation, blocked candidate promotion, blocked funding authority and blocked valuation-grade authority
 ```
+
+Likely inputs:
+
+```text
+output/client_surface/etf_eu_cockpit_poc_package_20260618_000000.json
+output/client_surface/etf_eu_cockpit_poc_package_index_20260618_000000.md
+output/client_surface/etf_eu_cockpit_client_surface_readiness_20260618_000000.json
+output/client_surface/etf_eu_cockpit_pricing_integration_20260618_000000.json
+output/pricing/etf_eu_pricing_line_expansion_20260618_000000.json
+output/delivery/etf_eu_delivery_authorization_decision_20260618_000000.json
+```
+
+WP14U should create:
+
+```text
+coordinator review closeout artifact
+review acceptance checklist
+validator/test coverage for closeout completeness and preserved authority guards
+updated control state
+```
+
+## Delivery remains blocked until
+
+```text
+real delivery receipt/manifest path exists
+explicit control-layer delivery authorization is recorded
+```
+
+## Do not do next
+
+Do not enable production delivery.
+Do not convert review closeout into delivery authorization.
+Do not convert pricing evidence into valuation-grade authority.
+Do not promote candidates or mutate portfolio state.
+Do not create funding authority.
+Do not treat SMH, GLD, PAVE or SPY as safe EU pricing lines or EU holdings.
