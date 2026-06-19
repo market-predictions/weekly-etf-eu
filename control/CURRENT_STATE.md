@@ -76,25 +76,20 @@ WP14M
 WP14N
 WP14O
 WP14P
+WP14Q
 ```
 
-## Latest completed package — WP14P
+## Latest completed package — WP14Q
 
 ```text
-WP14P=completed
-enriched_cockpit_renderer_created=true
-deterministic_renderer_created=true
-render_manifest_created=true
-english_rendered_cockpit_markdown_created=true
-dutch_rendered_cockpit_markdown_created=true
-english_rendered_cockpit_html_created=true
-dutch_rendered_cockpit_html_created=true
-candidate_universe_preserved=true
-candidate_evidence_map_rendered=true
-proxy_separation_map_rendered=true
-reader_action_map_rendered=true
-blocker_panel_rendered=true
-debug_surface_reduced=true
+WP14Q=completed
+pricing_line_expansion_created=true
+candidate_pricing_evidence_map_created=true
+pricing_line_status_map_created=true
+proxy_ambiguity_guard_created=true
+valuation_grade_guard_created=true
+funding_authority_guard_created=true
+candidate_promotion_guard_created=true
 ucits_identity_preserved=true
 proxy_separation_preserved=true
 pricing_evidence_preserved=true
@@ -105,57 +100,62 @@ candidate_promotion=false
 funding_authority=false
 valuation_grade=false
 visible_candidate_count=4
-renderer_path=tools/render_etf_eu_enriched_cockpit.py
-render_validator_path=tools/validate_etf_eu_enriched_cockpit_render.py
-render_tests_path=tests/test_etf_eu_enriched_cockpit_render.py
-english_rendered_cockpit_markdown_path=output/client_surface/weekly_etf_eu_review_260618_cockpit_rendered.md
-dutch_rendered_cockpit_markdown_path=output/client_surface/weekly_etf_eu_review_nl_260618_cockpit_rendered.md
-english_rendered_cockpit_html_path=output/client_surface/weekly_etf_eu_review_260618_cockpit_rendered.html
-dutch_rendered_cockpit_html_path=output/client_surface/weekly_etf_eu_review_nl_260618_cockpit_rendered.html
-render_manifest=output/client_surface/etf_eu_enriched_cockpit_render_20260618_000000.json
-selected_next_package=WP14Q
-selected_next_package_title=ETF EU pricing-line expansion for enriched cockpit candidates, no delivery
+pricing_line_expansion_manifest=output/pricing/etf_eu_pricing_line_expansion_20260618_000000.json
+pricing_line_expansion_notes=output/pricing/etf_eu_pricing_line_expansion_notes_20260618_000000.md
+pricing_line_validator=tools/validate_etf_eu_pricing_line_expansion.py
+pricing_line_tests=tests/test_etf_eu_pricing_line_expansion.py
+selected_next_package=WP14R
+selected_next_package_title=ETF EU cockpit pricing evidence integration, no delivery
 ```
 
-Visible candidate statuses preserved from WP14O:
+Pricing-line evidence summary:
 
 ```text
-IE00B5BMR087=iShares Core S&P 500 UCITS ETF USD (Acc)=visible_review_candidate
-IE00BMC38736=VanEck Semiconductor UCITS ETF=pricing_incomplete
-TBD=iShares Physical Gold ETC=blocked_until_verified
-TBD=iShares Global Infrastructure UCITS ETF=identity_incomplete
+IE00B5BMR087=iShares Core S&P 500 UCITS ETF USD (Acc)=source_evidence_available=usable_for_review_only=CSPX.L/SXR8.DE baseline
+IE00BMC38736=VanEck Semiconductor UCITS ETF=pricing_symbol_ambiguous=not_safe_until_exchange_specific_ucits_line_verified
+TBD=iShares Physical Gold ETC=policy_blocked=not_safe_until_etc_policy_decision
+TBD=iShares Global Infrastructure UCITS ETF=identity_incomplete=not_safe_until_isin_and_issuer_verified
 ```
 
-Validation evidence from WP14P local sandbox execution:
+Authority and proxy guards:
 
 ```text
-python tools/render_etf_eu_enriched_cockpit.py output/client_surface/etf_eu_cockpit_universe_enrichment_20260618_000000.json
-ETF_EU_ENRICHED_COCKPIT_RENDER_CREATED | artifact=output/client_surface/etf_eu_enriched_cockpit_render_20260618_000000.json | visible_candidate_count=4 | selected_next_package=WP14Q
-
-python tools/validate_etf_eu_enriched_cockpit_render.py output/client_surface/etf_eu_enriched_cockpit_render_20260618_000000.json
-ETF_EU_ENRICHED_COCKPIT_RENDER_OK | artifact=output/client_surface/etf_eu_enriched_cockpit_render_20260618_000000.json | visible_candidate_count=4 | selected_next_package=WP14Q
-
-python -m pytest tests/test_etf_eu_enriched_cockpit_render.py -q
-12 passed
+SPY=research_proxy_only
+SMH=research_proxy_only_and_ambiguous_as_pricing_symbol
+GLD=research_proxy_only_not_eu_holding
+PAVE=research_proxy_only_not_eu_holding
+safe_for_valuation_grade=false_for_all_candidates
+safe_for_funding_decision=false_for_all_candidates
+safe_for_candidate_promotion=false_for_all_candidates
 ```
 
-Existing gates listed in the WP14P manifest remain expected gates for coordinator/Codespaces verification.
+Validation evidence from WP14Q local sandbox mirror execution:
+
+```text
+python tools/validate_etf_eu_pricing_line_expansion.py output/pricing/etf_eu_pricing_line_expansion_20260618_000000.json
+ETF_EU_PRICING_LINE_EXPANSION_OK | artifact=output/pricing/etf_eu_pricing_line_expansion_20260618_000000.json | visible_candidate_count=4 | selected_next_package=WP14R
+
+python -m pytest tests/test_etf_eu_pricing_line_expansion.py -q
+10 passed in local sandbox mirror
+```
+
+Existing gates listed in the WP14Q manifest remain expected gates for coordinator/Codespaces verification.
 
 ## Active product roadmap
 
 ```text
-WP14Q — ETF EU pricing-line expansion for enriched cockpit candidates, no delivery
+WP14R — ETF EU cockpit pricing evidence integration, no delivery
 Delivery enablement — blocked until explicit receipt/manifest authority
 ```
 
 ## Immediate next action
 
-Start WP14Q.
+Start WP14R.
 
 Goal:
 
 ```text
-expand pricing-line evidence for enriched cockpit candidates while preserving review-only status and blocked delivery authority
+integrate the WP14Q pricing-line evidence map into the cockpit surface while preserving review-only status and blocked delivery authority
 ```
 
 ## Boundary rule
