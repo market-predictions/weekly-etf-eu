@@ -1,6 +1,6 @@
 # Weekly ETF EU Review OS — Next Actions
 
-Current priority: **ETF EU enriched cockpit renderer integration and quality gate, no delivery**.
+Current priority: **ETF EU pricing-line expansion for enriched cockpit candidates, no delivery**.
 
 ## Adopted strategy
 
@@ -48,19 +48,25 @@ WP14L
 WP14M
 WP14N
 WP14O
+WP14P
 ```
 
-## WP14O completion evidence
+## WP14P completion evidence
 
 ```text
-WP14O=completed
-universe_enrichment_created=true
-enriched_cockpit_surface_created=true
-candidate_universe_expanded=true
-candidate_evidence_map_created=true
-proxy_separation_map_created=true
-reader_action_map_created=true
-blocker_panel_created=true
+WP14P=completed
+enriched_cockpit_renderer_created=true
+deterministic_renderer_created=true
+render_manifest_created=true
+english_rendered_cockpit_markdown_created=true
+dutch_rendered_cockpit_markdown_created=true
+english_rendered_cockpit_html_created=true
+dutch_rendered_cockpit_html_created=true
+candidate_universe_preserved=true
+candidate_evidence_map_rendered=true
+proxy_separation_map_rendered=true
+reader_action_map_rendered=true
+blocker_panel_rendered=true
 debug_surface_reduced=true
 ucits_identity_preserved=true
 proxy_separation_preserved=true
@@ -72,63 +78,58 @@ candidate_promotion=false
 funding_authority=false
 valuation_grade=false
 visible_candidate_count=4
-universe_enrichment_manifest=output/client_surface/etf_eu_cockpit_universe_enrichment_20260618_000000.json
-selected_next_package=WP14P
-selected_next_package_title=ETF EU enriched cockpit renderer integration and quality gate, no delivery
+renderer_path=tools/render_etf_eu_enriched_cockpit.py
+render_manifest=output/client_surface/etf_eu_enriched_cockpit_render_20260618_000000.json
+selected_next_package=WP14Q
+selected_next_package_title=ETF EU pricing-line expansion for enriched cockpit candidates, no delivery
 ```
 
-Visible candidate statuses:
+Validation evidence from WP14P local sandbox execution:
 
 ```text
-IE00B5BMR087=iShares Core S&P 500 UCITS ETF USD (Acc)=visible_review_candidate
-IE00BMC38736=VanEck Semiconductor UCITS ETF=pricing_incomplete
-TBD=iShares Physical Gold ETC=blocked_until_verified
-TBD=iShares Global Infrastructure UCITS ETF=identity_incomplete
-```
+python tools/render_etf_eu_enriched_cockpit.py output/client_surface/etf_eu_cockpit_universe_enrichment_20260618_000000.json
+ETF_EU_ENRICHED_COCKPIT_RENDER_CREATED | artifact=output/client_surface/etf_eu_enriched_cockpit_render_20260618_000000.json | visible_candidate_count=4 | selected_next_package=WP14Q
 
-Validation evidence from WP14O local sandbox execution:
+python tools/validate_etf_eu_enriched_cockpit_render.py output/client_surface/etf_eu_enriched_cockpit_render_20260618_000000.json
+ETF_EU_ENRICHED_COCKPIT_RENDER_OK | artifact=output/client_surface/etf_eu_enriched_cockpit_render_20260618_000000.json | visible_candidate_count=4 | selected_next_package=WP14Q
 
-```text
-python tools/validate_etf_eu_cockpit_universe_enrichment.py output/client_surface/etf_eu_cockpit_universe_enrichment_20260618_000000.json
-ETF_EU_COCKPIT_UNIVERSE_ENRICHMENT_OK | artifact=output/client_surface/etf_eu_cockpit_universe_enrichment_20260618_000000.json | visible_candidate_count=4 | selected_next_package=WP14P
-
-python -m pytest tests/test_etf_eu_cockpit_universe_enrichment.py -q
+python -m pytest tests/test_etf_eu_enriched_cockpit_render.py -q
 12 passed
 ```
 
-Existing gates listed in the WP14O manifest remain expected gates for coordinator/Codespaces verification.
+Existing gates listed in the WP14P manifest remain expected gates for coordinator/Codespaces verification.
 
 ## Active next package
 
 ```text
-WP14P — ETF EU enriched cockpit renderer integration and quality gate, no delivery
+WP14Q — ETF EU pricing-line expansion for enriched cockpit candidates, no delivery
 ```
 
 Purpose:
 
 ```text
-turn the WP14O enriched UCITS universe data into a deterministic cockpit renderer / quality gate so future cockpit surfaces are generated from structured input instead of hand-built markdown and HTML
+expand pricing-line evidence for the enriched cockpit candidates that are currently pricing_incomplete, identity_incomplete or blocked_until_verified, without changing delivery, portfolio, funding or valuation-grade authority
 ```
 
 Likely inputs:
 
 ```text
+output/client_surface/etf_eu_enriched_cockpit_render_20260618_000000.json
 output/client_surface/etf_eu_cockpit_universe_enrichment_20260618_000000.json
-output/client_surface/weekly_etf_eu_review_260618_cockpit_enriched.md
-output/client_surface/weekly_etf_eu_review_nl_260618_cockpit_enriched.md
 config/ucits_symbol_registry.yml
 config/ucits_benchmark_proxy_map.yml
 control/UCITS_SYMBOL_REGISTRY_CONTRACT.md
 control/UCITS_ETF_REVIEW_CONTRACT_V1.md
+output/delivery/etf_eu_delivery_authorization_decision_20260618_000000.json
 ```
 
-WP14P should create:
+WP14Q should create:
 
 ```text
-runtime or tool-level deterministic enriched cockpit renderer
-renderer output manifest
-quality gate / validator for rendered enriched cockpit outputs
-pytest coverage for renderer determinism and blocked-authority flags
+pricing-line expansion artifact for enriched cockpit candidates
+candidate-level pricing evidence status map
+validator/test coverage for pricing-line evidence without valuation-grade authority
+updated control state with delivery still blocked
 ```
 
 ## Delivery remains blocked until
@@ -142,6 +143,6 @@ explicit control-layer delivery authorization is recorded
 
 Do not enable production delivery.
 Do not add recipients or secrets.
-Do not convert POC/render evidence into a delivery success claim.
+Do not convert pricing evidence into valuation-grade authority.
 Do not promote candidates or mutate portfolio state.
-Do not create funding authority or valuation-grade authority.
+Do not create funding authority.
