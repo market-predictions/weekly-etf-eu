@@ -78,12 +78,13 @@ WP14O
 WP14P
 WP14Q
 WP14R
+WP14S
 ```
 
-## Latest implemented package — WP14S, validation pending
+## Latest completed package — WP14S
 
 ```text
-WP14S=implemented_pending_validation
+WP14S=completed
 readiness_gate_created=true
 client_surface_readiness_assessed=true
 pricing_evidence_clarity_assessed=true
@@ -109,25 +110,21 @@ readiness_artifact=output/client_surface/etf_eu_cockpit_client_surface_readiness
 readiness_notes=output/client_surface/etf_eu_cockpit_client_surface_readiness_notes_20260618_000000.md
 readiness_validator=tools/validate_etf_eu_cockpit_client_surface_readiness.py
 readiness_tests=tests/test_etf_eu_cockpit_client_surface_readiness.py
-selected_next_package_after_validation=WP14T
-selected_next_package_after_validation_title=ETF EU cockpit proof-of-concept package assembly, no delivery
+selected_next_package=WP14T
+selected_next_package_title=ETF EU cockpit proof-of-concept package assembly, no delivery
 ```
 
-WP14S implementation evidence:
+WP14S validation evidence from Codespaces:
 
 ```text
-client_surface_readiness_artifact_committed=true
-client_surface_readiness_notes_committed=true
-client_surface_readiness_validator_committed=true
-client_surface_readiness_tests_committed=true
-```
+python tools/validate_etf_eu_cockpit_client_surface_readiness.py output/client_surface/etf_eu_cockpit_client_surface_readiness_20260618_000000.json
+ETF_EU_COCKPIT_CLIENT_SURFACE_READINESS_OK | artifact=output/client_surface/etf_eu_cockpit_client_surface_readiness_20260618_000000.json | overall_readiness_status=ready_for_client_surface_review | selected_next_package=WP14T
 
-WP14S validation status:
+python -m pytest tests/test_etf_eu_cockpit_client_surface_readiness.py -q
+12 passed in 0.05s
 
-```text
-validator_execution_status=not_run_in_chatgpt_github_connector
-test_execution_status=not_run_in_chatgpt_github_connector
-required_coordinator_codespaces_validation=true
+git status
+On branch main; branch up to date with origin/main; working tree clean
 ```
 
 Pricing-line evidence covered by the readiness gate:
@@ -151,31 +148,21 @@ safe_for_funding_decision=false_for_all_candidates
 safe_for_candidate_promotion=false_for_all_candidates
 ```
 
-Commands required for coordinator/Codespaces validation:
-
-```text
-python tools/validate_etf_eu_cockpit_client_surface_readiness.py output/client_surface/etf_eu_cockpit_client_surface_readiness_20260618_000000.json
-python -m pytest tests/test_etf_eu_cockpit_client_surface_readiness.py -q
-```
-
-Existing gates listed in the WP14S instructions remain expected gates for coordinator/Codespaces verification.
-
 ## Active product roadmap
 
 ```text
-WP14S validation closeout — run validator/tests in Codespaces
-WP14T — ETF EU cockpit proof-of-concept package assembly, no delivery, only after WP14S validation passes
+WP14T — ETF EU cockpit proof-of-concept package assembly, no delivery
 Delivery enablement — blocked until explicit receipt/manifest authority
 ```
 
 ## Immediate next action
 
-Validate WP14S in Codespaces.
+Start WP14T.
 
 Goal:
 
 ```text
-run the WP14S readiness validator and tests, then promote WP14S from implemented_pending_validation to completed only if validation passes
+assemble the validated pricing-integrated cockpit proof-of-concept package for review while preserving review-only status and blocked delivery authority
 ```
 
 ## Boundary rule
