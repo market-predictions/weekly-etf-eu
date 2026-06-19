@@ -1,6 +1,6 @@
 # Weekly ETF EU Review OS — Next Actions
 
-Current priority: **ETF EU POC review and roadmap consolidation, no delivery**.
+Current priority: **ETF EU UCITS universe expansion and cockpit data enrichment, no delivery**.
 
 ## Adopted strategy
 
@@ -46,18 +46,24 @@ WP14J
 WP14K
 WP14L
 WP14M
+WP14N
 ```
 
-## WP14M completion evidence
+## WP14N completion evidence
 
 ```text
-client_poc_surface_created=true
-english_poc_markdown_created=true
-dutch_poc_markdown_created=true
-english_poc_html_created=true
-dutch_poc_html_created=true
+WP14N=completed
+premium_cockpit_surface_created=true
+english_cockpit_markdown_created=true
+dutch_cockpit_markdown_created=true
+english_cockpit_html_created=true
+dutch_cockpit_html_created=true
+hero_block_created=true
+status_cards_created=true
+reader_action_map_created=true
+blocker_panel_created=true
+technical_appendix_preserved=true
 debug_surface_reduced=true
-technical_evidence_moved_to_appendix=true
 ucits_identity_preserved=true
 proxy_separation_preserved=true
 pricing_evidence_preserved=true
@@ -66,48 +72,55 @@ production_delivery=false
 portfolio_mutation=false
 funding_authority=false
 valuation_grade=false
-client_poc_manifest=output/client_surface/etf_eu_client_surface_20260618_000000.json
-selected_next_package=WP14N
+premium_cockpit_manifest=output/client_surface/etf_eu_premium_cockpit_surface_20260618_000000.json
+cleanup_item_test_placeholder_removed=true
+selected_next_package=WP14O
+selected_next_package_title=ETF EU UCITS universe expansion and cockpit data enrichment, no delivery
 ```
 
-Validation evidence supplied from Codespaces:
+Validation evidence from WP14N local sandbox execution:
 
 ```text
-ETF_EU_CLIENT_POC_SURFACE_OK: output/client_surface/etf_eu_client_surface_20260618_000000.json selected_next_package=WP14N
-tests/test_etf_eu_client_poc_surface.py: 8 passed
-All prior EU gates also passed.
+python tools/validate_etf_eu_premium_cockpit_surface.py output/client_surface/etf_eu_premium_cockpit_surface_20260618_000000.json
+ETF_EU_PREMIUM_COCKPIT_SURFACE_OK | artifact=output/client_surface/etf_eu_premium_cockpit_surface_20260618_000000.json | selected_next_package=WP14O
+
+python -m pytest tests/test_etf_eu_premium_cockpit_surface.py -q
+12 passed
 ```
+
+Existing gates listed in the WP14N manifest remain expected gates for coordinator/Codespaces verification.
 
 ## Active next package
 
 ```text
-WP14N — ETF EU POC review and roadmap consolidation, no delivery
+WP14O — ETF EU UCITS universe expansion and cockpit data enrichment, no delivery
 ```
 
 Purpose:
 
 ```text
-review the first client-facing ETF EU POC surface, consolidate roadmap status, and decide the next product-facing package
+expand the visible UCITS universe beyond the first S&P 500 UCITS candidate and enrich the cockpit data model without enabling delivery, portfolio mutation, candidate promotion, funding authority or valuation-grade authority
 ```
 
 Likely inputs:
 
 ```text
-output/client_surface/weekly_etf_eu_review_260618_client_surface.md
-output/client_surface/weekly_etf_eu_review_nl_260618_client_surface.md
-output/client_surface/weekly_etf_eu_review_260618_client_surface.html
-output/client_surface/weekly_etf_eu_review_260618_client_surface_nl.html
-output/client_surface/etf_eu_client_surface_20260618_000000.json
-output/delivery/etf_eu_delivery_authorization_decision_20260618_000000.json
+output/client_surface/etf_eu_premium_cockpit_surface_20260618_000000.json
+output/client_surface/weekly_etf_eu_review_260618_cockpit_poc.md
+output/client_surface/weekly_etf_eu_review_nl_260618_cockpit_poc.md
+config/ucits_symbol_registry.yml
+config/ucits_benchmark_proxy_map.yml
+control/UCITS_SYMBOL_REGISTRY_CONTRACT.md
+control/UCITS_ETF_REVIEW_CONTRACT_V1.md
 ```
 
-WP14N should create:
+WP14O should create:
 
 ```text
-POC review artifact
-roadmap consolidation artifact
-next-package recommendation
-cleanup note for output/client_surface/test_placeholder.md
+expanded UCITS candidate list or enrichment artifact
+cockpit data enrichment artifact
+validator/test coverage for expanded UCITS cockpit inputs
+updated cockpit surface or explicit next-render instruction
 ```
 
 ## Delivery remains blocked until
@@ -122,3 +135,5 @@ explicit control-layer delivery authorization is recorded
 Do not enable production delivery.
 Do not add recipients or secrets.
 Do not convert POC/render evidence into a delivery success claim.
+Do not promote candidates or mutate portfolio state.
+Do not create funding authority or valuation-grade authority.
