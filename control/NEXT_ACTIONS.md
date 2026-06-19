@@ -1,6 +1,6 @@
 # Weekly ETF EU Review OS — Next Actions
 
-Current priority: **WP14U — ETF EU cockpit proof-of-concept coordinator review closeout, no delivery**.
+Current priority: **WP14U validation closeout — run coordinator closeout validator/tests in Codespaces**.
 
 ## Adopted strategy
 
@@ -55,18 +55,20 @@ WP14S
 WP14T
 ```
 
-## WP14T completion evidence
+## Latest implementation awaiting validation
 
 ```text
-WP14T=completed
-proof_of_concept_package_created=true
-client_surface_package_index_created=true
+WP14U=implemented_pending_validation
+coordinator_closeout_created=true
+review_acceptance_checklist_created=true
+proof_of_concept_package_preserved=true
 readiness_gate_preserved=true
 pricing_integration_preserved=true
 pricing_line_evidence_preserved=true
 authority_boundary_preserved=true
 proxy_separation_preserved=true
 debug_surface_hygiene_preserved=true
+coordinator_review_status=ready_for_coordinator_review
 overall_readiness_status=ready_for_client_surface_review
 delivery_authorization_decision=remain_blocked
 production_delivery=false
@@ -75,52 +77,35 @@ candidate_promotion=false
 funding_authority=false
 valuation_grade=false
 visible_candidate_count=4
-package_manifest=output/client_surface/etf_eu_cockpit_poc_package_20260618_000000.json
-package_index=output/client_surface/etf_eu_cockpit_poc_package_index_20260618_000000.md
-package_validator=tools/validate_etf_eu_cockpit_poc_package.py
-package_tests=tests/test_etf_eu_cockpit_poc_package.py
-selected_next_package=WP14U
-selected_next_package_title=ETF EU cockpit proof-of-concept coordinator review closeout, no delivery
+coordinator_closeout_artifact=output/client_surface/etf_eu_cockpit_poc_coordinator_closeout_20260618_000000.json
+coordinator_closeout_checklist=output/client_surface/etf_eu_cockpit_poc_coordinator_closeout_checklist_20260618_000000.md
+coordinator_closeout_validator=tools/validate_etf_eu_cockpit_poc_coordinator_closeout.py
+coordinator_closeout_tests=tests/test_etf_eu_cockpit_poc_coordinator_closeout.py
+selected_next_package_after_validation=WP14V
+selected_next_package_after_validation_title=ETF EU cockpit review feedback intake, no delivery
 ```
 
-Codespaces validation evidence:
+Validation status:
 
 ```text
-ETF_EU_COCKPIT_POC_PACKAGE_OK
-12 passed in 0.04s
-working tree clean
+validator_execution_status=not_run_in_chatgpt_github_connector
+test_execution_status=not_run_in_chatgpt_github_connector
+required_coordinator_codespaces_validation=true
 ```
 
-## Active next package
+## Active next action
+
+Run in Codespaces:
 
 ```text
-WP14U — ETF EU cockpit proof-of-concept coordinator review closeout, no delivery
+python tools/validate_etf_eu_cockpit_poc_coordinator_closeout.py output/client_surface/etf_eu_cockpit_poc_coordinator_closeout_20260618_000000.json
+python -m pytest tests/test_etf_eu_cockpit_poc_coordinator_closeout.py -q
 ```
 
-Purpose:
+## Next package after successful validation
 
 ```text
-perform coordinator review closeout for the validated proof-of-concept package while preserving review-only status, blocked delivery, blocked portfolio mutation, blocked candidate promotion, blocked funding authority and blocked valuation-grade authority
-```
-
-Likely inputs:
-
-```text
-output/client_surface/etf_eu_cockpit_poc_package_20260618_000000.json
-output/client_surface/etf_eu_cockpit_poc_package_index_20260618_000000.md
-output/client_surface/etf_eu_cockpit_client_surface_readiness_20260618_000000.json
-output/client_surface/etf_eu_cockpit_pricing_integration_20260618_000000.json
-output/pricing/etf_eu_pricing_line_expansion_20260618_000000.json
-output/delivery/etf_eu_delivery_authorization_decision_20260618_000000.json
-```
-
-WP14U should create:
-
-```text
-coordinator review closeout artifact
-review acceptance checklist
-validator/test coverage for closeout completeness and preserved authority guards
-updated control state
+WP14V — ETF EU cockpit review feedback intake, no delivery
 ```
 
 ## Delivery remains blocked until
@@ -133,7 +118,7 @@ explicit control-layer delivery authorization is recorded
 ## Do not do next
 
 Do not enable production delivery.
-Do not convert review closeout into delivery authorization.
+Do not convert coordinator closeout into delivery authorization.
 Do not convert pricing evidence into valuation-grade authority.
 Do not promote candidates or mutate portfolio state.
 Do not create funding authority.
