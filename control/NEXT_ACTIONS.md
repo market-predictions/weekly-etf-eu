@@ -1,6 +1,6 @@
 # Weekly ETF EU Review OS — Next Actions
 
-Current priority: **WP14S validation closeout — run readiness validator/tests in Codespaces**.
+Current priority: **WP14T — ETF EU cockpit proof-of-concept package assembly, no delivery**.
 
 ## Adopted strategy
 
@@ -51,12 +51,13 @@ WP14O
 WP14P
 WP14Q
 WP14R
+WP14S
 ```
 
-## Latest implementation awaiting validation
+## WP14S completion evidence
 
 ```text
-WP14S=implemented_pending_validation
+WP14S=completed
 readiness_gate_created=true
 client_surface_readiness_assessed=true
 pricing_evidence_clarity_assessed=true
@@ -82,33 +83,57 @@ readiness_artifact=output/client_surface/etf_eu_cockpit_client_surface_readiness
 readiness_notes=output/client_surface/etf_eu_cockpit_client_surface_readiness_notes_20260618_000000.md
 readiness_validator=tools/validate_etf_eu_cockpit_client_surface_readiness.py
 readiness_tests=tests/test_etf_eu_cockpit_client_surface_readiness.py
-selected_next_package_after_validation=WP14T
-selected_next_package_after_validation_title=ETF EU cockpit proof-of-concept package assembly, no delivery
+selected_next_package=WP14T
+selected_next_package_title=ETF EU cockpit proof-of-concept package assembly, no delivery
 ```
 
-Validation status:
-
-```text
-validator_execution_status=not_run_in_chatgpt_github_connector
-test_execution_status=not_run_in_chatgpt_github_connector
-required_coordinator_codespaces_validation=true
-```
-
-## Active next action
-
-Run in Codespaces:
+Codespaces validation evidence:
 
 ```text
 python tools/validate_etf_eu_cockpit_client_surface_readiness.py output/client_surface/etf_eu_cockpit_client_surface_readiness_20260618_000000.json
+ETF_EU_COCKPIT_CLIENT_SURFACE_READINESS_OK | artifact=output/client_surface/etf_eu_cockpit_client_surface_readiness_20260618_000000.json | overall_readiness_status=ready_for_client_surface_review | selected_next_package=WP14T
+
 python -m pytest tests/test_etf_eu_cockpit_client_surface_readiness.py -q
+12 passed in 0.05s
+
+git status
+On branch main; branch up to date with origin/main; working tree clean
 ```
 
-Also run the existing gates from the WP14S instruction set before promoting WP14S to completed.
-
-## Next package after successful validation
+## Active next package
 
 ```text
 WP14T — ETF EU cockpit proof-of-concept package assembly, no delivery
+```
+
+Purpose:
+
+```text
+assemble the validated pricing-integrated cockpit proof-of-concept package for review while preserving review-only status, blocked delivery, blocked portfolio mutation, blocked candidate promotion, blocked funding authority and blocked valuation-grade authority
+```
+
+Likely inputs:
+
+```text
+output/client_surface/etf_eu_cockpit_client_surface_readiness_20260618_000000.json
+output/client_surface/etf_eu_cockpit_client_surface_readiness_notes_20260618_000000.md
+output/client_surface/etf_eu_cockpit_pricing_integration_20260618_000000.json
+output/client_surface/weekly_etf_eu_review_260618_cockpit_pricing_integrated.md
+output/client_surface/weekly_etf_eu_review_nl_260618_cockpit_pricing_integrated.md
+output/client_surface/weekly_etf_eu_review_260618_cockpit_pricing_integrated.html
+output/client_surface/weekly_etf_eu_review_nl_260618_cockpit_pricing_integrated.html
+output/pricing/etf_eu_pricing_line_expansion_20260618_000000.json
+output/pricing/etf_eu_pricing_line_expansion_notes_20260618_000000.md
+output/delivery/etf_eu_delivery_authorization_decision_20260618_000000.json
+```
+
+WP14T should create:
+
+```text
+proof-of-concept package manifest
+package index/notes for coordinator review
+validator/test coverage for package completeness and authority guards
+updated control state
 ```
 
 ## Delivery remains blocked until
@@ -122,7 +147,7 @@ explicit control-layer delivery authorization is recorded
 
 Do not enable production delivery.
 Do not add recipients or mail transport configuration.
-Do not convert readiness into delivery authorization.
+Do not convert the proof-of-concept package into delivery authorization.
 Do not convert pricing evidence into valuation-grade authority.
 Do not promote candidates or mutate portfolio state.
 Do not create funding authority.
