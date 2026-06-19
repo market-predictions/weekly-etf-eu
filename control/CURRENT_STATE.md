@@ -79,12 +79,13 @@ WP14P
 WP14Q
 WP14R
 WP14S
+WP14T
 ```
 
-## Latest implemented package — WP14T, validation pending
+## Latest completed package — WP14T
 
 ```text
-WP14T=implemented_pending_validation
+WP14T=completed
 proof_of_concept_package_created=true
 client_surface_package_index_created=true
 readiness_gate_preserved=true
@@ -105,32 +106,21 @@ package_manifest=output/client_surface/etf_eu_cockpit_poc_package_20260618_00000
 package_index=output/client_surface/etf_eu_cockpit_poc_package_index_20260618_000000.md
 package_validator=tools/validate_etf_eu_cockpit_poc_package.py
 package_tests=tests/test_etf_eu_cockpit_poc_package.py
-selected_next_package_after_validation=WP14U
-selected_next_package_after_validation_title=ETF EU cockpit proof-of-concept coordinator review closeout, no delivery
+selected_next_package=WP14U
+selected_next_package_title=ETF EU cockpit proof-of-concept coordinator review closeout, no delivery
 ```
 
-WP14T implementation evidence:
-
-```text
-proof_of_concept_package_manifest_committed=true
-proof_of_concept_package_index_committed=true
-package_validator_committed=true
-package_tests_committed=true
-```
-
-WP14T validation status:
-
-```text
-validator_execution_status=not_run_in_chatgpt_github_connector
-test_execution_status=not_run_in_chatgpt_github_connector
-required_coordinator_codespaces_validation=true
-```
-
-Commands required for coordinator/Codespaces validation:
+WP14T validation evidence from Codespaces:
 
 ```text
 python tools/validate_etf_eu_cockpit_poc_package.py output/client_surface/etf_eu_cockpit_poc_package_20260618_000000.json
+ETF_EU_COCKPIT_POC_PACKAGE_OK | artifact=output/client_surface/etf_eu_cockpit_poc_package_20260618_000000.json | recommended_first_review_file=output/client_surface/etf_eu_cockpit_poc_package_index_20260618_000000.md | selected_next_package=WP14U
+
 python -m pytest tests/test_etf_eu_cockpit_poc_package.py -q
+12 passed in 0.04s
+
+git status
+On branch main; branch up to date with origin/main; working tree clean
 ```
 
 WP14S validation evidence from Codespaces remains preserved:
@@ -141,9 +131,6 @@ ETF_EU_COCKPIT_CLIENT_SURFACE_READINESS_OK | artifact=output/client_surface/etf_
 
 python -m pytest tests/test_etf_eu_cockpit_client_surface_readiness.py -q
 12 passed in 0.05s
-
-git status
-On branch main; branch up to date with origin/main; working tree clean
 ```
 
 Pricing-line evidence covered by the package:
@@ -170,19 +157,18 @@ safe_for_candidate_promotion=false_for_all_candidates
 ## Active product roadmap
 
 ```text
-WP14T validation closeout — run package validator/tests in Codespaces
-WP14U — ETF EU cockpit proof-of-concept coordinator review closeout, no delivery, only after WP14T validation passes
+WP14U — ETF EU cockpit proof-of-concept coordinator review closeout, no delivery
 Delivery enablement — blocked until explicit receipt/manifest authority
 ```
 
 ## Immediate next action
 
-Validate WP14T in Codespaces.
+Start WP14U.
 
 Goal:
 
 ```text
-run the WP14T package validator and tests, then promote WP14T from implemented_pending_validation to completed only if validation passes
+perform coordinator review closeout for the validated proof-of-concept package while preserving review-only status and blocked delivery authority
 ```
 
 ## Boundary rule
