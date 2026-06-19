@@ -80,12 +80,13 @@ WP14Q
 WP14R
 WP14S
 WP14T
+WP14U
 ```
 
-## Latest implemented package — WP14U, validation pending
+## Latest completed package — WP14U
 
 ```text
-WP14U=implemented_pending_validation
+WP14U=completed
 coordinator_closeout_created=true
 review_acceptance_checklist_created=true
 proof_of_concept_package_preserved=true
@@ -108,32 +109,24 @@ coordinator_closeout_artifact=output/client_surface/etf_eu_cockpit_poc_coordinat
 coordinator_closeout_checklist=output/client_surface/etf_eu_cockpit_poc_coordinator_closeout_checklist_20260618_000000.md
 coordinator_closeout_validator=tools/validate_etf_eu_cockpit_poc_coordinator_closeout.py
 coordinator_closeout_tests=tests/test_etf_eu_cockpit_poc_coordinator_closeout.py
-selected_next_package_after_validation=WP14V
-selected_next_package_after_validation_title=ETF EU cockpit review feedback intake, no delivery
+selected_next_package=WP14V
+selected_next_package_title=ETF EU cockpit review feedback intake, no delivery
 ```
 
-WP14U implementation evidence:
+WP14U validation evidence from Codespaces:
 
 ```text
-coordinator_closeout_artifact_committed=true
-coordinator_closeout_checklist_committed=true
-coordinator_closeout_validator_committed=true
-coordinator_closeout_tests_committed=true
-```
+git pull origin main
+Fast-forward 8db216f..d670626
 
-WP14U validation status:
-
-```text
-validator_execution_status=not_run_in_chatgpt_github_connector
-test_execution_status=not_run_in_chatgpt_github_connector
-required_coordinator_codespaces_validation=true
-```
-
-Commands required for coordinator/Codespaces validation:
-
-```text
 python tools/validate_etf_eu_cockpit_poc_coordinator_closeout.py output/client_surface/etf_eu_cockpit_poc_coordinator_closeout_20260618_000000.json
+ETF_EU_COCKPIT_POC_COORDINATOR_CLOSEOUT_OK | artifact=output/client_surface/etf_eu_cockpit_poc_coordinator_closeout_20260618_000000.json | coordinator_review_status=ready_for_coordinator_review | selected_next_package=WP14V
+
 python -m pytest tests/test_etf_eu_cockpit_poc_coordinator_closeout.py -q
+11 passed in 0.11s
+
+git status
+On branch main; branch up to date with origin/main; working tree clean
 ```
 
 WP14T validation evidence from Codespaces remains preserved:
@@ -170,19 +163,18 @@ safe_for_candidate_promotion=false_for_all_candidates
 ## Active product roadmap
 
 ```text
-WP14U validation closeout — run coordinator closeout validator/tests in Codespaces
-WP14V — ETF EU cockpit review feedback intake, no delivery, only after WP14U validation passes
+WP14V — ETF EU cockpit review feedback intake, no delivery
 Delivery enablement — blocked until explicit receipt/manifest authority
 ```
 
 ## Immediate next action
 
-Validate WP14U in Codespaces.
+Start WP14V.
 
 Goal:
 
 ```text
-run the WP14U coordinator closeout validator and tests, then promote WP14U from implemented_pending_validation to completed only if validation passes
+create a safe review feedback intake layer for coordinator observations while preserving review-only status and blocked delivery authority
 ```
 
 ## Boundary rule
