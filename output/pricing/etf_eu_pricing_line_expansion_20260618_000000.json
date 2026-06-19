@@ -1,0 +1,249 @@
+{
+  "schema_version": "etf_eu_pricing_line_expansion_v1",
+  "run_id": "20260618_000000",
+  "status": "completed",
+  "created_at_utc": "2026-06-18T00:00:00Z",
+  "source_enriched_cockpit_render_manifest_path": "output/client_surface/etf_eu_enriched_cockpit_render_20260618_000000.json",
+  "source_universe_enrichment_manifest_path": "output/client_surface/etf_eu_cockpit_universe_enrichment_20260618_000000.json",
+  "source_symbol_registry_path": "config/ucits_symbol_registry.yml",
+  "source_proxy_map_path": "config/ucits_benchmark_proxy_map.yml",
+  "authorization_decision_artifact_path": "output/delivery/etf_eu_delivery_authorization_decision_20260618_000000.json",
+  "notes_path": "output/pricing/etf_eu_pricing_line_expansion_notes_20260618_000000.md",
+  "pricing_line_expansion_created": true,
+  "candidate_pricing_evidence_map_created": true,
+  "pricing_line_status_map_created": true,
+  "proxy_ambiguity_guard_created": true,
+  "valuation_grade_guard_created": true,
+  "funding_authority_guard_created": true,
+  "candidate_promotion_guard_created": true,
+  "ucits_identity_preserved": true,
+  "proxy_separation_preserved": true,
+  "pricing_evidence_preserved": true,
+  "delivery_authorization_decision": "remain_blocked",
+  "production_delivery": false,
+  "portfolio_mutation": false,
+  "candidate_promotion": false,
+  "funding_authority": false,
+  "valuation_grade": false,
+  "visible_candidate_count": 4,
+  "candidate_pricing_evidence": [
+    {
+      "candidate_id": "IE00B5BMR087",
+      "isin": "IE00B5BMR087",
+      "fund_name": "iShares Core S&P 500 UCITS ETF USD (Acc)",
+      "provider": "iShares / BlackRock",
+      "cockpit_status": "visible_review_candidate",
+      "pricing_line_status": "source_evidence_available",
+      "pricing_evidence_status": "usable_for_review_only",
+      "trading_lines": [
+        {
+          "exchange": "London Stock Exchange",
+          "exchange_ticker": "CSPX",
+          "trading_currency": "USD",
+          "pricing_symbol_yahoo": "CSPX.L",
+          "safe_for_cockpit_pricing_evidence": true,
+          "safe_for_valuation_grade": false
+        },
+        {
+          "exchange": "Xetra",
+          "exchange_ticker": "SXR8",
+          "trading_currency": "EUR",
+          "pricing_symbol_yahoo": "SXR8.DE",
+          "safe_for_cockpit_pricing_evidence": true,
+          "safe_for_valuation_grade": false
+        }
+      ],
+      "research_proxies": [
+        {
+          "us_proxy": "SPY",
+          "purpose": "benchmark_reference_only",
+          "proxy_must_not_be_funded": true,
+          "proxy_must_not_be_pricing_line": true
+        }
+      ],
+      "safe_for_cockpit_pricing_evidence": true,
+      "safe_for_valuation_grade": false,
+      "safe_for_funding_decision": false,
+      "safe_for_candidate_promotion": false,
+      "evidence_gaps": [
+        "broker_line_confirmation",
+        "weekly_input_integration"
+      ],
+      "reader_meaning": "CSPX.L and SXR8.DE remain the current review-only pricing evidence baseline for the enriched cockpit.",
+      "next_pricing_action": "Preserve CSPX.L and SXR8.DE as review-only baseline while broker and weekly input integration checks remain pending."
+    },
+    {
+      "candidate_id": "IE00BMC38736",
+      "isin": "IE00BMC38736",
+      "fund_name": "VanEck Semiconductor UCITS ETF",
+      "provider": "VanEck",
+      "cockpit_status": "pricing_incomplete",
+      "pricing_line_status": "pricing_symbol_ambiguous",
+      "pricing_evidence_status": "not_usable_until_exchange_line_verified",
+      "trading_lines": [
+        {
+          "exchange": "primary_line_pending_verification",
+          "exchange_ticker": "SMH",
+          "trading_currency": "USD",
+          "pricing_symbol_yahoo": "pending_verification",
+          "safe_for_cockpit_pricing_evidence": false,
+          "safe_for_valuation_grade": false,
+          "ambiguity_reason": "SMH is also a U.S. ETF ticker string and must not be used as safe UCITS pricing evidence without exchange-specific UCITS line verification."
+        }
+      ],
+      "research_proxies": [
+        {
+          "us_proxy": "SMH",
+          "purpose": "benchmark_reference_only",
+          "proxy_must_not_be_funded": true,
+          "proxy_must_not_be_pricing_line": true
+        }
+      ],
+      "safe_for_cockpit_pricing_evidence": false,
+      "safe_for_valuation_grade": false,
+      "safe_for_funding_decision": false,
+      "safe_for_candidate_promotion": false,
+      "evidence_gaps": [
+        "exchange_specific_ucits_line_verification",
+        "pricing_symbol_yahoo",
+        "domicile",
+        "distribution_policy",
+        "replication_method"
+      ],
+      "reader_meaning": "Semiconductor exposure is visible for research, but pricing is not safe until the UCITS exchange line and pricing symbol are verified.",
+      "next_pricing_action": "Verify an exchange-specific UCITS line and pricing symbol before allowing cockpit pricing evidence."
+    },
+    {
+      "candidate_id": "TBD-3-iShares Physical Gold ETC",
+      "isin": "TBD",
+      "fund_name": "iShares Physical Gold ETC",
+      "provider": "iShares / BlackRock",
+      "cockpit_status": "blocked_until_verified",
+      "pricing_line_status": "policy_blocked",
+      "pricing_evidence_status": "not_usable_until_policy_decision",
+      "trading_lines": [
+        {
+          "exchange": "pending_verification",
+          "exchange_ticker": "SGLN",
+          "trading_currency": "pending_verification",
+          "pricing_symbol_yahoo": "pending_verification",
+          "safe_for_cockpit_pricing_evidence": false,
+          "safe_for_valuation_grade": false
+        }
+      ],
+      "research_proxies": [
+        {
+          "us_proxy": "GLD",
+          "purpose": "benchmark_reference_only",
+          "proxy_must_not_be_funded": true,
+          "proxy_must_not_be_pricing_line": true
+        }
+      ],
+      "safe_for_cockpit_pricing_evidence": false,
+      "safe_for_valuation_grade": false,
+      "safe_for_funding_decision": false,
+      "safe_for_candidate_promotion": false,
+      "evidence_gaps": [
+        "isin",
+        "trading_currency",
+        "exchange_line",
+        "kid_status",
+        "etc_policy_decision_before_promotion"
+      ],
+      "reader_meaning": "Gold/ETC remains a blocked policy case, not a UCITS ETF pricing candidate.",
+      "next_pricing_action": "Resolve ETC policy decision before any promotion or pricing-line use; GLD remains a research proxy only."
+    },
+    {
+      "candidate_id": "TBD-4-iShares Global Infrastructure UCITS ETF",
+      "isin": "TBD",
+      "fund_name": "iShares Global Infrastructure UCITS ETF",
+      "provider": "iShares / BlackRock",
+      "cockpit_status": "identity_incomplete",
+      "pricing_line_status": "identity_incomplete",
+      "pricing_evidence_status": "not_usable_until_isin_verified",
+      "trading_lines": [
+        {
+          "exchange": "pending_verification",
+          "exchange_ticker": "INFR",
+          "trading_currency": "pending_verification",
+          "pricing_symbol_yahoo": "pending_verification",
+          "safe_for_cockpit_pricing_evidence": false,
+          "safe_for_valuation_grade": false
+        }
+      ],
+      "research_proxies": [
+        {
+          "us_proxy": "PAVE",
+          "purpose": "benchmark_reference_only",
+          "proxy_must_not_be_funded": true,
+          "proxy_must_not_be_pricing_line": true
+        }
+      ],
+      "safe_for_cockpit_pricing_evidence": false,
+      "safe_for_valuation_grade": false,
+      "safe_for_funding_decision": false,
+      "safe_for_candidate_promotion": false,
+      "evidence_gaps": [
+        "isin",
+        "issuer_verification",
+        "kid_status",
+        "ter",
+        "exchange_line",
+        "pricing_source"
+      ],
+      "reader_meaning": "Infrastructure remains identity-incomplete and cannot support cockpit pricing evidence yet.",
+      "next_pricing_action": "Verify ISIN and issuer evidence before exchange-line and pricing-symbol work."
+    }
+  ],
+  "pricing_line_status_summary": {
+    "source_evidence_available": 1,
+    "pricing_symbol_ambiguous": 1,
+    "policy_blocked": 1,
+    "identity_incomplete": 1
+  },
+  "unsafe_pricing_symbols": [
+    {
+      "symbol": "SMH",
+      "reason": "ambiguous ticker string; not safe as UCITS pricing evidence without exchange-specific UCITS line verification"
+    },
+    {
+      "symbol": "GLD",
+      "reason": "U.S. research proxy only; not an EU pricing line or EU holding"
+    },
+    {
+      "symbol": "PAVE",
+      "reason": "U.S. research proxy only; not an EU pricing line or EU holding"
+    }
+  ],
+  "evidence_gap_count": 9,
+  "evidence_gaps": [
+    "broker_line_confirmation",
+    "weekly_input_integration",
+    "exchange_specific_ucits_line_verification",
+    "pricing_symbol_yahoo",
+    "isin",
+    "kid_status",
+    "etc_policy_decision_before_promotion",
+    "issuer_verification",
+    "pricing_source"
+  ],
+  "validators_run": [
+    "tools/validate_etf_eu_enriched_cockpit_render.py",
+    "tools/validate_etf_eu_cockpit_universe_enrichment.py",
+    "tools/validate_etf_eu_pricing_line_expansion.py"
+  ],
+  "tests_expected": [
+    "tests/test_etf_eu_pricing_line_expansion.py",
+    "tests/test_etf_eu_enriched_cockpit_render.py",
+    "tests/test_etf_eu_cockpit_universe_enrichment.py",
+    "tests/test_etf_eu_premium_cockpit_surface.py",
+    "tests/test_etf_eu_client_poc_surface.py",
+    "tests/test_etf_eu_delivery_authorization_decision.py",
+    "tests/test_etf_eu_delivery_authorization_gate.py",
+    "tests/test_etf_eu_html_pdf_dry_run.py",
+    "tests/test_etf_eu_mature_bilingual_report.py",
+    "tests/test_etf_eu_dutch_language_quality.py"
+  ],
+  "selected_next_package": "WP14R",
+  "selected_next_package_title": "ETF EU cockpit pricing evidence integration, no delivery"
+}
