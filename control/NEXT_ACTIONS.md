@@ -1,6 +1,6 @@
 # Weekly ETF EU Review OS — Next Actions
 
-Current priority: **ETF EU pricing-line expansion for enriched cockpit candidates, no delivery**.
+Current priority: **ETF EU cockpit pricing evidence integration, no delivery**.
 
 ## Adopted strategy
 
@@ -49,25 +49,20 @@ WP14M
 WP14N
 WP14O
 WP14P
+WP14Q
 ```
 
-## WP14P completion evidence
+## WP14Q completion evidence
 
 ```text
-WP14P=completed
-enriched_cockpit_renderer_created=true
-deterministic_renderer_created=true
-render_manifest_created=true
-english_rendered_cockpit_markdown_created=true
-dutch_rendered_cockpit_markdown_created=true
-english_rendered_cockpit_html_created=true
-dutch_rendered_cockpit_html_created=true
-candidate_universe_preserved=true
-candidate_evidence_map_rendered=true
-proxy_separation_map_rendered=true
-reader_action_map_rendered=true
-blocker_panel_rendered=true
-debug_surface_reduced=true
+WP14Q=completed
+pricing_line_expansion_created=true
+candidate_pricing_evidence_map_created=true
+pricing_line_status_map_created=true
+proxy_ambiguity_guard_created=true
+valuation_grade_guard_created=true
+funding_authority_guard_created=true
+candidate_promotion_guard_created=true
 ucits_identity_preserved=true
 proxy_separation_preserved=true
 pricing_evidence_preserved=true
@@ -78,42 +73,51 @@ candidate_promotion=false
 funding_authority=false
 valuation_grade=false
 visible_candidate_count=4
-renderer_path=tools/render_etf_eu_enriched_cockpit.py
-render_manifest=output/client_surface/etf_eu_enriched_cockpit_render_20260618_000000.json
-selected_next_package=WP14Q
-selected_next_package_title=ETF EU pricing-line expansion for enriched cockpit candidates, no delivery
+pricing_line_expansion_manifest=output/pricing/etf_eu_pricing_line_expansion_20260618_000000.json
+pricing_line_expansion_notes=output/pricing/etf_eu_pricing_line_expansion_notes_20260618_000000.md
+selected_next_package=WP14R
+selected_next_package_title=ETF EU cockpit pricing evidence integration, no delivery
 ```
 
-Validation evidence from WP14P local sandbox execution:
+Pricing-line evidence summary:
 
 ```text
-python tools/render_etf_eu_enriched_cockpit.py output/client_surface/etf_eu_cockpit_universe_enrichment_20260618_000000.json
-ETF_EU_ENRICHED_COCKPIT_RENDER_CREATED | artifact=output/client_surface/etf_eu_enriched_cockpit_render_20260618_000000.json | visible_candidate_count=4 | selected_next_package=WP14Q
-
-python tools/validate_etf_eu_enriched_cockpit_render.py output/client_surface/etf_eu_enriched_cockpit_render_20260618_000000.json
-ETF_EU_ENRICHED_COCKPIT_RENDER_OK | artifact=output/client_surface/etf_eu_enriched_cockpit_render_20260618_000000.json | visible_candidate_count=4 | selected_next_package=WP14Q
-
-python -m pytest tests/test_etf_eu_enriched_cockpit_render.py -q
-12 passed
+CSPX.L=current_review_only_baseline
+SXR8.DE=current_review_only_baseline
+SMH=ambiguous_or_pending_not_safe_ucits_pricing_evidence
+GLD=research_proxy_only_not_eu_holding
+PAVE=research_proxy_only_not_eu_holding
 ```
 
-Existing gates listed in the WP14P manifest remain expected gates for coordinator/Codespaces verification.
+Validation evidence from WP14Q local sandbox mirror execution:
+
+```text
+python tools/validate_etf_eu_pricing_line_expansion.py output/pricing/etf_eu_pricing_line_expansion_20260618_000000.json
+ETF_EU_PRICING_LINE_EXPANSION_OK | artifact=output/pricing/etf_eu_pricing_line_expansion_20260618_000000.json | visible_candidate_count=4 | selected_next_package=WP14R
+
+python -m pytest tests/test_etf_eu_pricing_line_expansion.py -q
+10 passed in local sandbox mirror
+```
+
+Existing gates listed in the WP14Q manifest remain expected gates for coordinator/Codespaces verification.
 
 ## Active next package
 
 ```text
-WP14Q — ETF EU pricing-line expansion for enriched cockpit candidates, no delivery
+WP14R — ETF EU cockpit pricing evidence integration, no delivery
 ```
 
 Purpose:
 
 ```text
-expand pricing-line evidence for the enriched cockpit candidates that are currently pricing_incomplete, identity_incomplete or blocked_until_verified, without changing delivery, portfolio, funding or valuation-grade authority
+integrate the WP14Q pricing-line evidence map into the enriched cockpit surface and renderer output without changing delivery, portfolio, funding, candidate promotion or valuation-grade authority
 ```
 
 Likely inputs:
 
 ```text
+output/pricing/etf_eu_pricing_line_expansion_20260618_000000.json
+output/pricing/etf_eu_pricing_line_expansion_notes_20260618_000000.md
 output/client_surface/etf_eu_enriched_cockpit_render_20260618_000000.json
 output/client_surface/etf_eu_cockpit_universe_enrichment_20260618_000000.json
 config/ucits_symbol_registry.yml
@@ -123,12 +127,12 @@ control/UCITS_ETF_REVIEW_CONTRACT_V1.md
 output/delivery/etf_eu_delivery_authorization_decision_20260618_000000.json
 ```
 
-WP14Q should create:
+WP14R should create:
 
 ```text
-pricing-line expansion artifact for enriched cockpit candidates
-candidate-level pricing evidence status map
-validator/test coverage for pricing-line evidence without valuation-grade authority
+cockpit pricing evidence integration artifact
+updated/rendered cockpit surface that includes pricing evidence status map
+validator/test coverage for pricing evidence integration and authority guards
 updated control state with delivery still blocked
 ```
 
@@ -146,3 +150,4 @@ Do not add recipients or secrets.
 Do not convert pricing evidence into valuation-grade authority.
 Do not promote candidates or mutate portfolio state.
 Do not create funding authority.
+Do not treat SMH, GLD or PAVE as safe EU pricing lines.
