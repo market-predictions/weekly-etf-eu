@@ -2,7 +2,7 @@
 
 ## Snapshot date
 
-2026-06-18
+2026-06-19
 
 ## Repository identity
 
@@ -73,19 +73,24 @@ WP14J
 WP14K
 WP14L
 WP14M
+WP14N
 ```
 
-## Latest completed package — WP14M
+## Latest completed package — WP14N
 
 ```text
-WP14M=completed
-client_poc_surface_created=true
-english_poc_markdown_created=true
-dutch_poc_markdown_created=true
-english_poc_html_created=true
-dutch_poc_html_created=true
+WP14N=completed
+premium_cockpit_surface_created=true
+english_cockpit_markdown_created=true
+dutch_cockpit_markdown_created=true
+english_cockpit_html_created=true
+dutch_cockpit_html_created=true
+hero_block_created=true
+status_cards_created=true
+reader_action_map_created=true
+blocker_panel_created=true
+technical_appendix_preserved=true
 debug_surface_reduced=true
-technical_evidence_moved_to_appendix=true
 ucits_identity_preserved=true
 proxy_separation_preserved=true
 pricing_evidence_preserved=true
@@ -94,44 +99,43 @@ production_delivery=false
 portfolio_mutation=false
 funding_authority=false
 valuation_grade=false
-english_poc_markdown_path=output/client_surface/weekly_etf_eu_review_260618_client_surface.md
-dutch_poc_markdown_path=output/client_surface/weekly_etf_eu_review_nl_260618_client_surface.md
-english_poc_html_path=output/client_surface/weekly_etf_eu_review_260618_client_surface.html
-dutch_poc_html_path=output/client_surface/weekly_etf_eu_review_260618_client_surface_nl.html
-client_poc_manifest=output/client_surface/etf_eu_client_surface_20260618_000000.json
-selected_next_package=WP14N
-selected_next_package_title=ETF EU POC review and roadmap consolidation, no delivery
+english_cockpit_markdown_path=output/client_surface/weekly_etf_eu_review_260618_cockpit_poc.md
+dutch_cockpit_markdown_path=output/client_surface/weekly_etf_eu_review_nl_260618_cockpit_poc.md
+english_cockpit_html_path=output/client_surface/weekly_etf_eu_review_260618_cockpit_poc.html
+dutch_cockpit_html_path=output/client_surface/weekly_etf_eu_review_nl_260618_cockpit_poc.html
+premium_cockpit_manifest=output/client_surface/etf_eu_premium_cockpit_surface_20260618_000000.json
+cleanup_item_test_placeholder_removed=true
+selected_next_package=WP14O
+selected_next_package_title=ETF EU UCITS universe expansion and cockpit data enrichment, no delivery
 ```
 
-Validation evidence supplied from Codespaces:
+Validation evidence from WP14N local sandbox execution:
 
 ```text
-ETF_EU_CLIENT_POC_SURFACE_OK: output/client_surface/etf_eu_client_surface_20260618_000000.json selected_next_package=WP14N
-tests/test_etf_eu_client_poc_surface.py: 8 passed
-All prior EU gates also passed.
+python tools/validate_etf_eu_premium_cockpit_surface.py output/client_surface/etf_eu_premium_cockpit_surface_20260618_000000.json
+ETF_EU_PREMIUM_COCKPIT_SURFACE_OK | artifact=output/client_surface/etf_eu_premium_cockpit_surface_20260618_000000.json | selected_next_package=WP14O
+
+python -m pytest tests/test_etf_eu_premium_cockpit_surface.py -q
+12 passed
 ```
 
-Known cleanup item:
-
-```text
-output/client_surface/test_placeholder.md remains and should be removed in WP14N or a small cleanup commit.
-```
+Existing gates listed in the WP14N manifest remain expected gates for coordinator/Codespaces verification.
 
 ## Active product roadmap
 
 ```text
-WP14N — ETF EU POC review and roadmap consolidation, no delivery
+WP14O — ETF EU UCITS universe expansion and cockpit data enrichment, no delivery
 Delivery enablement — blocked until explicit receipt/manifest authority
 ```
 
 ## Immediate next action
 
-Start WP14N.
+Start WP14O.
 
 Goal:
 
 ```text
-review the first client-facing ETF EU POC surface, consolidate roadmap status, and decide the next product-facing package
+expand the UCITS universe and enrich cockpit data while preserving review-only status and blocked delivery authority
 ```
 
 ## Boundary rule
