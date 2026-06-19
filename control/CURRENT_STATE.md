@@ -80,24 +80,24 @@ WP14Q
 WP14R
 ```
 
-## Latest completed package — WP14R
+## Latest implemented package — WP14S, validation pending
 
 ```text
-WP14R=completed
-pricing_integration_created=true
-pricing_integrated_cockpit_surface_created=true
-pricing_line_evidence_rendered=true
-candidate_pricing_evidence_preserved=true
-pricing_line_status_map_preserved=true
-unsafe_pricing_symbol_guard_rendered=true
-proxy_ambiguity_guard_rendered=true
-valuation_grade_guard_rendered=true
-funding_authority_guard_rendered=true
-candidate_promotion_guard_rendered=true
-ucits_identity_preserved=true
-proxy_separation_preserved=true
-pricing_evidence_preserved=true
-debug_surface_reduced=true
+WP14S=implemented_pending_validation
+readiness_gate_created=true
+client_surface_readiness_assessed=true
+pricing_evidence_clarity_assessed=true
+authority_boundary_clarity_assessed=true
+proxy_separation_clarity_assessed=true
+candidate_status_clarity_assessed=true
+dutch_english_surface_parity_assessed=true
+debug_surface_hygiene_assessed=true
+no_delivery_guard_preserved=true
+no_portfolio_mutation_guard_preserved=true
+no_candidate_promotion_guard_preserved=true
+no_funding_authority_guard_preserved=true
+no_valuation_grade_guard_preserved=true
+overall_readiness_status=ready_for_client_surface_review
 delivery_authorization_decision=remain_blocked
 production_delivery=false
 portfolio_mutation=false
@@ -105,19 +105,32 @@ candidate_promotion=false
 funding_authority=false
 valuation_grade=false
 visible_candidate_count=4
-pricing_integrated_renderer=tools/render_etf_eu_pricing_integrated_cockpit.py
-pricing_integration_manifest=output/client_surface/etf_eu_cockpit_pricing_integration_20260618_000000.json
-english_pricing_integrated_cockpit_markdown_path=output/client_surface/weekly_etf_eu_review_260618_cockpit_pricing_integrated.md
-dutch_pricing_integrated_cockpit_markdown_path=output/client_surface/weekly_etf_eu_review_nl_260618_cockpit_pricing_integrated.md
-english_pricing_integrated_cockpit_html_path=output/client_surface/weekly_etf_eu_review_260618_cockpit_pricing_integrated.html
-dutch_pricing_integrated_cockpit_html_path=output/client_surface/weekly_etf_eu_review_nl_260618_cockpit_pricing_integrated.html
-pricing_integration_validator=tools/validate_etf_eu_cockpit_pricing_integration.py
-pricing_integration_tests=tests/test_etf_eu_cockpit_pricing_integration.py
-selected_next_package=WP14S
-selected_next_package_title=ETF EU cockpit client-surface readiness gate, no delivery
+readiness_artifact=output/client_surface/etf_eu_cockpit_client_surface_readiness_20260618_000000.json
+readiness_notes=output/client_surface/etf_eu_cockpit_client_surface_readiness_notes_20260618_000000.md
+readiness_validator=tools/validate_etf_eu_cockpit_client_surface_readiness.py
+readiness_tests=tests/test_etf_eu_cockpit_client_surface_readiness.py
+selected_next_package_after_validation=WP14T
+selected_next_package_after_validation_title=ETF EU cockpit proof-of-concept package assembly, no delivery
 ```
 
-Pricing-line evidence integrated into the cockpit:
+WP14S implementation evidence:
+
+```text
+client_surface_readiness_artifact_committed=true
+client_surface_readiness_notes_committed=true
+client_surface_readiness_validator_committed=true
+client_surface_readiness_tests_committed=true
+```
+
+WP14S validation status:
+
+```text
+validator_execution_status=not_run_in_chatgpt_github_connector
+test_execution_status=not_run_in_chatgpt_github_connector
+required_coordinator_codespaces_validation=true
+```
+
+Pricing-line evidence covered by the readiness gate:
 
 ```text
 IE00B5BMR087=iShares Core S&P 500 UCITS ETF USD (Acc)=source_evidence_available=usable_for_review_only=CSPX.L/SXR8.DE baseline
@@ -138,36 +151,31 @@ safe_for_funding_decision=false_for_all_candidates
 safe_for_candidate_promotion=false_for_all_candidates
 ```
 
-Validation evidence from WP14R local sandbox mirror execution:
+Commands required for coordinator/Codespaces validation:
 
 ```text
-python tools/render_etf_eu_pricing_integrated_cockpit.py output/client_surface/etf_eu_cockpit_universe_enrichment_20260618_000000.json output/pricing/etf_eu_pricing_line_expansion_20260618_000000.json
-ETF_EU_COCKPIT_PRICING_INTEGRATION_CREATED | artifact=output/client_surface/etf_eu_cockpit_pricing_integration_20260618_000000.json | visible_candidate_count=4 | selected_next_package=WP14S
-
-python tools/validate_etf_eu_cockpit_pricing_integration.py output/client_surface/etf_eu_cockpit_pricing_integration_20260618_000000.json
-ETF_EU_COCKPIT_PRICING_INTEGRATION_OK | artifact=output/client_surface/etf_eu_cockpit_pricing_integration_20260618_000000.json | visible_candidate_count=4 | selected_next_package=WP14S
-
-python -m pytest tests/test_etf_eu_cockpit_pricing_integration.py -q
-15 passed in local sandbox mirror
+python tools/validate_etf_eu_cockpit_client_surface_readiness.py output/client_surface/etf_eu_cockpit_client_surface_readiness_20260618_000000.json
+python -m pytest tests/test_etf_eu_cockpit_client_surface_readiness.py -q
 ```
 
-Existing gates listed in the WP14R manifest remain expected gates for coordinator/Codespaces verification.
+Existing gates listed in the WP14S instructions remain expected gates for coordinator/Codespaces verification.
 
 ## Active product roadmap
 
 ```text
-WP14S — ETF EU cockpit client-surface readiness gate, no delivery
+WP14S validation closeout — run validator/tests in Codespaces
+WP14T — ETF EU cockpit proof-of-concept package assembly, no delivery, only after WP14S validation passes
 Delivery enablement — blocked until explicit receipt/manifest authority
 ```
 
 ## Immediate next action
 
-Start WP14S.
+Validate WP14S in Codespaces.
 
 Goal:
 
 ```text
-validate the pricing-integrated cockpit as a client-surface readiness gate while preserving review-only status and blocked delivery authority
+run the WP14S readiness validator and tests, then promote WP14S from implemented_pending_validation to completed only if validation passes
 ```
 
 ## Boundary rule
