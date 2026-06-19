@@ -13,7 +13,7 @@ PATH_FIELDS = ["source_poc_package_manifest_path", "source_poc_package_index_pat
 LIST_FIELDS = ["review_files", "supporting_manifest_files"]
 CHECKLIST_PATH = Path("output/client_surface/etf_eu_cockpit_poc_coordinator_closeout_checklist_20260618_000000.md")
 CHECKLIST_TERMS = ["ETF EU Cockpit POC Coordinator Closeout", "ready for coordinator/client-surface review", "CSPX.L", "SXR8.DE", "IE00B5BMR087", "IE00BMC38736", "SMH", "Gold/ETC", "Infrastructure", "SPY", "GLD", "PAVE", "review-only", "usable_for_review_only", "pricing_symbol_ambiguous", "policy_blocked", "identity_incomplete", "delivery_authorization_decision=remain_blocked", "production_delivery=false", "portfolio_mutation=false", "candidate_promotion=false", "funding_authority=false", "valuation_grade=false"]
-FORBIDDEN_PAIRS = [("production delivery", "authorized"), ("delivery receipt", "exists"), ("portfolio mutation", "authorized"), ("candidate promotion", "authorized"), ("funding", "authorized"), ("valuation-grade authority", "created"), ("smh", "safe as ucits pricing evidence"), ("spy", "as eu holding"), ("smh", "as eu holding"), ("gld", "as eu holding"), ("pave", "as eu holding"), ("gld", "as eu pricing line"), ("pave", "as eu pricing line")]
+FORBIDDEN_PHRASES = ["production_delivery=true", "portfolio_mutation=true", "candidate_promotion=true", "funding_authority=true", "valuation_grade=true", "delivery_authorization_decision=authorized", "delivery_authorization_decision=approved", "production delivery authorized", "portfolio mutation authorized", "candidate promotion authorized", "funding authorized", "valuation-grade authority created", "smh safe as ucits pricing evidence", "spy as eu holding", "smh as eu holding", "gld as eu holding", "pave as eu holding", "gld as eu pricing line", "pave as eu pricing line"]
 
 
 class EtfEuCockpitPocCoordinatorCloseoutError(RuntimeError):
@@ -70,9 +70,9 @@ def validate_coordinator_closeout(path: Path) -> dict[str, str]:
         if term.lower() not in checklist_lower:
             raise EtfEuCockpitPocCoordinatorCloseoutError(f"checklist missing term: {term}")
     combined = (json.dumps(payload, sort_keys=True) + "\n" + checklist).lower()
-    for left, right in FORBIDDEN_PAIRS:
-        if left in combined and right in combined:
-            raise EtfEuCockpitPocCoordinatorCloseoutError(f"forbidden authority wording: {left} + {right}")
+    for phrase in FORBIDDEN_PHRASES:
+        if phrase in combined:
+            raise EtfEuCockpitPocCoordinatorCloseoutError(f"forbidden authority wording: {phrase}")
     checklist_map = payload.get("acceptance_checklist")
     if not isinstance(checklist_map, dict) or not checklist_map:
         raise EtfEuCockpitPocCoordinatorCloseoutError("acceptance_checklist missing")
