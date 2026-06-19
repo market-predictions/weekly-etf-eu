@@ -109,16 +109,11 @@ coordinator_closeout_artifact=output/client_surface/etf_eu_cockpit_poc_coordinat
 coordinator_closeout_checklist=output/client_surface/etf_eu_cockpit_poc_coordinator_closeout_checklist_20260618_000000.md
 coordinator_closeout_validator=tools/validate_etf_eu_cockpit_poc_coordinator_closeout.py
 coordinator_closeout_tests=tests/test_etf_eu_cockpit_poc_coordinator_closeout.py
-selected_next_package=WP14V
-selected_next_package_title=ETF EU cockpit review feedback intake, no delivery
 ```
 
 WP14U validation evidence from Codespaces:
 
 ```text
-git pull origin main
-Fast-forward 8db216f..d670626
-
 python tools/validate_etf_eu_cockpit_poc_coordinator_closeout.py output/client_surface/etf_eu_cockpit_poc_coordinator_closeout_20260618_000000.json
 ETF_EU_COCKPIT_POC_COORDINATOR_CLOSEOUT_OK | artifact=output/client_surface/etf_eu_cockpit_poc_coordinator_closeout_20260618_000000.json | coordinator_review_status=ready_for_coordinator_review | selected_next_package=WP14V
 
@@ -129,52 +124,74 @@ git status
 On branch main; branch up to date with origin/main; working tree clean
 ```
 
-WP14T validation evidence from Codespaces remains preserved:
+## Roadmap redirect — exit review-loop
 
 ```text
-python tools/validate_etf_eu_cockpit_poc_package.py output/client_surface/etf_eu_cockpit_poc_package_20260618_000000.json
-ETF_EU_COCKPIT_POC_PACKAGE_OK | artifact=output/client_surface/etf_eu_cockpit_poc_package_20260618_000000.json | recommended_first_review_file=output/client_surface/etf_eu_cockpit_poc_package_index_20260618_000000.md | selected_next_package=WP14U
-
-python -m pytest tests/test_etf_eu_cockpit_poc_package.py -q
-12 passed in 0.04s
+WP14V=skipped
+skip_reason=avoid_review_loop_after_validated_poc_closeout
+selected_next_package=WP15A
+selected_next_package_title=ETF EU cockpit first PDF MVP renderer, no delivery
 ```
 
-Pricing-line evidence covered by the closeout:
+Reason:
 
 ```text
-IE00B5BMR087=iShares Core S&P 500 UCITS ETF USD (Acc)=source_evidence_available=usable_for_review_only=CSPX.L/SXR8.DE baseline
-IE00BMC38736=VanEck Semiconductor UCITS ETF=pricing_symbol_ambiguous=not_safe_until_exchange_specific_ucits_line_verified
-TBD=iShares Physical Gold ETC=policy_blocked=not_safe_until_etc_policy_decision
-TBD=iShares Global Infrastructure UCITS ETF=identity_incomplete=not_safe_until_isin_and_issuer_verified
+WP14V would continue the review-feedback loop after a validated proof-of-concept closeout. The project is intentionally exiting the review-loop and routing to a first minimum viable PDF output.
 ```
 
-Authority and proxy guards preserved:
+## WP15A intended scope
 
 ```text
-SPY=research_proxy_only
-SMH=research_proxy_only_and_ambiguous_as_pricing_symbol
-GLD=research_proxy_only_not_eu_holding
-PAVE=research_proxy_only_not_eu_holding
-safe_for_valuation_grade=false_for_all_candidates
-safe_for_funding_decision=false_for_all_candidates
-safe_for_candidate_promotion=false_for_all_candidates
+WP15A — ETF EU cockpit first PDF MVP renderer, no delivery
+target_output=output/client_surface/weekly_etf_eu_cockpit_mvp_20260618_000000.pdf
+```
+
+Expected WP15A support files:
+
+```text
+tools/render_etf_eu_cockpit_pdf_mvp.py
+tools/validate_etf_eu_cockpit_pdf_mvp.py
+tests/test_etf_eu_cockpit_pdf_mvp.py
+```
+
+Expected WP15A input files:
+
+```text
+output/client_surface/etf_eu_cockpit_poc_coordinator_closeout_20260618_000000.json
+output/client_surface/etf_eu_cockpit_poc_package_20260618_000000.json
+output/client_surface/weekly_etf_eu_review_260618_cockpit_pricing_integrated.html
+output/client_surface/weekly_etf_eu_review_nl_260618_cockpit_pricing_integrated.html
+output/client_surface/weekly_etf_eu_review_260618_cockpit_pricing_integrated.md
+output/client_surface/weekly_etf_eu_review_nl_260618_cockpit_pricing_integrated.md
+```
+
+## PDF MVP boundary
+
+```text
+first_pdf_mvp_not_yet_implemented=true
+pdf_mvp_is_not_production_delivery=true
+pdf_mvp_does_not_authorize_sending_reports=true
+pdf_mvp_does_not_authorize_portfolio_mutation=true
+pdf_mvp_does_not_authorize_candidate_promotion=true
+pdf_mvp_does_not_authorize_funding=true
+pdf_mvp_does_not_create_valuation_grade_authority=true
 ```
 
 ## Active product roadmap
 
 ```text
-WP14V — ETF EU cockpit review feedback intake, no delivery
+WP15A — ETF EU cockpit first PDF MVP renderer, no delivery
 Delivery enablement — blocked until explicit receipt/manifest authority
 ```
 
 ## Immediate next action
 
-Start WP14V.
+Start WP15A.
 
 Goal:
 
 ```text
-create a safe review feedback intake layer for coordinator observations while preserving review-only status and blocked delivery authority
+create the first minimum viable PDF output from the validated ETF EU cockpit proof-of-concept package while preserving review-only status and blocked delivery authority
 ```
 
 ## Boundary rule
