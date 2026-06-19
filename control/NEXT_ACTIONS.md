@@ -1,6 +1,6 @@
 # Weekly ETF EU Review OS — Next Actions
 
-Current priority: **ETF EU cockpit client-surface readiness gate, no delivery**.
+Current priority: **WP14S validation closeout — run readiness validator/tests in Codespaces**.
 
 ## Adopted strategy
 
@@ -10,7 +10,7 @@ Use market-predictions/weekly-etf as an upstream donor for mature implementation
 Port behavior, not U.S. assumptions.
 ```
 
-## Completed through latest package
+## Completed through latest validated package
 
 ```text
 WP9
@@ -53,24 +53,24 @@ WP14Q
 WP14R
 ```
 
-## WP14R completion evidence
+## Latest implementation awaiting validation
 
 ```text
-WP14R=completed
-pricing_integration_created=true
-pricing_integrated_cockpit_surface_created=true
-pricing_line_evidence_rendered=true
-candidate_pricing_evidence_preserved=true
-pricing_line_status_map_preserved=true
-unsafe_pricing_symbol_guard_rendered=true
-proxy_ambiguity_guard_rendered=true
-valuation_grade_guard_rendered=true
-funding_authority_guard_rendered=true
-candidate_promotion_guard_rendered=true
-ucits_identity_preserved=true
-proxy_separation_preserved=true
-pricing_evidence_preserved=true
-debug_surface_reduced=true
+WP14S=implemented_pending_validation
+readiness_gate_created=true
+client_surface_readiness_assessed=true
+pricing_evidence_clarity_assessed=true
+authority_boundary_clarity_assessed=true
+proxy_separation_clarity_assessed=true
+candidate_status_clarity_assessed=true
+dutch_english_surface_parity_assessed=true
+debug_surface_hygiene_assessed=true
+no_delivery_guard_preserved=true
+no_portfolio_mutation_guard_preserved=true
+no_candidate_promotion_guard_preserved=true
+no_funding_authority_guard_preserved=true
+no_valuation_grade_guard_preserved=true
+overall_readiness_status=ready_for_client_surface_review
 delivery_authorization_decision=remain_blocked
 production_delivery=false
 portfolio_mutation=false
@@ -78,70 +78,37 @@ candidate_promotion=false
 funding_authority=false
 valuation_grade=false
 visible_candidate_count=4
-pricing_integration_manifest=output/client_surface/etf_eu_cockpit_pricing_integration_20260618_000000.json
-selected_next_package=WP14S
-selected_next_package_title=ETF EU cockpit client-surface readiness gate, no delivery
+readiness_artifact=output/client_surface/etf_eu_cockpit_client_surface_readiness_20260618_000000.json
+readiness_notes=output/client_surface/etf_eu_cockpit_client_surface_readiness_notes_20260618_000000.md
+readiness_validator=tools/validate_etf_eu_cockpit_client_surface_readiness.py
+readiness_tests=tests/test_etf_eu_cockpit_client_surface_readiness.py
+selected_next_package_after_validation=WP14T
+selected_next_package_after_validation_title=ETF EU cockpit proof-of-concept package assembly, no delivery
 ```
 
-Pricing-integrated cockpit evidence summary:
+Validation status:
 
 ```text
-CSPX.L=current_review_only_baseline
-SXR8.DE=current_review_only_baseline
-IE00B5BMR087=usable_for_review_only
-SMH=pricing_symbol_ambiguous_not_safe_ucits_pricing_evidence
-Gold/ETC=policy_blocked
-Infrastructure=identity_incomplete
-SPY/SMH/GLD/PAVE=research_proxy_only
+validator_execution_status=not_run_in_chatgpt_github_connector
+test_execution_status=not_run_in_chatgpt_github_connector
+required_coordinator_codespaces_validation=true
 ```
 
-Validation evidence from WP14R local sandbox mirror execution:
+## Active next action
+
+Run in Codespaces:
 
 ```text
-python tools/render_etf_eu_pricing_integrated_cockpit.py output/client_surface/etf_eu_cockpit_universe_enrichment_20260618_000000.json output/pricing/etf_eu_pricing_line_expansion_20260618_000000.json
-ETF_EU_COCKPIT_PRICING_INTEGRATION_CREATED | artifact=output/client_surface/etf_eu_cockpit_pricing_integration_20260618_000000.json | visible_candidate_count=4 | selected_next_package=WP14S
-
-python tools/validate_etf_eu_cockpit_pricing_integration.py output/client_surface/etf_eu_cockpit_pricing_integration_20260618_000000.json
-ETF_EU_COCKPIT_PRICING_INTEGRATION_OK | artifact=output/client_surface/etf_eu_cockpit_pricing_integration_20260618_000000.json | visible_candidate_count=4 | selected_next_package=WP14S
-
-python -m pytest tests/test_etf_eu_cockpit_pricing_integration.py -q
-15 passed in local sandbox mirror
+python tools/validate_etf_eu_cockpit_client_surface_readiness.py output/client_surface/etf_eu_cockpit_client_surface_readiness_20260618_000000.json
+python -m pytest tests/test_etf_eu_cockpit_client_surface_readiness.py -q
 ```
 
-Existing gates listed in the WP14R manifest remain expected gates for coordinator/Codespaces verification.
+Also run the existing gates from the WP14S instruction set before promoting WP14S to completed.
 
-## Active next package
-
-```text
-WP14S — ETF EU cockpit client-surface readiness gate, no delivery
-```
-
-Purpose:
+## Next package after successful validation
 
 ```text
-validate the pricing-integrated cockpit as a client-facing readiness surface while preserving review-only status, blocked delivery, blocked portfolio mutation, blocked candidate promotion, blocked funding authority and blocked valuation-grade authority
-```
-
-Likely inputs:
-
-```text
-output/client_surface/etf_eu_cockpit_pricing_integration_20260618_000000.json
-output/client_surface/weekly_etf_eu_review_260618_cockpit_pricing_integrated.md
-output/client_surface/weekly_etf_eu_review_nl_260618_cockpit_pricing_integrated.md
-output/client_surface/weekly_etf_eu_review_260618_cockpit_pricing_integrated.html
-output/client_surface/weekly_etf_eu_review_nl_260618_cockpit_pricing_integrated.html
-output/pricing/etf_eu_pricing_line_expansion_20260618_000000.json
-output/pricing/etf_eu_pricing_line_expansion_notes_20260618_000000.md
-output/delivery/etf_eu_delivery_authorization_decision_20260618_000000.json
-```
-
-WP14S should create:
-
-```text
-client-surface readiness gate artifact
-readiness validator/test coverage
-explicit client-surface readiness result with delivery still blocked
-updated control state
+WP14T — ETF EU cockpit proof-of-concept package assembly, no delivery
 ```
 
 ## Delivery remains blocked until
@@ -154,7 +121,7 @@ explicit control-layer delivery authorization is recorded
 ## Do not do next
 
 Do not enable production delivery.
-Do not add recipients or secrets.
+Do not add recipients or mail transport configuration.
 Do not convert readiness into delivery authorization.
 Do not convert pricing evidence into valuation-grade authority.
 Do not promote candidates or mutate portfolio state.
