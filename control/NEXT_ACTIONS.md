@@ -1,6 +1,6 @@
 # Weekly ETF EU Review OS — Next Actions
 
-Current priority: **WP15F — ETF EU cockpit PDF premium surface implementation, no delivery**.
+Current priority: **WP15G — ETF EU cockpit PDF premium surface closeout, no delivery**.
 
 ## Adopted strategy
 
@@ -31,7 +31,6 @@ WP13E
 WP13F
 WP13G
 WP13H
-WP13I
 WP14A
 WP14B
 WP14C
@@ -60,25 +59,22 @@ WP15B
 WP15C
 WP15D
 WP15E
+WP15F
 ```
 
-## WP15E completion evidence
+## WP15F completion evidence
 
 ```text
-WP15E=completed
-premium_surface_planning_created=true
-premium_surface_markdown_plan=output/client_surface/etf_eu_cockpit_pdf_premium_surface_plan_20260618_000000.md
-premium_surface_json_plan=output/client_surface/etf_eu_cockpit_pdf_premium_surface_plan_20260618_000000.json
-premium_surface_plan_validator=tools/validate_etf_eu_cockpit_pdf_premium_surface_plan.py
-premium_surface_plan_tests=tests/test_etf_eu_cockpit_pdf_premium_surface_plan.py
+WP15F=completed
+premium_pdf_surface_created=true
+premium_pdf_path=output/client_surface/weekly_etf_eu_cockpit_premium_surface_20260618_000000.pdf
+premium_pdf_commit=fb7751026a70db355385946ee3882c68f9ec0e71
+premium_pdf_renderer=tools/render_etf_eu_cockpit_pdf_premium_surface.py
+premium_pdf_validator=tools/validate_etf_eu_cockpit_pdf_premium_surface.py
+premium_pdf_tests=tests/test_etf_eu_cockpit_pdf_premium_surface.py
+premium_pdf_notes=output/client_surface/etf_eu_cockpit_pdf_premium_surface_notes_20260618_000000.md
 original_pdf_mvp_preserved=true
 layout_pdf_preserved=true
-planning_only=true
-new_pdf_created=false
-renderer_changed=false
-pricing_evidence_changed=false
-recommendation_logic_changed=false
-live_data_fetch_performed=false
 delivery_authorization_decision=remain_blocked
 production_delivery=false
 portfolio_mutation=false
@@ -90,40 +86,43 @@ valuation_grade=false
 Codespaces validation evidence:
 
 ```text
-ETF_EU_COCKPIT_PDF_PREMIUM_SURFACE_PLAN_OK
-12 passed in 0.05s
+ETF_EU_COCKPIT_PDF_PREMIUM_SURFACE_RENDERED
+ETF_EU_COCKPIT_PDF_PREMIUM_SURFACE_OK
+12 passed in 0.10s
+premium PDF committed at fb7751026a70db355385946ee3882c68f9ec0e71
 working tree clean
 ```
 
 ## Active next package
 
 ```text
-WP15F — ETF EU cockpit PDF premium surface implementation, no delivery
+WP15G — ETF EU cockpit PDF premium surface closeout, no delivery
 ```
 
 Purpose:
 
 ```text
-implement the planned premium client-grade cockpit PDF surface while preserving proof-of-concept status, no-delivery boundary, and no investment authority changes
+close out the committed premium PDF surface with validation evidence and explicit preservation of no-delivery and no-investment-authority boundaries
 ```
 
 Likely inputs:
 
 ```text
-output/client_surface/etf_eu_cockpit_pdf_premium_surface_plan_20260618_000000.md
-output/client_surface/etf_eu_cockpit_pdf_premium_surface_plan_20260618_000000.json
+output/client_surface/weekly_etf_eu_cockpit_premium_surface_20260618_000000.pdf
+output/client_surface/etf_eu_cockpit_pdf_premium_surface_notes_20260618_000000.md
+tools/render_etf_eu_cockpit_pdf_premium_surface.py
+tools/validate_etf_eu_cockpit_pdf_premium_surface.py
+tests/test_etf_eu_cockpit_pdf_premium_surface.py
 output/client_surface/weekly_etf_eu_cockpit_mvp_20260618_000000.pdf
 output/client_surface/weekly_etf_eu_cockpit_mvp_layout_20260618_000000.pdf
-tools/render_etf_eu_cockpit_pdf_mvp_layout.py
-tools/validate_etf_eu_cockpit_pdf_mvp_layout.py
 ```
 
-WP15F should create:
+WP15G should create:
 
 ```text
-premium PDF renderer implementation
-premium PDF output artifact
-premium PDF validator and tests
+premium surface closeout artifact
+premium surface closeout notes/checklist
+closeout validator/test coverage only if needed
 updated control state after validation
 ```
 
@@ -152,3 +151,4 @@ Do not change recommendation logic.
 Do not create another review-feedback package.
 Do not replace or delete the original WP15A PDF evidence.
 Do not replace or delete the WP15C layout PDF evidence.
+Do not replace or delete the WP15F premium PDF evidence.
