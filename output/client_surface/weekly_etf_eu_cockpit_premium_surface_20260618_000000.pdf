@@ -1,0 +1,590 @@
+%PDF-1.4
+%WP15F-PREMIUM-SURFACE
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [7 0 R 9 0 R 11 0 R 13 0 R 15 0 R] /Count 5 >>
+endobj
+3 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+4 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >>
+endobj
+5 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Courier >>
+endobj
+6 0 obj
+<< /Length 1764 >>
+stream
+0.96 0.96 0.96 rg
+0 0 612 792 re f
+0 0 0 rg
+0.88 0.88 0.88 rg 34 34 544 724 re f
+1 1 1 rg 38 38 536 716 re f
+0 0 0 rg
+BT
+/F2 19 Tf
+1 0 0 1 44 742 Tm
+(ETF EU Cockpit - Premium PDF Surface) Tj
+ET
+BT
+/F3 9 Tf
+1 0 0 1 54 716 Tm
+([ proof-of-concept / review-only ]) Tj
+ET
+BT
+/F3 8 Tf
+1 0 0 1 60 703 Tm
+(premium_surface_page=executive_cockpit_cover) Tj
+ET
+BT
+/F3 8 Tf
+1 0 0 1 60 692 Tm
+(run_id=20260618_000000) Tj
+ET
+BT
+/F2 13 Tf
+1 0 0 1 44 681 Tm
+(Boundary badge block) Tj
+ET
+BT
+/F3 9 Tf
+1 0 0 1 58 662 Tm
+([ delivery_authorization_decision=remain_blocked ]) Tj
+ET
+BT
+/F3 9 Tf
+1 0 0 1 58 649 Tm
+([ production_delivery=false ]) Tj
+ET
+BT
+/F3 9 Tf
+1 0 0 1 58 636 Tm
+([ portfolio_mutation=false ]) Tj
+ET
+BT
+/F3 9 Tf
+1 0 0 1 58 623 Tm
+([ candidate_promotion=false ]) Tj
+ET
+BT
+/F3 9 Tf
+1 0 0 1 58 610 Tm
+([ funding_authority=false ]) Tj
+ET
+BT
+/F3 9 Tf
+1 0 0 1 58 597 Tm
+([ valuation_grade=false ]) Tj
+ET
+BT
+/F2 13 Tf
+1 0 0 1 44 584 Tm
+(Dutch-first executive conclusion) Tj
+ET
+BT
+/F1 9 Tf
+1 0 0 1 58 565 Tm
+(- De cockpit is leesbaarder en premiumer gemaakt, maar blijft review-only:) Tj
+ET
+BT
+/F1 9 Tf
+1 0 0 1 58 553 Tm
+(  geen delivery, geen portfolio-mutatie en geen investeringsautoriteit.) Tj
+ET
+BT
+/F2 13 Tf
+1 0 0 1 44 541 Tm
+(Compact summary) Tj
+ET
+BT
+/F1 9 Tf
+1 0 0 1 58 522 Tm
+(- Bruikbaar als reviewbewijs: IE00B5BMR087 met CSPX.L en SXR8.DE.) Tj
+ET
+BT
+/F1 9 Tf
+1 0 0 1 58 510 Tm
+(- Geblokkeerd: Gold/ETC policy_blocked en infrastructure) Tj
+ET
+BT
+/F1 9 Tf
+1 0 0 1 58 498 Tm
+(  identity_incomplete.) Tj
+ET
+BT
+/F1 9 Tf
+1 0 0 1 58 486 Tm
+(- Te verifieren: semiconductor UCITS pricing line blijft) Tj
+ET
+BT
+/F1 9 Tf
+1 0 0 1 58 474 Tm
+(  pricing_symbol_ambiguous.) Tj
+ET
+BT
+/F1 8 Tf
+1 0 0 1 44 52 Tm
+(WP15F premium surface - proof-of-concept / review-only - page 1) Tj
+ET
+endstream
+endobj
+7 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R >> >> /Contents 6 0 R >>
+endobj
+8 0 obj
+<< /Length 1508 >>
+stream
+0.96 0.96 0.96 rg
+0 0 612 792 re f
+0 0 0 rg
+0.88 0.88 0.88 rg 34 34 544 724 re f
+1 1 1 rg 38 38 536 716 re f
+0 0 0 rg
+BT
+/F2 19 Tf
+1 0 0 1 44 742 Tm
+(Decision cockpit) Tj
+ET
+BT
+/F3 8 Tf
+1 0 0 1 60 716 Tm
+(premium_surface_page=decision_cockpit) Tj
+ET
+BT
+/F2 11 Tf
+1 0 0 1 54 705 Tm
+(Review-only usable baseline) Tj
+ET
+BT
+/F3 8 Tf
+1 0 0 1 66 690 Tm
+(candidate=iShares Core S&P 500 UCITS ETF USD Acc) Tj
+ET
+BT
+/F3 8 Tf
+1 0 0 1 66 679 Tm
+(ISIN=IE00B5BMR087) Tj
+ET
+BT
+/F3 8 Tf
+1 0 0 1 66 668 Tm
+(pricing_symbols=CSPX.L,SXR8.DE) Tj
+ET
+BT
+/F3 8 Tf
+1 0 0 1 66 657 Tm
+(pricing_evidence_status=usable_for_review_only) Tj
+ET
+BT
+/F3 8 Tf
+1 0 0 1 66 646 Tm
+(research_proxy=SPY) Tj
+ET
+BT
+/F2 11 Tf
+1 0 0 1 54 628 Tm
+(Candidate lane requiring verification) Tj
+ET
+BT
+/F3 8 Tf
+1 0 0 1 66 613 Tm
+(candidate=VanEck Semiconductor UCITS ETF) Tj
+ET
+BT
+/F3 8 Tf
+1 0 0 1 66 602 Tm
+(ISIN=IE00BMC38736) Tj
+ET
+BT
+/F3 8 Tf
+1 0 0 1 66 591 Tm
+(status=pricing_symbol_ambiguous) Tj
+ET
+BT
+/F3 8 Tf
+1 0 0 1 66 580 Tm
+(pricing_symbol=pending_verification) Tj
+ET
+BT
+/F3 8 Tf
+1 0 0 1 66 569 Tm
+(research_proxy=SMH) Tj
+ET
+BT
+/F2 11 Tf
+1 0 0 1 54 551 Tm
+(Blocked or incomplete lanes) Tj
+ET
+BT
+/F3 8 Tf
+1 0 0 1 66 536 Tm
+(Gold/ETC=policy_blocked) Tj
+ET
+BT
+/F3 8 Tf
+1 0 0 1 66 525 Tm
+(Infrastructure=identity_incomplete) Tj
+ET
+BT
+/F3 8 Tf
+1 0 0 1 66 514 Tm
+(funding_authority=false) Tj
+ET
+BT
+/F3 8 Tf
+1 0 0 1 66 503 Tm
+(valuation_grade=false) Tj
+ET
+BT
+/F1 8 Tf
+1 0 0 1 44 52 Tm
+(WP15F premium surface - proof-of-concept / review-only - page 2) Tj
+ET
+endstream
+endobj
+9 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R >> >> /Contents 8 0 R >>
+endobj
+10 0 obj
+<< /Length 1325 >>
+stream
+0.96 0.96 0.96 rg
+0 0 612 792 re f
+0 0 0 rg
+0.88 0.88 0.88 rg 34 34 544 724 re f
+1 1 1 rg 38 38 536 716 re f
+0 0 0 rg
+BT
+/F2 19 Tf
+1 0 0 1 44 742 Tm
+(UCITS evidence cockpit) Tj
+ET
+BT
+/F3 8 Tf
+1 0 0 1 60 716 Tm
+(premium_surface_page=ucits_evidence_cockpit) Tj
+ET
+BT
+/F3 8 Tf
+1 0 0 1 60 705 Tm
+(isin_first_identity=true) Tj
+ET
+BT
+/F2 11 Tf
+1 0 0 1 54 694 Tm
+(Evidence row - current baseline) Tj
+ET
+BT
+/F3 8 Tf
+1 0 0 1 66 679 Tm
+(ISIN=IE00B5BMR087) Tj
+ET
+BT
+/F3 8 Tf
+1 0 0 1 66 668 Tm
+(exchange_line=CSPX.L / SXR8.DE) Tj
+ET
+BT
+/F3 8 Tf
+1 0 0 1 66 657 Tm
+(pricing_symbol_evidence=source_evidence_available) Tj
+ET
+BT
+/F3 8 Tf
+1 0 0 1 66 646 Tm
+(ucits_status_placeholder=true) Tj
+ET
+BT
+/F3 8 Tf
+1 0 0 1 66 635 Tm
+(priips_kid_status_placeholder=true) Tj
+ET
+BT
+/F3 8 Tf
+1 0 0 1 66 624 Tm
+(trading_line_status_placeholder=true) Tj
+ET
+BT
+/F3 8 Tf
+1 0 0 1 66 613 Tm
+(next_verification_action=true) Tj
+ET
+BT
+/F2 11 Tf
+1 0 0 1 54 595 Tm
+(Evidence row - pending lanes) Tj
+ET
+BT
+/F3 8 Tf
+1 0 0 1 66 580 Tm
+(IE00BMC38736=verify exchange-specific UCITS line) Tj
+ET
+BT
+/F3 8 Tf
+1 0 0 1 66 569 Tm
+(Gold/ETC=resolve policy decision before any promotion) Tj
+ET
+BT
+/F3 8 Tf
+1 0 0 1 66 558 Tm
+(Infrastructure=verify ISIN and issuer evidence) Tj
+ET
+BT
+/F1 8 Tf
+1 0 0 1 44 52 Tm
+(WP15F premium surface - proof-of-concept / review-only - page 3) Tj
+ET
+endstream
+endobj
+11 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R >> >> /Contents 10 0 R >>
+endobj
+12 0 obj
+<< /Length 1263 >>
+stream
+0.96 0.96 0.96 rg
+0 0 612 792 re f
+0 0 0 rg
+0.88 0.88 0.88 rg 34 34 544 724 re f
+1 1 1 rg 38 38 536 716 re f
+0 0 0 rg
+BT
+/F2 19 Tf
+1 0 0 1 44 742 Tm
+(Research proxy separation) Tj
+ET
+BT
+/F3 8 Tf
+1 0 0 1 60 716 Tm
+(premium_surface_page=research_proxy_separation) Tj
+ET
+BT
+/F2 13 Tf
+1 0 0 1 44 705 Tm
+(Proxy use is research-only) Tj
+ET
+BT
+/F1 9 Tf
+1 0 0 1 58 686 Tm
+(- U.S. proxies may support research and benchmark context only. They are not) Tj
+ET
+BT
+/F1 9 Tf
+1 0 0 1 58 674 Tm
+(  EU holdings, EU pricing lines or funding sources.) Tj
+ET
+BT
+/F2 11 Tf
+1 0 0 1 54 662 Tm
+(Proxy map) Tj
+ET
+BT
+/F3 8 Tf
+1 0 0 1 66 647 Tm
+(SPY=research_proxy_only) Tj
+ET
+BT
+/F3 8 Tf
+1 0 0 1 66 636 Tm
+(SMH=research_proxy_only_and_ambiguous_as_pricing_symbol) Tj
+ET
+BT
+/F3 8 Tf
+1 0 0 1 66 625 Tm
+(GLD=research_proxy_only_not_eu_holding) Tj
+ET
+BT
+/F3 8 Tf
+1 0 0 1 66 614 Tm
+(PAVE=research_proxy_only_not_eu_holding) Tj
+ET
+BT
+/F2 11 Tf
+1 0 0 1 54 596 Tm
+(Authority status) Tj
+ET
+BT
+/F3 8 Tf
+1 0 0 1 66 581 Tm
+(pricing_authority_status=review_only_or_blocked) Tj
+ET
+BT
+/F3 8 Tf
+1 0 0 1 66 570 Tm
+(funding_authority=false) Tj
+ET
+BT
+/F3 8 Tf
+1 0 0 1 66 559 Tm
+(valuation_grade=false) Tj
+ET
+BT
+/F1 8 Tf
+1 0 0 1 44 52 Tm
+(WP15F premium surface - proof-of-concept / review-only - page 4) Tj
+ET
+endstream
+endobj
+13 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R >> >> /Contents 12 0 R >>
+endobj
+14 0 obj
+<< /Length 1856 >>
+stream
+0.96 0.96 0.96 rg
+0 0 612 792 re f
+0 0 0 rg
+0.88 0.88 0.88 rg 34 34 544 724 re f
+1 1 1 rg 38 38 536 716 re f
+0 0 0 rg
+BT
+/F2 19 Tf
+1 0 0 1 44 742 Tm
+(Action and validation checklist) Tj
+ET
+BT
+/F3 8 Tf
+1 0 0 1 60 716 Tm
+(premium_surface_page=action_and_validation_checklist) Tj
+ET
+BT
+/F2 11 Tf
+1 0 0 1 54 705 Tm
+(Checklist markers) Tj
+ET
+BT
+/F3 8 Tf
+1 0 0 1 66 690 Tm
+(review_only_usable=true) Tj
+ET
+BT
+/F3 8 Tf
+1 0 0 1 66 679 Tm
+(must_stay_blocked=true) Tj
+ET
+BT
+/F3 8 Tf
+1 0 0 1 66 668 Tm
+(must_verify_before_promotion=true) Tj
+ET
+BT
+/F3 8 Tf
+1 0 0 1 66 657 Tm
+(delivery_enablement_requires_separate_authority=true) Tj
+ET
+BT
+/F2 11 Tf
+1 0 0 1 54 639 Tm
+(What must remain true) Tj
+ET
+BT
+/F3 8 Tf
+1 0 0 1 66 624 Tm
+(original_pdf_mvp_preserved=true) Tj
+ET
+BT
+/F3 8 Tf
+1 0 0 1 66 613 Tm
+(layout_pdf_preserved=true) Tj
+ET
+BT
+/F3 8 Tf
+1 0 0 1 66 602 Tm
+(live_data_fetch_performed=false) Tj
+ET
+BT
+/F3 8 Tf
+1 0 0 1 66 591 Tm
+(pricing_evidence_changed=false) Tj
+ET
+BT
+/F3 8 Tf
+1 0 0 1 66 580 Tm
+(recommendation_logic_changed=false) Tj
+ET
+BT
+/F2 13 Tf
+1 0 0 1 44 562 Tm
+(Final authority markers) Tj
+ET
+BT
+/F3 9 Tf
+1 0 0 1 58 543 Tm
+([ delivery_authorization_decision=remain_blocked ]) Tj
+ET
+BT
+/F3 9 Tf
+1 0 0 1 58 530 Tm
+([ production_delivery=false ]) Tj
+ET
+BT
+/F3 9 Tf
+1 0 0 1 58 517 Tm
+([ portfolio_mutation=false ]) Tj
+ET
+BT
+/F3 9 Tf
+1 0 0 1 58 504 Tm
+([ candidate_promotion=false ]) Tj
+ET
+BT
+/F3 9 Tf
+1 0 0 1 58 491 Tm
+([ funding_authority=false ]) Tj
+ET
+BT
+/F3 9 Tf
+1 0 0 1 58 478 Tm
+([ valuation_grade=false ]) Tj
+ET
+BT
+/F2 13 Tf
+1 0 0 1 44 465 Tm
+(Next package) Tj
+ET
+BT
+/F3 8 Tf
+1 0 0 1 60 446 Tm
+(selected_next_package=WP15G) Tj
+ET
+BT
+/F3 8 Tf
+1 0 0 1 60 435 Tm
+(selected_next_package_title=ETF EU cockpit PDF premium surface closeout, no delivery) Tj
+ET
+BT
+/F1 8 Tf
+1 0 0 1 44 52 Tm
+(WP15F premium surface - proof-of-concept / review-only - page 5) Tj
+ET
+endstream
+endobj
+15 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R >> >> /Contents 14 0 R >>
+endobj
+xref
+0 16
+0000000000 65535 f 
+0000000032 00000 n 
+0000000081 00000 n 
+0000000165 00000 n 
+0000000235 00000 n 
+0000000310 00000 n 
+0000000378 00000 n 
+0000002194 00000 n 
+0000002340 00000 n 
+0000003900 00000 n 
+0000004046 00000 n 
+0000005424 00000 n 
+0000005572 00000 n 
+0000006888 00000 n 
+0000007036 00000 n 
+0000008945 00000 n 
+trailer
+<< /Size 16 /Root 1 0 R >>
+startxref
+9093
+%%EOF
