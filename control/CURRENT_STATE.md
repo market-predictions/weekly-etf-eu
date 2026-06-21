@@ -87,9 +87,59 @@ WP15B
 WP15C
 WP15D
 WP15E
+WP15F
 ```
 
-## Latest completed package — WP15E
+## Latest completed package — WP15F
+
+```text
+WP15F=completed
+premium_pdf_surface_created=true
+premium_pdf_path=output/client_surface/weekly_etf_eu_cockpit_premium_surface_20260618_000000.pdf
+premium_pdf_commit=fb7751026a70db355385946ee3882c68f9ec0e71
+premium_pdf_renderer=tools/render_etf_eu_cockpit_pdf_premium_surface.py
+premium_pdf_validator=tools/validate_etf_eu_cockpit_pdf_premium_surface.py
+premium_pdf_tests=tests/test_etf_eu_cockpit_pdf_premium_surface.py
+premium_pdf_notes=output/client_surface/etf_eu_cockpit_pdf_premium_surface_notes_20260618_000000.md
+original_pdf_mvp_preserved=true
+layout_pdf_preserved=true
+delivery_authorization_decision=remain_blocked
+production_delivery=false
+portfolio_mutation=false
+candidate_promotion=false
+funding_authority=false
+valuation_grade=false
+outbound_path_enabled=false
+live_data_fetch_performed=false
+pricing_evidence_changed=false
+recommendation_logic_changed=false
+selected_next_package=WP15G
+selected_next_package_title=ETF EU cockpit PDF premium surface closeout, no delivery
+```
+
+WP15F validation evidence from Codespaces:
+
+```text
+python tools/render_etf_eu_cockpit_pdf_premium_surface.py
+ETF_EU_COCKPIT_PDF_PREMIUM_SURFACE_RENDERED | output=output/client_surface/weekly_etf_eu_cockpit_premium_surface_20260618_000000.pdf
+
+python tools/validate_etf_eu_cockpit_pdf_premium_surface.py output/client_surface/weekly_etf_eu_cockpit_premium_surface_20260618_000000.pdf
+ETF_EU_COCKPIT_PDF_PREMIUM_SURFACE_OK | pdf=output/client_surface/weekly_etf_eu_cockpit_premium_surface_20260618_000000.pdf | selected_next_package=WP15G
+
+python -m pytest tests/test_etf_eu_cockpit_pdf_premium_surface.py -q
+12 passed in 0.10s
+
+git commit -m "WP15F add premium PDF surface output"
+[main fb77510] WP15F add premium PDF surface output
+
+git push origin main
+02b1201..fb77510 main -> main
+
+git status
+On branch main; branch up to date with origin/main; working tree clean
+```
+
+## Prior package context — WP15E
 
 ```text
 WP15E=completed
@@ -98,57 +148,13 @@ premium_surface_markdown_plan=output/client_surface/etf_eu_cockpit_pdf_premium_s
 premium_surface_json_plan=output/client_surface/etf_eu_cockpit_pdf_premium_surface_plan_20260618_000000.json
 premium_surface_plan_validator=tools/validate_etf_eu_cockpit_pdf_premium_surface_plan.py
 premium_surface_plan_tests=tests/test_etf_eu_cockpit_pdf_premium_surface_plan.py
-original_pdf_mvp_preserved=true
-layout_pdf_preserved=true
-planning_only=true
-new_pdf_created=false
-renderer_changed=false
-pricing_evidence_changed=false
-recommendation_logic_changed=false
-live_data_fetch_performed=false
-delivery_authorization_decision=remain_blocked
-production_delivery=false
-portfolio_mutation=false
-candidate_promotion=false
-funding_authority=false
-valuation_grade=false
-selected_next_package=WP15F
-selected_next_package_title=ETF EU cockpit PDF premium surface implementation, no delivery
 ```
 
-WP15E validation evidence from Codespaces:
-
-```text
-python tools/validate_etf_eu_cockpit_pdf_premium_surface_plan.py output/client_surface/etf_eu_cockpit_pdf_premium_surface_plan_20260618_000000.json
-ETF_EU_COCKPIT_PDF_PREMIUM_SURFACE_PLAN_OK | artifact=output/client_surface/etf_eu_cockpit_pdf_premium_surface_plan_20260618_000000.json | selected_next_package=WP15F
-
-python -m pytest tests/test_etf_eu_cockpit_pdf_premium_surface_plan.py -q
-12 passed in 0.05s
-
-git status
-On branch main; branch up to date with origin/main; working tree clean
-```
-
-## Prior package context — WP15D
-
-```text
-WP15D=completed
-pdf_mvp_layout_closeout_created=true
-pdf_mvp_layout_closeout_notes_created=true
-pdf_mvp_layout_closeout_artifact=output/client_surface/etf_eu_cockpit_pdf_mvp_layout_closeout_20260618_000000.json
-pdf_mvp_layout_closeout_notes=output/client_surface/etf_eu_cockpit_pdf_mvp_layout_closeout_notes_20260618_000000.md
-pdf_mvp_layout_path=output/client_surface/weekly_etf_eu_cockpit_mvp_layout_20260618_000000.pdf
-pdf_mvp_layout_commit=651de79f11ded4285ca57938cfdf38d46b02e5bf
-original_pdf_mvp_preserved=true
-```
-
-## Premium surface planning boundary
+## Premium PDF surface boundary
 
 ```text
 proof_of_concept_pdf_mvp=true
-planning_only=true
-new_pdf_created=false
-renderer_changed=false
+premium_pdf_surface_created=true
 production_delivery=false
 portfolio_mutation=false
 candidate_promotion=false
@@ -160,18 +166,18 @@ delivery_authorization_decision=remain_blocked
 ## Active product roadmap
 
 ```text
-WP15F — ETF EU cockpit PDF premium surface implementation, no delivery
+WP15G — ETF EU cockpit PDF premium surface closeout, no delivery
 Delivery enablement — blocked until explicit receipt/manifest authority
 ```
 
 ## Immediate next action
 
-Start WP15F.
+Start WP15G.
 
 Goal:
 
 ```text
-implement the planned premium client-grade cockpit PDF surface while preserving proof-of-concept status, no-delivery boundary, and no investment authority changes
+close out the committed premium PDF surface with validation evidence and explicit preservation of no-delivery and no-investment-authority boundaries
 ```
 
 ## Boundary rule
