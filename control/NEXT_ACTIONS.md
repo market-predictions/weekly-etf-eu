@@ -1,6 +1,6 @@
 # Weekly ETF EU Review OS — Next Actions
 
-Current priority: **WP15B — ETF EU cockpit PDF MVP validation closeout, no delivery**.
+Current priority: **WP15C — ETF EU cockpit PDF MVP layout and readability iteration, no delivery**.
 
 ## Adopted strategy
 
@@ -56,17 +56,20 @@ WP14T
 WP14U
 WP14V_SKIP_AND_WP15A_CONTROL_REDIRECT
 WP15A
+WP15B
 ```
 
-## WP15A completion evidence
+## WP15B completion evidence
 
 ```text
-WP15A=completed
-first_pdf_mvp_created=true
+WP15B=completed
+pdf_mvp_closeout_created=true
+pdf_mvp_review_notes_created=true
+pdf_mvp_closeout_artifact=output/client_surface/etf_eu_cockpit_pdf_mvp_closeout_20260618_000000.json
+pdf_mvp_review_notes=output/client_surface/etf_eu_cockpit_pdf_mvp_review_notes_20260618_000000.md
+pdf_mvp_closeout_validator=tools/validate_etf_eu_cockpit_pdf_mvp_closeout.py
+pdf_mvp_closeout_tests=tests/test_etf_eu_cockpit_pdf_mvp_closeout.py
 pdf_mvp_path=output/client_surface/weekly_etf_eu_cockpit_mvp_20260618_000000.pdf
-pdf_mvp_renderer=tools/render_etf_eu_cockpit_pdf_mvp.py
-pdf_mvp_validator=tools/validate_etf_eu_cockpit_pdf_mvp.py
-pdf_mvp_tests=tests/test_etf_eu_cockpit_pdf_mvp.py
 pdf_mvp_commit=ce0146326d3235687aabd23d5e728b3ee34a8fe5
 delivery_authorization_decision=remain_blocked
 production_delivery=false
@@ -79,42 +82,45 @@ valuation_grade=false
 Codespaces validation evidence:
 
 ```text
-ETF_EU_COCKPIT_PDF_MVP_RENDERED
 ETF_EU_COCKPIT_PDF_MVP_OK
-10 passed in 0.09s
+ETF_EU_COCKPIT_PDF_MVP_CLOSEOUT_OK
+20 passed in 0.16s
 working tree clean
 ```
 
 ## Active next package
 
 ```text
-WP15B — ETF EU cockpit PDF MVP validation closeout, no delivery
+WP15C — ETF EU cockpit PDF MVP layout and readability iteration, no delivery
 ```
 
 Purpose:
 
 ```text
-close out the first committed PDF MVP with validation evidence, basic visual-review notes, and explicit no-delivery boundary preservation
+improve the PDF MVP layout, readability, Dutch-first hierarchy and table presentation without enabling delivery or changing investment authority
 ```
 
 Likely inputs:
 
 ```text
 output/client_surface/weekly_etf_eu_cockpit_mvp_20260618_000000.pdf
+output/client_surface/etf_eu_cockpit_pdf_mvp_closeout_20260618_000000.json
+output/client_surface/etf_eu_cockpit_pdf_mvp_review_notes_20260618_000000.md
 tools/render_etf_eu_cockpit_pdf_mvp.py
 tools/validate_etf_eu_cockpit_pdf_mvp.py
 tests/test_etf_eu_cockpit_pdf_mvp.py
-output/client_surface/etf_eu_cockpit_poc_coordinator_closeout_20260618_000000.json
-output/client_surface/etf_eu_cockpit_poc_package_20260618_000000.json
+output/client_surface/weekly_etf_eu_review_nl_260618_cockpit_pricing_integrated.md
+output/client_surface/weekly_etf_eu_review_260618_cockpit_pricing_integrated.md
 ```
 
-WP15B should create:
+WP15C should create:
 
 ```text
-PDF MVP closeout artifact
-PDF MVP review/validation notes
-small validator/test coverage only if needed
-updated control state
+improved PDF MVP renderer or renderer iteration
+updated PDF MVP output if needed
+layout/readability validation notes
+validator/test updates only where needed
+updated control state after validation
 ```
 
 ## Boundary remains
@@ -138,3 +144,5 @@ Do not promote candidates.
 Do not create funding authority.
 Do not create valuation-grade authority.
 Do not fetch live data.
+Do not change recommendation logic.
+Do not create another review-feedback package.
