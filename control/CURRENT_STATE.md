@@ -89,25 +89,24 @@ WP15E
 WP15F
 WP15G
 WP15H
+WP15I
 ```
 
-## Latest completed package — WP15H
+## Latest completed package — WP15I
 
 ```text
-WP15H=completed
-review_checkpoint_created=true
-review_checkpoint_decision=keep_premium_pdf_as_current_review_artifact
-review_checkpoint_artifact=output/client_surface/etf_eu_cockpit_pdf_premium_surface_review_checkpoint_20260618_000000.json
-review_checkpoint_notes=output/client_surface/etf_eu_cockpit_pdf_premium_surface_review_checkpoint_notes_20260618_000000.md
-review_checkpoint_validator=tools/validate_etf_eu_cockpit_pdf_premium_surface_review_checkpoint.py
-review_checkpoint_tests=tests/test_etf_eu_cockpit_pdf_premium_surface_review_checkpoint.py
+WP15I=completed
+improvement_decision_created=true
+improvement_decision=keep_current_premium_surface
+improvement_decision_artifact=output/client_surface/etf_eu_cockpit_pdf_premium_surface_improvement_decision_20260618_000000.json
+improvement_decision_notes=output/client_surface/etf_eu_cockpit_pdf_premium_surface_improvement_decision_notes_20260618_000000.md
+improvement_decision_validator=tools/validate_etf_eu_cockpit_pdf_premium_surface_improvement_decision.py
+improvement_decision_tests=tests/test_etf_eu_cockpit_pdf_premium_surface_improvement_decision.py
 premium_pdf_path=output/client_surface/weekly_etf_eu_cockpit_premium_surface_20260618_000000.pdf
 premium_pdf_commit=fb7751026a70db355385946ee3882c68f9ec0e71
-premium_surface_closeout_artifact=output/client_surface/etf_eu_cockpit_pdf_premium_surface_closeout_20260618_000000.json
-client_readability_status=acceptable_for_review_checkpoint
-governance_clarity_status=acceptable_for_review_checkpoint
-ucits_proxy_separation_status=acceptable_for_review_checkpoint
-validation_traceability_status=acceptable_for_review_checkpoint
+review_checkpoint_artifact=output/client_surface/etf_eu_cockpit_pdf_premium_surface_review_checkpoint_20260618_000000.json
+targeted_improvement_package_required=false
+targeted_improvement_package=null
 production_delivery=false
 portfolio_mutation=false
 candidate_promotion=false
@@ -124,47 +123,48 @@ premium_pdf_replaced=false
 client_distribution_claimed=false
 receipt_artifact_created=false
 production_manifest_created=false
-selected_next_package=WP15I
-selected_next_package_title=ETF EU cockpit PDF premium surface improvement decision, no delivery
+selected_next_package=WP15J
+selected_next_package_title=ETF EU cockpit PDF evidence archive and roadmap checkpoint, no delivery
 ```
 
-WP15H validation evidence from Codespaces:
+WP15I validation evidence from Codespaces:
 
 ```text
 python tools/validate_etf_eu_cockpit_pdf_premium_surface.py output/client_surface/weekly_etf_eu_cockpit_premium_surface_20260618_000000.pdf
 ETF_EU_COCKPIT_PDF_PREMIUM_SURFACE_OK | pdf=output/client_surface/weekly_etf_eu_cockpit_premium_surface_20260618_000000.pdf | selected_next_package=WP15G
 
-python tools/validate_etf_eu_cockpit_pdf_premium_surface_closeout.py output/client_surface/etf_eu_cockpit_pdf_premium_surface_closeout_20260618_000000.json
-ETF_EU_COCKPIT_PDF_PREMIUM_SURFACE_CLOSEOUT_OK | artifact=output/client_surface/etf_eu_cockpit_pdf_premium_surface_closeout_20260618_000000.json | selected_next_package=WP15H
-
 python tools/validate_etf_eu_cockpit_pdf_premium_surface_review_checkpoint.py output/client_surface/etf_eu_cockpit_pdf_premium_surface_review_checkpoint_20260618_000000.json
 ETF_EU_COCKPIT_PDF_PREMIUM_SURFACE_REVIEW_CHECKPOINT_OK | artifact=output/client_surface/etf_eu_cockpit_pdf_premium_surface_review_checkpoint_20260618_000000.json | selected_next_package=WP15I
 
-python -m pytest tests/test_etf_eu_cockpit_pdf_premium_surface.py tests/test_etf_eu_cockpit_pdf_premium_surface_closeout.py tests/test_etf_eu_cockpit_pdf_premium_surface_review_checkpoint.py -q
-36 passed in 0.11s
+python tools/validate_etf_eu_cockpit_pdf_premium_surface_improvement_decision.py output/client_surface/etf_eu_cockpit_pdf_premium_surface_improvement_decision_20260618_000000.json
+ETF_EU_COCKPIT_PDF_PREMIUM_SURFACE_IMPROVEMENT_DECISION_OK | artifact=output/client_surface/etf_eu_cockpit_pdf_premium_surface_improvement_decision_20260618_000000.json | selected_next_package=WP15J
+
+python -m pytest tests/test_etf_eu_cockpit_pdf_premium_surface.py tests/test_etf_eu_cockpit_pdf_premium_surface_review_checkpoint.py tests/test_etf_eu_cockpit_pdf_premium_surface_improvement_decision.py -q
+37 passed in 0.29s
 
 git status
 On branch main; branch up to date with origin/main; working tree clean
 ```
 
-## Prior package context — WP15G
+## Prior package context — WP15H
 
 ```text
-WP15G=completed
-premium_surface_closeout_created=true
-premium_surface_closeout_artifact=output/client_surface/etf_eu_cockpit_pdf_premium_surface_closeout_20260618_000000.json
-premium_surface_closeout_notes=output/client_surface/etf_eu_cockpit_pdf_premium_surface_closeout_notes_20260618_000000.md
-premium_pdf_surface_created=true
+WP15H=completed
+review_checkpoint_created=true
+review_checkpoint_decision=keep_premium_pdf_as_current_review_artifact
+review_checkpoint_artifact=output/client_surface/etf_eu_cockpit_pdf_premium_surface_review_checkpoint_20260618_000000.json
+review_checkpoint_notes=output/client_surface/etf_eu_cockpit_pdf_premium_surface_review_checkpoint_notes_20260618_000000.md
 premium_pdf_path=output/client_surface/weekly_etf_eu_cockpit_premium_surface_20260618_000000.pdf
 premium_pdf_commit=fb7751026a70db355385946ee3882c68f9ec0e71
 ```
 
-## Premium PDF surface review checkpoint boundary
+## Premium PDF surface improvement decision boundary
 
 ```text
 proof_of_concept_pdf_mvp=true
-review_checkpoint_created=true
-review_checkpoint_decision=keep_premium_pdf_as_current_review_artifact
+improvement_decision_created=true
+improvement_decision=keep_current_premium_surface
+targeted_improvement_package_required=false
 new_pdf_created=false
 renderer_changed=false
 premium_pdf_replaced=false
@@ -179,18 +179,18 @@ delivery_authorization_decision=remain_blocked
 ## Active product roadmap
 
 ```text
-WP15I — ETF EU cockpit PDF premium surface improvement decision, no delivery
+WP15J — ETF EU cockpit PDF evidence archive and roadmap checkpoint, no delivery
 Delivery enablement — blocked until explicit receipt/manifest authority
 ```
 
 ## Immediate next action
 
-Start WP15I.
+Start WP15J.
 
 Goal:
 
 ```text
-decide whether the premium surface needs a targeted improvement iteration or can remain as the stable current review artifact, without creating production delivery authority
+archive the premium PDF evidence chain and checkpoint the roadmap so future work can move away from repeated renderer/review loops toward the next controlled roadmap decision
 ```
 
 ## Boundary rule
