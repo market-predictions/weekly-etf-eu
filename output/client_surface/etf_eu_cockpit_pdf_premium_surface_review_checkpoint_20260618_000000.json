@@ -1,0 +1,108 @@
+{
+  "schema_version": "etf_eu_cockpit_pdf_premium_surface_review_checkpoint_v1",
+  "run_id": "20260618_000000",
+  "review_date": "2026-06-22",
+  "status": "completed_accept_as_evidence_with_non_blocking_improvements",
+  "work_package": "WP15H",
+  "source_work_package": "WP15G",
+  "reviewed_pdf_path": "output/client_surface/weekly_etf_eu_cockpit_premium_surface_20260618_000000.pdf",
+  "source_closeout_artifact": "output/client_surface/etf_eu_cockpit_pdf_premium_surface_closeout_20260618_000000.json",
+  "source_closeout_notes": "output/client_surface/etf_eu_cockpit_pdf_premium_surface_closeout_notes_20260618_000000.md",
+  "source_premium_notes": "output/client_surface/etf_eu_cockpit_pdf_premium_surface_notes_20260618_000000.md",
+  "source_premium_plan": "output/client_surface/etf_eu_cockpit_pdf_premium_surface_plan_20260618_000000.md",
+  "review_summary": {
+    "checkpoint_result": "acceptable_as_review_evidence_not_delivery_ready",
+    "client_readability_result": "improved_and_understandable_for_review_context_but_not_final_client_surface",
+    "governance_result": "authority_boundaries_preserved",
+    "product_checkpoint_result": "premium_surface_is_better_than_mvp_layout_and_should_be_preserved_as_evidence"
+  },
+  "client_readability_assessment": {
+    "first_page_understandable_for_dutch_eu_client": true,
+    "cockpit_first_structure_clear": true,
+    "answers_what_matters_now": true,
+    "signals_risk_state_and_next_actions_readable_without_developer_context": "partly",
+    "unnecessary_technical_debug_language_on_client_surface": "present_but_controlled",
+    "dutch_eu_investor_assumptions_clear_enough_for_review": true,
+    "ucits_vs_us_proxy_relationship_clear": true,
+    "notes": [
+      "The cover gives a Dutch-first executive conclusion and quickly states that the surface remains review-only with no delivery, portfolio mutation or investment authority.",
+      "The five-page structure is materially clearer than the MVP/layout surfaces: executive cockpit, decision cockpit, UCITS evidence, proxy separation, action checklist.",
+      "The main remaining readability weakness is that many machine-checkable markers remain visible as developer-like labels. This is acceptable for review evidence but not ideal for a final client report.",
+      "Dutch/EU context is present through UCITS identity, ISIN-first evidence, PRIIPs/KID/trading-line placeholders and explicit U.S. research proxy separation."
+    ]
+  },
+  "governance_assessment": {
+    "avoids_valuation_grade_authority": true,
+    "avoids_funding_authority": true,
+    "avoids_candidate_promotion": true,
+    "avoids_portfolio_mutation": true,
+    "avoids_production_delivery_authority": true,
+    "preserves_eu_ucits_source_of_truth_boundary": true,
+    "keeps_us_etf_information_non_authoritative": true,
+    "avoids_suggesting_delivery_enabled": true,
+    "notes": [
+      "Authority badges are repeated where decisions could be misread.",
+      "U.S. proxies are explicitly framed as research/benchmark context only, not EU holdings, EU pricing lines or funding sources.",
+      "The artifact keeps outbound delivery, receipt and production manifest authority blocked."
+    ]
+  },
+  "product_checkpoint_assessment": {
+    "better_than_mvp_layout_surface": true,
+    "good_enough_to_preserve_as_evidence": true,
+    "delivery_enablement_can_be_considered_after": [
+      "client-facing copy is simplified while machine-checkable markers remain validator-visible",
+      "receipt/manifest authority is designed and approved in a separate package",
+      "delivery preflight governance proves no recipient, SMTP or secret change happens accidentally",
+      "live market refresh and pricing evidence scope are explicitly resolved in a later authorized package"
+    ],
+    "recommended_next_step_type": "copy_governance_refinement_plan_no_delivery",
+    "notes": [
+      "Do not jump directly to production delivery.",
+      "Do not create another PDF yet unless a separate refinement package approves renderer changes.",
+      "The next useful step is a small plan that separates client-facing copy from validator/debug markers and defines what a later renderer refinement may change."
+    ]
+  },
+  "readability_governance_checklist": {
+    "page_1_executive_cockpit_cover": "pass_with_non_blocking_copy_improvement",
+    "page_2_decision_cockpit": "pass",
+    "page_3_ucits_evidence_cockpit": "pass_for_review_evidence",
+    "page_4_research_proxy_separation": "pass",
+    "page_5_action_and_validation_checklist": "pass_with_stale_next_package_marker_noted",
+    "boundary_badges": "pass",
+    "machine_checkable_markers": "pass",
+    "client_grade_copy": "needs_refinement_before_delivery"
+  },
+  "blocking_issues": [],
+  "delivery_enablement_blockers": [
+    "production delivery remains false and no delivery receipt exists",
+    "no production manifest exists",
+    "funding authority remains false",
+    "valuation-grade authority remains false",
+    "candidate promotion remains false",
+    "the report remains proof-of-concept / review-only"
+  ],
+  "non_blocking_improvements": [
+    "Replace visible developer-like marker strings with client-language badges while keeping raw validator markers machine-checkable.",
+    "Make the first-page conclusion shorter and more executive for a non-technical Dutch client.",
+    "Clarify the difference between review evidence, pricing evidence and valuation-grade evidence in one compact glossary/callout.",
+    "Update the page 5 selected_next_package marker in a future renderer/refinement package; it still points to WP15G because no new PDF was created in WP15H.",
+    "Keep UCITS/proxy separation visually prominent if a later renderer refinement is approved."
+  ],
+  "selected_next_package": "WP15I",
+  "selected_next_package_title": "ETF EU cockpit PDF premium surface copy/governance refinement plan, no delivery",
+  "boundary_flags": {
+    "production_delivery": false,
+    "portfolio_mutation": false,
+    "candidate_promotion": false,
+    "funding_authority": false,
+    "valuation_grade": false,
+    "live_data_fetch_performed": false,
+    "recommendation_logic_changed": false,
+    "renderer_changed": false,
+    "new_pdf_created": false,
+    "outbound_path_enabled": false,
+    "receipt_artifact_created": false,
+    "production_manifest_created": false,
+    "client_distribution_claimed": false
+  }
+}
