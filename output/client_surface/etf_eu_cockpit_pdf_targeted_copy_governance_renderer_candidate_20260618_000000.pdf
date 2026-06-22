@@ -1,0 +1,53 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [3 0 R] /Count 1 >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 4 0 R /F2 5 0 R >> >> /Contents 6 0 R >>
+endobj
+4 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+5 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >>
+endobj
+6 0 obj
+<< /Length 1718 >>
+stream
+BT /F2 18 Tf 50 760 Td (ETF EU Cockpit - Review-only PDF Candidate) Tj ET
+BT /F1 10 Tf 50 738 Td (ETF-EU-WP15M build package output - not delivered - no production delivery) Tj ET
+BT /F2 12 Tf 50 722 Td (Status) Tj ET
+BT /F1 10 Tf 50 706 Td (review-only | not delivered | no delivery receipt | no production manifest) Tj ET
+BT /F1 10 Tf 50 690 Td (delivery_authorization_decision=remain_blocked) Tj ET
+BT /F2 12 Tf 50 674 Td (Client-facing copy/governance refinement) Tj ET
+BT /F1 10 Tf 50 658 Td (Surface: Reviewversie voor controle - geen productie- of klantlevering.) Tj ET
+BT /F1 10 Tf 50 642 Td (Delivery: Niet verzonden; geen receipt of productiemanifest.) Tj ET
+BT /F1 10 Tf 50 626 Td (Evidence: review evidence, pricing evidence and valuation-grade evidence remain separated.) Tj ET
+BT /F1 10 Tf 50 610 Td (Proxy: UCITS candidates remain separated from U.S. proxy symbols.) Tj ET
+BT /F2 12 Tf 50 594 Td (Hard boundaries) Tj ET
+BT /F1 10 Tf 50 578 Td (production_delivery=false; client_distribution_claimed=false; receipt_artifact_created=false) Tj ET
+BT /F1 10 Tf 50 562 Td (production_manifest_created=false; portfolio_mutation=false; candidate_promotion=false) Tj ET
+BT /F1 10 Tf 50 546 Td (funding_authority=false; valuation_grade=false; premium_pdf_replaced=false) Tj ET
+BT /F1 10 Tf 50 530 Td (live_data_fetch_performed=false; pricing_evidence_changed=false; recommendation_logic_changed=false) Tj ET
+BT /F2 12 Tf 50 514 Td (Completion rule) Tj ET
+BT /F1 10 Tf 50 498 Td (This package is complete only because this review-only PDF candidate exists and validates.) Tj ET
+BT /F1 6 Tf 50 482 Td (work_package_id=ETF-EU-WP15M; review_only_pdf_candidate_created=true; selected_next_package=ETF-EU-WP15N) Tj ET
+endstream
+endobj
+xref
+0 7
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000115 00000 n 
+0000000251 00000 n 
+0000000321 00000 n 
+0000000396 00000 n 
+trailer
+<< /Size 7 /Root 1 0 R >>
+startxref
+2165
+%%EOF
