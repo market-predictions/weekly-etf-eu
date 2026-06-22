@@ -1,6 +1,6 @@
 # Weekly ETF EU Review OS — Next Actions
 
-Current priority: **WP15H — ETF EU cockpit PDF premium surface review checkpoint, no delivery**.
+Current priority: **WP15I — ETF EU cockpit PDF premium surface copy/governance refinement plan, no delivery**.
 
 ## Adopted strategy
 
@@ -61,76 +61,75 @@ WP15D
 WP15E
 WP15F
 WP15G
+WP15H
 ```
 
-## WP15G completion evidence
+## WP15H completion evidence
 
 ```text
-WP15G=completed
-premium_surface_closeout_created=true
-premium_surface_closeout_notes_created=true
-premium_surface_closeout_artifact=output/client_surface/etf_eu_cockpit_pdf_premium_surface_closeout_20260618_000000.json
-premium_surface_closeout_notes=output/client_surface/etf_eu_cockpit_pdf_premium_surface_closeout_notes_20260618_000000.md
-premium_surface_closeout_validator=tools/validate_etf_eu_cockpit_pdf_premium_surface_closeout.py
-premium_surface_closeout_tests=tests/test_etf_eu_cockpit_pdf_premium_surface_closeout.py
-premium_pdf_surface_created=true
-premium_pdf_path=output/client_surface/weekly_etf_eu_cockpit_premium_surface_20260618_000000.pdf
-premium_pdf_commit=fb7751026a70db355385946ee3882c68f9ec0e71
-premium_pdf_renderer=tools/render_etf_eu_cockpit_pdf_premium_surface.py
-premium_pdf_validator=tools/validate_etf_eu_cockpit_pdf_premium_surface.py
-premium_pdf_tests=tests/test_etf_eu_cockpit_pdf_premium_surface.py
-premium_pdf_notes=output/client_surface/etf_eu_cockpit_pdf_premium_surface_notes_20260618_000000.md
-original_pdf_mvp_preserved=true
-layout_pdf_preserved=true
-premium_surface_plan_preserved=true
-closeout_only=true
-new_pdf_created=false
-renderer_changed=false
-delivery_authorization_decision=remain_blocked
-production_delivery=false
-portfolio_mutation=false
-candidate_promotion=false
-funding_authority=false
-valuation_grade=false
+WP15H=completed
+premium_surface_review_checkpoint_created=true
+premium_surface_review_checkpoint_notes_created=true
+premium_surface_review_checkpoint_artifact=output/client_surface/etf_eu_cockpit_pdf_premium_surface_review_checkpoint_20260618_000000.json
+premium_surface_review_checkpoint_notes=output/client_surface/etf_eu_cockpit_pdf_premium_surface_review_checkpoint_notes_20260618_000000.md
+premium_surface_review_checkpoint_validator=tools/validate_etf_eu_cockpit_pdf_premium_surface_review_checkpoint.py
+premium_surface_review_checkpoint_tests=tests/test_etf_eu_cockpit_pdf_premium_surface_review_checkpoint.py
+reviewed_pdf_path=output/client_surface/weekly_etf_eu_cockpit_premium_surface_20260618_000000.pdf
+source_closeout_artifact=output/client_surface/etf_eu_cockpit_pdf_premium_surface_closeout_20260618_000000.json
+review_checkpoint_result=acceptable_as_review_evidence_not_delivery_ready
+client_readability_result=improved_and_understandable_for_review_context_but_not_final_client_surface
+governance_result=authority_boundaries_preserved
+product_checkpoint_result=premium_surface_is_better_than_mvp_layout_and_should_be_preserved_as_evidence
+selected_next_package=WP15I
 ```
 
-Codespaces validation evidence:
+Validation commands to run:
 
 ```text
+python tools/validate_etf_eu_cockpit_pdf_premium_surface_review_checkpoint.py output/client_surface/etf_eu_cockpit_pdf_premium_surface_review_checkpoint_20260618_000000.json
+python -m pytest tests/test_etf_eu_cockpit_pdf_premium_surface_review_checkpoint.py -q
+python tools/validate_etf_eu_cockpit_pdf_premium_surface.py output/client_surface/weekly_etf_eu_cockpit_premium_surface_20260618_000000.pdf
+python tools/validate_etf_eu_cockpit_pdf_premium_surface_closeout.py output/client_surface/etf_eu_cockpit_pdf_premium_surface_closeout_20260618_000000.json
+```
+
+Expected validation markers:
+
+```text
+ETF_EU_COCKPIT_PDF_PREMIUM_SURFACE_REVIEW_CHECKPOINT_OK
 ETF_EU_COCKPIT_PDF_PREMIUM_SURFACE_OK
 ETF_EU_COCKPIT_PDF_PREMIUM_SURFACE_CLOSEOUT_OK
-24 passed in 0.09s
-working tree clean
 ```
 
 ## Active next package
 
 ```text
-WP15H — ETF EU cockpit PDF premium surface review checkpoint, no delivery
+WP15I — ETF EU cockpit PDF premium surface copy/governance refinement plan, no delivery
 ```
 
 Purpose:
 
 ```text
-review the premium PDF surface from a client-readability and governance-checkpoint perspective without creating a new PDF or enabling delivery
+Define a small, no-delivery refinement plan that separates final client-facing copy from validator/debug markers, without rendering a new PDF or changing delivery authority.
 ```
 
 Likely inputs:
 
 ```text
 output/client_surface/weekly_etf_eu_cockpit_premium_surface_20260618_000000.pdf
+output/client_surface/etf_eu_cockpit_pdf_premium_surface_review_checkpoint_20260618_000000.json
+output/client_surface/etf_eu_cockpit_pdf_premium_surface_review_checkpoint_notes_20260618_000000.md
 output/client_surface/etf_eu_cockpit_pdf_premium_surface_closeout_20260618_000000.json
 output/client_surface/etf_eu_cockpit_pdf_premium_surface_closeout_notes_20260618_000000.md
 output/client_surface/etf_eu_cockpit_pdf_premium_surface_notes_20260618_000000.md
 output/client_surface/etf_eu_cockpit_pdf_premium_surface_plan_20260618_000000.md
 ```
 
-WP15H should create:
+WP15I should create:
 
 ```text
-premium surface review checkpoint artifact
-premium surface review checkpoint notes
-readability/governance assessment checklist
+copy/governance refinement plan artifact
+human-readable refinement plan notes
+explicit client-copy versus machine-marker distinction
 updated control state after validation
 ```
 
@@ -160,7 +159,7 @@ Do not create funding authority.
 Do not create valuation-grade authority.
 Do not fetch live data.
 Do not change recommendation logic.
-Do not create another renderer iteration.
+Do not create a delivery-preflight implementation package yet.
 Do not replace or delete the original WP15A PDF evidence.
 Do not replace or delete the WP15C layout PDF evidence.
 Do not replace or delete the WP15F premium PDF evidence.
