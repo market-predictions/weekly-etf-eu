@@ -12,9 +12,12 @@ REVIEW_NOTES = Path("output/client_surface/etf_eu_cockpit_pdf_premium_surface_re
 CLOSEOUT_ARTIFACT = Path("output/client_surface/etf_eu_cockpit_pdf_premium_surface_closeout_20260618_000000.json")
 MIN_PDF_SIZE_BYTES = 8500
 
-KEEP = "keep_current_premium_surface"
+REPOSITORY = "market-predictions/weekly-etf-eu"
+WORK_PACKAGE_ID = "ETF-EU-WP15I-RECONCILE"
+LEGACY_WORK_PACKAGE_ID = "WP15I"
 CREATE_TARGETED = "create_targeted_improvement_package"
-ALLOWED_DECISIONS = {KEEP, CREATE_TARGETED}
+TARGETED_PACKAGE = "ETF-EU-WP15J"
+DECISION = "targeted_copy_governance_refinement_before_delivery_preflight"
 
 
 class ImprovementDecisionValidationError(RuntimeError):
@@ -67,38 +70,44 @@ def validate_improvement_decision(path: Path) -> dict[str, str]:
     expected_values = {
         "schema_version": "etf_eu_cockpit_pdf_premium_surface_improvement_decision_v1",
         "run_id": "20260618_000000",
+        "repository": REPOSITORY,
+        "work_package_id": WORK_PACKAGE_ID,
+        "legacy_work_package_id": LEGACY_WORK_PACKAGE_ID,
         "status": "completed",
         "work_package": "WP15I",
         "source_work_package": "WP15H",
+        "reconciles_work_package": "ETF-EU-WP15I",
+        "improvement_decision": CREATE_TARGETED,
+        "decision": DECISION,
         "premium_pdf_path": str(PREMIUM_PDF),
         "premium_pdf_commit": "fb7751026a70db355385946ee3882c68f9ec0e71",
         "review_checkpoint_artifact": str(REVIEW_ARTIFACT),
         "review_checkpoint_notes": str(REVIEW_NOTES),
         "premium_surface_closeout_artifact": str(CLOSEOUT_ARTIFACT),
         "delivery_authorization_decision": "remain_blocked",
-        "selected_next_package": "WP15J",
+        "targeted_improvement_package": TARGETED_PACKAGE,
+        "selected_next_package": TARGETED_PACKAGE,
+        "selected_next_package_title": "ETF EU cockpit PDF premium surface targeted copy/governance refinement plan, no delivery",
     }
     for key, expected in expected_values.items():
         if data.get(key) != expected:
             raise ImprovementDecisionValidationError(f"unexpected {key}: {data.get(key)!r}")
 
-    _assert_true(data, "improvement_decision_created")
-    decision = data.get("improvement_decision")
-    if decision not in ALLOWED_DECISIONS:
-        raise ImprovementDecisionValidationError(f"invalid improvement decision: {decision!r}")
+    for key in [
+        "improvement_decision_created",
+        "keep_as_current_review_artifact",
+        "targeted_improvement_needed",
+        "targeted_improvement_package_required",
+    ]:
+        _assert_true(data, key)
 
-    if decision == KEEP:
-        if data.get("targeted_improvement_package_required") is not False:
-            raise ImprovementDecisionValidationError("keep decision must not require targeted improvement package")
-        if data.get("targeted_improvement_package") is not None:
-            raise ImprovementDecisionValidationError("keep decision must record targeted_improvement_package=null")
-    if decision == CREATE_TARGETED:
-        if data.get("targeted_improvement_package_required") is not True:
-            raise ImprovementDecisionValidationError("targeted decision must require targeted improvement package")
-        if not data.get("targeted_improvement_package"):
-            raise ImprovementDecisionValidationError("targeted decision must name a targeted improvement package")
+    if not data.get("recommended_improvement_scope"):
+        raise ImprovementDecisionValidationError("recommended_improvement_scope must not be empty")
+    if not data.get("rejected_scopes"):
+        raise ImprovementDecisionValidationError("rejected_scopes must not be empty")
 
     for key in [
+        "delivery_preflight_allowed",
         "production_delivery",
         "portfolio_mutation",
         "candidate_promotion",
@@ -119,22 +128,34 @@ def validate_improvement_decision(path: Path) -> dict[str, str]:
 
     notes = NOTES.read_text(encoding="utf-8")
     for marker in [
-        "work_package=WP15I",
-        "improvement_decision=keep_current_premium_surface",
-        "targeted_improvement_package_required=false",
-        "premium_pdf_commit=fb7751026a70db355385946ee3882c68f9ec0e71",
+        "repository=market-predictions/weekly-etf-eu",
+        "work_package_id=ETF-EU-WP15I-RECONCILE",
+        "legacy_work_package_id=WP15I",
+        "improvement_decision=create_targeted_improvement_package",
+        "decision=targeted_copy_governance_refinement_before_delivery_preflight",
+        "keep_as_current_review_artifact=true",
+        "targeted_improvement_needed=true",
+        "targeted_improvement_package_required=true",
+        "targeted_improvement_package=ETF-EU-WP15J",
+        "delivery_preflight_allowed=false",
         "production_delivery=false",
         "portfolio_mutation=false",
         "candidate_promotion=false",
         "funding_authority=false",
         "valuation_grade=false",
-        "WP15J",
+        "new_pdf_created=false",
+        "renderer_changed=false",
+        "premium_pdf_replaced=false",
+        "ETF-EU-WP15J",
     ]:
         if marker not in notes:
             raise ImprovementDecisionValidationError(f"decision notes missing marker: {marker}")
 
-    print(f"ETF_EU_COCKPIT_PDF_PREMIUM_SURFACE_IMPROVEMENT_DECISION_OK | artifact={ARTIFACT} | selected_next_package=WP15J")
-    return {"status": "valid", "artifact": str(ARTIFACT), "selected_next_package": "WP15J"}
+    print(
+        "ETF_EU_COCKPIT_PDF_PREMIUM_SURFACE_IMPROVEMENT_DECISION_OK "
+        f"| artifact={ARTIFACT} | selected_next_package={TARGETED_PACKAGE}"
+    )
+    return {"status": "valid", "artifact": str(ARTIFACT), "selected_next_package": TARGETED_PACKAGE}
 
 
 def main() -> None:
