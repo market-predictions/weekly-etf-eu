@@ -89,9 +89,67 @@ WP15E
 WP15F
 WP15G
 WP15H
+WP15I
 ```
 
-## Latest completed package — WP15H
+## Latest completed package — WP15I
+
+```text
+WP15I=completed
+source_work_package=WP15H
+improvement_decision_created=true
+improvement_decision_artifact=output/client_surface/etf_eu_cockpit_pdf_premium_surface_improvement_decision_20260618_000000.json
+improvement_decision_notes=output/client_surface/etf_eu_cockpit_pdf_premium_surface_improvement_decision_notes_20260618_000000.md
+improvement_decision_validator=tools/validate_etf_eu_cockpit_pdf_premium_surface_improvement_decision.py
+improvement_decision_tests=tests/test_etf_eu_cockpit_pdf_premium_surface_improvement_decision.py
+reviewed_pdf_path=output/client_surface/weekly_etf_eu_cockpit_premium_surface_20260618_000000.pdf
+reviewed_pdf_commit=fb7751026a70db355385946ee3882c68f9ec0e71
+source_review_checkpoint_artifact=output/client_surface/etf_eu_cockpit_pdf_premium_surface_review_checkpoint_20260618_000000.json
+decision=targeted_copy_governance_refinement_before_delivery_preflight
+keep_as_current_review_artifact=true
+targeted_improvement_needed=true
+delivery_preflight_allowed=false
+delivery_authorization_decision=remain_blocked
+production_delivery=false
+portfolio_mutation=false
+candidate_promotion=false
+funding_authority=false
+valuation_grade=false
+outbound_path_enabled=false
+live_data_fetch_performed=false
+recommendation_logic_changed=false
+new_pdf_created=false
+renderer_changed=false
+premium_pdf_replaced=false
+client_distribution_claimed=false
+receipt_artifact_created=false
+production_manifest_created=false
+selected_next_package=WP15J
+selected_next_package_title=ETF EU cockpit PDF premium surface targeted copy/governance refinement plan, no delivery
+```
+
+WP15I decision outcome:
+
+```text
+Keep the existing premium PDF as the current stable review artifact, but require a narrow copy/governance refinement package before delivery-preflight because raw validator markers remain too developer-like for final client-facing delivery.
+```
+
+WP15I validation command set:
+
+```text
+python tools/validate_etf_eu_cockpit_pdf_premium_surface_improvement_decision.py output/client_surface/etf_eu_cockpit_pdf_premium_surface_improvement_decision_20260618_000000.json
+python -m pytest tests/test_etf_eu_cockpit_pdf_premium_surface_improvement_decision.py -q
+python tools/validate_etf_eu_cockpit_pdf_premium_surface_review_checkpoint.py output/client_surface/etf_eu_cockpit_pdf_premium_surface_review_checkpoint_20260618_000000.json
+python tools/validate_etf_eu_cockpit_pdf_premium_surface.py output/client_surface/weekly_etf_eu_cockpit_premium_surface_20260618_000000.pdf
+```
+
+Connector session note:
+
+```text
+validation_execution_status=not_executed_in_connector_session
+```
+
+## Prior package context — WP15H
 
 ```text
 WP15H=completed
@@ -147,24 +205,16 @@ git status
 On branch main; branch up to date with origin/main; working tree clean
 ```
 
-## Prior package context — WP15G
-
-```text
-WP15G=completed
-premium_surface_closeout_created=true
-premium_surface_closeout_artifact=output/client_surface/etf_eu_cockpit_pdf_premium_surface_closeout_20260618_000000.json
-premium_surface_closeout_notes=output/client_surface/etf_eu_cockpit_pdf_premium_surface_closeout_notes_20260618_000000.md
-premium_pdf_surface_created=true
-premium_pdf_path=output/client_surface/weekly_etf_eu_cockpit_premium_surface_20260618_000000.pdf
-premium_pdf_commit=fb7751026a70db355385946ee3882c68f9ec0e71
-```
-
-## Premium PDF surface review checkpoint boundary
+## Premium PDF surface decision boundary
 
 ```text
 proof_of_concept_pdf_mvp=true
 review_checkpoint_created=true
 review_checkpoint_decision=keep_premium_pdf_as_current_review_artifact
+improvement_decision_created=true
+keep_as_current_review_artifact=true
+targeted_improvement_needed=true
+delivery_preflight_allowed=false
 new_pdf_created=false
 renderer_changed=false
 premium_pdf_replaced=false
@@ -179,18 +229,18 @@ delivery_authorization_decision=remain_blocked
 ## Active product roadmap
 
 ```text
-WP15I — ETF EU cockpit PDF premium surface improvement decision, no delivery
+WP15J — ETF EU cockpit PDF premium surface targeted copy/governance refinement plan, no delivery
 Delivery enablement — blocked until explicit receipt/manifest authority
 ```
 
 ## Immediate next action
 
-Start WP15I.
+Start WP15J only after WP15I validation has been executed and accepted.
 
 Goal:
 
 ```text
-decide whether the premium surface needs a targeted improvement iteration or can remain as the stable current review artifact, without creating production delivery authority
+plan a narrow refinement that improves client-facing copy and badge language while preserving validator markers, authority boundaries and no-delivery status
 ```
 
 ## Boundary rule
