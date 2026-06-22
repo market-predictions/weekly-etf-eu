@@ -1,6 +1,6 @@
 # Weekly ETF EU Review OS — Next Actions
 
-Current priority: **ETF-EU-WP15L — ETF EU cockpit PDF targeted copy/governance refinement review checkpoint, no delivery**.
+Current priority: **ETF-EU-WP15M — ETF EU cockpit PDF targeted copy/governance renderer/PDF candidate, no delivery**.
 
 ## Adopted strategy
 
@@ -67,24 +67,25 @@ ETF-EU-WP15I
 ETF-EU-WP15I-RECONCILE
 ETF-EU-WP15J
 ETF-EU-WP15K
+ETF-EU-WP15L
 ```
 
-## ETF-EU-WP15K completion evidence
+## ETF-EU-WP15L completion evidence
 
 ```text
 repository=market-predictions/weekly-etf-eu
-work_package_id=ETF-EU-WP15K
-legacy_work_package_id=WP15K
+work_package_id=ETF-EU-WP15L
+legacy_work_package_id=WP15L
 status=completed
-source_work_package=ETF-EU-WP15J
-implementation_created=true
-implementation_decision=implement_narrow_copy_governance_refinement
-implementation_scope=narrow_copy_governance_refinement
-implementation_is_delivery=false
-implementation_artifact=output/client_surface/etf_eu_cockpit_pdf_premium_surface_targeted_copy_governance_refinement_implementation_20260618_000000.json
-implementation_notes=output/client_surface/etf_eu_cockpit_pdf_premium_surface_targeted_copy_governance_refinement_implementation_notes_20260618_000000.md
-implementation_validator=tools/validate_etf_eu_cockpit_pdf_premium_surface_targeted_copy_governance_refinement_implementation.py
-implementation_tests=tests/test_etf_eu_cockpit_pdf_premium_surface_targeted_copy_governance_refinement_implementation.py
+source_work_package=ETF-EU-WP15K
+review_checkpoint_created=true
+review_checkpoint_decision=accept_contract_refinement_and_request_scoped_renderer_pdf_candidate
+implementation_review_status=accepted_as_contract_layer
+renderer_pdf_candidate_required=true
+review_checkpoint_artifact=output/client_surface/etf_eu_cockpit_pdf_targeted_copy_governance_refinement_review_checkpoint_20260618_000000.json
+review_checkpoint_notes=output/client_surface/etf_eu_cockpit_pdf_targeted_copy_governance_refinement_review_checkpoint_notes_20260618_000000.md
+review_checkpoint_validator=tools/validate_etf_eu_cockpit_pdf_targeted_copy_governance_refinement_review_checkpoint.py
+review_checkpoint_tests=tests/test_etf_eu_cockpit_pdf_targeted_copy_governance_refinement_review_checkpoint.py
 premium_pdf_baseline_path=output/client_surface/weekly_etf_eu_cockpit_premium_surface_20260618_000000.pdf
 premium_pdf_baseline_commit=fb7751026a70db355385946ee3882c68f9ec0e71
 premium_pdf_baseline_preserved=true
@@ -109,46 +110,48 @@ recommendation_logic_changed=false
 client_distribution_claimed=false
 receipt_artifact_created=false
 production_manifest_created=false
-selected_next_package=ETF-EU-WP15L
+selected_next_package=ETF-EU-WP15M
 ```
 
 ## Validation evidence
 
 ```text
-ETF_EU_COCKPIT_PDF_PREMIUM_SURFACE_TARGETED_COPY_GOVERNANCE_REFINEMENT_PLAN_OK | selected_next_package=ETF-EU-WP15K
 ETF_EU_COCKPIT_PDF_PREMIUM_SURFACE_TARGETED_COPY_GOVERNANCE_REFINEMENT_IMPLEMENTATION_OK | selected_next_package=ETF-EU-WP15L
-31 passed in 0.20s
+ETF_EU_COCKPIT_PDF_TARGETED_COPY_GOVERNANCE_REFINEMENT_REVIEW_CHECKPOINT_OK | selected_next_package=ETF-EU-WP15M
+32 passed in 0.14s
 working tree clean
 ```
 
 ## Active next package
 
 ```text
-ETF-EU-WP15L — ETF EU cockpit PDF targeted copy/governance refinement review checkpoint, no delivery
+ETF-EU-WP15M — ETF EU cockpit PDF targeted copy/governance renderer/PDF candidate, no delivery
 ```
 
 Purpose:
 
 ```text
-Review the ETF-EU-WP15K targeted copy/governance implementation and decide whether the refinement is acceptable or whether a later scoped renderer/PDF candidate package is needed, while preserving no-delivery status.
+Translate the accepted copy/governance contract into a scoped review-only renderer/PDF candidate while preserving validator markers, UCITS/proxy separation, no-delivery status and blocked authority.
 ```
 
-## Likely inputs for ETF-EU-WP15L
+## Likely inputs for ETF-EU-WP15M
 
 ```text
 control/SYSTEM_INDEX.md
 control/CURRENT_STATE.md
 control/NEXT_ACTIONS.md
 output/client_surface/weekly_etf_eu_cockpit_premium_surface_20260618_000000.pdf
+output/client_surface/etf_eu_cockpit_pdf_targeted_copy_governance_refinement_review_checkpoint_20260618_000000.json
+output/client_surface/etf_eu_cockpit_pdf_targeted_copy_governance_refinement_review_checkpoint_notes_20260618_000000.md
 output/client_surface/etf_eu_cockpit_pdf_premium_surface_targeted_copy_governance_refinement_implementation_20260618_000000.json
 output/client_surface/etf_eu_cockpit_pdf_premium_surface_targeted_copy_governance_refinement_implementation_notes_20260618_000000.md
 ```
 
-ETF-EU-WP15L should create:
+ETF-EU-WP15M should create:
 
 ```text
-copy/governance refinement review checkpoint artifact
-copy/governance refinement review checkpoint notes
+scoped renderer/PDF candidate artifact
+review-only PDF candidate if rendering is in scope
 validator/test coverage
 updated control state after validation
 ```
