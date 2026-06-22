@@ -14,6 +14,8 @@ venv/
 
 # Local build/render artifacts
 *.pdf
+!output/client_surface/weekly_etf_eu_cockpit_premium_surface_20260618_000000.pdf
+!output/client_surface/etf_eu_cockpit_pdf_targeted_copy_governance_renderer_candidate_20260618_000000.pdf
 *.html
 *.tmp
 .DS_Store
