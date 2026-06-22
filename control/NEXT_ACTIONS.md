@@ -1,6 +1,6 @@
 # Weekly ETF EU Review OS — Next Actions
 
-Current priority: **WP15I — ETF EU cockpit PDF premium surface improvement decision, no delivery**.
+Current priority: **WP15J — ETF EU cockpit PDF premium surface targeted copy/governance refinement plan, no delivery**.
 
 ## Adopted strategy
 
@@ -10,7 +10,7 @@ Use market-predictions/weekly-etf as an upstream donor for mature implementation
 Port behavior, not U.S. assumptions.
 ```
 
-## Completed through latest validated package
+## Completed through latest package
 
 ```text
 WP9
@@ -30,7 +30,6 @@ WP13D
 WP13E
 WP13F
 WP13G
-WP13H
 WP14A
 WP14B
 WP14C
@@ -62,74 +61,88 @@ WP15E
 WP15F
 WP15G
 WP15H
+WP15I
 ```
 
-## WP15H completion evidence
+## WP15I completion evidence
 
 ```text
-WP15H=completed
-review_checkpoint_created=true
-review_checkpoint_decision=keep_premium_pdf_as_current_review_artifact
-review_checkpoint_artifact=output/client_surface/etf_eu_cockpit_pdf_premium_surface_review_checkpoint_20260618_000000.json
-review_checkpoint_notes=output/client_surface/etf_eu_cockpit_pdf_premium_surface_review_checkpoint_notes_20260618_000000.md
-review_checkpoint_validator=tools/validate_etf_eu_cockpit_pdf_premium_surface_review_checkpoint.py
-review_checkpoint_tests=tests/test_etf_eu_cockpit_pdf_premium_surface_review_checkpoint.py
-premium_pdf_path=output/client_surface/weekly_etf_eu_cockpit_premium_surface_20260618_000000.pdf
-premium_pdf_commit=fb7751026a70db355385946ee3882c68f9ec0e71
-premium_surface_closeout_artifact=output/client_surface/etf_eu_cockpit_pdf_premium_surface_closeout_20260618_000000.json
-client_readability_status=acceptable_for_review_checkpoint
-governance_clarity_status=acceptable_for_review_checkpoint
-ucits_proxy_separation_status=acceptable_for_review_checkpoint
-validation_traceability_status=acceptable_for_review_checkpoint
+WP15I=completed
+source_work_package=WP15H
+improvement_decision_created=true
+improvement_decision_artifact=output/client_surface/etf_eu_cockpit_pdf_premium_surface_improvement_decision_20260618_000000.json
+improvement_decision_notes=output/client_surface/etf_eu_cockpit_pdf_premium_surface_improvement_decision_notes_20260618_000000.md
+improvement_decision_validator=tools/validate_etf_eu_cockpit_pdf_premium_surface_improvement_decision.py
+improvement_decision_tests=tests/test_etf_eu_cockpit_pdf_premium_surface_improvement_decision.py
+decision=targeted_copy_governance_refinement_before_delivery_preflight
+keep_as_current_review_artifact=true
+targeted_improvement_needed=true
+delivery_preflight_allowed=false
+delivery_authorization_decision=remain_blocked
 production_delivery=false
 portfolio_mutation=false
 candidate_promotion=false
 funding_authority=false
 valuation_grade=false
-delivery_authorization_decision=remain_blocked
 new_pdf_created=false
 renderer_changed=false
 premium_pdf_replaced=false
+outbound_path_enabled=false
+client_distribution_claimed=false
+receipt_artifact_created=false
+production_manifest_created=false
+selected_next_package=WP15J
 ```
 
-Codespaces validation evidence:
+WP15I validation command set:
 
 ```text
-ETF_EU_COCKPIT_PDF_PREMIUM_SURFACE_OK
-ETF_EU_COCKPIT_PDF_PREMIUM_SURFACE_CLOSEOUT_OK
-ETF_EU_COCKPIT_PDF_PREMIUM_SURFACE_REVIEW_CHECKPOINT_OK
-36 passed in 0.11s
-working tree clean
+python tools/validate_etf_eu_cockpit_pdf_premium_surface_improvement_decision.py output/client_surface/etf_eu_cockpit_pdf_premium_surface_improvement_decision_20260618_000000.json
+python -m pytest tests/test_etf_eu_cockpit_pdf_premium_surface_improvement_decision.py -q
+python tools/validate_etf_eu_cockpit_pdf_premium_surface_review_checkpoint.py output/client_surface/etf_eu_cockpit_pdf_premium_surface_review_checkpoint_20260618_000000.json
+python tools/validate_etf_eu_cockpit_pdf_premium_surface.py output/client_surface/weekly_etf_eu_cockpit_premium_surface_20260618_000000.pdf
+```
+
+Connector session note:
+
+```text
+validation_execution_status=not_executed_in_connector_session
 ```
 
 ## Active next package
 
 ```text
-WP15I — ETF EU cockpit PDF premium surface improvement decision, no delivery
+WP15J — ETF EU cockpit PDF premium surface targeted copy/governance refinement plan, no delivery
 ```
 
 Purpose:
 
 ```text
-decide whether the premium surface needs a targeted improvement iteration or can remain as the stable current review artifact, without creating production delivery authority
+Plan a narrow refinement that improves client-facing copy and badge language while preserving validator markers, authority boundaries and no-delivery status.
 ```
 
-Likely inputs:
+WP15J should remain planning-only unless separately authorized.
+
+## Likely inputs for WP15J
 
 ```text
+control/SYSTEM_INDEX.md
+control/CURRENT_STATE.md
+control/NEXT_ACTIONS.md
 output/client_surface/weekly_etf_eu_cockpit_premium_surface_20260618_000000.pdf
+output/client_surface/etf_eu_cockpit_pdf_premium_surface_improvement_decision_20260618_000000.json
+output/client_surface/etf_eu_cockpit_pdf_premium_surface_improvement_decision_notes_20260618_000000.md
 output/client_surface/etf_eu_cockpit_pdf_premium_surface_review_checkpoint_20260618_000000.json
 output/client_surface/etf_eu_cockpit_pdf_premium_surface_review_checkpoint_notes_20260618_000000.md
-output/client_surface/etf_eu_cockpit_pdf_premium_surface_closeout_20260618_000000.json
-output/client_surface/etf_eu_cockpit_pdf_premium_surface_closeout_notes_20260618_000000.md
+output/client_surface/etf_eu_cockpit_pdf_premium_surface_plan_20260618_000000.md
 ```
 
-WP15I should create:
+WP15J should create:
 
 ```text
-premium surface improvement decision artifact
-premium surface improvement decision notes
-validator/test coverage if needed
+narrow copy/governance refinement plan artifact
+narrow copy/governance refinement plan notes
+validator/test coverage if useful
 updated control state after validation
 ```
 
@@ -147,10 +160,10 @@ delivery_authorization_decision=remain_blocked
 
 ## Do not do next
 
-Do not create a new PDF unless WP15I explicitly records a decision for a later separate implementation package.
-Do not render a new PDF.
-Do not change the premium renderer.
-Do not replace the premium PDF.
+Do not create a new PDF in WP15J.
+Do not render a new PDF in WP15J.
+Do not change the premium renderer in WP15J.
+Do not replace the premium PDF in WP15J.
 Do not start email delivery.
 Do not create recipient or secrets changes.
 Do not mutate portfolio state.
@@ -164,3 +177,4 @@ Do not replace or delete the WP15C layout PDF evidence.
 Do not replace or delete the WP15F premium PDF evidence.
 Do not replace or delete the WP15G closeout artifacts.
 Do not replace or delete the WP15H review checkpoint artifacts.
+Do not replace or delete the WP15I decision artifacts.
