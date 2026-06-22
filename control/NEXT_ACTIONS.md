@@ -1,6 +1,6 @@
 # Weekly ETF EU Review OS — Next Actions
 
-Current priority: **WP15G — ETF EU cockpit PDF premium surface closeout, no delivery**.
+Current priority: **WP15H — ETF EU cockpit PDF premium surface review checkpoint, no delivery**.
 
 ## Adopted strategy
 
@@ -60,12 +60,19 @@ WP15C
 WP15D
 WP15E
 WP15F
+WP15G
 ```
 
-## WP15F completion evidence
+## WP15G completion evidence
 
 ```text
-WP15F=completed
+WP15G=completed
+premium_surface_closeout_created=true
+premium_surface_closeout_notes_created=true
+premium_surface_closeout_artifact=output/client_surface/etf_eu_cockpit_pdf_premium_surface_closeout_20260618_000000.json
+premium_surface_closeout_notes=output/client_surface/etf_eu_cockpit_pdf_premium_surface_closeout_notes_20260618_000000.md
+premium_surface_closeout_validator=tools/validate_etf_eu_cockpit_pdf_premium_surface_closeout.py
+premium_surface_closeout_tests=tests/test_etf_eu_cockpit_pdf_premium_surface_closeout.py
 premium_pdf_surface_created=true
 premium_pdf_path=output/client_surface/weekly_etf_eu_cockpit_premium_surface_20260618_000000.pdf
 premium_pdf_commit=fb7751026a70db355385946ee3882c68f9ec0e71
@@ -75,6 +82,10 @@ premium_pdf_tests=tests/test_etf_eu_cockpit_pdf_premium_surface.py
 premium_pdf_notes=output/client_surface/etf_eu_cockpit_pdf_premium_surface_notes_20260618_000000.md
 original_pdf_mvp_preserved=true
 layout_pdf_preserved=true
+premium_surface_plan_preserved=true
+closeout_only=true
+new_pdf_created=false
+renderer_changed=false
 delivery_authorization_decision=remain_blocked
 production_delivery=false
 portfolio_mutation=false
@@ -86,43 +97,40 @@ valuation_grade=false
 Codespaces validation evidence:
 
 ```text
-ETF_EU_COCKPIT_PDF_PREMIUM_SURFACE_RENDERED
 ETF_EU_COCKPIT_PDF_PREMIUM_SURFACE_OK
-12 passed in 0.10s
-premium PDF committed at fb7751026a70db355385946ee3882c68f9ec0e71
+ETF_EU_COCKPIT_PDF_PREMIUM_SURFACE_CLOSEOUT_OK
+24 passed in 0.09s
 working tree clean
 ```
 
 ## Active next package
 
 ```text
-WP15G — ETF EU cockpit PDF premium surface closeout, no delivery
+WP15H — ETF EU cockpit PDF premium surface review checkpoint, no delivery
 ```
 
 Purpose:
 
 ```text
-close out the committed premium PDF surface with validation evidence and explicit preservation of no-delivery and no-investment-authority boundaries
+review the premium PDF surface from a client-readability and governance-checkpoint perspective without creating a new PDF or enabling delivery
 ```
 
 Likely inputs:
 
 ```text
 output/client_surface/weekly_etf_eu_cockpit_premium_surface_20260618_000000.pdf
+output/client_surface/etf_eu_cockpit_pdf_premium_surface_closeout_20260618_000000.json
+output/client_surface/etf_eu_cockpit_pdf_premium_surface_closeout_notes_20260618_000000.md
 output/client_surface/etf_eu_cockpit_pdf_premium_surface_notes_20260618_000000.md
-tools/render_etf_eu_cockpit_pdf_premium_surface.py
-tools/validate_etf_eu_cockpit_pdf_premium_surface.py
-tests/test_etf_eu_cockpit_pdf_premium_surface.py
-output/client_surface/weekly_etf_eu_cockpit_mvp_20260618_000000.pdf
-output/client_surface/weekly_etf_eu_cockpit_mvp_layout_20260618_000000.pdf
+output/client_surface/etf_eu_cockpit_pdf_premium_surface_plan_20260618_000000.md
 ```
 
-WP15G should create:
+WP15H should create:
 
 ```text
-premium surface closeout artifact
-premium surface closeout notes/checklist
-closeout validator/test coverage only if needed
+premium surface review checkpoint artifact
+premium surface review checkpoint notes
+readability/governance assessment checklist
 updated control state after validation
 ```
 
@@ -140,6 +148,10 @@ delivery_authorization_decision=remain_blocked
 
 ## Do not do next
 
+Do not create a new PDF.
+Do not render a new PDF.
+Do not change the premium renderer.
+Do not replace the premium PDF.
 Do not start email delivery.
 Do not create recipient or secrets changes.
 Do not mutate portfolio state.
@@ -148,7 +160,7 @@ Do not create funding authority.
 Do not create valuation-grade authority.
 Do not fetch live data.
 Do not change recommendation logic.
-Do not create another review-feedback package.
+Do not create another renderer iteration.
 Do not replace or delete the original WP15A PDF evidence.
 Do not replace or delete the WP15C layout PDF evidence.
 Do not replace or delete the WP15F premium PDF evidence.
