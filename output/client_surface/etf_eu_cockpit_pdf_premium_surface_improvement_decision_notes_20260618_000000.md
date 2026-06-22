@@ -1,19 +1,28 @@
-# ETF EU cockpit PDF premium surface improvement decision notes — WP15I
+# ETF EU cockpit PDF premium surface improvement decision notes — ETF-EU-WP15I-RECONCILE
 
 ## 1. Decision status
 
 ```text
-work_package=WP15I
+repository=market-predictions/weekly-etf-eu
+work_package_id=ETF-EU-WP15I-RECONCILE
+legacy_work_package_id=WP15I
 source_work_package=WP15H
 status=completed
 improvement_decision_created=true
-improvement_decision=keep_current_premium_surface
-targeted_improvement_package_required=false
-selected_next_package=WP15J
-selected_next_package_title=ETF EU cockpit PDF evidence archive and roadmap checkpoint, no delivery
+improvement_decision=create_targeted_improvement_package
+decision=targeted_copy_governance_refinement_before_delivery_preflight
+keep_as_current_review_artifact=true
+targeted_improvement_needed=true
+targeted_improvement_package_required=true
+targeted_improvement_package=ETF-EU-WP15J
+delivery_preflight_allowed=false
+selected_next_package=ETF-EU-WP15J
+selected_next_package_title=ETF EU cockpit PDF premium surface targeted copy/governance refinement plan, no delivery
 ```
 
-WP15I makes a conservative decision to keep the current premium PDF surface as the stable current review artifact. No new PDF is created and no renderer change is made in this package.
+ETF-EU-WP15I-RECONCILE aligns the existing WP15I decision with the coordinator instruction. The existing premium PDF remains the current stable review artifact, but a narrow copy/governance refinement package is required before delivery-preflight planning.
+
+This reconcile package does not create a new PDF, does not render a PDF, does not change the premium renderer, does not replace the premium PDF, and does not enable delivery.
 
 ## 2. Source files inspected
 
@@ -28,99 +37,13 @@ output/client_surface/etf_eu_cockpit_pdf_premium_surface_closeout_20260618_00000
 output/client_surface/etf_eu_cockpit_pdf_premium_surface_closeout_notes_20260618_000000.md
 output/client_surface/etf_eu_cockpit_pdf_premium_surface_notes_20260618_000000.md
 output/client_surface/etf_eu_cockpit_pdf_premium_surface_plan_20260618_000000.md
+tools/validate_etf_eu_cockpit_pdf_premium_surface_improvement_decision.py
+tests/test_etf_eu_cockpit_pdf_premium_surface_improvement_decision.py
 ```
 
-## 3. Premium PDF path and commit
+## 3. Reconciled decision
 
-```text
-premium_pdf_path=output/client_surface/weekly_etf_eu_cockpit_premium_surface_20260618_000000.pdf
-premium_pdf_commit=fb7751026a70db355385946ee3882c68f9ec0e71
-```
-
-## 4. Prior WP15H review checkpoint evidence
-
-```text
-review_checkpoint_artifact=output/client_surface/etf_eu_cockpit_pdf_premium_surface_review_checkpoint_20260618_000000.json
-review_checkpoint_notes=output/client_surface/etf_eu_cockpit_pdf_premium_surface_review_checkpoint_notes_20260618_000000.md
-review_checkpoint_decision=keep_premium_pdf_as_current_review_artifact
-client_readability_status=acceptable_for_review_checkpoint
-governance_clarity_status=acceptable_for_review_checkpoint
-ucits_proxy_separation_status=acceptable_for_review_checkpoint
-validation_traceability_status=acceptable_for_review_checkpoint
-```
-
-## 5. Decision criteria
-
-The decision reviewed whether a targeted improvement implementation package is needed for:
-
-- client readability
-- governance clarity
-- UCITS/proxy separation
-- evidence traceability
-
-The WP15H checkpoint already found each dimension acceptable for review-checkpoint use.
-
-## 6. Client readability decision
-
-```text
-client_readability_decision=acceptable_no_immediate_iteration
-```
-
-Decision:
-
-- Page hierarchy is adequate for review checkpoint use.
-- Dutch-first executive conclusion is present.
-- Blocked/incomplete lane readability is adequate.
-- Action checklist clarity is adequate.
-- Visual density is acceptable for a proof-of-concept review artifact.
-- No immediate renderer iteration is required.
-
-## 7. Governance clarity decision
-
-```text
-governance_clarity_decision=acceptable_no_immediate_iteration
-```
-
-Decision:
-
-- Boundary markers are visible and repeated.
-- Production delivery remains false.
-- Valuation-grade, funding, candidate promotion and portfolio mutation authority remain false.
-- No receipt artifact exists.
-- No production manifest exists.
-- No client distribution is claimed.
-
-## 8. UCITS/proxy separation decision
-
-```text
-ucits_proxy_separation_decision=acceptable_no_immediate_iteration
-SPY=research_proxy_only
-SMH=research_proxy_only_and_ambiguous_as_pricing_symbol
-GLD=research_proxy_only_not_eu_holding
-PAVE=research_proxy_only_not_eu_holding
-```
-
-Decision:
-
-- UCITS candidate identity and U.S. research proxy separation are adequate for review checkpoint use.
-- Proxy symbols are not promoted to EU holdings, EU pricing lines or funding sources.
-- Blocked pricing authority remains clear enough for the current review artifact.
-
-## 9. Evidence traceability decision
-
-```text
-validation_traceability_decision=acceptable_no_immediate_iteration
-```
-
-Decision:
-
-- Premium PDF commit is recorded.
-- WP15G closeout evidence is preserved.
-- WP15H review checkpoint evidence is preserved.
-- Source artifact preservation is recorded.
-- No immediate evidence-traceability implementation package is needed.
-
-## 10. Improvement decision
+Previous main decision before reconcile:
 
 ```text
 improvement_decision=keep_current_premium_surface
@@ -128,11 +51,114 @@ targeted_improvement_package_required=false
 targeted_improvement_package=null
 ```
 
+Reconciled decision:
+
+```text
+improvement_decision=create_targeted_improvement_package
+targeted_improvement_package_required=true
+targeted_improvement_package=ETF-EU-WP15J
+```
+
 Rationale:
 
-WP15H recorded acceptable review-checkpoint status across readability, governance, UCITS/proxy separation and validation traceability. Therefore, no immediate renderer iteration is required.
+WP15H correctly found the premium PDF acceptable for review-checkpoint use. That does not mean it is clean enough for delivery-preflight. The PDF still exposes raw machine-checkable marker strings and developer-like evidence language in the visible client surface. Those markers are useful for deterministic validation, but they should be translated into cleaner client-facing copy and badges before any delivery-preflight package.
 
-## 11. Boundary confirmation
+## 4. Decision question 1 — Should the premium PDF remain the current stable review artifact?
+
+```text
+keep_as_current_review_artifact=true
+```
+
+Yes. The current premium PDF remains the stable review artifact because it is already validated, preserves authority boundaries, is materially better than the MVP/layout surfaces, and remains clearly proof-of-concept / review-only.
+
+## 5. Decision question 2 — Is targeted improvement needed before delivery-preflight?
+
+```text
+targeted_improvement_needed=true
+targeted_improvement_package_required=true
+```
+
+Yes. A targeted copy/governance refinement is required before delivery-preflight.
+
+Recommended improvement scope:
+
+- client-facing copy refinement;
+- visible marker/debug language reduction;
+- clearer client-language badges while preserving raw validator markers;
+- sharper Dutch executive summary;
+- compact explanation of review evidence versus pricing evidence versus valuation-grade evidence;
+- preservation of machine-checkable raw markers for validators.
+
+This is not a broad renderer redesign and not a delivery package.
+
+## 6. Decision question 3 — Should delivery-preflight remain blocked?
+
+```text
+delivery_preflight_allowed=false
+delivery_authorization_decision=remain_blocked
+```
+
+Yes. Delivery-preflight remains blocked.
+
+Reasons:
+
+- No delivery receipt exists.
+- No production manifest exists.
+- No outbound path has been enabled.
+- No client distribution has been claimed.
+- No valuation-grade evidence exists.
+- No funding authority exists.
+- No live market refresh or pricing-evidence refresh authority exists.
+- No separate approved receipt/manifest authority package exists.
+
+## 7. Rejected scopes for ETF-EU-WP15I-RECONCILE
+
+```text
+new_pdf_created=false
+renderer_changed=false
+premium_pdf_replaced=false
+production_delivery=false
+portfolio_mutation=false
+candidate_promotion=false
+funding_authority=false
+valuation_grade=false
+live_data_fetch_performed=false
+pricing_evidence_changed=false
+recommendation_logic_changed=false
+outbound_path_enabled=false
+client_distribution_claimed=false
+receipt_artifact_created=false
+production_manifest_created=false
+```
+
+Rejected work:
+
+- new PDF creation;
+- renderer change;
+- premium PDF replacement;
+- delivery-preflight enablement;
+- recipient, SMTP, secret, or outbound changes;
+- portfolio mutation;
+- candidate promotion;
+- funding or valuation authority;
+- live data fetch;
+- recommendation logic changes.
+
+## 8. Selected next package
+
+```text
+ETF-EU-WP15J — ETF EU cockpit PDF premium surface targeted copy/governance refinement plan, no delivery
+```
+
+Purpose:
+
+```text
+Plan a narrow refinement that improves client-facing copy and badge language while preserving validator markers, authority boundaries and no-delivery status.
+```
+
+ETF-EU-WP15J should remain planning-only unless separately authorized.
+
+## 9. Boundary confirmation
 
 ```text
 production_delivery=false
@@ -152,23 +178,3 @@ client_distribution_claimed=false
 receipt_artifact_created=false
 production_manifest_created=false
 ```
-
-## 12. Known remaining limitations
-
-- Premium PDF is still proof-of-concept / review-only.
-- It is not production delivery.
-- It has not been sent to a client.
-- It does not include live market refresh.
-- It does not create valuation-grade authority.
-- It does not create funding authority.
-- It does not create candidate promotion authority.
-- Manual visual polish may still be considered later.
-- Full delivery layer remains blocked.
-
-## 13. Recommended next package
-
-```text
-WP15J — ETF EU cockpit PDF evidence archive and roadmap checkpoint, no delivery
-```
-
-WP15J should archive and roadmap the premium PDF evidence chain so future work can move away from repeated renderer/review loops and toward the next controlled roadmap decision.
