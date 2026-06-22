@@ -93,24 +93,25 @@ ETF-EU-WP15I
 ETF-EU-WP15I-RECONCILE
 ETF-EU-WP15J
 ETF-EU-WP15K
+ETF-EU-WP15L
 ```
 
-## Latest completed package — ETF-EU-WP15K
+## Latest completed package — ETF-EU-WP15L
 
 ```text
 repository=market-predictions/weekly-etf-eu
-work_package_id=ETF-EU-WP15K
-legacy_work_package_id=WP15K
+work_package_id=ETF-EU-WP15L
+legacy_work_package_id=WP15L
 status=completed
-source_work_package=ETF-EU-WP15J
-implementation_created=true
-implementation_decision=implement_narrow_copy_governance_refinement
-implementation_scope=narrow_copy_governance_refinement
-implementation_is_delivery=false
-implementation_artifact=output/client_surface/etf_eu_cockpit_pdf_premium_surface_targeted_copy_governance_refinement_implementation_20260618_000000.json
-implementation_notes=output/client_surface/etf_eu_cockpit_pdf_premium_surface_targeted_copy_governance_refinement_implementation_notes_20260618_000000.md
-implementation_validator=tools/validate_etf_eu_cockpit_pdf_premium_surface_targeted_copy_governance_refinement_implementation.py
-implementation_tests=tests/test_etf_eu_cockpit_pdf_premium_surface_targeted_copy_governance_refinement_implementation.py
+source_work_package=ETF-EU-WP15K
+review_checkpoint_created=true
+review_checkpoint_decision=accept_contract_refinement_and_request_scoped_renderer_pdf_candidate
+implementation_review_status=accepted_as_contract_layer
+renderer_pdf_candidate_required=true
+review_checkpoint_artifact=output/client_surface/etf_eu_cockpit_pdf_targeted_copy_governance_refinement_review_checkpoint_20260618_000000.json
+review_checkpoint_notes=output/client_surface/etf_eu_cockpit_pdf_targeted_copy_governance_refinement_review_checkpoint_notes_20260618_000000.md
+review_checkpoint_validator=tools/validate_etf_eu_cockpit_pdf_targeted_copy_governance_refinement_review_checkpoint.py
+review_checkpoint_tests=tests/test_etf_eu_cockpit_pdf_targeted_copy_governance_refinement_review_checkpoint.py
 premium_pdf_baseline_path=output/client_surface/weekly_etf_eu_cockpit_premium_surface_20260618_000000.pdf
 premium_pdf_baseline_commit=fb7751026a70db355385946ee3882c68f9ec0e71
 premium_pdf_baseline_preserved=true
@@ -135,60 +136,41 @@ recommendation_logic_changed=false
 client_distribution_claimed=false
 receipt_artifact_created=false
 production_manifest_created=false
-selected_next_package=ETF-EU-WP15L
-selected_next_package_title=ETF EU cockpit PDF targeted copy/governance refinement review checkpoint, no delivery
+selected_next_package=ETF-EU-WP15M
+selected_next_package_title=ETF EU cockpit PDF targeted copy/governance renderer/PDF candidate, no delivery
 ```
 
-ETF-EU-WP15K validation evidence from Codespaces:
+ETF-EU-WP15L validation evidence from Codespaces:
 
 ```text
-python tools/validate_etf_eu_cockpit_pdf_premium_surface_targeted_copy_governance_refinement_plan.py output/client_surface/etf_eu_cockpit_pdf_premium_surface_targeted_copy_governance_refinement_plan_20260618_000000.json
-ETF_EU_COCKPIT_PDF_PREMIUM_SURFACE_TARGETED_COPY_GOVERNANCE_REFINEMENT_PLAN_OK | artifact=output/client_surface/etf_eu_cockpit_pdf_premium_surface_targeted_copy_governance_refinement_plan_20260618_000000.json | selected_next_package=ETF-EU-WP15K
-
 python tools/validate_etf_eu_cockpit_pdf_premium_surface_targeted_copy_governance_refinement_implementation.py output/client_surface/etf_eu_cockpit_pdf_premium_surface_targeted_copy_governance_refinement_implementation_20260618_000000.json
 ETF_EU_COCKPIT_PDF_PREMIUM_SURFACE_TARGETED_COPY_GOVERNANCE_REFINEMENT_IMPLEMENTATION_OK | artifact=output/client_surface/etf_eu_cockpit_pdf_premium_surface_targeted_copy_governance_refinement_implementation_20260618_000000.json | selected_next_package=ETF-EU-WP15L
 
-python -m pytest tests/test_etf_eu_cockpit_pdf_premium_surface_targeted_copy_governance_refinement_plan.py tests/test_etf_eu_cockpit_pdf_premium_surface_targeted_copy_governance_refinement_implementation.py -q
-31 passed in 0.20s
+python tools/validate_etf_eu_cockpit_pdf_targeted_copy_governance_refinement_review_checkpoint.py output/client_surface/etf_eu_cockpit_pdf_targeted_copy_governance_refinement_review_checkpoint_20260618_000000.json
+ETF_EU_COCKPIT_PDF_TARGETED_COPY_GOVERNANCE_REFINEMENT_REVIEW_CHECKPOINT_OK | artifact=output/client_surface/etf_eu_cockpit_pdf_targeted_copy_governance_refinement_review_checkpoint_20260618_000000.json | selected_next_package=ETF-EU-WP15M
+
+python -m pytest tests/test_etf_eu_cockpit_pdf_premium_surface_targeted_copy_governance_refinement_implementation.py tests/test_etf_eu_cockpit_pdf_targeted_copy_governance_refinement_review_checkpoint.py -q
+32 passed in 0.14s
 
 git status
 On branch main; branch up to date with origin/main; working tree clean
 ```
 
-## Prior package context — ETF-EU-WP15J
+## Prior package context — ETF-EU-WP15K
 
 ```text
 repository=market-predictions/weekly-etf-eu
-work_package_id=ETF-EU-WP15J
-legacy_work_package_id=WP15J
+work_package_id=ETF-EU-WP15K
+legacy_work_package_id=WP15K
 status=completed
-source_work_package=ETF-EU-WP15I-RECONCILE
-targeted_refinement_plan_created=true
-targeted_refinement_plan_decision=plan_future_copy_governance_refinement
-implementation_in_this_package=false
-targeted_refinement_plan_artifact=output/client_surface/etf_eu_cockpit_pdf_premium_surface_targeted_copy_governance_refinement_plan_20260618_000000.json
-targeted_refinement_plan_notes=output/client_surface/etf_eu_cockpit_pdf_premium_surface_targeted_copy_governance_refinement_plan_notes_20260618_000000.md
-selected_next_package=ETF-EU-WP15K
-```
-
-## Prior package context — ETF-EU-WP15I-RECONCILE
-
-```text
-repository=market-predictions/weekly-etf-eu
-work_package_id=ETF-EU-WP15I-RECONCILE
-legacy_work_package_id=WP15I
-status=completed
-source_work_package=WP15H
-reconciles_work_package=ETF-EU-WP15I
-improvement_decision=create_targeted_improvement_package
-decision=targeted_copy_governance_refinement_before_delivery_preflight
-keep_as_current_review_artifact=true
-targeted_improvement_needed=true
-targeted_improvement_package_required=true
-targeted_improvement_package=ETF-EU-WP15J
-delivery_preflight_allowed=false
-delivery_authorization_decision=remain_blocked
-selected_next_package=ETF-EU-WP15J
+source_work_package=ETF-EU-WP15J
+implementation_created=true
+implementation_decision=implement_narrow_copy_governance_refinement
+implementation_scope=narrow_copy_governance_refinement
+implementation_is_delivery=false
+implementation_artifact=output/client_surface/etf_eu_cockpit_pdf_premium_surface_targeted_copy_governance_refinement_implementation_20260618_000000.json
+implementation_notes=output/client_surface/etf_eu_cockpit_pdf_premium_surface_targeted_copy_governance_refinement_implementation_notes_20260618_000000.md
+selected_next_package=ETF-EU-WP15L
 ```
 
 ## Premium PDF surface decision boundary
@@ -196,11 +178,11 @@ selected_next_package=ETF-EU-WP15J
 ```text
 proof_of_concept_pdf_mvp=true
 review_checkpoint_created=true
-review_checkpoint_decision=keep_premium_pdf_as_current_review_artifact
-improvement_decision=create_targeted_improvement_package
-targeted_refinement_plan_created=true
+review_checkpoint_decision=accept_contract_refinement_and_request_scoped_renderer_pdf_candidate
 implementation_created=true
 implementation_is_delivery=false
+implementation_review_status=accepted_as_contract_layer
+renderer_pdf_candidate_required=true
 validator_marker_preservation=true
 ucits_proxy_separation_preserved=true
 review_only_status_preserved=true
@@ -220,18 +202,18 @@ delivery_authorization_decision=remain_blocked
 ## Active product roadmap
 
 ```text
-ETF-EU-WP15L — ETF EU cockpit PDF targeted copy/governance refinement review checkpoint, no delivery
+ETF-EU-WP15M — ETF EU cockpit PDF targeted copy/governance renderer/PDF candidate, no delivery
 Delivery enablement — blocked until explicit receipt/manifest authority
 ```
 
 ## Immediate next action
 
-Start ETF-EU-WP15L.
+Start ETF-EU-WP15M.
 
 Goal:
 
 ```text
-Review the ETF-EU-WP15K targeted copy/governance implementation and decide whether the refinement is acceptable or whether a later scoped renderer/PDF candidate package is needed, while preserving no-delivery status.
+Translate the accepted copy/governance contract into a scoped review-only renderer/PDF candidate while preserving validator markers, UCITS/proxy separation, no-delivery status and blocked authority.
 ```
 
 ## Boundary rule
