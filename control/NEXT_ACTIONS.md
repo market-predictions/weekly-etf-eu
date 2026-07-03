@@ -1,6 +1,6 @@
 # Weekly ETF EU Review OS — Next Actions
 
-Current priority: **ETF-EU-WP15R — ETF EU cockpit PDF content-complete candidate build, no delivery**.
+Current priority: **ETF-EU-WP15S — ETF EU cockpit PDF content-complete candidate visual review checkpoint, no delivery**.
 
 ## Adopted strategy
 
@@ -72,26 +72,29 @@ ETF-EU-WP15N
 ETF-EU-WP15O
 ETF-EU-WP15P
 ETF-EU-WP15Q
+ETF-EU-WP15R
 ```
 
-## ETF-EU-WP15Q completion evidence
+## ETF-EU-WP15R completion evidence
 
 ```text
 repository=market-predictions/weekly-etf-eu
-work_package_id=ETF-EU-WP15Q
-legacy_work_package_id=WP15Q
+work_package_id=ETF-EU-WP15R
+legacy_work_package_id=WP15R
 status=completed
-source_work_package=ETF-EU-WP15P
-client_grade_content_contract_created=true
-content_completeness_plan_created=true
-content_completeness_validation_required=true
-content_contract_path=control/ETF_EU_COCKPIT_PDF_CLIENT_GRADE_CONTENT_CONTRACT_V1.md
-content_plan_artifact=output/client_surface/etf_eu_cockpit_pdf_client_grade_content_completeness_plan_20260703_000000.json
-content_plan_notes=output/client_surface/etf_eu_cockpit_pdf_client_grade_content_completeness_plan_notes_20260703_000000.md
-content_plan_validator=tools/validate_etf_eu_cockpit_pdf_client_grade_content_completeness_plan.py
-content_plan_tests=tests/test_etf_eu_cockpit_pdf_client_grade_content_completeness_plan.py
-plan_decision=define_minimum_client_grade_content_contract_before_any_delivery_preflight_discussion
-client_grade_status_after_wp15q=not_yet_client_grade_contract_defined_only
+source_work_package=ETF-EU-WP15Q
+content_complete_pdf_candidate_path=output/client_surface/etf_eu_cockpit_pdf_content_complete_candidate_20260703_000000.pdf
+content_complete_pdf_candidate_builder=runtime/build_etf_eu_cockpit_pdf_content_complete_candidate.py
+content_complete_candidate_build_artifact=output/client_surface/etf_eu_cockpit_pdf_content_complete_candidate_build_20260703_000000.json
+content_complete_candidate_build_notes=output/client_surface/etf_eu_cockpit_pdf_content_complete_candidate_build_notes_20260703_000000.md
+content_complete_candidate_validator=tools/validate_etf_eu_cockpit_pdf_content_complete_candidate_build.py
+content_complete_candidate_tests=tests/test_etf_eu_cockpit_pdf_content_complete_candidate_build.py
+content_complete_pdf_candidate_created=true
+review_only_content_complete_candidate_created=true
+visible_page_count=3
+visible_sections_count=12
+funded_etf_holdings_count=0
+client_grade_status_after_wp15r=not_yet_client_grade_review_only_candidate_built
 client_grade_claim=false
 client_grade_enough_for_delivery_preflight_discussion=false
 production_delivery=false
@@ -108,47 +111,48 @@ recommendation_logic_changed=false
 client_distribution_claimed=false
 receipt_artifact_created=false
 production_manifest_created=false
-selected_next_package=ETF-EU-WP15R
+selected_next_package=ETF-EU-WP15S
 ```
 
 ## Validation evidence
 
 ```text
-ETF_EU_COCKPIT_PDF_CLIENT_GRADE_CONTENT_COMPLETENESS_PLAN_OK | selected_next_package=ETF-EU-WP15R
-14 passed in 0.08s
+ETF_EU_COCKPIT_PDF_CONTENT_COMPLETE_CANDIDATE_BUILD_OK | selected_next_package=ETF-EU-WP15S
+15 passed in 0.10s
 ```
 
 ## Active next package
 
 ```text
-ETF-EU-WP15R — ETF EU cockpit PDF content-complete candidate build, no delivery
+ETF-EU-WP15S — ETF EU cockpit PDF content-complete candidate visual review checkpoint, no delivery
 ```
 
 Purpose:
 
 ```text
-Build a review-only content-complete ETF EU cockpit PDF candidate against the WP15Q content contract, without delivery, live data fetch, valuation-grade authority, funding authority, candidate promotion, or portfolio mutation.
+Visually review the ETF-EU-WP15R content-complete cockpit PDF candidate and decide what visual, content, and evidence improvements are required before any later client-grade or delivery-preflight discussion.
 ```
 
-## Likely inputs for ETF-EU-WP15R
+## Likely inputs for ETF-EU-WP15S
 
 ```text
 control/SYSTEM_INDEX.md
 control/CURRENT_STATE.md
 control/NEXT_ACTIONS.md
 control/ETF_EU_COCKPIT_PDF_CLIENT_GRADE_CONTENT_CONTRACT_V1.md
-output/client_surface/etf_eu_cockpit_pdf_client_grade_content_completeness_plan_20260703_000000.json
-output/client_surface/etf_eu_cockpit_pdf_client_grade_content_completeness_plan_notes_20260703_000000.md
-output/client_surface/etf_eu_cockpit_pdf_premium_visual_refinement_candidate_20260618_000000.pdf
-runtime/build_etf_eu_cockpit_pdf_premium_visual_refinement_candidate.py
+output/client_surface/etf_eu_cockpit_pdf_content_complete_candidate_20260703_000000.pdf
+output/client_surface/etf_eu_cockpit_pdf_content_complete_candidate_build_20260703_000000.json
+output/client_surface/etf_eu_cockpit_pdf_content_complete_candidate_build_notes_20260703_000000.md
+runtime/build_etf_eu_cockpit_pdf_content_complete_candidate.py
+tools/validate_etf_eu_cockpit_pdf_content_complete_candidate_build.py
+tests/test_etf_eu_cockpit_pdf_content_complete_candidate_build.py
 ```
 
-ETF-EU-WP15R should create:
+ETF-EU-WP15S should create:
 
 ```text
-review-only content-complete cockpit PDF candidate
-content-complete candidate build artifact
-content-complete candidate build notes
+content-complete candidate visual review checkpoint artifact
+content-complete candidate visual review notes
 validator/test coverage
 updated control state after validation
 ```

@@ -1,0 +1,149 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [5 0 R 7 0 R 9 0 R] /Count 3 >>
+endobj
+3 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+4 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >>
+endobj
+5 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents 6 0 R >>
+endobj
+6 0 obj
+<< /Length 3423 >>
+stream
+q 0.98 g 0 0 595 842 re f Q
+q 0.12 g 36 770 523 44 re f Q
+BT /F2 14 Tf 52 797 Td (ETF EU Cockpit Content-Complete Candidate) Tj ET
+BT /F1 8 Tf 52 780 Td (Review-only content-complete candidate - NOT DELIVERED - AUTHORITY BLOCKED) Tj ET
+q 0.90 g 44 738 507 18 re f Q
+BT /F2 9.5 Tf 52 742 Td (1. Cockpit header with report date and authority markers) Tj ET
+BT /F1 7.6 Tf 62 718 Td (report_date=2026-07-03 | work_package_id=ETF-EU-WP15R | content_completeness_candidate=true) Tj ET
+BT /F1 7.6 Tf 62 705 Td (REVIEW-ONLY | NOT DELIVERED | NO RECEIPT | NO PRODUCTION MANIFEST | AUTHORITY BLOCKED) Tj ET
+BT /F1 7.6 Tf 62 692 Td (production_delivery=false | valuation_grade=false | funding_authority=false | portfolio_mutation=false) Tj ET
+q 0.90 g 44 675 507 18 re f Q
+BT /F2 9.5 Tf 52 679 Td (2. Executive read and action summary) Tj ET
+BT /F1 7.6 Tf 62 655 Td (Current posture: cash-only seed / no funded UCITS ETF holdings approved in this package.) Tj ET
+BT /F1 7.6 Tf 62 642 Td (Client decision frame: prepare EU/UCITS cockpit content; do not promote or fund candidates.) Tj ET
+BT /F1 7.6 Tf 62 629 Td (Action summary: HOLD CASH / REVIEW CANDIDATES / NO DELIVERY / NO LIVE DATA REFRESH.) Tj ET
+BT /F1 7.6 Tf 62 616 Td (Key gap: pricing, KID, liquidity and line evidence must be refreshed in a later authorized package.) Tj ET
+q 0.90 g 44 599 507 18 re f Q
+BT /F2 9.5 Tf 52 603 Td (3. Portfolio holdings and cash snapshot) Tj ET
+BT /F1 7.6 Tf 62 579 Td (Funded ETF holdings: none. Cash status: review-only cash placeholder; portfolio_mutation=false.) Tj ET
+BT /F1 7.6 Tf 62 566 Td (Total valuation surface: not valuation-grade; no portfolio total is promoted by WP15R.) Tj ET
+BT /F1 7.6 Tf 62 553 Td (Residual cash: not changed; no trade ledger mutation; no candidate funding authority.) Tj ET
+q 0.90 g 44 536 507 18 re f Q
+BT /F2 9.5 Tf 52 540 Td (4. Allocation and concentration summary) Tj ET
+BT /F1 7.6 Tf 62 516 Td (Allocation: 100% cash placeholder because no UCITS ETF is funded under current authority.) Tj ET
+BT /F1 7.6 Tf 62 503 Td (Concentration risk: no market exposure concentration; process risk is evidence incompleteness.) Tj ET
+BT /F1 7.6 Tf 62 490 Td (Next risk control: content-complete build must remain visibly blocked until source/freshness gates pass.) Tj ET
+q 0.90 g 44 473 507 18 re f Q
+BT /F2 9.5 Tf 52 477 Td (7. Holding-level decision table) Tj ET
+BT /F1 7.6 Tf 62 453 Td (Cash | action=hold_cash | thesis=preserve authority boundary | invalidation=explicit funding decision later.) Tj ET
+BT /F1 7.6 Tf 62 440 Td (CSPX/SXR8 | action=review_candidate | thesis=core U.S. equity UCITS candidate | invalidation=pricing/KID/line gap.) Tj ET
+BT /F1 7.6 Tf 62 427 Td (SMH UCITS | action=watch | thesis=semiconductor exposure candidate | invalidation=verification incomplete.) Tj ET
+BT /F1 7.6 Tf 62 414 Td (Gold ETC | action=blocked_policy_review | thesis=hedge reference | invalidation=not UCITS ETF under current policy.) Tj ET
+q 0.78 G 44 46 m 551 46 l S Q
+BT /F1 6.5 Tf 52 32 Td (ETF-EU-WP15R | review-only | no delivery | no receipt | no production manifest | valuation_grade=false) Tj ET
+endstream
+endobj
+7 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents 8 0 R >>
+endobj
+8 0 obj
+<< /Length 3318 >>
+stream
+q 0.98 g 0 0 595 842 re f Q
+q 0.12 g 36 770 523 44 re f Q
+BT /F2 14 Tf 52 797 Td (ETF EU Cockpit Content-Complete Candidate) Tj ET
+BT /F1 8 Tf 52 780 Td (Input/state and investability evidence - review-only, no live refresh) Tj ET
+q 0.90 g 44 738 507 18 re f Q
+BT /F2 9.5 Tf 52 742 Td (5. UCITS investability table) Tj ET
+BT /F1 7.6 Tf 62 718 Td (IE00B5BMR087 | iShares Core S&P 500 UCITS ETF | provider=iShares/BlackRock | UCITS=confirmed | KID=available.) Tj ET
+BT /F1 7.6 Tf 62 705 Td (Trading line: SXR8.DE | exchange=Xetra | currency=EUR | pricing_symbol=SXR8.DE | status=verified_candidate_not_funded.) Tj ET
+BT /F1 7.6 Tf 62 692 Td (IE00BMC38736 | VanEck Semiconductor UCITS ETF | provider=VanEck | UCITS=confirmed_by_name | KID=available.) Tj ET
+BT /F1 7.6 Tf 62 679 Td (Trading line: SMH | exchange=pending_verification | currency=USD | pricing_symbol=pending_verification.) Tj ET
+BT /F1 7.6 Tf 62 666 Td (TBD | iShares Physical Gold ETC | provider=iShares/BlackRock | UCITS=not_ucits_etc | status=blocked_policy_review.) Tj ET
+q 0.90 g 44 649 507 18 re f Q
+BT /F2 9.5 Tf 52 653 Td (6. Pricing and freshness evidence table) Tj ET
+BT /F1 7.6 Tf 62 629 Td (CSPX/SXR8 | latest_close_date=not_fetched_in_WP15R | latest_close=not_fetched_in_WP15R.) Tj ET
+BT /F1 7.6 Tf 62 616 Td (CSPX/SXR8 | pricing_source=not_refreshed_in_WP15R | pricing_freshness_status=unresolved_for_review_candidate.) Tj ET
+BT /F1 7.6 Tf 62 603 Td (SMH UCITS | latest_close_date=not_fetched_in_WP15R | latest_close=not_fetched_in_WP15R.) Tj ET
+BT /F1 7.6 Tf 62 590 Td (Gold ETC | pricing not relevant to UCITS-only funding until policy permits ETC exposure.) Tj ET
+BT /F1 7.6 Tf 62 577 Td (Disclosure: WP15R performs no live_data_fetch and creates no pricing_evidence_changed authority.) Tj ET
+q 0.90 g 44 560 507 18 re f Q
+BT /F2 9.5 Tf 52 564 Td (8. Watchlist and candidate pipeline with promotion status) Tj ET
+BT /F1 7.6 Tf 62 540 Td (CSPX / SXR8 | pipeline=core_equity_candidate | promotion_status=not_promoted | required_next=pricing/KID/line freshness.) Tj ET
+BT /F1 7.6 Tf 62 527 Td (SMH UCITS | pipeline=thematic_candidate | promotion_status=not_promoted | required_next=full exchange-line verification.) Tj ET
+BT /F1 7.6 Tf 62 514 Td (INFR candidate | pipeline=infrastructure_placeholder | promotion_status=not_promoted | required_next=issuer/ISIN/KID verification.) Tj ET
+BT /F1 7.6 Tf 62 501 Td (Gold ETC | pipeline=hedge_reference | promotion_status=blocked | required_next=policy decision on ETC eligibility.) Tj ET
+q 0.90 g 44 484 507 18 re f Q
+BT /F2 9.5 Tf 52 488 Td (Minimum visible fields for funded or investable rows) Tj ET
+BT /F1 7.6 Tf 62 464 Td (isin | fund_name | provider | ucits_status | priips_kid_status | exchange_ticker | trading_currency | primary_exchange) Tj ET
+BT /F1 7.6 Tf 62 451 Td (pricing_symbol | latest_close_date | latest_close | pricing_source | pricing_freshness_status | ter_or_cost_status) Tj ET
+BT /F1 7.6 Tf 62 438 Td (replication_method_or_unknown | distribution_policy_or_unknown | hedged_unhedged_or_unknown) Tj ET
+q 0.78 G 44 46 m 551 46 l S Q
+BT /F1 6.5 Tf 52 32 Td (ETF-EU-WP15R | review-only | no delivery | no receipt | no production manifest | valuation_grade=false) Tj ET
+endstream
+endobj
+9 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents 10 0 R >>
+endobj
+10 0 obj
+<< /Length 3127 >>
+stream
+q 0.98 g 0 0 595 842 re f Q
+q 0.12 g 36 770 523 44 re f Q
+BT /F2 14 Tf 52 797 Td (ETF EU Cockpit Content-Complete Candidate) Tj ET
+BT /F1 8 Tf 52 780 Td (Risk, proxy disclosure, unresolved data and governance footer) Tj ET
+q 0.90 g 44 738 507 18 re f Q
+BT /F2 9.5 Tf 52 742 Td (9. Risk, regime and event context) Tj ET
+BT /F1 7.6 Tf 62 718 Td (Market/regime context: not refreshed in WP15R; this candidate is format/content completeness only.) Tj ET
+BT /F1 7.6 Tf 62 705 Td (Risk posture: avoid funded exposure until UCITS pricing, freshness, KID, liquidity and source gates are satisfied.) Tj ET
+BT /F1 7.6 Tf 62 692 Td (Event context: omitted as live macro/calendar fetch is outside WP15R authority.) Tj ET
+q 0.90 g 44 675 507 18 re f Q
+BT /F2 9.5 Tf 52 679 Td (10. Proxy and benchmark disclosure) Tj ET
+BT /F1 7.6 Tf 62 655 Td (U.S. ETFs SPY, SMH, GLD and PAVE are research proxies / benchmark comparators only.) Tj ET
+BT /F1 7.6 Tf 62 642 Td (U.S. ETFs are not EU portfolio holdings and must not be displayed as Dutch/EU-investable funded instruments.) Tj ET
+BT /F1 7.6 Tf 62 629 Td (All investable instruments must remain ISIN-first and UCITS-first unless policy explicitly changes.) Tj ET
+q 0.90 g 44 612 507 18 re f Q
+BT /F2 9.5 Tf 52 616 Td (11. Unresolved-data and limitation block) Tj ET
+BT /F1 7.6 Tf 62 592 Td (Unresolved: live pricing not fetched, valuation-grade evidence not created, portfolio not revalued.) Tj ET
+BT /F1 7.6 Tf 62 579 Td (Unresolved: KID/TER/liquidity/replication gaps remain review-needed where registry marks pending_verification.) Tj ET
+BT /F1 7.6 Tf 62 566 Td (Unresolved: Dutch language quality and bilingual parity gates not run against this candidate.) Tj ET
+BT /F1 7.6 Tf 62 553 Td (Limitation: content-complete candidate build is not client-grade delivery and not delivery-preflight authority.) Tj ET
+q 0.90 g 44 536 507 18 re f Q
+BT /F2 9.5 Tf 52 540 Td (12. Validation and governance footer) Tj ET
+BT /F1 7.6 Tf 62 516 Td (Required validators: content_completeness, no_us_etf_as_eu_holding, isin_first_holdings, ucits_status_present.) Tj ET
+BT /F1 7.6 Tf 62 503 Td (Required validators: priips_kid_status_present, pricing_source_and_freshness_present, proxy_disclosure_present.) Tj ET
+BT /F1 7.6 Tf 62 490 Td (Required validators: unresolved_data_block_present, delivery_boundary_markers_present.) Tj ET
+BT /F1 7.6 Tf 62 477 Td (Output contract status: all 12 visible sections are present in this review-only candidate PDF.) Tj ET
+BT /F1 7.6 Tf 62 464 Td (Authority: delivery_authorization_decision=remain_blocked | delivery_preflight_allowed=false | outbound_path_enabled=false.) Tj ET
+BT /F1 7.6 Tf 62 451 Td (Artifacts: build artifact + notes + validator + tests; selected_next_package=ETF-EU-WP15S.) Tj ET
+q 0.78 G 44 46 m 551 46 l S Q
+BT /F1 6.5 Tf 52 32 Td (ETF-EU-WP15R | review-only | no delivery | no receipt | no production manifest | valuation_grade=false) Tj ET
+endstream
+endobj
+xref
+0 11
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000123 00000 n 
+0000000193 00000 n 
+0000000268 00000 n 
+0000000424 00000 n 
+0000003898 00000 n 
+0000004054 00000 n 
+0000007424 00000 n 
+0000007581 00000 n 
+trailer
+<< /Size 11 /Root 1 0 R >>
+startxref
+10737
+%%EOF
