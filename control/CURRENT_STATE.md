@@ -24,9 +24,6 @@ funding_authority=false
 portfolio_mutation=false
 production_delivery=false
 candidate_promotion=false
-ready_for_wp13_preflight_only=true
-wp13_authority=false
-wp14_authority=false
 ```
 
 ## Strategic authority
@@ -106,157 +103,81 @@ ETF-EU-WP15U
 ETF-EU-WP15V
 ETF-EU-WP15W
 ETF-EU-WP15X
+ETF-EU-WP15Y
 ```
 
-## Latest completed package — ETF-EU-WP15X
+## Latest completed package — ETF-EU-WP15Y
 
 ```text
 repository=market-predictions/weekly-etf-eu
-work_package_id=ETF-EU-WP15X
-legacy_work_package_id=WP15X
+work_package_id=ETF-EU-WP15Y
+legacy_work_package_id=WP15Y
 status=completed
-source_work_package=ETF-EU-WP15W
-source_readiness_audit_artifact=output/client_surface/etf_eu_cockpit_pdf_readiness_gate_implementation_audit_20260703_000000.json
-source_readiness_audit_notes=output/client_surface/etf_eu_cockpit_pdf_readiness_gate_implementation_audit_notes_20260703_000000.md
-readiness_contract_path=control/ETF_EU_COCKPIT_PDF_CLIENT_GRADE_READINESS_CONTRACT_V1.md
-gap_closure_plan_path=control/ETF_EU_COCKPIT_PDF_READINESS_GAP_CLOSURE_PLAN_V1.md
-gap_closure_artifact=output/client_surface/etf_eu_cockpit_pdf_readiness_gap_closure_plan_20260703_000000.json
-gap_closure_notes=output/client_surface/etf_eu_cockpit_pdf_readiness_gap_closure_plan_notes_20260703_000000.md
-gap_closure_validator=tools/validate_etf_eu_cockpit_pdf_readiness_gap_closure_plan.py
-gap_closure_tests=tests/test_etf_eu_cockpit_pdf_readiness_gap_closure_plan.py
-gap_closure_plan_created=true
-gap_closure_plan_status=non_executing_plan_created
-execution_performed=false
+source_work_package=ETF-EU-WP15X
+evidence_acquisition_contract=control/ETF_EU_COCKPIT_PDF_READINESS_EVIDENCE_ACQUISITION_CONTRACT_V1.md
+closing_price_poc_runner=runtime/fetch_etf_eu_closing_price_poc.py
+closing_price_poc_artifact=output/client_surface/etf_eu_closing_price_poc_20260703_000000.json
+closing_price_poc_preview=output/client_surface/etf_eu_closing_price_poc_preview_20260703_000000.md
+closing_price_poc_notes=output/client_surface/etf_eu_readiness_evidence_acquisition_contract_notes_20260703_000000.md
+closing_price_poc_validator=tools/validate_etf_eu_closing_price_poc.py
+closing_price_poc_tests=tests/test_etf_eu_closing_price_poc.py
+evidence_acquisition_contract_created=true
+closing_price_poc_created=true
+closing_price_poc_symbol=SXR8.DE
+closing_price_poc_isin=IE00B5BMR087
+closing_price_poc_trading_currency=EUR
+closing_price_poc_status=failed
+pricing_poc_status=failed_provider_or_symbol_unavailable
+limited_pricing_poc_performed=true
+latest_close_date=null
+latest_close=null
+provider_error_recorded=true
+fake_price_used=false
+us_proxy_price_used=false
+valuation_grade=false
+pricing_evidence_for_client_grade=false
+pricing_evidence_for_delivery_preflight=false
 client_grade_claim=false
 client_grade_enough_for_delivery_preflight_discussion=false
 delivery_ready=false
-primary_gap_count=12
-decision_framework_gap_count=1
-input_state_contract_gap_count=11
-output_contract_gap_count=0
-operational_runbook_gap_count=0
-evidence_collected=false
-recommendation_changed=false
-pdf_changed=false
 source_pdf_replaced=false
-new_pdf_created=false
 renderer_changed=false
 production_delivery=false
 portfolio_mutation=false
 candidate_promotion=false
 funding_authority=false
-valuation_grade=false
-delivery_authorization_decision=remain_blocked
-delivery_preflight_allowed=false
-outbound_path_enabled=false
-live_data_fetch_performed=false
-pricing_evidence_changed=false
-recommendation_logic_changed=false
-client_distribution_claimed=false
-receipt_artifact_created=false
-production_manifest_created=false
-selected_next_package=ETF-EU-WP15Y
-selected_next_package_title=ETF EU cockpit PDF readiness evidence acquisition contract, no delivery
+selected_next_package=ETF-EU-WP15Y-FIX
+selected_next_package_title=ETF EU closing-price POC provider/symbol repair, no delivery
 ```
 
-ETF-EU-WP15X validation package:
+ETF-EU-WP15Y validation package:
 
 ```text
-validator_added=tools/validate_etf_eu_cockpit_pdf_readiness_gap_closure_plan.py
-tests_added=tests/test_etf_eu_cockpit_pdf_readiness_gap_closure_plan.py
+validator_added=tools/validate_etf_eu_closing_price_poc.py
+tests_added=tests/test_etf_eu_closing_price_poc.py
 ci_status=not_visible_in_chatgpt_github_connector
 ```
 
-## Gap closure coverage after ETF-EU-WP15X
+## Pricing POC answer
 
 ```text
-thesis_and_invalidation_present_for_funded_holdings_or_proposed_candidates
-isin_first_identity_present
-trading_currency_present
-pricing_symbol_present
-latest_close_date_present
-latest_close_present
-pricing_source_present
-ter_or_cost_status_present
-replication_method_present_or_explicitly_unknown
-distribution_policy_present_or_explicitly_unknown
-hedged_unhedged_status_present_or_explicitly_unknown
-liquidity_spread_evidence_present_or_review_needed
+Do we have closing prices now? Not yet.
 ```
 
-## Prior package context — ETF-EU-WP15W
-
-```text
-repository=market-predictions/weekly-etf-eu
-work_package_id=ETF-EU-WP15W
-legacy_work_package_id=WP15W
-status=completed
-source_work_package=ETF-EU-WP15V
-readiness_audit_artifact=output/client_surface/etf_eu_cockpit_pdf_readiness_gate_implementation_audit_20260703_000000.json
-readiness_audit_status=completed_with_blocking_gaps
-client_grade_readiness_audit_result=fail_blocked_by_missing_evidence
-client_grade_claim=false
-client_grade_enough_for_delivery_preflight_discussion=false
-selected_next_package=ETF-EU-WP15X
-```
-
-## Client-grade cockpit PDF content boundary
-
-```text
-content_contract_created=true
-review_only_content_complete_candidate_built=true
-content_complete_candidate_visual_reviewed=true
-premium_dutch_refinement_candidate_built=true
-premium_dutch_refinement_visual_reviewed=true
-client_grade_readiness_contract_created=true
-evidence_gate_created=true
-readiness_gate_status=contract_defined_not_passed
-readiness_audit_created=true
-readiness_audit_status=completed_with_blocking_gaps
-client_grade_readiness_audit_result=fail_blocked_by_missing_evidence
-gap_closure_plan_created=true
-gap_closure_plan_status=non_executing_plan_created
-execution_performed=false
-client_grade_claim=false
-client_grade_enough_for_delivery_preflight_discussion=false
-source_pdf_replaced=false
-new_pdf_created=false
-renderer_changed=false
-production_delivery=false
-portfolio_mutation=false
-candidate_promotion=false
-funding_authority=false
-valuation_grade=false
-delivery_authorization_decision=remain_blocked
-delivery_preflight_allowed=false
-```
+The repo now has SXR8.DE registry-to-pricing wiring, a runner, a machine artifact, a client-readable preview and an explicit provider failure status. It does not yet have a successful latest_close value.
 
 ## Active product roadmap
 
 ```text
-ETF-EU-WP15Y — ETF EU cockpit PDF readiness evidence acquisition contract, no delivery
-Delivery enablement — blocked until explicit receipt/manifest authority
+ETF-EU-WP15Y-FIX — ETF EU closing-price POC provider/symbol repair, no delivery
 ```
 
 ## Immediate next action
 
-Start ETF-EU-WP15Y.
+Start ETF-EU-WP15Y-FIX.
 
 Goal:
 
 ```text
-Define the precise evidence acquisition contract for UCITS identity, pricing freshness, TER, replication, distribution, hedging, liquidity/spread and thesis/invalidation evidence before any later authorized data collection package.
-```
-
-## Boundary rule
-
-```text
-valuation_grade=false
-funding_authority=false
-portfolio_mutation=false
-production_delivery=false
-candidate_promotion=false
-ready_for_wp13_preflight_only=true
-wp13_authority=false
-wp14_authority=false
+Repair the pricing provider or symbol mapping until the system can produce one real SXR8.DE closing-price POC artifact.
 ```
