@@ -1,6 +1,6 @@
 # Weekly ETF EU Review OS — Next Actions
 
-Current priority: **ETF-EU-WP15S — ETF EU cockpit PDF content-complete candidate visual review checkpoint, no delivery**.
+Current priority: **ETF-EU-WP15T — ETF EU cockpit PDF premium visual and Dutch-first language refinement candidate, no delivery**.
 
 ## Adopted strategy
 
@@ -73,28 +73,25 @@ ETF-EU-WP15O
 ETF-EU-WP15P
 ETF-EU-WP15Q
 ETF-EU-WP15R
+ETF-EU-WP15S
 ```
 
-## ETF-EU-WP15R completion evidence
+## ETF-EU-WP15S completion evidence
 
 ```text
 repository=market-predictions/weekly-etf-eu
-work_package_id=ETF-EU-WP15R
-legacy_work_package_id=WP15R
+work_package_id=ETF-EU-WP15S
+legacy_work_package_id=WP15S
 status=completed
-source_work_package=ETF-EU-WP15Q
-content_complete_pdf_candidate_path=output/client_surface/etf_eu_cockpit_pdf_content_complete_candidate_20260703_000000.pdf
-content_complete_pdf_candidate_builder=runtime/build_etf_eu_cockpit_pdf_content_complete_candidate.py
-content_complete_candidate_build_artifact=output/client_surface/etf_eu_cockpit_pdf_content_complete_candidate_build_20260703_000000.json
-content_complete_candidate_build_notes=output/client_surface/etf_eu_cockpit_pdf_content_complete_candidate_build_notes_20260703_000000.md
-content_complete_candidate_validator=tools/validate_etf_eu_cockpit_pdf_content_complete_candidate_build.py
-content_complete_candidate_tests=tests/test_etf_eu_cockpit_pdf_content_complete_candidate_build.py
-content_complete_pdf_candidate_created=true
-review_only_content_complete_candidate_created=true
-visible_page_count=3
-visible_sections_count=12
-funded_etf_holdings_count=0
-client_grade_status_after_wp15r=not_yet_client_grade_review_only_candidate_built
+source_work_package=ETF-EU-WP15R
+source_pdf_candidate_path=output/client_surface/etf_eu_cockpit_pdf_content_complete_candidate_20260703_000000.pdf
+review_checkpoint_artifact=output/client_surface/etf_eu_cockpit_pdf_content_complete_candidate_visual_review_checkpoint_20260703_000000.json
+review_checkpoint_notes=output/client_surface/etf_eu_cockpit_pdf_content_complete_candidate_visual_review_checkpoint_notes_20260703_000000.md
+review_checkpoint_validator=tools/validate_etf_eu_cockpit_pdf_content_complete_candidate_visual_review_checkpoint.py
+review_checkpoint_tests=tests/test_etf_eu_cockpit_pdf_content_complete_candidate_visual_review_checkpoint.py
+visual_review_decision=accept_as_review_only_content_complete_foundation_request_premium_visual_and_language_refinement
+content_completeness_status=content_complete_for_review_only_candidate
+client_grade_status_after_wp15s=not_yet_client_grade_visual_language_refinement_required
 client_grade_claim=false
 client_grade_enough_for_delivery_preflight_discussion=false
 production_delivery=false
@@ -111,29 +108,30 @@ recommendation_logic_changed=false
 client_distribution_claimed=false
 receipt_artifact_created=false
 production_manifest_created=false
-selected_next_package=ETF-EU-WP15S
+selected_next_package=ETF-EU-WP15T
 ```
 
-## Validation evidence
+## Validation package
 
 ```text
-ETF_EU_COCKPIT_PDF_CONTENT_COMPLETE_CANDIDATE_BUILD_OK | selected_next_package=ETF-EU-WP15S
-15 passed in 0.10s
+validator_added=tools/validate_etf_eu_cockpit_pdf_content_complete_candidate_visual_review_checkpoint.py
+tests_added=tests/test_etf_eu_cockpit_pdf_content_complete_candidate_visual_review_checkpoint.py
+ci_status=not_visible_in_chatgpt_github_connector
 ```
 
 ## Active next package
 
 ```text
-ETF-EU-WP15S — ETF EU cockpit PDF content-complete candidate visual review checkpoint, no delivery
+ETF-EU-WP15T — ETF EU cockpit PDF premium visual and Dutch-first language refinement candidate, no delivery
 ```
 
 Purpose:
 
 ```text
-Visually review the ETF-EU-WP15R content-complete cockpit PDF candidate and decide what visual, content, and evidence improvements are required before any later client-grade or delivery-preflight discussion.
+Create a refined review-only cockpit PDF candidate with stronger client-grade visual hierarchy, Dutch-first client language, table/card structure and clearer evidence badges, while preserving no-delivery and no-authority boundaries.
 ```
 
-## Likely inputs for ETF-EU-WP15S
+## Likely inputs for ETF-EU-WP15T
 
 ```text
 control/SYSTEM_INDEX.md
@@ -141,18 +139,17 @@ control/CURRENT_STATE.md
 control/NEXT_ACTIONS.md
 control/ETF_EU_COCKPIT_PDF_CLIENT_GRADE_CONTENT_CONTRACT_V1.md
 output/client_surface/etf_eu_cockpit_pdf_content_complete_candidate_20260703_000000.pdf
-output/client_surface/etf_eu_cockpit_pdf_content_complete_candidate_build_20260703_000000.json
-output/client_surface/etf_eu_cockpit_pdf_content_complete_candidate_build_notes_20260703_000000.md
+output/client_surface/etf_eu_cockpit_pdf_content_complete_candidate_visual_review_checkpoint_20260703_000000.json
+output/client_surface/etf_eu_cockpit_pdf_content_complete_candidate_visual_review_checkpoint_notes_20260703_000000.md
 runtime/build_etf_eu_cockpit_pdf_content_complete_candidate.py
-tools/validate_etf_eu_cockpit_pdf_content_complete_candidate_build.py
-tests/test_etf_eu_cockpit_pdf_content_complete_candidate_build.py
 ```
 
-ETF-EU-WP15S should create:
+ETF-EU-WP15T should create:
 
 ```text
-content-complete candidate visual review checkpoint artifact
-content-complete candidate visual review notes
+premium visual and Dutch-first language refinement PDF candidate
+refinement build artifact
+refinement build notes
 validator/test coverage
 updated control state after validation
 ```
