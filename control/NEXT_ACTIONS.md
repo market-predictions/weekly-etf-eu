@@ -1,6 +1,6 @@
 # Weekly ETF EU Review OS — Next Actions
 
-Current priority: **ETF-EU-WP15T — ETF EU cockpit PDF premium visual and Dutch-first language refinement candidate, no delivery**.
+Current priority: **ETF-EU-WP15U — ETF EU cockpit PDF premium Dutch refinement visual review checkpoint, no delivery**.
 
 ## Adopted strategy
 
@@ -74,24 +74,35 @@ ETF-EU-WP15P
 ETF-EU-WP15Q
 ETF-EU-WP15R
 ETF-EU-WP15S
+ETF-EU-WP15T
 ```
 
-## ETF-EU-WP15S completion evidence
+## ETF-EU-WP15T completion evidence
 
 ```text
 repository=market-predictions/weekly-etf-eu
-work_package_id=ETF-EU-WP15S
-legacy_work_package_id=WP15S
+work_package_id=ETF-EU-WP15T
+legacy_work_package_id=WP15T
 status=completed
-source_work_package=ETF-EU-WP15R
-source_pdf_candidate_path=output/client_surface/etf_eu_cockpit_pdf_content_complete_candidate_20260703_000000.pdf
-review_checkpoint_artifact=output/client_surface/etf_eu_cockpit_pdf_content_complete_candidate_visual_review_checkpoint_20260703_000000.json
-review_checkpoint_notes=output/client_surface/etf_eu_cockpit_pdf_content_complete_candidate_visual_review_checkpoint_notes_20260703_000000.md
-review_checkpoint_validator=tools/validate_etf_eu_cockpit_pdf_content_complete_candidate_visual_review_checkpoint.py
-review_checkpoint_tests=tests/test_etf_eu_cockpit_pdf_content_complete_candidate_visual_review_checkpoint.py
-visual_review_decision=accept_as_review_only_content_complete_foundation_request_premium_visual_and_language_refinement
-content_completeness_status=content_complete_for_review_only_candidate
-client_grade_status_after_wp15s=not_yet_client_grade_visual_language_refinement_required
+source_work_package=ETF-EU-WP15S
+refined_pdf_candidate_path=output/client_surface/etf_eu_cockpit_pdf_premium_dutch_refinement_candidate_20260703_000000.pdf
+refined_pdf_candidate_builder=runtime/build_etf_eu_cockpit_pdf_premium_dutch_refinement_candidate.py
+refinement_build_artifact=output/client_surface/etf_eu_cockpit_pdf_premium_dutch_refinement_candidate_build_20260703_000000.json
+refinement_build_notes=output/client_surface/etf_eu_cockpit_pdf_premium_dutch_refinement_candidate_build_notes_20260703_000000.md
+refinement_validator=tools/validate_etf_eu_cockpit_pdf_premium_dutch_refinement_candidate_build.py
+refinement_tests=tests/test_etf_eu_cockpit_pdf_premium_dutch_refinement_candidate_build.py
+premium_visual_refinement_candidate_created=true
+dutch_first_language_refinement_candidate_created=true
+review_only_refined_pdf_candidate_created=true
+pdf_materialized_by_builder=true
+render_verified_locally=true
+visible_page_count=4
+dutch_first_language=true
+client_facing_hierarchy_improved=true
+cards_and_tables_used=true
+evidence_badges_used=true
+sequential_flow_used=true
+client_grade_status_after_wp15t=not_yet_client_grade_refined_review_only_candidate_built
 client_grade_claim=false
 client_grade_enough_for_delivery_preflight_discussion=false
 production_delivery=false
@@ -108,48 +119,45 @@ recommendation_logic_changed=false
 client_distribution_claimed=false
 receipt_artifact_created=false
 production_manifest_created=false
-selected_next_package=ETF-EU-WP15T
+selected_next_package=ETF-EU-WP15U
 ```
 
-## Validation package
+## Validation evidence
 
 ```text
-validator_added=tools/validate_etf_eu_cockpit_pdf_content_complete_candidate_visual_review_checkpoint.py
-tests_added=tests/test_etf_eu_cockpit_pdf_content_complete_candidate_visual_review_checkpoint.py
-ci_status=not_visible_in_chatgpt_github_connector
+ETF_EU_COCKPIT_PDF_PREMIUM_DUTCH_REFINEMENT_CANDIDATE_BUILD_OK | selected_next_package=ETF-EU-WP15U
+13 passed in 0.11s
 ```
 
 ## Active next package
 
 ```text
-ETF-EU-WP15T — ETF EU cockpit PDF premium visual and Dutch-first language refinement candidate, no delivery
+ETF-EU-WP15U — ETF EU cockpit PDF premium Dutch refinement visual review checkpoint, no delivery
 ```
 
 Purpose:
 
 ```text
-Create a refined review-only cockpit PDF candidate with stronger client-grade visual hierarchy, Dutch-first client language, table/card structure and clearer evidence badges, while preserving no-delivery and no-authority boundaries.
+Visually review the ETF-EU-WP15T premium Dutch refinement candidate and decide whether further layout, language or evidence presentation work is required before any later client-grade discussion.
 ```
 
-## Likely inputs for ETF-EU-WP15T
+## Likely inputs for ETF-EU-WP15U
 
 ```text
 control/SYSTEM_INDEX.md
 control/CURRENT_STATE.md
 control/NEXT_ACTIONS.md
-control/ETF_EU_COCKPIT_PDF_CLIENT_GRADE_CONTENT_CONTRACT_V1.md
-output/client_surface/etf_eu_cockpit_pdf_content_complete_candidate_20260703_000000.pdf
-output/client_surface/etf_eu_cockpit_pdf_content_complete_candidate_visual_review_checkpoint_20260703_000000.json
-output/client_surface/etf_eu_cockpit_pdf_content_complete_candidate_visual_review_checkpoint_notes_20260703_000000.md
-runtime/build_etf_eu_cockpit_pdf_content_complete_candidate.py
+output/client_surface/etf_eu_cockpit_pdf_premium_dutch_refinement_candidate_20260703_000000.pdf
+output/client_surface/etf_eu_cockpit_pdf_premium_dutch_refinement_candidate_build_20260703_000000.json
+output/client_surface/etf_eu_cockpit_pdf_premium_dutch_refinement_candidate_build_notes_20260703_000000.md
+runtime/build_etf_eu_cockpit_pdf_premium_dutch_refinement_candidate.py
 ```
 
-ETF-EU-WP15T should create:
+ETF-EU-WP15U should create:
 
 ```text
-premium visual and Dutch-first language refinement PDF candidate
-refinement build artifact
-refinement build notes
+premium Dutch refinement visual review checkpoint artifact
+premium Dutch refinement visual review notes
 validator/test coverage
 updated control state after validation
 ```
