@@ -105,39 +105,39 @@ ETF-EU-WP15T
 ETF-EU-WP15U
 ETF-EU-WP15V
 ETF-EU-WP15W
+ETF-EU-WP15X
 ```
 
-## Latest completed package — ETF-EU-WP15W
+## Latest completed package — ETF-EU-WP15X
 
 ```text
 repository=market-predictions/weekly-etf-eu
-work_package_id=ETF-EU-WP15W
-legacy_work_package_id=WP15W
+work_package_id=ETF-EU-WP15X
+legacy_work_package_id=WP15X
 status=completed
-source_work_package=ETF-EU-WP15V
+source_work_package=ETF-EU-WP15W
+source_readiness_audit_artifact=output/client_surface/etf_eu_cockpit_pdf_readiness_gate_implementation_audit_20260703_000000.json
+source_readiness_audit_notes=output/client_surface/etf_eu_cockpit_pdf_readiness_gate_implementation_audit_notes_20260703_000000.md
 readiness_contract_path=control/ETF_EU_COCKPIT_PDF_CLIENT_GRADE_READINESS_CONTRACT_V1.md
-source_readiness_gate_artifact=output/client_surface/etf_eu_cockpit_pdf_client_grade_readiness_gate_20260703_000000.json
-source_readiness_gate_notes=output/client_surface/etf_eu_cockpit_pdf_client_grade_readiness_gate_notes_20260703_000000.md
-source_visual_review_artifact=output/client_surface/etf_eu_cockpit_pdf_premium_dutch_refinement_visual_review_checkpoint_20260703_000000.json
-source_visual_review_notes=output/client_surface/etf_eu_cockpit_pdf_premium_dutch_refinement_visual_review_checkpoint_notes_20260703_000000.md
-source_refinement_artifact=output/client_surface/etf_eu_cockpit_pdf_premium_dutch_refinement_candidate_build_20260703_000000.json
-source_refinement_notes=output/client_surface/etf_eu_cockpit_pdf_premium_dutch_refinement_candidate_build_notes_20260703_000000.md
-readiness_audit_artifact=output/client_surface/etf_eu_cockpit_pdf_readiness_gate_implementation_audit_20260703_000000.json
-readiness_audit_notes=output/client_surface/etf_eu_cockpit_pdf_readiness_gate_implementation_audit_notes_20260703_000000.md
-readiness_audit_validator=tools/validate_etf_eu_cockpit_pdf_readiness_gate_implementation_audit.py
-readiness_audit_tests=tests/test_etf_eu_cockpit_pdf_readiness_gate_implementation_audit.py
-readiness_audit_created=true
-readiness_audit_status=completed_with_blocking_gaps
-client_grade_readiness_audit_result=fail_blocked_by_missing_evidence
+gap_closure_plan_path=control/ETF_EU_COCKPIT_PDF_READINESS_GAP_CLOSURE_PLAN_V1.md
+gap_closure_artifact=output/client_surface/etf_eu_cockpit_pdf_readiness_gap_closure_plan_20260703_000000.json
+gap_closure_notes=output/client_surface/etf_eu_cockpit_pdf_readiness_gap_closure_plan_notes_20260703_000000.md
+gap_closure_validator=tools/validate_etf_eu_cockpit_pdf_readiness_gap_closure_plan.py
+gap_closure_tests=tests/test_etf_eu_cockpit_pdf_readiness_gap_closure_plan.py
+gap_closure_plan_created=true
+gap_closure_plan_status=non_executing_plan_created
+execution_performed=false
 client_grade_claim=false
 client_grade_enough_for_delivery_preflight_discussion=false
 delivery_ready=false
-total_contract_gates_audited=46
-pass_count=33
-fail_count=4
-blocked_count=8
-not_applicable_count=1
-blocking_gap_count=12
+primary_gap_count=12
+decision_framework_gap_count=1
+input_state_contract_gap_count=11
+output_contract_gap_count=0
+operational_runbook_gap_count=0
+evidence_collected=false
+recommendation_changed=false
+pdf_changed=false
 source_pdf_replaced=false
 new_pdf_created=false
 renderer_changed=false
@@ -155,19 +155,19 @@ recommendation_logic_changed=false
 client_distribution_claimed=false
 receipt_artifact_created=false
 production_manifest_created=false
-selected_next_package=ETF-EU-WP15X
-selected_next_package_title=ETF EU cockpit PDF readiness gap closure plan, no delivery
+selected_next_package=ETF-EU-WP15Y
+selected_next_package_title=ETF EU cockpit PDF readiness evidence acquisition contract, no delivery
 ```
 
-ETF-EU-WP15W validation package:
+ETF-EU-WP15X validation package:
 
 ```text
-validator_added=tools/validate_etf_eu_cockpit_pdf_readiness_gate_implementation_audit.py
-tests_added=tests/test_etf_eu_cockpit_pdf_readiness_gate_implementation_audit.py
+validator_added=tools/validate_etf_eu_cockpit_pdf_readiness_gap_closure_plan.py
+tests_added=tests/test_etf_eu_cockpit_pdf_readiness_gap_closure_plan.py
 ci_status=not_visible_in_chatgpt_github_connector
 ```
 
-## Primary readiness gaps after ETF-EU-WP15W
+## Gap closure coverage after ETF-EU-WP15X
 
 ```text
 thesis_and_invalidation_present_for_funded_holdings_or_proposed_candidates
@@ -184,22 +184,20 @@ hedged_unhedged_status_present_or_explicitly_unknown
 liquidity_spread_evidence_present_or_review_needed
 ```
 
-## Prior package context — ETF-EU-WP15V
+## Prior package context — ETF-EU-WP15W
 
 ```text
 repository=market-predictions/weekly-etf-eu
-work_package_id=ETF-EU-WP15V
-legacy_work_package_id=WP15V
+work_package_id=ETF-EU-WP15W
+legacy_work_package_id=WP15W
 status=completed
-source_work_package=ETF-EU-WP15U
-readiness_contract_path=control/ETF_EU_COCKPIT_PDF_CLIENT_GRADE_READINESS_CONTRACT_V1.md
-readiness_gate_artifact=output/client_surface/etf_eu_cockpit_pdf_client_grade_readiness_gate_20260703_000000.json
-client_grade_readiness_contract_created=true
-evidence_gate_created=true
-readiness_gate_status=contract_defined_not_passed
+source_work_package=ETF-EU-WP15V
+readiness_audit_artifact=output/client_surface/etf_eu_cockpit_pdf_readiness_gate_implementation_audit_20260703_000000.json
+readiness_audit_status=completed_with_blocking_gaps
+client_grade_readiness_audit_result=fail_blocked_by_missing_evidence
 client_grade_claim=false
 client_grade_enough_for_delivery_preflight_discussion=false
-selected_next_package=ETF-EU-WP15W
+selected_next_package=ETF-EU-WP15X
 ```
 
 ## Client-grade cockpit PDF content boundary
@@ -216,9 +214,9 @@ readiness_gate_status=contract_defined_not_passed
 readiness_audit_created=true
 readiness_audit_status=completed_with_blocking_gaps
 client_grade_readiness_audit_result=fail_blocked_by_missing_evidence
-minimum_content_sections_defined=true
-minimum_visible_fields_for_funded_or_investable_rows_defined=true
-required_operational_validators_defined=true
+gap_closure_plan_created=true
+gap_closure_plan_status=non_executing_plan_created
+execution_performed=false
 client_grade_claim=false
 client_grade_enough_for_delivery_preflight_discussion=false
 source_pdf_replaced=false
@@ -236,18 +234,18 @@ delivery_preflight_allowed=false
 ## Active product roadmap
 
 ```text
-ETF-EU-WP15X — ETF EU cockpit PDF readiness gap closure plan, no delivery
+ETF-EU-WP15Y — ETF EU cockpit PDF readiness evidence acquisition contract, no delivery
 Delivery enablement — blocked until explicit receipt/manifest authority
 ```
 
 ## Immediate next action
 
-Start ETF-EU-WP15X.
+Start ETF-EU-WP15Y.
 
 Goal:
 
 ```text
-Create a non-executing closure plan for the missing readiness evidence, including pricing freshness, TER, replication, liquidity/spread, thesis/invalidation and policy-review gaps, without fetching live data or mutating portfolio state.
+Define the precise evidence acquisition contract for UCITS identity, pricing freshness, TER, replication, distribution, hedging, liquidity/spread and thesis/invalidation evidence before any later authorized data collection package.
 ```
 
 ## Boundary rule
