@@ -101,35 +101,44 @@ ETF-EU-WP15P
 ETF-EU-WP15Q
 ETF-EU-WP15R
 ETF-EU-WP15S
+ETF-EU-WP15T
 ```
 
-## Latest completed package — ETF-EU-WP15S
+## Latest completed package — ETF-EU-WP15T
 
 ```text
 repository=market-predictions/weekly-etf-eu
-work_package_id=ETF-EU-WP15S
-legacy_work_package_id=WP15S
+work_package_id=ETF-EU-WP15T
+legacy_work_package_id=WP15T
 status=completed
-source_work_package=ETF-EU-WP15R
-source_pdf_candidate_path=output/client_surface/etf_eu_cockpit_pdf_content_complete_candidate_20260703_000000.pdf
-source_build_artifact=output/client_surface/etf_eu_cockpit_pdf_content_complete_candidate_build_20260703_000000.json
-source_build_notes=output/client_surface/etf_eu_cockpit_pdf_content_complete_candidate_build_notes_20260703_000000.md
-source_pdf_candidate_reviewed=true
-actual_pdf_candidate_reviewed=true
-visual_review_checkpoint_created=true
-review_checkpoint_artifact=output/client_surface/etf_eu_cockpit_pdf_content_complete_candidate_visual_review_checkpoint_20260703_000000.json
-review_checkpoint_notes=output/client_surface/etf_eu_cockpit_pdf_content_complete_candidate_visual_review_checkpoint_notes_20260703_000000.md
-review_checkpoint_validator=tools/validate_etf_eu_cockpit_pdf_content_complete_candidate_visual_review_checkpoint.py
-review_checkpoint_tests=tests/test_etf_eu_cockpit_pdf_content_complete_candidate_visual_review_checkpoint.py
-visual_review_decision=accept_as_review_only_content_complete_foundation_request_premium_visual_and_language_refinement
-content_completeness_status=content_complete_for_review_only_candidate
-client_grade_status_after_wp15s=not_yet_client_grade_visual_language_refinement_required
+source_work_package=ETF-EU-WP15S
+source_visual_review_artifact=output/client_surface/etf_eu_cockpit_pdf_content_complete_candidate_visual_review_checkpoint_20260703_000000.json
+source_visual_review_notes=output/client_surface/etf_eu_cockpit_pdf_content_complete_candidate_visual_review_checkpoint_notes_20260703_000000.md
+source_content_complete_pdf_candidate_path=output/client_surface/etf_eu_cockpit_pdf_content_complete_candidate_20260703_000000.pdf
+refined_pdf_candidate_path=output/client_surface/etf_eu_cockpit_pdf_premium_dutch_refinement_candidate_20260703_000000.pdf
+refined_pdf_candidate_builder=runtime/build_etf_eu_cockpit_pdf_premium_dutch_refinement_candidate.py
+refinement_build_artifact=output/client_surface/etf_eu_cockpit_pdf_premium_dutch_refinement_candidate_build_20260703_000000.json
+refinement_build_notes=output/client_surface/etf_eu_cockpit_pdf_premium_dutch_refinement_candidate_build_notes_20260703_000000.md
+refinement_validator=tools/validate_etf_eu_cockpit_pdf_premium_dutch_refinement_candidate_build.py
+refinement_tests=tests/test_etf_eu_cockpit_pdf_premium_dutch_refinement_candidate_build.py
+premium_visual_refinement_candidate_created=true
+dutch_first_language_refinement_candidate_created=true
+review_only_refined_pdf_candidate_created=true
+pdf_materialized_by_builder=true
+render_verified_locally=true
+visible_page_count=4
+dutch_first_language=true
+client_facing_hierarchy_improved=true
+cards_and_tables_used=true
+evidence_badges_used=true
+sequential_flow_used=true
+client_grade_status_after_wp15t=not_yet_client_grade_refined_review_only_candidate_built
 client_grade_claim=false
 client_grade_enough_for_delivery_preflight_discussion=false
 delivery_ready=false
 source_pdf_replaced=false
-new_pdf_created=false
-renderer_changed=false
+new_pdf_created=true
+renderer_changed=true
 production_delivery=false
 portfolio_mutation=false
 candidate_promotion=false
@@ -144,39 +153,33 @@ recommendation_logic_changed=false
 client_distribution_claimed=false
 receipt_artifact_created=false
 production_manifest_created=false
-selected_next_package=ETF-EU-WP15T
-selected_next_package_title=ETF EU cockpit PDF premium visual and Dutch-first language refinement candidate, no delivery
+selected_next_package=ETF-EU-WP15U
+selected_next_package_title=ETF EU cockpit PDF premium Dutch refinement visual review checkpoint, no delivery
 ```
 
-ETF-EU-WP15S validation package:
+ETF-EU-WP15T validation evidence:
 
 ```text
-validator_added=tools/validate_etf_eu_cockpit_pdf_content_complete_candidate_visual_review_checkpoint.py
-tests_added=tests/test_etf_eu_cockpit_pdf_content_complete_candidate_visual_review_checkpoint.py
-ci_status=not_visible_in_chatgpt_github_connector
+python tools/validate_etf_eu_cockpit_pdf_premium_dutch_refinement_candidate_build.py output/client_surface/etf_eu_cockpit_pdf_premium_dutch_refinement_candidate_build_20260703_000000.json
+ETF_EU_COCKPIT_PDF_PREMIUM_DUTCH_REFINEMENT_CANDIDATE_BUILD_OK | artifact=output/client_surface/etf_eu_cockpit_pdf_premium_dutch_refinement_candidate_build_20260703_000000.json | pdf=output/client_surface/etf_eu_cockpit_pdf_premium_dutch_refinement_candidate_20260703_000000.pdf | selected_next_package=ETF-EU-WP15U
+
+python -m pytest tests/test_etf_eu_cockpit_pdf_premium_dutch_refinement_candidate_build.py -q
+13 passed in 0.11s
 ```
 
-## Prior package context — ETF-EU-WP15R
+## Prior package context — ETF-EU-WP15S
 
 ```text
 repository=market-predictions/weekly-etf-eu
-work_package_id=ETF-EU-WP15R
-legacy_work_package_id=WP15R
+work_package_id=ETF-EU-WP15S
+legacy_work_package_id=WP15S
 status=completed
-source_work_package=ETF-EU-WP15Q
-content_complete_pdf_candidate_path=output/client_surface/etf_eu_cockpit_pdf_content_complete_candidate_20260703_000000.pdf
-content_complete_pdf_candidate_builder=runtime/build_etf_eu_cockpit_pdf_content_complete_candidate.py
-content_complete_candidate_build_artifact=output/client_surface/etf_eu_cockpit_pdf_content_complete_candidate_build_20260703_000000.json
-content_complete_candidate_build_notes=output/client_surface/etf_eu_cockpit_pdf_content_complete_candidate_build_notes_20260703_000000.md
-content_complete_candidate_validator=tools/validate_etf_eu_cockpit_pdf_content_complete_candidate_build.py
-content_complete_candidate_tests=tests/test_etf_eu_cockpit_pdf_content_complete_candidate_build.py
-content_complete_pdf_candidate_created=true
-review_only_content_complete_candidate_created=true
-visible_page_count=3
-visible_sections_count=12
-funded_etf_holdings_count=0
-client_grade_status_after_wp15r=not_yet_client_grade_review_only_candidate_built
-selected_next_package=ETF-EU-WP15S
+source_work_package=ETF-EU-WP15R
+source_pdf_candidate_path=output/client_surface/etf_eu_cockpit_pdf_content_complete_candidate_20260703_000000.pdf
+visual_review_decision=accept_as_review_only_content_complete_foundation_request_premium_visual_and_language_refinement
+content_completeness_status=content_complete_for_review_only_candidate
+client_grade_status_after_wp15s=not_yet_client_grade_visual_language_refinement_required
+selected_next_package=ETF-EU-WP15T
 ```
 
 ## Client-grade cockpit PDF content boundary
@@ -185,14 +188,15 @@ selected_next_package=ETF-EU-WP15S
 content_contract_created=true
 review_only_content_complete_candidate_built=true
 content_complete_candidate_visual_reviewed=true
+premium_dutch_refinement_candidate_built=true
 minimum_content_sections_defined=true
 minimum_visible_fields_for_funded_or_investable_rows_defined=true
 required_operational_validators_defined=true
-client_grade_status_after_wp15s=not_yet_client_grade_visual_language_refinement_required
+client_grade_status_after_wp15t=not_yet_client_grade_refined_review_only_candidate_built
 client_grade_enough_for_delivery_preflight_discussion=false
 source_pdf_replaced=false
-new_pdf_created=false
-renderer_changed=false
+new_pdf_created=true
+renderer_changed=true
 production_delivery=false
 portfolio_mutation=false
 candidate_promotion=false
@@ -205,18 +209,18 @@ delivery_preflight_allowed=false
 ## Active product roadmap
 
 ```text
-ETF-EU-WP15T — ETF EU cockpit PDF premium visual and Dutch-first language refinement candidate, no delivery
+ETF-EU-WP15U — ETF EU cockpit PDF premium Dutch refinement visual review checkpoint, no delivery
 Delivery enablement — blocked until explicit receipt/manifest authority
 ```
 
 ## Immediate next action
 
-Start ETF-EU-WP15T.
+Start ETF-EU-WP15U.
 
 Goal:
 
 ```text
-Create a refined review-only cockpit PDF candidate with stronger client-grade visual hierarchy, Dutch-first client language, table/card structure and clearer evidence badges, while preserving no-delivery and no-authority boundaries.
+Visually review the ETF-EU-WP15T premium Dutch refinement candidate and decide whether further layout, language or evidence presentation work is required before any later client-grade discussion.
 ```
 
 ## Boundary rule
