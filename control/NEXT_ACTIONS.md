@@ -1,6 +1,6 @@
 # Weekly ETF EU Review OS — Next Actions
 
-Current priority: **ETF-EU-WP15P — ETF EU cockpit PDF premium visual refinement review checkpoint, no delivery**.
+Current priority: **ETF-EU-WP15Q — ETF EU cockpit PDF client-grade content completeness plan, no delivery**.
 
 ## Adopted strategy
 
@@ -70,30 +70,29 @@ ETF-EU-WP15L
 ETF-EU-WP15M
 ETF-EU-WP15N
 ETF-EU-WP15O
+ETF-EU-WP15P
 ```
 
-## ETF-EU-WP15O completion evidence
+## ETF-EU-WP15P completion evidence
 
 ```text
 repository=market-predictions/weekly-etf-eu
-work_package_id=ETF-EU-WP15O
-legacy_work_package_id=WP15O
+work_package_id=ETF-EU-WP15P
+legacy_work_package_id=WP15P
 status=completed
-source_work_package=ETF-EU-WP15N
-premium_visual_refinement_build_created=true
-review_only_premium_pdf_candidate_created=true
-source_pdf_candidate_path=output/client_surface/etf_eu_cockpit_pdf_targeted_copy_governance_renderer_candidate_20260618_000000.pdf
-source_pdf_candidate_commit=92c09a8
-premium_pdf_candidate_path=output/client_surface/etf_eu_cockpit_pdf_premium_visual_refinement_candidate_20260618_000000.pdf
-premium_pdf_candidate_commit=88c2a75
-premium_pdf_candidate_builder=runtime/build_etf_eu_cockpit_pdf_premium_visual_refinement_candidate.py
-premium_visual_refinement_artifact=output/client_surface/etf_eu_cockpit_pdf_premium_visual_refinement_build_20260618_000000.json
-premium_visual_refinement_notes=output/client_surface/etf_eu_cockpit_pdf_premium_visual_refinement_build_notes_20260618_000000.md
-premium_visual_refinement_validator=tools/validate_etf_eu_cockpit_pdf_premium_visual_refinement_build.py
-premium_visual_refinement_tests=tests/test_etf_eu_cockpit_pdf_premium_visual_refinement_build.py
-new_pdf_created=true
-renderer_changed=true
-prior_wp15m_pdf_replaced=false
+source_work_package=ETF-EU-WP15O
+visual_review_checkpoint_created=true
+actual_pdf_candidate_reviewed=true
+source_premium_pdf_candidate_reviewed=true
+source_premium_pdf_candidate_path=output/client_surface/etf_eu_cockpit_pdf_premium_visual_refinement_candidate_20260618_000000.pdf
+source_premium_pdf_candidate_commit=88c2a75
+review_checkpoint_artifact=output/client_surface/etf_eu_cockpit_pdf_premium_visual_refinement_review_checkpoint_20260618_000000.json
+review_checkpoint_notes=output/client_surface/etf_eu_cockpit_pdf_premium_visual_refinement_review_checkpoint_notes_20260618_000000.md
+review_checkpoint_validator=tools/validate_etf_eu_cockpit_pdf_premium_visual_refinement_review_checkpoint.py
+review_checkpoint_tests=tests/test_etf_eu_cockpit_pdf_premium_visual_refinement_review_checkpoint.py
+visual_review_decision=accept_as_review_only_cockpit_surface_foundation_not_delivery_grade
+client_grade_status=not_yet_client_grade
+client_grade_enough_for_delivery_preflight_discussion=false
 production_delivery=false
 portfolio_mutation=false
 candidate_promotion=false
@@ -108,50 +107,45 @@ recommendation_logic_changed=false
 client_distribution_claimed=false
 receipt_artifact_created=false
 production_manifest_created=false
-selected_next_package=ETF-EU-WP15P
+selected_next_package=ETF-EU-WP15Q
 ```
 
 ## Validation evidence
 
 ```text
-ETF_EU_COCKPIT_PDF_PREMIUM_VISUAL_REFINEMENT_CANDIDATE_BUILT | pdf=output/client_surface/etf_eu_cockpit_pdf_premium_visual_refinement_candidate_20260618_000000.pdf
-ETF_EU_COCKPIT_PDF_PREMIUM_VISUAL_REFINEMENT_BUILD_OK | selected_next_package=ETF-EU-WP15P
-13 passed in 0.07s
-PDF candidate committed and pushed as 88c2a75
-branch up to date with origin/main; only local untracked FETCH_HEAD and main files remain
+ETF_EU_COCKPIT_PDF_PREMIUM_VISUAL_REFINEMENT_REVIEW_CHECKPOINT_OK | selected_next_package=ETF-EU-WP15Q
+12 passed in 0.13s
 ```
 
 ## Active next package
 
 ```text
-ETF-EU-WP15P — ETF EU cockpit PDF premium visual refinement review checkpoint, no delivery
+ETF-EU-WP15Q — ETF EU cockpit PDF client-grade content completeness plan, no delivery
 ```
 
 Purpose:
 
 ```text
-Visually review the ETF-EU-WP15O premium PDF candidate and decide whether it is client-grade enough for a later delivery-preflight discussion, while preserving no-delivery and no-authority boundaries.
+Define the minimum client-grade content contract for the ETF EU cockpit PDF before any delivery-preflight discussion can be reconsidered.
 ```
 
-## Likely inputs for ETF-EU-WP15P
+## Likely inputs for ETF-EU-WP15Q
 
 ```text
 control/SYSTEM_INDEX.md
 control/CURRENT_STATE.md
 control/NEXT_ACTIONS.md
 output/client_surface/etf_eu_cockpit_pdf_premium_visual_refinement_candidate_20260618_000000.pdf
-output/client_surface/etf_eu_cockpit_pdf_premium_visual_refinement_build_20260618_000000.json
-output/client_surface/etf_eu_cockpit_pdf_premium_visual_refinement_build_notes_20260618_000000.md
+output/client_surface/etf_eu_cockpit_pdf_premium_visual_refinement_review_checkpoint_20260618_000000.json
+output/client_surface/etf_eu_cockpit_pdf_premium_visual_refinement_review_checkpoint_notes_20260618_000000.md
 runtime/build_etf_eu_cockpit_pdf_premium_visual_refinement_candidate.py
-tools/validate_etf_eu_cockpit_pdf_premium_visual_refinement_build.py
-tests/test_etf_eu_cockpit_pdf_premium_visual_refinement_build.py
 ```
 
-ETF-EU-WP15P should create:
+ETF-EU-WP15Q should create:
 
 ```text
-premium visual refinement review checkpoint artifact
-premium visual refinement review checkpoint notes
+client-grade content completeness contract or plan artifact
+client-grade content completeness notes
 validator/test coverage
 updated control state after validation
 ```
@@ -179,6 +173,6 @@ Do not mutate portfolio state.
 Do not promote candidates.
 Do not create funding authority.
 Do not create valuation-grade authority.
-Do not fetch live data.
+Do not fetch live data unless a later package explicitly authorizes it.
 Do not change ETF recommendation logic.
-Do not delete or replace prior WP15 evidence, review, planning, reconcile, implementation or PDF candidate artifacts.
+Do not replace the WP15O premium PDF candidate unless a later implementation package explicitly authorizes a new candidate build.
