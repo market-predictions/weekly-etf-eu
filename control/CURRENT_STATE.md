@@ -52,23 +52,23 @@ ETF-EU-WP15AE
 ETF-EU-WP15AF
 ETF-EU-WP15AG
 ETF-EU-WP15AH
+ETF-EU-WP15AI
 ```
 
-## Latest completed package — ETF-EU-WP15AH
+## Latest completed package — ETF-EU-WP15AI
 
 ```text
 repository=market-predictions/weekly-etf-eu
-work_package_id=ETF-EU-WP15AH
+work_package_id=ETF-EU-WP15AI
 status=completed
-source_work_package=ETF-EU-WP15AG
-pricing_freshness_policy_created=true
-valuation_reconciliation_policy_created=true
-pricing_freshness_policy_validated=true
-valuation_reconciliation_policy_validated=true
-readiness_gate_status=pricing_and_valuation_policy_defined_not_client_grade
+source_work_package=ETF-EU-WP15AH
+priips_kid_evidence_acquired=true
+liquidity_spread_evidence_acquired=true
+investability_evidence_validated=true
+readiness_gate_status=investability_evidence_acquired_not_client_grade
 accepted_review_only_foundation=true
-resolved_policy_gaps_count=2
-remaining_client_grade_blockers_count=6
+resolved_investability_gaps_count=2
+remaining_client_grade_blockers_count=4
 remaining_delivery_preflight_blockers_count=8
 pdf_exists=true
 pdf_page_count=4
@@ -112,28 +112,28 @@ receipt_artifact_created=false
 production_manifest_created=false
 recipient_config_changed=false
 smtp_or_secret_config_changed=false
-selected_next_package=ETF-EU-WP15AI
-selected_next_package_title=ETF EU PRIIPs/KID and liquidity/spread investability evidence, no delivery
+selected_next_package=ETF-EU-WP15AJ
+selected_next_package_title=ETF EU investment thesis, invalidation criteria, and funding posture framework, no delivery
 ```
 
-## Pricing freshness and valuation policy answer
+## Investability evidence answer
 
 ```text
-Did WP15AH define pricing freshness and valuation reconciliation policy? Yes. WP15AH created and validated policy-only artifacts for close-date freshness and same-ISIN multi-line reconciliation. It classified existing SXR8.DE and CSPX.L rows as current_completed_session and SMH as unpriced_or_pending_verification. It did not fetch new prices, change existing price evidence, regenerate the PDF, change renderer logic, calculate valuation, or create client-grade, valuation-grade, funding, portfolio, delivery-preflight, or production-delivery authority.
+Did WP15AI acquire PRIIPs/KID and liquidity/spread evidence? Yes. WP15AI acquired and validated review-only investability evidence for IE00B5BMR087 and the successful SXR8.DE/CSPX.L trading lines. PRIIPs/KID availability is recorded from registry and official issuer product-page reference. Liquidity/spread evidence is recorded as review-only line evidence, with spread confidence remaining needs_cross_check before any client-grade or valuation-grade use. WP15AI did not fetch new close prices, change existing price evidence, regenerate the PDF, change renderer logic, calculate valuation, create funding authority, mutate portfolio state, or create client-grade, valuation-grade, delivery-preflight, or production-delivery authority.
 ```
 
 ## Active product roadmap
 
 ```text
-ETF-EU-WP15AI — ETF EU PRIIPs/KID and liquidity/spread investability evidence, no delivery
+ETF-EU-WP15AJ — ETF EU investment thesis, invalidation criteria, and funding posture framework, no delivery
 ```
 
 ## Immediate next action
 
-Start ETF-EU-WP15AI.
+Start ETF-EU-WP15AJ.
 
 Goal:
 
 ```text
-Acquire and validate PRIIPs/KID availability and liquidity/spread evidence for relevant UCITS trading lines without fetching new close prices, mutating portfolio state, enabling delivery, or creating client-grade authority.
+Define review-only investment thesis, invalidation criteria, and funding/cash-posture framework for proposed UCITS positions without mutating portfolio state, enabling delivery, or creating client-grade authority.
 ```
