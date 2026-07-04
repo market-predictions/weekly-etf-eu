@@ -47,21 +47,21 @@ ETF-EU-WP15AA
 ETF-EU-WP15AA-FIX
 ETF-EU-WP15AB
 ETF-EU-WP15AC
+ETF-EU-WP15AD
 ```
 
-## Latest completed package — ETF-EU-WP15AC
+## Latest completed package — ETF-EU-WP15AD
 
 ```text
 repository=market-predictions/weekly-etf-eu
-work_package_id=ETF-EU-WP15AC
+work_package_id=ETF-EU-WP15AD
 status=completed
-source_work_package=ETF-EU-WP15AB
-visual_review_performed=true
-visual_decision=accepted_for_review_only_foundation
-accepted_for_review_only_foundation=true
+source_work_package=ETF-EU-WP15AC
+client_grade_readiness_gate_created=true
+readiness_gate_status=gate_defined_not_passed
+accepted_review_only_foundation=true
 pdf_exists=true
 pdf_page_count=4
-pdf_preview_path=output/client_surface/etf_eu_cockpit_pdf_multi_line_pricing_preview_20260703_000000.pdf
 successful_rows_count=2
 failed_rows_count=0
 skipped_rows_count=1
@@ -72,39 +72,47 @@ second_successful_symbol=CSPX.L
 second_successful_latest_close_date=2026-07-03
 second_successful_latest_close=807.859985
 review_only=true
-valuation_grade=false
-pricing_evidence_for_client_grade=false
-pricing_evidence_for_delivery_preflight=false
 client_grade_claim=false
+client_grade_enough_for_delivery_preflight_discussion=false
 delivery_ready=false
+delivery_preflight_allowed=false
 production_delivery=false
 portfolio_mutation=false
 candidate_promotion=false
 funding_authority=false
+valuation_grade=false
+pricing_evidence_for_client_grade=false
+pricing_evidence_for_delivery_preflight=false
 fake_price_used=false
 us_proxy_price_used=false
-selected_next_package=ETF-EU-WP15AD
-selected_next_package_title=ETF EU cockpit PDF client-grade readiness gate, no delivery
+live_data_fetch_performed=false
+pricing_evidence_changed=false
+recommendation_logic_changed=false
+source_pdf_replaced=false
+new_pdf_created=false
+renderer_changed=false
+selected_next_package=ETF-EU-WP15AE
+selected_next_package_title=ETF EU cockpit PDF client-grade evidence gap audit, no delivery
 ```
 
 ## Pricing preview answer
 
 ```text
-Is the WP15AB PDF accepted as review-only foundation? Yes, with no blocking visual issues and no delivery/funding authority.
+Is the accepted review-only PDF client-grade now? No. WP15AD defines the gate, but the gate is not passed.
 ```
 
 ## Active product roadmap
 
 ```text
-ETF-EU-WP15AD — ETF EU cockpit PDF client-grade readiness gate, no delivery
+ETF-EU-WP15AE — ETF EU cockpit PDF client-grade evidence gap audit, no delivery
 ```
 
 ## Immediate next action
 
-Start ETF-EU-WP15AD.
+Start ETF-EU-WP15AE.
 
 Goal:
 
 ```text
-Introduce a readiness gate that separates review-only PDF evidence from client-grade report authority and delivery-preflight authority.
+Audit the accepted review-only PDF and current source artifacts against the WP15AD readiness gate, producing a deterministic pass/fail/block matrix for every client-grade and delivery-preflight gate without fetching new data, mutating portfolio state, or enabling delivery.
 ```
