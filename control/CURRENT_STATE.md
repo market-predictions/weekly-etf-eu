@@ -49,20 +49,21 @@ ETF-EU-WP15AB
 ETF-EU-WP15AC
 ETF-EU-WP15AD
 ETF-EU-WP15AE
+ETF-EU-WP15AF
 ```
 
-## Latest completed package — ETF-EU-WP15AE
+## Latest completed package — ETF-EU-WP15AF
 
 ```text
 repository=market-predictions/weekly-etf-eu
-work_package_id=ETF-EU-WP15AE
+work_package_id=ETF-EU-WP15AF
 status=completed
-source_work_package=ETF-EU-WP15AD
-evidence_gap_audit_created=true
-readiness_gate_status=audited_not_passed
+source_work_package=ETF-EU-WP15AE
+evidence_acquisition_plan_created=true
+readiness_gate_status=plan_created_not_executed
 accepted_review_only_foundation=true
-client_grade_blocking_gap_count=12
-delivery_preflight_blocking_gap_count=8
+planned_client_grade_items_count=12
+planned_delivery_preflight_items_count=8
 pdf_exists=true
 pdf_page_count=4
 successful_rows_count=2
@@ -94,28 +95,29 @@ recommendation_logic_changed=false
 source_pdf_replaced=false
 new_pdf_created=false
 renderer_changed=false
-selected_next_package=ETF-EU-WP15AF
-selected_next_package_title=ETF EU cockpit PDF client-grade evidence acquisition plan, no delivery
+evidence_acquired=false
+selected_next_package=ETF-EU-WP15AG
+selected_next_package_title=ETF EU product facts evidence acquisition, no delivery
 ```
 
 ## Pricing preview answer
 
 ```text
-Did the evidence gap audit make the accepted review-only PDF client-grade? No. WP15AE confirms the gate remains audited_not_passed with 12 client-grade blockers and 8 delivery-preflight blockers.
+Did WP15AF acquire the missing evidence? No. WP15AF only created the acquisition plan; evidence_acquired=false and all client-grade/delivery authority remains false.
 ```
 
 ## Active product roadmap
 
 ```text
-ETF-EU-WP15AF — ETF EU cockpit PDF client-grade evidence acquisition plan, no delivery
+ETF-EU-WP15AG — ETF EU product facts evidence acquisition, no delivery
 ```
 
 ## Immediate next action
 
-Start ETF-EU-WP15AF.
+Start ETF-EU-WP15AG.
 
 Goal:
 
 ```text
-Turn the WP15AE deterministic gap audit into an ordered, non-delivery evidence acquisition plan for product, pricing freshness, investability, language quality, valuation reconciliation and delivery-preflight prerequisites.
+Acquire and validate committed product facts for the currently priced UCITS lines without enabling delivery, funding, valuation-grade status, or client-grade authority.
 ```
