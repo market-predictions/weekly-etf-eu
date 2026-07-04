@@ -48,18 +48,21 @@ ETF-EU-WP15AA-FIX
 ETF-EU-WP15AB
 ETF-EU-WP15AC
 ETF-EU-WP15AD
+ETF-EU-WP15AE
 ```
 
-## Latest completed package — ETF-EU-WP15AD
+## Latest completed package — ETF-EU-WP15AE
 
 ```text
 repository=market-predictions/weekly-etf-eu
-work_package_id=ETF-EU-WP15AD
+work_package_id=ETF-EU-WP15AE
 status=completed
-source_work_package=ETF-EU-WP15AC
-client_grade_readiness_gate_created=true
-readiness_gate_status=gate_defined_not_passed
+source_work_package=ETF-EU-WP15AD
+evidence_gap_audit_created=true
+readiness_gate_status=audited_not_passed
 accepted_review_only_foundation=true
+client_grade_blocking_gap_count=12
+delivery_preflight_blocking_gap_count=8
 pdf_exists=true
 pdf_page_count=4
 successful_rows_count=2
@@ -91,28 +94,28 @@ recommendation_logic_changed=false
 source_pdf_replaced=false
 new_pdf_created=false
 renderer_changed=false
-selected_next_package=ETF-EU-WP15AE
-selected_next_package_title=ETF EU cockpit PDF client-grade evidence gap audit, no delivery
+selected_next_package=ETF-EU-WP15AF
+selected_next_package_title=ETF EU cockpit PDF client-grade evidence acquisition plan, no delivery
 ```
 
 ## Pricing preview answer
 
 ```text
-Is the accepted review-only PDF client-grade now? No. WP15AD defines the gate, but the gate is not passed.
+Did the evidence gap audit make the accepted review-only PDF client-grade? No. WP15AE confirms the gate remains audited_not_passed with 12 client-grade blockers and 8 delivery-preflight blockers.
 ```
 
 ## Active product roadmap
 
 ```text
-ETF-EU-WP15AE — ETF EU cockpit PDF client-grade evidence gap audit, no delivery
+ETF-EU-WP15AF — ETF EU cockpit PDF client-grade evidence acquisition plan, no delivery
 ```
 
 ## Immediate next action
 
-Start ETF-EU-WP15AE.
+Start ETF-EU-WP15AF.
 
 Goal:
 
 ```text
-Audit the accepted review-only PDF and current source artifacts against the WP15AD readiness gate, producing a deterministic pass/fail/block matrix for every client-grade and delivery-preflight gate without fetching new data, mutating portfolio state, or enabling delivery.
+Turn the WP15AE deterministic gap audit into an ordered, non-delivery evidence acquisition plan for product, pricing freshness, investability, language quality, valuation reconciliation and delivery-preflight prerequisites.
 ```
