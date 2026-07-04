@@ -1,20 +1,21 @@
 # Weekly ETF EU Review OS — Next Actions
 
-Current priority: **ETF-EU-WP15AJ — ETF EU investment thesis, invalidation criteria, and funding posture framework**.
+Current priority: **ETF-EU-WP15AK — ETF EU client language quality gate and readiness synthesis**.
 
 ## Latest completion
 
 ```text
-work_package_id=ETF-EU-WP15AI
+work_package_id=ETF-EU-WP15AJ
 status=completed
-source_work_package=ETF-EU-WP15AH
-priips_kid_evidence_acquired=true
-liquidity_spread_evidence_acquired=true
-investability_evidence_validated=true
-readiness_gate_status=investability_evidence_acquired_not_client_grade
+source_work_package=ETF-EU-WP15AI
+investment_thesis_framework_created=true
+invalidation_criteria_framework_created=true
+funding_posture_framework_created=true
+decision_framework_validated=true
+readiness_gate_status=decision_framework_defined_not_client_grade
 accepted_review_only_foundation=true
-resolved_investability_gaps_count=2
-remaining_client_grade_blockers_count=4
+resolved_decision_framework_gaps_count=3
+remaining_client_grade_blockers_count=1
 remaining_delivery_preflight_blockers_count=8
 pdf_exists=true
 pdf_page_count=4
@@ -47,19 +48,19 @@ live_price_fetch_performed=false
 pricing_evidence_changed=false
 new_pdf_created=false
 renderer_changed=false
-selected_next_package=ETF-EU-WP15AJ
+selected_next_package=ETF-EU-WP15AK
 ```
 
 ## Active next package
 
 ```text
-ETF-EU-WP15AJ — ETF EU investment thesis, invalidation criteria, and funding posture framework
+ETF-EU-WP15AK — ETF EU client language quality gate and readiness synthesis
 ```
 
 Purpose:
 
 ```text
-Define review-only investment thesis, invalidation criteria, and funding/cash-posture framework for proposed UCITS positions without mutating portfolio state, enabling delivery, or creating client-grade authority.
+Validate Dutch-first client-language quality, source-authority wording, residual blocker disclosure, and readiness synthesis without enabling delivery, creating client-grade authority prematurely, or mutating portfolio state.
 ```
 
 ## Scope guardrails
@@ -68,7 +69,7 @@ Define review-only investment thesis, invalidation criteria, and funding/cash-po
 Do not fetch new close prices.
 Do not mutate portfolio state.
 Do not enable delivery-preflight.
-Do not create client-grade authority.
+Do not create client-grade authority unless every explicit gate passes and the package is authorized to make that determination.
 Do not create valuation-grade authority.
 Do not create funding authority.
 Do not create funded positions.
