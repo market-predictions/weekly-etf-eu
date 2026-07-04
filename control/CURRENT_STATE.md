@@ -54,23 +54,27 @@ ETF-EU-WP15AG
 ETF-EU-WP15AH
 ETF-EU-WP15AI
 ETF-EU-WP15AJ
+ETF-EU-WP15AK
 ```
 
-## Latest completed package — ETF-EU-WP15AJ
+## Latest completed package — ETF-EU-WP15AK
 
 ```text
 repository=market-predictions/weekly-etf-eu
-work_package_id=ETF-EU-WP15AJ
+work_package_id=ETF-EU-WP15AK
 status=completed
-source_work_package=ETF-EU-WP15AI
-investment_thesis_framework_created=true
-invalidation_criteria_framework_created=true
-funding_posture_framework_created=true
-decision_framework_validated=true
-readiness_gate_status=decision_framework_defined_not_client_grade
+source_work_package=ETF-EU-WP15AJ
+client_language_quality_gate_created=true
+client_language_quality_gate_validated=true
+source_authority_wording_validated=true
+residual_blocker_disclosure_validated=true
+readiness_synthesis_created=true
+readiness_synthesis_validated=true
+client_language_quality_gate_passed=true
+readiness_gate_status=client_language_gate_passed_not_delivery_ready
 accepted_review_only_foundation=true
-resolved_decision_framework_gaps_count=3
-remaining_client_grade_blockers_count=1
+resolved_client_language_gaps_count=1
+remaining_client_grade_blockers_count=0
 remaining_delivery_preflight_blockers_count=8
 pdf_exists=true
 pdf_page_count=4
@@ -89,6 +93,7 @@ smh_status=skipped_pending_registry_status
 smh_freshness_policy_status=unpriced_or_pending_verification
 review_only=true
 client_grade_claim=false
+client_grade_authority_created=false
 client_grade_enough_for_delivery_preflight_discussion=false
 delivery_ready=false
 delivery_preflight_allowed=false
@@ -114,28 +119,28 @@ receipt_artifact_created=false
 production_manifest_created=false
 recipient_config_changed=false
 smtp_or_secret_config_changed=false
-selected_next_package=ETF-EU-WP15AK
-selected_next_package_title=ETF EU client language quality gate and readiness synthesis, no delivery
+selected_next_package=ETF-EU-WP15AL
+selected_next_package_title=ETF EU explicit client-grade authority decision, no delivery
 ```
 
-## Decision-framework answer
+## Client language and readiness synthesis answer
 
 ```text
-Did WP15AJ define the investment thesis, invalidation criteria, and funding posture framework? Yes. WP15AJ created and validated a review-only decision framework for IE00B5BMR087 and the successful SXR8.DE/CSPX.L trading lines. The framework resolves the investment thesis, invalidation criteria, and funding/cash-posture gaps only as review-only framework gaps. It does not fetch new close prices, change existing price evidence, regenerate the PDF, change renderer logic, calculate valuation, create funding authority, mutate portfolio state, or create client-grade, valuation-grade, delivery-preflight, or production-delivery authority.
+Did WP15AK pass the client-language quality gate and create readiness synthesis? Yes. WP15AK created and validated a Dutch-first client-language quality gate and readiness synthesis. The client-language gap is resolved as a review-readiness synthesis outcome and remaining review-evidence blockers are zero. This does not create client-grade authority. It does not fetch new close prices, change existing price evidence, regenerate the PDF, change renderer logic, calculate valuation, create funding authority, mutate portfolio state, enable delivery-preflight, or create production-delivery authority.
 ```
 
 ## Active product roadmap
 
 ```text
-ETF-EU-WP15AK — ETF EU client language quality gate and readiness synthesis, no delivery
+ETF-EU-WP15AL — ETF EU explicit client-grade authority decision, no delivery
 ```
 
 ## Immediate next action
 
-Start ETF-EU-WP15AK.
+Start ETF-EU-WP15AL.
 
 Goal:
 
 ```text
-Validate Dutch-first client-language quality, source-authority wording, residual blocker disclosure, and readiness synthesis without enabling delivery, creating client-grade authority prematurely, or mutating portfolio state.
+Make an explicit authority decision on whether the review-only evidence chain is sufficient to create client-grade report authority, without enabling delivery, mutating portfolio state, creating valuation-grade authority, or producing outbound delivery artifacts.
 ```
