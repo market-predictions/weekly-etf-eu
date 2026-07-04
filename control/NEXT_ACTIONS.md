@@ -1,21 +1,20 @@
 # Weekly ETF EU Review OS — Next Actions
 
-Current priority: **ETF-EU-WP15AI — ETF EU PRIIPs/KID and liquidity/spread investability evidence**.
+Current priority: **ETF-EU-WP15AJ — ETF EU investment thesis, invalidation criteria, and funding posture framework**.
 
 ## Latest completion
 
 ```text
-work_package_id=ETF-EU-WP15AH
+work_package_id=ETF-EU-WP15AI
 status=completed
-source_work_package=ETF-EU-WP15AG
-pricing_freshness_policy_created=true
-valuation_reconciliation_policy_created=true
-pricing_freshness_policy_validated=true
-valuation_reconciliation_policy_validated=true
-readiness_gate_status=pricing_and_valuation_policy_defined_not_client_grade
+source_work_package=ETF-EU-WP15AH
+priips_kid_evidence_acquired=true
+liquidity_spread_evidence_acquired=true
+investability_evidence_validated=true
+readiness_gate_status=investability_evidence_acquired_not_client_grade
 accepted_review_only_foundation=true
-resolved_policy_gaps_count=2
-remaining_client_grade_blockers_count=6
+resolved_investability_gaps_count=2
+remaining_client_grade_blockers_count=4
 remaining_delivery_preflight_blockers_count=8
 pdf_exists=true
 pdf_page_count=4
@@ -48,19 +47,19 @@ live_price_fetch_performed=false
 pricing_evidence_changed=false
 new_pdf_created=false
 renderer_changed=false
-selected_next_package=ETF-EU-WP15AI
+selected_next_package=ETF-EU-WP15AJ
 ```
 
 ## Active next package
 
 ```text
-ETF-EU-WP15AI — ETF EU PRIIPs/KID and liquidity/spread investability evidence
+ETF-EU-WP15AJ — ETF EU investment thesis, invalidation criteria, and funding posture framework
 ```
 
 Purpose:
 
 ```text
-Acquire and validate PRIIPs/KID availability and liquidity/spread evidence for relevant UCITS trading lines without fetching new close prices, mutating portfolio state, enabling delivery, or creating client-grade authority.
+Define review-only investment thesis, invalidation criteria, and funding/cash-posture framework for proposed UCITS positions without mutating portfolio state, enabling delivery, or creating client-grade authority.
 ```
 
 ## Scope guardrails
@@ -71,7 +70,9 @@ Do not mutate portfolio state.
 Do not enable delivery-preflight.
 Do not create client-grade authority.
 Do not create valuation-grade authority.
+Do not create funding authority.
+Do not create funded positions.
 Do not regenerate or replace the PDF.
-Do not change recommendation logic.
+Do not change recommendation logic in production.
 Do not change SMTP, secrets, recipients, delivery receipts, or production manifests.
 ```
