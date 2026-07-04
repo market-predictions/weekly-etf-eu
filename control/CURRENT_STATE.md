@@ -53,22 +53,24 @@ ETF-EU-WP15AF
 ETF-EU-WP15AG
 ETF-EU-WP15AH
 ETF-EU-WP15AI
+ETF-EU-WP15AJ
 ```
 
-## Latest completed package — ETF-EU-WP15AI
+## Latest completed package — ETF-EU-WP15AJ
 
 ```text
 repository=market-predictions/weekly-etf-eu
-work_package_id=ETF-EU-WP15AI
+work_package_id=ETF-EU-WP15AJ
 status=completed
-source_work_package=ETF-EU-WP15AH
-priips_kid_evidence_acquired=true
-liquidity_spread_evidence_acquired=true
-investability_evidence_validated=true
-readiness_gate_status=investability_evidence_acquired_not_client_grade
+source_work_package=ETF-EU-WP15AI
+investment_thesis_framework_created=true
+invalidation_criteria_framework_created=true
+funding_posture_framework_created=true
+decision_framework_validated=true
+readiness_gate_status=decision_framework_defined_not_client_grade
 accepted_review_only_foundation=true
-resolved_investability_gaps_count=2
-remaining_client_grade_blockers_count=4
+resolved_decision_framework_gaps_count=3
+remaining_client_grade_blockers_count=1
 remaining_delivery_preflight_blockers_count=8
 pdf_exists=true
 pdf_page_count=4
@@ -112,28 +114,28 @@ receipt_artifact_created=false
 production_manifest_created=false
 recipient_config_changed=false
 smtp_or_secret_config_changed=false
-selected_next_package=ETF-EU-WP15AJ
-selected_next_package_title=ETF EU investment thesis, invalidation criteria, and funding posture framework, no delivery
+selected_next_package=ETF-EU-WP15AK
+selected_next_package_title=ETF EU client language quality gate and readiness synthesis, no delivery
 ```
 
-## Investability evidence answer
+## Decision-framework answer
 
 ```text
-Did WP15AI acquire PRIIPs/KID and liquidity/spread evidence? Yes. WP15AI acquired and validated review-only investability evidence for IE00B5BMR087 and the successful SXR8.DE/CSPX.L trading lines. PRIIPs/KID availability is recorded from registry and official issuer product-page reference. Liquidity/spread evidence is recorded as review-only line evidence, with spread confidence remaining needs_cross_check before any client-grade or valuation-grade use. WP15AI did not fetch new close prices, change existing price evidence, regenerate the PDF, change renderer logic, calculate valuation, create funding authority, mutate portfolio state, or create client-grade, valuation-grade, delivery-preflight, or production-delivery authority.
+Did WP15AJ define the investment thesis, invalidation criteria, and funding posture framework? Yes. WP15AJ created and validated a review-only decision framework for IE00B5BMR087 and the successful SXR8.DE/CSPX.L trading lines. The framework resolves the investment thesis, invalidation criteria, and funding/cash-posture gaps only as review-only framework gaps. It does not fetch new close prices, change existing price evidence, regenerate the PDF, change renderer logic, calculate valuation, create funding authority, mutate portfolio state, or create client-grade, valuation-grade, delivery-preflight, or production-delivery authority.
 ```
 
 ## Active product roadmap
 
 ```text
-ETF-EU-WP15AJ — ETF EU investment thesis, invalidation criteria, and funding posture framework, no delivery
+ETF-EU-WP15AK — ETF EU client language quality gate and readiness synthesis, no delivery
 ```
 
 ## Immediate next action
 
-Start ETF-EU-WP15AJ.
+Start ETF-EU-WP15AK.
 
 Goal:
 
 ```text
-Define review-only investment thesis, invalidation criteria, and funding/cash-posture framework for proposed UCITS positions without mutating portfolio state, enabling delivery, or creating client-grade authority.
+Validate Dutch-first client-language quality, source-authority wording, residual blocker disclosure, and readiness synthesis without enabling delivery, creating client-grade authority prematurely, or mutating portfolio state.
 ```
