@@ -1,10 +1,7 @@
 from __future__ import annotations
 
 import json
-import re
 import sys
-import time
-import urllib.error
 import urllib.request
 from datetime import datetime, timezone
 from pathlib import Path
@@ -37,8 +34,6 @@ def _extract_target_from_registry(text: str) -> dict[str, str]:
 
 
 def _fetch_yahoo_chart_close(symbol: str) -> dict[str, Any]:
-    # Minimal unauthenticated chart endpoint. The POC is intentionally narrow and
-    # must fail explicitly rather than fake a price if the provider is unavailable.
     url = f"https://query1.finance.yahoo.com/v8/finance/chart/{symbol}?range=10d&interval=1d"
     request = urllib.request.Request(url, headers={"User-Agent": "weekly-etf-eu-pricing-poc/1.0"})
     with urllib.request.urlopen(request, timeout=20) as response:
@@ -106,6 +101,8 @@ def _base_artifact(target: dict[str, str]) -> dict[str, Any]:
         "production_manifest_created": False,
         "source_pdf_replaced": False,
         "renderer_changed": False,
+        "fake_price_used": False,
+        "us_proxy_price_used": False,
         "selected_next_package": "ETF-EU-WP15Y-FIX",
         "selected_next_package_title": "ETF EU closing-price POC provider/symbol repair, no delivery",
     }
@@ -117,6 +114,7 @@ def _preview(data: dict[str, Any]) -> str:
     close_text = "—" if close is None else str(close)
     source = data.get("pricing_source") or "—"
     status = data.get("provider_status") or "failed"
+    next_step = "Render this successful close into a cockpit PDF preview surface." if status == "success" else "Repair provider access or symbol mapping until one real SXR8.DE closing-price POC succeeds."
     return f"""# ETF EU Closing Price POC
 
 ## What this proves
@@ -137,7 +135,7 @@ It does not create a funded holding, portfolio valuation, recommendation change,
 
 ## Next step
 
-{('Render this successful close into a cockpit PDF preview surface.' if status == 'success' else 'Repair provider access or symbol mapping until one real SXR8.DE closing-price POC succeeds.')}
+{next_step}
 """
 
 
@@ -152,7 +150,7 @@ def run() -> dict[str, Any]:
         data["pricing_poc_status"] = "success_non_valuation_grade_close_obtained"
         data["selected_next_package"] = "ETF-EU-WP15Z"
         data["selected_next_package_title"] = "ETF EU cockpit PDF closing-price preview surface, no delivery"
-    except Exception as exc:  # noqa: BLE001 - explicit failure artifact required
+    except Exception as exc:
         data["provider_status"] = "failed"
         data["provider_error"] = f"{type(exc).__name__}: {exc}"
         data["pricing_poc_status"] = "failed_provider_or_symbol_unavailable"
