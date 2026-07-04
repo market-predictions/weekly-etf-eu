@@ -2,9 +2,10 @@
   "schema_version": "etf_eu_cockpit_multi_line_pricing_preview_v1",
   "run_id": "20260703_000000",
   "repository": "market-predictions/weekly-etf-eu",
-  "work_package_id": "ETF-EU-WP15AA",
-  "source_work_package": "ETF-EU-WP15Z",
+  "work_package_id": "ETF-EU-WP15AA-FIX",
+  "source_work_package": "ETF-EU-WP15AA",
   "source_multi_line_pricing_artifact": "output/client_surface/etf_eu_multi_line_pricing_preview_20260703_000000.json",
+  "repair_artifact": "output/client_surface/etf_eu_multi_line_pricing_universe_repair_20260703_000000.json",
   "markdown_preview_path": "output/client_surface/etf_eu_cockpit_multi_line_pricing_preview_20260703_000000.md",
   "pdf_preview_path": "output/client_surface/etf_eu_cockpit_multi_line_pricing_preview_20260703_000000.pdf",
   "pdf_created": false,
@@ -36,16 +37,16 @@
       "exchange_ticker": "CSPX",
       "trading_currency": "USD",
       "pricing_symbol": "CSPX.L",
-      "latest_close_date": null,
-      "latest_close": null,
-      "pricing_source": null,
-      "pricing_fetch_timestamp": null,
-      "provider_status": "skipped",
-      "pricing_poc_status": "skipped_pending_registry_status",
+      "latest_close_date": "2026-07-03",
+      "latest_close": 807.859985,
+      "pricing_source": "yahoo_chart_v8",
+      "pricing_fetch_timestamp": "2026-07-04T17:12:10+00:00",
+      "provider_status": "success",
+      "pricing_poc_status": "success_non_valuation_grade_close_obtained",
       "fake_price_used": false,
       "us_proxy_price_used": false,
-      "line_status": "skipped_pending_registry_status",
-      "line_reason": "registry line exists but pricing_status remains pending_pipeline_test; no committed provider close in this package"
+      "line_status": "success",
+      "line_reason": "real_provider_close_obtained_for_CSPX_L"
     },
     {
       "isin": "IE00BMC38736",
@@ -66,9 +67,10 @@
       "line_reason": "pricing_symbol_yahoo is pending_verification and exchange line is not yet verified"
     }
   ],
-  "successful_rows_count": 1,
+  "successful_rows_count": 2,
   "failed_rows_count": 0,
-  "skipped_rows_count": 2,
+  "skipped_rows_count": 1,
+  "at_least_one_additional_verified_eu_line_success": true,
   "review_only": true,
   "valuation_grade": false,
   "pricing_evidence_for_client_grade": false,
@@ -84,5 +86,5 @@
   "production_manifest_created": false,
   "fake_price_used": false,
   "us_proxy_price_used": false,
-  "selected_next_package": "ETF-EU-WP15AA-FIX"
+  "selected_next_package": "ETF-EU-WP15AB"
 }
