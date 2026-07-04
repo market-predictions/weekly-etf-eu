@@ -8,7 +8,7 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from tools.validate_etf_eu_cockpit_multi_line_pricing_preview import MARKDOWN, PDF, PREVIEW, PRICING, validate
+from tools.validate_etf_eu_cockpit_multi_line_pricing_preview import MARKDOWN, PDF, PREVIEW, PRICING, REPAIR, validate
 
 
 def _pricing() -> dict:
@@ -19,27 +19,28 @@ def _preview() -> dict:
     return json.loads(PREVIEW.read_text(encoding="utf-8"))
 
 
-def _sxr8(rows: list[dict]) -> dict:
-    return next(row for row in rows if row["pricing_symbol"] == "SXR8.DE")
+def _row(rows: list[dict], symbol: str) -> dict:
+    return next(row for row in rows if row["pricing_symbol"] == symbol)
 
 
 def test_expected_files_exist() -> None:
     assert PRICING.exists()
     assert PREVIEW.exists()
     assert MARKDOWN.exists()
+    assert REPAIR.exists()
 
 
 def test_pricing_artifact_contains_rows() -> None:
     data = _pricing()
     assert data["pricing_rows"]
-    assert data["successful_rows_count"] == 1
-    assert data["skipped_rows_count"] == 2
+    assert data["successful_rows_count"] >= 2
+    assert data["skipped_rows_count"] == 1
+    assert data["selected_next_package"] == "ETF-EU-WP15AB"
 
 
 def test_sxr8_success_row_is_present() -> None:
-    row = _sxr8(_preview()["pricing_rows"])
+    row = _row(_preview()["pricing_rows"], "SXR8.DE")
     assert row["isin"] == "IE00B5BMR087"
-    assert row["pricing_symbol"] == "SXR8.DE"
     assert row["latest_close_date"] == "2026-07-03"
     assert row["latest_close"] == 706.119995
     assert row["pricing_source"] == "yahoo_chart_v8"
@@ -47,10 +48,32 @@ def test_sxr8_success_row_is_present() -> None:
     assert row["line_status"] == "success"
 
 
-def test_markdown_preview_shows_sxr8_close() -> None:
+def test_cspx_success_row_is_present() -> None:
+    row = _row(_preview()["pricing_rows"], "CSPX.L")
+    assert row["isin"] == "IE00B5BMR087"
+    assert row["latest_close_date"] == "2026-07-03"
+    assert row["latest_close"] == 807.859985
+    assert row["pricing_source"] == "yahoo_chart_v8"
+    assert row["provider_status"] == "success"
+    assert row["line_status"] == "success"
+    assert row["fake_price_used"] is False
+    assert row["us_proxy_price_used"] is False
+
+
+def test_repair_artifact_records_success() -> None:
+    repair = json.loads(REPAIR.read_text(encoding="utf-8"))
+    assert repair["repair_status"] == "success"
+    assert repair["successful_second_line_symbol"] == "CSPX.L"
+    assert repair["successful_second_line_close"] == 807.859985
+    assert repair["selected_next_package"] == "ETF-EU-WP15AB"
+
+
+def test_markdown_preview_shows_two_success_rows() -> None:
     text = MARKDOWN.read_text(encoding="utf-8")
     assert "SXR8.DE" in text
+    assert "CSPX.L" in text
     assert "706.119995" in text
+    assert "807.859985" in text
     assert "2026-07-03" in text
     assert "yahoo_chart_v8" in text
     assert "beperkte multi-line koerspreview" in text
@@ -104,5 +127,5 @@ def test_no_authority_flags_remain_false() -> None:
 def test_validator_passes() -> None:
     result = validate()
     assert result["status"] == "valid"
-    assert result["work_package_id"] == "ETF-EU-WP15AA"
-    assert result["selected_next_package"] == "ETF-EU-WP15AA-FIX"
+    assert result["work_package_id"] == "ETF-EU-WP15AA-FIX"
+    assert result["selected_next_package"] == "ETF-EU-WP15AB"

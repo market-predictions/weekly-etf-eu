@@ -44,25 +44,27 @@ ETF-EU-WP15Y
 ETF-EU-WP15Y-FIX
 ETF-EU-WP15Z
 ETF-EU-WP15AA
+ETF-EU-WP15AA-FIX
 ```
 
-## Latest completed package — ETF-EU-WP15AA
+## Latest completed package — ETF-EU-WP15AA-FIX
 
 ```text
 repository=market-predictions/weekly-etf-eu
-work_package_id=ETF-EU-WP15AA
+work_package_id=ETF-EU-WP15AA-FIX
 status=completed
-source_work_package=ETF-EU-WP15Z
-multi_line_pricing_preview_created=true
-successful_rows_count=1
+source_work_package=ETF-EU-WP15AA
+multi_line_pricing_universe_repaired=true
+successful_rows_count=2
 failed_rows_count=0
-skipped_rows_count=2
+skipped_rows_count=1
 mandatory_sxr8_success=true
-symbol=SXR8.DE
-isin=IE00B5BMR087
-latest_close_date=2026-07-03
-latest_close=706.119995
-pricing_source=yahoo_chart_v8
+at_least_one_additional_verified_eu_line_success=true
+second_successful_symbol=CSPX.L
+second_successful_isin=IE00B5BMR087
+second_successful_latest_close_date=2026-07-03
+second_successful_latest_close=807.859985
+second_successful_pricing_source=yahoo_chart_v8
 review_only=true
 pdf_created=false
 valuation_grade=false
@@ -76,28 +78,28 @@ candidate_promotion=false
 funding_authority=false
 fake_price_used=false
 us_proxy_price_used=false
-selected_next_package=ETF-EU-WP15AA-FIX
-selected_next_package_title=ETF EU multi-line pricing universe repair, no delivery
+selected_next_package=ETF-EU-WP15AB
+selected_next_package_title=ETF EU cockpit PDF multi-line render and visual review, no delivery
 ```
 
 ## Pricing preview answer
 
 ```text
-Do we have a multi-line pricing preview now? Yes, structurally. Only SXR8.DE is successfully priced; CSPX.L and SMH remain skipped.
+Do we have at least two successful EU pricing rows now? Yes: SXR8.DE and CSPX.L.
 ```
 
 ## Active product roadmap
 
 ```text
-ETF-EU-WP15AA-FIX — ETF EU multi-line pricing universe repair, no delivery
+ETF-EU-WP15AB — ETF EU cockpit PDF multi-line render and visual review, no delivery
 ```
 
 ## Immediate next action
 
-Start ETF-EU-WP15AA-FIX.
+Start ETF-EU-WP15AB.
 
 Goal:
 
 ```text
-Repair registry/provider coverage so the preview can show at least two successfully priced verified EU trading lines.
+Render the repaired multi-line pricing preview into a PDF-style cockpit candidate and perform a visual review checkpoint without delivery authority.
 ```
