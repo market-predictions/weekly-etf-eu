@@ -21,11 +21,10 @@ def _table(rows: list[dict[str, Any]]) -> str:
         "|---|---|---|---|---:|---:|---|---|",
     ]
     for row in rows:
-        if row["line_status"] != "success":
-            continue
-        lines.append(
-            f"| {row['isin']} | {row['fund_name']} | {row['pricing_symbol']} | {row['trading_currency']} | {row['latest_close_date']} | {row['latest_close']} | {row['pricing_source']} | {row['line_status']} |"
-        )
+        if row["line_status"] == "success":
+            lines.append(
+                f"| {row['isin']} | {row['fund_name']} | {row['pricing_symbol']} | {row['trading_currency']} | {row['latest_close_date']} | {row['latest_close']} | {row['pricing_source']} | {row['line_status']} |"
+            )
     return "\n".join(lines)
 
 
@@ -33,10 +32,7 @@ def _pending(rows: list[dict[str, Any]]) -> str:
     pending = [row for row in rows if row["line_status"] != "success"]
     if not pending:
         return "Geen pending regels in deze preview."
-    lines = [
-        "| ISIN | Fonds | Handelslijn | Status | Reden |",
-        "|---|---|---|---|---|",
-    ]
+    lines = ["| ISIN | Fonds | Handelslijn | Status | Reden |", "|---|---|---|---|---|"]
     for row in pending:
         lines.append(f"| {row['isin']} | {row['fund_name']} | {row['pricing_symbol']} | {row['line_status']} | {row['line_reason']} |")
     return "\n".join(lines)
@@ -44,13 +40,11 @@ def _pending(rows: list[dict[str, Any]]) -> str:
 
 def _markdown(data: dict[str, Any]) -> str:
     rows = data["pricing_rows"]
-    only_one = data["successful_rows_count"] == 1
-    one_line_notice = "\n\nDe multi-line structuur staat klaar, maar alleen SXR8.DE is nu succesvol geprijsd. Extra regels blijven expliciet pending of failed totdat provider- en registry-bewijs slagen." if only_one else ""
     return f"""# ETF EU Cockpit - Multi-line Pricing Preview
 
 ## Wat dit nu bewijst
 
-De cockpit kan nu een multi-line pricing structuur tonen zonder U.S. proxyprijzen of handmatige koersen te gebruiken.{one_line_notice}
+De cockpit kan nu minimaal twee EU trading lines tonen met echte provider-slotkoersen, zonder U.S. proxyprijzen of handmatige koersen te gebruiken.
 
 ## Koerstabel - verified EU lines
 
@@ -79,9 +73,10 @@ def build() -> dict[str, Any]:
         "schema_version": "etf_eu_cockpit_multi_line_pricing_preview_v1",
         "run_id": RUN_ID,
         "repository": "market-predictions/weekly-etf-eu",
-        "work_package_id": "ETF-EU-WP15AA",
-        "source_work_package": "ETF-EU-WP15Z",
+        "work_package_id": data.get("work_package_id", "ETF-EU-WP15AA-FIX"),
+        "source_work_package": data.get("source_work_package", "ETF-EU-WP15AA"),
         "source_multi_line_pricing_artifact": str(PRICING),
+        "repair_artifact": data.get("repair_artifact"),
         "markdown_preview_path": str(MARKDOWN),
         "pdf_preview_path": str(PDF),
         "pdf_created": PDF.exists(),
@@ -91,6 +86,7 @@ def build() -> dict[str, Any]:
         "successful_rows_count": data["successful_rows_count"],
         "failed_rows_count": data["failed_rows_count"],
         "skipped_rows_count": data["skipped_rows_count"],
+        "at_least_one_additional_verified_eu_line_success": data.get("at_least_one_additional_verified_eu_line_success", False),
         "review_only": True,
         "valuation_grade": False,
         "pricing_evidence_for_client_grade": False,
