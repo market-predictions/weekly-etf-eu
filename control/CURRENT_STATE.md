@@ -2,7 +2,7 @@
 
 ## Snapshot date
 
-2026-07-03
+2026-07-04
 
 ## Repository identity
 
@@ -104,34 +104,25 @@ ETF-EU-WP15V
 ETF-EU-WP15W
 ETF-EU-WP15X
 ETF-EU-WP15Y
+ETF-EU-WP15Y-FIX
 ```
 
-## Latest completed package — ETF-EU-WP15Y
+## Latest completed package — ETF-EU-WP15Y-FIX
 
 ```text
 repository=market-predictions/weekly-etf-eu
-work_package_id=ETF-EU-WP15Y
-legacy_work_package_id=WP15Y
+work_package_id=ETF-EU-WP15Y-FIX
 status=completed
-source_work_package=ETF-EU-WP15X
-evidence_acquisition_contract=control/ETF_EU_COCKPIT_PDF_READINESS_EVIDENCE_ACQUISITION_CONTRACT_V1.md
-closing_price_poc_runner=runtime/fetch_etf_eu_closing_price_poc.py
-closing_price_poc_artifact=output/client_surface/etf_eu_closing_price_poc_20260703_000000.json
-closing_price_poc_preview=output/client_surface/etf_eu_closing_price_poc_preview_20260703_000000.md
-closing_price_poc_notes=output/client_surface/etf_eu_readiness_evidence_acquisition_contract_notes_20260703_000000.md
-closing_price_poc_validator=tools/validate_etf_eu_closing_price_poc.py
-closing_price_poc_tests=tests/test_etf_eu_closing_price_poc.py
-evidence_acquisition_contract_created=true
-closing_price_poc_created=true
+source_work_package=ETF-EU-WP15Y
+closing_price_poc_repaired=true
 closing_price_poc_symbol=SXR8.DE
 closing_price_poc_isin=IE00B5BMR087
-closing_price_poc_trading_currency=EUR
-closing_price_poc_status=failed
-pricing_poc_status=failed_provider_or_symbol_unavailable
-limited_pricing_poc_performed=true
-latest_close_date=null
-latest_close=null
-provider_error_recorded=true
+closing_price_poc_status=success
+pricing_poc_status=success_non_valuation_grade_close_obtained
+latest_close_date=2026-07-03
+latest_close=706.119995
+pricing_source=yahoo_chart_v8
+pricing_fetch_timestamp=2026-07-04T15:22:39+00:00
 fake_price_used=false
 us_proxy_price_used=false
 valuation_grade=false
@@ -140,44 +131,44 @@ pricing_evidence_for_delivery_preflight=false
 client_grade_claim=false
 client_grade_enough_for_delivery_preflight_discussion=false
 delivery_ready=false
-source_pdf_replaced=false
-renderer_changed=false
 production_delivery=false
 portfolio_mutation=false
 candidate_promotion=false
 funding_authority=false
-selected_next_package=ETF-EU-WP15Y-FIX
-selected_next_package_title=ETF EU closing-price POC provider/symbol repair, no delivery
+selected_next_package=ETF-EU-WP15Z
+selected_next_package_title=ETF EU cockpit PDF closing-price preview surface, no delivery
 ```
 
-ETF-EU-WP15Y validation package:
+ETF-EU-WP15Y-FIX artifacts:
 
 ```text
-validator_added=tools/validate_etf_eu_closing_price_poc.py
-tests_added=tests/test_etf_eu_closing_price_poc.py
-ci_status=not_visible_in_chatgpt_github_connector
+closing_price_poc_artifact=output/client_surface/etf_eu_closing_price_poc_20260703_000000.json
+closing_price_poc_preview=output/client_surface/etf_eu_closing_price_poc_preview_20260703_000000.md
+provider_repair_artifact=output/client_surface/etf_eu_closing_price_poc_provider_repair_20260703_000000.json
+validator=tools/validate_etf_eu_closing_price_poc.py
+tests=tests/test_etf_eu_closing_price_poc.py
 ```
 
 ## Pricing POC answer
 
 ```text
-Do we have closing prices now? Not yet.
+Do we have closing prices now? Yes, for the first limited SXR8.DE POC.
 ```
 
-The repo now has SXR8.DE registry-to-pricing wiring, a runner, a machine artifact, a client-readable preview and an explicit provider failure status. It does not yet have a successful latest_close value.
+This is a limited proof-of-concept only. It is not valuation-grade pricing, not client-grade report evidence, and not delivery-ready authority.
 
 ## Active product roadmap
 
 ```text
-ETF-EU-WP15Y-FIX — ETF EU closing-price POC provider/symbol repair, no delivery
+ETF-EU-WP15Z — ETF EU cockpit PDF closing-price preview surface, no delivery
 ```
 
 ## Immediate next action
 
-Start ETF-EU-WP15Y-FIX.
+Start ETF-EU-WP15Z.
 
 Goal:
 
 ```text
-Repair the pricing provider or symbol mapping until the system can produce one real SXR8.DE closing-price POC artifact.
+Render the successful SXR8.DE closing-price POC into the cockpit PDF preview surface while preserving review-only boundaries.
 ```
