@@ -1,15 +1,17 @@
 # Weekly ETF EU Review OS — Next Actions
 
-Current priority: **ETF-EU-WP15AC — ETF EU cockpit PDF visual review closeout**.
+Current priority: **ETF-EU-WP15AD — ETF EU cockpit PDF client-grade readiness gate**.
 
 ## Latest completion
 
 ```text
-work_package_id=ETF-EU-WP15AB
+work_package_id=ETF-EU-WP15AC
 status=completed
-pdf_created=true
+visual_review_performed=true
+visual_decision=accepted_for_review_only_foundation
+accepted_for_review_only_foundation=true
+pdf_exists=true
 pdf_page_count=4
-pdf_preview_path=output/client_surface/etf_eu_cockpit_pdf_multi_line_pricing_preview_20260703_000000.pdf
 successful_rows_count=2
 failed_rows_count=0
 skipped_rows_count=1
@@ -17,18 +19,17 @@ first_successful_symbol=SXR8.DE
 first_successful_close=706.119995
 second_successful_symbol=CSPX.L
 second_successful_close=807.859985
-pricing_source=yahoo_chart_v8
-selected_next_package=ETF-EU-WP15AC
+selected_next_package=ETF-EU-WP15AD
 ```
 
 ## Active next package
 
 ```text
-ETF-EU-WP15AC — ETF EU cockpit PDF visual review closeout
+ETF-EU-WP15AD — ETF EU cockpit PDF client-grade readiness gate
 ```
 
 Purpose:
 
 ```text
-Perform final visual review closeout on the WP15AB PDF candidate and decide whether the cockpit PDF is accepted as the review-only foundation for later client-grade hardening.
+Introduce a readiness gate that separates review-only PDF evidence from client-grade report authority and delivery-preflight authority.
 ```
