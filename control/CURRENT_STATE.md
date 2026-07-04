@@ -55,27 +55,27 @@ ETF-EU-WP15AH
 ETF-EU-WP15AI
 ETF-EU-WP15AJ
 ETF-EU-WP15AK
+ETF-EU-WP15AL
 ```
 
-## Latest completed package — ETF-EU-WP15AK
+## Latest completed package — ETF-EU-WP15AL
 
 ```text
 repository=market-predictions/weekly-etf-eu
-work_package_id=ETF-EU-WP15AK
+work_package_id=ETF-EU-WP15AL
 status=completed
-source_work_package=ETF-EU-WP15AJ
-client_language_quality_gate_created=true
-client_language_quality_gate_validated=true
-source_authority_wording_validated=true
-residual_blocker_disclosure_validated=true
-readiness_synthesis_created=true
-readiness_synthesis_validated=true
-client_language_quality_gate_passed=true
-readiness_gate_status=client_language_gate_passed_not_delivery_ready
+source_work_package=ETF-EU-WP15AK
+client_grade_authority_decision_created=true
+client_grade_authority_decision_validated=true
+client_grade_authority_created=true
+client_grade_claim=true
+client_grade_status=authorized_no_delivery
+client_grade_enough_for_delivery_preflight_discussion=true
+readiness_gate_status=client_grade_authority_created_delivery_blocked
 accepted_review_only_foundation=true
-resolved_client_language_gaps_count=1
+client_language_quality_gate_passed=true
 remaining_client_grade_blockers_count=0
-remaining_delivery_preflight_blockers_count=8
+remaining_delivery_preflight_blockers_count=7
 pdf_exists=true
 pdf_page_count=4
 successful_rows_count=2
@@ -91,10 +91,7 @@ second_successful_latest_close=807.859985
 second_successful_freshness_policy_status=current_completed_session
 smh_status=skipped_pending_registry_status
 smh_freshness_policy_status=unpriced_or_pending_verification
-review_only=true
-client_grade_claim=false
-client_grade_authority_created=false
-client_grade_enough_for_delivery_preflight_discussion=false
+review_only=false
 delivery_ready=false
 delivery_preflight_allowed=false
 delivery_authorization_decision=remain_blocked
@@ -104,7 +101,7 @@ portfolio_mutation=false
 candidate_promotion=false
 funding_authority=false
 valuation_grade=false
-pricing_evidence_for_client_grade=false
+pricing_evidence_for_client_grade=true
 pricing_evidence_for_delivery_preflight=false
 fake_price_used=false
 us_proxy_price_used=false
@@ -119,28 +116,28 @@ receipt_artifact_created=false
 production_manifest_created=false
 recipient_config_changed=false
 smtp_or_secret_config_changed=false
-selected_next_package=ETF-EU-WP15AL
-selected_next_package_title=ETF EU explicit client-grade authority decision, no delivery
+selected_next_package=ETF-EU-WP15AM
+selected_next_package_title=ETF EU delivery-preflight contract and outbound runbook, no delivery
 ```
 
-## Client language and readiness synthesis answer
+## Client-grade authority answer
 
 ```text
-Did WP15AK pass the client-language quality gate and create readiness synthesis? Yes. WP15AK created and validated a Dutch-first client-language quality gate and readiness synthesis. The client-language gap is resolved as a review-readiness synthesis outcome and remaining review-evidence blockers are zero. This does not create client-grade authority. It does not fetch new close prices, change existing price evidence, regenerate the PDF, change renderer logic, calculate valuation, create funding authority, mutate portfolio state, enable delivery-preflight, or create production-delivery authority.
+Did WP15AL create client-grade authority? Yes. WP15AL created and validated client-grade authority for report state only. The report state is authorized_no_delivery. Delivery-preflight remains blocked, production delivery remains false, valuation-grade authority remains false, funding authority remains false, and portfolio mutation remains false. WP15AL did not fetch new close prices, change existing price evidence, regenerate the PDF, change renderer logic, create delivery artifacts, or send a report.
 ```
 
 ## Active product roadmap
 
 ```text
-ETF-EU-WP15AL — ETF EU explicit client-grade authority decision, no delivery
+ETF-EU-WP15AM — ETF EU delivery-preflight contract and outbound runbook, no delivery
 ```
 
 ## Immediate next action
 
-Start ETF-EU-WP15AL.
+Start ETF-EU-WP15AM.
 
 Goal:
 
 ```text
-Make an explicit authority decision on whether the review-only evidence chain is sufficient to create client-grade report authority, without enabling delivery, mutating portfolio state, creating valuation-grade authority, or producing outbound delivery artifacts.
+Define delivery-preflight contract, production manifest requirements, recipient/transport authority gates, outbound runbook, post-send verification loop, and rollback/abort policy without sending the report.
 ```
