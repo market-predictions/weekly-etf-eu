@@ -56,26 +56,37 @@ ETF-EU-WP15AI
 ETF-EU-WP15AJ
 ETF-EU-WP15AK
 ETF-EU-WP15AL
+ETF-EU-WP15AM
 ```
 
-## Latest completed package — ETF-EU-WP15AL
+## Latest completed package — ETF-EU-WP15AM
 
 ```text
 repository=market-predictions/weekly-etf-eu
-work_package_id=ETF-EU-WP15AL
+work_package_id=ETF-EU-WP15AM
 status=completed
-source_work_package=ETF-EU-WP15AK
-client_grade_authority_decision_created=true
-client_grade_authority_decision_validated=true
+source_work_package=ETF-EU-WP15AL
+delivery_preflight_contract_created=true
+delivery_preflight_contract_validated=true
+production_manifest_contract_created=true
+production_manifest_contract_validated=true
+delivery_receipt_contract_created=true
+delivery_receipt_contract_validated=true
+recipient_authority_gate_defined=true
+transport_authority_gate_defined=true
+outbound_runbook_created=true
+outbound_runbook_validated=true
+post_send_verification_loop_defined=true
+rollback_abort_policy_defined=true
+delivery_preflight_readiness_synthesis_created=true
+delivery_preflight_readiness_synthesis_validated=true
+readiness_gate_status=delivery_preflight_contract_defined_not_authorized
 client_grade_authority_created=true
 client_grade_claim=true
 client_grade_status=authorized_no_delivery
-client_grade_enough_for_delivery_preflight_discussion=true
-readiness_gate_status=client_grade_authority_created_delivery_blocked
-accepted_review_only_foundation=true
-client_language_quality_gate_passed=true
 remaining_client_grade_blockers_count=0
-remaining_delivery_preflight_blockers_count=7
+resolved_delivery_contract_gaps_count=5
+remaining_delivery_preflight_blockers_count=3
 pdf_exists=true
 pdf_page_count=4
 successful_rows_count=2
@@ -116,28 +127,30 @@ receipt_artifact_created=false
 production_manifest_created=false
 recipient_config_changed=false
 smtp_or_secret_config_changed=false
-selected_next_package=ETF-EU-WP15AM
-selected_next_package_title=ETF EU delivery-preflight contract and outbound runbook, no delivery
+recipient_authority_created=false
+transport_authority_created=false
+selected_next_package=ETF-EU-WP15AN
+selected_next_package_title=ETF EU explicit delivery-preflight authority decision, no delivery
 ```
 
-## Client-grade authority answer
+## Delivery-preflight contract answer
 
 ```text
-Did WP15AL create client-grade authority? Yes. WP15AL created and validated client-grade authority for report state only. The report state is authorized_no_delivery. Delivery-preflight remains blocked, production delivery remains false, valuation-grade authority remains false, funding authority remains false, and portfolio mutation remains false. WP15AL did not fetch new close prices, change existing price evidence, regenerate the PDF, change renderer logic, create delivery artifacts, or send a report.
+Did WP15AM define the delivery-preflight contract and outbound runbook? Yes. WP15AM created and validated the delivery-preflight contract, production manifest contract, delivery receipt contract, recipient authority gate, transport authority gate, outbound runbook, post-send verification loop, and rollback/abort policy. The delivery contract gaps are resolved as contract-defined only. Delivery-preflight remains unauthorized, production delivery remains false, no report was sent, no delivery receipt was created, no production manifest was created, and no recipient or transport authority was created.
 ```
 
 ## Active product roadmap
 
 ```text
-ETF-EU-WP15AM — ETF EU delivery-preflight contract and outbound runbook, no delivery
+ETF-EU-WP15AN — ETF EU explicit delivery-preflight authority decision, no delivery
 ```
 
 ## Immediate next action
 
-Start ETF-EU-WP15AM.
+Start ETF-EU-WP15AN.
 
 Goal:
 
 ```text
-Define delivery-preflight contract, production manifest requirements, recipient/transport authority gates, outbound runbook, post-send verification loop, and rollback/abort policy without sending the report.
+Make an explicit authority decision on whether delivery-preflight execution may be opened, based on the WP15AM contract, recipient authority, and transport authority gates, without sending the report or creating production delivery artifacts.
 ```
