@@ -1,25 +1,35 @@
 # Weekly ETF EU Review OS — Next Actions
 
-Current priority: **ETF-EU-WP15AO — ETF EU recipient and transport authority evidence contract**.
+Current priority: **ETF-EU-WP15AP — ETF EU explicit recipient and transport authority decision**.
 
 ## Latest completion
 
 ```text
-work_package_id=ETF-EU-WP15AN
-status=completed_blocked
-source_work_package=ETF-EU-WP15AM
-delivery_preflight_authority_decision_created=true
-delivery_preflight_authority_decision_validated=true
-delivery_preflight_authority_created=false
-delivery_preflight_allowed=false
-delivery_preflight_status=not_authorized
-readiness_gate_status=delivery_preflight_authority_not_created
-delivery_authorization_decision=remain_blocked
+work_package_id=ETF-EU-WP15AO
+status=completed
+source_work_package=ETF-EU-WP15AN
+recipient_transport_authority_evidence_contract_created=true
+recipient_transport_authority_evidence_contract_validated=true
+recipient_authority_evidence_contract_created=true
+recipient_authority_evidence_contract_validated=true
+transport_authority_evidence_contract_created=true
+transport_authority_evidence_contract_validated=true
+readiness_gate_status=recipient_transport_authority_evidence_contract_defined_not_authorized
 client_grade_authority_created=true
 client_grade_claim=true
 client_grade_status=authorized_no_delivery
+delivery_preflight_authority_created=false
+delivery_preflight_allowed=false
+delivery_preflight_status=not_authorized
+delivery_authorization_decision=remain_blocked
 remaining_client_grade_blockers_count=0
 remaining_delivery_preflight_blockers_count=3
+recipient_authority_created=false
+transport_authority_created=false
+recipient_config_changed=false
+smtp_or_secret_config_changed=false
+secret_values_exposed=false
+recipient_plaintext_values_exposed=false
 pdf_exists=true
 pdf_page_count=4
 successful_rows_count=2
@@ -28,15 +38,13 @@ skipped_rows_count=1
 first_successful_symbol=SXR8.DE
 first_successful_close_date=2026-07-03
 first_successful_close=706.119995
-first_successful_freshness_policy_status=current_completed_session
 second_successful_symbol=CSPX.L
 second_successful_close_date=2026-07-03
 second_successful_close=807.859985
-second_successful_freshness_policy_status=current_completed_session
 smh_status=skipped_pending_registry_status
-smh_freshness_policy_status=unpriced_or_pending_verification
 review_only=false
 delivery_ready=false
+outbound_path_enabled=false
 production_delivery=false
 portfolio_mutation=false
 candidate_promotion=false
@@ -46,23 +54,24 @@ pricing_evidence_for_client_grade=true
 pricing_evidence_for_delivery_preflight=false
 live_price_fetch_performed=false
 pricing_evidence_changed=false
+source_pdf_replaced=false
 new_pdf_created=false
 renderer_changed=false
-recipient_authority_created=false
-transport_authority_created=false
-selected_next_package=ETF-EU-WP15AO
+receipt_artifact_created=false
+production_manifest_created=false
+selected_next_package=ETF-EU-WP15AP
 ```
 
 ## Active next package
 
 ```text
-ETF-EU-WP15AO — ETF EU recipient and transport authority evidence contract
+ETF-EU-WP15AP — ETF EU explicit recipient and transport authority decision
 ```
 
 Purpose:
 
 ```text
-Define and validate the evidence contract required to create recipient configuration authority and transport configuration authority without sending the report, changing production recipients, exposing secrets, or creating delivery artifacts.
+Make an explicit authority decision on whether recipient and transport authority can be created from the WP15AO evidence contract, without changing production recipients, exposing secrets, sending the report, or creating delivery artifacts.
 ```
 
 ## Scope guardrails
@@ -80,4 +89,5 @@ Do not create a delivery receipt.
 Do not create a production delivery manifest.
 Do not change transport configuration or recipients.
 Do not expose secrets.
+Do not expose plaintext recipients.
 ```
