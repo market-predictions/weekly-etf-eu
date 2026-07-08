@@ -1,0 +1,78 @@
+{
+  "authority": false,
+  "candidate_close_extraction": false,
+  "completed_session_validation": false,
+  "created_at_utc": "2026-07-08T21:57:54.102091+00:00",
+  "diagnostic_only": true,
+  "funding_authority": false,
+  "portfolio_mutation": false,
+  "production_delivery": false,
+  "rows": [
+    {
+      "authority": false,
+      "candidate_close_extraction": false,
+      "completed_session_validation": false,
+      "evidence_status": "endpoint_sample_observed",
+      "exchange_ticker": "CSPX",
+      "fetch": {
+        "body_sample": "<!DOCTYPE html> <html lang=\"en\"> <head> <meta charset=\"utf-8\"> <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"> <title></title> <style> body { font-family: \"Arial\"; } </style> <script type=\"text/javascript\"> window.awsWafCookieDomainList = []; window.gokuProps = { \"key\":\"AQIDAHjcYu/GjX+QlghicBgQ/7bFaQZ+m5FKCMDnO+vTbNg96AFJqbvntH7AXcHVQ8suvN5eAAAAfjB8BgkqhkiG9w0BBwagbzBtAgEAMGgGCSqGSIb3DQEHATAeBglghkgBZQMEAS4wEQQM0VHxJ1g6M5CviQHjAgEQgDuxkgwBwxuI6AydL8ruqpcIHY/cYWlpN7F12cqc2+UgfivB/dV/FIBONunZ+RMaTRjvsYSERkbk7rTcuw==\", \"iv\":\"D54ANgC/PgAAJC69\", \"context\":\"JqgwdKhiGNS4Tn4oYIUASiCR6Y74bYHQKygP1GQ/MkgnOFAf9ozQy+TtJ4w0YsrR28d8zGPHgQlhBJDImj7GzC6QIPXGJTpxxxJHAv7+nqBzvUyxshs4rz/eOADDXKFWF1suxypfmhA4rfEBQYIyMk8qeeN2IVc0ongyL28yqS+yB1lHhwVsv54xDGnEQWJKnwLGz6gE1Vq4DbEH21oxN7AXXReWLh3zbR0+ZVLnQvBGgFmpv",
+        "bytes_sampled": 2003,
+        "content_type": "text/html; charset=UTF-8",
+        "fetch_error": null,
+        "final_url": "https://live.euronext.com/en/search_instruments/IE00B5BMR087-XAMS",
+        "html_inspection": {
+          "canonical_is_target_url": false,
+          "canonical_url": null,
+          "contains_product_card_structure": false,
+          "diagnostic_only": true,
+          "identity_href_candidates": [],
+          "identity_href_count": 0,
+          "inspection_status": "html_inspected",
+          "product_link_candidates": [],
+          "product_link_count": 0,
+          "recommended_next_step": "inspect_product_link_candidates_before_parser_design",
+          "search_endpoint_loops_to_search_page": false,
+          "search_link_candidates": [],
+          "search_link_count": 0,
+          "term_counts": {
+            "closing price": 0,
+            "dynamic_quotes_display": 0,
+            "instrument": 0,
+            "isin": 0,
+            "last price": 0,
+            "product/etfs": 0,
+            "product_data": 0,
+            "search-result": 0,
+            "search_instruments": 0,
+            "views-row": 0
+          }
+        },
+        "http_status": 202
+      },
+      "funding_authority": false,
+      "isin": "IE00B5BMR087",
+      "portfolio_mutation": false,
+      "production_delivery": false,
+      "provider_symbol": "IE00B5BMR087-XAMS",
+      "registry_id": "core_us_equity_cspx",
+      "signals": {
+        "contains_exchange_ticker": false,
+        "contains_isin": false,
+        "contains_provider_symbol": false,
+        "contains_quote_terms": false,
+        "looks_json": false,
+        "product_link_count": 0,
+        "search_endpoint_loops_to_search_page": false
+      },
+      "source_id": "euronext_live",
+      "target_candidate_name": "settings_search_product_data",
+      "target_url": "https://live.euronext.com/en/search_instruments/IE00B5BMR087-XAMS",
+      "valuation_authority": false
+    }
+  ],
+  "run_id": "20260708_215746",
+  "schema_version": "euronext_endpoint_evidence_v1",
+  "source_artifact": "output/pricing/ucits_close_observations_20260708_215746.json",
+  "target_candidate_name": "settings_search_product_data",
+  "valuation_authority": false
+}
