@@ -65,101 +65,86 @@ ETF-EU-MVP01
 ETF-EU-MVP02
 ETF-EU-MVP03
 ETF-EU-MVP04
+ETF-EU-MVP04-FIX
 ```
 
-## Latest completed package — ETF-EU-MVP04
+## Latest completed package — ETF-EU-MVP04-FIX
 
 ```text
 repository=market-predictions/weekly-etf-eu
-work_package_id=ETF-EU-MVP04
-status=completed_operator_action_required
-source_work_package=ETF-EU-MVP03
-operator_evidence_value_injection_created=true
-operator_evidence_value_injection_validated=true
-mvp_series_continued=true
-no_more_abstract_gates=true
-operator_evidence_required=true
-operator_evidence_values_supplied=false
-operator_evidence_present=false
-operator_evidence_complete=false
-operator_evidence_status=operator_values_required
-operator_action_required=true
-placeholder_values_detected=true
-dry_run_preflight_allowed=false
-dry_run_preflight_performed=false
-delivery_preflight_allowed=false
-send_allowed=false
-production_delivery=false
-dry_run_manifest_created=false
-manifest_created=false
-receipt_artifact_created=false
-production_manifest_created=false
-delivery_success_claimed=false
-delivery_success_claim_allowed=false
-recipient_authority_created=false
-transport_authority_created=false
-recipient_transport_authority_status=not_authorized
-delivery_preflight_authority_created=false
-delivery_preflight_status=not_authorized
-delivery_authorization_decision=remain_blocked
-remaining_client_grade_blockers_count=0
-remaining_delivery_preflight_blockers_count=3
+work_package_id=ETF-EU-MVP04-FIX
+status=completed_rolemodel_delivery_alignment
+source_work_package=ETF-EU-MVP04
+manual_evidence_route_superseded=true
+operator_reference_template_required_for_delivery=false
+operator_hash_requirement_removed=true
+workflow_delivery_mode_input_created=true
+delivery_mode_default=validate_only
+delivery_mode_options=validate_only,dry_run,send
+push_delivery_mode=validate_only
+dry_run_mode_declared=true
+send_mode_declared=true
+send_mode_blocked_until_eu_sender_validated=true
+rolemodel_secret_names_declared=true
 secret_values_exposed=false
 recipient_plaintext_values_exposed=false
-pdf_exists=true
-pdf_page_count=4
-successful_rows_count=2
-failed_rows_count=0
-skipped_rows_count=1
-first_successful_symbol=SXR8.DE
-first_successful_latest_close_date=2026-07-03
-first_successful_latest_close=706.119995
-second_successful_symbol=CSPX.L
-second_successful_latest_close_date=2026-07-03
-second_successful_latest_close=807.859985
-smh_status=skipped_pending_registry_status
-review_only=false
-delivery_ready=false
-outbound_path_enabled=false
+delivery_workflow_alignment_status=rolemodel_gated_safe_default
+delivery_execution_status=validate_only_or_dry_run_ready
+send_execution_status=blocked_pending_eu_sender_entrypoint_validation
+delivery_manifest_framework_exists=true
+run_bundle_manifest_framework_exists=true
+manual_operator_action_required_status=superseded_by_workflow_alignment
+operator_action_required=false
+selected_next_package=RUN_WORKFLOW_VALIDATE_ONLY_OR_DRY_RUN
+selected_next_package_title=Run ETF EU workflow with delivery_mode validate_only first, then dry_run if green
+selected_next_package_is_mvp05=false
+selected_next_package_is_wp15=false
+production_delivery=false
+send_performed=false
+email_delivery=false
+delivery_success_claimed=false
+delivery_success_claim_allowed=false
+manifest_required_for_success_claim=true
 portfolio_mutation=false
 candidate_promotion=false
 funding_authority=false
 valuation_grade=false
-pricing_evidence_for_client_grade=true
-pricing_evidence_for_delivery_preflight=false
-live_price_fetch_performed=false
 pricing_evidence_changed=false
 source_pdf_replaced=false
 new_pdf_created=false
 renderer_changed=false
-selected_next_package=OPERATOR_ACTION_REQUIRED
-selected_next_package_title=Human operator must supply non-secret evidence references before dry-run execution
 ```
 
-## MVP operator action boundary answer
+## MVP04-FIX delivery alignment answer
 
 ```text
-Did MVP04 execute a dry-run or send the report? No. MVP04 reached the operator-action boundary. Operator values were not supplied, placeholders remain, dry-run is not allowed, no report was sent, no dry-run manifest was created, no receipt was created, and no delivery success was claimed. The next step is OPERATOR_ACTION_REQUIRED, not ETF-EU-MVP05 and not another WP15 authority package.
+Do I need to fill the operator evidence reference template? No. MVP04-FIX supersedes that manual route. ETF EU delivery now follows the weekly-etf rolemodel direction: workflow_dispatch delivery_mode, GitHub secret names declared in the workflow, delivery manifest framework, run bundle framework, and no delivery-success claim without manifest evidence. The next step is to run the ETF EU workflow with delivery_mode=validate_only, then delivery_mode=dry_run if validate_only is green. delivery_mode=send remains blocked until an EU-specific sender entrypoint is validated.
 ```
 
 ## Active product roadmap
 
 ```text
-OPERATOR_ACTION_REQUIRED — supply non-secret operator evidence references before dry-run execution
+RUN_WORKFLOW_VALIDATE_ONLY_OR_DRY_RUN — run ETF EU workflow with delivery_mode=validate_only, then dry_run if green
 ```
 
 ## Immediate next action
 
-Human operator must supply non-secret evidence references in:
+In GitHub Actions, run:
 
 ```text
-control/runtime_reference_templates/ETF_EU_MVP_OPERATOR_EVIDENCE_REFERENCE_TEMPLATE.md
+Weekly ETF EU UCITS rolemodel delivery workflow
 ```
 
-Required fields are listed in:
+First with:
 
 ```text
-control/runtime_reference_templates/ETF_EU_MVP_OPERATOR_ACTION_REQUIRED_20260703.md
+delivery_mode=validate_only
 ```
 
-After operator values are supplied, run the MVP04 validator again before any dry-run execution.
+If green, run again with:
+
+```text
+delivery_mode=dry_run
+```
+
+Do not use `delivery_mode=send` until an EU-specific sender entrypoint has been explicitly validated.
