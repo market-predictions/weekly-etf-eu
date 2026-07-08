@@ -62,29 +62,30 @@ ETF-EU-WP15AO
 ETF-EU-WP15AP
 ETF-EU-WP15AQ
 ETF-EU-MVP01
+ETF-EU-MVP02
 ```
 
-## Latest completed package — ETF-EU-MVP01
+## Latest completed package — ETF-EU-MVP02
 
 ```text
 repository=market-predictions/weekly-etf-eu
-work_package_id=ETF-EU-MVP01
-status=completed_mvp_execution_readiness_blocked
-source_work_package=ETF-EU-WP15AQ
-mvp_delivery_preflight_execution_readiness_created=true
-mvp_delivery_preflight_execution_readiness_validated=true
-mvp_series_started=true
+work_package_id=ETF-EU-MVP02
+status=completed_mvp_operator_evidence_intake_blocked
+source_work_package=ETF-EU-MVP01
+operator_evidence_intake_created=true
+operator_evidence_intake_validated=true
+mvp_series_continued=true
 no_more_abstract_gates=true
 operator_evidence_required=true
 operator_evidence_present=false
-operator_evidence_status=missing_required_for_execution
-execution_allowed_now=false
+operator_evidence_complete=false
+operator_evidence_status=missing_required_for_dry_run
 dry_run_preflight_allowed=false
+dry_run_preflight_performed=false
 delivery_preflight_allowed=false
 send_allowed=false
 production_delivery=false
-manifest_required_for_success_claim=true
-receipt_required_for_delivery_success_claim=true
+dry_run_manifest_created=false
 manifest_created=false
 receipt_artifact_created=false
 production_manifest_created=false
@@ -126,28 +127,28 @@ pricing_evidence_changed=false
 source_pdf_replaced=false
 new_pdf_created=false
 renderer_changed=false
-selected_next_package=ETF-EU-MVP02
-selected_next_package_title=ETF EU operator evidence intake and delivery-preflight dry-run
+selected_next_package=ETF-EU-MVP03
+selected_next_package_title=ETF EU operator evidence completion and preflight dry-run execution
 ```
 
-## MVP execution readiness answer
+## MVP operator evidence intake answer
 
 ```text
-Did MVP01 execute preflight or send the report? No. MVP01 started the MVP execution series and prepared delivery-preflight execution readiness, but operator evidence is still missing. Execution is not allowed now, dry-run preflight is not allowed yet, no send was performed, no manifest was created, no receipt was created, and no delivery success was claimed. The next package is ETF-EU-MVP02, not another WP15 authority package.
+Did MVP02 execute a dry-run or send the report? No. MVP02 continued the MVP execution series and created the operator evidence intake surface, but operator evidence is still missing. Dry-run is not allowed yet, no report was sent, no dry-run manifest was created, no receipt was created, and no delivery success was claimed. The next package is ETF-EU-MVP03, not another WP15 authority package.
 ```
 
 ## Active product roadmap
 
 ```text
-ETF-EU-MVP02 — ETF EU operator evidence intake and delivery-preflight dry-run
+ETF-EU-MVP03 — ETF EU operator evidence completion and preflight dry-run execution
 ```
 
 ## Immediate next action
 
-Start ETF-EU-MVP02.
+Start ETF-EU-MVP03.
 
 Goal:
 
 ```text
-Collect or validate operator-supplied non-secret evidence references and prepare the first delivery-preflight dry-run without sending the report and without claiming delivery success unless a real manifest or receipt exists.
+Complete or validate operator-supplied evidence references and execute the first delivery-preflight dry-run only if required evidence is present, without sending the report and without claiming delivery success unless a real dry-run manifest exists.
 ```
