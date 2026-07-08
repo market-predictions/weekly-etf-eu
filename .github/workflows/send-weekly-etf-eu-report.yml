@@ -364,6 +364,12 @@ jobs:
           python tools/validate_etf_eu_run_bundle.py \
             "output/runs/${ETF_EU_RUN_ID}/etf_eu_run_bundle_manifest.json"
 
+      - name: Validate MVP09 delivery evidence integration gate
+        run: |
+          python tools/validate_etf_eu_delivery_evidence.py --evidence output/delivery/etf_eu_delivery_evidence_20260708_000000.json
+          python tools/validate_etf_eu_run_bundle_delivery_evidence.py --fixture output/runs/20260708_000000/etf_eu_run_bundle_delivery_evidence_fixture.json
+          python tools/validate_etf_eu_mvp09_controlled_send_implementation_with_delivery_evidence.py
+
       - name: Commit EU bootstrap report and pricing artifacts
         run: |
           git config user.name "github-actions[bot]"
