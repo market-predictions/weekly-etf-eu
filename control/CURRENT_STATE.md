@@ -59,33 +59,31 @@ ETF-EU-WP15AL
 ETF-EU-WP15AM
 ETF-EU-WP15AN
 ETF-EU-WP15AO
+ETF-EU-WP15AP
 ```
 
-## Latest completed package — ETF-EU-WP15AO
+## Latest completed package — ETF-EU-WP15AP
 
 ```text
 repository=market-predictions/weekly-etf-eu
-work_package_id=ETF-EU-WP15AO
-status=completed
-source_work_package=ETF-EU-WP15AN
-recipient_transport_authority_evidence_contract_created=true
-recipient_transport_authority_evidence_contract_validated=true
-recipient_authority_evidence_contract_created=true
-recipient_authority_evidence_contract_validated=true
-transport_authority_evidence_contract_created=true
-transport_authority_evidence_contract_validated=true
-readiness_gate_status=recipient_transport_authority_evidence_contract_defined_not_authorized
+work_package_id=ETF-EU-WP15AP
+status=completed_blocked
+source_work_package=ETF-EU-WP15AO
+recipient_transport_authority_decision_created=true
+recipient_transport_authority_decision_validated=true
+recipient_authority_created=false
+transport_authority_created=false
+recipient_transport_authority_status=not_authorized
+readiness_gate_status=recipient_transport_authority_decision_not_created
+delivery_authorization_decision=remain_blocked
 client_grade_authority_created=true
 client_grade_claim=true
 client_grade_status=authorized_no_delivery
 delivery_preflight_authority_created=false
 delivery_preflight_allowed=false
 delivery_preflight_status=not_authorized
-delivery_authorization_decision=remain_blocked
 remaining_client_grade_blockers_count=0
 remaining_delivery_preflight_blockers_count=3
-recipient_authority_created=false
-transport_authority_created=false
 recipient_config_changed=false
 smtp_or_secret_config_changed=false
 secret_values_exposed=false
@@ -119,28 +117,28 @@ new_pdf_created=false
 renderer_changed=false
 receipt_artifact_created=false
 production_manifest_created=false
-selected_next_package=ETF-EU-WP15AP
-selected_next_package_title=ETF EU explicit recipient and transport authority decision, no delivery
+selected_next_package=ETF-EU-WP15AQ
+selected_next_package_title=ETF EU concrete recipient and transport evidence acquisition plan, no delivery
 ```
 
-## Recipient and transport evidence answer
+## Recipient and transport authority answer
 
 ```text
-Did WP15AO create recipient or transport authority? No. WP15AO created and validated the evidence contract required for future recipient and transport authority. It did not create recipient authority, did not create transport authority, did not change recipient configuration, did not change transport configuration, did not expose secret values, did not expose plaintext recipient values, did not authorize delivery-preflight, did not send a report, and did not create delivery artifacts.
+Did WP15AP create recipient or transport authority? No. WP15AP created and validated a negative recipient and transport authority decision. Recipient authority is not created because concrete recipient evidence is missing. Transport authority is not created because concrete transport evidence is missing. The WP15AO evidence contract is valid, but it is not itself the concrete authority evidence. Delivery-preflight remains blocked, production delivery remains false, no report was sent, no delivery receipt was created, and no production manifest was created.
 ```
 
 ## Active product roadmap
 
 ```text
-ETF-EU-WP15AP — ETF EU explicit recipient and transport authority decision, no delivery
+ETF-EU-WP15AQ — ETF EU concrete recipient and transport evidence acquisition plan, no delivery
 ```
 
 ## Immediate next action
 
-Start ETF-EU-WP15AP.
+Start ETF-EU-WP15AQ.
 
 Goal:
 
 ```text
-Make an explicit authority decision on whether recipient and transport authority can be created from the WP15AO evidence contract, without changing production recipients, exposing secrets, sending the report, or creating delivery artifacts.
+Define a safe evidence acquisition plan for recipient-set references, recipient-set hashes, owner approvals, transport reference names, presence checks, and rollback references without exposing secrets, exposing plaintext recipients, changing configuration, sending reports, or creating delivery artifacts.
 ```
