@@ -1,27 +1,34 @@
 # Weekly ETF EU Review OS — Next Actions
 
-Current priority: **ETF-EU-MVP08 — ETF EU controlled-send unlock or receipt contract**.
+Current priority: **ETF-EU-MVP09 — ETF EU controlled-send implementation with delivery evidence**.
 
 ## Latest completion
 
 ```text
-work_package_id=ETF-EU-MVP07
-status=completed_manifest_transition_controlled_send_preflight
-source_work_package=ETF-EU-MVP06
+work_package_id=ETF-EU-MVP08
+status=completed_controlled_send_delivery_evidence_contract
+source_work_package=ETF-EU-MVP07
+controlled_send_delivery_evidence_contract_created=true
+controlled_send_delivery_evidence_contract_validated=true
+delivery_evidence_status=contract_defined_not_executed
+future_delivery_status_values_defined=true
+delivery_status_caveat_required=true
+recipient_redaction_policy_defined=true
+recipient_data_policy=redacted_hash_only
+language_evidence_schema_defined=true
+required_languages=nl,en
+dutch_primary_language=nl
+english_companion_language=en
+pdf_evidence_rule_defined=true
+final_run_bundle_reference_required=true
+evidence_validator_required=true
+failure_closed_behavior_required=true
+success_claim_requires_validated_evidence=true
 sender_entrypoint_validated=true
 sender_entrypoint_validation_status=validated_no_send
-manifest_transition_created=true
-manifest_transition_validated=true
-manifest_transition_status=ready_for_future_delivery
-controlled_send_preflight_created=true
 controlled_send_preflight_validated=true
 controlled_send_preflight_status=ready_for_future_delivery
-sender_preflight_artifact=output/delivery/etf_eu_sender_preflight_20260708_000000.json
-controlled_send_preflight_manifest=output/delivery/etf_eu_controlled_send_preflight_manifest_20260708_000000.json
-base_delivery_manifest=output/delivery/etf_eu_delivery_manifest_20260708_142840.json
-receipt_path_reserved=true
 receipt_file_created=false
-receipt_status=pending
 delivery_enabled=false
 production_delivery=false
 email_delivery=false
@@ -44,27 +51,27 @@ pricing_evidence_changed=false
 source_pdf_replaced=false
 new_pdf_created=false
 renderer_changed=false
-selected_next_package=ETF-EU-MVP08
+selected_next_package=ETF-EU-MVP09
 ```
 
 ## Active next package
 
 ```text
-ETF-EU-MVP08 — ETF EU controlled-send unlock or receipt contract
+ETF-EU-MVP09 — ETF EU controlled-send implementation with delivery evidence
 ```
 
 Purpose:
 
 ```text
-Define the controlled delivery unlock or receipt contract after MVP07 validated the preflight manifest transition. Do not perform outbound delivery until the unlock and receipt-evidence conditions are explicit and tested.
+Implement the controlled-send delivery evidence writer and validator for ETF EU, using the MVP08 contract and the weekly-etf rolemodel pattern, while preserving guarded execution until the implementation evidence is validated.
 ```
 
 ## Scope guardrails
 
 ```text
-Do not use the protected delivery path until MVP08 explicitly defines and validates it.
+Do not use the protected delivery path until MVP09 explicitly validates the evidence writer and validator.
 Do not remove the workflow guard without a tested replacement guard.
-Do not claim delivery success without real receipt evidence.
+Do not claim delivery success without validated delivery evidence.
 Do not mutate portfolio state.
 Do not create valuation-grade authority.
 Do not create funding authority.
