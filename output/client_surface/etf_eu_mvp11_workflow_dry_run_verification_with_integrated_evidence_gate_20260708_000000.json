@@ -1,0 +1,11 @@
+{
+  "schema_version": "etf_eu_mvp11_workflow_dry_run_verification_v1",
+  "work_package_id": "ETF-EU-MVP11",
+  "source_work_package": "ETF-EU-MVP10",
+  "workflow_run_id": "28963021481",
+  "workflow_status": "completed",
+  "workflow_conclusion": "success",
+  "run_mode": "dry_run",
+  "gate_passed": true,
+  "selected_next_package": "ETF-EU-MVP12"
+}
