@@ -13,23 +13,23 @@ market-predictions/weekly-etf-eu
 ## Latest completed package
 
 ```text
-work_package_id=ETF-EU-MVP15-FIX
-status=completed_regression_chain_compatibility_fix
-source_work_package=ETF-EU-MVP15
+work_package_id=ETF-EU-MVP16
+status=completed_guarded_dry_run_verification
+source_work_package=ETF-EU-MVP15-FIX
 reference_architecture_repo=market-predictions/weekly-etf
 source_of_truth_repo=market-predictions/weekly-etf-eu
 port_behavior_not_us_assumptions=true
 us_assumptions_copied=false
-reference_run_id=28963021481
-reference_conclusion=success
-reference_mode=dry_run
-implementation_status=guarded_static_implementation_green
-fix_type=validator_compatibility_patch
-selected_next_package=ETF-EU-MVP16
+workflow_run_id=28976148251
+workflow_conclusion=success
+requested_mode=dry_run
+requested_confirmation=not_confirmed
+dry_run_status=guarded_dry_run_verified
+selected_next_package=ETF-EU-MVP17
 ```
 
 ## Active product roadmap
 
 ```text
-ETF-EU-MVP16
+ETF-EU-MVP17
 ```
