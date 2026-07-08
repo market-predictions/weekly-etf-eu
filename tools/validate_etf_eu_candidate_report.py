@@ -69,6 +69,11 @@ def _select_reports_for_suffix(reports: list[Path], report_suffix: str) -> list[
     return selected
 
 
+def _select_latest_report_pair(reports: list[Path]) -> list[Path]:
+    latest_suffix = max(_report_suffix(path) for path in reports)
+    return _select_reports_for_suffix(reports, latest_suffix)
+
+
 def _validate_one(path: Path) -> None:
     if not _is_canonical_eu_report(path):
         raise RuntimeError(f"EU candidate report validation failed: unexpected EU report filename: {path.name}")
@@ -93,7 +98,7 @@ def validate(output_dir: Path, *, report_suffix: str | None = None) -> None:
     reports = _discover_canonical_reports(output_dir)
     if not reports:
         raise RuntimeError("EU candidate report validation failed: no canonical weekly_etf_eu_review*.md reports found")
-    reports_to_validate = _select_reports_for_suffix(reports, report_suffix) if report_suffix else reports
+    reports_to_validate = _select_reports_for_suffix(reports, report_suffix) if report_suffix else _select_latest_report_pair(reports)
     has_en = any("_nl_" not in p.name for p in reports_to_validate)
     has_nl = any("_nl_" in p.name for p in reports_to_validate)
     if not has_en or not has_nl:
