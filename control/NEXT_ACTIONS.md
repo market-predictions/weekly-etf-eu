@@ -1,33 +1,24 @@
 # Weekly ETF EU Review OS — Next Actions
 
-Current priority: **ETF-EU-WP15AN — ETF EU explicit delivery-preflight authority decision**.
+Current priority: **ETF-EU-WP15AO — ETF EU recipient and transport authority evidence contract**.
 
 ## Latest completion
 
 ```text
-work_package_id=ETF-EU-WP15AM
-status=completed
-source_work_package=ETF-EU-WP15AL
-delivery_preflight_contract_created=true
-delivery_preflight_contract_validated=true
-production_manifest_contract_created=true
-production_manifest_contract_validated=true
-delivery_receipt_contract_created=true
-delivery_receipt_contract_validated=true
-recipient_authority_gate_defined=true
-transport_authority_gate_defined=true
-outbound_runbook_created=true
-outbound_runbook_validated=true
-post_send_verification_loop_defined=true
-rollback_abort_policy_defined=true
-delivery_preflight_readiness_synthesis_created=true
-delivery_preflight_readiness_synthesis_validated=true
-readiness_gate_status=delivery_preflight_contract_defined_not_authorized
+work_package_id=ETF-EU-WP15AN
+status=completed_blocked
+source_work_package=ETF-EU-WP15AM
+delivery_preflight_authority_decision_created=true
+delivery_preflight_authority_decision_validated=true
+delivery_preflight_authority_created=false
+delivery_preflight_allowed=false
+delivery_preflight_status=not_authorized
+readiness_gate_status=delivery_preflight_authority_not_created
+delivery_authorization_decision=remain_blocked
 client_grade_authority_created=true
 client_grade_claim=true
 client_grade_status=authorized_no_delivery
 remaining_client_grade_blockers_count=0
-resolved_delivery_contract_gaps_count=5
 remaining_delivery_preflight_blockers_count=3
 pdf_exists=true
 pdf_page_count=4
@@ -46,7 +37,6 @@ smh_status=skipped_pending_registry_status
 smh_freshness_policy_status=unpriced_or_pending_verification
 review_only=false
 delivery_ready=false
-delivery_preflight_allowed=false
 production_delivery=false
 portfolio_mutation=false
 candidate_promotion=false
@@ -60,19 +50,19 @@ new_pdf_created=false
 renderer_changed=false
 recipient_authority_created=false
 transport_authority_created=false
-selected_next_package=ETF-EU-WP15AN
+selected_next_package=ETF-EU-WP15AO
 ```
 
 ## Active next package
 
 ```text
-ETF-EU-WP15AN — ETF EU explicit delivery-preflight authority decision
+ETF-EU-WP15AO — ETF EU recipient and transport authority evidence contract
 ```
 
 Purpose:
 
 ```text
-Make an explicit authority decision on whether delivery-preflight execution may be opened, based on the WP15AM contract, recipient authority, and transport authority gates, without sending the report or creating production delivery artifacts.
+Define and validate the evidence contract required to create recipient configuration authority and transport configuration authority without sending the report, changing production recipients, exposing secrets, or creating delivery artifacts.
 ```
 
 ## Scope guardrails
@@ -89,4 +79,5 @@ Do not send the report.
 Do not create a delivery receipt.
 Do not create a production delivery manifest.
 Do not change transport configuration or recipients.
+Do not expose secrets.
 ```
