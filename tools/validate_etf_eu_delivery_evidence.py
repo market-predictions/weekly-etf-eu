@@ -8,6 +8,11 @@ from typing import Any
 
 ALLOWED_DELIVERY_STATUSES = {
     "not_attempted",
+    "attempt_pending",
+    "transport_succeeded_unconfirmed",
+    "transport_failed",
+    "receipt_confirmed",
+    "receipt_not_found_after_delay",
     "smtp_sendmail_returned_no_exception",
     "smtp_sendmail_failed",
     "evidence_invalid",
@@ -84,12 +89,11 @@ def validate(evidence_path: Path) -> dict[str, Any]:
         else:
             _require(item.get("pdf_attached") in {"no", "yes"}, f"{language}: pdf_attached invalid")
 
-    if delivery_status == "smtp_sendmail_returned_no_exception":
+    if delivery_status in {"smtp_sendmail_returned_no_exception", "transport_succeeded_unconfirmed"}:
         _require(SUCCESS_CAVEAT in str(data.get("delivery_status_meaning") or ""), "missing status caveat")
-        _require(data.get("email_delivery") is True, "email_delivery should be true for successful transport evidence")
-    if delivery_status == "not_attempted":
-        for key in ["production_delivery", "email_delivery", "delivery_receipt", "delivery_success"]:
-            _require(data.get(key) is False, f"expected false for not_attempted: {key}")
+    if delivery_status in {"not_attempted", "attempt_pending", "transport_succeeded_unconfirmed", "transport_failed", "receipt_not_found_after_delay"}:
+        for key in ["production_delivery", "email_delivery", "delivery_success"]:
+            _require(data.get(key) is False, f"expected false for {delivery_status}: {key}")
 
     if data.get("delivery_success") is True:
         _require(delivery_status == "smtp_sendmail_returned_no_exception", "success requires successful transport status")
