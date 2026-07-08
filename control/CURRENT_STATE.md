@@ -61,29 +61,39 @@ ETF-EU-WP15AN
 ETF-EU-WP15AO
 ETF-EU-WP15AP
 ETF-EU-WP15AQ
+ETF-EU-MVP01
 ```
 
-## Latest completed package — ETF-EU-WP15AQ
+## Latest completed package — ETF-EU-MVP01
 
 ```text
 repository=market-predictions/weekly-etf-eu
-work_package_id=ETF-EU-WP15AQ
-status=completed_mvp_handoff
-source_work_package=ETF-EU-WP15AP
-mvp_evidence_acquisition_plan_created=true
-mvp_evidence_acquisition_plan_validated=true
-final_evidence_plan_before_mvp_execution=true
-stop_recursive_gating=true
-mvp_handoff_created=true
-mvp_handoff_status=ready_for_evidence_collection_not_execution
+work_package_id=ETF-EU-MVP01
+status=completed_mvp_execution_readiness_blocked
+source_work_package=ETF-EU-WP15AQ
+mvp_delivery_preflight_execution_readiness_created=true
+mvp_delivery_preflight_execution_readiness_validated=true
+mvp_series_started=true
 no_more_abstract_gates=true
+operator_evidence_required=true
+operator_evidence_present=false
+operator_evidence_status=missing_required_for_execution
 execution_allowed_now=false
-requires_operator_evidence_before_execution=true
+dry_run_preflight_allowed=false
+delivery_preflight_allowed=false
+send_allowed=false
+production_delivery=false
+manifest_required_for_success_claim=true
+receipt_required_for_delivery_success_claim=true
+manifest_created=false
+receipt_artifact_created=false
+production_manifest_created=false
+delivery_success_claimed=false
+delivery_success_claim_allowed=false
 recipient_authority_created=false
 transport_authority_created=false
 recipient_transport_authority_status=not_authorized
 delivery_preflight_authority_created=false
-delivery_preflight_allowed=false
 delivery_preflight_status=not_authorized
 delivery_authorization_decision=remain_blocked
 remaining_client_grade_blockers_count=0
@@ -105,7 +115,6 @@ smh_status=skipped_pending_registry_status
 review_only=false
 delivery_ready=false
 outbound_path_enabled=false
-production_delivery=false
 portfolio_mutation=false
 candidate_promotion=false
 funding_authority=false
@@ -117,30 +126,28 @@ pricing_evidence_changed=false
 source_pdf_replaced=false
 new_pdf_created=false
 renderer_changed=false
-receipt_artifact_created=false
-production_manifest_created=false
-selected_next_package=ETF-EU-MVP01
-selected_next_package_title=ETF EU MVP delivery-preflight execution readiness
+selected_next_package=ETF-EU-MVP02
+selected_next_package_title=ETF EU operator evidence intake and delivery-preflight dry-run
 ```
 
-## MVP handoff answer
+## MVP execution readiness answer
 
 ```text
-Is WP15AQ the final evidence acquisition plan before MVP delivery-preflight execution? Yes. WP15AQ created and validated the final evidence acquisition plan, created the MVP handoff, set no_more_abstract_gates=true, and selected ETF-EU-MVP01 as the next package. Execution is not allowed yet because operator evidence is still required. No report was sent, no delivery receipt was created, no production manifest was created, and no sensitive runtime values or plaintext recipients were exposed.
+Did MVP01 execute preflight or send the report? No. MVP01 started the MVP execution series and prepared delivery-preflight execution readiness, but operator evidence is still missing. Execution is not allowed now, dry-run preflight is not allowed yet, no send was performed, no manifest was created, no receipt was created, and no delivery success was claimed. The next package is ETF-EU-MVP02, not another WP15 authority package.
 ```
 
 ## Active product roadmap
 
 ```text
-ETF-EU-MVP01 — ETF EU MVP delivery-preflight execution readiness
+ETF-EU-MVP02 — ETF EU operator evidence intake and delivery-preflight dry-run
 ```
 
 ## Immediate next action
 
-Start ETF-EU-MVP01.
+Start ETF-EU-MVP02.
 
 Goal:
 
 ```text
-Execute or prepare the first MVP delivery-preflight using only non-secret committed references and operator-supplied runtime evidence, without sending the report unless explicit authority is present and without claiming delivery success unless a real manifest or receipt exists.
+Collect or validate operator-supplied non-secret evidence references and prepare the first delivery-preflight dry-run without sending the report and without claiming delivery success unless a real manifest or receipt exists.
 ```
