@@ -67,24 +67,26 @@ ETF-EU-MVP03
 ETF-EU-MVP04
 ETF-EU-MVP04-FIX
 ETF-EU-MVP04-FIX-VALIDATE-ONLY-01
+ETF-EU-MVP04-FIX-VALIDATE-ONLY-02
 ```
 
-## Latest completed package — ETF-EU-MVP04-FIX-VALIDATE-ONLY-01
+## Latest completed package — ETF-EU-MVP04-FIX-VALIDATE-ONLY-02
 
 ```text
 repository=market-predictions/weekly-etf-eu
-work_package_id=ETF-EU-MVP04-FIX-VALIDATE-ONLY-01
-status=completed_output_contract_validator_hardening
-source_work_package=ETF-EU-MVP04-FIX
+work_package_id=ETF-EU-MVP04-FIX-VALIDATE-ONLY-02
+status=completed_candidate_report_selection_hardening
+source_work_package=ETF-EU-MVP04-FIX-VALIDATE-ONLY-01
 failure_step=Validate EU output, pricing surface and fundability contracts
-failure_reason=validator selected non-canonical legacy draft artifact before suffix filtering
+failure_reason=candidate report validator selected historical and non-canonical report artifacts instead of current canonical pair
 unexpected_filename=weekly_etf_eu_review_260618_draft.md
-fix_type=validator_selection_hardening
-validator_updated=tools/validate_etf_eu_output_contract.py
-regression_test_added=tests/test_etf_eu_output_contract_non_canonical_artifacts.py
+fix_type=candidate_report_selection_hardening
+validator_updated=tools/validate_etf_eu_candidate_report.py
+regression_test_added=tests/test_etf_eu_candidate_report_selection.py
 non_canonical_eu_report_artifacts_ignored=true
-canonical_report_suffix_filter_preserved=true
-current_run_suffix_validation_preserved=true
+latest_canonical_pair_default_selection=true
+optional_report_suffix_filter_added=true
+current_run_suffix_validation_supported=true
 legacy_draft_artifact_deleted=false
 production_delivery=false
 workflow_message_sent=false
@@ -101,30 +103,20 @@ selected_next_package=RERUN_WORKFLOW_VALIDATE_ONLY
 selected_next_package_title=Rerun ETF EU workflow with delivery_mode validate_only
 ```
 
-## Previous completed package — ETF-EU-MVP04-FIX
+## Previous validate-only fix — ETF-EU-MVP04-FIX-VALIDATE-ONLY-01
 
 ```text
-manual_evidence_route_superseded=true
-operator_reference_template_required_for_delivery=false
-operator_hash_requirement_removed=true
-workflow_delivery_mode_input_created=true
-delivery_mode_default=validate_only
-delivery_mode_options=validate_only,dry_run,send
-push_delivery_mode=validate_only
-dry_run_mode_declared=true
-send_mode_declared=true
-send_mode_blocked_until_eu_sender_validated=true
-rolemodel_secret_names_declared=true
-delivery_workflow_alignment_status=rolemodel_gated_safe_default
-delivery_execution_status=validate_only_or_dry_run_ready
-send_execution_status=blocked_pending_eu_sender_entrypoint_validation
-selected_next_package=RUN_WORKFLOW_VALIDATE_ONLY_OR_DRY_RUN
+validator_updated=tools/validate_etf_eu_output_contract.py
+regression_test_added=tests/test_etf_eu_output_contract_non_canonical_artifacts.py
+non_canonical_eu_report_artifacts_ignored=true
+canonical_report_suffix_filter_preserved=true
+current_run_suffix_validation_preserved=true
 ```
 
-## Validate-only failure fix answer
+## Validate-only candidate report fix answer
 
 ```text
-The validate_only workflow failed because tools/validate_etf_eu_output_contract.py selected a non-canonical legacy draft artifact, weekly_etf_eu_review_260618_draft.md, before applying the current run suffix filter. The validator now ignores non-canonical EU report artifacts with a warning and validates only canonical report filenames for the requested suffix. No legacy artifact was deleted and no delivery action was performed.
+The validate_only workflow next failed because tools/validate_etf_eu_candidate_report.py selected historical and non-canonical report artifacts, including weekly_etf_eu_review_260618_draft.md. The candidate report validator now ignores non-canonical EU report artifacts and, when no suffix is supplied, validates only the latest canonical Dutch/English report pair. It also supports an explicit report suffix if needed. No legacy artifact was deleted and no delivery action was performed.
 ```
 
 ## Active product roadmap
