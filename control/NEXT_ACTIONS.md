@@ -1,21 +1,22 @@
 # Weekly ETF EU Review OS — Next Actions
 
-Current priority: **ETF-EU-MVP03 — ETF EU operator evidence completion and preflight dry-run execution**.
+Current priority: **ETF-EU-MVP04 — ETF EU operator evidence value injection or dry-run execution**.
 
 ## Latest completion
 
 ```text
-work_package_id=ETF-EU-MVP02
-status=completed_mvp_operator_evidence_intake_blocked
-source_work_package=ETF-EU-MVP01
-operator_evidence_intake_created=true
-operator_evidence_intake_validated=true
+work_package_id=ETF-EU-MVP03
+status=completed_mvp_operator_evidence_completion_blocked
+source_work_package=ETF-EU-MVP02
+operator_evidence_completion_check_created=true
+operator_evidence_completion_check_validated=true
 mvp_series_continued=true
 no_more_abstract_gates=true
 operator_evidence_required=true
 operator_evidence_present=false
 operator_evidence_complete=false
-operator_evidence_status=missing_required_for_dry_run
+operator_evidence_status=missing_required_for_dry_run_execution
+placeholder_values_detected=true
 dry_run_preflight_allowed=false
 dry_run_preflight_performed=false
 delivery_preflight_allowed=false
@@ -63,30 +64,30 @@ pricing_evidence_changed=false
 source_pdf_replaced=false
 new_pdf_created=false
 renderer_changed=false
-selected_next_package=ETF-EU-MVP03
+selected_next_package=ETF-EU-MVP04
 ```
 
 ## Active next package
 
 ```text
-ETF-EU-MVP03 — ETF EU operator evidence completion and preflight dry-run execution
+ETF-EU-MVP04 — ETF EU operator evidence value injection or dry-run execution
 ```
 
 Purpose:
 
 ```text
-Complete or validate operator-supplied evidence references and execute the first delivery-preflight dry-run only if required evidence is present, without sending the report and without claiming delivery success unless a real dry-run manifest exists.
+Either replace placeholder operator evidence values with valid non-secret references and execute a delivery-preflight dry-run, or keep execution blocked with a precise evidence-values-required result. Do not send the report and do not claim delivery success without a real dry-run manifest.
 ```
 
 ## Scope guardrails
 
 ```text
-Do not fetch new close prices unless MVP03 explicitly declares a fresh-run requirement.
+Do not fetch new close prices unless MVP04 explicitly declares a fresh-run requirement.
 Do not mutate portfolio state.
 Do not create valuation-grade authority.
 Do not create funding authority.
 Do not create funded positions.
-Do not regenerate or replace the PDF unless MVP03 explicitly requires a fresh report artifact.
+Do not regenerate or replace the PDF unless MVP04 explicitly requires a fresh report artifact.
 Do not change recommendation logic in production.
 Do not send the report.
 Do not claim delivery success without a real dry-run manifest or receipt.
