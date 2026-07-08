@@ -11,15 +11,15 @@ from email.message import EmailMessage
 from pathlib import Path
 from typing import Any
 
-REQUIRED_ENV = [
-    "ETF_EU_SMTP_HOST",
-    "ETF_EU_SMTP_PORT",
-    "ETF_EU_SMTP_USERNAME",
-    "ETF_EU_SMTP_PASSWORD",
-    "ETF_EU_MAIL_FROM",
-    "ETF_EU_RECIPIENT_NL",
-    "ETF_EU_RECIPIENT_EN",
-]
+CONFIG_ALIASES = {
+    "host": ("ETF_EU_TRANSPORT_HOST", "ETF_EU_SMTP_HOST"),
+    "port": ("ETF_EU_TRANSPORT_PORT", "ETF_EU_SMTP_PORT"),
+    "username": ("ETF_EU_TRANSPORT_USER", "ETF_EU_SMTP_USERNAME"),
+    "password": ("ETF_EU_TRANSPORT_AUTH", "ETF_EU_SMTP_PASSWORD"),
+    "sender": ("ETF_EU_FROM_ADDRESS", "ETF_EU_MAIL_FROM"),
+    "recipient_nl": ("ETF_EU_TO_NL", "ETF_EU_RECIPIENT_NL"),
+    "recipient_en": ("ETF_EU_TO_EN", "ETF_EU_RECIPIENT_EN"),
+}
 
 
 def _utc_now() -> str:
@@ -35,10 +35,25 @@ def _require(condition: bool, message: str) -> None:
         raise RuntimeError(message)
 
 
+def _env_value(*names: str) -> str | None:
+    for name in names:
+        value = os.environ.get(name)
+        if value:
+            return value
+    return None
+
+
 def _read_config() -> dict[str, str]:
-    missing = [name for name in REQUIRED_ENV if not os.environ.get(name)]
-    _require(not missing, "missing required ETF EU mail runtime configuration: " + ",".join(missing))
-    return {name: os.environ[name] for name in REQUIRED_ENV}
+    cfg: dict[str, str] = {}
+    missing: list[str] = []
+    for key, names in CONFIG_ALIASES.items():
+        value = _env_value(*names)
+        if not value:
+            missing.append("/".join(names))
+        else:
+            cfg[key] = value
+    _require(not missing, "missing required ETF EU transport runtime configuration: " + ",".join(missing))
+    return cfg
 
 
 def _report_paths(report_suffix: str) -> dict[str, Path]:
@@ -64,24 +79,24 @@ def _build_message(*, language: str, report_date: str, sender: str, recipient: s
 
 
 def _send_messages(*, cfg: dict[str, str], messages: list[EmailMessage]) -> None:
-    host = cfg["ETF_EU_SMTP_HOST"]
-    port = int(cfg["ETF_EU_SMTP_PORT"])
-    username = cfg["ETF_EU_SMTP_USERNAME"]
-    password = cfg["ETF_EU_SMTP_PASSWORD"]
+    host = cfg["host"]
+    port = int(cfg["port"])
+    username = cfg["username"]
+    password = cfg["password"]
     if port == 465:
         context = ssl.create_default_context()
-        with smtplib.SMTP_SSL(host, port, context=context, timeout=60) as smtp:
-            smtp.login(username, password)
+        with smtplib.SMTP_SSL(host, port, context=context, timeout=60) as transport:
+            transport.login(username, password)
             for msg in messages:
-                smtp.send_message(msg)
+                transport.send_message(msg)
         return
-    with smtplib.SMTP(host, port, timeout=60) as smtp:
-        smtp.ehlo()
-        smtp.starttls(context=ssl.create_default_context())
-        smtp.ehlo()
-        smtp.login(username, password)
+    with smtplib.SMTP(host, port, timeout=60) as transport:
+        transport.ehlo()
+        transport.starttls(context=ssl.create_default_context())
+        transport.ehlo()
+        transport.login(username, password)
         for msg in messages:
-            smtp.send_message(msg)
+            transport.send_message(msg)
 
 
 def build_result(
@@ -99,13 +114,13 @@ def build_result(
             "language": "nl",
             "report_path": str(reports["nl"]),
             "recipient_redacted": True,
-            "recipient_hash": _sha256(cfg["ETF_EU_RECIPIENT_NL"]),
+            "recipient_hash": _sha256(cfg["recipient_nl"]),
         },
         {
             "language": "en",
             "report_path": str(reports["en"]),
             "recipient_redacted": True,
-            "recipient_hash": _sha256(cfg["ETF_EU_RECIPIENT_EN"]),
+            "recipient_hash": _sha256(cfg["recipient_en"]),
         },
     ]
     return {
@@ -152,10 +167,10 @@ def main() -> None:
     _require(args.confirm_controlled_send, "controlled sender requires explicit --confirm-controlled-send")
     cfg = _read_config()
     reports = _report_paths(args.report_suffix)
-    sender = cfg["ETF_EU_MAIL_FROM"]
+    sender = cfg["sender"]
     messages = [
-        _build_message(language="nl", report_date=args.report_date, sender=sender, recipient=cfg["ETF_EU_RECIPIENT_NL"], report_path=reports["nl"]),
-        _build_message(language="en", report_date=args.report_date, sender=sender, recipient=cfg["ETF_EU_RECIPIENT_EN"], report_path=reports["en"]),
+        _build_message(language="nl", report_date=args.report_date, sender=sender, recipient=cfg["recipient_nl"], report_path=reports["nl"]),
+        _build_message(language="en", report_date=args.report_date, sender=sender, recipient=cfg["recipient_en"], report_path=reports["en"]),
     ]
     try:
         _send_messages(cfg=cfg, messages=messages)
