@@ -1,6 +1,11 @@
 from __future__ import annotations
 
+import sys
 from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[1]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
 
 from tools.validate_etf_eu_output_contract import validate
 
@@ -54,5 +59,7 @@ def test_report_suffix_validation_ignores_non_canonical_draft_artifacts(tmp_path
     (output_dir / "weekly_etf_eu_review_260618.md").write_text(EN_REPORT, encoding="utf-8")
     (output_dir / "weekly_etf_eu_review_nl_260618.md").write_text(NL_REPORT, encoding="utf-8")
     (output_dir / "weekly_etf_eu_review_260618_draft.md").write_text("legacy draft", encoding="utf-8")
+    (output_dir / "weekly_etf_eu_review_260618_mature_draft.md").write_text("legacy mature draft", encoding="utf-8")
+    (output_dir / "weekly_etf_eu_review_nl_260618_mature_draft.md").write_text("legacy mature draft", encoding="utf-8")
 
     validate(output_dir, require_production_dutch_first=True, report_suffix="260618")
