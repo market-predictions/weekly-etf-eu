@@ -1,42 +1,26 @@
 # Weekly ETF EU Review OS — Next Actions
 
-Current priority: **RUN_WORKFLOW_VALIDATE_ONLY_OR_DRY_RUN — run ETF EU workflow with delivery_mode=validate_only, then dry_run if green**.
+Current priority: **RERUN_WORKFLOW_VALIDATE_ONLY — rerun ETF EU workflow with delivery_mode=validate_only**.
 
 ## Latest completion
 
 ```text
-work_package_id=ETF-EU-MVP04-FIX
-status=completed_rolemodel_delivery_alignment
-source_work_package=ETF-EU-MVP04
-manual_evidence_route_superseded=true
-operator_reference_template_required_for_delivery=false
-operator_hash_requirement_removed=true
-workflow_delivery_mode_input_created=true
-delivery_mode_default=validate_only
-delivery_mode_options=validate_only,dry_run,send
-push_delivery_mode=validate_only
-dry_run_mode_declared=true
-send_mode_declared=true
-send_mode_blocked_until_eu_sender_validated=true
-rolemodel_secret_names_declared=true
-private_values_exposed=false
-recipient_values_exposed=false
-delivery_workflow_alignment_status=rolemodel_gated_safe_default
-delivery_execution_status=validate_only_or_dry_run_ready
-send_execution_status=blocked_pending_eu_sender_entrypoint_validation
-delivery_manifest_framework_exists=true
-run_bundle_manifest_framework_exists=true
-manual_operator_action_required_status=superseded_by_workflow_alignment
-operator_action_required=false
-selected_next_package=RUN_WORKFLOW_VALIDATE_ONLY_OR_DRY_RUN
-selected_next_package_is_mvp05=false
-selected_next_package_is_wp15=false
+work_package_id=ETF-EU-MVP04-FIX-VALIDATE-ONLY-01
+status=completed_output_contract_validator_hardening
+source_work_package=ETF-EU-MVP04-FIX
+failure_step=Validate EU output, pricing surface and fundability contracts
+failure_reason=validator selected non-canonical legacy draft artifact before suffix filtering
+unexpected_filename=weekly_etf_eu_review_260618_draft.md
+fix_type=validator_selection_hardening
+validator_updated=tools/validate_etf_eu_output_contract.py
+regression_test_added=tests/test_etf_eu_output_contract_non_canonical_artifacts.py
+non_canonical_eu_report_artifacts_ignored=true
+canonical_report_suffix_filter_preserved=true
+current_run_suffix_validation_preserved=true
+legacy_draft_artifact_deleted=false
 production_delivery=false
-send_performed=false
-email_delivery=false
+workflow_message_sent=false
 delivery_success_claimed=false
-delivery_success_claim_allowed=false
-manifest_required_for_success_claim=true
 portfolio_mutation=false
 candidate_promotion=false
 funding_authority=false
@@ -45,29 +29,30 @@ pricing_evidence_changed=false
 source_pdf_replaced=false
 new_pdf_created=false
 renderer_changed=false
+selected_next_package=RERUN_WORKFLOW_VALIDATE_ONLY
 ```
 
 ## Active next step
 
 ```text
-RUN_WORKFLOW_VALIDATE_ONLY_OR_DRY_RUN — run ETF EU workflow with delivery_mode=validate_only, then dry_run if green
+RERUN_WORKFLOW_VALIDATE_ONLY — rerun ETF EU workflow with delivery_mode=validate_only
 ```
 
 Purpose:
 
 ```text
-Use the existing ETF EU workflow and delivery manifest framework in the weekly-etf rolemodel style. Do not fill manual operator evidence templates. Do not open ETF-EU-MVP05 merely to continue the prior manual route. Do not return to WP15 authority gates.
+Confirm that the output validator now ignores non-canonical legacy/draft report artifacts and validates only the current canonical report pair for the requested suffix.
 ```
 
 ## Operator instructions
 
-In GitHub Actions, run:
+In GitHub Actions, rerun:
 
 ```text
 Weekly ETF EU UCITS rolemodel delivery workflow
 ```
 
-First choose:
+Choose:
 
 ```text
 delivery_mode=validate_only
