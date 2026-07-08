@@ -13,27 +13,27 @@ market-predictions/weekly-etf-eu
 ## Latest completed package
 
 ```text
-work_package_id=ETF-EU-MVP18
-status=completed_first_controlled_execution_placeholder_verified
-source_work_package=ETF-EU-MVP17
+work_package_id=ETF-EU-MVP18B
+status=completed_controlled_sender_entrypoint_implementation_with_workflow_wiring_blocked
+source_work_package=ETF-EU-MVP18
 reference_architecture_repo=market-predictions/weekly-etf
 source_of_truth_repo=market-predictions/weekly-etf-eu
 port_behavior_not_us_assumptions=true
 us_assumptions_copied=false
-workflow_run_id=28978585453
-workflow_conclusion=success
-requested_delivery_mode=send
-requested_send_confirmation=confirm_guarded_send
-execution_status=first_controlled_execution_placeholder_verified
-transport_status=not_attempted
-real_sender_entrypoint_called=false
+implementation_status=controlled_sender_entrypoint_implemented_workflow_wiring_blocked
+sender_entrypoint_created=true
+sender_entrypoint_path=runtime/send_etf_eu_controlled_report.py
+evidence_writer_extended=true
+workflow_wiring_completed=false
+workflow_write_blocked_by_connector=true
+real_transport_performed=false
 receipt_confirmed=false
 completion_claimed=false
-selected_next_package=ETF-EU-MVP18B
+selected_next_package=ETF-EU-MVP18B-FIX
 ```
 
 ## Active product roadmap
 
 ```text
-ETF-EU-MVP18B
+ETF-EU-MVP18B-FIX
 ```
