@@ -1,0 +1,14 @@
+{
+  "schema_version": "etf_eu_run_bundle_delivery_evidence_fixture_v1",
+  "run_id": "20260708_000000",
+  "delivery_evidence_path": "output/delivery/etf_eu_delivery_evidence_20260708_000000.json",
+  "controlled_send_preflight_manifest": "output/delivery/etf_eu_controlled_send_preflight_manifest_20260708_000000.json",
+  "delivery_evidence_status": "not_attempted",
+  "delivery_success": false,
+  "production_delivery": false,
+  "email_delivery": false,
+  "delivery_receipt": false,
+  "workflow_guard_present": true,
+  "workflow_guard_removed": false,
+  "delivery_mode_send_unlocked": false
+}
