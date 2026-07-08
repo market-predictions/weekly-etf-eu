@@ -1,0 +1,228 @@
+{
+  "created_at_utc": "2026-07-08T14:28:57.678927+00:00",
+  "delivery_receipt": false,
+  "email_delivery": false,
+  "evidence_type": "non_production_shadow_validation",
+  "funding_authority": false,
+  "next_verification_instruction": "Future chats can verify this run by fetching this JSON file from output/validation/ and checking schema_version, validation_status, false authority flags, required_artifacts and safety_checks.",
+  "not_delivery_receipt": true,
+  "pdf_render": false,
+  "portfolio_mutation": false,
+  "production_delivery": false,
+  "report_date": "2026-07-08",
+  "repository": "market-predictions/weekly-etf-eu",
+  "required_artifacts": [
+    {
+      "exists": true,
+      "kind": "pricing_candidates",
+      "path": "output/pricing/ucits_pricing_candidates_20260708_142840.json",
+      "sha256": "f2a6608255f97fad83fc30ef1c4ded513177675b2cd54a3bef1c30b46eecdb29",
+      "size_bytes": 2785
+    },
+    {
+      "exists": true,
+      "kind": "pricing_preflight",
+      "path": "output/pricing/ucits_pricing_preflight_20260708_142840.json",
+      "sha256": "c155c7047b2fd0e793a429ef4294b9fbdf1f67a1c509d27441a4462ff4443f7b",
+      "size_bytes": 1880
+    },
+    {
+      "exists": true,
+      "kind": "valuation_prices",
+      "path": "output/pricing/ucits_valuation_prices_20260708_142840.json",
+      "sha256": "7f2c1d551ae922e3e7937d793edfc429b2b445526b9b929ebf2c64d4c9baa0c8",
+      "size_bytes": 11821
+    },
+    {
+      "exists": true,
+      "kind": "official_exchange_source_snapshot",
+      "path": "output/pricing/ucits_official_exchange_source_snapshot_20260708_142840.json",
+      "sha256": "a957ed99c1ef21262fae3f6b8290b8f9f651b1184aaccdc135da865c1b1bdbd8",
+      "size_bytes": 2281
+    },
+    {
+      "exists": true,
+      "kind": "official_exchange_page_evidence",
+      "path": "output/pricing/ucits_official_exchange_page_evidence_20260708_142840.json",
+      "sha256": "506b08b6eeeee3818775236ef23229b415c6a064d662aad38fc0e5f540de9dbb",
+      "size_bytes": 14100
+    },
+    {
+      "exists": true,
+      "kind": "close_observations",
+      "path": "output/pricing/ucits_close_observations_20260708_142840.json",
+      "sha256": "abdffab60312c49435736c44970960d66978ada0c83a279d3dba0399f3264b6a",
+      "size_bytes": 41608
+    },
+    {
+      "exists": true,
+      "kind": "euronext_endpoint_evidence",
+      "path": "output/pricing/euronext_endpoint_evidence_20260708_142840.json",
+      "sha256": "1de374759d1273cd989b9bf1d433b86933c70d87d8991483d3b0aada0ed21fec",
+      "size_bytes": 3623
+    },
+    {
+      "exists": true,
+      "kind": "euronext_product_page_evidence",
+      "path": "output/pricing/euronext_product_page_evidence_20260708_142840.json",
+      "sha256": "c03f5d7c28e4b3d5590b2c7de3c291b4bbe02d2d410610ad011a28492e755a76",
+      "size_bytes": 4170
+    },
+    {
+      "exists": true,
+      "kind": "euronext_dynamic_quote_response_discovery",
+      "path": "output/pricing/euronext_dynamic_quote_response_discovery_20260708_142840.json",
+      "sha256": "b9df763e74bbc2e8b5b9af009121f7e26e6a163228b99bfb4f10c5e5bcc7c7ac",
+      "size_bytes": 9234
+    },
+    {
+      "exists": true,
+      "kind": "euronext_js_asset_inspection",
+      "path": "output/pricing/euronext_js_asset_inspection_20260708_142840.json",
+      "sha256": "605513f2e0b025fa9a653c63b7f1550d63c53f77fdbf33d3e52a09bbdc420751",
+      "size_bytes": 5390
+    },
+    {
+      "exists": true,
+      "kind": "yahoo_ucits_close_diagnostics",
+      "path": "output/pricing/yahoo_ucits_close_diagnostics_20260708_142840.json",
+      "sha256": "a887d447757dd0ec4697a0729311b96dd8c32b50e32f812def7f329592fd5447",
+      "size_bytes": 5485
+    },
+    {
+      "exists": true,
+      "kind": "twelve_data_symbol_discovery",
+      "path": "output/pricing/ucits_twelve_data_symbol_discovery_20260708_142840.json",
+      "sha256": "819632cc2afa040a2b33bbd1e2fd3ac49c2b8888f4bf6811ad77b40565f11871",
+      "size_bytes": 28867
+    },
+    {
+      "exists": true,
+      "kind": "english_companion_report",
+      "path": "output/weekly_etf_eu_review_260708.md",
+      "sha256": "c79531854ed10cb5a2a6f36d4bc59cd7a33ddea3d01ad50b4916cbf779df1127",
+      "size_bytes": 9282
+    },
+    {
+      "exists": true,
+      "kind": "dutch_primary_report",
+      "path": "output/weekly_etf_eu_review_nl_260708.md",
+      "sha256": "7063f245b690917715236aa447d4f30852b59383cd8e9f3ee0416b7176387ad9",
+      "size_bytes": 9701
+    }
+  ],
+  "run_id": "20260708_142840",
+  "safety_checks": [
+    {
+      "authority_flags_false_where_present": true,
+      "completed_session_not_true_where_present": true,
+      "path": "output/pricing/ucits_pricing_candidates_20260708_142840.json",
+      "valuation_grade_not_true_where_present": true
+    },
+    {
+      "authority_flags_false_where_present": true,
+      "completed_session_not_true_where_present": true,
+      "path": "output/pricing/ucits_pricing_preflight_20260708_142840.json",
+      "valuation_grade_not_true_where_present": true
+    },
+    {
+      "authority_flags_false_where_present": true,
+      "completed_session_not_true_where_present": true,
+      "path": "output/pricing/ucits_valuation_prices_20260708_142840.json",
+      "valuation_grade_not_true_where_present": true
+    },
+    {
+      "authority_flags_false_where_present": true,
+      "completed_session_not_true_where_present": true,
+      "path": "output/pricing/ucits_official_exchange_source_snapshot_20260708_142840.json",
+      "valuation_grade_not_true_where_present": true
+    },
+    {
+      "authority_flags_false_where_present": true,
+      "completed_session_not_true_where_present": true,
+      "path": "output/pricing/ucits_official_exchange_page_evidence_20260708_142840.json",
+      "valuation_grade_not_true_where_present": true
+    },
+    {
+      "authority_flags_false_where_present": true,
+      "completed_session_not_true_where_present": true,
+      "path": "output/pricing/ucits_close_observations_20260708_142840.json",
+      "valuation_grade_not_true_where_present": true
+    },
+    {
+      "authority_flags_false_where_present": true,
+      "completed_session_not_true_where_present": true,
+      "path": "output/pricing/euronext_endpoint_evidence_20260708_142840.json",
+      "valuation_grade_not_true_where_present": true
+    },
+    {
+      "authority_flags_false_where_present": true,
+      "completed_session_not_true_where_present": true,
+      "path": "output/pricing/euronext_product_page_evidence_20260708_142840.json",
+      "valuation_grade_not_true_where_present": true
+    },
+    {
+      "authority_flags_false_where_present": true,
+      "completed_session_not_true_where_present": true,
+      "path": "output/pricing/euronext_dynamic_quote_response_discovery_20260708_142840.json",
+      "valuation_grade_not_true_where_present": true
+    },
+    {
+      "authority_flags_false_where_present": true,
+      "completed_session_not_true_where_present": true,
+      "path": "output/pricing/euronext_js_asset_inspection_20260708_142840.json",
+      "valuation_grade_not_true_where_present": true
+    },
+    {
+      "authority_flags_false_where_present": true,
+      "completed_session_not_true_where_present": true,
+      "path": "output/pricing/yahoo_ucits_close_diagnostics_20260708_142840.json",
+      "valuation_grade_not_true_where_present": true
+    },
+    {
+      "authority_flags_false_where_present": true,
+      "completed_session_not_true_where_present": true,
+      "path": "output/pricing/ucits_twelve_data_symbol_discovery_20260708_142840.json",
+      "valuation_grade_not_true_where_present": true
+    }
+  ],
+  "schema_version": "etf_eu_shadow_validation_evidence_v1",
+  "shadow_validation_only": true,
+  "validated_step_markers": [
+    "EU control files exist",
+    "EU config files exist",
+    "UCITS symbol registry validation passed",
+    "UCITS investability contract validation passed",
+    "UCITS pricing candidates built and validated",
+    "UCITS pricing preflight built and validated",
+    "UCITS valuation-pricing artifact built and validated",
+    "Official exchange source snapshot built and validated",
+    "Official exchange page evidence built and validated",
+    "Generic UCITS close observations built and validated",
+    "Euronext endpoint evidence built and validated as diagnostic only",
+    "Euronext product-page evidence built and validated as diagnostic only",
+    "Euronext dynamic quote response discovery built and validated as diagnostic only",
+    "Euronext JS asset inspection built and validated as diagnostic only",
+    "Yahoo UCITS close diagnostics built and validated as connectivity only",
+    "Twelve Data symbol discovery built and validated as diagnostic only",
+    "EU cash-only state validated",
+    "No U.S.-listed ETF appears as a funded EU holding",
+    "EU candidate report skeleton rendered",
+    "EU output and candidate-report contracts validated",
+    "Inherited U.S. production sender is disabled",
+    "No portfolio mutation, PDF generation or email delivery attempted"
+  ],
+  "validation_basis": "This artifact is written after all prior EU bootstrap validation workflow steps completed successfully.",
+  "validation_status": "passed",
+  "valuation_authority": false,
+  "workflow": {
+    "actor": "market-predictions",
+    "name": "Weekly ETF EU UCITS rolemodel delivery workflow",
+    "ref_name": "main",
+    "run_attempt": "1",
+    "run_id": "28950428859",
+    "run_number": "42",
+    "run_url": "https://github.com/market-predictions/weekly-etf-eu/actions/runs/28950428859",
+    "sha": "997c9385a1a100534935160944191c1efc02ec39"
+  }
+}
