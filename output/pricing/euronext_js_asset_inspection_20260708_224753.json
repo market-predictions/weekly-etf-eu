@@ -1,0 +1,139 @@
+{
+  "authority": false,
+  "candidate_close_extraction": false,
+  "completed_session_validation": false,
+  "created_at_utc": "2026-07-08T22:48:02.491327+00:00",
+  "diagnostic_only": true,
+  "funding_authority": false,
+  "portfolio_mutation": false,
+  "production_delivery": false,
+  "rows": [
+    {
+      "answers": {
+        "dynamic_behavior_found_in_js": false,
+        "quote_or_price_route_candidate_found": false,
+        "route_sampled": false
+      },
+      "asset_count": 4,
+      "assets": [
+        {
+          "asset_url": "https://live.euronext.com/assets/js/optimized/js_jpLqMr7rNF-FoMEPcujCxdcCjbsmWScOXT9a6N8T5lg.O0c8-sVHwDyAerLtyODDXKa6D2HrsM6daDGvIMHKReM.js?v=10.6.9",
+          "authority": false,
+          "bytes_sampled": 967,
+          "candidate_close_extraction": false,
+          "completed_session_validation": false,
+          "content_type": "application/javascript",
+          "context_samples": [],
+          "fetch_error": null,
+          "final_url": "https://live.euronext.com/assets/js/optimized/js_jpLqMr7rNF-FoMEPcujCxdcCjbsmWScOXT9a6N8T5lg.O0c8-sVHwDyAerLtyODDXKa6D2HrsM6daDGvIMHKReM.js?v=10.6.9",
+          "http_status": 200,
+          "route_candidates": [],
+          "term_counts": {
+            "ajax": 0,
+            "close": 0,
+            "dynamic_quotes_display": 0,
+            "instrument": 0,
+            "last": 0,
+            "price": 0,
+            "product_data": 0,
+            "quote": 0,
+            "quotes": 0
+          }
+        },
+        {
+          "asset_url": "https://live.euronext.com/assets/js/optimized/js_EYNuZ90o1DKGgJhsXIHJEf32GkmGzNHm7-yU2LQPoLc.q8tB9Pfujq4VV650D_M6_l1iXYoUZfSgWXjHljdiJGw.js?thu041",
+          "authority": false,
+          "bytes_sampled": 961,
+          "candidate_close_extraction": false,
+          "completed_session_validation": false,
+          "content_type": "application/javascript",
+          "context_samples": [],
+          "fetch_error": null,
+          "final_url": "https://live.euronext.com/assets/js/optimized/js_EYNuZ90o1DKGgJhsXIHJEf32GkmGzNHm7-yU2LQPoLc.q8tB9Pfujq4VV650D_M6_l1iXYoUZfSgWXjHljdiJGw.js?thu041",
+          "http_status": 200,
+          "route_candidates": [],
+          "term_counts": {
+            "ajax": 0,
+            "close": 0,
+            "dynamic_quotes_display": 0,
+            "instrument": 0,
+            "last": 0,
+            "price": 0,
+            "product_data": 0,
+            "quote": 0,
+            "quotes": 0
+          }
+        },
+        {
+          "asset_url": "https://live.euronext.com/assets/js/optimized/js_bnG6TnQjwoSlWPhmAPs8BcU3uxXBB-49yjxMz5XOGL0.teK0rwFjpDUX_J2fiaa278qcs6m3kJsMNQOMCOEIyZQ.js?thu041",
+          "authority": false,
+          "bytes_sampled": 1636,
+          "candidate_close_extraction": false,
+          "completed_session_validation": false,
+          "content_type": "application/javascript",
+          "context_samples": [],
+          "fetch_error": null,
+          "final_url": "https://live.euronext.com/assets/js/optimized/js_bnG6TnQjwoSlWPhmAPs8BcU3uxXBB-49yjxMz5XOGL0.teK0rwFjpDUX_J2fiaa278qcs6m3kJsMNQOMCOEIyZQ.js?thu041",
+          "http_status": 200,
+          "route_candidates": [],
+          "term_counts": {
+            "ajax": 0,
+            "close": 0,
+            "dynamic_quotes_display": 0,
+            "instrument": 0,
+            "last": 0,
+            "price": 0,
+            "product_data": 0,
+            "quote": 0,
+            "quotes": 0
+          }
+        },
+        {
+          "asset_url": "https://live.euronext.com/assets/js/optimized/js_dPh-wTRRrxSHGGXXK8AJScFV06oAFZqEZQi-8Xrt1Pg.LSLyaj09ZF8OUbsVnaKBVDz4gExNi4PnHwSj2ZbIo3E.js?thu041",
+          "authority": false,
+          "bytes_sampled": 1512,
+          "candidate_close_extraction": false,
+          "completed_session_validation": false,
+          "content_type": "application/javascript",
+          "context_samples": [],
+          "fetch_error": null,
+          "final_url": "https://live.euronext.com/assets/js/optimized/js_dPh-wTRRrxSHGGXXK8AJScFV06oAFZqEZQi-8Xrt1Pg.LSLyaj09ZF8OUbsVnaKBVDz4gExNi4PnHwSj2ZbIo3E.js?thu041",
+          "http_status": 200,
+          "route_candidates": [],
+          "term_counts": {
+            "ajax": 0,
+            "close": 0,
+            "dynamic_quotes_display": 0,
+            "instrument": 0,
+            "last": 0,
+            "price": 0,
+            "product_data": 0,
+            "quote": 0,
+            "quotes": 0
+          }
+        }
+      ],
+      "authority": false,
+      "candidate_close_extraction": false,
+      "completed_session_validation": false,
+      "exchange_ticker": "CSPX",
+      "funding_authority": false,
+      "inspected_asset_count": 4,
+      "inspection_status": "js_assets_inspected",
+      "isin": "IE00B5BMR087",
+      "meaningful_route_candidate_count": 0,
+      "meaningful_route_candidates": [],
+      "portfolio_mutation": false,
+      "production_delivery": false,
+      "provider_symbol": "IE00B5BMR087-XAMS",
+      "registry_id": "core_us_equity_cspx",
+      "source_id": "euronext_live",
+      "source_url": "https://live.euronext.com/en/product/etfs/IE00B5BMR087-XAMS",
+      "valuation_authority": false
+    }
+  ],
+  "run_id": "20260708_224753",
+  "schema_version": "euronext_js_asset_inspection_v1",
+  "source_artifact": "output/pricing/euronext_dynamic_quote_response_discovery_20260708_224753.json",
+  "valuation_authority": false
+}
