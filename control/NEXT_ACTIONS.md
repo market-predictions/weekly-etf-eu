@@ -5,18 +5,19 @@ Current priority: **RERUN_WORKFLOW_VALIDATE_ONLY — rerun ETF EU workflow with 
 ## Latest completion
 
 ```text
-work_package_id=ETF-EU-MVP04-FIX-VALIDATE-ONLY-01
-status=completed_output_contract_validator_hardening
-source_work_package=ETF-EU-MVP04-FIX
+work_package_id=ETF-EU-MVP04-FIX-VALIDATE-ONLY-02
+status=completed_candidate_report_selection_hardening
+source_work_package=ETF-EU-MVP04-FIX-VALIDATE-ONLY-01
 failure_step=Validate EU output, pricing surface and fundability contracts
-failure_reason=validator selected non-canonical legacy draft artifact before suffix filtering
+failure_reason=candidate report validator selected historical and non-canonical report artifacts instead of current canonical pair
 unexpected_filename=weekly_etf_eu_review_260618_draft.md
-fix_type=validator_selection_hardening
-validator_updated=tools/validate_etf_eu_output_contract.py
-regression_test_added=tests/test_etf_eu_output_contract_non_canonical_artifacts.py
+fix_type=candidate_report_selection_hardening
+validator_updated=tools/validate_etf_eu_candidate_report.py
+regression_test_added=tests/test_etf_eu_candidate_report_selection.py
 non_canonical_eu_report_artifacts_ignored=true
-canonical_report_suffix_filter_preserved=true
-current_run_suffix_validation_preserved=true
+latest_canonical_pair_default_selection=true
+optional_report_suffix_filter_added=true
+current_run_suffix_validation_supported=true
 legacy_draft_artifact_deleted=false
 production_delivery=false
 workflow_message_sent=false
@@ -41,7 +42,7 @@ RERUN_WORKFLOW_VALIDATE_ONLY — rerun ETF EU workflow with delivery_mode=valida
 Purpose:
 
 ```text
-Confirm that the output validator now ignores non-canonical legacy/draft report artifacts and validates only the current canonical report pair for the requested suffix.
+Confirm that both EU report validators now ignore non-canonical legacy/draft report artifacts and validate only the current canonical report pair.
 ```
 
 ## Operator instructions
