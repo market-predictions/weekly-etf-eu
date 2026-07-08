@@ -57,35 +57,27 @@ ETF-EU-WP15AJ
 ETF-EU-WP15AK
 ETF-EU-WP15AL
 ETF-EU-WP15AM
+ETF-EU-WP15AN
 ```
 
-## Latest completed package — ETF-EU-WP15AM
+## Latest completed package — ETF-EU-WP15AN
 
 ```text
 repository=market-predictions/weekly-etf-eu
-work_package_id=ETF-EU-WP15AM
-status=completed
-source_work_package=ETF-EU-WP15AL
-delivery_preflight_contract_created=true
-delivery_preflight_contract_validated=true
-production_manifest_contract_created=true
-production_manifest_contract_validated=true
-delivery_receipt_contract_created=true
-delivery_receipt_contract_validated=true
-recipient_authority_gate_defined=true
-transport_authority_gate_defined=true
-outbound_runbook_created=true
-outbound_runbook_validated=true
-post_send_verification_loop_defined=true
-rollback_abort_policy_defined=true
-delivery_preflight_readiness_synthesis_created=true
-delivery_preflight_readiness_synthesis_validated=true
-readiness_gate_status=delivery_preflight_contract_defined_not_authorized
+work_package_id=ETF-EU-WP15AN
+status=completed_blocked
+source_work_package=ETF-EU-WP15AM
+delivery_preflight_authority_decision_created=true
+delivery_preflight_authority_decision_validated=true
+delivery_preflight_authority_created=false
+delivery_preflight_allowed=false
+delivery_preflight_status=not_authorized
+readiness_gate_status=delivery_preflight_authority_not_created
+delivery_authorization_decision=remain_blocked
 client_grade_authority_created=true
 client_grade_claim=true
 client_grade_status=authorized_no_delivery
 remaining_client_grade_blockers_count=0
-resolved_delivery_contract_gaps_count=5
 remaining_delivery_preflight_blockers_count=3
 pdf_exists=true
 pdf_page_count=4
@@ -104,8 +96,6 @@ smh_status=skipped_pending_registry_status
 smh_freshness_policy_status=unpriced_or_pending_verification
 review_only=false
 delivery_ready=false
-delivery_preflight_allowed=false
-delivery_authorization_decision=remain_blocked
 outbound_path_enabled=false
 production_delivery=false
 portfolio_mutation=false
@@ -129,28 +119,28 @@ recipient_config_changed=false
 smtp_or_secret_config_changed=false
 recipient_authority_created=false
 transport_authority_created=false
-selected_next_package=ETF-EU-WP15AN
-selected_next_package_title=ETF EU explicit delivery-preflight authority decision, no delivery
+selected_next_package=ETF-EU-WP15AO
+selected_next_package_title=ETF EU recipient and transport authority evidence contract, no delivery
 ```
 
-## Delivery-preflight contract answer
+## Delivery-preflight authority answer
 
 ```text
-Did WP15AM define the delivery-preflight contract and outbound runbook? Yes. WP15AM created and validated the delivery-preflight contract, production manifest contract, delivery receipt contract, recipient authority gate, transport authority gate, outbound runbook, post-send verification loop, and rollback/abort policy. The delivery contract gaps are resolved as contract-defined only. Delivery-preflight remains unauthorized, production delivery remains false, no report was sent, no delivery receipt was created, no production manifest was created, and no recipient or transport authority was created.
+Did WP15AN create delivery-preflight authority? No. WP15AN created and validated a negative delivery-preflight authority decision. Delivery-preflight authority is not created because recipient authority and transport authority are missing. Delivery-preflight remains blocked, production delivery remains false, no report was sent, no delivery receipt was created, no production manifest was created, and no recipient or transport configuration was changed.
 ```
 
 ## Active product roadmap
 
 ```text
-ETF-EU-WP15AN — ETF EU explicit delivery-preflight authority decision, no delivery
+ETF-EU-WP15AO — ETF EU recipient and transport authority evidence contract, no delivery
 ```
 
 ## Immediate next action
 
-Start ETF-EU-WP15AN.
+Start ETF-EU-WP15AO.
 
 Goal:
 
 ```text
-Make an explicit authority decision on whether delivery-preflight execution may be opened, based on the WP15AM contract, recipient authority, and transport authority gates, without sending the report or creating production delivery artifacts.
+Define and validate the evidence contract required to create recipient configuration authority and transport configuration authority without sending the report, changing production recipients, exposing secrets, or creating delivery artifacts.
 ```
