@@ -116,7 +116,7 @@ def build_etf_eu_delivery_evidence(
         "pdf_generation": False,
         "delivery_receipt": delivery_receipt,
         "delivery_success": delivery_success,
-        "delivery_error": None if delivery_status in {"not_attempted", "attempt_pending"} else source.get("delivery_error"),
+        "delivery_error": None if delivery_status in {"not_attempted", "attempt_pending", "transport_succeeded_unconfirmed"} else source.get("delivery_error"),
         "receipt_status": "receipt_confirmed" if delivery_receipt else delivery_status,
     }
 
@@ -198,6 +198,18 @@ def _fixture_languages(*, report_suffix: str, run_id: str, mode: str, source_man
     ]
 
 
+def _languages_from_transport_result(path: Path, *, run_id: str, report_suffix: str, mode: str, source_manifest_type: str) -> list[dict[str, object]]:
+    result = json.loads(Path(path).read_text(encoding="utf-8"))
+    base = {str(row["language"]): row for row in result.get("languages", []) if isinstance(row, dict)}
+    languages = _fixture_languages(run_id=run_id, report_suffix=report_suffix, mode=mode, source_manifest_type=source_manifest_type)
+    for row in languages:
+        language = str(row["language"])
+        if language in base:
+            row["recipient_hash"] = str(base[language].get("recipient_hash"))
+            row["report_path"] = str(base[language].get("report_path") or row["report_path"])
+    return languages
+
+
 def _write_mvp15_static(args: argparse.Namespace) -> Path:
     stage = args.stage
     status = "attempt_pending" if stage == "pre" else "not_attempted"
@@ -223,22 +235,70 @@ def _write_mvp15_static(args: argparse.Namespace) -> Path:
     )
 
 
+def _write_mvp18_controlled(args: argparse.Namespace) -> Path:
+    stage = args.stage
+    if stage == "pre":
+        status = "attempt_pending"
+        meaning = "MVP18 pre-transport evidence; controlled sender not yet executed"
+        languages = _fixture_languages(run_id=args.run_id, report_suffix=args.report_suffix, mode="mvp18_controlled_pre", source_manifest_type="mvp18_controlled_pre_evidence")
+        source: dict[str, object] = {"writer": "runtime/write_etf_eu_delivery_evidence.py", "basis": "mvp18_controlled_pre", "transport_executed": False}
+    else:
+        _require(bool(args.transport_result_path), "--transport-result-path required for MVP18 post evidence")
+        result = json.loads(Path(args.transport_result_path).read_text(encoding="utf-8"))
+        status = str(result.get("transport_status"))
+        _require(status in {"transport_succeeded_unconfirmed", "transport_failed"}, f"unsupported controlled transport status: {status}")
+        meaning = (
+            f"MVP18 controlled transport returned without exception; {SUCCESS_CAVEAT}"
+            if status == "transport_succeeded_unconfirmed"
+            else "MVP18 controlled transport failed before receipt confirmation"
+        )
+        languages = _languages_from_transport_result(Path(args.transport_result_path), run_id=args.run_id, report_suffix=args.report_suffix, mode="mvp18_controlled_post", source_manifest_type="mvp18_controlled_transport_result")
+        source = {
+            "writer": "runtime/write_etf_eu_delivery_evidence.py",
+            "basis": "mvp18_controlled_post",
+            "transport_result_path": str(args.transport_result_path),
+            "transport_executed": True,
+            "delivery_error": result.get("delivery_error"),
+        }
+    return write_etf_eu_delivery_evidence(
+        Path(args.output_dir),
+        run_id=args.run_id,
+        report_date=args.report_date,
+        report_suffix=args.report_suffix,
+        sender_entrypoint_path=Path("runtime/send_etf_eu_controlled_report.py"),
+        dutch_primary_report_path=Path(f"output/weekly_etf_eu_review_nl_{args.report_suffix}.md"),
+        english_companion_report_path=Path(f"output/weekly_etf_eu_review_{args.report_suffix}.md"),
+        controlled_send_preflight_manifest=Path(f"output/delivery/etf_eu_delivery_manifest_{args.run_id}.json"),
+        base_delivery_manifest=Path(f"output/delivery/etf_eu_delivery_manifest_{args.run_id}.json"),
+        delivery_status=status,
+        delivery_status_meaning=meaning,
+        languages=languages,
+        source=source,
+    )
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--output-dir", default="output/delivery")
     parser.add_argument("--fixture", action="store_true")
     parser.add_argument("--mvp15-static", action="store_true")
+    parser.add_argument("--mvp18-controlled", action="store_true")
     parser.add_argument("--stage", choices=["pre", "post"], default="pre")
     parser.add_argument("--run-id", default="20260708_000000")
     parser.add_argument("--report-date", default="2026-07-08")
     parser.add_argument("--report-suffix", default="260708")
+    parser.add_argument("--transport-result-path", default=None)
     args = parser.parse_args()
+    if args.mvp18_controlled:
+        path = _write_mvp18_controlled(args)
+        print(f"ETF_EU_MVP18_CONTROLLED_DELIVERY_EVIDENCE_OK | stage={args.stage} | evidence={path}")
+        return
     if args.mvp15_static:
         path = _write_mvp15_static(args)
         print(f"ETF_EU_MVP15_STATIC_DELIVERY_EVIDENCE_OK | stage={args.stage} | evidence={path}")
         return
     if not args.fixture:
-        raise SystemExit("Use --fixture or --mvp15-static. Real transport evidence is not created by this writer package.")
+        raise SystemExit("Use --fixture, --mvp15-static or --mvp18-controlled.")
     languages = _fixture_languages(
         run_id="20260708_000000",
         report_suffix="260708",
