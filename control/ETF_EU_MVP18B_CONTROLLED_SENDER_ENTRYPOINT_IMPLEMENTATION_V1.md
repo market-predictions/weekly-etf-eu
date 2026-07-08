@@ -1,0 +1,27 @@
+# ETF-EU-MVP18B controlled sender entrypoint implementation v1
+
+```text
+work_package_id=ETF-EU-MVP18B
+source_work_package=ETF-EU-MVP18
+implementation_status=controlled_sender_entrypoint_implemented_workflow_wiring_blocked
+sender_entrypoint_created=true
+sender_entrypoint_path=runtime/send_etf_eu_controlled_report.py
+evidence_writer_extended=true
+evidence_writer_path=runtime/write_etf_eu_delivery_evidence.py
+workflow_wiring_completed=false
+workflow_write_blocked_by_connector=true
+real_transport_performed=false
+receipt_confirmed=false
+completion_claimed=false
+recipient_policy=redacted_hash_only
+private_values_exposed=false
+plain_contact_values_exposed=false
+portfolio_mutation=false
+funding_authority=false
+valuation_grade=false
+reference_architecture_repo=market-predictions/weekly-etf
+source_of_truth_repo=market-predictions/weekly-etf-eu
+port_behavior_not_us_assumptions=true
+us_assumptions_copied=false
+selected_next_package=ETF-EU-MVP18B-FIX
+```
