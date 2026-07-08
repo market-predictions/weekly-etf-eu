@@ -1,114 +1,105 @@
 # Weekly ETF EU Review OS — Next Actions
 
-Current priority: **OPERATOR_ACTION_REQUIRED — supply non-secret operator evidence references before dry-run execution**.
+Current priority: **RUN_WORKFLOW_VALIDATE_ONLY_OR_DRY_RUN — run ETF EU workflow with delivery_mode=validate_only, then dry_run if green**.
 
 ## Latest completion
 
 ```text
-work_package_id=ETF-EU-MVP04
-status=completed_operator_action_required
-source_work_package=ETF-EU-MVP03
-operator_evidence_value_injection_created=true
-operator_evidence_value_injection_validated=true
-mvp_series_continued=true
-no_more_abstract_gates=true
-operator_evidence_required=true
-operator_evidence_values_supplied=false
-operator_evidence_present=false
-operator_evidence_complete=false
-operator_evidence_status=operator_values_required
-operator_action_required=true
-placeholder_values_detected=true
-dry_run_preflight_allowed=false
-dry_run_preflight_performed=false
-delivery_preflight_allowed=false
-send_allowed=false
+work_package_id=ETF-EU-MVP04-FIX
+status=completed_rolemodel_delivery_alignment
+source_work_package=ETF-EU-MVP04
+manual_evidence_route_superseded=true
+operator_reference_template_required_for_delivery=false
+operator_hash_requirement_removed=true
+workflow_delivery_mode_input_created=true
+delivery_mode_default=validate_only
+delivery_mode_options=validate_only,dry_run,send
+push_delivery_mode=validate_only
+dry_run_mode_declared=true
+send_mode_declared=true
+send_mode_blocked_until_eu_sender_validated=true
+rolemodel_secret_names_declared=true
+private_values_exposed=false
+recipient_values_exposed=false
+delivery_workflow_alignment_status=rolemodel_gated_safe_default
+delivery_execution_status=validate_only_or_dry_run_ready
+send_execution_status=blocked_pending_eu_sender_entrypoint_validation
+delivery_manifest_framework_exists=true
+run_bundle_manifest_framework_exists=true
+manual_operator_action_required_status=superseded_by_workflow_alignment
+operator_action_required=false
+selected_next_package=RUN_WORKFLOW_VALIDATE_ONLY_OR_DRY_RUN
+selected_next_package_is_mvp05=false
+selected_next_package_is_wp15=false
 production_delivery=false
-dry_run_manifest_created=false
-manifest_created=false
-receipt_artifact_created=false
-production_manifest_created=false
+send_performed=false
+email_delivery=false
 delivery_success_claimed=false
 delivery_success_claim_allowed=false
-recipient_authority_created=false
-transport_authority_created=false
-recipient_transport_authority_status=not_authorized
-delivery_preflight_authority_created=false
-delivery_preflight_status=not_authorized
-delivery_authorization_decision=remain_blocked
-remaining_client_grade_blockers_count=0
-remaining_delivery_preflight_blockers_count=3
-secret_values_exposed=false
-recipient_plaintext_values_exposed=false
-pdf_exists=true
-pdf_page_count=4
-successful_rows_count=2
-failed_rows_count=0
-skipped_rows_count=1
-first_successful_symbol=SXR8.DE
-first_successful_close_date=2026-07-03
-first_successful_close=706.119995
-second_successful_symbol=CSPX.L
-second_successful_close_date=2026-07-03
-second_successful_close=807.859985
-smh_status=skipped_pending_registry_status
-review_only=false
-delivery_ready=false
-outbound_path_enabled=false
+manifest_required_for_success_claim=true
 portfolio_mutation=false
 candidate_promotion=false
 funding_authority=false
 valuation_grade=false
-pricing_evidence_for_client_grade=true
-pricing_evidence_for_delivery_preflight=false
-live_price_fetch_performed=false
 pricing_evidence_changed=false
 source_pdf_replaced=false
 new_pdf_created=false
 renderer_changed=false
-selected_next_package=OPERATOR_ACTION_REQUIRED
 ```
 
 ## Active next step
 
 ```text
-OPERATOR_ACTION_REQUIRED — supply non-secret operator evidence references before dry-run execution
+RUN_WORKFLOW_VALIDATE_ONLY_OR_DRY_RUN — run ETF EU workflow with delivery_mode=validate_only, then dry_run if green
 ```
 
 Purpose:
 
 ```text
-Human operator must supply the required non-secret evidence references and hashes before dry-run execution can be allowed. The automated MVP package chain is stopped until these values are supplied or a concrete validator failure requires a fix.
+Use the existing ETF EU workflow and delivery manifest framework in the weekly-etf rolemodel style. Do not fill manual operator evidence templates. Do not open ETF-EU-MVP05 merely to continue the prior manual route. Do not return to WP15 authority gates.
 ```
 
-## Required human action
+## Operator instructions
 
-Update placeholders in:
+In GitHub Actions, run:
 
 ```text
-control/runtime_reference_templates/ETF_EU_MVP_OPERATOR_EVIDENCE_REFERENCE_TEMPLATE.md
+Weekly ETF EU UCITS rolemodel delivery workflow
 ```
 
-Use the checklist in:
+First choose:
 
 ```text
-control/runtime_reference_templates/ETF_EU_MVP_OPERATOR_ACTION_REQUIRED_20260703.md
+delivery_mode=validate_only
 ```
+
+If that workflow is green, run again with:
+
+```text
+delivery_mode=dry_run
+```
+
+Do not choose:
+
+```text
+delivery_mode=send
+```
+
+until an EU-specific sender entrypoint has been explicitly validated.
 
 ## Scope guardrails
 
 ```text
+Do not fill manual operator evidence/hash reference templates for delivery.
 Do not open ETF-EU-MVP05 merely to ask for the same values again.
 Do not return to WP15 abstract authority gates unless a concrete validator failure occurs.
-Do not fetch new close prices unless a later validated dry-run explicitly declares a fresh-run requirement.
+Do not fetch new close prices outside the workflow run.
 Do not mutate portfolio state.
 Do not create valuation-grade authority.
 Do not create funding authority.
 Do not create funded positions.
-Do not regenerate or replace the PDF unless a later validated dry-run explicitly requires a fresh report artifact.
 Do not change recommendation logic in production.
-Do not send the report.
-Do not claim delivery success without a real dry-run manifest or receipt.
-Do not expose sensitive runtime values.
-Do not expose plaintext recipients.
+Do not claim delivery success without a real delivery manifest or receipt.
+Do not expose private runtime values.
+Do not expose recipient values.
 ```
