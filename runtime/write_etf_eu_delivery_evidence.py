@@ -1,0 +1,218 @@
+from __future__ import annotations
+
+import argparse
+import json
+from datetime import datetime, timezone
+from pathlib import Path
+from typing import Any
+
+ALLOWED_DELIVERY_STATUSES = {
+    "not_attempted",
+    "smtp_sendmail_returned_no_exception",
+    "smtp_sendmail_failed",
+    "evidence_invalid",
+}
+SUCCESS_CAVEAT = "not an end-recipient inbox receipt"
+
+
+def _utc_now() -> str:
+    return datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
+
+
+def _require(condition: bool, message: str) -> None:
+    if not condition:
+        raise RuntimeError(message)
+
+
+def _language_codes(languages: list[dict[str, object]]) -> set[str]:
+    return {str(item.get("language")) for item in languages if isinstance(item, dict)}
+
+
+def _validate_language_evidence(languages: list[dict[str, object]], *, pdf_generation: bool) -> None:
+    _require(_language_codes(languages) == {"nl", "en"}, "ETF EU delivery evidence requires exactly nl and en languages")
+    for item in languages:
+        language = str(item.get("language"))
+        _require(language in {"nl", "en"}, f"unsupported language: {language}")
+        _require(item.get("recipient_redacted") is True, f"{language}: recipient must be redacted")
+        recipient_hash = str(item.get("recipient_hash") or "")
+        _require(bool(recipient_hash), f"{language}: recipient_hash missing")
+        _require("@" not in recipient_hash, f"{language}: recipient_hash must not contain plaintext recipient")
+        _require(bool(item.get("report_path")), f"{language}: report_path missing")
+        _require(bool(item.get("source_manifest_path")), f"{language}: source_manifest_path missing")
+        _require(bool(item.get("source_manifest_type")), f"{language}: source_manifest_type missing")
+        _require(bool(item.get("timestamp_utc")), f"{language}: timestamp_utc missing")
+        _require(bool(item.get("mode")), f"{language}: mode missing")
+        _require(bool(item.get("report")), f"{language}: report missing")
+        _require("html_body" in item, f"{language}: html_body missing")
+        attachments = item.get("attachments") or []
+        pdf_attachments = item.get("pdf_attachments") or []
+        _require(isinstance(attachments, list), f"{language}: attachments must be a list")
+        _require(isinstance(pdf_attachments, list), f"{language}: pdf_attachments must be a list")
+        _require(item.get("attachment_count") == len(attachments), f"{language}: attachment_count mismatch")
+        if pdf_generation:
+            _require(item.get("pdf_attached") == "yes", f"{language}: pdf attachment evidence required")
+            _require(bool(pdf_attachments), f"{language}: pdf_attachments required")
+        else:
+            _require(item.get("pdf_attached") in {"no", "yes"}, f"{language}: pdf_attached must be yes/no")
+
+
+def build_etf_eu_delivery_evidence(
+    *,
+    run_id: str,
+    report_date: str,
+    report_suffix: str,
+    sender_entrypoint_path: Path,
+    dutch_primary_report_path: Path,
+    english_companion_report_path: Path,
+    controlled_send_preflight_manifest: Path,
+    base_delivery_manifest: Path,
+    delivery_status: str,
+    delivery_status_meaning: str,
+    languages: list[dict[str, object]],
+    source: dict[str, object],
+    generated_at_utc: str | None = None,
+) -> dict[str, object]:
+    _require(delivery_status in ALLOWED_DELIVERY_STATUSES, f"unsupported delivery_status={delivery_status}")
+    _require(bool(delivery_status_meaning), "delivery_status_meaning required")
+    if delivery_status == "smtp_sendmail_returned_no_exception":
+        _require(SUCCESS_CAVEAT in delivery_status_meaning, "transport success evidence must include inbox-receipt caveat")
+    _validate_language_evidence(languages, pdf_generation=False)
+    delivery_success = delivery_status == "smtp_sendmail_returned_no_exception"
+    email_delivery = delivery_success
+    production_delivery = delivery_success
+    delivery_receipt = delivery_success
+    if delivery_status == "not_attempted":
+        delivery_success = False
+        email_delivery = False
+        production_delivery = False
+        delivery_receipt = False
+    return {
+        "schema_version": "etf_eu_delivery_evidence_v1",
+        "artifact_type": "etf_eu_controlled_send_delivery_evidence",
+        "generated_at_utc": generated_at_utc or _utc_now(),
+        "run_id": run_id,
+        "report_date": report_date,
+        "report_suffix": report_suffix,
+        "delivery_status": delivery_status,
+        "delivery_status_meaning": delivery_status_meaning,
+        "recipient_data_policy": "redacted_hash_only",
+        "sender_entrypoint_path": str(sender_entrypoint_path),
+        "dutch_primary_report_path": str(dutch_primary_report_path),
+        "english_companion_report_path": str(english_companion_report_path),
+        "controlled_send_preflight_manifest": str(controlled_send_preflight_manifest),
+        "base_delivery_manifest": str(base_delivery_manifest),
+        "language_count": len(languages),
+        "languages": languages,
+        "source": source,
+        "secret_values_exposed": False,
+        "recipient_plaintext_values_exposed": False,
+        "production_delivery": production_delivery,
+        "email_delivery": email_delivery,
+        "pdf_generation": False,
+        "delivery_receipt": delivery_receipt,
+        "delivery_success": delivery_success,
+        "delivery_error": None if delivery_status == "not_attempted" else source.get("delivery_error"),
+    }
+
+
+def write_etf_eu_delivery_evidence(
+    output_dir: Path,
+    *,
+    run_id: str,
+    report_date: str,
+    report_suffix: str,
+    sender_entrypoint_path: Path,
+    dutch_primary_report_path: Path,
+    english_companion_report_path: Path,
+    controlled_send_preflight_manifest: Path,
+    base_delivery_manifest: Path,
+    delivery_status: str,
+    delivery_status_meaning: str,
+    languages: list[dict[str, object]],
+    source: dict[str, object],
+    generated_at_utc: str | None = None,
+) -> Path:
+    output_dir = Path(output_dir)
+    output_dir.mkdir(parents=True, exist_ok=True)
+    evidence = build_etf_eu_delivery_evidence(
+        run_id=run_id,
+        report_date=report_date,
+        report_suffix=report_suffix,
+        sender_entrypoint_path=sender_entrypoint_path,
+        dutch_primary_report_path=dutch_primary_report_path,
+        english_companion_report_path=english_companion_report_path,
+        controlled_send_preflight_manifest=controlled_send_preflight_manifest,
+        base_delivery_manifest=base_delivery_manifest,
+        delivery_status=delivery_status,
+        delivery_status_meaning=delivery_status_meaning,
+        languages=languages,
+        source=source,
+        generated_at_utc=generated_at_utc,
+    )
+    path = output_dir / f"etf_eu_delivery_evidence_{run_id}.json"
+    path.write_text(json.dumps(evidence, indent=2, sort_keys=True), encoding="utf-8")
+    return path
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--output-dir", default="output/delivery")
+    parser.add_argument("--fixture", action="store_true")
+    args = parser.parse_args()
+    if not args.fixture:
+        raise SystemExit("Use --fixture in MVP09. Real transport evidence is not created by this writer package.")
+    languages = [
+        {
+            "language": "nl",
+            "report_path": "output/weekly_etf_eu_review_nl_260708.md",
+            "source_manifest_path": "output/delivery/etf_eu_sender_preflight_20260708_000000.json",
+            "source_manifest_type": "mvp09_fixture_no_send_evidence",
+            "timestamp_utc": "2026-07-08T00:00:00Z",
+            "mode": "fixture_no_send",
+            "report": "Dutch primary client report",
+            "recipient_hash": "sha256:redacted-nl-fixture",
+            "recipient_redacted": True,
+            "html_body": False,
+            "pdf_attached": "no",
+            "attachments": [],
+            "attachment_count": 0,
+            "pdf_attachments": [],
+        },
+        {
+            "language": "en",
+            "report_path": "output/weekly_etf_eu_review_260708.md",
+            "source_manifest_path": "output/delivery/etf_eu_sender_preflight_20260708_000000.json",
+            "source_manifest_type": "mvp09_fixture_no_send_evidence",
+            "timestamp_utc": "2026-07-08T00:00:00Z",
+            "mode": "fixture_no_send",
+            "report": "English companion report",
+            "recipient_hash": "sha256:redacted-en-fixture",
+            "recipient_redacted": True,
+            "html_body": False,
+            "pdf_attached": "no",
+            "attachments": [],
+            "attachment_count": 0,
+            "pdf_attachments": [],
+        },
+    ]
+    path = write_etf_eu_delivery_evidence(
+        Path(args.output_dir),
+        run_id="20260708_000000",
+        report_date="2026-07-08",
+        report_suffix="260708",
+        sender_entrypoint_path=Path("runtime/send_etf_eu_report_runtime_html.py"),
+        dutch_primary_report_path=Path("output/weekly_etf_eu_review_nl_260708.md"),
+        english_companion_report_path=Path("output/weekly_etf_eu_review_260708.md"),
+        controlled_send_preflight_manifest=Path("output/delivery/etf_eu_controlled_send_preflight_manifest_20260708_000000.json"),
+        base_delivery_manifest=Path("output/delivery/etf_eu_delivery_manifest_20260708_142840.json"),
+        delivery_status="not_attempted",
+        delivery_status_meaning="controlled-send evidence writer implemented but no outbound delivery executed",
+        languages=languages,
+        source={"writer": "runtime/write_etf_eu_delivery_evidence.py", "basis": "mvp09_fixture_no_send_evidence"},
+        generated_at_utc="2026-07-08T00:00:00Z",
+    )
+    print(f"ETF_EU_DELIVERY_EVIDENCE_FIXTURE_OK | evidence={path}")
+
+
+if __name__ == "__main__":
+    main()
