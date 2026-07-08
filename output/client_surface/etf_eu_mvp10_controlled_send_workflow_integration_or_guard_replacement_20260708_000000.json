@@ -1,0 +1,6 @@
+{
+  "schema_version": "etf_eu_mvp10_controlled_send_workflow_integration_or_guard_replacement_v1",
+  "work_package_id": "ETF-EU-MVP10",
+  "source_work_package": "ETF-EU-MVP09",
+  "selected_next_package": "ETF-EU-MVP11"
+}
