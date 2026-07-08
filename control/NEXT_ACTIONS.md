@@ -1,31 +1,28 @@
 # Weekly ETF EU Review OS — Next Actions
 
-Current priority: **ETF-EU-WP15AP — ETF EU explicit recipient and transport authority decision**.
+Current priority: **ETF-EU-WP15AQ — ETF EU concrete recipient and transport evidence acquisition plan**.
 
 ## Latest completion
 
 ```text
-work_package_id=ETF-EU-WP15AO
-status=completed
-source_work_package=ETF-EU-WP15AN
-recipient_transport_authority_evidence_contract_created=true
-recipient_transport_authority_evidence_contract_validated=true
-recipient_authority_evidence_contract_created=true
-recipient_authority_evidence_contract_validated=true
-transport_authority_evidence_contract_created=true
-transport_authority_evidence_contract_validated=true
-readiness_gate_status=recipient_transport_authority_evidence_contract_defined_not_authorized
+work_package_id=ETF-EU-WP15AP
+status=completed_blocked
+source_work_package=ETF-EU-WP15AO
+recipient_transport_authority_decision_created=true
+recipient_transport_authority_decision_validated=true
+recipient_authority_created=false
+transport_authority_created=false
+recipient_transport_authority_status=not_authorized
+readiness_gate_status=recipient_transport_authority_decision_not_created
+delivery_authorization_decision=remain_blocked
 client_grade_authority_created=true
 client_grade_claim=true
 client_grade_status=authorized_no_delivery
 delivery_preflight_authority_created=false
 delivery_preflight_allowed=false
 delivery_preflight_status=not_authorized
-delivery_authorization_decision=remain_blocked
 remaining_client_grade_blockers_count=0
 remaining_delivery_preflight_blockers_count=3
-recipient_authority_created=false
-transport_authority_created=false
 recipient_config_changed=false
 smtp_or_secret_config_changed=false
 secret_values_exposed=false
@@ -59,19 +56,19 @@ new_pdf_created=false
 renderer_changed=false
 receipt_artifact_created=false
 production_manifest_created=false
-selected_next_package=ETF-EU-WP15AP
+selected_next_package=ETF-EU-WP15AQ
 ```
 
 ## Active next package
 
 ```text
-ETF-EU-WP15AP — ETF EU explicit recipient and transport authority decision
+ETF-EU-WP15AQ — ETF EU concrete recipient and transport evidence acquisition plan
 ```
 
 Purpose:
 
 ```text
-Make an explicit authority decision on whether recipient and transport authority can be created from the WP15AO evidence contract, without changing production recipients, exposing secrets, sending the report, or creating delivery artifacts.
+Define a safe evidence acquisition plan for recipient-set references, recipient-set hashes, owner approvals, transport reference names, presence checks, and rollback references without exposing secrets, exposing plaintext recipients, changing configuration, sending reports, or creating delivery artifacts.
 ```
 
 ## Scope guardrails
