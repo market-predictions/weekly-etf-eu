@@ -96,6 +96,10 @@ def _normalized_markdown(text: str) -> str:
     return re.sub(r"\s+", " ", text).strip()
 
 
+def _is_canonical_eu_report(path: Path) -> bool:
+    return EU_REPORT_RE.match(path.name) is not None
+
+
 def _report_suffix(path: Path) -> str:
     match = EU_REPORT_RE.match(path.name)
     if not match:
@@ -169,10 +173,19 @@ def _select_latest_report_pair(reports: list[Path]) -> list[Path]:
     return _select_reports_for_suffix(reports, latest_suffix)
 
 
+def _discover_canonical_reports(output_dir: Path) -> list[Path]:
+    discovered = sorted(path for path in output_dir.glob("weekly_etf_eu_review*.md") if path.is_file())
+    canonical = [path for path in discovered if _is_canonical_eu_report(path)]
+    ignored = [path.name for path in discovered if not _is_canonical_eu_report(path)]
+    if ignored:
+        print("ETF_EU_OUTPUT_WARNING | ignored_non_canonical_eu_report_artifacts=" + ",".join(ignored[:10]))
+    return canonical
+
+
 def validate(output_dir: Path, *, require_production_dutch_first: bool = False, report_suffix: str | None = None) -> None:
-    reports = sorted(path for path in output_dir.glob("weekly_etf_eu_review*.md") if path.is_file())
+    reports = _discover_canonical_reports(output_dir)
     if not reports:
-        raise RuntimeError("EU output contract failed: no weekly_etf_eu_review*.md reports found")
+        raise RuntimeError("EU output contract failed: no canonical weekly_etf_eu_review*.md reports found")
     us_named = [path.name for path in output_dir.glob("weekly_analysis_pro_*.md") if path.is_file()]
     if us_named:
         print("ETF_EU_OUTPUT_WARNING | inherited_us_named_reports_present_as_clone_artifacts=" + ",".join(us_named[:5]))
