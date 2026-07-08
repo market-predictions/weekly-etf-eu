@@ -1,4 +1,4 @@
-name: Weekly ETF EU UCITS bootstrap validation
+name: Weekly ETF EU UCITS rolemodel delivery workflow
 
 on:
   push:
@@ -7,6 +7,16 @@ on:
     paths:
       - "control/run_queue/weekly_etf_eu_report_request_*.md"
   workflow_dispatch:
+    inputs:
+      delivery_mode:
+        description: "ETF EU delivery mode: validate_only, dry_run, or send"
+        required: true
+        default: "validate_only"
+        type: choice
+        options:
+          - validate_only
+          - dry_run
+          - send
 
 permissions:
   contents: write
@@ -40,6 +50,39 @@ jobs:
           echo "ETF_EU_REPORT_DATE=$REPORT_DATE" >> "$GITHUB_ENV"
           echo "ETF_EU_REPORT_SUFFIX=$REPORT_SUFFIX" >> "$GITHUB_ENV"
           echo "ETF_EU_RUN_ID=$RUN_ID | report_date=$REPORT_DATE"
+
+      - name: Resolve EU delivery mode
+        run: |
+          MODE="${{ github.event.inputs.delivery_mode || 'validate_only' }}"
+          if [ "${{ github.event_name }}" != "workflow_dispatch" ]; then
+            MODE="validate_only"
+          fi
+          case "$MODE" in
+            validate_only|dry_run|send)
+              ;;
+            *)
+              echo "Unsupported ETF EU delivery_mode=$MODE" >&2
+              exit 1
+              ;;
+          esac
+          echo "ETF_EU_DELIVERY_MODE=$MODE" >> "$GITHUB_ENV"
+          echo "ETF_EU_DELIVERY_MODE_OK | mode=$MODE"
+
+      - name: Guard EU send mode until sender entrypoint is promoted
+        if: env.ETF_EU_DELIVERY_MODE == 'send'
+        env:
+          MRKT_RPRTS_SMTP_HOST: ${{ secrets.MRKT_RPRTS_SMTP_HOST }}
+          MRKT_RPRTS_SMTP_PORT: ${{ secrets.MRKT_RPRTS_SMTP_PORT }}
+          MRKT_RPRTS_SMTP_USER: ${{ secrets.MRKT_RPRTS_SMTP_USER }}
+          MRKT_RPRTS_SMTP_PASS: ${{ secrets.MRKT_RPRTS_SMTP_PASS }}
+          MRKT_RPRTS_MAIL_FROM: ${{ secrets.MRKT_RPRTS_MAIL_FROM }}
+          MRKT_RPRTS_MAIL_TO: ${{ secrets.MRKT_RPRTS_MAIL_TO }}
+          MRKT_RPRTS_MAIL_TO_NL: ${{ secrets.MRKT_RPRTS_MAIL_TO_NL }}
+        run: |
+          echo "ETF_EU_SEND_MODE_REQUESTED"
+          echo "ETF EU send mode is rolemodel-declared but intentionally blocked until an EU-specific sender entrypoint is validated."
+          echo "Use delivery_mode=validate_only or delivery_mode=dry_run for the current workflow."
+          exit 1
 
       - name: Validate EU control files exist
         run: |
@@ -253,10 +296,23 @@ jobs:
           grep -q "DISABLED_INHERITED_US_ETF_SEND_WORKFLOW" .github/workflows/send-weekly-report.yml
           echo "ETF_EU_INHERITED_SEND_DISABLED_OK"
 
-      - name: Confirm no delivery is attempted
+      - name: Confirm EU rolemodel delivery mode boundary
         run: |
-          echo "ETF_EU_BOOTSTRAP_VALIDATION_ONLY"
-          echo "No portfolio mutation, PDF generation or email delivery is performed by this workflow."
+          case "$ETF_EU_DELIVERY_MODE" in
+            validate_only)
+              echo "ETF_EU_BOOTSTRAP_VALIDATION_ONLY"
+              echo "No portfolio mutation, PDF generation or email delivery is performed by this workflow."
+              ;;
+            dry_run)
+              echo "ETF_EU_DELIVERY_DRY_RUN_MODE"
+              echo "EU report, validation evidence, delivery manifest and run bundle are built. No email delivery is performed."
+              ;;
+            send)
+              echo "ETF_EU_SEND_MODE_BLOCKED"
+              echo "Send mode should have been blocked by the earlier guard step."
+              exit 1
+              ;;
+          esac
           echo "UCITS pricing preflight is non-authoritative and cannot promote candidates to fundable status."
           echo "Agreement-aware UCITS valuation artifact is non-mutating and cannot create funding authority."
           echo "Agreement-gate pricing surface is report evidence only and cannot create valuation or funding authority."
