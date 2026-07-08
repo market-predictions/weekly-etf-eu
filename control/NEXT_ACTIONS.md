@@ -1,21 +1,26 @@
 # Weekly ETF EU Review OS — Next Actions
 
-Current priority: **ETF-EU-MVP13**.
+Current priority: **ETF-EU-MVP14**.
 
 ## Latest completion
 
 ```text
-work_package_id=ETF-EU-MVP12
-status=completed_next_decision_package
-source_work_package=ETF-EU-MVP11
+work_package_id=ETF-EU-MVP13
+status=completed_implementation_preflight
+source_work_package=ETF-EU-MVP12
+reference_architecture_repo=market-predictions/weekly-etf
+source_of_truth_repo=market-predictions/weekly-etf-eu
+port_behavior_not_us_assumptions=true
+us_assumptions_copied=false
 reference_run_id=28963021481
 reference_conclusion=success
 reference_mode=dry_run
-selected_next_package=ETF-EU-MVP13
+preflight_status=controlled_send_preflight_ready
+selected_next_package=ETF-EU-MVP14
 ```
 
 ## Active next package
 
 ```text
-ETF-EU-MVP13
+ETF-EU-MVP14
 ```
