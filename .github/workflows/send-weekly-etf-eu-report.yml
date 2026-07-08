@@ -17,6 +17,14 @@ on:
           - validate_only
           - dry_run
           - send
+      send_confirmation:
+        description: "Second confirmation for guarded ETF EU send path"
+        required: true
+        default: "not_confirmed"
+        type: choice
+        options:
+          - not_confirmed
+          - confirm_guarded_send
 
 permissions:
   contents: write
@@ -54,8 +62,10 @@ jobs:
       - name: Resolve EU delivery mode
         run: |
           MODE="${{ github.event.inputs.delivery_mode || 'validate_only' }}"
+          CONFIRMATION="${{ github.event.inputs.send_confirmation || 'not_confirmed' }}"
           if [ "${{ github.event_name }}" != "workflow_dispatch" ]; then
             MODE="validate_only"
+            CONFIRMATION="not_confirmed"
           fi
           case "$MODE" in
             validate_only|dry_run|send)
@@ -65,24 +75,27 @@ jobs:
               exit 1
               ;;
           esac
+          case "$CONFIRMATION" in
+            not_confirmed|confirm_guarded_send)
+              ;;
+            *)
+              echo "Unsupported ETF EU send_confirmation=$CONFIRMATION" >&2
+              exit 1
+              ;;
+          esac
           echo "ETF_EU_DELIVERY_MODE=$MODE" >> "$GITHUB_ENV"
-          echo "ETF_EU_DELIVERY_MODE_OK | mode=$MODE"
+          echo "ETF_EU_SEND_CONFIRMATION=$CONFIRMATION" >> "$GITHUB_ENV"
+          echo "ETF_EU_DELIVERY_MODE_OK | mode=$MODE | confirmation=$CONFIRMATION"
 
-      - name: Guard EU send mode until sender entrypoint is promoted
+      - name: Validate EU guarded send confirmation precondition
         if: env.ETF_EU_DELIVERY_MODE == 'send'
-        env:
-          MRKT_RPRTS_SMTP_HOST: ${{ secrets.MRKT_RPRTS_SMTP_HOST }}
-          MRKT_RPRTS_SMTP_PORT: ${{ secrets.MRKT_RPRTS_SMTP_PORT }}
-          MRKT_RPRTS_SMTP_USER: ${{ secrets.MRKT_RPRTS_SMTP_USER }}
-          MRKT_RPRTS_SMTP_PASS: ${{ secrets.MRKT_RPRTS_SMTP_PASS }}
-          MRKT_RPRTS_MAIL_FROM: ${{ secrets.MRKT_RPRTS_MAIL_FROM }}
-          MRKT_RPRTS_MAIL_TO: ${{ secrets.MRKT_RPRTS_MAIL_TO }}
-          MRKT_RPRTS_MAIL_TO_NL: ${{ secrets.MRKT_RPRTS_MAIL_TO_NL }}
         run: |
           echo "ETF_EU_SEND_MODE_REQUESTED"
-          echo "ETF EU send mode is rolemodel-declared but intentionally blocked until an EU-specific sender entrypoint is validated."
-          echo "Use delivery_mode=validate_only or delivery_mode=dry_run for the current workflow."
-          exit 1
+          if [ "$ETF_EU_SEND_CONFIRMATION" != "confirm_guarded_send" ]; then
+            echo "ETF_EU_SEND_CONFIRMATION_MISSING" >&2
+            exit 1
+          fi
+          echo "ETF_EU_GUARDED_SEND_CONFIRMATION_OK"
 
       - name: Validate EU control files exist
         run: |
@@ -308,9 +321,8 @@ jobs:
               echo "EU report, validation evidence, delivery manifest and run bundle are built. No email delivery is performed."
               ;;
             send)
-              echo "ETF_EU_SEND_MODE_BLOCKED"
-              echo "Send mode should have been blocked by the earlier guard step."
-              exit 1
+              echo "ETF_EU_GUARDED_SEND_STATIC_PATH"
+              echo "Guarded send confirmation was resolved. Validation gates continue before the isolated MVP15 placeholder."
               ;;
           esac
           echo "UCITS pricing preflight is non-authoritative and cannot promote candidates to fundable status."
@@ -370,11 +382,50 @@ jobs:
           python tools/validate_etf_eu_run_bundle_delivery_evidence.py --fixture output/runs/20260708_000000/etf_eu_run_bundle_delivery_evidence_fixture.json
           python tools/validate_etf_eu_mvp09_controlled_send_implementation_with_delivery_evidence.py
 
+      - name: Build MVP15 pre-transport evidence
+        if: env.ETF_EU_DELIVERY_MODE == 'send' && env.ETF_EU_SEND_CONFIRMATION == 'confirm_guarded_send'
+        run: |
+          python -m runtime.write_etf_eu_delivery_evidence \
+            --mvp15-static \
+            --stage pre \
+            --run-id "$ETF_EU_RUN_ID" \
+            --report-date "$ETF_EU_REPORT_DATE" \
+            --report-suffix "$ETF_EU_REPORT_SUFFIX" \
+            --output-dir output/delivery
+
+      - name: MVP15 guarded transport placeholder
+        if: env.ETF_EU_DELIVERY_MODE == 'send' && env.ETF_EU_SEND_CONFIRMATION == 'confirm_guarded_send'
+        run: |
+          echo "ETF_EU_MVP15_TRANSPORT_PLACEHOLDER"
+          echo "MVP15 static closeout does not perform outbound transport."
+          echo "ETF_EU_TRANSPORT_EXECUTED=false"
+
+      - name: Build MVP15 post-transport evidence
+        if: env.ETF_EU_DELIVERY_MODE == 'send' && env.ETF_EU_SEND_CONFIRMATION == 'confirm_guarded_send'
+        run: |
+          python -m runtime.write_etf_eu_delivery_evidence \
+            --mvp15-static \
+            --stage post \
+            --run-id "$ETF_EU_RUN_ID" \
+            --report-date "$ETF_EU_REPORT_DATE" \
+            --report-suffix "$ETF_EU_REPORT_SUFFIX" \
+            --output-dir output/delivery
+
+      - name: Build MVP15 delayed receipt check artifact
+        if: env.ETF_EU_DELIVERY_MODE == 'send' && env.ETF_EU_SEND_CONFIRMATION == 'confirm_guarded_send'
+        run: |
+          python -m runtime.check_etf_eu_delivery_receipt \
+            --mvp15-static \
+            --run-id "$ETF_EU_RUN_ID" \
+            --evidence-path "output/delivery/etf_eu_delivery_evidence_${ETF_EU_RUN_ID}.json" \
+            --delay-minutes 10 \
+            --output-dir output/delivery
+
       - name: Commit EU bootstrap report and pricing artifacts
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add output/weekly_etf_eu_review_*.md output/pricing/ucits_pricing_candidates_*.json output/pricing/ucits_pricing_preflight_*.json output/pricing/ucits_valuation_prices_*.json output/fundability/ucits_fundability_gate_*.json output/pricing/ucits_pricing_source_policy_shadow_*.yml output/pricing/ucits_official_exchange_source_snapshot_*.json output/pricing/ucits_official_exchange_page_evidence_*.json output/pricing/ucits_close_observations_*.json output/pricing/euronext_endpoint_evidence_*.json output/pricing/euronext_product_page_evidence_*.json output/pricing/euronext_dynamic_quote_response_discovery_*.json output/pricing/euronext_js_asset_inspection_*.json output/pricing/yahoo_ucits_close_diagnostics_*.json output/pricing/ucits_twelve_data_symbol_discovery_*.json output/validation/etf_eu_shadow_validation_evidence_*.json output/delivery/etf_eu_delivery_manifest_*.json output/runs/*/etf_eu_run_bundle_manifest.json || true
+          git add output/weekly_etf_eu_review_*.md output/pricing/ucits_pricing_candidates_*.json output/pricing/ucits_pricing_preflight_*.json output/pricing/ucits_valuation_prices_*.json output/fundability/ucits_fundability_gate_*.json output/pricing/ucits_pricing_source_policy_shadow_*.yml output/pricing/ucits_official_exchange_source_snapshot_*.json output/pricing/ucits_official_exchange_page_evidence_*.json output/pricing/ucits_close_observations_*.json output/pricing/euronext_endpoint_evidence_*.json output/pricing/euronext_product_page_evidence_*.json output/pricing/euronext_dynamic_quote_response_discovery_*.json output/pricing/euronext_js_asset_inspection_*.json output/pricing/yahoo_ucits_close_diagnostics_*.json output/pricing/ucits_twelve_data_symbol_discovery_*.json output/validation/etf_eu_shadow_validation_evidence_*.json output/delivery/etf_eu_delivery_manifest_*.json output/delivery/etf_eu_delivery_evidence_*.json output/delivery/etf_eu_receipt_check_*.json output/runs/*/etf_eu_run_bundle_manifest.json || true
           if git diff --cached --quiet; then
             echo "No EU bootstrap artifacts to commit."
             exit 0
