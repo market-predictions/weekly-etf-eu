@@ -8,6 +8,8 @@ WORKFLOW = Path(".github/workflows/send-weekly-etf-eu-report.yml")
 GATE_NAME = "Validate MVP09 delivery evidence integration gate"
 RUN_BUNDLE_STEP = "Build and validate run bundle manifest"
 INHERITED_DISABLED_STEP = "Validate inherited US production sender is disabled"
+OLD_GUARD_STEP = "Guard EU send mode until sender entrypoint is promoted"
+MVP15_GUARD_STEP = "Validate EU guarded send confirmation precondition"
 
 
 def _require(condition: bool, message: str) -> None:
@@ -25,6 +27,35 @@ def _step_block(text: str, step_name: str) -> str:
     return text[start:next_start]
 
 
+def _optional_step_block(text: str, step_name: str) -> str | None:
+    marker = f"- name: {step_name}"
+    start = text.find(marker)
+    if start < 0:
+        return None
+    next_start = text.find("\n      - name:", start + len(marker))
+    if next_start == -1:
+        return text[start:]
+    return text[start:next_start]
+
+
+def _validate_guard_block(text: str) -> str:
+    old_block = _optional_step_block(text, OLD_GUARD_STEP)
+    if old_block is not None:
+        _require("exit 1" in old_block, "legacy send guard exit missing")
+        _require("env.ETF_EU_DELIVERY_MODE == 'send'" in old_block, "legacy send guard condition missing")
+        return "legacy_blocked_guard"
+
+    mvp15_block = _optional_step_block(text, MVP15_GUARD_STEP)
+    _require(mvp15_block is not None, f"missing step: {OLD_GUARD_STEP} or {MVP15_GUARD_STEP}")
+    _require("env.ETF_EU_DELIVERY_MODE == 'send'" in mvp15_block, "MVP15 guarded precondition must only run for send mode")
+    _require("ETF_EU_SEND_CONFIRMATION" in mvp15_block, "MVP15 guarded precondition missing confirmation env")
+    _require("confirm_guarded_send" in mvp15_block, "MVP15 guarded precondition missing required confirmation value")
+    _require("ETF_EU_SEND_CONFIRMATION_MISSING" in mvp15_block, "MVP15 guarded precondition missing fail-closed marker")
+    _require("exit 1" in mvp15_block, "MVP15 guarded precondition missing fail-closed exit")
+    _require("ETF_EU_GUARDED_SEND_CONFIRMATION_OK" in mvp15_block, "MVP15 guarded precondition missing confirmation-ok marker")
+    return "mvp15_guarded_confirmation"
+
+
 def validate(workflow_path: Path = WORKFLOW) -> dict[str, Any]:
     workflow_path = Path(workflow_path)
     _require(workflow_path.exists(), f"missing workflow: {workflow_path}")
@@ -34,9 +65,7 @@ def validate(workflow_path: Path = WORKFLOW) -> dict[str, Any]:
         _require(f"          - {mode}" in text, f"delivery_mode option missing: {mode}")
 
     _require("ETF_EU_SEND_MODE_REQUESTED" in text, "send guard marker missing")
-    guard_block = _step_block(text, "Guard EU send mode until sender entrypoint is promoted")
-    _require("exit 1" in guard_block, "send guard exit missing")
-    _require("env.ETF_EU_DELIVERY_MODE == 'send'" in guard_block, "send guard condition missing")
+    guard_type = _validate_guard_block(text)
 
     _require(GATE_NAME in text, "MVP10 evidence integration gate missing")
     run_bundle_index = text.find(RUN_BUNDLE_STEP)
@@ -66,6 +95,7 @@ def validate(workflow_path: Path = WORKFLOW) -> dict[str, Any]:
         "workflow_send_guard_present": True,
         "workflow_send_guard_removed": False,
         "workflow_send_guard_exit_present": True,
+        "workflow_send_guard_type": guard_type,
         "delivery_evidence_gate_added": True,
         "delivery_evidence_gate_after_run_bundle": True,
         "delivery_evidence_validator_called": True,
