@@ -64,23 +64,26 @@ ETF-EU-WP15AQ
 ETF-EU-MVP01
 ETF-EU-MVP02
 ETF-EU-MVP03
+ETF-EU-MVP04
 ```
 
-## Latest completed package — ETF-EU-MVP03
+## Latest completed package — ETF-EU-MVP04
 
 ```text
 repository=market-predictions/weekly-etf-eu
-work_package_id=ETF-EU-MVP03
-status=completed_mvp_operator_evidence_completion_blocked
-source_work_package=ETF-EU-MVP02
-operator_evidence_completion_check_created=true
-operator_evidence_completion_check_validated=true
+work_package_id=ETF-EU-MVP04
+status=completed_operator_action_required
+source_work_package=ETF-EU-MVP03
+operator_evidence_value_injection_created=true
+operator_evidence_value_injection_validated=true
 mvp_series_continued=true
 no_more_abstract_gates=true
 operator_evidence_required=true
+operator_evidence_values_supplied=false
 operator_evidence_present=false
 operator_evidence_complete=false
-operator_evidence_status=missing_required_for_dry_run_execution
+operator_evidence_status=operator_values_required
+operator_action_required=true
 placeholder_values_detected=true
 dry_run_preflight_allowed=false
 dry_run_preflight_performed=false
@@ -129,28 +132,34 @@ pricing_evidence_changed=false
 source_pdf_replaced=false
 new_pdf_created=false
 renderer_changed=false
-selected_next_package=ETF-EU-MVP04
-selected_next_package_title=ETF EU operator evidence value injection or dry-run execution
+selected_next_package=OPERATOR_ACTION_REQUIRED
+selected_next_package_title=Human operator must supply non-secret evidence references before dry-run execution
 ```
 
-## MVP operator evidence completion answer
+## MVP operator action boundary answer
 
 ```text
-Did MVP03 execute a dry-run or send the report? No. MVP03 inspected the operator evidence reference template and detected placeholder values. Operator evidence is still incomplete, dry-run is not allowed, no report was sent, no dry-run manifest was created, no receipt was created, and no delivery success was claimed. The next package is ETF-EU-MVP04, not another WP15 authority package.
+Did MVP04 execute a dry-run or send the report? No. MVP04 reached the operator-action boundary. Operator values were not supplied, placeholders remain, dry-run is not allowed, no report was sent, no dry-run manifest was created, no receipt was created, and no delivery success was claimed. The next step is OPERATOR_ACTION_REQUIRED, not ETF-EU-MVP05 and not another WP15 authority package.
 ```
 
 ## Active product roadmap
 
 ```text
-ETF-EU-MVP04 — ETF EU operator evidence value injection or dry-run execution
+OPERATOR_ACTION_REQUIRED — supply non-secret operator evidence references before dry-run execution
 ```
 
 ## Immediate next action
 
-Start ETF-EU-MVP04.
-
-Goal:
+Human operator must supply non-secret evidence references in:
 
 ```text
-Either replace placeholder operator evidence values with valid non-secret references and execute a delivery-preflight dry-run, or keep execution blocked with a precise evidence-values-required result. Do not send the report and do not claim delivery success without a real dry-run manifest.
+control/runtime_reference_templates/ETF_EU_MVP_OPERATOR_EVIDENCE_REFERENCE_TEMPLATE.md
 ```
+
+Required fields are listed in:
+
+```text
+control/runtime_reference_templates/ETF_EU_MVP_OPERATOR_ACTION_REQUIRED_20260703.md
+```
+
+After operator values are supplied, run the MVP04 validator again before any dry-run execution.
