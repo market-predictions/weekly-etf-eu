@@ -69,15 +69,26 @@ ETF-EU-MVP04-FIX
 ETF-EU-MVP04-FIX-VALIDATE-ONLY-01
 ETF-EU-MVP04-FIX-VALIDATE-ONLY-02
 ETF-EU-MVP05
+ETF-EU-MVP06
 ```
 
-## Latest completed package — ETF-EU-MVP05
+## Latest completed package — ETF-EU-MVP06
 
 ```text
 repository=market-predictions/weekly-etf-eu
-work_package_id=ETF-EU-MVP05
-status=completed_sender_entrypoint_validation_scaffold
-source_work_package=ETF-EU-MVP04-FIX-VALIDATE-ONLY-02
+work_package_id=ETF-EU-MVP06
+status=completed_sender_entrypoint_validated_no_send
+source_work_package=ETF-EU-MVP05
+eu_sender_entrypoint_created=true
+eu_sender_entrypoint_selected=true
+eu_sender_entrypoint_selected_path=runtime/send_etf_eu_report_runtime_html.py
+sender_entrypoint_validated=true
+sender_entrypoint_validation_status=validated_no_send
+preflight_no_send_mode_supported=true
+dutch_primary_supported=true
+english_companion_supported=true
+us_report_name_assumption_detected=false
+non_canonical_artifacts_ignored=true
 latest_validated_workflow_mode=dry_run
 validate_only_status=green
 dry_run_status=green
@@ -85,15 +96,11 @@ latest_delivery_manifest=output/delivery/etf_eu_delivery_manifest_20260708_14284
 latest_run_bundle=output/runs/20260708_142840/etf_eu_run_bundle_manifest.json
 delivery_manifest_validation=passed
 run_bundle_validation=passed
-delivery_manifest_status=available
 delivery_enabled=false
 production_delivery=false
 email_delivery=false
-pdf_generation=false
 delivery_receipt=false
-sender_entrypoint_validation_created=true
-sender_entrypoint_inventory_created=true
-sender_entrypoint_validated=false
+send_performed=false
 send_enablement_allowed=false
 delivery_mode_send_unlocked=false
 workflow_send_guard_present=true
@@ -110,28 +117,28 @@ pricing_evidence_changed=false
 source_pdf_replaced=false
 new_pdf_created=false
 renderer_changed=false
-selected_next_package=ETF-EU-MVP06
-selected_next_package_title=ETF EU sender entrypoint implementation or validation
+selected_next_package=ETF-EU-MVP07
+selected_next_package_title=ETF EU manifest transition and controlled-send preflight
 ```
 
-## MVP05 answer
+## MVP06 answer
 
 ```text
-validate_only and dry_run are green. Delivery manifest and run bundle validation passed for run 20260708_142840. MVP05 created sender-entrypoint validation and controlled-send enablement rules. MVP05 did not send the report, did not remove the workflow send guard, and did not claim delivery success. The next package is ETF-EU-MVP06.
+MVP06 implemented and validated an EU-specific no-send sender preflight entrypoint. The entrypoint selects canonical EU Dutch primary and English companion reports, ignores non-canonical draft artifacts, and does not use inherited U.S. report-name assumptions. MVP06 did not send the report, did not unlock delivery_mode=send, and did not remove the workflow send guard. The next package is ETF-EU-MVP07.
 ```
 
 ## Active product roadmap
 
 ```text
-ETF-EU-MVP06 — ETF EU sender entrypoint implementation or validation
+ETF-EU-MVP07 — ETF EU manifest transition and controlled-send preflight
 ```
 
 ## Immediate next action
 
-Start ETF-EU-MVP06.
+Start ETF-EU-MVP07.
 
 Goal:
 
 ```text
-Implement or validate an EU-specific sender entrypoint that preserves Dutch-primary and English companion semantics, supports a preflight/no-send mode, integrates with delivery and run manifests, and keeps delivery_mode=send locked until controlled-send evidence is complete.
+Validate delivery manifest transition and controlled-send preflight rules using the EU sender preflight entrypoint, while keeping delivery_mode=send locked until receipt and success-claim evidence rules are complete.
 ```
