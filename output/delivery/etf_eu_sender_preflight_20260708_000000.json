@@ -1,0 +1,20 @@
+{
+  "schema_version": "etf_eu_sender_preflight_v1",
+  "delivery_mode": "preflight_no_send",
+  "report_suffix": "260708",
+  "dutch_primary_report_path": "output/weekly_etf_eu_review_nl_260708.md",
+  "english_companion_report_path": "output/weekly_etf_eu_review_260708.md",
+  "dutch_primary_exists": true,
+  "english_companion_exists": true,
+  "non_canonical_artifacts_ignored": true,
+  "non_canonical_artifacts_ignored_count": 1,
+  "ignored_non_canonical_artifacts": ["weekly_etf_eu_review_260618_draft.md"],
+  "us_report_name_assumption_detected": false,
+  "us_named_artifacts_ignored": [],
+  "preflight_no_send_mode_supported": true,
+  "send_performed": false,
+  "production_delivery": false,
+  "email_delivery": false,
+  "delivery_receipt": false,
+  "delivery_success_claimed": false
+}
