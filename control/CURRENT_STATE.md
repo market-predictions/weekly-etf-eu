@@ -2,7 +2,7 @@
 
 ## Snapshot date
 
-2026-07-04
+2026-07-08
 
 ## Repository identity
 
@@ -66,15 +66,44 @@ ETF-EU-MVP02
 ETF-EU-MVP03
 ETF-EU-MVP04
 ETF-EU-MVP04-FIX
+ETF-EU-MVP04-FIX-VALIDATE-ONLY-01
 ```
 
-## Latest completed package — ETF-EU-MVP04-FIX
+## Latest completed package — ETF-EU-MVP04-FIX-VALIDATE-ONLY-01
 
 ```text
 repository=market-predictions/weekly-etf-eu
-work_package_id=ETF-EU-MVP04-FIX
-status=completed_rolemodel_delivery_alignment
-source_work_package=ETF-EU-MVP04
+work_package_id=ETF-EU-MVP04-FIX-VALIDATE-ONLY-01
+status=completed_output_contract_validator_hardening
+source_work_package=ETF-EU-MVP04-FIX
+failure_step=Validate EU output, pricing surface and fundability contracts
+failure_reason=validator selected non-canonical legacy draft artifact before suffix filtering
+unexpected_filename=weekly_etf_eu_review_260618_draft.md
+fix_type=validator_selection_hardening
+validator_updated=tools/validate_etf_eu_output_contract.py
+regression_test_added=tests/test_etf_eu_output_contract_non_canonical_artifacts.py
+non_canonical_eu_report_artifacts_ignored=true
+canonical_report_suffix_filter_preserved=true
+current_run_suffix_validation_preserved=true
+legacy_draft_artifact_deleted=false
+production_delivery=false
+workflow_message_sent=false
+delivery_success_claimed=false
+portfolio_mutation=false
+candidate_promotion=false
+funding_authority=false
+valuation_grade=false
+pricing_evidence_changed=false
+source_pdf_replaced=false
+new_pdf_created=false
+renderer_changed=false
+selected_next_package=RERUN_WORKFLOW_VALIDATE_ONLY
+selected_next_package_title=Rerun ETF EU workflow with delivery_mode validate_only
+```
+
+## Previous completed package — ETF-EU-MVP04-FIX
+
+```text
 manual_evidence_route_superseded=true
 operator_reference_template_required_for_delivery=false
 operator_hash_requirement_removed=true
@@ -86,56 +115,33 @@ dry_run_mode_declared=true
 send_mode_declared=true
 send_mode_blocked_until_eu_sender_validated=true
 rolemodel_secret_names_declared=true
-secret_values_exposed=false
-recipient_plaintext_values_exposed=false
 delivery_workflow_alignment_status=rolemodel_gated_safe_default
 delivery_execution_status=validate_only_or_dry_run_ready
 send_execution_status=blocked_pending_eu_sender_entrypoint_validation
-delivery_manifest_framework_exists=true
-run_bundle_manifest_framework_exists=true
-manual_operator_action_required_status=superseded_by_workflow_alignment
-operator_action_required=false
 selected_next_package=RUN_WORKFLOW_VALIDATE_ONLY_OR_DRY_RUN
-selected_next_package_title=Run ETF EU workflow with delivery_mode validate_only first, then dry_run if green
-selected_next_package_is_mvp05=false
-selected_next_package_is_wp15=false
-production_delivery=false
-send_performed=false
-email_delivery=false
-delivery_success_claimed=false
-delivery_success_claim_allowed=false
-manifest_required_for_success_claim=true
-portfolio_mutation=false
-candidate_promotion=false
-funding_authority=false
-valuation_grade=false
-pricing_evidence_changed=false
-source_pdf_replaced=false
-new_pdf_created=false
-renderer_changed=false
 ```
 
-## MVP04-FIX delivery alignment answer
+## Validate-only failure fix answer
 
 ```text
-Do I need to fill the operator evidence reference template? No. MVP04-FIX supersedes that manual route. ETF EU delivery now follows the weekly-etf rolemodel direction: workflow_dispatch delivery_mode, GitHub secret names declared in the workflow, delivery manifest framework, run bundle framework, and no delivery-success claim without manifest evidence. The next step is to run the ETF EU workflow with delivery_mode=validate_only, then delivery_mode=dry_run if validate_only is green. delivery_mode=send remains blocked until an EU-specific sender entrypoint is validated.
+The validate_only workflow failed because tools/validate_etf_eu_output_contract.py selected a non-canonical legacy draft artifact, weekly_etf_eu_review_260618_draft.md, before applying the current run suffix filter. The validator now ignores non-canonical EU report artifacts with a warning and validates only canonical report filenames for the requested suffix. No legacy artifact was deleted and no delivery action was performed.
 ```
 
 ## Active product roadmap
 
 ```text
-RUN_WORKFLOW_VALIDATE_ONLY_OR_DRY_RUN — run ETF EU workflow with delivery_mode=validate_only, then dry_run if green
+RERUN_WORKFLOW_VALIDATE_ONLY — rerun ETF EU workflow with delivery_mode=validate_only
 ```
 
 ## Immediate next action
 
-In GitHub Actions, run:
+In GitHub Actions, rerun:
 
 ```text
 Weekly ETF EU UCITS rolemodel delivery workflow
 ```
 
-First with:
+Choose:
 
 ```text
 delivery_mode=validate_only
