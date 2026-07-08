@@ -8,6 +8,11 @@ from typing import Any
 
 ALLOWED_DELIVERY_STATUSES = {
     "not_attempted",
+    "attempt_pending",
+    "transport_succeeded_unconfirmed",
+    "transport_failed",
+    "receipt_confirmed",
+    "receipt_not_found_after_delay",
     "smtp_sendmail_returned_no_exception",
     "smtp_sendmail_failed",
     "evidence_invalid",
@@ -74,14 +79,14 @@ def build_etf_eu_delivery_evidence(
 ) -> dict[str, object]:
     _require(delivery_status in ALLOWED_DELIVERY_STATUSES, f"unsupported delivery_status={delivery_status}")
     _require(bool(delivery_status_meaning), "delivery_status_meaning required")
-    if delivery_status == "smtp_sendmail_returned_no_exception":
-        _require(SUCCESS_CAVEAT in delivery_status_meaning, "transport success evidence must include inbox-receipt caveat")
+    if delivery_status in {"smtp_sendmail_returned_no_exception", "transport_succeeded_unconfirmed"}:
+        _require(SUCCESS_CAVEAT in delivery_status_meaning, "transport-layer evidence must include inbox-receipt caveat")
     _validate_language_evidence(languages, pdf_generation=False)
     delivery_success = delivery_status == "smtp_sendmail_returned_no_exception"
     email_delivery = delivery_success
     production_delivery = delivery_success
-    delivery_receipt = delivery_success
-    if delivery_status == "not_attempted":
+    delivery_receipt = delivery_status == "receipt_confirmed"
+    if delivery_status in {"not_attempted", "attempt_pending", "transport_failed", "receipt_not_found_after_delay", "transport_succeeded_unconfirmed"}:
         delivery_success = False
         email_delivery = False
         production_delivery = False
@@ -111,7 +116,8 @@ def build_etf_eu_delivery_evidence(
         "pdf_generation": False,
         "delivery_receipt": delivery_receipt,
         "delivery_success": delivery_success,
-        "delivery_error": None if delivery_status == "not_attempted" else source.get("delivery_error"),
+        "delivery_error": None if delivery_status in {"not_attempted", "attempt_pending"} else source.get("delivery_error"),
+        "receipt_status": "receipt_confirmed" if delivery_receipt else delivery_status,
     }
 
 
@@ -150,25 +156,20 @@ def write_etf_eu_delivery_evidence(
         generated_at_utc=generated_at_utc,
     )
     path = output_dir / f"etf_eu_delivery_evidence_{run_id}.json"
-    path.write_text(json.dumps(evidence, indent=2, sort_keys=True), encoding="utf-8")
+    path.write_text(json.dumps(evidence, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     return path
 
 
-def main() -> None:
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--output-dir", default="output/delivery")
-    parser.add_argument("--fixture", action="store_true")
-    args = parser.parse_args()
-    if not args.fixture:
-        raise SystemExit("Use --fixture in MVP09. Real transport evidence is not created by this writer package.")
-    languages = [
+def _fixture_languages(*, report_suffix: str, run_id: str, mode: str, source_manifest_type: str) -> list[dict[str, object]]:
+    timestamp = _utc_now()
+    return [
         {
             "language": "nl",
-            "report_path": "output/weekly_etf_eu_review_nl_260708.md",
-            "source_manifest_path": "output/delivery/etf_eu_sender_preflight_20260708_000000.json",
-            "source_manifest_type": "mvp09_fixture_no_send_evidence",
-            "timestamp_utc": "2026-07-08T00:00:00Z",
-            "mode": "fixture_no_send",
+            "report_path": f"output/weekly_etf_eu_review_nl_{report_suffix}.md",
+            "source_manifest_path": f"output/delivery/etf_eu_delivery_manifest_{run_id}.json",
+            "source_manifest_type": source_manifest_type,
+            "timestamp_utc": timestamp,
+            "mode": mode,
             "report": "Dutch primary client report",
             "recipient_hash": "sha256:redacted-nl-fixture",
             "recipient_redacted": True,
@@ -180,11 +181,11 @@ def main() -> None:
         },
         {
             "language": "en",
-            "report_path": "output/weekly_etf_eu_review_260708.md",
-            "source_manifest_path": "output/delivery/etf_eu_sender_preflight_20260708_000000.json",
-            "source_manifest_type": "mvp09_fixture_no_send_evidence",
-            "timestamp_utc": "2026-07-08T00:00:00Z",
-            "mode": "fixture_no_send",
+            "report_path": f"output/weekly_etf_eu_review_{report_suffix}.md",
+            "source_manifest_path": f"output/delivery/etf_eu_delivery_manifest_{run_id}.json",
+            "source_manifest_type": source_manifest_type,
+            "timestamp_utc": timestamp,
+            "mode": mode,
             "report": "English companion report",
             "recipient_hash": "sha256:redacted-en-fixture",
             "recipient_redacted": True,
@@ -195,6 +196,57 @@ def main() -> None:
             "pdf_attachments": [],
         },
     ]
+
+
+def _write_mvp15_static(args: argparse.Namespace) -> Path:
+    stage = args.stage
+    status = "attempt_pending" if stage == "pre" else "not_attempted"
+    meaning = (
+        "MVP15 pre-transport evidence placeholder; no outbound delivery executed"
+        if stage == "pre"
+        else "MVP15 post-transport evidence placeholder; no outbound delivery executed"
+    )
+    return write_etf_eu_delivery_evidence(
+        Path(args.output_dir),
+        run_id=args.run_id,
+        report_date=args.report_date,
+        report_suffix=args.report_suffix,
+        sender_entrypoint_path=Path("runtime/send_etf_eu_report_runtime_html.py"),
+        dutch_primary_report_path=Path(f"output/weekly_etf_eu_review_nl_{args.report_suffix}.md"),
+        english_companion_report_path=Path(f"output/weekly_etf_eu_review_{args.report_suffix}.md"),
+        controlled_send_preflight_manifest=Path(f"output/delivery/etf_eu_delivery_manifest_{args.run_id}.json"),
+        base_delivery_manifest=Path(f"output/delivery/etf_eu_delivery_manifest_{args.run_id}.json"),
+        delivery_status=status,
+        delivery_status_meaning=meaning,
+        languages=_fixture_languages(run_id=args.run_id, report_suffix=args.report_suffix, mode=f"mvp15_static_{stage}", source_manifest_type="mvp15_static_guarded_evidence"),
+        source={"writer": "runtime/write_etf_eu_delivery_evidence.py", "basis": f"mvp15_static_{stage}", "transport_executed": False},
+    )
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--output-dir", default="output/delivery")
+    parser.add_argument("--fixture", action="store_true")
+    parser.add_argument("--mvp15-static", action="store_true")
+    parser.add_argument("--stage", choices=["pre", "post"], default="pre")
+    parser.add_argument("--run-id", default="20260708_000000")
+    parser.add_argument("--report-date", default="2026-07-08")
+    parser.add_argument("--report-suffix", default="260708")
+    args = parser.parse_args()
+    if args.mvp15_static:
+        path = _write_mvp15_static(args)
+        print(f"ETF_EU_MVP15_STATIC_DELIVERY_EVIDENCE_OK | stage={args.stage} | evidence={path}")
+        return
+    if not args.fixture:
+        raise SystemExit("Use --fixture or --mvp15-static. Real transport evidence is not created by this writer package.")
+    languages = _fixture_languages(
+        run_id="20260708_000000",
+        report_suffix="260708",
+        mode="fixture_no_send",
+        source_manifest_type="mvp09_fixture_no_send_evidence",
+    )
+    for row in languages:
+        row["source_manifest_path"] = "output/delivery/etf_eu_sender_preflight_20260708_000000.json"
     path = write_etf_eu_delivery_evidence(
         Path(args.output_dir),
         run_id="20260708_000000",
