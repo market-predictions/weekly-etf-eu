@@ -70,35 +70,34 @@ ETF-EU-MVP04-FIX-VALIDATE-ONLY-01
 ETF-EU-MVP04-FIX-VALIDATE-ONLY-02
 ETF-EU-MVP05
 ETF-EU-MVP06
+ETF-EU-MVP07
 ```
 
-## Latest completed package — ETF-EU-MVP06
+## Latest completed package — ETF-EU-MVP07
 
 ```text
 repository=market-predictions/weekly-etf-eu
-work_package_id=ETF-EU-MVP06
-status=completed_sender_entrypoint_validated_no_send
-source_work_package=ETF-EU-MVP05
-eu_sender_entrypoint_created=true
-eu_sender_entrypoint_selected=true
-eu_sender_entrypoint_selected_path=runtime/send_etf_eu_report_runtime_html.py
+work_package_id=ETF-EU-MVP07
+status=completed_manifest_transition_controlled_send_preflight
+source_work_package=ETF-EU-MVP06
 sender_entrypoint_validated=true
 sender_entrypoint_validation_status=validated_no_send
-preflight_no_send_mode_supported=true
-dutch_primary_supported=true
-english_companion_supported=true
-us_report_name_assumption_detected=false
-non_canonical_artifacts_ignored=true
-latest_validated_workflow_mode=dry_run
-validate_only_status=green
-dry_run_status=green
-latest_delivery_manifest=output/delivery/etf_eu_delivery_manifest_20260708_142840.json
-latest_run_bundle=output/runs/20260708_142840/etf_eu_run_bundle_manifest.json
-delivery_manifest_validation=passed
-run_bundle_validation=passed
+manifest_transition_created=true
+manifest_transition_validated=true
+manifest_transition_status=ready_for_future_delivery
+controlled_send_preflight_created=true
+controlled_send_preflight_validated=true
+controlled_send_preflight_status=ready_for_future_delivery
+sender_preflight_artifact=output/delivery/etf_eu_sender_preflight_20260708_000000.json
+controlled_send_preflight_manifest=output/delivery/etf_eu_controlled_send_preflight_manifest_20260708_000000.json
+base_delivery_manifest=output/delivery/etf_eu_delivery_manifest_20260708_142840.json
+receipt_path_reserved=true
+receipt_file_created=false
+receipt_status=pending
 delivery_enabled=false
 production_delivery=false
 email_delivery=false
+pdf_generation=false
 delivery_receipt=false
 send_performed=false
 send_enablement_allowed=false
@@ -117,28 +116,28 @@ pricing_evidence_changed=false
 source_pdf_replaced=false
 new_pdf_created=false
 renderer_changed=false
-selected_next_package=ETF-EU-MVP07
-selected_next_package_title=ETF EU manifest transition and controlled-send preflight
+selected_next_package=ETF-EU-MVP08
+selected_next_package_title=ETF EU controlled-send unlock or receipt contract
 ```
 
-## MVP06 answer
+## MVP07 answer
 
 ```text
-MVP06 implemented and validated an EU-specific no-send sender preflight entrypoint. The entrypoint selects canonical EU Dutch primary and English companion reports, ignores non-canonical draft artifacts, and does not use inherited U.S. report-name assumptions. MVP06 did not send the report, did not unlock delivery_mode=send, and did not remove the workflow send guard. The next package is ETF-EU-MVP07.
+MVP07 created and validated a controlled-send preflight manifest using ready_for_future_delivery with delivery_enabled=false. The receipt path is reserved but no receipt file was created. No outbound delivery was performed, delivery_mode=send remains locked, the workflow guard remains present, and no delivery success was claimed. The next package is ETF-EU-MVP08.
 ```
 
 ## Active product roadmap
 
 ```text
-ETF-EU-MVP07 — ETF EU manifest transition and controlled-send preflight
+ETF-EU-MVP08 — ETF EU controlled-send unlock or receipt contract
 ```
 
 ## Immediate next action
 
-Start ETF-EU-MVP07.
+Start ETF-EU-MVP08.
 
 Goal:
 
 ```text
-Validate delivery manifest transition and controlled-send preflight rules using the EU sender preflight entrypoint, while keeping delivery_mode=send locked until receipt and success-claim evidence rules are complete.
+Define the controlled-send unlock or receipt contract after MVP07 validated the preflight manifest transition. Do not send until the unlock and receipt-evidence conditions are explicit and tested.
 ```
