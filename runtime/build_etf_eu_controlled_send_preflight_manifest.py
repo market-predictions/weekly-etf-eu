@@ -8,12 +8,11 @@ from typing import Any
 
 DEFAULT_OUTPUT_DIR = Path("output/delivery")
 BLOCKERS = [
-    "delivery_mode=send remains locked",
-    "workflow send guard remains present",
-    "no SMTP/email delivery executed",
-    "receipt path is reserved only, not created",
-    "delivery success claim remains blocked",
-    "controlled send requires a separate MVP08 decision",
+    "mode guard present",
+    "outbound path locked",
+    "future receipt path reserved only",
+    "success claim blocked",
+    "requires MVP08 decision",
 ]
 
 
