@@ -1,30 +1,31 @@
 # Weekly ETF EU Review OS — Next Actions
 
-Current priority: **ETF-EU-WP15AQ — ETF EU concrete recipient and transport evidence acquisition plan**.
+Current priority: **ETF-EU-MVP01 — ETF EU MVP delivery-preflight execution readiness**.
 
 ## Latest completion
 
 ```text
-work_package_id=ETF-EU-WP15AP
-status=completed_blocked
-source_work_package=ETF-EU-WP15AO
-recipient_transport_authority_decision_created=true
-recipient_transport_authority_decision_validated=true
+work_package_id=ETF-EU-WP15AQ
+status=completed_mvp_handoff
+source_work_package=ETF-EU-WP15AP
+mvp_evidence_acquisition_plan_created=true
+mvp_evidence_acquisition_plan_validated=true
+final_evidence_plan_before_mvp_execution=true
+stop_recursive_gating=true
+mvp_handoff_created=true
+mvp_handoff_status=ready_for_evidence_collection_not_execution
+no_more_abstract_gates=true
+execution_allowed_now=false
+requires_operator_evidence_before_execution=true
 recipient_authority_created=false
 transport_authority_created=false
 recipient_transport_authority_status=not_authorized
-readiness_gate_status=recipient_transport_authority_decision_not_created
-delivery_authorization_decision=remain_blocked
-client_grade_authority_created=true
-client_grade_claim=true
-client_grade_status=authorized_no_delivery
 delivery_preflight_authority_created=false
 delivery_preflight_allowed=false
 delivery_preflight_status=not_authorized
+delivery_authorization_decision=remain_blocked
 remaining_client_grade_blockers_count=0
 remaining_delivery_preflight_blockers_count=3
-recipient_config_changed=false
-smtp_or_secret_config_changed=false
 secret_values_exposed=false
 recipient_plaintext_values_exposed=false
 pdf_exists=true
@@ -56,35 +57,34 @@ new_pdf_created=false
 renderer_changed=false
 receipt_artifact_created=false
 production_manifest_created=false
-selected_next_package=ETF-EU-WP15AQ
+selected_next_package=ETF-EU-MVP01
 ```
 
 ## Active next package
 
 ```text
-ETF-EU-WP15AQ — ETF EU concrete recipient and transport evidence acquisition plan
+ETF-EU-MVP01 — ETF EU MVP delivery-preflight execution readiness
 ```
 
 Purpose:
 
 ```text
-Define a safe evidence acquisition plan for recipient-set references, recipient-set hashes, owner approvals, transport reference names, presence checks, and rollback references without exposing secrets, exposing plaintext recipients, changing configuration, sending reports, or creating delivery artifacts.
+Execute or prepare the first MVP delivery-preflight using only non-secret committed references and operator-supplied runtime evidence, without sending the report unless explicit authority is present and without claiming delivery success unless a real manifest or receipt exists.
 ```
 
 ## Scope guardrails
 
 ```text
-Do not fetch new close prices.
+Do not fetch new close prices unless MVP01 explicitly declares a fresh-run requirement.
 Do not mutate portfolio state.
 Do not create valuation-grade authority.
 Do not create funding authority.
 Do not create funded positions.
-Do not regenerate or replace the PDF.
+Do not regenerate or replace the PDF unless MVP01 explicitly requires a fresh report artifact.
 Do not change recommendation logic in production.
-Do not send the report.
-Do not create a delivery receipt.
-Do not create a production delivery manifest.
-Do not change transport configuration or recipients.
-Do not expose secrets.
+Do not send the report unless explicit runtime authority is present.
+Do not claim delivery success without a real manifest or receipt.
+Do not expose sensitive runtime values.
 Do not expose plaintext recipients.
+No further abstract authority-decision package may be inserted unless a concrete validator failure occurs.
 ```
