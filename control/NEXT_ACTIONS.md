@@ -1,31 +1,32 @@
 # Weekly ETF EU Review OS — Next Actions
 
-Current priority: **ETF-EU-MVP09 — ETF EU controlled-send implementation with delivery evidence**.
+Current priority: **ETF-EU-MVP10 — ETF EU controlled-send workflow integration or guard replacement**.
 
 ## Latest completion
 
 ```text
-work_package_id=ETF-EU-MVP08
-status=completed_controlled_send_delivery_evidence_contract
-source_work_package=ETF-EU-MVP07
-controlled_send_delivery_evidence_contract_created=true
-controlled_send_delivery_evidence_contract_validated=true
-delivery_evidence_status=contract_defined_not_executed
-future_delivery_status_values_defined=true
-delivery_status_caveat_required=true
-recipient_redaction_policy_defined=true
+work_package_id=ETF-EU-MVP09
+status=completed_controlled_send_delivery_evidence_implementation
+source_work_package=ETF-EU-MVP08
+delivery_evidence_writer_created=true
+delivery_evidence_validator_created=true
+run_bundle_delivery_evidence_validator_created=true
+delivery_evidence_fixture_created=true
+delivery_evidence_fixture_validated=true
+run_bundle_delivery_evidence_fixture_created=true
+run_bundle_delivery_evidence_fixture_validated=true
+delivery_evidence_path=output/delivery/etf_eu_delivery_evidence_20260708_000000.json
+run_bundle_delivery_evidence_fixture=output/runs/20260708_000000/etf_eu_run_bundle_delivery_evidence_fixture.json
+delivery_evidence_status=not_attempted
 recipient_data_policy=redacted_hash_only
-language_evidence_schema_defined=true
 required_languages=nl,en
 dutch_primary_language=nl
 english_companion_language=en
-pdf_evidence_rule_defined=true
+future_success_status_supported=true
+future_success_status_requires_caveat=true
 final_run_bundle_reference_required=true
 evidence_validator_required=true
-failure_closed_behavior_required=true
-success_claim_requires_validated_evidence=true
 sender_entrypoint_validated=true
-sender_entrypoint_validation_status=validated_no_send
 controlled_send_preflight_validated=true
 controlled_send_preflight_status=ready_for_future_delivery
 receipt_file_created=false
@@ -39,6 +40,7 @@ send_enablement_allowed=false
 delivery_mode_send_unlocked=false
 workflow_send_guard_present=true
 workflow_send_guard_removed=false
+delivery_success=false
 delivery_success_claimed=false
 delivery_success_claim_allowed=false
 secret_values_exposed=false
@@ -51,25 +53,25 @@ pricing_evidence_changed=false
 source_pdf_replaced=false
 new_pdf_created=false
 renderer_changed=false
-selected_next_package=ETF-EU-MVP09
+selected_next_package=ETF-EU-MVP10
 ```
 
 ## Active next package
 
 ```text
-ETF-EU-MVP09 — ETF EU controlled-send implementation with delivery evidence
+ETF-EU-MVP10 — ETF EU controlled-send workflow integration or guard replacement
 ```
 
 Purpose:
 
 ```text
-Implement the controlled-send delivery evidence writer and validator for ETF EU, using the MVP08 contract and the weekly-etf rolemodel pattern, while preserving guarded execution until the implementation evidence is validated.
+Integrate the MVP09 evidence writer and validator chain into the workflow as a guarded path, or define a tested replacement guard. Do not use the protected delivery path until workflow integration evidence is green.
 ```
 
 ## Scope guardrails
 
 ```text
-Do not use the protected delivery path until MVP09 explicitly validates the evidence writer and validator.
+Do not use the protected delivery path until MVP10 validates workflow integration evidence.
 Do not remove the workflow guard without a tested replacement guard.
 Do not claim delivery success without validated delivery evidence.
 Do not mutate portfolio state.
