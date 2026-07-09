@@ -16,7 +16,8 @@ REQUIRED_ROW_FIELDS = {
     'basket_id', 'fund_name', 'isin', 'instrument_type', 'exchange', 'venue_code', 'ticker',
     'provider_symbol_yahoo', 'currency', 'verification_status', 'pricing_status', 'close_date',
     'close_price', 'source_id', 'source_name', 'source_quality_status', 'source_agreement_status',
-    'observed_at_utc', 'valuation_grade', 'fundable', 'blockers'
+    'observed_at_utc', 'valuation_grade', 'fundable', 'blockers', 'request_index', 'attempt_count',
+    'rate_limited', 'pause_seconds_before_request', 'rate_limit_cooldown_seconds'
 }
 
 
@@ -28,6 +29,13 @@ def validate(path: Path) -> dict[str, Any]:
     assert data['funding_authority'] is False
     assert data['portfolio_mutation'] is False
     assert data['production_delivery_authority'] is False
+    throttle = data.get('throttle_policy') or {}
+    assert throttle['source'] == 'yahoo_yfinance'
+    assert throttle['official_published_limit_found'] is False
+    assert throttle['requests_are_serialized'] is True
+    assert float(throttle['pause_seconds_between_symbols']) >= 10.0
+    assert float(throttle['rate_limit_cooldown_seconds']) >= 300.0
+    assert int(throttle['max_attempts_per_symbol']) >= 1
     rows = list(data.get('rows') or [])
     assert data['line_count'] == len(rows)
     assert len(rows) >= 8
@@ -47,6 +55,10 @@ def validate(path: Path) -> dict[str, Any]:
         assert isinstance(row['blockers'], list)
         assert row['source_quality_status'] == 'non_authoritative_connectivity_only'
         assert row['source_agreement_status'] == 'not_agreement_gate_not_valuation_grade'
+        assert int(row['request_index']) >= 1
+        if int(row['request_index']) > 1:
+            assert float(row['pause_seconds_before_request']) >= 10.0
+        assert float(row['rate_limit_cooldown_seconds']) >= 300.0
         if row['pricing_status'] == 'priced_non_authoritative':
             assert row['close_price'] is not None
             assert float(row['close_price']) > 0
@@ -66,6 +78,7 @@ def validate(path: Path) -> dict[str, Any]:
         'currency_count': len(currencies),
         'valuation_grade': False,
         'funding_authority': False,
+        'throttle_policy': throttle,
     }
 
 
