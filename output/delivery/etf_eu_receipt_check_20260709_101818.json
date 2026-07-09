@@ -1,0 +1,16 @@
+{
+  "artifact_type": "etf_eu_delivery_receipt_check",
+  "check_target": "recipient_mailbox_or_receipt_source",
+  "delay_minutes": 10,
+  "delivery_success_claimed": false,
+  "evidence_path": "output/delivery/etf_eu_delivery_evidence_20260709_101818.json",
+  "generated_at_utc": "2026-07-09T10:18:22Z",
+  "mvp15_static": false,
+  "receipt_confirmed": false,
+  "receipt_status": "receipt_not_found_after_delay",
+  "recipient_plaintext_values_exposed": false,
+  "run_id": "20260709_101818",
+  "schema_version": "etf_eu_delivery_receipt_check_v1",
+  "secret_values_exposed": false,
+  "transport_success_not_inbox_receipt": true
+}

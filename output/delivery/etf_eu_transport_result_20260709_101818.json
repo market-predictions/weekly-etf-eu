@@ -1,0 +1,37 @@
+{
+  "artifact_type": "etf_eu_controlled_transport_result",
+  "completion_claimed": false,
+  "delivery_error": null,
+  "funding_authority": false,
+  "generated_at_utc": "2026-07-09T10:18:22Z",
+  "languages": [
+    {
+      "language": "nl",
+      "recipient_hash": "sha256:602badb30fe408fccf59e816bc5666ad80064d8436a7431767b7bc98b8234ad3",
+      "recipient_redacted": true,
+      "report_path": "output/weekly_etf_eu_review_nl_260708.md"
+    },
+    {
+      "language": "en",
+      "recipient_hash": "sha256:602badb30fe408fccf59e816bc5666ad80064d8436a7431767b7bc98b8234ad3",
+      "recipient_redacted": true,
+      "report_path": "output/weekly_etf_eu_review_260708.md"
+    }
+  ],
+  "portfolio_mutation": false,
+  "real_sender_entrypoint_called": true,
+  "receipt_confirmed": false,
+  "recipient_data_policy": "redacted_hash_only",
+  "recipient_plaintext_values_exposed": false,
+  "report_date": "2026-07-09",
+  "report_suffix": "260708",
+  "run_id": "20260709_101818",
+  "schema_version": "etf_eu_controlled_transport_result_v1",
+  "secret_values_exposed": false,
+  "sender_entrypoint_path": "runtime/send_etf_eu_controlled_report.py",
+  "transport_attempted": true,
+  "transport_status": "transport_succeeded_unconfirmed",
+  "transport_success_not_inbox_receipt": true,
+  "transport_success_unconfirmed": true,
+  "valuation_grade": false
+}
