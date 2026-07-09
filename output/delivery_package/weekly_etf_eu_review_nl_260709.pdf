@@ -1,0 +1,135 @@
+%PDF-1.4
+1 0 obj << /Type /Catalog /Pages 2 0 R >> endobj
+2 0 obj << /Type /Pages /Kids [3 0 R] /Count 1 >> endobj
+3 0 obj << /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >> endobj
+4 0 obj << /Type /Font /Subtype /Type1 /BaseFont /Helvetica >> endobj
+5 0 obj << /Length 3503 >> stream
+BT /F1 10 Tf
+72 780 Td (Weekly ETF EU Review NL) Tj
+0 -13 Td
+72 767 Td () Tj
+0 -13 Td
+72 754 Td (Weekly ETF EU Review Nederlands 2026-07-09) Tj
+0 -13 Td
+72 741 Td () Tj
+0 -13 Td
+72 728 Td (Pakketstatus: EU/UCITS-clientpakket in validatiefase. Dit rapport is geen koopadvies, geen) Tj
+0 -13 Td
+72 715 Td (portefeuille-opdracht en geen waarderingsautoriteit.) Tj
+0 -13 Td
+72 702 Td () Tj
+0 -13 Td
+72 689 Td (1. Kernsamenvatting) Tj
+0 -13 Td
+72 676 Td () Tj
+0 -13 Td
+72 663 Td (De EU/UCITS-versie gebruikt uitsluitend UCITS-handelslijnen als potentieel investeerbare) Tj
+0 -13 Td
+72 650 Td (instrumenten. Amerikaanse ETF-symbolen horen niet in de primaire clienttabel en worden) Tj
+0 -13 Td
+72 637 Td (alleen in de bijlage als onderzoeksreferentie bewaard.) Tj
+0 -13 Td
+72 624 Td () Tj
+0 -13 Td
+72 611 Td (- Modelstaat: cash-only, geen gefinancierde UCITS-posities.) Tj
+0 -13 Td
+72 598 Td (- Beslissing: nog geen allocatie; eerst datakwaliteit en handelslijnverificatie afronden.) Tj
+0 -13 Td
+72 585 Td (- Koersinformatie: alleen niet-autoritatieve connectiviteits- of diagnostische observatie) Tj
+0 -13 Td
+72 572 Td (totdat aparte waarderingslineage is goedgekeurd.) Tj
+0 -13 Td
+72 559 Td () Tj
+0 -13 Td
+72 546 Td (2. Portefeuille-overzicht) Tj
+0 -13 Td
+72 533 Td () Tj
+0 -13 Td
+72 520 Td (Component Waarde) Tj
+0 -13 Td
+72 507 Td (--- ---:) Tj
+0 -13 Td
+72 494 Td (Startkapitaal EUR 100000.00) Tj
+0 -13 Td
+72 481 Td (Cash EUR 100000.00) Tj
+0 -13 Td
+72 468 Td (Belegde marktwaarde EUR 0.00) Tj
+0 -13 Td
+72 455 Td (Totale portefeuillewaarde EUR 100000.00) Tj
+0 -13 Td
+72 442 Td (Gefinancierde posities 0) Tj
+0 -13 Td
+72 429 Td () Tj
+0 -13 Td
+72 416 Td (3. UCITS observatielijst) Tj
+0 -13 Td
+72 403 Td () Tj
+0 -13 Td
+72 390 Td (Deze tabel toont alleen ISIN-first UCITS-handelslijnen die voldoende zijn om in de primaire) Tj
+0 -13 Td
+72 377 Td (clientwatchlist te staan. Onopgeloste of beleidsmatige items staan niet in deze hoofdtabel.) Tj
+0 -13 Td
+72 364 Td () Tj
+0 -13 Td
+72 351 Td (Rol UCITS ETF ISIN Handelslijn Datastatus Portefeuille-status) Tj
+0 -13 Td
+72 338 Td (--- --- --- --- --- ---) Tj
+0 -13 Td
+72 325 Td (Core U.S. equity exposure iShares Core S&P 500 UCITS ETF USD \(Acc\) IE00B5BMR087 CSPX / USD /) Tj
+0 -13 Td
+72 312 Td (London Stock Exchange niet-autoritatieve close: 800.12 \(2026-07-08\) Niet gefinancierd; geen) Tj
+0 -13 Td
+72 299 Td (waarderings- of fundingautoriteit) Tj
+0 -13 Td
+72 286 Td (Core U.S. equity exposure iShares Core S&P 500 UCITS ETF USD \(Acc\) IE00B5BMR087 SXR8 / EUR /) Tj
+0 -13 Td
+72 273 Td (Xetra geen bruikbare close; diagnostiek vereist Niet gefinancierd; geen waarderings- of) Tj
+0 -13 Td
+72 260 Td (fundingautoriteit) Tj
+0 -13 Td
+72 247 Td () Tj
+0 -13 Td
+72 234 Td (4. Koersvalidatie en datakwaliteit) Tj
+0 -13 Td
+72 221 Td () Tj
+0 -13 Td
+72 208 Td (Koersen in dit pakket zijn diagnostisch. Een positieve close in de pipeline bewijst) Tj
+0 -13 Td
+72 195 Td (connectiviteit, maar creëert geen waarderingsautoriteit en geen fundingbesluit.) Tj
+0 -13 Td
+72 182 Td () Tj
+0 -13 Td
+72 169 Td (5. Besliscockpit / Volgende actie) Tj
+0 -13 Td
+72 156 Td () Tj
+0 -13 Td
+72 143 Td (Vraag Antwoord) Tj
+0 -13 Td
+72 130 Td (--- ---) Tj
+0 -13 Td
+72 117 Td (Is er een gefinancierde positie? Nee) Tj
+0 -13 Td
+72 104 Td (Is er koopadvies? Nee) Tj
+0 -13 Td
+72 91 Td (Is pricing valuation-grade? Nee) Tj
+0 -13 Td
+72 78 Td (Volgende stap PDF-pakket en UCITS close-fetch validatie afronden vóór gecontroleerde) Tj
+0 -13 Td
+72 65 Td (herverzending) Tj
+0 -13 Td
+72 52 Td () Tj
+0 -13 Td
+ET
+endstream endobj
+xref
+0 6
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000115 00000 n 
+0000000241 00000 n 
+0000000311 00000 n 
+trailer << /Size 6 /Root 1 0 R >>
+startxref
+3866
+%%EOF

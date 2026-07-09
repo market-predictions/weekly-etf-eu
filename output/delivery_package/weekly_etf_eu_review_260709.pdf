@@ -1,0 +1,135 @@
+%PDF-1.4
+1 0 obj << /Type /Catalog /Pages 2 0 R >> endobj
+2 0 obj << /Type /Pages /Kids [3 0 R] /Count 1 >> endobj
+3 0 obj << /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >> endobj
+4 0 obj << /Type /Font /Subtype /Type1 /BaseFont /Helvetica >> endobj
+5 0 obj << /Length 3435 >> stream
+BT /F1 10 Tf
+72 780 Td (Weekly ETF EU Review EN) Tj
+0 -13 Td
+72 767 Td () Tj
+0 -13 Td
+72 754 Td (Weekly ETF EU Review English Companion 2026-07-09) Tj
+0 -13 Td
+72 741 Td () Tj
+0 -13 Td
+72 728 Td (Package status: EU/UCITS client package under validation. This report is not advice, not a) Tj
+0 -13 Td
+72 715 Td (portfolio instruction and not valuation authority.) Tj
+0 -13 Td
+72 702 Td () Tj
+0 -13 Td
+72 689 Td (1. Executive summary) Tj
+0 -13 Td
+72 676 Td () Tj
+0 -13 Td
+72 663 Td (The EU/UCITS version uses UCITS trading lines only as potentially investable instruments.) Tj
+0 -13 Td
+72 650 Td (U.S. ETF symbols do not belong in the primary client table and are retained only in the) Tj
+0 -13 Td
+72 637 Td (appendix as research references.) Tj
+0 -13 Td
+72 624 Td () Tj
+0 -13 Td
+72 611 Td (- Model state: cash-only, no funded UCITS positions.) Tj
+0 -13 Td
+72 598 Td (- Decision: no allocation yet; complete data quality and trading-line verification first.) Tj
+0 -13 Td
+72 585 Td (- Price information: non-authoritative connectivity or diagnostics only until separate) Tj
+0 -13 Td
+72 572 Td (valuation lineage is approved.) Tj
+0 -13 Td
+72 559 Td () Tj
+0 -13 Td
+72 546 Td (2. Portfolio overview) Tj
+0 -13 Td
+72 533 Td () Tj
+0 -13 Td
+72 520 Td (Component Value) Tj
+0 -13 Td
+72 507 Td (--- ---:) Tj
+0 -13 Td
+72 494 Td (Starting capital EUR 100000.00) Tj
+0 -13 Td
+72 481 Td (Cash EUR 100000.00) Tj
+0 -13 Td
+72 468 Td (Invested market value EUR 0.00) Tj
+0 -13 Td
+72 455 Td (Total portfolio value EUR 100000.00) Tj
+0 -13 Td
+72 442 Td (Funded positions 0) Tj
+0 -13 Td
+72 429 Td () Tj
+0 -13 Td
+72 416 Td (3. UCITS watchlist) Tj
+0 -13 Td
+72 403 Td () Tj
+0 -13 Td
+72 390 Td (This table shows only ISIN-first UCITS trading lines that are clean enough for the primary) Tj
+0 -13 Td
+72 377 Td (client watchlist. Unresolved or policy-review items are excluded from this main table.) Tj
+0 -13 Td
+72 364 Td () Tj
+0 -13 Td
+72 351 Td (Role UCITS ETF ISIN Trading line Data status Portfolio status) Tj
+0 -13 Td
+72 338 Td (--- --- --- --- --- ---) Tj
+0 -13 Td
+72 325 Td (Core U.S. equity exposure iShares Core S&P 500 UCITS ETF USD \(Acc\) IE00B5BMR087 CSPX / USD /) Tj
+0 -13 Td
+72 312 Td (London Stock Exchange non-authoritative close: 800.12 \(2026-07-08\) Not funded; no valuation) Tj
+0 -13 Td
+72 299 Td (or funding authority) Tj
+0 -13 Td
+72 286 Td (Core U.S. equity exposure iShares Core S&P 500 UCITS ETF USD \(Acc\) IE00B5BMR087 SXR8 / EUR /) Tj
+0 -13 Td
+72 273 Td (Xetra no usable close; diagnostics required Not funded; no valuation or funding authority) Tj
+0 -13 Td
+72 260 Td () Tj
+0 -13 Td
+72 247 Td (4. Price validation and data quality) Tj
+0 -13 Td
+72 234 Td () Tj
+0 -13 Td
+72 221 Td (Prices in this package are diagnostic. A positive close in the pipeline proves connectivity,) Tj
+0 -13 Td
+72 208 Td (but it does not create valuation authority or a funding decision.) Tj
+0 -13 Td
+72 195 Td () Tj
+0 -13 Td
+72 182 Td (5. Decision cockpit / next action) Tj
+0 -13 Td
+72 169 Td () Tj
+0 -13 Td
+72 156 Td (Question Answer) Tj
+0 -13 Td
+72 143 Td (--- ---) Tj
+0 -13 Td
+72 130 Td (Is there a funded position? No) Tj
+0 -13 Td
+72 117 Td (Is this advice? No) Tj
+0 -13 Td
+72 104 Td (Is pricing valuation-grade? No) Tj
+0 -13 Td
+72 91 Td (Next step Complete PDF package and UCITS close-fetch validation before controlled resend) Tj
+0 -13 Td
+72 78 Td () Tj
+0 -13 Td
+72 65 Td (6. Appendix: research proxies and diagnostics) Tj
+0 -13 Td
+72 52 Td () Tj
+0 -13 Td
+ET
+endstream endobj
+xref
+0 6
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000115 00000 n 
+0000000241 00000 n 
+0000000311 00000 n 
+trailer << /Size 6 /Root 1 0 R >>
+startxref
+3798
+%%EOF
