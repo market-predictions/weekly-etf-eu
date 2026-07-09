@@ -63,12 +63,14 @@ def _try_yfinance_close(
     pause_seconds: float,
     rate_limit_cooldown_seconds: float,
     max_attempts: int,
-) -> tuple[str, float | None, str | None, str | None, list[str], int, bool]:
+    rate_limit_mode: str,
+) -> tuple[str, float | None, str | None, str | None, list[str], int, bool, bool]:
     blockers: list[str] = []
     yf = _configure_yfinance()
     if yf is None:
-        return 'fetch_failed', None, None, None, ['yfinance_not_available'], 0, False
+        return 'fetch_failed', None, None, None, ['yfinance_not_available'], 0, False, False
     rate_limited = False
+    stop_batch = False
     attempts = max(1, int(max_attempts))
     for attempt in range(1, attempts + 1):
         if attempt > 1:
@@ -79,23 +81,58 @@ def _try_yfinance_close(
             if _is_rate_limit_exception(exc):
                 rate_limited = True
                 blockers.append(f'yfinance_rate_limited_attempt_{attempt}:{type(exc).__name__}')
+                if rate_limit_mode == 'stop':
+                    blockers.append('batch_stopped_to_respect_yahoo_rate_limit')
+                    stop_batch = True
+                    return 'fetch_failed', None, None, None, blockers, attempt, rate_limited, stop_batch
                 if attempt < attempts:
                     time.sleep(max(0.0, rate_limit_cooldown_seconds))
                     continue
-                return 'fetch_failed', None, None, None, blockers, attempt, rate_limited
-            return 'fetch_failed', None, None, None, [f'yfinance_exception:{type(exc).__name__}'], attempt, rate_limited
+                return 'fetch_failed', None, None, None, blockers, attempt, rate_limited, stop_batch
+            return 'fetch_failed', None, None, None, [f'yfinance_exception:{type(exc).__name__}'], attempt, rate_limited, stop_batch
         if history is None or history.empty or 'Close' not in history:
-            return 'fetch_failed', None, None, None, ['no_close_history_returned'], attempt, rate_limited
+            return 'fetch_failed', None, None, None, ['no_close_history_returned'], attempt, rate_limited, stop_batch
         close_series = history['Close'].dropna()
         if close_series.empty:
-            return 'fetch_failed', None, None, None, ['no_non_null_close'], attempt, rate_limited
+            return 'fetch_failed', None, None, None, ['no_non_null_close'], attempt, rate_limited, stop_batch
         close_value = _usable_close(close_series.iloc[-1])
         close_index = close_series.index[-1]
         close_date = str(getattr(close_index, 'date', lambda: close_index)())
         if close_value is None:
-            return 'fetch_failed', None, close_date, _utc_now(), ['non_usable_close'], attempt, rate_limited
-        return 'priced_non_authoritative', close_value, close_date, _utc_now(), blockers, attempt, rate_limited
-    return 'fetch_failed', None, None, None, blockers or ['max_attempts_exhausted'], attempts, rate_limited
+            return 'fetch_failed', None, close_date, _utc_now(), ['non_usable_close'], attempt, rate_limited, stop_batch
+        return 'priced_non_authoritative', close_value, close_date, _utc_now(), blockers, attempt, rate_limited, stop_batch
+    return 'fetch_failed', None, None, None, blockers or ['max_attempts_exhausted'], attempts, rate_limited, stop_batch
+
+
+def _skipped_rate_limit_row(line: dict[str, Any], *, request_index: int, pause_seconds: float, rate_limit_cooldown_seconds: float) -> dict[str, Any]:
+    return {
+        'basket_id': line.get('basket_id'),
+        'fund_name': line.get('fund_name'),
+        'isin': line.get('isin'),
+        'instrument_type': line.get('instrument_type'),
+        'exchange': line.get('exchange'),
+        'venue_code': line.get('venue_code'),
+        'ticker': line.get('ticker'),
+        'provider_symbol_yahoo': str(line.get('provider_symbol_yahoo') or '').strip(),
+        'currency': line.get('currency'),
+        'verification_status': str(line.get('verification_status') or 'candidate_requires_verification'),
+        'pricing_status': 'fetch_failed',
+        'close_date': None,
+        'close_price': None,
+        'source_id': 'yahoo_yfinance',
+        'source_name': 'Yahoo/yfinance connectivity evidence',
+        'source_quality_status': 'non_authoritative_connectivity_only',
+        'source_agreement_status': 'not_agreement_gate_not_valuation_grade',
+        'observed_at_utc': _utc_now(),
+        'valuation_grade': False,
+        'fundable': False,
+        'blockers': ['not_attempted_due_to_prior_yahoo_rate_limit', 'batch_stopped_to_respect_yahoo_rate_limit'],
+        'request_index': request_index,
+        'attempt_count': 0,
+        'rate_limited': False,
+        'pause_seconds_before_request': 0.0,
+        'rate_limit_cooldown_seconds': rate_limit_cooldown_seconds,
+    }
 
 
 def _row_from_line(
@@ -104,12 +141,14 @@ def _row_from_line(
     pause_seconds: float,
     rate_limit_cooldown_seconds: float,
     max_attempts: int,
+    rate_limit_mode: str,
     request_index: int,
-) -> dict[str, Any]:
+) -> tuple[dict[str, Any], bool]:
     symbol = str(line.get('provider_symbol_yahoo') or '').strip()
     verification_status = str(line.get('verification_status') or 'candidate_requires_verification')
     attempt_count = 0
     rate_limited = False
+    stop_batch = False
     if verification_status == 'policy_review_required_not_ucits' or line.get('instrument_type') != 'UCITS ETF':
         status = 'policy_review_required_not_ucits'
         close_price = None
@@ -123,15 +162,16 @@ def _row_from_line(
         observed_at = _utc_now()
         blockers = ['missing_provider_symbol_yahoo']
     else:
-        status, close_price, close_date, observed_at, blockers, attempt_count, rate_limited = _try_yfinance_close(
+        status, close_price, close_date, observed_at, blockers, attempt_count, rate_limited, stop_batch = _try_yfinance_close(
             symbol,
             pause_seconds=pause_seconds,
             rate_limit_cooldown_seconds=rate_limit_cooldown_seconds,
             max_attempts=max_attempts,
+            rate_limit_mode=rate_limit_mode,
         )
         if verification_status == 'candidate_requires_verification' and status == 'priced_non_authoritative':
             blockers = blockers + ['identity_or_line_verification_pending']
-    return {
+    row = {
         'basket_id': line.get('basket_id'),
         'fund_name': line.get('fund_name'),
         'isin': line.get('isin'),
@@ -159,6 +199,7 @@ def _row_from_line(
         'pause_seconds_before_request': pause_seconds if request_index > 1 else 0.0,
         'rate_limit_cooldown_seconds': rate_limit_cooldown_seconds,
     }
+    return row, stop_batch
 
 
 def build_results(
@@ -169,20 +210,29 @@ def build_results(
     pause_seconds: float,
     rate_limit_cooldown_seconds: float,
     max_attempts: int,
+    rate_limit_mode: str,
 ) -> Path:
     basket = _load_yaml(basket_path)
     lines = list(basket.get('trading_lines') or [])
     rows: list[dict[str, Any]] = []
+    batch_stopped_for_rate_limit = False
     for index, line in enumerate(lines, start=1):
+        if batch_stopped_for_rate_limit:
+            rows.append(_skipped_rate_limit_row(dict(line), request_index=index, pause_seconds=pause_seconds, rate_limit_cooldown_seconds=rate_limit_cooldown_seconds))
+            continue
         if index > 1:
             time.sleep(max(0.0, pause_seconds))
-        rows.append(_row_from_line(
+        row, stop_batch = _row_from_line(
             dict(line),
             pause_seconds=pause_seconds,
             rate_limit_cooldown_seconds=rate_limit_cooldown_seconds,
             max_attempts=max_attempts,
+            rate_limit_mode=rate_limit_mode,
             request_index=index,
-        ))
+        )
+        rows.append(row)
+        if stop_batch:
+            batch_stopped_for_rate_limit = True
     venues = {str(row['exchange']) for row in rows if row.get('exchange')}
     currencies = {str(row['currency']) for row in rows if row.get('currency')}
     priced = [row for row in rows if row.get('pricing_status') == 'priced_non_authoritative' and row.get('close_price') is not None]
@@ -203,11 +253,13 @@ def build_results(
             'official_published_limit_found': False,
             'requests_are_serialized': True,
             'pause_seconds_between_symbols': pause_seconds,
+            'rate_limit_mode': rate_limit_mode,
             'rate_limit_cooldown_seconds': rate_limit_cooldown_seconds,
             'max_attempts_per_symbol': max_attempts,
-            'default_policy': 'conservative_client_side_throttle_until_authoritative_source_policy_replaces_yahoo_fallback',
+            'default_policy': 'pause_between_requests_and_stop_batch_on_rate_limit_by_default',
         },
         'rate_limit_observed': any(row.get('rate_limited') for row in rows),
+        'batch_stopped_for_rate_limit': batch_stopped_for_rate_limit,
         'valuation_grade': False,
         'funding_authority': False,
         'portfolio_mutation': False,
@@ -223,7 +275,8 @@ def build_results(
         f' | priced={len(priced)}'
         f' | lines={len(rows)}'
         f' | pause_seconds={pause_seconds}'
-        f' | cooldown_seconds={rate_limit_cooldown_seconds}'
+        f' | rate_limit_mode={rate_limit_mode}'
+        f' | stopped_for_rate_limit={batch_stopped_for_rate_limit}'
     )
     return out
 
@@ -236,6 +289,7 @@ def main() -> None:
     parser.add_argument('--pause-seconds', type=float, default=15.0)
     parser.add_argument('--rate-limit-cooldown-seconds', type=float, default=600.0)
     parser.add_argument('--max-attempts', type=int, default=2)
+    parser.add_argument('--rate-limit-mode', choices=('stop', 'sleep'), default='stop')
     args = parser.parse_args()
     build_results(
         basket_path=Path(args.basket),
@@ -244,6 +298,7 @@ def main() -> None:
         pause_seconds=args.pause_seconds,
         rate_limit_cooldown_seconds=args.rate_limit_cooldown_seconds,
         max_attempts=args.max_attempts,
+        rate_limit_mode=args.rate_limit_mode,
     )
 
 
