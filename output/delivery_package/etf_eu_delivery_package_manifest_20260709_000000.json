@@ -1,0 +1,26 @@
+{
+  "client_grade_package_ready": true,
+  "dutch_primary": true,
+  "dutch_primary_html": "output/delivery_package/weekly_etf_eu_review_nl_260709.html",
+  "dutch_primary_pdf": "output/delivery_package/weekly_etf_eu_review_nl_260709.pdf",
+  "english_companion": true,
+  "english_companion_html": "output/delivery_package/weekly_etf_eu_review_260709.html",
+  "english_companion_pdf": "output/delivery_package/weekly_etf_eu_review_260709.pdf",
+  "funding_authority": false,
+  "generated_at_utc": "2026-07-09T12:20:57Z",
+  "html_output_available": true,
+  "main_surface_tbd_candidate_exposure": false,
+  "main_surface_us_proxy_exposure": false,
+  "markdown_source_paths": [
+    "output/weekly_etf_eu_review_nl_260709.md",
+    "output/weekly_etf_eu_review_260709.md"
+  ],
+  "nan_price_in_client_surface": false,
+  "pdf_output_available": true,
+  "portfolio_mutation": false,
+  "report_suffix": "260709",
+  "run_id": "20260709_000000",
+  "schema_version": "etf_eu_delivery_package_manifest_v1",
+  "stale_delivery_wording_present": false,
+  "valuation_grade": false
+}
