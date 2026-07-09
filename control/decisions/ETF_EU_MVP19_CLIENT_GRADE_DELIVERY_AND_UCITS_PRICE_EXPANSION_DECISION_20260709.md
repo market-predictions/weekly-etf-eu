@@ -1,0 +1,25 @@
+# ETF-EU-MVP19 decision — 2026-07-09
+
+```text
+work_package_id=ETF-EU-MVP19
+source_work_package=ETF-EU-MVP18C
+reference_architecture_repo=market-predictions/weekly-etf
+source_of_truth_repo=market-predictions/weekly-etf-eu
+port_behavior_not_us_assumptions=true
+us_assumptions_copied=false
+mvp18c_transport_status=transport_succeeded_unconfirmed
+mvp18c_receipt_confirmed=false
+mvp18c_completion_claimed=false
+client_grade_package_ready=false
+pdf_output_available=false
+markdown_only_delivery_detected=true
+stale_delivery_wording_detected=true
+main_surface_us_proxy_exposure_detected=true
+ucits_close_price_validation_basket_created=true
+ucits_close_price_validation_line_count=11
+ucits_close_price_validation_venue_count=3
+ucits_close_price_validation_currency_count=3
+ucits_close_price_actual_fetch_completed=false
+readiness_status=ucits_pricing_or_package_hardening_required
+selected_next_package=ETF-EU-MVP19-FIX
+```
