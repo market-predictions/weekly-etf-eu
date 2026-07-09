@@ -13,26 +13,27 @@ market-predictions/weekly-etf-eu
 ## Latest completed package
 
 ```text
-work_package_id=ETF-EU-MVP19
-status=completed_client_package_and_ucits_price_expansion_hardening_required
-source_work_package=ETF-EU-MVP18C
+work_package_id=ETF-EU-MVP19-FIX
+status=completed_client_package_or_price_fetch_hardening_still_required
+source_work_package=ETF-EU-MVP19
 reference_architecture_repo=market-predictions/weekly-etf
 source_of_truth_repo=market-predictions/weekly-etf-eu
 port_behavior_not_us_assumptions=true
 us_assumptions_copied=false
-client_grade_package_ready=false
-pdf_output_available=false
-ucits_close_price_validation_basket_created=true
-ucits_close_price_validation_line_count=11
-ucits_close_price_validation_venue_count=3
-ucits_close_price_validation_currency_count=3
+close_fetch_runner_created=true
+pdf_package_renderer_created=true
+sender_requires_pdf_package=true
+workflow_requires_pdf_package=true
 actual_close_fetch_completed=false
-readiness_status=ucits_pricing_or_package_hardening_required
-selected_next_package=ETF-EU-MVP19-FIX
+client_grade_package_ready=false
+resend_performed=false
+completion_claimed=false
+readiness_status=client_package_or_price_fetch_hardening_still_required
+selected_next_package=ETF-EU-MVP19-FIX2
 ```
 
 ## Active product roadmap
 
 ```text
-ETF-EU-MVP19-FIX
+ETF-EU-MVP19-FIX2
 ```
