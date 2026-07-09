@@ -1,0 +1,66 @@
+{
+  "evidence": {
+    "delivery_package_manifest": "output/delivery_package/etf_eu_delivery_package_manifest_20260709_000000.json",
+    "dutch_primary_html": "output/delivery_package/weekly_etf_eu_review_nl_260709.html",
+    "dutch_primary_markdown": "output/weekly_etf_eu_review_nl_260709.md",
+    "dutch_primary_pdf": "output/delivery_package/weekly_etf_eu_review_nl_260709.pdf",
+    "english_companion_html": "output/delivery_package/weekly_etf_eu_review_260709.html",
+    "english_companion_markdown": "output/weekly_etf_eu_review_260709.md",
+    "english_companion_pdf": "output/delivery_package/weekly_etf_eu_review_260709.pdf",
+    "ucits_close_price_validation_artifact": "output/pricing/ucits_close_price_validation_basket_results_20260709_000000.json"
+  },
+  "generated_at_utc": "2026-07-09T13:05:00Z",
+  "package_summary": {
+    "client_grade_package_ready": true,
+    "dutch_primary": true,
+    "english_companion": true,
+    "funding_authority": false,
+    "html_output_available": true,
+    "main_surface_tbd_candidate_exposure": false,
+    "main_surface_us_proxy_exposure": false,
+    "nan_price_in_client_surface": false,
+    "pdf_output_available": true,
+    "portfolio_mutation": false,
+    "stale_delivery_wording_present": false,
+    "valuation_grade": false
+  },
+  "pricing_summary": {
+    "actual_close_fetch_completed": true,
+    "batch_stopped_for_rate_limit": false,
+    "currency_count": 3,
+    "failed_line_count": 1,
+    "funding_authority": false,
+    "line_count": 11,
+    "min_threshold_met": true,
+    "pause_seconds_between_symbols": 15.0,
+    "portfolio_mutation": false,
+    "priced_line_count": 10,
+    "production_delivery_authority": false,
+    "rate_limit_mode": "stop",
+    "rate_limit_observed": false,
+    "requests_are_serialized": true,
+    "valuation_grade": false,
+    "venue_count": 3
+  },
+  "repository_identity": {
+    "port_behavior_not_us_assumptions": true,
+    "reference_architecture_repo": "market-predictions/weekly-etf",
+    "source_of_truth_repo": "market-predictions/weekly-etf-eu",
+    "us_assumptions_copied": false
+  },
+  "run_id": "20260709_000000",
+  "schema_version": "etf_eu_mvp19_fix2_ready_for_controlled_resend_v1",
+  "selected_next_package": "ETF-EU-MVP20",
+  "source_work_package": "ETF-EU-MVP19-FIX",
+  "status": "completed_client_grade_package_ready_for_controlled_resend",
+  "transport_guard": {
+    "completion_claimed": false,
+    "delivery_success_closed": false,
+    "explicit_user_instruction_required_before_transport": true,
+    "production_delivery_authority": false,
+    "ready_for_controlled_resend": true,
+    "receipt_confirmed": false,
+    "resend_performed": false
+  },
+  "work_package_id": "ETF-EU-MVP19-FIX2"
+}
