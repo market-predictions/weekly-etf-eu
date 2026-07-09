@@ -13,29 +13,26 @@ market-predictions/weekly-etf-eu
 ## Latest completed package
 
 ```text
-work_package_id=ETF-EU-MVP18C
-status=completed_single_controlled_transport_run_unconfirmed
-source_work_package=ETF-EU-MVP18B-FIX
+work_package_id=ETF-EU-MVP19
+status=completed_client_package_and_ucits_price_expansion_hardening_required
+source_work_package=ETF-EU-MVP18C
 reference_architecture_repo=market-predictions/weekly-etf
 source_of_truth_repo=market-predictions/weekly-etf-eu
 port_behavior_not_us_assumptions=true
 us_assumptions_copied=false
-workflow_run_id=29011148042
-workflow_job_id=86094818706
-workflow_conclusion=success
-artifact_commit_sha=162b6511818bf00f0f3e5902cb95a3d892d1600c
-controlled_run_id=20260709_101818
-report_suffix=260708
-real_sender_entrypoint_called=true
-transport_attempted=true
-transport_status=transport_succeeded_unconfirmed
-receipt_confirmed=false
-completion_claimed=false
-selected_next_package=ETF-EU-MVP19
+client_grade_package_ready=false
+pdf_output_available=false
+ucits_close_price_validation_basket_created=true
+ucits_close_price_validation_line_count=11
+ucits_close_price_validation_venue_count=3
+ucits_close_price_validation_currency_count=3
+actual_close_fetch_completed=false
+readiness_status=ucits_pricing_or_package_hardening_required
+selected_next_package=ETF-EU-MVP19-FIX
 ```
 
 ## Active product roadmap
 
 ```text
-ETF-EU-MVP19
+ETF-EU-MVP19-FIX
 ```
