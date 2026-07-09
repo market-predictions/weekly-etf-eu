@@ -34,6 +34,7 @@ def validate(path: Path) -> dict[str, Any]:
     assert throttle['official_published_limit_found'] is False
     assert throttle['requests_are_serialized'] is True
     assert float(throttle['pause_seconds_between_symbols']) >= 10.0
+    assert throttle.get('rate_limit_mode') in {'stop', 'sleep'}
     assert float(throttle['rate_limit_cooldown_seconds']) >= 300.0
     assert int(throttle['max_attempts_per_symbol']) >= 1
     rows = list(data.get('rows') or [])
@@ -56,7 +57,8 @@ def validate(path: Path) -> dict[str, Any]:
         assert row['source_quality_status'] == 'non_authoritative_connectivity_only'
         assert row['source_agreement_status'] == 'not_agreement_gate_not_valuation_grade'
         assert int(row['request_index']) >= 1
-        if int(row['request_index']) > 1:
+        skipped_due_rate_limit = 'not_attempted_due_to_prior_yahoo_rate_limit' in row['blockers']
+        if int(row['request_index']) > 1 and not skipped_due_rate_limit:
             assert float(row['pause_seconds_before_request']) >= 10.0
         assert float(row['rate_limit_cooldown_seconds']) >= 300.0
         if row['pricing_status'] == 'priced_non_authoritative':
@@ -79,6 +81,7 @@ def validate(path: Path) -> dict[str, Any]:
         'valuation_grade': False,
         'funding_authority': False,
         'throttle_policy': throttle,
+        'batch_stopped_for_rate_limit': data.get('batch_stopped_for_rate_limit', False),
     }
 
 
