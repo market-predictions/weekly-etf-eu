@@ -83,13 +83,13 @@ jobs:
 
       - name: Execute controlled EU transport entrypoint
         env:
-          ETF_EU_TRANSPORT_HOST: ${{ secrets.ETF_EU_TRANSPORT_HOST }}
-          ETF_EU_TRANSPORT_PORT: ${{ secrets.ETF_EU_TRANSPORT_PORT }}
-          ETF_EU_TRANSPORT_USER: ${{ secrets.ETF_EU_TRANSPORT_USER }}
-          ETF_EU_TRANSPORT_AUTH: ${{ secrets.ETF_EU_TRANSPORT_AUTH }}
-          ETF_EU_FROM_ADDRESS: ${{ secrets.ETF_EU_FROM_ADDRESS }}
-          ETF_EU_TO_NL: ${{ secrets.ETF_EU_TO_NL }}
-          ETF_EU_TO_EN: ${{ secrets.ETF_EU_TO_EN }}
+          ETF_EU_TRANSPORT_HOST: ${{ secrets.MRKT_RPRTS_SMTP_HOST }}
+          ETF_EU_TRANSPORT_PORT: ${{ secrets.MRKT_RPRTS_SMTP_PORT }}
+          ETF_EU_TRANSPORT_USER: ${{ secrets.MRKT_RPRTS_SMTP_USER }}
+          ETF_EU_TRANSPORT_AUTH: ${{ secrets.MRKT_RPRTS_SMTP_PASS }}
+          ETF_EU_FROM_ADDRESS: ${{ secrets.MRKT_RPRTS_MAIL_FROM }}
+          ETF_EU_TO_NL: ${{ secrets.MRKT_RPRTS_MAIL_TO }}
+          ETF_EU_TO_EN: ${{ secrets.MRKT_RPRTS_MAIL_TO }}
         run: |
           python -m runtime.send_etf_eu_controlled_report \
             --confirm-controlled-send \
