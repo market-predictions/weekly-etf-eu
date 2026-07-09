@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
+import time
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -10,6 +12,8 @@ try:
     import yaml
 except ImportError:  # pragma: no cover
     yaml = None
+
+RATE_LIMIT_ERROR_TOKENS = ("YFRateLimitError", "Too Many Requests", "Rate limited", "rate limit", "429")
 
 
 def _utc_now() -> str:
@@ -22,33 +26,90 @@ def _load_yaml(path: Path) -> dict[str, Any]:
     return yaml.safe_load(path.read_text(encoding='utf-8')) or {}
 
 
-def _try_yfinance_close(symbol: str) -> tuple[str, float | None, str | None, str | None, list[str]]:
-    blockers: list[str] = []
+def _is_rate_limit_exception(exc: Exception) -> bool:
+    text = f'{type(exc).__name__}:{exc}'
+    return any(token in text for token in RATE_LIMIT_ERROR_TOKENS)
+
+
+def _usable_close(value: object) -> float | None:
+    try:
+        close = float(value)  # type: ignore[arg-type]
+    except (TypeError, ValueError):
+        return None
+    if not math.isfinite(close) or close <= 0:
+        return None
+    return close
+
+
+def _configure_yfinance() -> object | None:
     try:
         import yfinance as yf  # type: ignore
     except Exception:
-        return 'fetch_failed', None, None, None, ['yfinance_not_available']
+        return None
     try:
-        history = yf.Ticker(symbol).history(period='10d', interval='1d', auto_adjust=False)
-    except Exception as exc:
-        return 'fetch_failed', None, None, None, [f'yfinance_exception:{type(exc).__name__}']
-    if history is None or history.empty or 'Close' not in history:
-        return 'fetch_failed', None, None, None, ['no_close_history_returned']
-    close_series = history['Close'].dropna()
-    if close_series.empty:
-        return 'fetch_failed', None, None, None, ['no_non_null_close']
-    close_value = float(close_series.iloc[-1])
-    close_index = close_series.index[-1]
-    close_date = str(getattr(close_index, 'date', lambda: close_index)())
-    if close_value <= 0:
-        blockers.append('non_positive_close')
-        return 'fetch_failed', close_value, close_date, _utc_now(), blockers
-    return 'priced_non_authoritative', close_value, close_date, _utc_now(), blockers
+        yf.config.network.retries = 0
+    except Exception:
+        pass
+    try:
+        yf.config.debug.hide_exceptions = False
+    except Exception:
+        pass
+    return yf
 
 
-def _row_from_line(line: dict[str, Any]) -> dict[str, Any]:
+def _try_yfinance_close(
+    symbol: str,
+    *,
+    pause_seconds: float,
+    rate_limit_cooldown_seconds: float,
+    max_attempts: int,
+) -> tuple[str, float | None, str | None, str | None, list[str], int, bool]:
+    blockers: list[str] = []
+    yf = _configure_yfinance()
+    if yf is None:
+        return 'fetch_failed', None, None, None, ['yfinance_not_available'], 0, False
+    rate_limited = False
+    attempts = max(1, int(max_attempts))
+    for attempt in range(1, attempts + 1):
+        if attempt > 1:
+            time.sleep(max(0.0, pause_seconds))
+        try:
+            history = yf.Ticker(symbol).history(period='10d', interval='1d', auto_adjust=False)
+        except Exception as exc:
+            if _is_rate_limit_exception(exc):
+                rate_limited = True
+                blockers.append(f'yfinance_rate_limited_attempt_{attempt}:{type(exc).__name__}')
+                if attempt < attempts:
+                    time.sleep(max(0.0, rate_limit_cooldown_seconds))
+                    continue
+                return 'fetch_failed', None, None, None, blockers, attempt, rate_limited
+            return 'fetch_failed', None, None, None, [f'yfinance_exception:{type(exc).__name__}'], attempt, rate_limited
+        if history is None or history.empty or 'Close' not in history:
+            return 'fetch_failed', None, None, None, ['no_close_history_returned'], attempt, rate_limited
+        close_series = history['Close'].dropna()
+        if close_series.empty:
+            return 'fetch_failed', None, None, None, ['no_non_null_close'], attempt, rate_limited
+        close_value = _usable_close(close_series.iloc[-1])
+        close_index = close_series.index[-1]
+        close_date = str(getattr(close_index, 'date', lambda: close_index)())
+        if close_value is None:
+            return 'fetch_failed', None, close_date, _utc_now(), ['non_usable_close'], attempt, rate_limited
+        return 'priced_non_authoritative', close_value, close_date, _utc_now(), blockers, attempt, rate_limited
+    return 'fetch_failed', None, None, None, blockers or ['max_attempts_exhausted'], attempts, rate_limited
+
+
+def _row_from_line(
+    line: dict[str, Any],
+    *,
+    pause_seconds: float,
+    rate_limit_cooldown_seconds: float,
+    max_attempts: int,
+    request_index: int,
+) -> dict[str, Any]:
     symbol = str(line.get('provider_symbol_yahoo') or '').strip()
     verification_status = str(line.get('verification_status') or 'candidate_requires_verification')
+    attempt_count = 0
+    rate_limited = False
     if verification_status == 'policy_review_required_not_ucits' or line.get('instrument_type') != 'UCITS ETF':
         status = 'policy_review_required_not_ucits'
         close_price = None
@@ -62,7 +123,12 @@ def _row_from_line(line: dict[str, Any]) -> dict[str, Any]:
         observed_at = _utc_now()
         blockers = ['missing_provider_symbol_yahoo']
     else:
-        status, close_price, close_date, observed_at, blockers = _try_yfinance_close(symbol)
+        status, close_price, close_date, observed_at, blockers, attempt_count, rate_limited = _try_yfinance_close(
+            symbol,
+            pause_seconds=pause_seconds,
+            rate_limit_cooldown_seconds=rate_limit_cooldown_seconds,
+            max_attempts=max_attempts,
+        )
         if verification_status == 'candidate_requires_verification' and status == 'priced_non_authoritative':
             blockers = blockers + ['identity_or_line_verification_pending']
     return {
@@ -87,13 +153,36 @@ def _row_from_line(line: dict[str, Any]) -> dict[str, Any]:
         'valuation_grade': False,
         'fundable': False,
         'blockers': blockers,
+        'request_index': request_index,
+        'attempt_count': attempt_count,
+        'rate_limited': rate_limited,
+        'pause_seconds_before_request': pause_seconds if request_index > 1 else 0.0,
+        'rate_limit_cooldown_seconds': rate_limit_cooldown_seconds,
     }
 
 
-def build_results(*, basket_path: Path, run_id: str, output_dir: Path) -> Path:
+def build_results(
+    *,
+    basket_path: Path,
+    run_id: str,
+    output_dir: Path,
+    pause_seconds: float,
+    rate_limit_cooldown_seconds: float,
+    max_attempts: int,
+) -> Path:
     basket = _load_yaml(basket_path)
     lines = list(basket.get('trading_lines') or [])
-    rows = [_row_from_line(dict(line)) for line in lines]
+    rows: list[dict[str, Any]] = []
+    for index, line in enumerate(lines, start=1):
+        if index > 1:
+            time.sleep(max(0.0, pause_seconds))
+        rows.append(_row_from_line(
+            dict(line),
+            pause_seconds=pause_seconds,
+            rate_limit_cooldown_seconds=rate_limit_cooldown_seconds,
+            max_attempts=max_attempts,
+            request_index=index,
+        ))
     venues = {str(row['exchange']) for row in rows if row.get('exchange')}
     currencies = {str(row['currency']) for row in rows if row.get('currency')}
     priced = [row for row in rows if row.get('pricing_status') == 'priced_non_authoritative' and row.get('close_price') is not None]
@@ -109,6 +198,16 @@ def build_results(*, basket_path: Path, run_id: str, output_dir: Path) -> Path:
         'venue_count': len(venues),
         'currency_count': len(currencies),
         'min_threshold_met': len(rows) >= 8 and len(venues) >= 3 and len(currencies) >= 2,
+        'throttle_policy': {
+            'source': 'yahoo_yfinance',
+            'official_published_limit_found': False,
+            'requests_are_serialized': True,
+            'pause_seconds_between_symbols': pause_seconds,
+            'rate_limit_cooldown_seconds': rate_limit_cooldown_seconds,
+            'max_attempts_per_symbol': max_attempts,
+            'default_policy': 'conservative_client_side_throttle_until_authoritative_source_policy_replaces_yahoo_fallback',
+        },
+        'rate_limit_observed': any(row.get('rate_limited') for row in rows),
         'valuation_grade': False,
         'funding_authority': False,
         'portfolio_mutation': False,
@@ -118,7 +217,14 @@ def build_results(*, basket_path: Path, run_id: str, output_dir: Path) -> Path:
     output_dir.mkdir(parents=True, exist_ok=True)
     out = output_dir / f'ucits_close_price_validation_basket_results_{run_id}.json'
     out.write_text(json.dumps(payload, indent=2, sort_keys=True) + '\n', encoding='utf-8')
-    print(f'UCITS_CLOSE_PRICE_VALIDATION_BASKET_RESULTS_OK | path={out} | priced={len(priced)} | lines={len(rows)}')
+    print(
+        'UCITS_CLOSE_PRICE_VALIDATION_BASKET_RESULTS_OK'
+        f' | path={out}'
+        f' | priced={len(priced)}'
+        f' | lines={len(rows)}'
+        f' | pause_seconds={pause_seconds}'
+        f' | cooldown_seconds={rate_limit_cooldown_seconds}'
+    )
     return out
 
 
@@ -127,8 +233,18 @@ def main() -> None:
     parser.add_argument('--basket', default='config/ucits_close_price_validation_basket.yml')
     parser.add_argument('--run-id', required=True)
     parser.add_argument('--output-dir', default='output/pricing')
+    parser.add_argument('--pause-seconds', type=float, default=15.0)
+    parser.add_argument('--rate-limit-cooldown-seconds', type=float, default=600.0)
+    parser.add_argument('--max-attempts', type=int, default=2)
     args = parser.parse_args()
-    build_results(basket_path=Path(args.basket), run_id=args.run_id, output_dir=Path(args.output_dir))
+    build_results(
+        basket_path=Path(args.basket),
+        run_id=args.run_id,
+        output_dir=Path(args.output_dir),
+        pause_seconds=args.pause_seconds,
+        rate_limit_cooldown_seconds=args.rate_limit_cooldown_seconds,
+        max_attempts=args.max_attempts,
+    )
 
 
 if __name__ == '__main__':
