@@ -38,13 +38,17 @@ def validate() -> dict:
         assert token in workflow
     for token in ['ETF_EU_TRANSPORT_HOST', 'ETF_EU_TRANSPORT_PORT', 'ETF_EU_TRANSPORT_USER', 'ETF_EU_TRANSPORT_AUTH', 'ETF_EU_FROM_ADDRESS', 'ETF_EU_TO_NL', 'ETF_EU_TO_EN']:
         assert token in workflow
+    for token in ['MRKT_RPRTS_SMTP_HOST', 'MRKT_RPRTS_SMTP_PORT', 'MRKT_RPRTS_SMTP_USER', 'MRKT_RPRTS_SMTP_PASS', 'MRKT_RPRTS_MAIL_FROM', 'MRKT_RPRTS_MAIL_TO']:
+        assert token in workflow
+    assert 'ETF_EU_TO_NL: ${{ secrets.MRKT_RPRTS_MAIL_TO }}' in workflow
+    assert 'ETF_EU_TO_EN: ${{ secrets.MRKT_RPRTS_MAIL_TO }}' in workflow
     sender = SENDER.read_text(encoding='utf-8')
     assert '--confirm-controlled-send' in sender
     assert 'etf_eu_controlled_transport_result_v1' in sender
     writer = WRITER.read_text(encoding='utf-8')
     assert '--mvp18-controlled' in writer
     assert '--transport-result-path' in writer
-    return {'status': 'valid', 'work_package_id': 'ETF-EU-MVP18B-FIX', 'implementation_status': data['implementation_status'], 'selected_next_package': data['selected_next_package']}
+    return {'status': 'valid', 'work_package_id': 'ETF-EU-MVP18B-FIX', 'implementation_status': data['implementation_status'], 'selected_next_package': data['selected_next_package'], 'secret_mapping': 'MRKT_RPRTS_to_ETF_EU_runtime'}
 
 
 if __name__ == '__main__':
