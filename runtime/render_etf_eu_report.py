@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
 from datetime import date
 from pathlib import Path
 from typing import Any
@@ -39,6 +40,16 @@ def _latest_file(directory: Path, pattern: str) -> Path | None:
 
 def _as_str(value: Any) -> str:
     return str(value if value is not None else "").strip()
+
+
+def _usable_close(value: object) -> float | None:
+    try:
+        close = float(value)  # type: ignore[arg-type]
+    except (TypeError, ValueError):
+        return None
+    if not math.isfinite(close) or close <= 0:
+        return None
+    return close
 
 
 def _cash(state: dict[str, Any]) -> float:
@@ -151,16 +162,19 @@ def _verified_lines(registry: Path) -> list[dict[str, Any]]:
 
 
 def _pricing_status(registry_id: str, symbol: str, lookup: dict[tuple[str, str], dict[str, Any]], *, language: str) -> str:
+    no_close = "geen bruikbare close; diagnostiek vereist" if language == "nl" else "no usable close; diagnostics required"
     row = lookup.get((registry_id, symbol))
     if not row:
         return "diagnostiek vereist" if language == "nl" else "diagnostics required"
     result = row.get("preflight_result") or {}
     status = _as_str(result.get("status")) or "not_tested"
-    close = result.get("close")
+    usable_close = _usable_close(result.get("close"))
     observed_date = _as_str(result.get("observed_date"))
-    if status == "priced_non_authoritative" and close is not None:
+    if status == "priced_non_authoritative":
+        if usable_close is None:
+            return no_close
         label = "niet-autoritatieve close" if language == "nl" else "non-authoritative close"
-        suffix = f"{label}: {float(close):.2f}"
+        suffix = f"{label}: {usable_close:.2f}"
         if observed_date:
             suffix += f" ({observed_date})"
         return suffix
