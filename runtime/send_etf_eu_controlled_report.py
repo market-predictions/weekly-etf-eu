@@ -57,24 +57,58 @@ def _read_config() -> dict[str, str]:
 
 
 def _report_paths(report_suffix: str) -> dict[str, Path]:
-    paths = {
-        "nl": Path(f"output/weekly_etf_eu_review_nl_{report_suffix}.md"),
-        "en": Path(f"output/weekly_etf_eu_review_{report_suffix}.md"),
+    return {
+        "nl_md": Path(f"output/weekly_etf_eu_review_nl_{report_suffix}.md"),
+        "en_md": Path(f"output/weekly_etf_eu_review_{report_suffix}.md"),
     }
-    for language, path in paths.items():
-        _require(path.exists(), f"missing {language} report path: {path}")
+
+
+def _package_paths(manifest_path: Path | None) -> dict[str, Path]:
+    if manifest_path is None:
+        return {}
+    payload = json.loads(manifest_path.read_text(encoding="utf-8"))
+    _require(payload.get("schema_version") == "etf_eu_delivery_package_manifest_v1", "invalid package manifest schema")
+    _require(payload.get("pdf_output_available") is True, "package manifest has no PDF output")
+    _require(payload.get("dutch_primary") is True, "Dutch primary PDF required")
+    _require(payload.get("english_companion") is True, "English companion PDF required")
+    paths = {
+        "nl_pdf": Path(str(payload.get("dutch_primary_pdf"))),
+        "en_pdf": Path(str(payload.get("english_companion_pdf"))),
+        "nl_html": Path(str(payload.get("dutch_primary_html"))),
+        "en_html": Path(str(payload.get("english_companion_html"))),
+    }
+    for path in paths.values():
+        _require(path.exists(), f"missing package asset: {path}")
     return paths
 
 
-def _build_message(*, language: str, report_date: str, sender: str, recipient: str, report_path: Path) -> EmailMessage:
-    text = report_path.read_text(encoding="utf-8")
+def _build_message(
+    *,
+    language: str,
+    report_date: str,
+    sender: str,
+    recipient: str,
+    markdown_path: Path,
+    pdf_path: Path | None,
+    html_path: Path | None,
+    require_pdf_package: bool,
+) -> EmailMessage:
+    _require(markdown_path.exists(), f"missing markdown source: {markdown_path}")
+    if require_pdf_package:
+        _require(pdf_path is not None and pdf_path.exists(), f"PDF package required for {language}")
+    text = markdown_path.read_text(encoding="utf-8")
     subject_lang = "NL" if language == "nl" else "EN"
     msg = EmailMessage()
     msg["Subject"] = f"Weekly ETF EU UCITS Review {subject_lang} — {report_date}"
     msg["From"] = sender
     msg["To"] = recipient
     msg.set_content(text)
-    msg.add_attachment(text.encode("utf-8"), maintype="text", subtype="markdown", filename=report_path.name)
+    if html_path is not None and html_path.exists():
+        msg.add_alternative(html_path.read_text(encoding="utf-8"), subtype="html")
+    if pdf_path is not None and pdf_path.exists():
+        msg.add_attachment(pdf_path.read_bytes(), maintype="application", subtype="pdf", filename=pdf_path.name)
+    elif not require_pdf_package:
+        msg.add_attachment(text.encode("utf-8"), maintype="text", subtype="markdown", filename=markdown_path.name)
     return msg
 
 
@@ -106,19 +140,23 @@ def build_result(
     report_suffix: str,
     cfg: dict[str, str],
     reports: dict[str, Path],
+    package: dict[str, Path],
     transport_status: str,
     error: str | None,
+    require_pdf_package: bool,
 ) -> dict[str, Any]:
     languages = [
         {
             "language": "nl",
-            "report_path": str(reports["nl"]),
+            "report_path": str(reports["nl_md"]),
+            "pdf_path": str(package.get("nl_pdf", "")),
             "recipient_redacted": True,
             "recipient_hash": _sha256(cfg["recipient_nl"]),
         },
         {
             "language": "en",
-            "report_path": str(reports["en"]),
+            "report_path": str(reports["en_md"]),
+            "pdf_path": str(package.get("en_pdf", "")),
             "recipient_redacted": True,
             "recipient_hash": _sha256(cfg["recipient_en"]),
         },
@@ -138,6 +176,8 @@ def build_result(
         "transport_success_not_inbox_receipt": True,
         "receipt_confirmed": False,
         "completion_claimed": False,
+        "require_pdf_package": require_pdf_package,
+        "pdf_package_used": bool(package),
         "recipient_data_policy": "redacted_hash_only",
         "languages": languages,
         "secret_values_exposed": False,
@@ -163,14 +203,37 @@ def main() -> None:
     parser.add_argument("--report-date", required=True)
     parser.add_argument("--report-suffix", required=True)
     parser.add_argument("--output-dir", default="output/delivery")
+    parser.add_argument("--require-pdf-package", action="store_true")
+    parser.add_argument("--delivery-package-manifest", default=None)
     args = parser.parse_args()
     _require(args.confirm_controlled_send, "controlled sender requires explicit --confirm-controlled-send")
     cfg = _read_config()
     reports = _report_paths(args.report_suffix)
+    package = _package_paths(Path(args.delivery_package_manifest) if args.delivery_package_manifest else None)
+    if args.require_pdf_package:
+        _require(bool(package), "--require-pdf-package requires --delivery-package-manifest")
     sender = cfg["sender"]
     messages = [
-        _build_message(language="nl", report_date=args.report_date, sender=sender, recipient=cfg["recipient_nl"], report_path=reports["nl"]),
-        _build_message(language="en", report_date=args.report_date, sender=sender, recipient=cfg["recipient_en"], report_path=reports["en"]),
+        _build_message(
+            language="nl",
+            report_date=args.report_date,
+            sender=sender,
+            recipient=cfg["recipient_nl"],
+            markdown_path=reports["nl_md"],
+            pdf_path=package.get("nl_pdf"),
+            html_path=package.get("nl_html"),
+            require_pdf_package=args.require_pdf_package,
+        ),
+        _build_message(
+            language="en",
+            report_date=args.report_date,
+            sender=sender,
+            recipient=cfg["recipient_en"],
+            markdown_path=reports["en_md"],
+            pdf_path=package.get("en_pdf"),
+            html_path=package.get("en_html"),
+            require_pdf_package=args.require_pdf_package,
+        ),
     ]
     try:
         _send_messages(cfg=cfg, messages=messages)
@@ -181,8 +244,10 @@ def main() -> None:
             report_suffix=args.report_suffix,
             cfg=cfg,
             reports=reports,
+            package=package,
             transport_status="transport_failed",
             error=type(exc).__name__,
+            require_pdf_package=args.require_pdf_package,
         )
         path = write_result(Path(args.output_dir), payload)
         print(f"ETF_EU_CONTROLLED_TRANSPORT_RESULT | status=transport_failed | result={path}")
@@ -193,8 +258,10 @@ def main() -> None:
         report_suffix=args.report_suffix,
         cfg=cfg,
         reports=reports,
+        package=package,
         transport_status="transport_succeeded_unconfirmed",
         error=None,
+        require_pdf_package=args.require_pdf_package,
     )
     path = write_result(Path(args.output_dir), payload)
     print(f"ETF_EU_CONTROLLED_TRANSPORT_RESULT | status=transport_succeeded_unconfirmed | result={path}")
