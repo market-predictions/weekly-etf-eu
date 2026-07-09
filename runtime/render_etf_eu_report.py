@@ -41,8 +41,15 @@ def _as_str(value: Any) -> str:
     return str(value if value is not None else "").strip()
 
 
+def _cash(state: dict[str, Any]) -> float:
+    return float(state.get("cash_eur") or 0.0)
+
+
+def _nav(state: dict[str, Any]) -> float:
+    return float(state.get("nav_eur") or state.get("cash_eur") or 0.0)
+
+
 def _proxy_rows(proxy_map: Path) -> list[dict[str, str]]:
-    # Minimal dependency-free extraction for the current YAML stub.
     if not proxy_map.exists():
         return []
     rows: list[dict[str, str]] = []
@@ -64,38 +71,30 @@ def _proxy_rows(proxy_map: Path) -> list[dict[str, str]]:
     return rows
 
 
-def _proxy_table_en(proxy_map: Path) -> str:
+def _proxy_appendix_nl(proxy_map: Path) -> str:
     rows = _proxy_rows(proxy_map)
-    lines = ["| Theme | U.S. proxy | EU role | Status |", "|---|---|---|---|"]
-    if not rows:
-        lines.append("| No proxy map found | - | - | Registry required |")
-        return "\n".join(lines)
-    for row in rows:
-        lines.append(
-            f"| {row.get('theme', 'TBD')} | {row.get('us_proxy', 'TBD')} — research proxy only | {row.get('eu_role', 'TBD')} | UCITS candidate verification required |"
-        )
-    return "\n".join(lines)
-
-
-def _proxy_table_nl(proxy_map: Path) -> str:
-    rows = _proxy_rows(proxy_map)
-    lines = ["| Thema | Amerikaanse proxy | EU-rol | Status |", "|---|---|---|---|"]
+    lines = ["| Thema | Onderzoeksreferentie | EU-rol | Status |", "|---|---|---|---|"]
     if not rows:
         lines.append("| Geen proxymap gevonden | - | - | Register vereist |")
         return "\n".join(lines)
     for row in rows:
         lines.append(
-            f"| {row.get('theme', 'TBD')} | {row.get('us_proxy', 'TBD')} — alleen onderzoeksproxy | {row.get('eu_role', 'TBD')} | UCITS-kandidaat moet nog worden geverifieerd |"
+            f"| {row.get('theme', 'n.v.t.')} | {row.get('us_proxy', 'n.v.t.')} | {row.get('eu_role', 'n.v.t.')} | Alleen onderzoeksreferentie; niet investeerbaar in het EU-model |"
         )
     return "\n".join(lines)
 
 
-def _cash(state: dict[str, Any]) -> float:
-    return float(state.get("cash_eur") or 0.0)
-
-
-def _nav(state: dict[str, Any]) -> float:
-    return float(state.get("nav_eur") or state.get("cash_eur") or 0.0)
+def _proxy_appendix_en(proxy_map: Path) -> str:
+    rows = _proxy_rows(proxy_map)
+    lines = ["| Theme | Research reference | EU role | Status |", "|---|---|---|---|"]
+    if not rows:
+        lines.append("| No proxy map found | - | - | Registry required |")
+        return "\n".join(lines)
+    for row in rows:
+        lines.append(
+            f"| {row.get('theme', 'n/a')} | {row.get('us_proxy', 'n/a')} | {row.get('eu_role', 'n/a')} | Research reference only; not investable in the EU model |"
+        )
+    return "\n".join(lines)
 
 
 def _registry_funds(registry: Path) -> list[dict[str, Any]]:
@@ -106,9 +105,7 @@ def _registry_funds(registry: Path) -> list[dict[str, Any]]:
 
 
 def _preflight_payload(pricing_preflight: Path | None, output_dir: Path) -> dict[str, Any]:
-    path = pricing_preflight
-    if path is None:
-        path = _latest_file(output_dir / "pricing", "ucits_pricing_preflight_*.json")
+    path = pricing_preflight or _latest_file(output_dir / "pricing", "ucits_pricing_preflight_*.json")
     if path is None or not path.exists():
         return {}
     return _read_json(path)
@@ -122,112 +119,85 @@ def _preflight_lookup(payload: dict[str, Any]) -> dict[tuple[str, str], dict[str
     return lookup
 
 
-def _first_line(fund: dict[str, Any]) -> dict[str, Any]:
-    lines = fund.get("trading_lines") or []
-    return dict(lines[0]) if lines else {}
-
-
-def _pricing_status_for(fund: dict[str, Any], lookup: dict[tuple[str, str], dict[str, Any]]) -> str:
-    statuses: list[str] = []
-    for line in fund.get("trading_lines") or []:
-        key = (_as_str(fund.get("registry_id")), _as_str(line.get("pricing_symbol_yahoo")))
-        row = lookup.get(key)
-        if not row:
+def _verified_lines(registry: Path) -> list[dict[str, Any]]:
+    rows: list[dict[str, Any]] = []
+    for fund in _registry_funds(registry):
+        isin = _as_str(fund.get("isin"))
+        if not isin or isin == "TBD":
             continue
-        result = row.get("preflight_result") or {}
-        status = _as_str(result.get("status")) or "not_tested"
-        observed_date = _as_str(result.get("observed_date"))
-        close = result.get("close")
-        symbol = _as_str(line.get("pricing_symbol_yahoo"))
-        if status == "priced_non_authoritative" and close is not None:
-            suffix = f" {symbol}: {close:.2f}"
-            if observed_date:
-                suffix += f" op {observed_date}"
-            statuses.append("niet-autoritatief geprijsd" + suffix)
-        elif status:
-            statuses.append(f"{symbol}: {status}")
-    return "; ".join(statuses) if statuses else "niet getest / niet van toepassing"
-
-
-def _pricing_status_for_en(fund: dict[str, Any], lookup: dict[tuple[str, str], dict[str, Any]]) -> str:
-    statuses: list[str] = []
-    for line in fund.get("trading_lines") or []:
-        key = (_as_str(fund.get("registry_id")), _as_str(line.get("pricing_symbol_yahoo")))
-        row = lookup.get(key)
-        if not row:
+        if _as_str(fund.get("instrument_type")) != "ETF":
             continue
-        result = row.get("preflight_result") or {}
-        status = _as_str(result.get("status")) or "not_tested"
-        observed_date = _as_str(result.get("observed_date"))
-        close = result.get("close")
-        symbol = _as_str(line.get("pricing_symbol_yahoo"))
-        if status == "priced_non_authoritative" and close is not None:
-            suffix = f" {symbol}: {close:.2f}"
-            if observed_date:
-                suffix += f" on {observed_date}"
-            statuses.append("non-authoritative price observed" + suffix)
-        elif status:
-            statuses.append(f"{symbol}: {status}")
-    return "; ".join(statuses) if statuses else "not tested / not applicable"
+        if "confirmed" not in _as_str(fund.get("ucits_status")):
+            continue
+        for line in fund.get("trading_lines") or []:
+            symbol = _as_str(line.get("pricing_symbol_yahoo"))
+            exchange = _as_str(line.get("exchange"))
+            ticker = _as_str(line.get("exchange_ticker"))
+            currency = _as_str(line.get("trading_currency"))
+            if not symbol or "pending" in symbol.lower() or not exchange or "pending" in exchange.lower():
+                continue
+            rows.append({
+                "registry_id": _as_str(fund.get("registry_id")),
+                "role": _as_str(fund.get("role")),
+                "fund_name": _as_str(fund.get("fund_name")),
+                "isin": isin,
+                "ticker": ticker,
+                "currency": currency,
+                "exchange": exchange,
+                "pricing_symbol_yahoo": symbol,
+                "status": _as_str(fund.get("investability_status")) or "verified_candidate_not_funded",
+            })
+    return rows
 
 
-def _candidate_table_nl(registry: Path, pricing_preflight: Path | None, output_dir: Path) -> str:
-    funds = _registry_funds(registry)
+def _pricing_status(registry_id: str, symbol: str, lookup: dict[tuple[str, str], dict[str, Any]], *, language: str) -> str:
+    row = lookup.get((registry_id, symbol))
+    if not row:
+        return "diagnostiek vereist" if language == "nl" else "diagnostics required"
+    result = row.get("preflight_result") or {}
+    status = _as_str(result.get("status")) or "not_tested"
+    close = result.get("close")
+    observed_date = _as_str(result.get("observed_date"))
+    if status == "priced_non_authoritative" and close is not None:
+        label = "niet-autoritatieve close" if language == "nl" else "non-authoritative close"
+        suffix = f"{label}: {float(close):.2f}"
+        if observed_date:
+            suffix += f" ({observed_date})"
+        return suffix
+    return status
+
+
+def _watchlist_table(registry: Path, pricing_preflight: Path | None, output_dir: Path, *, language: str) -> str:
+    rows = _verified_lines(registry)
     lookup = _preflight_lookup(_preflight_payload(pricing_preflight, output_dir))
-    lines = [
-        "| Rol | Instrument | ISIN | Handelslijn | Status | Amerikaanse proxy | Pricing-preflight | Portefeuille-status |",
-        "|---|---|---|---|---|---|---|---|",
-    ]
-    if not funds:
-        lines.append("| Geen kandidaten | - | - | - | register vereist | - | niet getest | geen gefinancierde positie |")
-        return "\n".join(lines)
-    for fund in funds:
-        line = _first_line(fund)
-        trading_line = f"{_as_str(line.get('exchange_ticker')) or 'TBD'} / {_as_str(line.get('trading_currency')) or 'TBD'} / {_as_str(line.get('exchange')) or 'TBD'}"
-        lines.append(
-            "| "
-            + " | ".join([
-                _as_str(fund.get("role")) or "TBD",
-                _as_str(fund.get("fund_name")) or "TBD",
-                _as_str(fund.get("isin")) or "TBD",
+    if language == "nl":
+        lines = ["| Rol | UCITS ETF | ISIN | Handelslijn | Datastatus | Portefeuille-status |", "|---|---|---|---|---|---|"]
+        if not rows:
+            lines.append("| Geen geverifieerde handelslijnen | - | - | - | Diagnostiek vereist | Geen gefinancierde positie |")
+        for row in rows:
+            trading_line = f"{row['ticker']} / {row['currency']} / {row['exchange']}"
+            lines.append("| " + " | ".join([
+                row["role"],
+                row["fund_name"],
+                row["isin"],
                 trading_line,
-                _as_str(fund.get("investability_status")) or "TBD",
-                f"{_as_str(fund.get('us_research_proxy')) or 'TBD'} — alleen onderzoeksproxy",
-                _pricing_status_for(fund, lookup),
-                "niet gefinancierd; geen waarderingsautoriteit",
-            ])
-            + " |"
-        )
-    return "\n".join(lines)
-
-
-def _candidate_table_en(registry: Path, pricing_preflight: Path | None, output_dir: Path) -> str:
-    funds = _registry_funds(registry)
-    lookup = _preflight_lookup(_preflight_payload(pricing_preflight, output_dir))
-    lines = [
-        "| Role | Instrument | ISIN | Trading line | Status | U.S. proxy | Pricing preflight | Portfolio status |",
-        "|---|---|---|---|---|---|---|---|",
-    ]
-    if not funds:
-        lines.append("| No candidates | - | - | - | registry required | - | not tested | no funded position |")
+                _pricing_status(row["registry_id"], row["pricing_symbol_yahoo"], lookup, language="nl"),
+                "Niet gefinancierd; geen waarderings- of fundingautoriteit",
+            ]) + " |")
         return "\n".join(lines)
-    for fund in funds:
-        line = _first_line(fund)
-        trading_line = f"{_as_str(line.get('exchange_ticker')) or 'TBD'} / {_as_str(line.get('trading_currency')) or 'TBD'} / {_as_str(line.get('exchange')) or 'TBD'}"
-        lines.append(
-            "| "
-            + " | ".join([
-                _as_str(fund.get("role")) or "TBD",
-                _as_str(fund.get("fund_name")) or "TBD",
-                _as_str(fund.get("isin")) or "TBD",
-                trading_line,
-                _as_str(fund.get("investability_status")) or "TBD",
-                f"{_as_str(fund.get('us_research_proxy')) or 'TBD'} — research proxy only",
-                _pricing_status_for_en(fund, lookup),
-                "not funded; no valuation authority",
-            ])
-            + " |"
-        )
+    lines = ["| Role | UCITS ETF | ISIN | Trading line | Data status | Portfolio status |", "|---|---|---|---|---|---|"]
+    if not rows:
+        lines.append("| No verified trading lines | - | - | - | Diagnostics required | No funded position |")
+    for row in rows:
+        trading_line = f"{row['ticker']} / {row['currency']} / {row['exchange']}"
+        lines.append("| " + " | ".join([
+            row["role"],
+            row["fund_name"],
+            row["isin"],
+            trading_line,
+            _pricing_status(row["registry_id"], row["pricing_symbol_yahoo"], lookup, language="en"),
+            "Not funded; no valuation or funding authority",
+        ]) + " |")
     return "\n".join(lines)
 
 
@@ -236,20 +206,17 @@ def render_nl(state: dict[str, Any], report_date: str, proxy_map: Path, registry
     nav = _nav(state)
     return f"""# Weekly ETF EU Review | Nederlands | {report_date}
 
-> **Status:** cash-only bootstrap. Dit is geen productiepublicatie en er is geen e-maillevering uitgevoerd.
+> **Pakketstatus:** EU/UCITS-clientpakket in validatiefase. Dit rapport is geen koopadvies, geen portefeuille-opdracht en geen waarderingsautoriteit.
 
-## 1. Status
+## 1. Kernsamenvatting
 
-De EU/UCITS-versie van de Weekly ETF Review staat in bootstrapfase.
+De EU/UCITS-versie gebruikt uitsluitend UCITS-handelslijnen als potentieel investeerbare instrumenten. Amerikaanse ETF-symbolen horen niet in de primaire clienttabel en worden alleen in de bijlage als onderzoeksreferentie bewaard.
 
-- **Huidige staat:** cash-only bootstrap.
-- **Gefinancierde UCITS-posities:** geen.
-- **Amerikaanse ETF's:** alleen onderzoeksproxy, niet investeerbaar portefeuille-instrument in dit EU-model.
-- **UCITS-kandidaten:** vereisen ISIN-, KID-/PRIIPs- en handelslijnverificatie.
-- **Pricing-preflight:** niet-autoritatieve connectiviteitstest, geen waarderingsautoriteit.
-- **Productielevering:** uitgeschakeld.
+- **Modelstaat:** cash-only, geen gefinancierde UCITS-posities.
+- **Beslissing:** nog geen allocatie; eerst datakwaliteit en handelslijnverificatie afronden.
+- **Koersinformatie:** alleen niet-autoritatieve connectiviteits- of diagnostische observatie totdat aparte waarderingslineage is goedgekeurd.
 
-## 2. Huidige portefeuillestaat
+## 2. Portefeuille-overzicht
 
 | Component | Waarde |
 |---|---:|
@@ -259,51 +226,30 @@ De EU/UCITS-versie van de Weekly ETF Review staat in bootstrapfase.
 | Totale portefeuillewaarde | EUR {nav:.2f} |
 | Gefinancierde posities | 0 |
 
-Er zijn nog geen UCITS ETF's gefinancierd. De portefeuille blijft volledig in cash totdat instrumenten het EU-investeerbaarheidscontract passeren.
+## 3. UCITS observatielijst
 
-## 3. Investeerbaarheidsfilter
+Deze tabel toont alleen ISIN-first UCITS-handelslijnen die voldoende zijn om in de primaire clientwatchlist te staan. Onopgeloste of beleidsmatige items staan niet in deze hoofdtabel.
 
-Een ETF kan pas fundable worden wanneer minimaal de volgende velden zijn geverifieerd:
+{_watchlist_table(registry, pricing_preflight, output_dir, language="nl")}
 
-| Vereiste | Status |
+## 4. Koersvalidatie en datakwaliteit
+
+Koersen in dit pakket zijn diagnostisch. Een positieve close in de pipeline bewijst connectiviteit, maar creëert geen waarderingsautoriteit en geen fundingbesluit.
+
+## 5. Besliscockpit / Volgende actie
+
+| Vraag | Antwoord |
 |---|---|
-| ISIN | vereist |
-| UCITS-status | vereist |
-| PRIIPs/KID beschikbaarheid | vereist |
-| Handelsbeurs en ticker | vereist |
-| Handelsvaluta | vereist |
-| Pricinglijn | vereist |
-| Productkosten / TER | te vullen waar beschikbaar |
-| Replicatiemethode | te vullen waar beschikbaar |
-| Accumulerend / distribuerend | te vullen waar beschikbaar |
+| Is er een gefinancierde positie? | Nee |
+| Is er koopadvies? | Nee |
+| Is pricing valuation-grade? | Nee |
+| Volgende stap | PDF-pakket en UCITS close-fetch validatie afronden vóór gecontroleerde herverzending |
 
-## 4. Onderzoeksproxies
+## 6. Bijlage: onderzoeksproxies en diagnostiek
 
-Amerikaanse ETF's mogen alleen als onderzoeksproxy of benchmarkreferentie worden gebruikt. Ze mogen niet als gefinancierde EU-portefeuillepositie verschijnen.
+Onderzoeksreferenties hieronder zijn niet investeerbaar in dit EU-model. Ze mogen niet worden gelezen als portefeuille-instrument.
 
-{_proxy_table_nl(proxy_map)}
-
-## 5. UCITS-kandidatenregister
-
-Onderstaande tabel toont registerkandidaten en een eventuele pricing-preflight. Deze tabel is **geen portefeuille**, **geen koopadvies** en **geen waarderingsautoriteit**.
-
-{_candidate_table_nl(registry, pricing_preflight, output_dir)}
-
-## 6. Status UCITS-register
-
-Het UCITS-register bevat nu bootstrapkandidaten, maar er is nog geen gefinancierde modelportefeuille. Kandidaten blijven niet-gefinancierd totdat ISIN, KID/PRIIPs, handelslijn, valuta, pricingkwaliteit, liquiditeit en portefeuillerol voldoende zijn gecontroleerd.
-
-## 7. Volgende bouwstappen
-
-1. Verrijk het UCITS-symbolenregister met extra geverifieerde ISIN's en handelslijnen.
-2. Koppel onderzoeksproxies aan daadwerkelijke UCITS-kandidaten.
-3. Promoveer pricing van connectiviteitstest naar valuation-grade alleen na aparte pricing-lineagebeslissing.
-4. Bouw daarna pas een gefinancierde modelportefeuille.
-5. Houd productielevering uitgeschakeld totdat alle EU-validaties slagen.
-
-## 8. Leveringsstatus
-
-Deze output is alleen een niet-verzonden bootstraprapport. Er is geen PDF-rendering, portefeuille-executie of e-mailverzending uitgevoerd.
+{_proxy_appendix_nl(proxy_map)}
 """
 
 
@@ -312,20 +258,17 @@ def render_en(state: dict[str, Any], report_date: str, proxy_map: Path, registry
     nav = _nav(state)
     return f"""# Weekly ETF EU Review | English Companion | {report_date}
 
-> **Status:** cash-only bootstrap. This is not a production publication and no email delivery was performed.
+> **Package status:** EU/UCITS client package under validation. This report is not advice, not a portfolio instruction and not valuation authority.
 
-## 1. Status
+## 1. Executive summary
 
-The EU/UCITS version of the Weekly ETF Review is in bootstrap mode.
+The EU/UCITS version uses UCITS trading lines only as potentially investable instruments. U.S. ETF symbols do not belong in the primary client table and are retained only in the appendix as research references.
 
-- **Current state:** cash-only bootstrap.
-- **Funded UCITS holdings:** none.
-- **U.S. ETFs:** research proxies only, not investable portfolio instruments in this EU model.
-- **UCITS candidates:** require ISIN, KID/PRIIPs and trading-line verification.
-- **Pricing preflight:** non-authoritative connectivity test, no valuation authority.
-- **Production delivery:** disabled.
+- **Model state:** cash-only, no funded UCITS positions.
+- **Decision:** no allocation yet; complete data quality and trading-line verification first.
+- **Price information:** non-authoritative connectivity or diagnostics only until separate valuation lineage is approved.
 
-## 2. Current portfolio state
+## 2. Portfolio overview
 
 | Component | Value |
 |---|---:|
@@ -335,51 +278,30 @@ The EU/UCITS version of the Weekly ETF Review is in bootstrap mode.
 | Total portfolio value | EUR {nav:.2f} |
 | Funded positions | 0 |
 
-No UCITS ETFs are funded yet. The portfolio remains fully in cash until instruments pass the EU investability contract.
+## 3. UCITS watchlist
 
-## 3. Investability gate
+This table shows only ISIN-first UCITS trading lines that are clean enough for the primary client watchlist. Unresolved or policy-review items are excluded from this main table.
 
-An ETF can become fundable only after at least the following fields are verified:
+{_watchlist_table(registry, pricing_preflight, output_dir, language="en")}
 
-| Requirement | Status |
+## 4. Price validation and data quality
+
+Prices in this package are diagnostic. A positive close in the pipeline proves connectivity, but it does not create valuation authority or a funding decision.
+
+## 5. Decision cockpit / next action
+
+| Question | Answer |
 |---|---|
-| ISIN | required |
-| UCITS status | required |
-| PRIIPs/KID availability | required |
-| Exchange and ticker | required |
-| Trading currency | required |
-| Pricing line | required |
-| Product cost / TER | to be added where available |
-| Replication method | to be added where available |
-| Accumulating / distributing | to be added where available |
+| Is there a funded position? | No |
+| Is this advice? | No |
+| Is pricing valuation-grade? | No |
+| Next step | Complete PDF package and UCITS close-fetch validation before controlled resend |
 
-## 4. Research proxies
+## 6. Appendix: research proxies and diagnostics
 
-U.S. ETFs may be used only as research proxies or benchmark references. They must not appear as funded EU portfolio holdings.
+The research references below are not investable instruments in this EU model. They must not be read as portfolio instruments.
 
-{_proxy_table_en(proxy_map)}
-
-## 5. UCITS candidate registry
-
-The table below shows registry candidates and optional pricing preflight status. This table is **not a portfolio**, **not a buy recommendation** and **not valuation authority**.
-
-{_candidate_table_en(registry, pricing_preflight, output_dir)}
-
-## 6. UCITS registry status
-
-The UCITS registry now contains bootstrap candidates, but there is no funded model portfolio yet. Candidates remain unfunded until ISIN, KID/PRIIPs, trading line, currency, pricing quality, liquidity and portfolio role are sufficiently checked.
-
-## 7. Next build steps
-
-1. Enrich the UCITS symbol registry with additional verified ISINs and trading lines.
-2. Map research proxies to actual UCITS candidates.
-3. Promote pricing from connectivity test to valuation-grade only after a separate pricing-lineage decision.
-4. Only then build a funded model portfolio.
-5. Keep production delivery disabled until all EU validations pass.
-
-## 8. Delivery status
-
-This output is a non-delivered bootstrap report only. No PDF rendering, portfolio execution or email delivery was performed.
+{_proxy_appendix_en(proxy_map)}
 """
 
 
@@ -411,7 +333,7 @@ def main() -> None:
         Path(args.pricing_preflight) if args.pricing_preflight else None,
         args.report_date,
     )
-    print(f"ETF_EU_REPORT_RENDER_OK | en={en_path} | nl={nl_path} | candidate_registry=True | delivery=false")
+    print(f"ETF_EU_REPORT_RENDER_OK | en={en_path} | nl={nl_path} | client_surface=cleaned | delivery_package_pending=true")
 
 
 if __name__ == "__main__":
