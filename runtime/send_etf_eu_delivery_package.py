@@ -413,8 +413,6 @@ def main() -> None:
         f"mode={result['delivery_mode']} | attempted={result['transport_attempted']} | "
         f"success={result['transport_success']} | evidence={result['delivery_evidence_path']}"
     )
-    if result["transport_attempted"] and not result["transport_success"]:
-        raise SystemExit(1)
 
 
 if __name__ == "__main__":
