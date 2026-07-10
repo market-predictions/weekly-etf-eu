@@ -14,7 +14,7 @@
   "explicit_user_authorization_required": true,
   "fresh_generation_and_guarded_delivery_kept_separate": true,
   "funding_authority": false,
-  "generated_at_utc": "2026-07-10T17:50:00Z",
+  "generated_at_utc": "2026-07-11T00:00:00Z",
   "guarded_confirmation_phrase_matched": false,
   "guarded_send_confirmation_required": true,
   "next_package": "ETF-EU-MVP27B_EXPLICIT_SEND_AUTHORIZATION_RETRY",
@@ -32,7 +32,7 @@
   "report_date": "2026-07-10",
   "report_suffix": "260710",
   "routine_run_manifest_required": true,
-  "routine_stage": "explicit_guarded_send_authorization_blocked",
+  "routine_stage": "explicit_guarded_send_authorization_retry_blocked",
   "run_id": "20260710_000000",
   "run_queue_allowed": false,
   "schema_version": "etf_eu_routine_run_manifest_v1",
@@ -47,5 +47,5 @@
   "valuation_history_path": "output/etf_eu_valuation_history.csv",
   "workflow_conclusion": null,
   "workflow_dispatch_allowed": false,
-  "workflow_status": "explicit_guarded_send_authorization_blocked"
+  "workflow_status": "explicit_guarded_send_authorization_retry_blocked"
 }
