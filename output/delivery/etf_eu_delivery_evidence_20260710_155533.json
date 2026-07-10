@@ -1,0 +1,99 @@
+{
+  "artifact_type": "etf_eu_controlled_send_delivery_evidence",
+  "base_delivery_manifest": "output/delivery_package/etf_eu_delivery_package_manifest_20260709_000000.json",
+  "controlled_send_preflight_manifest": "output/delivery_package/etf_eu_delivery_package_manifest_20260709_000000.json",
+  "delivery_error": null,
+  "delivery_mode": "send",
+  "delivery_package_manifest": "output/delivery_package/etf_eu_delivery_package_manifest_20260709_000000.json",
+  "delivery_receipt": false,
+  "delivery_status": "smtp_sendmail_returned_no_exception",
+  "delivery_status_meaning": "MVP20A SMTP sendmail returned without exception; not an end-recipient inbox receipt",
+  "delivery_success": true,
+  "dutch_primary_html": "output/delivery_package/weekly_etf_eu_review_nl_260709.html",
+  "dutch_primary_pdf": "output/delivery_package/weekly_etf_eu_review_nl_260709.pdf",
+  "dutch_primary_report_path": "output/weekly_etf_eu_review_nl_260709.md",
+  "email_delivery": true,
+  "english_companion_html": "output/delivery_package/weekly_etf_eu_review_260709.html",
+  "english_companion_pdf": "output/delivery_package/weekly_etf_eu_review_260709.pdf",
+  "english_companion_report_path": "output/weekly_etf_eu_review_260709.md",
+  "funding_authority": false,
+  "generated_at_utc": "2026-07-10T15:55:36Z",
+  "language_count": 2,
+  "languages": [
+    {
+      "attachment_count": 2,
+      "attachments": [
+        "output/delivery_package/weekly_etf_eu_review_nl_260709.pdf",
+        "output/delivery_package/weekly_etf_eu_review_nl_260709.html"
+      ],
+      "html_body": true,
+      "language": "nl",
+      "mode": "mvp20a_real_transport",
+      "pdf_attached": "yes",
+      "pdf_attachments": [
+        "output/delivery_package/weekly_etf_eu_review_nl_260709.pdf"
+      ],
+      "recipient_hash": "sha256:602badb30fe408fccf59e816bc5666ad80064d8436a7431767b7bc98b8234ad3",
+      "recipient_redacted": true,
+      "report": "Dutch primary client report",
+      "report_path": "output/weekly_etf_eu_review_nl_260709.md",
+      "source_manifest_path": "output/delivery_package/etf_eu_delivery_package_manifest_20260709_000000.json",
+      "source_manifest_type": "etf_eu_delivery_package_manifest_v1",
+      "timestamp_utc": "2026-07-10T15:55:34Z"
+    },
+    {
+      "attachment_count": 2,
+      "attachments": [
+        "output/delivery_package/weekly_etf_eu_review_260709.pdf",
+        "output/delivery_package/weekly_etf_eu_review_260709.html"
+      ],
+      "html_body": false,
+      "language": "en",
+      "mode": "mvp20a_real_transport_companion",
+      "pdf_attached": "yes",
+      "pdf_attachments": [
+        "output/delivery_package/weekly_etf_eu_review_260709.pdf"
+      ],
+      "recipient_hash": "sha256:602badb30fe408fccf59e816bc5666ad80064d8436a7431767b7bc98b8234ad3",
+      "recipient_redacted": true,
+      "report": "English companion report",
+      "report_path": "output/weekly_etf_eu_review_260709.md",
+      "source_manifest_path": "output/delivery_package/etf_eu_delivery_package_manifest_20260709_000000.json",
+      "source_manifest_type": "etf_eu_delivery_package_manifest_v1",
+      "timestamp_utc": "2026-07-10T15:55:34Z"
+    }
+  ],
+  "message_id_or_receipt_reference": "smtp_message_id:<178369893416.2202.13267275195619476131@weekly-etf-eu.local>",
+  "pdf_generation": false,
+  "portfolio_mutation": false,
+  "production_delivery": true,
+  "production_delivery_authority": false,
+  "ready_artifact": "output/client_surface/etf_eu_mvp19_fix2_ready_for_controlled_resend_20260709_000000.json",
+  "receipt_confirmed": false,
+  "receipt_status": "smtp_sendmail_returned_no_exception",
+  "recipient_data_policy": "redacted_hash_only",
+  "recipient_plaintext_values_exposed": false,
+  "recipient_target_redacted": true,
+  "report_date": "2026-07-09",
+  "report_suffix": "260709",
+  "run_id": "20260710_155533",
+  "schema_version": "etf_eu_delivery_evidence_v1",
+  "secret_values_exposed": false,
+  "sender_entrypoint_path": "runtime/send_etf_eu_delivery_package.py",
+  "smtp_or_transport_provider": "smtp",
+  "source": {
+    "basis": "mvp20a_real_transport",
+    "delivery_error": null,
+    "delivery_package_manifest": "output/delivery_package/etf_eu_delivery_package_manifest_20260709_000000.json",
+    "ready_artifact": "output/client_surface/etf_eu_mvp19_fix2_ready_for_controlled_resend_20260709_000000.json",
+    "transport_error": null,
+    "transport_executed": true,
+    "transport_success": true,
+    "writer": "runtime/send_etf_eu_delivery_package.py"
+  },
+  "transport_attempted": true,
+  "transport_contract_version": "etf_eu_real_transport_evidence_contract_v1",
+  "transport_error": null,
+  "transport_success": true,
+  "valuation_grade": false
+}

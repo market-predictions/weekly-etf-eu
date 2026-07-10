@@ -1,0 +1,29 @@
+{
+  "attachment_paths": [
+    "output/delivery_package/weekly_etf_eu_review_nl_260709.pdf",
+    "output/delivery_package/weekly_etf_eu_review_260709.pdf",
+    "output/delivery_package/weekly_etf_eu_review_nl_260709.html",
+    "output/delivery_package/weekly_etf_eu_review_260709.html"
+  ],
+  "delivery_evidence_path": "output/delivery/etf_eu_delivery_evidence_20260710_155533.json",
+  "delivery_mode": "send",
+  "funding_authority": false,
+  "generated_at_utc": "2026-07-10T15:55:34Z",
+  "message_id_or_receipt_reference": "smtp_message_id:<178369893416.2202.13267275195619476131@weekly-etf-eu.local>",
+  "portfolio_mutation": false,
+  "production_delivery_authority": false,
+  "receipt_confirmed": false,
+  "recipient_hashes": [
+    "sha256:602badb30fe408fccf59e816bc5666ad80064d8436a7431767b7bc98b8234ad3"
+  ],
+  "recipient_target_redacted": true,
+  "report_date": "2026-07-09",
+  "report_suffix": "260709",
+  "run_id": "20260710_155533",
+  "schema_version": "etf_eu_real_transport_result_v1",
+  "transport_attempted": true,
+  "transport_error": null,
+  "transport_status": "transport_succeeded_unconfirmed",
+  "transport_success": true,
+  "valuation_grade": false
+}
