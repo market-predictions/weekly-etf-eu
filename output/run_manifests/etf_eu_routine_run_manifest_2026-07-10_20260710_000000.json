@@ -1,7 +1,7 @@
 {
   "artifact_type": "etf_eu_routine_run_manifest",
   "delivery_authorization_artifact": "output/delivery_authorization/etf_eu_guarded_send_authorization_20260710_000000.json",
-  "delivery_authorized": false,
+  "delivery_authorized": true,
   "delivery_closeout_manifest": null,
   "delivery_package_manifest": "output/fresh_generation/etf_eu_fresh_generation_package_manifest_20260710_000000.json",
   "delivery_prep_artifact": "output/delivery_prep/etf_eu_guarded_fresh_package_delivery_prep_20260710_000000.json",
@@ -14,10 +14,10 @@
   "explicit_user_authorization_required": true,
   "fresh_generation_and_guarded_delivery_kept_separate": true,
   "funding_authority": false,
-  "generated_at_utc": "2026-07-11T00:00:00Z",
-  "guarded_confirmation_phrase_matched": false,
+  "generated_at_utc": "2026-07-11T00:15:00Z",
+  "guarded_confirmation_phrase_matched": true,
   "guarded_send_confirmation_required": true,
-  "next_package": "ETF-EU-MVP27B_EXPLICIT_SEND_AUTHORIZATION_RETRY",
+  "next_package": "ETF-EU-MVP28_CONTROLLED_DELIVERY_EXECUTION_OR_RUN_QUEUE",
   "package_readiness_gate": "output/fresh_generation/etf_eu_fresh_package_readiness_gate_20260710_000000.json",
   "portfolio_mutation": false,
   "portfolio_state_path": "output/etf_eu_portfolio_state.json",
@@ -32,11 +32,11 @@
   "report_date": "2026-07-10",
   "report_suffix": "260710",
   "routine_run_manifest_required": true,
-  "routine_stage": "explicit_guarded_send_authorization_retry_blocked",
+  "routine_stage": "explicit_guarded_delivery_authorization_created",
   "run_id": "20260710_000000",
   "run_queue_allowed": false,
   "schema_version": "etf_eu_routine_run_manifest_v1",
-  "send_command_allowed": false,
+  "send_command_allowed": true,
   "source_of_truth_repo": "market-predictions/weekly-etf-eu",
   "trade_ledger_path": "output/etf_eu_trade_ledger.csv",
   "transport_attempted": false,
@@ -47,5 +47,5 @@
   "valuation_history_path": "output/etf_eu_valuation_history.csv",
   "workflow_conclusion": null,
   "workflow_dispatch_allowed": false,
-  "workflow_status": "explicit_guarded_send_authorization_retry_blocked"
+  "workflow_status": "explicit_guarded_delivery_authorization_created"
 }
