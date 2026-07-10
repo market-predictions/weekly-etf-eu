@@ -1,46 +1,39 @@
 # Weekly ETF EU Review OS — Next Actions
 
-Current priority: **ETF-EU-MVP22_ROUTINE_WEEKLY_EU_REPORT_OPERATING_LOOP**.
+Current priority: **ETF-EU-MVP23_FRESH_WEEKLY_EU_REPORT_GENERATION_DRY_RUN**.
 
 ## Latest completion
 
 ```text
-work_package_id=ETF-EU-MVP21_POST_DELIVERY_HARDENING
-status=completed_post_delivery_hardening
-source_work_package=ETF-EU-MVP20B_GUARDED_CONTROLLED_RESEND_EXECUTION
+work_package_id=ETF-EU-MVP22_ROUTINE_WEEKLY_EU_REPORT_OPERATING_LOOP
+status=completed_routine_weekly_operating_loop_defined
+source_work_package=ETF-EU-MVP21_POST_DELIVERY_HARDENING
 reference_architecture_repo=market-predictions/weekly-etf
 source_of_truth_repo=market-predictions/weekly-etf-eu
-upstream_pattern_adapted=weekly-etf delivery manifest and run manifest closeout pattern; adapted for EU manual Gmail receipt and UCITS authority boundaries
+upstream_pattern_adapted=weekly-etf routine workflow and run-manifest pattern; adapted for EU/UCITS authority boundaries
 port_behavior_not_us_assumptions=true
 us_assumptions_copied=false
-workflow_run_id=29105468659
-workflow_job_id=86404756891
-real_eu_transport_runner=runtime/send_etf_eu_delivery_package.py
-manual_receipt_confirmation_artifact=output/delivery/etf_eu_manual_receipt_confirmation_20260710_1755.json
-manual_receipt_decision=control/decisions/ETF_EU_MVP20B_GUARDED_RESEND_RECEIPT_DECISION_20260710.md
-post_delivery_hardening_decision=control/decisions/ETF_EU_MVP21_POST_DELIVERY_HARDENING_DECISION_20260710.md
-delivery_closeout_manifest_created=true
-delivery_closeout_manifest_validated=true
-delivery_closeout_manifest=output/run_manifests/etf_eu_delivery_closeout_manifest_20260710_1755.json
-delivery_closeout_manifest_pointer=output/run_manifests/latest_etf_eu_delivery_closeout_manifest_path.txt
-existing_client_grade_package_input=ETF-EU-MVP19-FIX2
-client_grade_package_ready=true
-ready_for_controlled_resend=true
+routine_operating_loop_contract_created=true
+routine_operating_loop_contract=control/ETF_EU_ROUTINE_WEEKLY_OPERATING_LOOP_V1.md
+routine_run_manifest_writer_created=true
+routine_run_manifest_writer=tools/write_etf_eu_routine_run_manifest.py
+routine_run_manifest_validator_created=true
+routine_run_manifest_validator=tools/validate_etf_eu_routine_run_manifest.py
+routine_run_manifest_created=true
+routine_run_manifest=output/run_manifests/etf_eu_routine_run_manifest_2026-07-10_20260710_000000.json
+routine_run_manifest_pointer=output/run_manifests/latest_etf_eu_routine_run_manifest_path.txt
+fresh_generation_and_guarded_delivery_kept_separate=true
 future_guarded_sends_require_persisted_evidence_files=true
-raw_receipt_pdf_stored_in_github=false
-transport_attempted=true
-transport_success=true
-resend_performed=true
-send_executed=true
-delivery_success_closed=true
-receipt_confirmed=true
-completion_claimed=true
+routine_run_manifest_required=true
+transport_attempted=false
+send_executed=false
+receipt_confirmed_from_new_run=false
 valuation_grade=false
 funding_authority=false
 portfolio_mutation=false
 production_delivery_authority=false
-readiness_status=post_delivery_hardened
-selected_next_package=ETF-EU-MVP22_ROUTINE_WEEKLY_EU_REPORT_OPERATING_LOOP
+readiness_status=routine_operating_loop_defined
+selected_next_package=ETF-EU-MVP23_FRESH_WEEKLY_EU_REPORT_GENERATION_DRY_RUN
 ```
 
 ## Standing upstream-first reuse rule
@@ -61,16 +54,16 @@ Borrow mature concepts and safeguards. Do not port U.S. portfolio state, U.S. ho
 ## Active next package
 
 ```text
-ETF-EU-MVP22_ROUTINE_WEEKLY_EU_REPORT_OPERATING_LOOP
+ETF-EU-MVP23_FRESH_WEEKLY_EU_REPORT_GENERATION_DRY_RUN
 ```
 
-## ETF-EU-MVP22 objective
+## ETF-EU-MVP23 objective
 
-Move from one-off controlled resend rescue work to a repeatable weekly EU report operating loop.
+Prove that the routine weekly EU loop can generate a fresh EU report/package dry run from EU state without sending.
 
-The routine loop should define how to generate the next fresh Weekly ETF EU report, validate EU/UCITS pricing/package readiness, send only under explicit guarded authority, persist transport evidence, and close with a deterministic delivery closeout manifest.
+MVP23 should use the routine operating-loop contract and run manifest from MVP22, then build a no-send fresh-generation path that can produce current EU/UCITS package/readiness artifacts.
 
-Do not regenerate or resend by default from this state update alone.
+Do not send by default.
 
 ## Required start sequence
 
@@ -80,30 +73,31 @@ Read in order:
 control/SYSTEM_INDEX.md
 control/CURRENT_STATE.md
 control/NEXT_ACTIONS.md
+control/ETF_EU_ROUTINE_WEEKLY_OPERATING_LOOP_V1.md
 control/decisions/ETF_EU_UPSTREAM_FIRST_REUSE_RULE_DECISION_20260710.md
-control/decisions/ETF_EU_MVP21_POST_DELIVERY_HARDENING_DECISION_20260710.md
+control/decisions/ETF_EU_MVP22_ROUTINE_WEEKLY_OPERATING_LOOP_DECISION_20260710.md
 ```
 
-Then inspect closest upstream `weekly-etf` operating-loop patterns before modifying anything:
+Then inspect closest upstream `weekly-etf` fresh-generation patterns before modifying anything:
 
 ```text
 market-predictions/weekly-etf:.github/workflows/send-weekly-report.yml
-market-predictions/weekly-etf:tools/write_weekly_etf_run_manifest.py
-market-predictions/weekly-etf:tools/validate_etf_manifest_evidence.py
+market-predictions/weekly-etf:pricing/run_pricing_pass.py
 market-predictions/weekly-etf:runtime/build_etf_report_state.py
 market-predictions/weekly-etf:runtime/render_etf_report_from_state.py
+market-predictions/weekly-etf:tools/write_weekly_etf_run_manifest.py
 ```
 
-## MVP22 recommended scope
+## MVP23 recommended scope
 
 ```text
-1. Define the routine weekly EU report runbook from pricing to package to guarded delivery.
-2. Decide whether EU should adopt a fresh-run workflow or keep controlled resend separate from generation.
-3. Add an EU run manifest equivalent that covers pricing, package, transport evidence, receipt/closeout and authority boundaries.
-4. Keep delivery evidence deterministic: no green send without persisted evidence and no receipt claim without receipt proof.
-5. Preserve UCITS/EU authority boundaries: valuation_grade=false, funding_authority=false, portfolio_mutation=false, production_delivery_authority=false unless future explicit gates authorize otherwise.
+1. Implement or define a no-send fresh EU report/package generation dry run.
+2. Start from EU state and UCITS config, not U.S. portfolio state.
+3. Produce Dutch-primary and English-companion package/readiness artifacts if current data allows.
+4. Write or update an EU routine run manifest for the dry run.
+5. Stop before delivery; guarded send remains a separate explicit workflow-dispatch action.
 ```
 
 ## Guardrail
 
-No queue file, workflow dispatch, email sending, transport command, delayed receipt check, report regeneration, or portfolio mutation should be started from this state update alone.
+No workflow dispatch, email sending, live delivery, portfolio mutation, valuation-grade promotion, funding authority promotion, or raw Gmail receipt storage should be started from this state update alone.
