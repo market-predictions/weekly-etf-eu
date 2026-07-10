@@ -1,6 +1,6 @@
 {
   "artifact_type": "etf_eu_guarded_send_authorization",
-  "authorization_source": "uploaded_mvp27_execution_brief_only_no_standalone_user_confirmation",
+  "authorization_source": "uploaded_mvp27b_execution_brief_only_no_standalone_user_confirmation",
   "authorization_status": "blocked_missing_guarded_confirmation_phrase",
   "blockers": [
     "missing_exact_guarded_confirmation_phrase"
@@ -10,7 +10,7 @@
   "explicit_user_authorization_present": false,
   "explicit_user_authorization_required": true,
   "funding_authority": false,
-  "generated_at_utc": "2026-07-10T17:50:00Z",
+  "generated_at_utc": "2026-07-11T00:00:00Z",
   "guarded_confirmation_phrase_matched": false,
   "guarded_confirmation_phrase_present": false,
   "next_package": "ETF-EU-MVP27B_EXPLICIT_SEND_AUTHORIZATION_RETRY",
@@ -41,9 +41,9 @@
   "upstream_pattern_adapted": "weekly-etf guarded send authorization concept; adapted for EU explicit phrase-gated send authority without transport execution",
   "valuation_grade": false,
   "warnings": [
-    "Exact guarded confirmation phrase was not supplied as standalone authorization.",
-    "The required phrase appears in the uploaded task brief only as instruction/example text, which is not sufficient authorization.",
-    "MVP27 does not send, dispatch, queue, expose recipients/secrets, or confirm receipt."
+    "MVP27B retry brief was supplied, but the guarded phrase was not supplied as standalone user authorization.",
+    "The required phrase appears only inside instructions/examples, which is not sufficient authorization.",
+    "MVP27B does not send, dispatch, queue, expose recipients/secrets, or confirm receipt."
   ],
   "workflow_dispatch_allowed": false
 }
