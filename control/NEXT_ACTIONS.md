@@ -43,6 +43,21 @@ selected_next_package=ETF-EU-MVP20B_GUARDED_CONTROLLED_RESEND_EXECUTION
 ETF-EU-MVP20B_GUARDED_CONTROLLED_RESEND_EXECUTION
 ```
 
+## Standing upstream-first reuse rule
+
+Before creating or materially changing any ETF EU task, work package, workflow, runtime script, validator, renderer, delivery step, or control file, first inspect the closest upstream `market-predictions/weekly-etf` implementation.
+
+Record one of:
+
+```text
+upstream_pattern_reused=<file or concept>
+upstream_pattern_adapted=<file or concept + reason>
+upstream_pattern_rejected=<file or concept + EU authority reason>
+no_upstream_equivalent_found=<search terms / inspected files>
+```
+
+Borrow mature concepts and safeguards. Do not port U.S. portfolio state, U.S. holdings, U.S. instruments, U.S. recipient authority, or U.S. delivery assumptions as EU authority.
+
 ## ETF-EU-MVP20B objective
 
 Execute the guarded controlled resend of the existing `ETF-EU-MVP19-FIX2` client-grade package through the real EU package transport runner.
@@ -59,9 +74,10 @@ control/CURRENT_STATE.md
 control/NEXT_ACTIONS.md
 control/work_packages/ETF_EU_MVP20_GUARDED_CONTROLLED_RESEND_INSTRUCTIONS_20260709.md
 control/decisions/ETF_EU_MVP20A_REAL_TRANSPORT_LAYER_DECISION_20260710.md
+control/decisions/ETF_EU_UPSTREAM_FIRST_REUSE_RULE_DECISION_20260710.md
 ```
 
-Then inspect only the minimum relevant execution files:
+Then inspect only the minimum relevant EU execution files:
 
 ```text
 .github/workflows/send-weekly-etf-eu-report.yml
@@ -70,6 +86,17 @@ runtime/check_etf_eu_delivery_receipt.py
 tools/validate_etf_eu_delivery_evidence.py
 output/delivery_package/etf_eu_delivery_package_manifest_20260709_000000.json
 output/client_surface/etf_eu_mvp19_fix2_ready_for_controlled_resend_20260709_000000.json
+```
+
+And inspect the closest upstream `weekly-etf` delivery pattern before modifying anything:
+
+```text
+market-predictions/weekly-etf:.github/workflows/send-weekly-report.yml
+market-predictions/weekly-etf:send_report_runtime_html.py
+market-predictions/weekly-etf:send_report.py
+market-predictions/weekly-etf:send_report_OLD.py
+market-predictions/weekly-etf:tools/write_etf_delivery_manifest_summary.py
+market-predictions/weekly-etf:tools/write_weekly_etf_run_manifest.py
 ```
 
 ## Required validation before execution
