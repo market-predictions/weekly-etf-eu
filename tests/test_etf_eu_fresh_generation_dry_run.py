@@ -1,10 +1,9 @@
 import json
-from argparse import Namespace
 from pathlib import Path
 
 import pytest
 
-from tools.build_etf_eu_fresh_generation_dry_run import build_manifest, _reject_us_state
+from tools.build_etf_eu_fresh_generation_dry_run import _reject_us_state
 from tools.validate_etf_eu_fresh_generation_dry_run import validate
 
 MANIFEST = Path("output/fresh_generation/etf_eu_fresh_generation_package_manifest_20260710_000000.json")
