@@ -1,25 +1,28 @@
 # Weekly ETF EU Review OS — Next Actions
 
-Current priority: **ETF-EU-MVP25_FRESH_PACKAGE_READINESS_GATE**.
+Current priority: **ETF-EU-MVP26_GUARDED_FRESH_PACKAGE_DELIVERY_PREP**.
 
 ## Latest completion
 
 ```text
-work_package_id=ETF-EU-MVP24_FRESH_GENERATION_RENDERER_INTEGRATION
-status=completed_fresh_generation_renderer_integrated
-source_work_package=ETF-EU-MVP23_FRESH_WEEKLY_EU_REPORT_GENERATION_DRY_RUN
+work_package_id=ETF-EU-MVP25_FRESH_PACKAGE_READINESS_GATE
+status=completed_fresh_package_readiness_gate_passed
+source_work_package=ETF-EU-MVP24_FRESH_GENERATION_RENDERER_INTEGRATION
 reference_architecture_repo=market-predictions/weekly-etf
 source_of_truth_repo=market-predictions/weekly-etf-eu
-upstream_pattern_adapted=weekly-etf renderer/package concept; adapted for EU/UCITS fresh package generation
+upstream_pattern_adapted=weekly-etf package-readiness/pre-send validation concept; adapted for EU fresh package readiness without delivery authority
 port_behavior_not_us_assumptions=true
 us_assumptions_copied=false
-fresh_generation_renderer_contract_created=true
-fresh_generation_renderer_contract=control/ETF_EU_FRESH_GENERATION_RENDERER_INTEGRATION_CONTRACT_V1.md
-fresh_generation_package_builder_created=true
-fresh_generation_package_builder=tools/build_etf_eu_fresh_generation_package.py
-fresh_generation_package_validator_created=true
-fresh_generation_package_validator=tools/validate_etf_eu_fresh_generation_package.py
-fresh_generation_package_created=true
+fresh_package_readiness_gate_contract_created=true
+fresh_package_readiness_gate_contract=control/ETF_EU_FRESH_PACKAGE_READINESS_GATE_CONTRACT_V1.md
+fresh_package_readiness_gate_validator_created=true
+fresh_package_readiness_gate_validator=tools/validate_etf_eu_fresh_package_readiness_gate.py
+fresh_package_readiness_gate_created=true
+fresh_package_readiness_gate=output/fresh_generation/etf_eu_fresh_package_readiness_gate_20260710_000000.json
+fresh_package_readiness_gate_passed=true
+readiness_gate_blockers=[]
+ready_for_controlled_delivery=true
+delivery_authorized=false
 fresh_generation_package_manifest=output/fresh_generation/etf_eu_fresh_generation_package_manifest_20260710_000000.json
 fresh_generation_ready_artifact=output/fresh_generation/etf_eu_ready_for_controlled_delivery_20260710_000000.json
 fresh_generation_dutch_primary_markdown=output/fresh_generation/weekly_etf_eu_review_nl_260710.md
@@ -28,14 +31,12 @@ fresh_generation_dutch_primary_html=output/fresh_generation/weekly_etf_eu_review
 fresh_generation_english_companion_html=output/fresh_generation/weekly_etf_eu_review_260710.html
 fresh_generation_dutch_primary_pdf=output/fresh_generation/weekly_etf_eu_review_nl_260710.pdf
 fresh_generation_english_companion_pdf=output/fresh_generation/weekly_etf_eu_review_260710.pdf
-fresh_generation_status=full_package_generated
-full_generation_status=renderer_integrated
-markdown_output_available=true
-html_output_available=true
-pdf_output_available=true
-ready_for_controlled_delivery=false
-fresh_generation_package_validated_by_shell=false
-fresh_generation_package_static_contract_satisfied=true
+markdown_gate_passed=true
+html_gate_passed=true
+pdf_gate_passed=true
+manifest_gate_passed=true
+authority_gate_passed=true
+routine_manifest_gate_passed=true
 routine_run_manifest_updated=true
 routine_run_manifest=output/run_manifests/etf_eu_routine_run_manifest_2026-07-10_20260710_000000.json
 generation_and_delivery_separate=true
@@ -46,8 +47,8 @@ valuation_grade=false
 funding_authority=false
 portfolio_mutation=false
 production_delivery_authority=false
-readiness_status=fresh_generation_renderer_integrated_ready_for_package_gate
-selected_next_package=ETF-EU-MVP25_FRESH_PACKAGE_READINESS_GATE
+readiness_status=fresh_package_readiness_gate_passed_ready_for_delivery_prep
+selected_next_package=ETF-EU-MVP26_GUARDED_FRESH_PACKAGE_DELIVERY_PREP
 ```
 
 ## Standing upstream-first reuse rule
@@ -68,14 +69,24 @@ Borrow mature concepts and safeguards. Do not port U.S. portfolio state, U.S. ho
 ## Active next package
 
 ```text
-ETF-EU-MVP25_FRESH_PACKAGE_READINESS_GATE
+ETF-EU-MVP26_GUARDED_FRESH_PACKAGE_DELIVERY_PREP
 ```
 
-## ETF-EU-MVP25 objective
+## ETF-EU-MVP26 objective
 
-Validate the newly generated MVP24 fresh package and decide whether it is ready for controlled delivery preparation.
+Prepare guarded delivery for the MVP25 readiness-gated fresh package.
 
-MVP25 should run or implement a dedicated package-readiness gate over:
+The package is eligible for delivery preparation, but delivery is **not authorized** yet:
+
+```text
+ready_for_controlled_delivery=true
+delivery_authorized=false
+send_executed=false
+transport_attempted=false
+receipt_confirmed=false
+```
+
+MVP26 should create the guarded delivery-prep layer around:
 
 ```text
 output/fresh_generation/weekly_etf_eu_review_nl_260710.md
@@ -86,6 +97,7 @@ output/fresh_generation/weekly_etf_eu_review_nl_260710.pdf
 output/fresh_generation/weekly_etf_eu_review_260710.pdf
 output/fresh_generation/etf_eu_fresh_generation_package_manifest_20260710_000000.json
 output/fresh_generation/etf_eu_ready_for_controlled_delivery_20260710_000000.json
+output/fresh_generation/etf_eu_fresh_package_readiness_gate_20260710_000000.json
 ```
 
 Do not send by default.
@@ -99,31 +111,31 @@ control/SYSTEM_INDEX.md
 control/CURRENT_STATE.md
 control/NEXT_ACTIONS.md
 control/ETF_EU_ROUTINE_WEEKLY_OPERATING_LOOP_V1.md
-control/ETF_EU_FRESH_GENERATION_DRY_RUN_CONTRACT_V1.md
-control/ETF_EU_FRESH_GENERATION_RENDERER_INTEGRATION_CONTRACT_V1.md
+control/ETF_EU_FRESH_PACKAGE_READINESS_GATE_CONTRACT_V1.md
 control/decisions/ETF_EU_UPSTREAM_FIRST_REUSE_RULE_DECISION_20260710.md
-control/decisions/ETF_EU_MVP24_FRESH_GENERATION_RENDERER_INTEGRATION_DECISION_20260710.md
+control/decisions/ETF_EU_MVP25_FRESH_PACKAGE_READINESS_GATE_DECISION_20260710.md
 ```
 
-Then inspect closest upstream `weekly-etf` package-readiness and delivery-validation patterns before modifying anything:
+Then inspect closest upstream `weekly-etf` guarded-delivery and delivery-manifest patterns before modifying anything:
 
 ```text
-market-predictions/weekly-etf:tools/validate_etf_delivery_html_contract.py
-market-predictions/weekly-etf:tools/validate_etf_pdf_visual_contract.py
-market-predictions/weekly-etf:tools/validate_etf_manifest_evidence.py
 market-predictions/weekly-etf:send_report_runtime_html.py
+market-predictions/weekly-etf:send_report.py
+market-predictions/weekly-etf:tools/write_etf_delivery_manifest_summary.py
+market-predictions/weekly-etf:tools/write_weekly_etf_run_manifest.py
+market-predictions/weekly-etf:tools/validate_etf_manifest_evidence.py
 ```
 
-## MVP25 recommended scope
+## MVP26 recommended scope
 
 ```text
-1. Validate Dutch-primary / English-companion markdown, HTML and PDF files.
-2. Validate no stale delivery wording, no U.S. holdings as EU investable positions, and no authority promotion.
-3. Validate manifest and readiness artifact.
-4. If all checks pass, update readiness artifact to ready_for_controlled_delivery=true for a later explicit guarded delivery-prep package.
-5. Keep delivery separate; no send unless later explicit delivery package authorizes it.
+1. Prepare an explicit fresh-package delivery-prep contract.
+2. Confirm package readiness gate is passed.
+3. Confirm delivery_authorized=false until explicit user instruction.
+4. Create guarded delivery-prep artifact and/or workflow inputs for a future controlled send.
+5. Keep actual transport separate unless the user explicitly authorizes sending.
 ```
 
 ## Guardrail
 
-No workflow dispatch, email sending, live delivery, portfolio mutation, valuation-grade promotion, funding authority promotion, or raw Gmail receipt storage should be started from this state update alone.
+No workflow dispatch, email sending, live delivery, portfolio mutation, valuation-grade promotion, funding authority promotion, production-delivery claim, or receipt confirmation should be started from this state update alone.
