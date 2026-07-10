@@ -52,12 +52,12 @@ jobs:
       - name: Resolve EU run identity
         run: |
           RUN_ID="$(date -u +'%Y%m%d_%H%M%S')"
-          REPORT_DATE="$(date -u +'%Y-%m-%d')"
-          REPORT_SUFFIX="$(date -u +'%y%m%d')"
           echo "ETF_EU_RUN_ID=$RUN_ID" >> "$GITHUB_ENV"
-          echo "ETF_EU_REPORT_DATE=$REPORT_DATE" >> "$GITHUB_ENV"
-          echo "ETF_EU_REPORT_SUFFIX=$REPORT_SUFFIX" >> "$GITHUB_ENV"
-          echo "ETF_EU_RUN_ID=$RUN_ID | report_date=$REPORT_DATE"
+          echo "ETF_EU_EXECUTION_DATE=$(date -u +'%Y-%m-%d')" >> "$GITHUB_ENV"
+          echo "ETF_EU_PACKAGE_REPORT_DATE=2026-07-09" >> "$GITHUB_ENV"
+          echo "ETF_EU_PACKAGE_REPORT_SUFFIX=260709" >> "$GITHUB_ENV"
+          echo "ETF_EU_PACKAGE_RUN_ID=20260709_000000" >> "$GITHUB_ENV"
+          echo "ETF_EU_RUN_ID=$RUN_ID | package_report_date=2026-07-09 | package_suffix=260709"
 
       - name: Resolve EU delivery mode
         run: |
@@ -97,166 +97,30 @@ jobs:
           fi
           echo "ETF_EU_GUARDED_SEND_CONFIRMATION_OK"
 
-      - name: Validate EU control files exist
+      - name: Validate EU control and transport files exist
         run: |
           test -f control/SYSTEM_INDEX.md
           test -f control/CURRENT_STATE.md
           test -f control/NEXT_ACTIONS.md
-          test -f control/UCITS_ETF_REVIEW_CONTRACT_V1.md
-          test -f control/UCITS_INVESTABILITY_RULES.md
-          test -f control/UCITS_SYMBOL_REGISTRY_CONTRACT.md
-          test -f control/UCITS_MIGRATION_PLAN.md
           test -f control/ETF_EU_OUTPUT_CONTRACT_V1.md
-          test -f control/UCITS_PRICING_LINE_CONTRACT_V1.md
-          test -f control/UCITS_VALUATION_PRICING_CONTRACT_V1.md
-          test -f control/UCITS_CLOSE_PRICE_ENGINE_CONTRACT_V1.md
-          test -f control/PRODUCTION_DUTCH_FIRST_REPORT_CONTRACT_V1.md
           test -f control/ETF_EU_DELIVERY_CONTRACT_V1.md
-          test -f control/ETF_EU_CHANGELOG.md
-          echo "ETF_EU_CONTROL_FILES_OK"
+          test -f control/work_packages/ETF_EU_MVP20_GUARDED_CONTROLLED_RESEND_INSTRUCTIONS_20260709.md
+          test -f runtime/send_etf_eu_delivery_package.py
+          test -f runtime/check_etf_eu_delivery_receipt.py
+          test -f tools/validate_etf_eu_delivery_evidence.py
+          test -f tools/validate_etf_eu_mvp19_fix2_ready_for_controlled_resend.py
+          echo "ETF_EU_CONTROL_AND_TRANSPORT_FILES_OK"
 
-      - name: Validate EU config files exist
+      - name: Validate MVP19-FIX2 package readiness
         run: |
-          test -f config/etf_eu_discovery_universe.yml
-          test -f config/ucits_symbol_registry.yml
-          test -f config/ucits_benchmark_proxy_map.yml
-          test -f config/nl_client_investability_rules.yml
-          test -f config/ucits_pricing_source_policy.yml
-          echo "ETF_EU_CONFIG_FILES_OK"
+          python tools/validate_ucits_close_price_validation_basket_results.py \
+            --artifact output/pricing/ucits_close_price_validation_basket_results_20260709_000000.json
 
-      - name: Validate UCITS symbol registry and investability contract
-        run: |
-          python tools/validate_ucits_symbol_registry.py --registry config/ucits_symbol_registry.yml
-          python tools/validate_ucits_investability_contract.py --registry config/ucits_symbol_registry.yml
+          python tools/validate_etf_eu_delivery_package_manifest.py \
+            --manifest output/delivery_package/etf_eu_delivery_package_manifest_20260709_000000.json
 
-      - name: Build and validate UCITS pricing candidates
-        run: |
-          python -m pricing.build_ucits_pricing_candidates \
-            --registry config/ucits_symbol_registry.yml \
-            --output-dir output/pricing \
-            --run-id "$ETF_EU_RUN_ID"
-          python tools/validate_ucits_pricing_candidates.py \
-            --artifact "output/pricing/ucits_pricing_candidates_${ETF_EU_RUN_ID}.json"
-
-      - name: Run non-authoritative UCITS pricing preflight
-        run: |
-          python -m pricing.run_ucits_pricing_preflight \
-            --candidate-artifact "output/pricing/ucits_pricing_candidates_${ETF_EU_RUN_ID}.json" \
-            --output-dir output/pricing \
-            --run-id "$ETF_EU_RUN_ID"
-          python tools/validate_ucits_pricing_preflight.py \
-            --artifact "output/pricing/ucits_pricing_preflight_${ETF_EU_RUN_ID}.json"
-
-      - name: Build and validate agreement-aware UCITS valuation pricing artifact
-        env:
-          TWELVE_DATA_API_KEY: ${{ secrets.TWELVE_DATA_API_KEY }}
-          TWELVEDATA_API_KEY: ${{ secrets.TWELVEDATA_API_KEY }}
-        run: |
-          python -m pricing.build_ucits_valuation_prices_with_agreement \
-            --registry config/ucits_symbol_registry.yml \
-            --source-policy config/ucits_pricing_source_policy.yml \
-            --candidate-artifact "output/pricing/ucits_pricing_candidates_${ETF_EU_RUN_ID}.json" \
-            --preflight-artifact "output/pricing/ucits_pricing_preflight_${ETF_EU_RUN_ID}.json" \
-            --output-dir output/pricing \
-            --run-id "$ETF_EU_RUN_ID"
-          python tools/validate_ucits_valuation_prices.py \
-            --artifact "output/pricing/ucits_valuation_prices_${ETF_EU_RUN_ID}.json" \
-            --source-policy config/ucits_pricing_source_policy.yml
-
-      - name: Build and validate UCITS fundability gate artifact
-        run: |
-          python -m runtime.build_ucits_fundability_gate \
-            --registry config/ucits_symbol_registry.yml \
-            --valuation-artifact "output/pricing/ucits_valuation_prices_${ETF_EU_RUN_ID}.json" \
-            --output-dir output/fundability \
-            --run-id "$ETF_EU_RUN_ID"
-          python tools/validate_ucits_fundability_promotion_contract.py \
-            --registry config/ucits_symbol_registry.yml \
-            --artifact "output/fundability/ucits_fundability_gate_${ETF_EU_RUN_ID}.json"
-
-      - name: Snapshot official exchange source candidates
-        run: |
-          python -m pricing.build_official_exchange_source_snapshot \
-            --source-policy config/ucits_pricing_source_policy.yml \
-            --output-dir output/pricing \
-            --run-id "$ETF_EU_RUN_ID"
-          python tools/validate_official_exchange_source_snapshot.py \
-            --artifact "output/pricing/ucits_official_exchange_source_snapshot_${ETF_EU_RUN_ID}.json"
-
-      - name: Build official exchange page evidence
-        run: |
-          python -m pricing.build_official_exchange_page_evidence \
-            --source-policy config/ucits_pricing_source_policy.yml \
-            --output-dir output/pricing \
-            --run-id "$ETF_EU_RUN_ID"
-          python tools/validate_official_exchange_page_evidence.py \
-            --artifact "output/pricing/ucits_official_exchange_page_evidence_${ETF_EU_RUN_ID}.json"
-
-      - name: Build and validate generic UCITS close observations
-        run: |
-          python -m pricing.close_engine.engine \
-            --source-policy config/ucits_pricing_source_policy.yml \
-            --output-dir output/pricing \
-            --run-id "$ETF_EU_RUN_ID"
-          python tools/validate_ucits_close_observations.py \
-            --artifact "output/pricing/ucits_close_observations_${ETF_EU_RUN_ID}.json"
-
-      - name: Build and validate Euronext endpoint evidence
-        run: |
-          python -m pricing.build_euronext_endpoint_evidence \
-            --close-observations "output/pricing/ucits_close_observations_${ETF_EU_RUN_ID}.json" \
-            --output-dir output/pricing \
-            --run-id "$ETF_EU_RUN_ID"
-          python tools/validate_euronext_endpoint_evidence.py \
-            --artifact "output/pricing/euronext_endpoint_evidence_${ETF_EU_RUN_ID}.json"
-
-      - name: Build and validate Euronext product-page evidence
-        run: |
-          python -m pricing.build_euronext_product_page_evidence \
-            --close-observations "output/pricing/ucits_close_observations_${ETF_EU_RUN_ID}.json" \
-            --output-dir output/pricing \
-            --run-id "$ETF_EU_RUN_ID"
-          python tools/validate_euronext_product_page_evidence.py \
-            --artifact "output/pricing/euronext_product_page_evidence_${ETF_EU_RUN_ID}.json"
-
-      - name: Build and validate Euronext dynamic quote response discovery
-        run: |
-          python -m pricing.build_euronext_dynamic_quote_response_discovery \
-            --product-page-evidence "output/pricing/euronext_product_page_evidence_${ETF_EU_RUN_ID}.json" \
-            --output-dir output/pricing \
-            --run-id "$ETF_EU_RUN_ID"
-          python tools/validate_euronext_dynamic_quote_response_discovery.py \
-            --artifact "output/pricing/euronext_dynamic_quote_response_discovery_${ETF_EU_RUN_ID}.json"
-
-      - name: Build and validate Euronext JS asset inspection
-        run: |
-          python -m pricing.build_euronext_js_asset_inspection \
-            --dynamic-discovery "output/pricing/euronext_dynamic_quote_response_discovery_${ETF_EU_RUN_ID}.json" \
-            --output-dir output/pricing \
-            --run-id "$ETF_EU_RUN_ID"
-          python tools/validate_euronext_js_asset_inspection.py \
-            --artifact "output/pricing/euronext_js_asset_inspection_${ETF_EU_RUN_ID}.json"
-
-      - name: Build and validate Yahoo UCITS close diagnostics
-        run: |
-          python -m pricing.build_yahoo_ucits_close_diagnostics \
-            --source-policy config/ucits_pricing_source_policy.yml \
-            --output-dir output/pricing \
-            --run-id "$ETF_EU_RUN_ID"
-          python tools/validate_yahoo_ucits_close_diagnostics.py \
-            --artifact "output/pricing/yahoo_ucits_close_diagnostics_${ETF_EU_RUN_ID}.json"
-
-      - name: Discover Twelve Data UCITS provider symbols
-        env:
-          TWELVE_DATA_API_KEY: ${{ secrets.TWELVE_DATA_API_KEY }}
-          TWELVEDATA_API_KEY: ${{ secrets.TWELVEDATA_API_KEY }}
-        run: |
-          python -m pricing.discover_twelve_data_ucits_symbols \
-            --source-policy config/ucits_pricing_source_policy.yml \
-            --output-dir output/pricing \
-            --run-id "$ETF_EU_RUN_ID"
-          python tools/validate_ucits_twelve_data_symbol_discovery.py \
-            --artifact "output/pricing/ucits_twelve_data_symbol_discovery_${ETF_EU_RUN_ID}.json"
+          python tools/validate_etf_eu_mvp19_fix2_ready_for_controlled_resend.py \
+            --artifact output/client_surface/etf_eu_mvp19_fix2_ready_for_controlled_resend_20260709_000000.json
 
       - name: Validate EU cash-only state and no US ETF holdings
         run: |
@@ -271,30 +135,6 @@ jobs:
           assert state.get('positions') == []
           print('ETF_EU_CASH_ONLY_STATE_OK')
           PY
-
-      - name: Render EU candidate report with pricing and fundability surfaces
-        run: |
-          python -m runtime.render_etf_eu_report_with_pricing_surface \
-            --output-dir output \
-            --state output/etf_eu_portfolio_state.json \
-            --proxy-map config/ucits_benchmark_proxy_map.yml \
-            --registry config/ucits_symbol_registry.yml \
-            --pricing-preflight "output/pricing/ucits_pricing_preflight_${ETF_EU_RUN_ID}.json" \
-            --valuation-artifact "output/pricing/ucits_valuation_prices_${ETF_EU_RUN_ID}.json" \
-            --fundability-artifact "output/fundability/ucits_fundability_gate_${ETF_EU_RUN_ID}.json" \
-            --report-date "$ETF_EU_REPORT_DATE"
-
-      - name: Validate EU output, pricing surface and fundability contracts
-        run: |
-          python tools/validate_etf_eu_output_contract.py --output-dir output --require-production-dutch-first --report-suffix "$ETF_EU_REPORT_SUFFIX"
-          python tools/validate_etf_eu_candidate_report.py --output-dir output
-          python tools/validate_etf_eu_pricing_surface.py "output/weekly_etf_eu_review_${ETF_EU_REPORT_SUFFIX}.md" --require-production-dutch-first
-          python tools/validate_etf_eu_pricing_surface.py "output/weekly_etf_eu_review_nl_${ETF_EU_REPORT_SUFFIX}.md" --require-production-dutch-first
-          python tools/validate_etf_eu_fundability_surface.py "output/weekly_etf_eu_review_${ETF_EU_REPORT_SUFFIX}.md"
-          python tools/validate_etf_eu_fundability_surface.py "output/weekly_etf_eu_review_nl_${ETF_EU_REPORT_SUFFIX}.md"
-          python tools/validate_ucits_fundability_promotion_contract.py \
-            --registry config/ucits_symbol_registry.yml \
-            --artifact "output/fundability/ucits_fundability_gate_${ETF_EU_RUN_ID}.json"
 
       - name: Validate inherited US production sender is disabled
         run: |
@@ -314,121 +154,77 @@ jobs:
           case "$ETF_EU_DELIVERY_MODE" in
             validate_only)
               echo "ETF_EU_BOOTSTRAP_VALIDATION_ONLY"
-              echo "No portfolio mutation, PDF generation or email delivery is performed by this workflow."
+              echo "No portfolio mutation, PDF generation or email delivery is performed by this mode."
               ;;
             dry_run)
               echo "ETF_EU_DELIVERY_DRY_RUN_MODE"
-              echo "EU report, validation evidence, delivery manifest and run bundle are built. No email delivery is performed."
+              echo "The EU transport runner writes dry-run evidence. No email delivery is performed."
               ;;
             send)
-              echo "ETF_EU_GUARDED_SEND_STATIC_PATH"
-              echo "Guarded send confirmation was resolved. Validation gates continue before the isolated MVP15 placeholder."
+              echo "ETF_EU_GUARDED_SEND_REAL_TRANSPORT_PATH"
+              echo "Guarded send confirmation was resolved. The isolated EU package transport runner will be used."
               ;;
           esac
-          echo "UCITS pricing preflight is non-authoritative and cannot promote candidates to fundable status."
-          echo "Agreement-aware UCITS valuation artifact is non-mutating and cannot create funding authority."
-          echo "Agreement-gate pricing surface is report evidence only and cannot create valuation or funding authority."
-          echo "UCITS fundability gate is report evidence only and cannot promote candidates to fundable."
-          echo "Official exchange source snapshot is diagnostic only and cannot create valuation or funding authority."
-          echo "Official exchange page evidence is identity evidence only and cannot create valuation or funding authority."
-          echo "Generic UCITS close observations are adapter-scaffold evidence only and cannot create valuation or funding authority."
-          echo "Euronext endpoint evidence is diagnostic only and cannot create valuation or funding authority."
-          echo "Euronext product-page evidence is diagnostic only and cannot create valuation or funding authority."
-          echo "Euronext dynamic quote response discovery is diagnostic only and cannot create valuation or funding authority."
-          echo "Euronext JS asset inspection is diagnostic only and cannot create valuation or funding authority."
-          echo "Yahoo UCITS close diagnostics are connectivity-only and cannot create valuation or funding authority."
-          echo "Twelve Data symbol discovery is diagnostic only and cannot create valuation or funding authority."
+          echo "UCITS pricing evidence remains non-authoritative and cannot create valuation or funding authority."
+          echo "Controlled resend evidence cannot create portfolio mutation authority."
+          echo "Receipt confirmation remains false unless a real mailbox or receipt check confirms receipt."
 
-      - name: Build and validate non-production shadow validation evidence
+      - name: MVP20A dry-run transport evidence
+        if: env.ETF_EU_DELIVERY_MODE == 'dry_run'
         run: |
-          python tools/build_etf_eu_shadow_validation_evidence.py \
+          python -m runtime.send_etf_eu_delivery_package \
+            --dry-run \
             --run-id "$ETF_EU_RUN_ID" \
-            --report-date "$ETF_EU_REPORT_DATE" \
-            --output-dir output/validation
-          python tools/validate_etf_eu_shadow_validation_evidence.py \
-            --artifact "output/validation/etf_eu_shadow_validation_evidence_${ETF_EU_RUN_ID}.json"
-
-      - name: Build and validate blocked delivery manifest
-        run: |
-          python -m runtime.build_etf_eu_delivery_manifest \
-            --output-dir output/delivery \
-            --run-id "$ETF_EU_RUN_ID" \
-            --report-date "$ETF_EU_REPORT_DATE" \
-            --dutch-report-path "output/weekly_etf_eu_review_nl_${ETF_EU_REPORT_SUFFIX}.md" \
-            --english-report-path "output/weekly_etf_eu_review_${ETF_EU_REPORT_SUFFIX}.md" \
-            --valuation-artifact-path "output/pricing/ucits_valuation_prices_${ETF_EU_RUN_ID}.json" \
-            --fundability-artifact-path "output/fundability/ucits_fundability_gate_${ETF_EU_RUN_ID}.json" \
-            --validation-evidence-path "output/validation/etf_eu_shadow_validation_evidence_${ETF_EU_RUN_ID}.json"
-          python tools/validate_etf_eu_delivery_manifest.py \
-            "output/delivery/etf_eu_delivery_manifest_${ETF_EU_RUN_ID}.json"
-
-      - name: Build and validate run bundle manifest
-        run: |
-          python -m runtime.build_etf_eu_run_bundle \
-            --run-id "$ETF_EU_RUN_ID" \
-            --report-date "$ETF_EU_REPORT_DATE" \
-            --dutch-report-path "output/weekly_etf_eu_review_nl_${ETF_EU_REPORT_SUFFIX}.md" \
-            --english-report-path "output/weekly_etf_eu_review_${ETF_EU_REPORT_SUFFIX}.md" \
-            --valuation-artifact-path "output/pricing/ucits_valuation_prices_${ETF_EU_RUN_ID}.json" \
-            --fundability-artifact-path "output/fundability/ucits_fundability_gate_${ETF_EU_RUN_ID}.json" \
-            --validation-evidence-path "output/validation/etf_eu_shadow_validation_evidence_${ETF_EU_RUN_ID}.json" \
-            --delivery-manifest-path "output/delivery/etf_eu_delivery_manifest_${ETF_EU_RUN_ID}.json"
-          python tools/validate_etf_eu_run_bundle.py \
-            "output/runs/${ETF_EU_RUN_ID}/etf_eu_run_bundle_manifest.json"
-
-      - name: Validate MVP09 delivery evidence integration gate
-        run: |
-          python tools/validate_etf_eu_delivery_evidence.py --evidence output/delivery/etf_eu_delivery_evidence_20260708_000000.json
-          python tools/validate_etf_eu_run_bundle_delivery_evidence.py --fixture output/runs/20260708_000000/etf_eu_run_bundle_delivery_evidence_fixture.json
-          python tools/validate_etf_eu_mvp09_controlled_send_implementation_with_delivery_evidence.py
-
-      - name: Build MVP15 pre-transport evidence
-        if: env.ETF_EU_DELIVERY_MODE == 'send' && env.ETF_EU_SEND_CONFIRMATION == 'confirm_guarded_send'
-        run: |
-          python -m runtime.write_etf_eu_delivery_evidence \
-            --mvp15-static \
-            --stage pre \
-            --run-id "$ETF_EU_RUN_ID" \
-            --report-date "$ETF_EU_REPORT_DATE" \
-            --report-suffix "$ETF_EU_REPORT_SUFFIX" \
+            --report-date "$ETF_EU_PACKAGE_REPORT_DATE" \
+            --report-suffix "$ETF_EU_PACKAGE_REPORT_SUFFIX" \
+            --delivery-package-manifest "output/delivery_package/etf_eu_delivery_package_manifest_${ETF_EU_PACKAGE_RUN_ID}.json" \
+            --ready-artifact "output/client_surface/etf_eu_mvp19_fix2_ready_for_controlled_resend_${ETF_EU_PACKAGE_RUN_ID}.json" \
             --output-dir output/delivery
 
-      - name: MVP15 guarded transport placeholder
-        if: env.ETF_EU_DELIVERY_MODE == 'send' && env.ETF_EU_SEND_CONFIRMATION == 'confirm_guarded_send'
-        run: |
-          echo "ETF_EU_MVP15_TRANSPORT_PLACEHOLDER"
-          echo "MVP15 static closeout does not perform outbound transport."
-          echo "ETF_EU_TRANSPORT_EXECUTED=false"
+          python tools/validate_etf_eu_delivery_evidence.py \
+            --evidence "output/delivery/etf_eu_delivery_evidence_${ETF_EU_RUN_ID}.json"
 
-      - name: Build MVP15 post-transport evidence
+      - name: MVP20A guarded EU package transport
         if: env.ETF_EU_DELIVERY_MODE == 'send' && env.ETF_EU_SEND_CONFIRMATION == 'confirm_guarded_send'
+        env:
+          MRKT_RPRTS_SMTP_HOST: ${{ secrets.MRKT_RPRTS_SMTP_HOST }}
+          MRKT_RPRTS_SMTP_PORT: ${{ secrets.MRKT_RPRTS_SMTP_PORT }}
+          MRKT_RPRTS_SMTP_USER: ${{ secrets.MRKT_RPRTS_SMTP_USER }}
+          MRKT_RPRTS_SMTP_PASS: ${{ secrets.MRKT_RPRTS_SMTP_PASS }}
+          MRKT_RPRTS_MAIL_FROM: ${{ secrets.MRKT_RPRTS_MAIL_FROM }}
+          MRKT_RPRTS_MAIL_TO: ${{ secrets.MRKT_RPRTS_MAIL_TO }}
+          MRKT_RPRTS_MAIL_TO_NL: ${{ secrets.MRKT_RPRTS_MAIL_TO_NL }}
+          MRKT_RPRTS_SUBJECT_PREFIX_NL: ${{ vars.MRKT_RPRTS_SUBJECT_PREFIX_NL }}
         run: |
-          python -m runtime.write_etf_eu_delivery_evidence \
-            --mvp15-static \
-            --stage post \
+          python -m runtime.send_etf_eu_delivery_package \
             --run-id "$ETF_EU_RUN_ID" \
-            --report-date "$ETF_EU_REPORT_DATE" \
-            --report-suffix "$ETF_EU_REPORT_SUFFIX" \
+            --report-date "$ETF_EU_PACKAGE_REPORT_DATE" \
+            --report-suffix "$ETF_EU_PACKAGE_REPORT_SUFFIX" \
+            --delivery-package-manifest "output/delivery_package/etf_eu_delivery_package_manifest_${ETF_EU_PACKAGE_RUN_ID}.json" \
+            --ready-artifact "output/client_surface/etf_eu_mvp19_fix2_ready_for_controlled_resend_${ETF_EU_PACKAGE_RUN_ID}.json" \
             --output-dir output/delivery
 
-      - name: Build MVP15 delayed receipt check artifact
+          python tools/validate_etf_eu_delivery_evidence.py \
+            --evidence "output/delivery/etf_eu_delivery_evidence_${ETF_EU_RUN_ID}.json"
+
+      - name: Build MVP20A delayed receipt check artifact
         if: env.ETF_EU_DELIVERY_MODE == 'send' && env.ETF_EU_SEND_CONFIRMATION == 'confirm_guarded_send'
         run: |
           python -m runtime.check_etf_eu_delivery_receipt \
-            --mvp15-static \
             --run-id "$ETF_EU_RUN_ID" \
             --evidence-path "output/delivery/etf_eu_delivery_evidence_${ETF_EU_RUN_ID}.json" \
             --delay-minutes 10 \
             --output-dir output/delivery
 
-      - name: Commit EU bootstrap report and pricing artifacts
+      - name: Commit EU transport evidence artifacts
+        if: env.ETF_EU_DELIVERY_MODE == 'dry_run' || env.ETF_EU_DELIVERY_MODE == 'send'
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add output/weekly_etf_eu_review_*.md output/pricing/ucits_pricing_candidates_*.json output/pricing/ucits_pricing_preflight_*.json output/pricing/ucits_valuation_prices_*.json output/fundability/ucits_fundability_gate_*.json output/pricing/ucits_pricing_source_policy_shadow_*.yml output/pricing/ucits_official_exchange_source_snapshot_*.json output/pricing/ucits_official_exchange_page_evidence_*.json output/pricing/ucits_close_observations_*.json output/pricing/euronext_endpoint_evidence_*.json output/pricing/euronext_product_page_evidence_*.json output/pricing/euronext_dynamic_quote_response_discovery_*.json output/pricing/euronext_js_asset_inspection_*.json output/pricing/yahoo_ucits_close_diagnostics_*.json output/pricing/ucits_twelve_data_symbol_discovery_*.json output/validation/etf_eu_shadow_validation_evidence_*.json output/delivery/etf_eu_delivery_manifest_*.json output/delivery/etf_eu_delivery_evidence_*.json output/delivery/etf_eu_receipt_check_*.json output/runs/*/etf_eu_run_bundle_manifest.json || true
+          git add output/delivery/etf_eu_delivery_evidence_*.json output/delivery/etf_eu_transport_result_*.json output/delivery/etf_eu_receipt_check_*.json || true
           if git diff --cached --quiet; then
-            echo "No EU bootstrap artifacts to commit."
+            echo "No EU transport artifacts to commit."
             exit 0
           fi
-          git commit -m "Persist Weekly ETF EU candidate report artifacts [skip ci]"
+          git commit -m "Persist Weekly ETF EU transport evidence [skip ci]"
           git push origin HEAD:main
