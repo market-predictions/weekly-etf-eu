@@ -1,39 +1,47 @@
 # Weekly ETF EU Review OS — Next Actions
 
-Current priority: **ETF-EU-MVP23_FRESH_WEEKLY_EU_REPORT_GENERATION_DRY_RUN**.
+Current priority: **ETF-EU-MVP24_FRESH_GENERATION_RENDERER_INTEGRATION**.
 
 ## Latest completion
 
 ```text
-work_package_id=ETF-EU-MVP22_ROUTINE_WEEKLY_EU_REPORT_OPERATING_LOOP
-status=completed_routine_weekly_operating_loop_defined
-source_work_package=ETF-EU-MVP21_POST_DELIVERY_HARDENING
+work_package_id=ETF-EU-MVP23_FRESH_WEEKLY_EU_REPORT_GENERATION_DRY_RUN
+status=completed_fresh_generation_dry_run_scaffold
+source_work_package=ETF-EU-MVP22_ROUTINE_WEEKLY_EU_REPORT_OPERATING_LOOP
 reference_architecture_repo=market-predictions/weekly-etf
 source_of_truth_repo=market-predictions/weekly-etf-eu
-upstream_pattern_adapted=weekly-etf routine workflow and run-manifest pattern; adapted for EU/UCITS authority boundaries
+upstream_pattern_adapted=weekly-etf fresh-generation/runtime/report-manifest concept; adapted for EU dry-run and UCITS authority boundaries
 port_behavior_not_us_assumptions=true
 us_assumptions_copied=false
-routine_operating_loop_contract_created=true
-routine_operating_loop_contract=control/ETF_EU_ROUTINE_WEEKLY_OPERATING_LOOP_V1.md
-routine_run_manifest_writer_created=true
-routine_run_manifest_writer=tools/write_etf_eu_routine_run_manifest.py
-routine_run_manifest_validator_created=true
-routine_run_manifest_validator=tools/validate_etf_eu_routine_run_manifest.py
-routine_run_manifest_created=true
+fresh_generation_dry_run_contract_created=true
+fresh_generation_dry_run_contract=control/ETF_EU_FRESH_GENERATION_DRY_RUN_CONTRACT_V1.md
+fresh_generation_dry_run_builder_created=true
+fresh_generation_dry_run_builder=tools/build_etf_eu_fresh_generation_dry_run.py
+fresh_generation_dry_run_validator_created=true
+fresh_generation_dry_run_validator=tools/validate_etf_eu_fresh_generation_dry_run.py
+fresh_generation_dry_run_manifest_created=true
+fresh_generation_dry_run_manifest=output/fresh_generation/etf_eu_fresh_generation_package_manifest_20260710_000000.json
+fresh_generation_ready_artifact=output/fresh_generation/etf_eu_ready_for_controlled_delivery_dry_run_20260710_000000.json
+fresh_generation_dutch_primary_markdown=output/fresh_generation/weekly_etf_eu_review_nl_260710_dry_run.md
+fresh_generation_english_companion_markdown=output/fresh_generation/weekly_etf_eu_review_260710_dry_run.md
+fresh_generation_dutch_primary_html=output/fresh_generation/weekly_etf_eu_review_nl_260710_dry_run.html
+fresh_generation_english_companion_html=output/fresh_generation/weekly_etf_eu_review_260710_dry_run.html
+fresh_generation_status=scaffold_created
+full_generation_status=blocked_pending_renderer_or_pricing_integration
+pdf_generation_status=not_implemented_in_mvp23
+ready_for_controlled_delivery=false
+routine_run_manifest_updated=true
 routine_run_manifest=output/run_manifests/etf_eu_routine_run_manifest_2026-07-10_20260710_000000.json
-routine_run_manifest_pointer=output/run_manifests/latest_etf_eu_routine_run_manifest_path.txt
-fresh_generation_and_guarded_delivery_kept_separate=true
-future_guarded_sends_require_persisted_evidence_files=true
-routine_run_manifest_required=true
-transport_attempted=false
+generation_and_delivery_separate=true
 send_executed=false
+transport_attempted=false
 receipt_confirmed_from_new_run=false
 valuation_grade=false
 funding_authority=false
 portfolio_mutation=false
 production_delivery_authority=false
-readiness_status=routine_operating_loop_defined
-selected_next_package=ETF-EU-MVP23_FRESH_WEEKLY_EU_REPORT_GENERATION_DRY_RUN
+readiness_status=fresh_generation_dry_run_scaffold_ready_for_renderer_integration
+selected_next_package=ETF-EU-MVP24_FRESH_GENERATION_RENDERER_INTEGRATION
 ```
 
 ## Standing upstream-first reuse rule
@@ -54,14 +62,14 @@ Borrow mature concepts and safeguards. Do not port U.S. portfolio state, U.S. ho
 ## Active next package
 
 ```text
-ETF-EU-MVP23_FRESH_WEEKLY_EU_REPORT_GENERATION_DRY_RUN
+ETF-EU-MVP24_FRESH_GENERATION_RENDERER_INTEGRATION
 ```
 
-## ETF-EU-MVP23 objective
+## ETF-EU-MVP24 objective
 
-Prove that the routine weekly EU loop can generate a fresh EU report/package dry run from EU state without sending.
+Integrate the fresh-generation scaffold with a real EU renderer/package builder so the routine loop can produce a complete Dutch-primary / English-companion package from EU state.
 
-MVP23 should use the routine operating-loop contract and run manifest from MVP22, then build a no-send fresh-generation path that can produce current EU/UCITS package/readiness artifacts.
+MVP24 should start from the MVP23 scaffold and decide whether to adapt upstream `runtime/build_etf_report_state.py`, `runtime/render_etf_report_from_state.py`, and HTML/PDF delivery asset generation, or keep a thinner EU-specific renderer.
 
 Do not send by default.
 
@@ -74,28 +82,29 @@ control/SYSTEM_INDEX.md
 control/CURRENT_STATE.md
 control/NEXT_ACTIONS.md
 control/ETF_EU_ROUTINE_WEEKLY_OPERATING_LOOP_V1.md
+control/ETF_EU_FRESH_GENERATION_DRY_RUN_CONTRACT_V1.md
 control/decisions/ETF_EU_UPSTREAM_FIRST_REUSE_RULE_DECISION_20260710.md
-control/decisions/ETF_EU_MVP22_ROUTINE_WEEKLY_OPERATING_LOOP_DECISION_20260710.md
+control/decisions/ETF_EU_MVP23_FRESH_WEEKLY_EU_REPORT_GENERATION_DRY_RUN_DECISION_20260710.md
 ```
 
-Then inspect closest upstream `weekly-etf` fresh-generation patterns before modifying anything:
+Then inspect closest upstream `weekly-etf` renderer/package patterns before modifying anything:
 
 ```text
-market-predictions/weekly-etf:.github/workflows/send-weekly-report.yml
-market-predictions/weekly-etf:pricing/run_pricing_pass.py
 market-predictions/weekly-etf:runtime/build_etf_report_state.py
 market-predictions/weekly-etf:runtime/render_etf_report_from_state.py
+market-predictions/weekly-etf:send_report_runtime_html.py
+market-predictions/weekly-etf:send_report.py
 market-predictions/weekly-etf:tools/write_weekly_etf_run_manifest.py
 ```
 
-## MVP23 recommended scope
+## MVP24 recommended scope
 
 ```text
-1. Implement or define a no-send fresh EU report/package generation dry run.
-2. Start from EU state and UCITS config, not U.S. portfolio state.
-3. Produce Dutch-primary and English-companion package/readiness artifacts if current data allows.
-4. Write or update an EU routine run manifest for the dry run.
-5. Stop before delivery; guarded send remains a separate explicit workflow-dispatch action.
+1. Replace MVP23 scaffold-only generation with a real EU renderer path where safe.
+2. Preserve Dutch-primary / English-companion output contract.
+3. Preserve EU state authority and reject U.S. portfolio state.
+4. Add HTML/PDF package generation only after validators prove outputs are clean.
+5. Keep guarded delivery separate; no send unless later explicit delivery package authorizes it.
 ```
 
 ## Guardrail
