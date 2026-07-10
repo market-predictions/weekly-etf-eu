@@ -18,6 +18,7 @@ ALLOWED_DELIVERY_STATUSES = {
     "evidence_invalid",
 }
 SUCCESS_CAVEAT = "not an end-recipient inbox receipt"
+TRANSPORT_CONTRACT_VERSION = "etf_eu_real_transport_evidence_contract_v1"
 NL_REPORT_RE = re.compile(r"weekly_etf_eu_review_nl_(\d{6})\.md$")
 EN_REPORT_RE = re.compile(r"weekly_etf_eu_review_(\d{6})\.md$")
 
@@ -35,6 +36,69 @@ def _path_exists(path_value: object, label: str) -> None:
     path = Path(str(path_value or ""))
     _require(str(path), f"{label} missing")
     _require(path.exists(), f"{label} missing path: {path}")
+
+
+def _validate_transport_contract(data: dict[str, Any], delivery_status: str) -> None:
+    if "transport_contract_version" not in data:
+        return
+
+    _require(data.get("transport_contract_version") == TRANSPORT_CONTRACT_VERSION, "transport contract version mismatch")
+    for key in [
+        "delivery_mode",
+        "transport_attempted",
+        "transport_success",
+        "transport_error",
+        "recipient_target_redacted",
+        "dutch_primary_pdf",
+        "english_companion_pdf",
+        "dutch_primary_html",
+        "english_companion_html",
+        "delivery_package_manifest",
+        "ready_artifact",
+        "smtp_or_transport_provider",
+        "message_id_or_receipt_reference",
+        "receipt_confirmed",
+        "valuation_grade",
+        "funding_authority",
+        "portfolio_mutation",
+        "production_delivery_authority",
+    ]:
+        _require(key in data, f"transport contract field missing: {key}")
+
+    delivery_mode = str(data.get("delivery_mode"))
+    _require(delivery_mode in {"dry_run", "send"}, f"unsupported delivery_mode={delivery_mode}")
+    _require(data.get("recipient_target_redacted") is True, "recipient target must be redacted")
+    _require(data.get("receipt_confirmed") is False or delivery_status == "receipt_confirmed", "receipt cannot be confirmed without receipt status")
+    _require(data.get("valuation_grade") is False, "transport evidence must not create valuation grade")
+    _require(data.get("funding_authority") is False, "transport evidence must not create funding authority")
+    _require(data.get("portfolio_mutation") is False, "transport evidence must not mutate portfolio")
+    _require(data.get("production_delivery_authority") is False, "transport evidence must not create production delivery authority")
+
+    for label in [
+        "dutch_primary_pdf",
+        "english_companion_pdf",
+        "dutch_primary_html",
+        "english_companion_html",
+        "delivery_package_manifest",
+        "ready_artifact",
+    ]:
+        _path_exists(data.get(label), label)
+
+    attempted = data.get("transport_attempted")
+    success = data.get("transport_success")
+    _require(isinstance(attempted, bool), "transport_attempted must be boolean")
+    _require(isinstance(success, bool), "transport_success must be boolean")
+    if delivery_mode == "dry_run":
+        _require(attempted is False, "dry_run must not attempt transport")
+        _require(success is False, "dry_run must not claim transport success")
+    if success:
+        _require(attempted is True, "transport_success requires transport_attempted")
+        _require(delivery_status == "smtp_sendmail_returned_no_exception", "transport_success requires SMTP success status")
+        _require(not data.get("transport_error"), "transport_success requires empty transport_error")
+        _require(bool(data.get("message_id_or_receipt_reference")), "transport_success requires message id or receipt reference")
+        _require(SUCCESS_CAVEAT in str(data.get("delivery_status_meaning") or ""), "transport_success requires inbox receipt caveat")
+    if attempted and not success:
+        _require(bool(data.get("transport_error")), "failed attempted transport requires transport_error")
 
 
 def validate(evidence_path: Path) -> dict[str, Any]:
@@ -91,13 +155,14 @@ def validate(evidence_path: Path) -> dict[str, Any]:
 
     if delivery_status in {"smtp_sendmail_returned_no_exception", "transport_succeeded_unconfirmed"}:
         _require(SUCCESS_CAVEAT in str(data.get("delivery_status_meaning") or ""), "missing status caveat")
-    if delivery_status in {"not_attempted", "attempt_pending", "transport_succeeded_unconfirmed", "transport_failed", "receipt_not_found_after_delay"}:
+    if delivery_status in {"not_attempted", "attempt_pending", "transport_succeeded_unconfirmed", "transport_failed", "receipt_not_found_after_delay", "smtp_sendmail_failed"}:
         for key in ["production_delivery", "email_delivery", "delivery_success"]:
             _require(data.get(key) is False, f"expected false for {delivery_status}: {key}")
 
     if data.get("delivery_success") is True:
         _require(delivery_status == "smtp_sendmail_returned_no_exception", "success requires successful transport status")
         _require(SUCCESS_CAVEAT in str(data.get("delivery_status_meaning") or ""), "success requires caveat")
+        _require(data.get("delivery_receipt") is False, "transport success is not inbox receipt confirmation")
 
     for label in [
         "controlled_send_preflight_manifest",
@@ -108,6 +173,8 @@ def validate(evidence_path: Path) -> dict[str, Any]:
     ]:
         _path_exists(data.get(label), label)
 
+    _validate_transport_contract(data, delivery_status)
+
     return {
         "status": "valid",
         "evidence": str(evidence_path),
@@ -116,6 +183,10 @@ def validate(evidence_path: Path) -> dict[str, Any]:
         "recipient_data_policy": data.get("recipient_data_policy"),
         "language_count": data.get("language_count"),
         "languages": sorted(codes),
+        "transport_contract_version": data.get("transport_contract_version"),
+        "transport_attempted": data.get("transport_attempted"),
+        "transport_success": data.get("transport_success"),
+        "receipt_confirmed": data.get("receipt_confirmed", data.get("delivery_receipt")),
     }
 
 
