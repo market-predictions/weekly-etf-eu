@@ -228,3 +228,17 @@ jobs:
           fi
           git commit -m "Persist Weekly ETF EU transport evidence [skip ci]"
           git push origin HEAD:main
+
+      - name: Fail guarded send if transport failed
+        if: env.ETF_EU_DELIVERY_MODE == 'send' && env.ETF_EU_SEND_CONFIRMATION == 'confirm_guarded_send'
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+          path = Path(f"output/delivery/etf_eu_transport_result_{os.environ['ETF_EU_RUN_ID']}.json")
+          data = json.loads(path.read_text(encoding='utf-8'))
+          if data.get('transport_success') is not True:
+              raise SystemExit(f"ETF_EU_TRANSPORT_FAILED | error={data.get('transport_error')}")
+          print('ETF_EU_TRANSPORT_SUCCESS_EVIDENCE_COMMITTED')
+          PY
