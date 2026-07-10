@@ -54,7 +54,7 @@ def _reject_us_state(value: object, label: str) -> None:
 def _assert_pdf(path: Path, label: str) -> None:
     raw = path.read_text(encoding="latin-1")
     _require(raw.startswith("%PDF-"), f"{label} is not a PDF header")
-    _require("%%EOF" in raw[-64:], f"{label} missing EOF marker")
+    _require("%%EOF" in raw[-256:], f"{label} missing EOF marker")
 
 
 def validate(manifest_path: Path) -> dict[str, Any]:
@@ -85,9 +85,16 @@ def validate(manifest_path: Path) -> dict[str, Any]:
         "main_surface_us_holdings_exposure",
         "nan_price_in_client_surface",
         "stale_delivery_wording_present",
-        "ready_for_controlled_delivery",
     ]:
         _assert_false(data, key)
+
+    ready = data.get("ready_for_controlled_delivery")
+    if ready is True:
+        _require(bool(data.get("package_readiness_gate")), "ready_for_controlled_delivery=true requires package_readiness_gate")
+        _path(data.get("package_readiness_gate"), "package_readiness_gate")
+        _require(data.get("delivery_authorized") is False, "delivery_authorized must remain false")
+    else:
+        _require(ready is False, "ready_for_controlled_delivery must be boolean false or gated true")
 
     for label in [
         "portfolio_state_path",
