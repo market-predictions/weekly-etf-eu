@@ -1,5 +1,6 @@
 {
   "artifact_type": "etf_eu_routine_run_manifest",
+  "delivery_authorization_artifact": "output/delivery_authorization/etf_eu_guarded_send_authorization_20260710_000000.json",
   "delivery_authorized": false,
   "delivery_closeout_manifest": null,
   "delivery_package_manifest": "output/fresh_generation/etf_eu_fresh_generation_package_manifest_20260710_000000.json",
@@ -13,9 +14,10 @@
   "explicit_user_authorization_required": true,
   "fresh_generation_and_guarded_delivery_kept_separate": true,
   "funding_authority": false,
-  "generated_at_utc": "2026-07-10T17:35:00Z",
+  "generated_at_utc": "2026-07-10T17:50:00Z",
+  "guarded_confirmation_phrase_matched": false,
   "guarded_send_confirmation_required": true,
-  "next_package": "ETF-EU-MVP27_EXPLICIT_GUARDED_SEND_AUTHORIZATION",
+  "next_package": "ETF-EU-MVP27B_EXPLICIT_SEND_AUTHORIZATION_RETRY",
   "package_readiness_gate": "output/fresh_generation/etf_eu_fresh_package_readiness_gate_20260710_000000.json",
   "portfolio_mutation": false,
   "portfolio_state_path": "output/etf_eu_portfolio_state.json",
@@ -30,7 +32,7 @@
   "report_date": "2026-07-10",
   "report_suffix": "260710",
   "routine_run_manifest_required": true,
-  "routine_stage": "guarded_fresh_package_delivery_prep_created",
+  "routine_stage": "explicit_guarded_send_authorization_blocked",
   "run_id": "20260710_000000",
   "run_queue_allowed": false,
   "schema_version": "etf_eu_routine_run_manifest_v1",
@@ -38,11 +40,12 @@
   "source_of_truth_repo": "market-predictions/weekly-etf-eu",
   "trade_ledger_path": "output/etf_eu_trade_ledger.csv",
   "transport_attempted": false,
+  "transport_execution_allowed": false,
   "transport_success": false,
   "upstream_pattern_adapted": "weekly-etf routine workflow and run-manifest pattern; adapted for EU/UCITS authority boundaries",
   "valuation_grade": false,
   "valuation_history_path": "output/etf_eu_valuation_history.csv",
   "workflow_conclusion": null,
   "workflow_dispatch_allowed": false,
-  "workflow_status": "guarded_fresh_package_delivery_prep_created"
+  "workflow_status": "explicit_guarded_send_authorization_blocked"
 }
