@@ -2,7 +2,7 @@
 
 ## Snapshot date
 
-2026-07-10
+2026-07-11
 
 ## Repository identity
 
@@ -13,22 +13,19 @@ market-predictions/weekly-etf-eu
 ## Latest completed package
 
 ```text
-work_package_id=ETF-EU-MVP27_EXPLICIT_GUARDED_SEND_AUTHORIZATION
+work_package_id=ETF-EU-MVP27B_EXPLICIT_SEND_AUTHORIZATION_RETRY
 status=blocked_missing_explicit_guarded_send_authorization
-source_work_package=ETF-EU-MVP26_GUARDED_FRESH_PACKAGE_DELIVERY_PREP
+source_work_package=ETF-EU-MVP27_EXPLICIT_GUARDED_SEND_AUTHORIZATION
 reference_architecture_repo=market-predictions/weekly-etf
 source_of_truth_repo=market-predictions/weekly-etf-eu
 upstream_pattern_adapted=weekly-etf guarded send authorization concept; adapted for EU explicit phrase-gated send authority without transport execution
 port_behavior_not_us_assumptions=true
 us_assumptions_copied=false
-explicit_guarded_send_authorization_contract_created=true
 explicit_guarded_send_authorization_contract=control/ETF_EU_EXPLICIT_GUARDED_SEND_AUTHORIZATION_CONTRACT_V1.md
-explicit_guarded_send_authorization_builder_created=true
 explicit_guarded_send_authorization_builder=tools/authorize_etf_eu_guarded_send.py
-explicit_guarded_send_authorization_validator_created=true
 explicit_guarded_send_authorization_validator=tools/validate_etf_eu_guarded_send_authorization.py
-explicit_guarded_send_authorization_artifact_created=true
 explicit_guarded_send_authorization_artifact=output/delivery_authorization/etf_eu_guarded_send_authorization_20260710_000000.json
+explicit_guarded_send_authorization_retry_decision=control/decisions/ETF_EU_MVP27B_EXPLICIT_SEND_AUTHORIZATION_RETRY_DECISION_20260710.md
 guarded_confirmation_phrase_required=true
 guarded_confirmation_phrase_present=false
 guarded_confirmation_phrase_matched=false
@@ -53,7 +50,7 @@ raw_receipt_pdf_stored_in_github=false
 routine_run_manifest_updated=true
 routine_run_manifest=output/run_manifests/etf_eu_routine_run_manifest_2026-07-10_20260710_000000.json
 generation_and_delivery_separate=true
-readiness_status=explicit_guarded_send_authorization_blocked_awaiting_exact_confirmation_phrase
+readiness_status=explicit_guarded_send_authorization_retry_blocked_awaiting_exact_standalone_confirmation_phrase
 selected_next_package=ETF-EU-MVP27B_EXPLICIT_SEND_AUTHORIZATION_RETRY
 ```
 
@@ -75,10 +72,10 @@ send_command_allowed=false
 workflow_dispatch_allowed=false
 run_queue_allowed=false
 transport_execution_allowed=false
-no_send_from_mvp27=true
-no_workflow_dispatch_from_mvp27=true
-no_run_queue_from_mvp27=true
-no_transport_from_mvp27=true
+no_send_from_mvp27b=true
+no_workflow_dispatch_from_mvp27b=true
+no_run_queue_from_mvp27b=true
+no_transport_from_mvp27b=true
 recipient_plaintext_values_exposed=false
 secret_values_exposed=false
 raw_receipt_pdf_stored_in_github=false
