@@ -13,48 +13,48 @@ market-predictions/weekly-etf-eu
 ## Latest completed package
 
 ```text
-work_package_id=ETF-EU-MVP20A_REAL_TRANSPORT_LAYER_IMPLEMENTATION
-status=completed_real_transport_layer_implemented_not_executed
-source_work_package=ETF-EU-MVP20
+work_package_id=ETF-EU-MVP20B_GUARDED_CONTROLLED_RESEND_EXECUTION
+status=completed_guarded_resend_with_receipt_confirmed
+source_work_package=ETF-EU-MVP20A_REAL_TRANSPORT_LAYER_IMPLEMENTATION
 reference_architecture_repo=market-predictions/weekly-etf
 source_of_truth_repo=market-predictions/weekly-etf-eu
+upstream_pattern_adapted=weekly-etf redacted delivery-manifest concept; adapted to user-supplied Gmail inbox PDF receipt evidence
 port_behavior_not_us_assumptions=true
 us_assumptions_copied=false
-real_eu_transport_runner_created=true
+workflow_run_id=29105468659
+workflow_job_id=86404756891
 real_eu_transport_runner=runtime/send_etf_eu_delivery_package.py
-workflow_placeholder_transport_removed=true
-workflow_uses_real_eu_transport_runner=true
-push_trigger_forces_validate_only=true
-guarded_send_requires_delivery_mode_send=true
-guarded_send_requires_confirm_guarded_send=true
-delivery_evidence_contract_extended=true
-receipt_check_confirms_false_without_real_receipt=true
+manual_receipt_confirmation_artifact=output/delivery/etf_eu_manual_receipt_confirmation_20260710_1755.json
+manual_receipt_decision=control/decisions/ETF_EU_MVP20B_GUARDED_RESEND_RECEIPT_DECISION_20260710.md
 existing_client_grade_package_input=ETF-EU-MVP19-FIX2
 client_grade_package_ready=true
 ready_for_controlled_resend=true
-resend_performed=false
-send_executed=false
-delivery_success_closed=false
-receipt_confirmed=false
-completion_claimed=false
+transport_attempted=true
+transport_success=true
+resend_performed=true
+send_executed=true
+delivery_success_closed=true
+receipt_confirmed=true
+completion_claimed=true
 valuation_grade=false
 funding_authority=false
 portfolio_mutation=false
 production_delivery_authority=false
-readiness_status=real_transport_layer_implemented_not_executed
-selected_next_package=ETF-EU-MVP20B_GUARDED_CONTROLLED_RESEND_EXECUTION
+readiness_status=guarded_resend_receipt_confirmed
+selected_next_package=ETF-EU-MVP21_POST_DELIVERY_HARDENING
 ```
 
 ## Active product roadmap
 
 ```text
-ETF-EU-MVP20B_GUARDED_CONTROLLED_RESEND_EXECUTION
+ETF-EU-MVP21_POST_DELIVERY_HARDENING
 ```
 
-## Transport guard
+## Delivery guard
 
 ```text
-next_guarded_transport_step_prepared=true
-next_guarded_transport_step_executed=false
-explicit_user_instruction_required_before_transport=true
+last_guarded_transport_step_executed=true
+receipt_confirmed_from_manual_gmail_pdf=true
+raw_receipt_pdf_stored_in_github=false
+future_guarded_sends_require_persisted_evidence_files=true
 ```
