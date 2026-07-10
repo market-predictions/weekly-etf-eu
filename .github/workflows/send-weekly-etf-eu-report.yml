@@ -219,15 +219,34 @@ jobs:
       - name: Commit EU transport evidence artifacts
         if: env.ETF_EU_DELIVERY_MODE == 'dry_run' || env.ETF_EU_DELIVERY_MODE == 'send'
         run: |
+          set -euo pipefail
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add output/delivery/etf_eu_delivery_evidence_*.json output/delivery/etf_eu_transport_result_*.json output/delivery/etf_eu_receipt_check_*.json || true
-          if git diff --cached --quiet; then
-            echo "No EU transport artifacts to commit."
-            exit 0
+
+          test -f "output/delivery/etf_eu_delivery_evidence_${ETF_EU_RUN_ID}.json"
+          test -f "output/delivery/etf_eu_transport_result_${ETF_EU_RUN_ID}.json"
+          if [ "$ETF_EU_DELIVERY_MODE" = "send" ]; then
+            test -f "output/delivery/etf_eu_receipt_check_${ETF_EU_RUN_ID}.json"
           fi
+
+          git add -f \
+            "output/delivery/etf_eu_delivery_evidence_${ETF_EU_RUN_ID}.json" \
+            "output/delivery/etf_eu_transport_result_${ETF_EU_RUN_ID}.json" \
+            output/delivery/etf_eu_receipt_check_*.json
+
+          if git diff --cached --quiet; then
+            echo "ETF_EU_TRANSPORT_EVIDENCE_NOT_STAGED" >&2
+            exit 1
+          fi
+
           git commit -m "Persist Weekly ETF EU transport evidence [skip ci]"
           git push origin HEAD:main
+          git ls-files --error-unmatch "output/delivery/etf_eu_delivery_evidence_${ETF_EU_RUN_ID}.json"
+          git ls-files --error-unmatch "output/delivery/etf_eu_transport_result_${ETF_EU_RUN_ID}.json"
+          if [ "$ETF_EU_DELIVERY_MODE" = "send" ]; then
+            git ls-files --error-unmatch "output/delivery/etf_eu_receipt_check_${ETF_EU_RUN_ID}.json"
+          fi
+          echo "ETF_EU_TRANSPORT_EVIDENCE_PERSISTED | run_id=$ETF_EU_RUN_ID"
 
       - name: Fail guarded send if transport failed
         if: env.ETF_EU_DELIVERY_MODE == 'send' && env.ETF_EU_SEND_CONFIRMATION == 'confirm_guarded_send'
@@ -240,5 +259,7 @@ jobs:
           data = json.loads(path.read_text(encoding='utf-8'))
           if data.get('transport_success') is not True:
               raise SystemExit(f"ETF_EU_TRANSPORT_FAILED | error={data.get('transport_error')}")
+          if not data.get('message_id_or_receipt_reference'):
+              raise SystemExit('ETF_EU_TRANSPORT_MISSING_MESSAGE_REFERENCE')
           print('ETF_EU_TRANSPORT_SUCCESS_EVIDENCE_COMMITTED')
           PY
