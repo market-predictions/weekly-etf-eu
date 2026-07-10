@@ -1,46 +1,39 @@
 # Weekly ETF EU Review OS — Next Actions
 
-Current priority: **ETF-EU-MVP20B_GUARDED_CONTROLLED_RESEND_EXECUTION**.
+Current priority: **ETF-EU-MVP21_POST_DELIVERY_HARDENING**.
 
 ## Latest completion
 
 ```text
-work_package_id=ETF-EU-MVP20A_REAL_TRANSPORT_LAYER_IMPLEMENTATION
-status=completed_real_transport_layer_implemented_not_executed
-source_work_package=ETF-EU-MVP20
+work_package_id=ETF-EU-MVP20B_GUARDED_CONTROLLED_RESEND_EXECUTION
+status=completed_guarded_resend_with_receipt_confirmed
+source_work_package=ETF-EU-MVP20A_REAL_TRANSPORT_LAYER_IMPLEMENTATION
 reference_architecture_repo=market-predictions/weekly-etf
 source_of_truth_repo=market-predictions/weekly-etf-eu
+upstream_pattern_adapted=weekly-etf redacted delivery-manifest concept; adapted to user-supplied Gmail inbox PDF receipt evidence
 port_behavior_not_us_assumptions=true
 us_assumptions_copied=false
-real_eu_transport_runner_created=true
+workflow_run_id=29105468659
+workflow_job_id=86404756891
 real_eu_transport_runner=runtime/send_etf_eu_delivery_package.py
-workflow_placeholder_transport_removed=true
-workflow_uses_real_eu_transport_runner=true
-push_trigger_forces_validate_only=true
-guarded_send_requires_delivery_mode_send=true
-guarded_send_requires_confirm_guarded_send=true
-delivery_evidence_contract_extended=true
-receipt_check_confirms_false_without_real_receipt=true
+manual_receipt_confirmation_artifact=output/delivery/etf_eu_manual_receipt_confirmation_20260710_1755.json
+manual_receipt_decision=control/decisions/ETF_EU_MVP20B_GUARDED_RESEND_RECEIPT_DECISION_20260710.md
 existing_client_grade_package_input=ETF-EU-MVP19-FIX2
 client_grade_package_ready=true
 ready_for_controlled_resend=true
-resend_performed=false
-send_executed=false
-delivery_success_closed=false
-receipt_confirmed=false
-completion_claimed=false
+transport_attempted=true
+transport_success=true
+resend_performed=true
+send_executed=true
+delivery_success_closed=true
+receipt_confirmed=true
+completion_claimed=true
 valuation_grade=false
 funding_authority=false
 portfolio_mutation=false
 production_delivery_authority=false
-readiness_status=real_transport_layer_implemented_not_executed
-selected_next_package=ETF-EU-MVP20B_GUARDED_CONTROLLED_RESEND_EXECUTION
-```
-
-## Active next package
-
-```text
-ETF-EU-MVP20B_GUARDED_CONTROLLED_RESEND_EXECUTION
+readiness_status=guarded_resend_receipt_confirmed
+selected_next_package=ETF-EU-MVP21_POST_DELIVERY_HARDENING
 ```
 
 ## Standing upstream-first reuse rule
@@ -58,11 +51,17 @@ no_upstream_equivalent_found=<search terms / inspected files>
 
 Borrow mature concepts and safeguards. Do not port U.S. portfolio state, U.S. holdings, U.S. instruments, U.S. recipient authority, or U.S. delivery assumptions as EU authority.
 
-## ETF-EU-MVP20B objective
+## Active next package
 
-Execute the guarded controlled resend of the existing `ETF-EU-MVP19-FIX2` client-grade package through the real EU package transport runner.
+```text
+ETF-EU-MVP21_POST_DELIVERY_HARDENING
+```
 
-Do **not** execute transport unless the user explicitly instructs it.
+## ETF-EU-MVP21 objective
+
+Harden the post-delivery operating loop now that the first controlled resend has been receipt-confirmed.
+
+Do not regenerate or resend the report by default. MVP21 is a post-delivery hardening package.
 
 ## Required start sequence
 
@@ -74,71 +73,28 @@ control/CURRENT_STATE.md
 control/NEXT_ACTIONS.md
 control/work_packages/ETF_EU_MVP20_GUARDED_CONTROLLED_RESEND_INSTRUCTIONS_20260709.md
 control/decisions/ETF_EU_MVP20A_REAL_TRANSPORT_LAYER_DECISION_20260710.md
+control/decisions/ETF_EU_MVP20B_GUARDED_RESEND_RECEIPT_DECISION_20260710.md
 control/decisions/ETF_EU_UPSTREAM_FIRST_REUSE_RULE_DECISION_20260710.md
 ```
 
-Then inspect only the minimum relevant EU execution files:
-
-```text
-.github/workflows/send-weekly-etf-eu-report.yml
-runtime/send_etf_eu_delivery_package.py
-runtime/check_etf_eu_delivery_receipt.py
-tools/validate_etf_eu_delivery_evidence.py
-output/delivery_package/etf_eu_delivery_package_manifest_20260709_000000.json
-output/client_surface/etf_eu_mvp19_fix2_ready_for_controlled_resend_20260709_000000.json
-```
-
-And inspect the closest upstream `weekly-etf` delivery pattern before modifying anything:
+Then inspect the closest upstream `weekly-etf` post-delivery/run-manifest pattern before modifying anything:
 
 ```text
 market-predictions/weekly-etf:.github/workflows/send-weekly-report.yml
-market-predictions/weekly-etf:send_report_runtime_html.py
-market-predictions/weekly-etf:send_report.py
-market-predictions/weekly-etf:send_report_OLD.py
 market-predictions/weekly-etf:tools/write_etf_delivery_manifest_summary.py
 market-predictions/weekly-etf:tools/write_weekly_etf_run_manifest.py
+market-predictions/weekly-etf:tools/validate_etf_manifest_evidence.py
 ```
 
-## Required validation before execution
-
-```bash
-python tools/validate_ucits_close_price_validation_basket_results.py \
-  --artifact output/pricing/ucits_close_price_validation_basket_results_20260709_000000.json
-
-python tools/validate_etf_eu_delivery_package_manifest.py \
-  --manifest output/delivery_package/etf_eu_delivery_package_manifest_20260709_000000.json
-
-python tools/validate_etf_eu_mvp19_fix2_ready_for_controlled_resend.py \
-  --artifact output/client_surface/etf_eu_mvp19_fix2_ready_for_controlled_resend_20260709_000000.json
-
-pytest tests/test_etf_eu_mvp19_fix2_ready_for_controlled_resend.py
-pytest tests/test_etf_eu_delivery_evidence.py
-pytest tests/test_etf_eu_real_transport_layer.py
-```
-
-## Execution path when explicitly instructed
-
-Use workflow dispatch only:
+## MVP21 recommended scope
 
 ```text
-delivery_mode=send
-send_confirmation=confirm_guarded_send
+1. Add a first-class EU receipt/manifest validator for manual and workflow receipt evidence.
+2. Add a final EU run manifest equivalent to weekly-etf tools/write_weekly_etf_run_manifest.py.
+3. Preserve the workflow hardening added after run 29105468659: future guarded sends must persist evidence files or fail.
+4. Document the difference between SMTP success, committed transport evidence, and inbox receipt confirmation.
+5. Keep valuation_grade=false, funding_authority=false, portfolio_mutation=false, and production_delivery_authority=false unless future explicit gates authorize otherwise.
 ```
-
-Push-triggered runs are forced to `validate_only` and cannot send.
-
-## Transport authority rule
-
-A resend may only be marked successful if the delivery layer emits real evidence with:
-
-```text
-transport_attempted=true
-transport_success=true
-message_id_or_receipt_reference populated
-receipt_confirmed=false unless separately verified
-```
-
-A SMTP success means transport returned without exception; it is not an end-recipient inbox receipt.
 
 ## Guardrail
 
