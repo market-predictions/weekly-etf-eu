@@ -1,0 +1,53 @@
+{
+  "artifact_type": "etf_eu_delivery_closeout_manifest",
+  "attachment_count": 4,
+  "attachments_observed": [
+    "weekly_etf_eu_review_nl_260709.pdf",
+    "weekly_etf_eu_review_260709.pdf",
+    "weekly_etf_eu_review_nl_260709.html",
+    "weekly_etf_eu_review_260709.html"
+  ],
+  "completion_claimed": true,
+  "delivery_package_manifest": "output/delivery_package/etf_eu_delivery_package_manifest_20260709_000000.json",
+  "delivery_package_summary": {
+    "dutch_primary_html": "output/delivery_package/weekly_etf_eu_review_nl_260709.html",
+    "dutch_primary_pdf": "output/delivery_package/weekly_etf_eu_review_nl_260709.pdf",
+    "english_companion_html": "output/delivery_package/weekly_etf_eu_review_260709.html",
+    "english_companion_pdf": "output/delivery_package/weekly_etf_eu_review_260709.pdf",
+    "report_suffix": "260709",
+    "run_id": "20260709_000000"
+  },
+  "delivery_success_closed": true,
+  "funding_authority": false,
+  "generated_at_utc": "2026-07-10T16:20:00Z",
+  "manual_receipt_confirmation_artifact": "output/delivery/etf_eu_manual_receipt_confirmation_20260710_1755.json",
+  "next_package": "ETF-EU-MVP22_ROUTINE_WEEKLY_EU_REPORT_OPERATING_LOOP",
+  "portfolio_mutation": false,
+  "production_delivery_authority": false,
+  "raw_receipt_pdf_stored_in_github": false,
+  "ready_artifact": "output/client_surface/etf_eu_mvp19_fix2_ready_for_controlled_resend_20260709_000000.json",
+  "receipt_confirmed": true,
+  "receipt_summary": {
+    "gmail_message_subject_observed": "Weekly ETF EU Review | Dutch primary 2026-07-09",
+    "gmail_received_local_display": "Fri, Jul 10, 2026 at 5:55 PM",
+    "gmail_recipient_redacted": true,
+    "gmail_sender_redacted": true,
+    "raw_receipt_pdf_storage_note": "The raw Gmail PDF was uploaded in the ChatGPT conversation and is cited in the session response, but it is not committed to GitHub.",
+    "receipt_confirmation_file_title": "Gmail - Weekly ETF EU Review | Dutch primary 2026-07-09",
+    "receipt_confirmation_source": "user_uploaded_gmail_pdf_in_chat"
+  },
+  "recipient_plaintext_values_exposed": false,
+  "resend_performed": true,
+  "schema_version": "etf_eu_delivery_closeout_manifest_v1",
+  "secret_values_exposed": false,
+  "send_executed": true,
+  "source_work_package": "ETF-EU-MVP20B_GUARDED_CONTROLLED_RESEND_EXECUTION",
+  "status": "completed_guarded_resend_with_receipt_confirmed",
+  "transport_attempted": true,
+  "transport_success": true,
+  "upstream_pattern_adapted": "weekly-etf delivery manifest and run manifest closeout pattern; adapted for EU manual Gmail receipt and UCITS authority boundaries",
+  "valuation_grade": false,
+  "workflow_job_id": "86404756891",
+  "workflow_run_id": "29105468659",
+  "work_package_id": "ETF-EU-MVP21_POST_DELIVERY_HARDENING"
+}
