@@ -32,6 +32,20 @@ For ETF EU architecture, debugging, prompt, workflow, state, pricing, discovery,
 3. `control/NEXT_ACTIONS.md`
 4. only then the minimum relevant execution files
 
+## Upstream-first reuse rule
+
+For every new ETF EU task, work package, workflow change, runtime script, validator, renderer, delivery step, or control file, inspect `market-predictions/weekly-etf` before designing or implementing the EU change.
+
+Required discipline:
+
+1. Identify the closest mature upstream concept, script, workflow step, validator, manifest, or runbook in `market-predictions/weekly-etf`.
+2. Decide explicitly whether to port as-is, adapt, wrap, or intentionally diverge.
+3. Record the reason for adaptation or divergence in the work package, decision artifact, commit summary, or final response.
+4. Borrow implementation concepts, contracts, evidence patterns, and operational safeguards before creating new EU-specific machinery.
+5. Never port U.S. portfolio state, U.S. holdings, U.S. instrument authority, U.S. recipient authority, or U.S. delivery assumptions as EU authority.
+
+Do not reinvent an EU component from scratch until the upstream `weekly-etf` equivalent has been checked.
+
 ## Canonical EU control files
 
 - `control/ETF_EU_PORTING_STRATEGY_DECISION_20260618.md` — stable decision to keep `weekly-etf-eu` as EU source-of-truth and use `weekly-etf` only as an upstream donor for mature report/runtime/bilingual/macro/delivery safeguards.
@@ -69,6 +83,7 @@ Compatibility files from the U.S. clone may remain temporarily, but they are not
 - Do not claim EU report production delivery until EU-specific validators pass and a delivery receipt or manifest exists.
 - Keep decision framework, input/state contract, output contract and runbook separate.
 - Port mature behavior from `weekly-etf`; do not port U.S. assumptions as EU authority.
+- Check the upstream `market-predictions/weekly-etf` implementation before creating or materially changing EU tasks, scripts, validators, workflows, renderers, delivery files, or control files.
 
 ## GitHub run verification discipline
 
@@ -93,6 +108,7 @@ The EU repo is in product-assembly mode:
 ```text
 keep weekly-etf-eu as EU/UCITS source-of-truth
 → use weekly-etf as upstream donor for mature implementation layers
+→ check weekly-etf before creating new EU tasks, files, workflows, validators or delivery machinery
 → preserve U.S. state as non-authoritative
 → preserve UCITS control contracts and ISIN-first registry
 → price UCITS trading lines using EU exchange-line symbols
