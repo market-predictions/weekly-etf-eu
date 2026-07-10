@@ -1,27 +1,31 @@
 # Weekly ETF EU Review OS — Next Actions
 
-Current priority: **ETF-EU-MVP20**.
+Current priority: **ETF-EU-MVP20B_GUARDED_CONTROLLED_RESEND_EXECUTION**.
 
 ## Latest completion
 
 ```text
-work_package_id=ETF-EU-MVP19-FIX2
-status=completed_client_grade_package_ready_for_controlled_resend
-source_work_package=ETF-EU-MVP19-FIX
+work_package_id=ETF-EU-MVP20A_REAL_TRANSPORT_LAYER_IMPLEMENTATION
+status=completed_real_transport_layer_implemented_not_executed
+source_work_package=ETF-EU-MVP20
 reference_architecture_repo=market-predictions/weekly-etf
 source_of_truth_repo=market-predictions/weekly-etf-eu
 port_behavior_not_us_assumptions=true
 us_assumptions_copied=false
-actual_close_fetch_completed=true
-ucits_close_price_validation_line_count=11
-ucits_close_price_validation_priced_line_count=10
-ucits_close_price_validation_failed_line_count=1
-ucits_close_price_validation_venue_count=3
-ucits_close_price_validation_currency_count=3
+real_eu_transport_runner_created=true
+real_eu_transport_runner=runtime/send_etf_eu_delivery_package.py
+workflow_placeholder_transport_removed=true
+workflow_uses_real_eu_transport_runner=true
+push_trigger_forces_validate_only=true
+guarded_send_requires_delivery_mode_send=true
+guarded_send_requires_confirm_guarded_send=true
+delivery_evidence_contract_extended=true
+receipt_check_confirms_false_without_real_receipt=true
+existing_client_grade_package_input=ETF-EU-MVP19-FIX2
 client_grade_package_ready=true
-pdf_output_available=true
-html_output_available=true
+ready_for_controlled_resend=true
 resend_performed=false
+send_executed=false
 delivery_success_closed=false
 receipt_confirmed=false
 completion_claimed=false
@@ -29,19 +33,19 @@ valuation_grade=false
 funding_authority=false
 portfolio_mutation=false
 production_delivery_authority=false
-readiness_status=client_grade_package_ready_for_controlled_resend
-selected_next_package=ETF-EU-MVP20
+readiness_status=real_transport_layer_implemented_not_executed
+selected_next_package=ETF-EU-MVP20B_GUARDED_CONTROLLED_RESEND_EXECUTION
 ```
 
 ## Active next package
 
 ```text
-ETF-EU-MVP20
+ETF-EU-MVP20B_GUARDED_CONTROLLED_RESEND_EXECUTION
 ```
 
-## ETF-EU-MVP20 objective
+## ETF-EU-MVP20B objective
 
-Prepare or execute the guarded controlled resend step for the existing `ETF-EU-MVP19-FIX2` client-grade package.
+Execute the guarded controlled resend of the existing `ETF-EU-MVP19-FIX2` client-grade package through the real EU package transport runner.
 
 Do **not** execute transport unless the user explicitly instructs it.
 
@@ -54,18 +58,21 @@ control/SYSTEM_INDEX.md
 control/CURRENT_STATE.md
 control/NEXT_ACTIONS.md
 control/work_packages/ETF_EU_MVP20_GUARDED_CONTROLLED_RESEND_INSTRUCTIONS_20260709.md
+control/decisions/ETF_EU_MVP20A_REAL_TRANSPORT_LAYER_DECISION_20260710.md
 ```
 
-Then inspect only the minimum relevant transport files:
+Then inspect only the minimum relevant execution files:
 
 ```text
 .github/workflows/send-weekly-etf-eu-report.yml
-send_report.py
+runtime/send_etf_eu_delivery_package.py
+runtime/check_etf_eu_delivery_receipt.py
+tools/validate_etf_eu_delivery_evidence.py
 output/delivery_package/etf_eu_delivery_package_manifest_20260709_000000.json
 output/client_surface/etf_eu_mvp19_fix2_ready_for_controlled_resend_20260709_000000.json
 ```
 
-## Required validation before any transport decision
+## Required validation before execution
 
 ```bash
 python tools/validate_ucits_close_price_validation_basket_results.py \
@@ -76,19 +83,35 @@ python tools/validate_etf_eu_delivery_package_manifest.py \
 
 python tools/validate_etf_eu_mvp19_fix2_ready_for_controlled_resend.py \
   --artifact output/client_surface/etf_eu_mvp19_fix2_ready_for_controlled_resend_20260709_000000.json
+
+pytest tests/test_etf_eu_mvp19_fix2_ready_for_controlled_resend.py
+pytest tests/test_etf_eu_delivery_evidence.py
+pytest tests/test_etf_eu_real_transport_layer.py
 ```
+
+## Execution path when explicitly instructed
+
+Use workflow dispatch only:
+
+```text
+delivery_mode=send
+send_confirmation=confirm_guarded_send
+```
+
+Push-triggered runs are forced to `validate_only` and cannot send.
 
 ## Transport authority rule
 
-A resend may only be marked successful if the delivery layer emits a real receipt, manifest, or equivalent evidence.
-
-If the current EU workflow still contains a transport placeholder, report:
+A resend may only be marked successful if the delivery layer emits real evidence with:
 
 ```text
-status=blocked_transport_placeholder_no_delivery_performed
+transport_attempted=true
+transport_success=true
+message_id_or_receipt_reference populated
+receipt_confirmed=false unless separately verified
 ```
 
-and do not claim delivery.
+A SMTP success means transport returned without exception; it is not an end-recipient inbox receipt.
 
 ## Guardrail
 
