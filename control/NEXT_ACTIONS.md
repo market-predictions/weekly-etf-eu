@@ -5,22 +5,16 @@ Current priority: **ETF-EU-MVP27B_EXPLICIT_SEND_AUTHORIZATION_RETRY**.
 ## Latest completion
 
 ```text
-work_package_id=ETF-EU-MVP27_EXPLICIT_GUARDED_SEND_AUTHORIZATION
+work_package_id=ETF-EU-MVP27B_EXPLICIT_SEND_AUTHORIZATION_RETRY
 status=blocked_missing_explicit_guarded_send_authorization
-source_work_package=ETF-EU-MVP26_GUARDED_FRESH_PACKAGE_DELIVERY_PREP
+source_work_package=ETF-EU-MVP27_EXPLICIT_GUARDED_SEND_AUTHORIZATION
 reference_architecture_repo=market-predictions/weekly-etf
 source_of_truth_repo=market-predictions/weekly-etf-eu
 upstream_pattern_adapted=weekly-etf guarded send authorization concept; adapted for EU explicit phrase-gated send authority without transport execution
 port_behavior_not_us_assumptions=true
 us_assumptions_copied=false
-explicit_guarded_send_authorization_contract_created=true
-explicit_guarded_send_authorization_contract=control/ETF_EU_EXPLICIT_GUARDED_SEND_AUTHORIZATION_CONTRACT_V1.md
-explicit_guarded_send_authorization_builder_created=true
-explicit_guarded_send_authorization_builder=tools/authorize_etf_eu_guarded_send.py
-explicit_guarded_send_authorization_validator_created=true
-explicit_guarded_send_authorization_validator=tools/validate_etf_eu_guarded_send_authorization.py
-explicit_guarded_send_authorization_artifact_created=true
 explicit_guarded_send_authorization_artifact=output/delivery_authorization/etf_eu_guarded_send_authorization_20260710_000000.json
+explicit_guarded_send_authorization_retry_decision=control/decisions/ETF_EU_MVP27B_EXPLICIT_SEND_AUTHORIZATION_RETRY_DECISION_20260710.md
 guarded_confirmation_phrase_required=true
 guarded_confirmation_phrase_present=false
 guarded_confirmation_phrase_matched=false
@@ -45,7 +39,7 @@ raw_receipt_pdf_stored_in_github=false
 routine_run_manifest_updated=true
 routine_run_manifest=output/run_manifests/etf_eu_routine_run_manifest_2026-07-10_20260710_000000.json
 generation_and_delivery_separate=true
-readiness_status=explicit_guarded_send_authorization_blocked_awaiting_exact_confirmation_phrase
+readiness_status=explicit_guarded_send_authorization_retry_blocked_awaiting_exact_standalone_confirmation_phrase
 selected_next_package=ETF-EU-MVP27B_EXPLICIT_SEND_AUTHORIZATION_RETRY
 ```
 
@@ -100,7 +94,7 @@ control/CURRENT_STATE.md
 control/NEXT_ACTIONS.md
 control/ETF_EU_EXPLICIT_GUARDED_SEND_AUTHORIZATION_CONTRACT_V1.md
 control/decisions/ETF_EU_UPSTREAM_FIRST_REUSE_RULE_DECISION_20260710.md
-control/decisions/ETF_EU_MVP27_EXPLICIT_GUARDED_SEND_AUTHORIZATION_DECISION_20260710.md
+control/decisions/ETF_EU_MVP27B_EXPLICIT_SEND_AUTHORIZATION_RETRY_DECISION_20260710.md
 ```
 
 Then inspect closest upstream `weekly-etf` explicit guarded-send and delivery-manifest patterns before modifying anything:
@@ -118,7 +112,7 @@ market-predictions/weekly-etf:.github/workflows/send-weekly-report.yml
 ```text
 1. Confirm whether the exact standalone guarded confirmation phrase is present in the user instruction.
 2. If absent, keep delivery_authorized=false and do not dispatch anything.
-3. If present, create/update authorization artifact only.
+3. If present, update authorization artifact only.
 4. Keep actual transport as a later explicit controlled-send package.
 5. Preserve recipient/secrets redaction and transport evidence requirements.
 ```
