@@ -1,24 +1,23 @@
 # Weekly ETF EU Review OS — Next Actions
 
-Current priority: **ETF-EU-MVP28B_CONTROLLED_DELIVERY_TRANSPORT_SELECTION**.
+Current priority: **ETF-EU-MVP28C_EU_DELIVERY_WORKFLOW_WIRING**.
 
 ## Latest completion
 
 ```text
-work_package_id=ETF-EU-MVP28_CONTROLLED_DELIVERY_EXECUTION_OR_RUN_QUEUE
-status=blocked_no_transport_selected
-source_work_package=ETF-EU-MVP27B_EXPLICIT_SEND_AUTHORIZATION_RETRY
+work_package_id=ETF-EU-MVP28B_CONTROLLED_DELIVERY_TRANSPORT_SELECTION
+status=blocked_missing_eu_delivery_workflow_wiring
+source_work_package=ETF-EU-MVP28_CONTROLLED_DELIVERY_EXECUTION_OR_RUN_QUEUE
 reference_architecture_repo=market-predictions/weekly-etf
 source_of_truth_repo=market-predictions/weekly-etf-eu
-upstream_pattern_adapted=weekly-etf controlled delivery and delivery-manifest concepts; adapted for EU package-bound authority without automatic transport
-port_behavior_not_us_assumptions=true
-us_assumptions_copied=false
-controlled_delivery_contract=control/ETF_EU_CONTROLLED_DELIVERY_EXECUTION_OR_RUN_QUEUE_CONTRACT_V1.md
-controlled_delivery_builder=tools/prepare_etf_eu_controlled_delivery_execution_or_run_queue.py
-controlled_delivery_validator=tools/validate_etf_eu_controlled_delivery_execution_or_run_queue.py
-controlled_delivery_decision_artifact=output/delivery_control/etf_eu_controlled_delivery_decision_20260710_000000.json
-controlled_delivery_decision_status=blocked_no_transport_selected
-chosen_mode=decision_only
+upstream_pattern_adapted=weekly-etf queue-triggered delivery and manifest-evidence concepts; adapted for EU package-bound authority
+controlled_delivery_transport_selection_contract=control/ETF_EU_CONTROLLED_DELIVERY_TRANSPORT_SELECTION_CONTRACT_V1.md
+controlled_delivery_transport_selection_builder=tools/prepare_etf_eu_controlled_delivery_transport_selection.py
+controlled_delivery_transport_selection_validator=tools/validate_etf_eu_controlled_delivery_transport_selection.py
+controlled_delivery_transport_selection_artifact=output/delivery_control/etf_eu_controlled_delivery_transport_selection_20260710_000000.json
+controlled_delivery_transport_selection_decision=control/decisions/ETF_EU_MVP28B_CONTROLLED_DELIVERY_TRANSPORT_SELECTION_DECISION_20260710.md
+transport_selection_status=blocked_missing_eu_delivery_workflow_wiring
+selected_transport_mode=none
 ready_for_controlled_delivery=true
 delivery_authorized=true
 send_command_allowed=true
@@ -30,62 +29,41 @@ send_executed=false
 transport_attempted=false
 transport_success=false
 receipt_confirmed_from_new_run=false
-valuation_grade=false
-funding_authority=false
-portfolio_mutation=false
-production_delivery_authority=false
 recipient_plaintext_values_exposed=false
 secret_values_exposed=false
 raw_receipt_pdf_stored_in_github=false
 routine_run_manifest_updated=true
 routine_run_manifest=output/run_manifests/etf_eu_routine_run_manifest_2026-07-10_20260710_000000.json
-generation_and_delivery_separate=true
-readiness_status=controlled_delivery_decision_blocked_no_transport_selected_awaiting_transport_selection
-selected_next_package=ETF-EU-MVP28B_CONTROLLED_DELIVERY_TRANSPORT_SELECTION
+missing_production_component=current-package EU workflow wiring
+selected_next_package=ETF-EU-MVP28C_EU_DELIVERY_WORKFLOW_WIRING
 ```
 
 ## Standing upstream-first reuse rule
 
-Before creating or materially changing any ETF EU task, work package, workflow, runtime script, validator, renderer, delivery step, or control file, first inspect the closest upstream `market-predictions/weekly-etf` implementation.
+Before changing ETF EU workflow, runtime, validation, delivery, or control files, inspect the closest upstream `market-predictions/weekly-etf` implementation and record the reuse/adaptation decision.
 
-Record one of:
-
-```text
-upstream_pattern_reused=<file or concept>
-upstream_pattern_adapted=<file or concept + reason>
-upstream_pattern_rejected=<file or concept + EU authority reason>
-no_upstream_equivalent_found=<search terms / inspected files>
-```
-
-Borrow mature concepts and safeguards. Do not port U.S. portfolio state, U.S. holdings, U.S. instruments, U.S. recipient authority, or U.S. delivery assumptions as EU authority.
+Do not port U.S. portfolio state, U.S. holdings, U.S. instruments, U.S. recipient authority, or U.S. delivery assumptions as EU authority.
 
 ## Active next package
 
 ```text
-ETF-EU-MVP28B_CONTROLLED_DELIVERY_TRANSPORT_SELECTION
+ETF-EU-MVP28C_EU_DELIVERY_WORKFLOW_WIRING
 ```
 
-## ETF-EU-MVP28B objective
+## ETF-EU-MVP28C objective
 
-Select an explicit controlled delivery mechanism for the authorized EU fresh package.
+Wire the EU workflow for the current authorized fresh-package chain.
 
-The package is authorized and has a controlled delivery decision artifact, but no queue or transport has been created:
+MVP28B found a specific production blocker: the current EU workflow/runtime path is tied to legacy MVP19/FIX2 delivery package inputs and older queue naming, while the current package chain is MVP25-MVP28.
+
+MVP28C should create or adapt workflow wiring for:
 
 ```text
-ready_for_controlled_delivery=true
-delivery_authorized=true
-send_command_allowed=true
-controlled_delivery_decision_status=blocked_no_transport_selected
-workflow_dispatch_allowed=false
-run_queue_allowed=false
-run_queue_created=false
-transport_execution_allowed=false
-send_executed=false
-transport_attempted=false
-receipt_confirmed=false
+output/fresh_generation/etf_eu_fresh_generation_package_manifest_20260710_000000.json
+output/delivery_authorization/etf_eu_guarded_send_authorization_20260710_000000.json
+output/delivery_control/etf_eu_controlled_delivery_decision_20260710_000000.json
+control/run_queue/current-package EU queue artifact
 ```
-
-MVP28B may create a run queue artifact or a further blocked transport-selection artifact. It must not claim delivery success or receipt unless real evidence exists.
 
 ## Required start sequence
 
@@ -95,31 +73,28 @@ Read in order:
 control/SYSTEM_INDEX.md
 control/CURRENT_STATE.md
 control/NEXT_ACTIONS.md
-control/ETF_EU_CONTROLLED_DELIVERY_EXECUTION_OR_RUN_QUEUE_CONTRACT_V1.md
+control/ETF_EU_CONTROLLED_DELIVERY_TRANSPORT_SELECTION_CONTRACT_V1.md
 control/decisions/ETF_EU_UPSTREAM_FIRST_REUSE_RULE_DECISION_20260710.md
-control/decisions/ETF_EU_MVP28_CONTROLLED_DELIVERY_EXECUTION_OR_RUN_QUEUE_DECISION_20260710.md
+control/decisions/ETF_EU_MVP28B_CONTROLLED_DELIVERY_TRANSPORT_SELECTION_DECISION_20260710.md
 ```
 
-Then inspect closest upstream `weekly-etf` controlled delivery and delivery-manifest patterns before modifying anything:
+Then inspect:
 
 ```text
-market-predictions/weekly-etf:send_report_runtime_html.py
-market-predictions/weekly-etf:send_report.py
-market-predictions/weekly-etf:tools/write_etf_delivery_manifest_summary.py
-market-predictions/weekly-etf:tools/validate_etf_manifest_evidence.py
 market-predictions/weekly-etf:.github/workflows/send-weekly-report.yml
+.github/workflows/send-weekly-report.yml
+.github/workflows/send-weekly-etf-eu-report.yml
+runtime/send_etf_eu_delivery_package.py
+runtime/check_etf_eu_delivery_receipt.py
+tools/validate_etf_eu_delivery_evidence.py
 ```
 
-## MVP28B recommended scope
+## MVP28C recommended scope
 
 ```text
-1. Confirm delivery_authorized=true and send_command_allowed=true.
-2. Confirm MVP28 selected decision_only/no-transport.
-3. Require explicit selection before creating a run queue or transport execution.
-4. Preserve recipient/secrets redaction.
-5. Do not claim receipt without delivery manifest evidence.
+1. Keep delivery_authorized=true and send_command_allowed=true.
+2. Do not re-open authorization.
+3. Create current-package workflow wiring.
+4. Preserve redaction and evidence boundaries.
+5. Do not claim receipt without evidence.
 ```
-
-## Guardrail
-
-No workflow dispatch, live delivery, portfolio mutation, valuation-grade promotion, funding authority promotion, production-delivery claim, recipient/secret exposure, raw receipt storage, or receipt confirmation should be started without explicit controlled-delivery evidence.
