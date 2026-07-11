@@ -13,28 +13,33 @@ market-predictions/weekly-etf-eu
 ## Latest completed package
 
 ```text
-work_package_id=ETF-EU-MVP28B_CONTROLLED_DELIVERY_TRANSPORT_SELECTION
-status=blocked_missing_eu_delivery_workflow_wiring
-source_work_package=ETF-EU-MVP28_CONTROLLED_DELIVERY_EXECUTION_OR_RUN_QUEUE
+work_package_id=ETF-EU-MVP28C_EU_DELIVERY_WORKFLOW_WIRING
+status=completed_current_package_delivery_workflow_wired_validate_dry_run
+source_work_package=ETF-EU-MVP28B_CONTROLLED_DELIVERY_TRANSPORT_SELECTION
 reference_architecture_repo=market-predictions/weekly-etf
 source_of_truth_repo=market-predictions/weekly-etf-eu
-upstream_pattern_adapted=weekly-etf queue-triggered delivery and manifest-evidence concepts; adapted for EU package-bound authority
+upstream_pattern_adapted=weekly-etf queue-triggered workflow and evidence concepts; adapted for EU current-package queue validation without automatic live transport
 port_behavior_not_us_assumptions=true
 us_assumptions_copied=false
-controlled_delivery_transport_selection_contract=control/ETF_EU_CONTROLLED_DELIVERY_TRANSPORT_SELECTION_CONTRACT_V1.md
-controlled_delivery_transport_selection_builder=tools/prepare_etf_eu_controlled_delivery_transport_selection.py
-controlled_delivery_transport_selection_validator=tools/validate_etf_eu_controlled_delivery_transport_selection.py
-controlled_delivery_transport_selection_artifact=output/delivery_control/etf_eu_controlled_delivery_transport_selection_20260710_000000.json
-controlled_delivery_transport_selection_decision=control/decisions/ETF_EU_MVP28B_CONTROLLED_DELIVERY_TRANSPORT_SELECTION_DECISION_20260710.md
-transport_selection_status=blocked_missing_eu_delivery_workflow_wiring
-selected_transport_mode=none
+delivery_workflow_wiring_contract=control/ETF_EU_DELIVERY_WORKFLOW_WIRING_CONTRACT_V1.md
+current_package_queue_builder=tools/prepare_etf_eu_current_package_delivery_queue.py
+current_package_queue_validator=tools/validate_etf_eu_current_package_delivery_queue.py
+delivery_workflow_wiring_validator=tools/validate_etf_eu_delivery_workflow_wiring.py
+delivery_workflow_wiring_artifact=output/delivery_control/etf_eu_delivery_workflow_wiring_20260710_000000.json
+delivery_workflow_wiring_decision=control/decisions/ETF_EU_MVP28C_EU_DELIVERY_WORKFLOW_WIRING_DECISION_20260710.md
+workflow_file=.github/workflows/send-weekly-etf-eu-current-package.yml
+run_queue_artifact=control/run_queue/etf_eu_current_package_delivery_request_20260710_000000.md
+current_package_chain_supported=true
+legacy_mvp19_fix2_only=false
+validate_only_supported=true
+dry_run_supported=true
+send_supported_with_guard=false
 ready_for_controlled_delivery=true
 delivery_authorized=true
 send_command_allowed=true
 workflow_dispatch_allowed=false
-run_queue_allowed=false
-run_queue_created=false
-run_queue_artifact=null
+run_queue_allowed=true
+run_queue_created=true
 transport_execution_allowed=false
 send_executed=false
 transport_attempted=false
@@ -50,15 +55,15 @@ raw_receipt_pdf_stored_in_github=false
 routine_run_manifest_updated=true
 routine_run_manifest=output/run_manifests/etf_eu_routine_run_manifest_2026-07-10_20260710_000000.json
 generation_and_delivery_separate=true
-missing_production_component=EU workflow wiring that consumes current MVP25-MVP28 fresh-package chain and current-package queue artifact
-readiness_status=controlled_delivery_transport_selection_blocked_awaiting_eu_workflow_wiring
-selected_next_package=ETF-EU-MVP28C_EU_DELIVERY_WORKFLOW_WIRING
+missing_production_component=current-package live transport runner adapter
+readiness_status=current_package_delivery_workflow_wired_awaiting_transport_runner_adapter
+selected_next_package=ETF-EU-MVP28D_CURRENT_PACKAGE_TRANSPORT_RUNNER_ADAPTER
 ```
 
 ## Active product roadmap
 
 ```text
-ETF-EU-MVP28C_EU_DELIVERY_WORKFLOW_WIRING
+ETF-EU-MVP28D_CURRENT_PACKAGE_TRANSPORT_RUNNER_ADAPTER
 ```
 
 ## Controlled delivery guard
@@ -67,19 +72,16 @@ ETF-EU-MVP28C_EU_DELIVERY_WORKFLOW_WIRING
 ready_for_controlled_delivery=true
 delivery_authorized=true
 send_command_allowed=true
-transport_selection_status=blocked_missing_eu_delivery_workflow_wiring
-selected_transport_mode=none
+current_package_chain_supported=true
+run_queue_allowed=true
+run_queue_created=true
 workflow_dispatch_allowed=false
-run_queue_allowed=false
-run_queue_created=false
 transport_execution_allowed=false
 send_executed=false
 transport_attempted=false
 transport_success=false
 receipt_confirmed_from_new_run=false
-no_workflow_dispatch_from_mvp28b=true
-no_run_queue_from_mvp28b=true
-no_transport_from_mvp28b=true
+no_live_transport_from_mvp28c=true
 recipient_plaintext_values_exposed=false
 secret_values_exposed=false
 raw_receipt_pdf_stored_in_github=false
@@ -87,4 +89,4 @@ raw_receipt_pdf_stored_in_github=false
 
 ## Production-path note
 
-MVP28B did not regress into authorization. It selected the production blocker: existing EU delivery workflow wiring targets legacy MVP19/FIX2 inputs and does not consume the current MVP25-MVP28 fresh-package chain.
+MVP28C did not regress into authorization. It created current-package queue and workflow validation/dry-run wiring for the MVP25-MVP28 fresh package chain. Live current-package transport remains the next concrete production component.
