@@ -1,0 +1,33 @@
+{
+  "artifact_type": "etf_eu_current_package_transport_result",
+  "attachment_paths": [
+    "output/fresh_generation/weekly_etf_eu_review_nl_260710.pdf",
+    "output/fresh_generation/weekly_etf_eu_review_260710.pdf",
+    "output/fresh_generation/weekly_etf_eu_review_nl_260710.html",
+    "output/fresh_generation/weekly_etf_eu_review_260710.html"
+  ],
+  "delivery_evidence_path": "output/delivery/etf_eu_current_package_delivery_evidence_20260711_175327.json",
+  "delivery_mode": "send",
+  "delivery_status": "smtp_sendmail_returned_no_exception",
+  "funding_authority": false,
+  "generated_at_utc": "2026-07-11T17:53:27Z",
+  "message_id_or_receipt_reference": "smtp_message_id:<178379240739.2305.2239506344222383961@weekly-etf-eu.local>",
+  "portfolio_mutation": false,
+  "production_delivery_authority": false,
+  "raw_receipt_pdf_stored_in_github": false,
+  "receipt_confirmed": false,
+  "recipient_hashes": [
+    "sha256:602badb30fe408fccf59e816bc5666ad80064d8436a7431767b7bc98b8234ad3"
+  ],
+  "recipient_plaintext_values_exposed": false,
+  "recipient_target_redacted": true,
+  "report_date": "2026-07-10",
+  "report_suffix": "260710",
+  "run_id": "20260711_175327",
+  "schema_version": "etf_eu_current_package_transport_result_v1",
+  "secret_values_exposed": false,
+  "transport_attempted": true,
+  "transport_error": null,
+  "transport_success": true,
+  "valuation_grade": false
+}
