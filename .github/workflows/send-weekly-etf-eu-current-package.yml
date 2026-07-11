@@ -1,0 +1,145 @@
+name: Weekly ETF EU current-package delivery workflow
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "control/run_queue/etf_eu_current_package_delivery_request_*.md"
+  workflow_dispatch:
+    inputs:
+      delivery_mode:
+        description: "Current-package ETF EU mode"
+        required: true
+        default: "validate_only"
+        type: choice
+        options:
+          - validate_only
+          - dry_run
+          - send
+      queue_path:
+        description: "Current-package queue artifact path"
+        required: true
+        default: "control/run_queue/etf_eu_current_package_delivery_request_20260710_000000.md"
+      send_confirmation:
+        description: "Guarded boundary for any future live current-package send"
+        required: true
+        default: "not_confirmed"
+        type: choice
+        options:
+          - not_confirmed
+          - confirm_guarded_send
+
+permissions:
+  contents: write
+
+jobs:
+  current-package-delivery:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Resolve current-package queue and mode
+        run: |
+          set -euo pipefail
+          MODE="${{ github.event.inputs.delivery_mode || 'validate_only' }}"
+          QUEUE_PATH="${{ github.event.inputs.queue_path || 'control/run_queue/etf_eu_current_package_delivery_request_20260710_000000.md' }}"
+          CONFIRMATION="${{ github.event.inputs.send_confirmation || 'not_confirmed' }}"
+          if [ "${{ github.event_name }}" != "workflow_dispatch" ]; then
+            MODE="validate_only"
+            CONFIRMATION="not_confirmed"
+            QUEUE_PATH="$(git diff-tree --no-commit-id --name-only -r HEAD | grep '^control/run_queue/etf_eu_current_package_delivery_request_.*\.md$' | head -1 || true)"
+          fi
+          if [ -z "$QUEUE_PATH" ]; then
+            echo "ETF_EU_CURRENT_PACKAGE_QUEUE_NOT_RESOLVED" >&2
+            exit 1
+          fi
+          case "$MODE" in
+            validate_only|dry_run|send) ;;
+            *) echo "Unsupported current-package mode=$MODE" >&2; exit 1 ;;
+          esac
+          echo "ETF_EU_DELIVERY_MODE=$MODE" >> "$GITHUB_ENV"
+          echo "ETF_EU_QUEUE_PATH=$QUEUE_PATH" >> "$GITHUB_ENV"
+          echo "ETF_EU_SEND_CONFIRMATION=$CONFIRMATION" >> "$GITHUB_ENV"
+          echo "ETF_EU_CURRENT_PACKAGE_QUEUE_OK | mode=$MODE | queue=$QUEUE_PATH"
+
+      - name: Validate current-package queue
+        run: |
+          set -euo pipefail
+          python tools/validate_etf_eu_current_package_delivery_queue.py --queue "$ETF_EU_QUEUE_PATH"
+
+      - name: Validate current-package workflow wiring artifact
+        run: |
+          set -euo pipefail
+          python tools/validate_etf_eu_delivery_workflow_wiring.py \
+            --artifact output/delivery_control/etf_eu_delivery_workflow_wiring_20260710_000000.json
+
+      - name: Current-package validate-only boundary
+        if: env.ETF_EU_DELIVERY_MODE == 'validate_only'
+        run: |
+          echo "ETF_EU_CURRENT_PACKAGE_VALIDATE_ONLY_OK"
+          echo "No live delivery, portfolio mutation, recipient exposure, or receipt claim is performed."
+
+      - name: Current-package dry-run evidence
+        if: env.ETF_EU_DELIVERY_MODE == 'dry_run'
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          import os
+          from datetime import datetime, timezone
+          from pathlib import Path
+
+          queue_path = Path(os.environ['ETF_EU_QUEUE_PATH'])
+          data = {}
+          for raw in queue_path.read_text(encoding='utf-8').splitlines():
+              if '=' in raw and not raw.lstrip().startswith('#'):
+                  key, value = raw.split('=', 1)
+                  data[key.strip()] = value.strip()
+
+          run_id = datetime.now(timezone.utc).strftime('%Y%m%d_%H%M%S')
+          out_dir = Path('output/delivery')
+          out_dir.mkdir(parents=True, exist_ok=True)
+          evidence = {
+              'schema_version': 'etf_eu_current_package_dry_run_evidence_v1',
+              'artifact_type': 'etf_eu_current_package_dry_run_evidence',
+              'generated_at_utc': datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace('+00:00', 'Z'),
+              'run_id': run_id,
+              'source_queue': str(queue_path),
+              'package_manifest': data.get('package_manifest'),
+              'authorization_artifact': data.get('authorization_artifact'),
+              'transport_selection_artifact': data.get('transport_selection_artifact'),
+              'delivery_mode': 'dry_run',
+              'transport_attempted': False,
+              'transport_success': False,
+              'receipt_confirmed': False,
+              'recipient_plaintext_values_exposed': False,
+              'secret_values_exposed': False,
+              'raw_receipt_pdf_stored_in_github': False,
+              'delivery_success_claimed': False,
+          }
+          path = out_dir / f'etf_eu_current_package_dry_run_evidence_{run_id}.json'
+          path.write_text(json.dumps(evidence, indent=2, sort_keys=True) + '\n', encoding='utf-8')
+          print(f'ETF_EU_CURRENT_PACKAGE_DRY_RUN_EVIDENCE_OK | evidence={path}')
+          PY
+
+      - name: Guarded live current-package send boundary
+        if: env.ETF_EU_DELIVERY_MODE == 'send'
+        run: |
+          set -euo pipefail
+          if [ "$ETF_EU_SEND_CONFIRMATION" != "confirm_guarded_send" ]; then
+            echo "ETF_EU_CURRENT_PACKAGE_SEND_CONFIRMATION_MISSING" >&2
+            exit 1
+          fi
+          echo "ETF_EU_CURRENT_PACKAGE_SEND_BLOCKED_PENDING_TRANSPORT_RUNNER_ADAPTER" >&2
+          echo "The current-package queue and validation workflow are wired, but live current-package transport is intentionally left to the next explicit package." >&2
+          exit 1
