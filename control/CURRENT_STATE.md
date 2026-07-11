@@ -13,93 +13,62 @@ market-predictions/weekly-etf-eu
 ## Latest completed package
 
 ```text
-work_package_id=ETF-EU-MVP28F_GUARDED_CURRENT_PACKAGE_SEND_EXECUTION
-status=completed_current_package_guarded_send_execution
-source_work_package=ETF-EU-MVP28E_GUARDED_CURRENT_PACKAGE_DRY_RUN_OR_SEND_EXECUTION
+work_package_id=ETF-EU-MVP29_DELIVERY_RUN_MONITOR_AND_RECEIPT_EVIDENCE
+status=completed_current_package_receipt_confirmed
+source_work_package=ETF-EU-MVP28F_GUARDED_CURRENT_PACKAGE_SEND_EXECUTION
 reference_architecture_repo=market-predictions/weekly-etf
 source_of_truth_repo=market-predictions/weekly-etf-eu
-upstream_pattern_adapted=weekly-etf delivery-evidence pattern adapted for EU current-package authority
+upstream_pattern_adapted=weekly-etf delivery manifest and run-closeout evidence concepts adapted for EU current-package receipt boundary
 port_behavior_not_us_assumptions=true
 us_assumptions_copied=false
-current_package_send_execution_artifact=output/delivery_control/etf_eu_guarded_current_package_send_execution_20260710_000000.json
-current_package_execution_artifact=output/delivery_control/etf_eu_guarded_current_package_execution_20260710_000000.json
-dry_run_preflight_result_artifact=output/delivery/etf_eu_current_package_transport_result_20260710_000000_mvp28e_dry_run.json
-dry_run_preflight_delivery_evidence_artifact=output/delivery/etf_eu_current_package_delivery_evidence_20260710_000000_mvp28e_dry_run.json
+runtime_run_id=20260711_175327
 transport_result_artifact=output/delivery/etf_eu_current_package_transport_result_20260711_175327.json
 delivery_evidence_artifact=output/delivery/etf_eu_current_package_delivery_evidence_20260711_175327.json
-runtime_run_id=20260711_175327
-current_package_transport_runner=runtime/send_etf_eu_current_package_delivery.py
-current_package_transport_validator=tools/validate_etf_eu_current_package_transport_runner.py
-workflow_file=.github/workflows/send-weekly-etf-eu-current-package.yml
-run_queue_artifact=control/run_queue/etf_eu_current_package_delivery_request_20260710_000000.md
-execution_mode=guarded_send
-execution_status=completed_current_package_guarded_send_execution
-delivery_status=smtp_sendmail_returned_no_exception
-delivery_status_meaning=SMTP success is not an end-recipient inbox receipt.
-current_package_chain_supported=true
-transport_runner_adapter_created=true
-dry_run_supported=true
-send_supported_with_guard=true
-send_mode_wired=true
-ready_for_controlled_delivery=true
-delivery_authorized=true
-send_command_allowed=true
-workflow_dispatch_allowed=true
-workflow_dispatch_performed=true
-workflow_run_id=null
-run_queue_allowed=true
-run_queue_created=true
-transport_execution_allowed=true
-live_transport_executed=true
-send_executed=true
-transport_attempted=true
+receipt_evidence_contract=control/ETF_EU_DELIVERY_RECEIPT_EVIDENCE_CONTRACT_V1.md
+receipt_evidence_artifact=output/delivery/etf_eu_current_package_receipt_evidence_20260711_175327.json
+receipt_monitor_artifact=output/delivery_control/etf_eu_delivery_run_monitor_receipt_20260710_000000.json
+receipt_validator=tools/validate_etf_eu_delivery_receipt_evidence.py
+receipt_check_status=receipt_confirmed
 transport_success=true
-receipt_confirmed_from_new_run=false
+send_executed=true
+receipt_confirmed_from_new_run=true
+recipient_plaintext_values_exposed=false
+secret_values_exposed=false
+raw_email_content_stored=false
+raw_receipt_pdf_stored_in_github=false
 valuation_grade=false
 funding_authority=false
 portfolio_mutation=false
 production_delivery_authority=false
-recipient_plaintext_values_exposed=false
-secret_values_exposed=false
-raw_receipt_pdf_stored_in_github=false
 routine_run_manifest_updated=true
 routine_run_manifest=output/run_manifests/etf_eu_routine_run_manifest_2026-07-10_20260710_000000.json
-generation_and_delivery_separate=true
-readiness_status=current_package_guarded_transport_completed_awaiting_receipt_evidence
-selected_next_package=ETF-EU-MVP29_DELIVERY_RUN_MONITOR_AND_RECEIPT_EVIDENCE
+selected_next_package=ETF-EU-MVP30_PRODUCTION_DELIVERY_CLOSEOUT_AND_ROUTINE_RUNBOOK
 ```
 
 ## Active product roadmap
 
 ```text
-ETF-EU-MVP29_DELIVERY_RUN_MONITOR_AND_RECEIPT_EVIDENCE
+ETF-EU-MVP30_PRODUCTION_DELIVERY_CLOSEOUT_AND_ROUTINE_RUNBOOK
 ```
 
-## Controlled delivery guard
+## Delivery evidence status
 
 ```text
-ready_for_controlled_delivery=true
 delivery_authorized=true
 send_command_allowed=true
-current_package_chain_supported=true
-run_queue_allowed=true
-run_queue_created=true
-dry_run_supported=true
-send_supported_with_guard=true
-send_mode_wired=true
-workflow_dispatch_allowed=true
 workflow_dispatch_performed=true
-transport_execution_allowed=true
 live_transport_executed=true
-send_executed=true
 transport_attempted=true
 transport_success=true
-receipt_confirmed_from_new_run=false
+receipt_confirmed_from_new_run=true
+receipt_source=connected_mailbox_api
+expected_attachment_set_seen=true
 recipient_plaintext_values_exposed=false
 secret_values_exposed=false
+raw_email_content_stored=false
 raw_receipt_pdf_stored_in_github=false
 ```
 
 ## Production-path note
 
-MVP28F completed current-package SMTP transport evidence for the MVP25-MVP28 fresh package chain. This is not inbox receipt confirmation. The next production component is delivery monitoring and receipt evidence.
+MVP29 confirmed independent inbox receipt for the current-package run using redacted mailbox metadata. MVP30 should close the production delivery cycle and convert the proven sequence into the routine operating runbook.
