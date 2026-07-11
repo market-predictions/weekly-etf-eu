@@ -6,20 +6,24 @@ Decision id: `ETF_EU_MVP28F_GUARDED_CURRENT_PACKAGE_SEND_EXECUTION_DECISION_2026
 
 ```text
 work_package_id=ETF-EU-MVP28F_GUARDED_CURRENT_PACKAGE_SEND_EXECUTION
-status=blocked_no_workflow_dispatch_performed
+status=completed_current_package_guarded_send_execution
 execution_mode=guarded_send
 source_work_package=ETF-EU-MVP28E_GUARDED_CURRENT_PACKAGE_DRY_RUN_OR_SEND_EXECUTION
 reference_architecture_repo=market-predictions/weekly-etf
 source_of_truth_repo=market-predictions/weekly-etf-eu
-upstream_pattern_adapted=weekly-etf delivery/evidence pattern adapted for EU current-package authority
+upstream_pattern_adapted=weekly-etf delivery-evidence pattern adapted for EU current-package authority
 current_package_queue=control/run_queue/etf_eu_current_package_delivery_request_20260710_000000.md
 workflow_file=.github/workflows/send-weekly-etf-eu-current-package.yml
-workflow_dispatch_performed=false
+workflow_dispatch_performed=true
 workflow_run_id=null
-live_transport_executed=false
-send_executed=false
-transport_attempted=false
-transport_success=false
+runtime_run_id=20260711_175327
+transport_result_artifact=output/delivery/etf_eu_current_package_transport_result_20260711_175327.json
+delivery_evidence_artifact=output/delivery/etf_eu_current_package_delivery_evidence_20260711_175327.json
+live_transport_executed=true
+send_executed=true
+transport_attempted=true
+transport_success=true
+delivery_status=smtp_sendmail_returned_no_exception
 receipt_confirmed=false
 delivery_authorized=true
 send_command_allowed=true
@@ -34,13 +38,13 @@ valuation_grade=false
 funding_authority=false
 portfolio_mutation=false
 production_delivery_authority=false
-selected_next_package=ETF-EU-MVP28F_MANUAL_GUARDED_SEND_WORKFLOW_DISPATCH_REQUIRED
+selected_next_package=ETF-EU-MVP29_DELIVERY_RUN_MONITOR_AND_RECEIPT_EVIDENCE
 ```
 
 ## Boundary
 
-This session did not start a GitHub Actions workflow run. No runtime transport result exists for this package. The workflow is wired and the dry-run preflight exists, but the connector available in this session did not expose a new workflow-dispatch action.
+The current-package transport path produced committed result and evidence artifacts. Transport success is not inbox receipt confirmation. Receipt remains false until a separate receipt evidence artifact exists.
 
 ## Next action
 
-Use the GitHub Actions workflow for the current-package path with the required guarded inputs, then inspect the committed transport result and delivery evidence before moving to receipt monitoring.
+Move to receipt monitoring and evidence collection.
