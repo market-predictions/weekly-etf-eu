@@ -13,27 +13,26 @@ market-predictions/weekly-etf-eu
 ## Latest completed package
 
 ```text
-work_package_id=ETF-EU-MVP28C_EU_DELIVERY_WORKFLOW_WIRING
-status=completed_current_package_delivery_workflow_wired_validate_dry_run
-source_work_package=ETF-EU-MVP28B_CONTROLLED_DELIVERY_TRANSPORT_SELECTION
+work_package_id=ETF-EU-MVP28D_CURRENT_PACKAGE_TRANSPORT_RUNNER_ADAPTER
+status=completed_current_package_transport_runner_adapter_created
+source_work_package=ETF-EU-MVP28C_EU_DELIVERY_WORKFLOW_WIRING
 reference_architecture_repo=market-predictions/weekly-etf
 source_of_truth_repo=market-predictions/weekly-etf-eu
-upstream_pattern_adapted=weekly-etf queue-triggered workflow and evidence concepts; adapted for EU current-package queue validation without automatic live transport
+upstream_pattern_adapted=weekly-etf transport and manifest-evidence concepts; adapted for EU current-package queue authority and redacted evidence
 port_behavior_not_us_assumptions=true
 us_assumptions_copied=false
-delivery_workflow_wiring_contract=control/ETF_EU_DELIVERY_WORKFLOW_WIRING_CONTRACT_V1.md
-current_package_queue_builder=tools/prepare_etf_eu_current_package_delivery_queue.py
-current_package_queue_validator=tools/validate_etf_eu_current_package_delivery_queue.py
-delivery_workflow_wiring_validator=tools/validate_etf_eu_delivery_workflow_wiring.py
-delivery_workflow_wiring_artifact=output/delivery_control/etf_eu_delivery_workflow_wiring_20260710_000000.json
-delivery_workflow_wiring_decision=control/decisions/ETF_EU_MVP28C_EU_DELIVERY_WORKFLOW_WIRING_DECISION_20260710.md
+current_package_transport_runner_contract=control/ETF_EU_CURRENT_PACKAGE_TRANSPORT_RUNNER_CONTRACT_V1.md
+current_package_transport_runner=runtime/send_etf_eu_current_package_delivery.py
+current_package_transport_validator=tools/validate_etf_eu_current_package_transport_runner.py
+current_package_transport_runner_adapter_artifact=output/delivery_control/etf_eu_current_package_transport_runner_adapter_20260710_000000.json
+current_package_transport_runner_decision=control/decisions/ETF_EU_MVP28D_CURRENT_PACKAGE_TRANSPORT_RUNNER_ADAPTER_DECISION_20260710.md
 workflow_file=.github/workflows/send-weekly-etf-eu-current-package.yml
 run_queue_artifact=control/run_queue/etf_eu_current_package_delivery_request_20260710_000000.md
 current_package_chain_supported=true
-legacy_mvp19_fix2_only=false
-validate_only_supported=true
+transport_runner_adapter_created=true
 dry_run_supported=true
-send_supported_with_guard=false
+send_supported_with_guard=true
+send_mode_wired=true
 ready_for_controlled_delivery=true
 delivery_authorized=true
 send_command_allowed=true
@@ -41,6 +40,7 @@ workflow_dispatch_allowed=false
 run_queue_allowed=true
 run_queue_created=true
 transport_execution_allowed=false
+live_transport_executed=false
 send_executed=false
 transport_attempted=false
 transport_success=false
@@ -55,15 +55,14 @@ raw_receipt_pdf_stored_in_github=false
 routine_run_manifest_updated=true
 routine_run_manifest=output/run_manifests/etf_eu_routine_run_manifest_2026-07-10_20260710_000000.json
 generation_and_delivery_separate=true
-missing_production_component=current-package live transport runner adapter
-readiness_status=current_package_delivery_workflow_wired_awaiting_transport_runner_adapter
-selected_next_package=ETF-EU-MVP28D_CURRENT_PACKAGE_TRANSPORT_RUNNER_ADAPTER
+readiness_status=current_package_transport_runner_adapter_created_awaiting_guarded_execution
+selected_next_package=ETF-EU-MVP28E_GUARDED_CURRENT_PACKAGE_DRY_RUN_OR_SEND_EXECUTION
 ```
 
 ## Active product roadmap
 
 ```text
-ETF-EU-MVP28D_CURRENT_PACKAGE_TRANSPORT_RUNNER_ADAPTER
+ETF-EU-MVP28E_GUARDED_CURRENT_PACKAGE_DRY_RUN_OR_SEND_EXECUTION
 ```
 
 ## Controlled delivery guard
@@ -75,13 +74,17 @@ send_command_allowed=true
 current_package_chain_supported=true
 run_queue_allowed=true
 run_queue_created=true
+dry_run_supported=true
+send_supported_with_guard=true
+send_mode_wired=true
 workflow_dispatch_allowed=false
 transport_execution_allowed=false
+live_transport_executed=false
 send_executed=false
 transport_attempted=false
 transport_success=false
 receipt_confirmed_from_new_run=false
-no_live_transport_from_mvp28c=true
+no_live_transport_from_mvp28d=true
 recipient_plaintext_values_exposed=false
 secret_values_exposed=false
 raw_receipt_pdf_stored_in_github=false
@@ -89,4 +92,4 @@ raw_receipt_pdf_stored_in_github=false
 
 ## Production-path note
 
-MVP28C did not regress into authorization. It created current-package queue and workflow validation/dry-run wiring for the MVP25-MVP28 fresh package chain. Live current-package transport remains the next concrete production component.
+MVP28D did not regress into authorization. It created current-package transport runner support and wired the current-package workflow dry-run and guarded send branches. Actual dry-run or guarded send execution remains the next explicit package.
