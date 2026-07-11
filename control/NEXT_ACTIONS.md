@@ -1,29 +1,35 @@
 # Weekly ETF EU Review OS — Next Actions
 
-Current priority: **ETF-EU-MVP28C_EU_DELIVERY_WORKFLOW_WIRING**.
+Current priority: **ETF-EU-MVP28D_CURRENT_PACKAGE_TRANSPORT_RUNNER_ADAPTER**.
 
 ## Latest completion
 
 ```text
-work_package_id=ETF-EU-MVP28B_CONTROLLED_DELIVERY_TRANSPORT_SELECTION
-status=blocked_missing_eu_delivery_workflow_wiring
-source_work_package=ETF-EU-MVP28_CONTROLLED_DELIVERY_EXECUTION_OR_RUN_QUEUE
+work_package_id=ETF-EU-MVP28C_EU_DELIVERY_WORKFLOW_WIRING
+status=completed_current_package_delivery_workflow_wired_validate_dry_run
+source_work_package=ETF-EU-MVP28B_CONTROLLED_DELIVERY_TRANSPORT_SELECTION
 reference_architecture_repo=market-predictions/weekly-etf
 source_of_truth_repo=market-predictions/weekly-etf-eu
-upstream_pattern_adapted=weekly-etf queue-triggered delivery and manifest-evidence concepts; adapted for EU package-bound authority
-controlled_delivery_transport_selection_contract=control/ETF_EU_CONTROLLED_DELIVERY_TRANSPORT_SELECTION_CONTRACT_V1.md
-controlled_delivery_transport_selection_builder=tools/prepare_etf_eu_controlled_delivery_transport_selection.py
-controlled_delivery_transport_selection_validator=tools/validate_etf_eu_controlled_delivery_transport_selection.py
-controlled_delivery_transport_selection_artifact=output/delivery_control/etf_eu_controlled_delivery_transport_selection_20260710_000000.json
-controlled_delivery_transport_selection_decision=control/decisions/ETF_EU_MVP28B_CONTROLLED_DELIVERY_TRANSPORT_SELECTION_DECISION_20260710.md
-transport_selection_status=blocked_missing_eu_delivery_workflow_wiring
-selected_transport_mode=none
+upstream_pattern_adapted=weekly-etf queue-triggered workflow and evidence concepts; adapted for EU current-package queue validation without automatic live transport
+delivery_workflow_wiring_contract=control/ETF_EU_DELIVERY_WORKFLOW_WIRING_CONTRACT_V1.md
+current_package_queue_builder=tools/prepare_etf_eu_current_package_delivery_queue.py
+current_package_queue_validator=tools/validate_etf_eu_current_package_delivery_queue.py
+delivery_workflow_wiring_validator=tools/validate_etf_eu_delivery_workflow_wiring.py
+delivery_workflow_wiring_artifact=output/delivery_control/etf_eu_delivery_workflow_wiring_20260710_000000.json
+delivery_workflow_wiring_decision=control/decisions/ETF_EU_MVP28C_EU_DELIVERY_WORKFLOW_WIRING_DECISION_20260710.md
+workflow_file=.github/workflows/send-weekly-etf-eu-current-package.yml
+run_queue_artifact=control/run_queue/etf_eu_current_package_delivery_request_20260710_000000.md
+current_package_chain_supported=true
+legacy_mvp19_fix2_only=false
+validate_only_supported=true
+dry_run_supported=true
+send_supported_with_guard=false
 ready_for_controlled_delivery=true
 delivery_authorized=true
 send_command_allowed=true
 workflow_dispatch_allowed=false
-run_queue_allowed=false
-run_queue_created=false
+run_queue_allowed=true
+run_queue_created=true
 transport_execution_allowed=false
 send_executed=false
 transport_attempted=false
@@ -34,8 +40,8 @@ secret_values_exposed=false
 raw_receipt_pdf_stored_in_github=false
 routine_run_manifest_updated=true
 routine_run_manifest=output/run_manifests/etf_eu_routine_run_manifest_2026-07-10_20260710_000000.json
-missing_production_component=current-package EU workflow wiring
-selected_next_package=ETF-EU-MVP28C_EU_DELIVERY_WORKFLOW_WIRING
+missing_production_component=current-package live transport runner adapter
+selected_next_package=ETF-EU-MVP28D_CURRENT_PACKAGE_TRANSPORT_RUNNER_ADAPTER
 ```
 
 ## Standing upstream-first reuse rule
@@ -47,23 +53,21 @@ Do not port U.S. portfolio state, U.S. holdings, U.S. instruments, U.S. recipien
 ## Active next package
 
 ```text
-ETF-EU-MVP28C_EU_DELIVERY_WORKFLOW_WIRING
+ETF-EU-MVP28D_CURRENT_PACKAGE_TRANSPORT_RUNNER_ADAPTER
 ```
 
-## ETF-EU-MVP28C objective
+## ETF-EU-MVP28D objective
 
-Wire the EU workflow for the current authorized fresh-package chain.
+Adapt or create the current-package transport runner for the authorized fresh-package chain.
 
-MVP28B found a specific production blocker: the current EU workflow/runtime path is tied to legacy MVP19/FIX2 delivery package inputs and older queue naming, while the current package chain is MVP25-MVP28.
-
-MVP28C should create or adapt workflow wiring for:
+MVP28C created the current-package queue and workflow validation/dry-run entrypoint:
 
 ```text
-output/fresh_generation/etf_eu_fresh_generation_package_manifest_20260710_000000.json
-output/delivery_authorization/etf_eu_guarded_send_authorization_20260710_000000.json
-output/delivery_control/etf_eu_controlled_delivery_decision_20260710_000000.json
-control/run_queue/current-package EU queue artifact
+control/run_queue/etf_eu_current_package_delivery_request_20260710_000000.md
+.github/workflows/send-weekly-etf-eu-current-package.yml
 ```
+
+The remaining production component is live current-package transport support. Existing transport runtime is still legacy-package oriented and should be adapted minimally, preserving redaction and receipt-evidence rules.
 
 ## Required start sequence
 
@@ -73,28 +77,28 @@ Read in order:
 control/SYSTEM_INDEX.md
 control/CURRENT_STATE.md
 control/NEXT_ACTIONS.md
-control/ETF_EU_CONTROLLED_DELIVERY_TRANSPORT_SELECTION_CONTRACT_V1.md
+control/ETF_EU_DELIVERY_WORKFLOW_WIRING_CONTRACT_V1.md
 control/decisions/ETF_EU_UPSTREAM_FIRST_REUSE_RULE_DECISION_20260710.md
-control/decisions/ETF_EU_MVP28B_CONTROLLED_DELIVERY_TRANSPORT_SELECTION_DECISION_20260710.md
+control/decisions/ETF_EU_MVP28C_EU_DELIVERY_WORKFLOW_WIRING_DECISION_20260710.md
 ```
 
 Then inspect:
 
 ```text
-market-predictions/weekly-etf:.github/workflows/send-weekly-report.yml
-.github/workflows/send-weekly-report.yml
-.github/workflows/send-weekly-etf-eu-report.yml
+market-predictions/weekly-etf:send_report_runtime_html.py
+market-predictions/weekly-etf:send_report.py
 runtime/send_etf_eu_delivery_package.py
-runtime/check_etf_eu_delivery_receipt.py
+runtime/write_etf_eu_delivery_evidence.py
 tools/validate_etf_eu_delivery_evidence.py
+.github/workflows/send-weekly-etf-eu-current-package.yml
 ```
 
-## MVP28C recommended scope
+## MVP28D recommended scope
 
 ```text
 1. Keep delivery_authorized=true and send_command_allowed=true.
 2. Do not re-open authorization.
-3. Create current-package workflow wiring.
-4. Preserve redaction and evidence boundaries.
-5. Do not claim receipt without evidence.
+3. Add current-package transport runner support.
+4. Keep dry-run and send paths separated.
+5. Preserve redacted evidence and no receipt claim without evidence.
 ```
