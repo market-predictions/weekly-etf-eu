@@ -13,22 +13,24 @@ market-predictions/weekly-etf-eu
 ## Latest completed package
 
 ```text
-work_package_id=ETF-EU-MVP28E_GUARDED_CURRENT_PACKAGE_DRY_RUN_OR_SEND_EXECUTION
-status=completed_current_package_dry_run_execution
-source_work_package=ETF-EU-MVP28D_CURRENT_PACKAGE_TRANSPORT_RUNNER_ADAPTER
+work_package_id=ETF-EU-MVP28F_GUARDED_CURRENT_PACKAGE_SEND_EXECUTION
+status=blocked_no_workflow_dispatch_performed
+source_work_package=ETF-EU-MVP28E_GUARDED_CURRENT_PACKAGE_DRY_RUN_OR_SEND_EXECUTION
 reference_architecture_repo=market-predictions/weekly-etf
 source_of_truth_repo=market-predictions/weekly-etf-eu
-upstream_pattern_adapted=weekly-etf guarded transport execution and manifest-evidence concepts; adapted for EU current-package dry-run evidence
+upstream_pattern_adapted=weekly-etf delivery-evidence pattern adapted for EU current-package authority
 port_behavior_not_us_assumptions=true
 us_assumptions_copied=false
+current_package_send_execution_artifact=output/delivery_control/etf_eu_guarded_current_package_send_execution_20260710_000000.json
 current_package_execution_artifact=output/delivery_control/etf_eu_guarded_current_package_execution_20260710_000000.json
-transport_result_artifact=output/delivery/etf_eu_current_package_transport_result_20260710_000000_mvp28e_dry_run.json
-delivery_evidence_artifact=output/delivery/etf_eu_current_package_delivery_evidence_20260710_000000_mvp28e_dry_run.json
+dry_run_preflight_result_artifact=output/delivery/etf_eu_current_package_transport_result_20260710_000000_mvp28e_dry_run.json
+dry_run_preflight_delivery_evidence_artifact=output/delivery/etf_eu_current_package_delivery_evidence_20260710_000000_mvp28e_dry_run.json
 current_package_transport_runner=runtime/send_etf_eu_current_package_delivery.py
 current_package_transport_validator=tools/validate_etf_eu_current_package_transport_runner.py
 workflow_file=.github/workflows/send-weekly-etf-eu-current-package.yml
 run_queue_artifact=control/run_queue/etf_eu_current_package_delivery_request_20260710_000000.md
-execution_mode=dry_run
+execution_mode=guarded_send
+execution_status=blocked_no_workflow_dispatch_performed
 current_package_chain_supported=true
 transport_runner_adapter_created=true
 dry_run_supported=true
@@ -38,6 +40,8 @@ ready_for_controlled_delivery=true
 delivery_authorized=true
 send_command_allowed=true
 workflow_dispatch_allowed=false
+workflow_dispatch_performed=false
+workflow_run_id=null
 run_queue_allowed=true
 run_queue_created=true
 transport_execution_allowed=false
@@ -56,14 +60,14 @@ raw_receipt_pdf_stored_in_github=false
 routine_run_manifest_updated=true
 routine_run_manifest=output/run_manifests/etf_eu_routine_run_manifest_2026-07-10_20260710_000000.json
 generation_and_delivery_separate=true
-readiness_status=current_package_dry_run_completed_awaiting_guarded_send_execution
-selected_next_package=ETF-EU-MVP28F_GUARDED_CURRENT_PACKAGE_SEND_EXECUTION
+readiness_status=current_package_controlled_execution_ready_but_not_started_from_connector_session
+selected_next_package=ETF-EU-MVP28F_MANUAL_GUARDED_SEND_WORKFLOW_DISPATCH_REQUIRED
 ```
 
 ## Active product roadmap
 
 ```text
-ETF-EU-MVP28F_GUARDED_CURRENT_PACKAGE_SEND_EXECUTION
+ETF-EU-MVP28F_MANUAL_GUARDED_SEND_WORKFLOW_DISPATCH_REQUIRED
 ```
 
 ## Controlled delivery guard
@@ -79,13 +83,14 @@ dry_run_supported=true
 send_supported_with_guard=true
 send_mode_wired=true
 workflow_dispatch_allowed=false
+workflow_dispatch_performed=false
+workflow_run_id=null
 transport_execution_allowed=false
 live_transport_executed=false
 send_executed=false
 transport_attempted=false
 transport_success=false
 receipt_confirmed_from_new_run=false
-no_live_transport_from_mvp28e=true
 recipient_plaintext_values_exposed=false
 secret_values_exposed=false
 raw_receipt_pdf_stored_in_github=false
@@ -93,4 +98,4 @@ raw_receipt_pdf_stored_in_github=false
 
 ## Production-path note
 
-MVP28E did not regress into authorization. It completed current-package dry-run evidence for the MVP25-MVP28 fresh package chain. The next production component is guarded current-package send execution.
+MVP28F did not regress into authorization. The current-package workflow and dry-run evidence are ready. This connector session could not start a new GitHub Actions workflow_dispatch run, so no runtime transport evidence for MVP28F exists yet.
