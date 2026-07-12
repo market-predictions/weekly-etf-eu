@@ -52,13 +52,31 @@ portfolio_mutation=false
 production_delivery_authority=false
 routine_run_manifest_updated=true
 routine_run_manifest=output/run_manifests/etf_eu_routine_run_manifest_2026-07-10_20260710_000000.json
-selected_next_action=RUN_NEXT_ROUTINE_WEEKLY_ETF_EU_REPORT
+selected_next_action=DISPATCH_PREPARED_ROUTINE_WEEKLY_ETF_EU_RUN
 ```
 
 ## Active operating mode
 
 ```text
 ROUTINE_WEEKLY_ETF_EU_PRODUCTION
+```
+
+## Active routine run
+
+```text
+routine_run_id=20260712_125000
+report_date=2026-07-12
+report_suffix=260712
+request_artifact=control/run_queue/etf_eu_routine_report_request_20260712_125000.md
+workflow_file=.github/workflows/run-weekly-etf-eu-routine.yml
+workflow_dispatch_available=true
+workflow_dispatch_performed=false
+fresh_package_generated=false
+transport_attempted=false
+transport_success=false
+receipt_confirmed=false
+status=prepared_awaiting_manual_workflow_dispatch
+selected_next_action=DISPATCH_PREPARED_ROUTINE_WEEKLY_ETF_EU_RUN
 ```
 
 ## Routine production authority
@@ -75,4 +93,4 @@ weekly_etf_upstream_donor_only=true
 
 ## Production closeout note
 
-The first current-package production cycle is closed with successful transport evidence, independent inbox receipt evidence and all four expected delivery assets observed. The next action is a fresh routine weekly report under the canonical runbook. No further architecture package is required unless a concrete defect or material capability change is identified.
+The first current-package production cycle remains closed and verified. The next fresh routine run is fully prepared but has not executed because connector-authored commits did not start the GitHub Actions workflow. Dispatch the prepared routine workflow manually; do not create a second run identity or reuse previous dated artifacts.
