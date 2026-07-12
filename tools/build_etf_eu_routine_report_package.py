@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import argparse
-import html
 import json
 import subprocess
 import sys
@@ -9,12 +8,15 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-from tools.build_etf_eu_fresh_generation_package import _simple_pdf
+from runtime.render_etf_eu_client_report import render_report
 
 
 SOURCE_REPO = "market-predictions/weekly-etf-eu"
 DONOR_REPO = "market-predictions/weekly-etf"
-UPSTREAM_PATTERN = "weekly-etf report/package discipline adapted for EU routine production and ISIN-first authority"
+UPSTREAM_PATTERN = (
+    "weekly-etf Markdown preprocessing, Mistune table rendering, semantic HTML, "
+    "WeasyPrint PDF generation and Poppler validation adapted for EU routine production"
+)
 
 
 def _utc_now() -> str:
@@ -231,33 +233,6 @@ production_delivery_authority=false
 """
 
 
-def _html_document(markdown: str, title: str, lang: str) -> str:
-    parts: list[str] = []
-    in_code = False
-    for raw in markdown.splitlines():
-        line = raw.rstrip()
-        if line.startswith("```"):
-            in_code = not in_code
-            parts.append("<pre>" if in_code else "</pre>")
-        elif in_code:
-            parts.append(html.escape(line) + "\n")
-        elif line.startswith("# "):
-            parts.append(f"<h1>{html.escape(line[2:])}</h1>")
-        elif line.startswith("## "):
-            parts.append(f"<h2>{html.escape(line[3:])}</h2>")
-        elif line.startswith("| "):
-            parts.append(f"<div class='table-row'>{html.escape(line)}</div>")
-        elif line.startswith("- "):
-            parts.append(f"<p>{html.escape(line)}</p>")
-        elif line:
-            parts.append(f"<p>{html.escape(line)}</p>")
-    body = "\n".join(parts)
-    return f"""<!doctype html>
-<html lang="{lang}"><head><meta charset="utf-8"><title>{html.escape(title)}</title>
-<style>body{{font-family:Arial,sans-serif;max-width:920px;margin:40px auto;line-height:1.45;color:#202124}}h1{{font-size:28px}}h2{{margin-top:28px;border-bottom:1px solid #ddd;padding-bottom:6px}}.table-row{{font-family:monospace;font-size:12px;padding:3px 0}}pre{{background:#f5f5f5;padding:12px}}</style></head><body>{body}</body></html>
-"""
-
-
 def build(args: argparse.Namespace) -> dict[str, Path]:
     output_dir = Path(args.output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -281,10 +256,21 @@ def build(args: argparse.Namespace) -> dict[str, Path]:
     en_text = _markdown_en(args.report_date, state, pricing)
     nl_md.write_text(nl_text, encoding="utf-8")
     en_md.write_text(en_text, encoding="utf-8")
-    nl_html.write_text(_html_document(nl_text, f"Weekly ETF EU Review | Nederlands | {args.report_date}", "nl"), encoding="utf-8")
-    en_html.write_text(_html_document(en_text, f"Weekly ETF EU Review | English Companion | {args.report_date}", "en"), encoding="utf-8")
-    nl_pdf.write_text(_simple_pdf(f"Weekly ETF EU Review NL {args.report_date}", nl_text.splitlines()), encoding="latin-1")
-    en_pdf.write_text(_simple_pdf(f"Weekly ETF EU Review EN {args.report_date}", en_text.splitlines()), encoding="latin-1")
+
+    render_report(
+        markdown_path=nl_md,
+        html_output=nl_html,
+        pdf_output=nl_pdf,
+        language="nl",
+        title=f"Weekly ETF EU Review | Nederlands | {args.report_date}",
+    )
+    render_report(
+        markdown_path=en_md,
+        html_output=en_html,
+        pdf_output=en_pdf,
+        language="en",
+        title=f"Weekly ETF EU Review | English Companion | {args.report_date}",
+    )
 
     latest_close = _latest_close_date(rows)
     manifest = {
@@ -299,10 +285,16 @@ def build(args: argparse.Namespace) -> dict[str, Path]:
         "reference_architecture_repo": DONOR_REPO,
         "upstream_pattern_adapted": UPSTREAM_PATTERN,
         "fresh_generation_status": "full_package_generated",
-        "full_generation_status": "routine_renderer_integrated",
+        "full_generation_status": "client_grade_renderer_integrated",
         "markdown_generation_status": "generated",
         "html_generation_status": "generated",
-        "pdf_generation_status": "generated",
+        "pdf_generation_status": "generated_pending_quality_gates",
+        "renderer": "runtime/render_etf_eu_client_report.py",
+        "renderer_engine": "weasyprint",
+        "markdown_engine": "mistune_table",
+        "pdf_machine_gate_passed": False,
+        "pdf_visual_gate_passed": False,
+        "client_output_valid": False,
         "markdown_output_available": True,
         "html_output_available": True,
         "pdf_output_available": True,
@@ -337,10 +329,11 @@ def build(args: argparse.Namespace) -> dict[str, Path]:
         "dutch_primary_pdf": str(nl_pdf),
         "english_companion_pdf": str(en_pdf),
         "ready_artifact": str(ready_path),
-        "next_action": "RUN_ROUTINE_PACKAGE_READINESS",
+        "next_action": "RUN_ROUTINE_PDF_QUALITY_GATES",
         "next_package": None,
     }
     manifest_path.write_text(json.dumps(manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+
     ready = {
         "schema_version": "etf_eu_ready_for_controlled_delivery_v1",
         "artifact_type": "etf_eu_ready_for_controlled_delivery",
@@ -349,6 +342,9 @@ def build(args: argparse.Namespace) -> dict[str, Path]:
         "report_date": args.report_date,
         "report_suffix": args.report_suffix,
         "fresh_generation_package_manifest": str(manifest_path),
+        "pdf_machine_gate_passed": False,
+        "pdf_visual_gate_passed": False,
+        "client_output_valid": False,
         "ready_for_controlled_delivery": False,
         "delivery_authorized": False,
         "send_executed": False,
@@ -358,34 +354,57 @@ def build(args: argparse.Namespace) -> dict[str, Path]:
         "funding_authority": False,
         "portfolio_mutation": False,
         "production_delivery_authority": False,
-        "next_action": "RUN_ROUTINE_PACKAGE_READINESS",
+        "next_action": "RUN_ROUTINE_PDF_QUALITY_GATES",
     }
     ready_path.write_text(json.dumps(ready, indent=2, sort_keys=True) + "\n", encoding="utf-8")
 
-    subprocess.run([
-        sys.executable, "tools/write_etf_eu_routine_run_manifest.py",
-        "--run-id", args.run_id,
-        "--report-date", args.report_date,
-        "--report-suffix", args.report_suffix,
-        "--routine-stage", "routine_fresh_generation_completed",
-        "--workflow-status", "routine_fresh_generation_completed",
-        "--previous-delivery-closeout-manifest", args.previous_delivery_closeout_manifest,
-        "--portfolio-state", args.portfolio_state,
-        "--valuation-history", args.valuation_history,
-        "--trade-ledger", args.trade_ledger,
-        "--recommendation-scorecard", args.recommendation_scorecard,
-        "--pricing-artifact", args.pricing_artifact,
-        "--delivery-package-manifest", str(manifest_path),
-        "--ready-artifact", str(ready_path),
-        "--dutch-primary-markdown", str(nl_md),
-        "--english-companion-markdown", str(en_md),
-        "--dutch-primary-html", str(nl_html),
-        "--english-companion-html", str(en_html),
-        "--dutch-primary-pdf", str(nl_pdf),
-        "--english-companion-pdf", str(en_pdf),
-        "--next-package", "RUN_ROUTINE_PACKAGE_READINESS",
-    ], check=True)
-
+    subprocess.run(
+        [
+            sys.executable,
+            "tools/write_etf_eu_routine_run_manifest.py",
+            "--run-id",
+            args.run_id,
+            "--report-date",
+            args.report_date,
+            "--report-suffix",
+            args.report_suffix,
+            "--routine-stage",
+            "routine_fresh_generation_completed_pending_pdf_qa",
+            "--workflow-status",
+            "routine_fresh_generation_completed_pending_pdf_qa",
+            "--previous-delivery-closeout-manifest",
+            args.previous_delivery_closeout_manifest,
+            "--portfolio-state",
+            args.portfolio_state,
+            "--valuation-history",
+            args.valuation_history,
+            "--trade-ledger",
+            args.trade_ledger,
+            "--recommendation-scorecard",
+            args.recommendation_scorecard,
+            "--pricing-artifact",
+            args.pricing_artifact,
+            "--delivery-package-manifest",
+            str(manifest_path),
+            "--ready-artifact",
+            str(ready_path),
+            "--dutch-primary-markdown",
+            str(nl_md),
+            "--english-companion-markdown",
+            str(en_md),
+            "--dutch-primary-html",
+            str(nl_html),
+            "--english-companion-html",
+            str(en_html),
+            "--dutch-primary-pdf",
+            str(nl_pdf),
+            "--english-companion-pdf",
+            str(en_pdf),
+            "--next-package",
+            "RUN_ROUTINE_PDF_QUALITY_GATES",
+        ],
+        check=True,
+    )
     return {"manifest": manifest_path, "ready": ready_path, "routine": routine_path}
 
 
