@@ -70,6 +70,12 @@ jobs:
           PY
           cat env.out >> "$GITHUB_ENV"
 
+      - name: Validate routine implementation preflight
+        run: |
+          set -euo pipefail
+          python -m tools.validate_etf_eu_routine_preflight \
+            --request "$ETF_EU_REQUEST_PATH"
+
       - name: Build current UCITS pricing evidence
         run: |
           set -euo pipefail
