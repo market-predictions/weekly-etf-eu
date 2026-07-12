@@ -85,7 +85,7 @@ jobs:
       - name: Build Dutch-primary and English-companion routine package
         run: |
           set -euo pipefail
-          python tools/build_etf_eu_routine_report_package.py \
+          python -m tools.build_etf_eu_routine_report_package \
             --run-id "$ETF_EU_RUN_ID" \
             --report-date "$ETF_EU_REPORT_DATE" \
             --report-suffix "$ETF_EU_REPORT_SUFFIX" \
