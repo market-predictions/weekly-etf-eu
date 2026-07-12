@@ -1,0 +1,20 @@
+{
+  "artifact_type": "etf_eu_ready_for_controlled_delivery",
+  "delivery_authorized": false,
+  "fresh_generation_package_manifest": "output/fresh_generation/etf_eu_fresh_generation_package_manifest_20260712_125000.json",
+  "funding_authority": false,
+  "generated_at_utc": "2026-07-12T18:20:02Z",
+  "next_action": "RUN_ROUTINE_GUARDED_DELIVERY",
+  "package_readiness_gate": "output/fresh_generation/etf_eu_routine_package_readiness_20260712_125000.json",
+  "portfolio_mutation": false,
+  "production_delivery_authority": false,
+  "ready_for_controlled_delivery": true,
+  "receipt_confirmed": false,
+  "report_date": "2026-07-12",
+  "report_suffix": "260712",
+  "run_id": "20260712_125000",
+  "schema_version": "etf_eu_ready_for_controlled_delivery_v1",
+  "send_executed": false,
+  "transport_attempted": false,
+  "valuation_grade": false
+}

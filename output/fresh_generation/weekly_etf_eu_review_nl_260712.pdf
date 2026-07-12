@@ -1,0 +1,100 @@
+%PDF-1.4
+%ASCII
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [3 0 R] /Count 1 >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >>
+endobj
+4 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+5 0 obj
+<< /Length 2447 >>
+stream
+BT
+/F1 14 Tf
+50 780 Td
+(Weekly ETF EU Review NL 2026-07-12) Tj
+/F1 10 Tf
+0 -16 Td
+(Weekly ETF EU Review   Nederlands   2026-07-12) Tj
+0 -16 Td
+(> **Routine productie-review.** Prijspeildatum: 2026-07-10. De EU-portefeuille blijft ISIN-f) Tj
+0 -16 Td
+(1. Besluit in n oogopslag) Tj
+0 -16 Td
+(- **Actie:** geen transactie; EUR 100.000 cash behouden.) Tj
+0 -16 Td
+(- **Reden:** de portefeuille bevat nog geen gefinancierde UCITS-posities en de huidige prijs) Tj
+0 -16 Td
+(- **Beste operationele kandidaat:** de geverifieerde S&P 500 UCITS-lijnen blijven het verst ) Tj
+0 -16 Td
+(- **Niet doen:** geen thematische of goudblootstelling financieren zolang identiteit, KID, t) Tj
+0 -16 Td
+(2. Portefeuille en kapitaal) Tj
+0 -16 Td
+(Component   Waarde) Tj
+0 -16 Td
+(--- ---:) Tj
+0 -16 Td
+(Startkapitaal   EUR 100,000.00) Tj
+0 -16 Td
+(Cash   EUR 100,000.00) Tj
+0 -16 Td
+(Belegde marktwaarde   EUR 0.00) Tj
+0 -16 Td
+(Totale portefeuillewaarde   EUR 100,000.00) Tj
+0 -16 Td
+(Gefinancierde posities   0) Tj
+0 -16 Td
+(3. Actuele UCITS-prijssnapshot) Tj
+0 -16 Td
+(Trading line   ISIN   Markt   Slot   Valuta   Status) Tj
+0 -16 Td
+(--- --- --- ---: --- ---) Tj
+0 -16 Td
+(SMH  London Stock Exchange   IE00BMC38736   2026-07-10   114.82   USD   candidate_requires_) Tj
+0 -16 Td
+(VWCE  Xetra   IE00BK5BQT80   2026-07-10   166.14   EUR   candidate_requires_verification) Tj
+0 -16 Td
+(EUNA  Xetra   IE00BDBRDM35   2026-07-10   4.91   EUR   candidate_requires_verification) Tj
+0 -16 Td
+(AGGH  London Stock Exchange   IE00BDBRDM35   n/a   n/a   GBP   candidate_requires_verificat) Tj
+0 -16 Td
+(EMIM  Euronext Amsterdam   IE00BKM4GZ66   2026-07-10   47.90   EUR   candidate_requires_ver) Tj
+0 -16 Td
+(EUNL  Xetra   IE00B4L5Y983   2026-07-10   126.14   EUR   candidate_requires_verification) Tj
+0 -16 Td
+(IWDA  Euronext Amsterdam   IE00B4L5Y983   2026-07-10   126.15   EUR   candidate_requires_ve) Tj
+0 -16 Td
+(CSPX  London Stock Exchange   IE00B5BMR087   2026-07-10   813.67   USD   verified_ucits_tra) Tj
+0 -16 Td
+(SXR8  Xetra   IE00B5BMR087   2026-07-10   711.48   EUR   verified_ucits_trading_line) Tj
+0 -16 Td
+(CNDX  London Stock Exchange   IE00B53SZB19   2026-07-10   1,709.20   USD   candidate_requir) Tj
+0 -16 Td
+(SXRV  Xetra   IE00B53SZB19   2026-07-10   1,493.80   EUR   candidate_requires_verification) Tj
+0 -16 Td
+(Prijsdata is connectivity/reference evidence uit de huidige routine-run en blijft  valuation) Tj
+0 -16 Td
+(4. Dekking en besliskwaliteit) Tj
+ET
+endstream
+endobj
+xref
+0 6
+0000000000 65535 f 
+0000000016 00000 n 
+0000000065 00000 n 
+0000000122 00000 n 
+0000000248 00000 n 
+0000000318 00000 n 
+trailer
+<< /Size 6 /Root 1 0 R >>
+startxref
+2816
+%%EOF

@@ -1,0 +1,74 @@
+{
+  "artifact_type": "etf_eu_current_package_delivery_evidence",
+  "authorization_artifact": "output/delivery_authorization/etf_eu_guarded_send_authorization_20260712_125000.json",
+  "delivery_mode": "send",
+  "delivery_status": "smtp_sendmail_returned_no_exception",
+  "delivery_status_meaning": "SMTP success is not an end-recipient inbox receipt.",
+  "delivery_success_claimed": false,
+  "funding_authority": false,
+  "generated_at_utc": "2026-07-12T18:20:02Z",
+  "language_count": 2,
+  "languages": [
+    {
+      "attachment_count": 2,
+      "attachments": [
+        "output/fresh_generation/weekly_etf_eu_review_nl_260712.pdf",
+        "output/fresh_generation/weekly_etf_eu_review_nl_260712.html"
+      ],
+      "html_body": true,
+      "language": "nl",
+      "mode": "current_package_transport",
+      "pdf_attached": "yes",
+      "pdf_attachments": [
+        "output/fresh_generation/weekly_etf_eu_review_nl_260712.pdf"
+      ],
+      "recipient_hash": "sha256:602badb30fe408fccf59e816bc5666ad80064d8436a7431767b7bc98b8234ad3",
+      "recipient_redacted": true,
+      "report": "Dutch primary client report",
+      "report_path": "output/fresh_generation/weekly_etf_eu_review_nl_260712.md",
+      "source_manifest_path": "output/fresh_generation/etf_eu_fresh_generation_package_manifest_20260712_125000.json",
+      "source_manifest_type": "etf_eu_fresh_generation_package_v1",
+      "timestamp_utc": "2026-07-12T18:20:02Z"
+    },
+    {
+      "attachment_count": 2,
+      "attachments": [
+        "output/fresh_generation/weekly_etf_eu_review_260712.pdf",
+        "output/fresh_generation/weekly_etf_eu_review_260712.html"
+      ],
+      "html_body": false,
+      "language": "en",
+      "mode": "current_package_transport_companion",
+      "pdf_attached": "yes",
+      "pdf_attachments": [
+        "output/fresh_generation/weekly_etf_eu_review_260712.pdf"
+      ],
+      "recipient_hash": "sha256:602badb30fe408fccf59e816bc5666ad80064d8436a7431767b7bc98b8234ad3",
+      "recipient_redacted": true,
+      "report": "English companion report",
+      "report_path": "output/fresh_generation/weekly_etf_eu_review_260712.md",
+      "source_manifest_path": "output/fresh_generation/etf_eu_fresh_generation_package_manifest_20260712_125000.json",
+      "source_manifest_type": "etf_eu_fresh_generation_package_v1",
+      "timestamp_utc": "2026-07-12T18:20:02Z"
+    }
+  ],
+  "message_id_or_receipt_reference": "smtp_message_id:<178388040255.2424.15411864095174608229@weekly-etf-eu.local>",
+  "package_manifest": "output/fresh_generation/etf_eu_fresh_generation_package_manifest_20260712_125000.json",
+  "portfolio_mutation": false,
+  "production_delivery_authority": false,
+  "queue_artifact": "control/run_queue/etf_eu_routine_delivery_request_20260712_125000.md",
+  "raw_receipt_pdf_stored_in_github": false,
+  "receipt_confirmed": false,
+  "recipient_data_policy": "redacted_hash_only",
+  "recipient_plaintext_values_exposed": false,
+  "report_date": "2026-07-12",
+  "report_suffix": "260712",
+  "run_id": "20260712_182002",
+  "schema_version": "etf_eu_current_package_delivery_evidence_v1",
+  "secret_values_exposed": false,
+  "smtp_or_transport_provider": "smtp",
+  "transport_attempted": true,
+  "transport_error": null,
+  "transport_success": true,
+  "valuation_grade": false
+}
