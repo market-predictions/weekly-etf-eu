@@ -186,34 +186,6 @@ jobs:
           out.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
           PY
 
-      - name: Record stable renderer decision
-        run: |
-          python - <<'PY'
-          from pathlib import Path
-
-          path = Path("control/DECISION_LOG.md")
-          marker = "## 2026-07-12 — Prohibit plain-text PDF delivery"
-          text = path.read_text(encoding="utf-8")
-          if marker not in text:
-              text += """
-
----
-
-## 2026-07-12 — Prohibit plain-text PDF delivery
-
-### Decision
-
-The 2026-07-12 routine run proved that SMTP transport success does not compensate for a failed client output contract.
-
-Weekly ETF EU adapts the `weekly-etf` Mistune, WeasyPrint and Poppler rendering architecture. Plain-text PDF generation is prohibited for client delivery. Guarded delivery is blocked unless `client_output_valid=true`.
-
-### Consequence
-
-Every routine report requires semantic HTML, machine PDF content validation and rendered-page visual evidence. Renderer changes require explicit first, middle and last-page review before delivery.
-"""
-              path.write_text(text, encoding="utf-8")
-          PY
-
       - name: Upload repair preview for review
         uses: actions/upload-artifact@v4
         with:
@@ -235,7 +207,6 @@ Every routine report requires semantic HTML, machine PDF content validation and 
             "output/quality/etf_eu_routine_pdf_client_grade_${REPAIR_RUN_ID}_nl.json" \
             "output/quality/etf_eu_routine_pdf_client_grade_${REPAIR_RUN_ID}_en.json" \
             "output/quality/etf_eu_routine_pdf_client_grade_${REPAIR_RUN_ID}.json" \
-            "output/quality/etf_eu_routine_pdf_visual_review_${REPAIR_RUN_ID}.json" \
-            control/DECISION_LOG.md
+            "output/quality/etf_eu_routine_pdf_visual_review_${REPAIR_RUN_ID}.json"
           git commit -m "Persist ETF EU client-grade PDF repair preview ${REPAIR_RUN_ID} [skip ci]"
           git push origin HEAD:main
