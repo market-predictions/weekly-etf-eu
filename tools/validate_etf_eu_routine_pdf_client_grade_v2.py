@@ -6,7 +6,7 @@ import re
 from pathlib import Path
 from typing import Any
 
-from tools.validate_etf_eu_routine_pdf_client_grade import validate_pdf as validate_pdf_v1
+from validate_etf_eu_routine_pdf_client_grade_base import validate_pdf as validate_pdf_v1
 
 
 ISIN_RE = re.compile(r"\b[A-Z]{2}[A-Z0-9]{9}\d\b")
