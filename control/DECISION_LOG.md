@@ -460,3 +460,56 @@ The new discipline layer forces the model to ask whether each holding would be b
 - Weak or replaceable holdings now need a named next action, alternative comparison, or explicit override.
 - The next live ETF report should force clear review of SPY, PPA, PAVE, GLD, and cash policy.
 - ETF state now includes portfolio state, valuation history, trade ledger, lane artifacts, pricing audits, and recommendation discipline memory.
+
+---
+
+## 2026-07-12 — Activate routine Weekly ETF EU production mode
+
+### Decision
+
+Weekly ETF EU completed its first current-package production cycle with a current fresh-generation package, guarded current-package workflow, successful transport evidence, independent inbox receipt evidence, four expected attachments observed, hashes-only mailbox evidence, and no portfolio or authority promotion.
+
+The repository now operates in routine-production mode.
+
+### Chosen architecture
+
+```text
+control/ETF_EU_ROUTINE_WEEKLY_PRODUCTION_RUNBOOK_V1.md
+→ fresh current-run generation and validation
+→ guarded current-package operation
+→ delayed independent receipt verification
+→ routine run manifest
+→ production delivery closeout manifest
+```
+
+### Stable operating rule
+
+Future weekly reports follow `control/ETF_EU_ROUTINE_WEEKLY_PRODUCTION_RUNBOOK_V1.md`.
+
+Each report requires a new report date, report suffix, run id and complete current-run artifact set. Previous run artifacts are historical evidence only.
+
+Architecture work packages are created only for specific defects or material capability changes.
+
+### Authority boundary
+
+```text
+weekly_etf_eu_source_of_truth=true
+weekly_etf_upstream_donor_only=true
+recipient_plaintext_values_exposed=false
+secret_values_exposed=false
+raw_email_content_stored=false
+raw_receipt_pdf_stored_in_github=false
+valuation_grade=false
+funding_authority=false
+portfolio_mutation=false
+production_delivery_authority=false
+```
+
+### Consequence
+
+```text
+production_delivery_cycle_closed=true
+routine_production_ready=true
+operating_mode=routine_production
+next_action=RUN_NEXT_ROUTINE_WEEKLY_ETF_EU_REPORT
+```
