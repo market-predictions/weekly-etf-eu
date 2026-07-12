@@ -1,0 +1,174 @@
+name: Weekly ETF EU routine production run
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "control/run_queue/etf_eu_routine_report_request_*.md"
+
+permissions:
+  contents: write
+
+jobs:
+  routine-production:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install routine dependencies
+        run: |
+          set -euo pipefail
+          python -m pip install --upgrade pip
+          pip install pyyaml yfinance
+
+      - name: Resolve and validate routine request
+        run: |
+          set -euo pipefail
+          REQUEST_PATH="$(git diff-tree --no-commit-id --name-only -r HEAD | grep '^control/run_queue/etf_eu_routine_report_request_.*\.md$' | head -1 || true)"
+          if [ -z "$REQUEST_PATH" ]; then
+            echo "ETF_EU_ROUTINE_REQUEST_NOT_RESOLVED" >&2
+            exit 1
+          fi
+          python tools/validate_etf_eu_routine_report_request.py --request "$REQUEST_PATH"
+          python - "$REQUEST_PATH" <<'PY'
+          import sys
+          from pathlib import Path
+          from tools.validate_etf_eu_routine_report_request import parse
+
+          data = parse(Path(sys.argv[1]))
+          mapping = {
+              "ETF_EU_REQUEST_PATH": sys.argv[1],
+              "ETF_EU_RUN_ID": data["run_id"],
+              "ETF_EU_REPORT_DATE": data["report_date"],
+              "ETF_EU_REPORT_SUFFIX": data["report_suffix"],
+              "ETF_EU_PREVIOUS_ROUTINE_MANIFEST": data["previous_routine_manifest"],
+              "ETF_EU_PREVIOUS_CLOSEOUT": data["previous_delivery_closeout_manifest"],
+              "ETF_EU_SEND_CONFIRMATION": data["send_confirmation"],
+          }
+          with Path("env.out").open("w", encoding="utf-8") as handle:
+              for key, value in mapping.items():
+                  handle.write(f"{key}={value}\n")
+          PY
+          cat env.out >> "$GITHUB_ENV"
+
+      - name: Build current UCITS pricing evidence
+        run: |
+          set -euo pipefail
+          python pricing/build_ucits_close_price_validation_basket_results.py \
+            --run-id "$ETF_EU_RUN_ID" \
+            --pause-seconds 15 \
+            --rate-limit-cooldown-seconds 600 \
+            --max-attempts 2 \
+            --rate-limit-mode stop
+          python tools/validate_ucits_close_price_validation_basket_results.py \
+            --artifact "output/pricing/ucits_close_price_validation_basket_results_${ETF_EU_RUN_ID}.json"
+
+      - name: Build Dutch-primary and English-companion routine package
+        run: |
+          set -euo pipefail
+          python tools/build_etf_eu_routine_report_package.py \
+            --run-id "$ETF_EU_RUN_ID" \
+            --report-date "$ETF_EU_REPORT_DATE" \
+            --report-suffix "$ETF_EU_REPORT_SUFFIX" \
+            --pricing-artifact "output/pricing/ucits_close_price_validation_basket_results_${ETF_EU_RUN_ID}.json" \
+            --previous-routine-manifest "$ETF_EU_PREVIOUS_ROUTINE_MANIFEST" \
+            --previous-delivery-closeout-manifest "$ETF_EU_PREVIOUS_CLOSEOUT"
+
+      - name: Validate routine package readiness
+        run: |
+          set -euo pipefail
+          python tools/prepare_etf_eu_routine_package_readiness.py \
+            --manifest "output/fresh_generation/etf_eu_fresh_generation_package_manifest_${ETF_EU_RUN_ID}.json" \
+            --ready-artifact "output/fresh_generation/etf_eu_ready_for_controlled_delivery_${ETF_EU_RUN_ID}.json" \
+            --routine-manifest "output/run_manifests/etf_eu_routine_run_manifest_${ETF_EU_REPORT_DATE}_${ETF_EU_RUN_ID}.json" \
+            --write-gate "output/fresh_generation/etf_eu_routine_package_readiness_${ETF_EU_RUN_ID}.json"
+
+      - name: Prepare current-run delivery control
+        run: |
+          set -euo pipefail
+          python tools/prepare_etf_eu_routine_delivery_control.py \
+            --run-id "$ETF_EU_RUN_ID" \
+            --report-date "$ETF_EU_REPORT_DATE" \
+            --report-suffix "$ETF_EU_REPORT_SUFFIX" \
+            --package-manifest "output/fresh_generation/etf_eu_fresh_generation_package_manifest_${ETF_EU_RUN_ID}.json" \
+            --ready-artifact "output/fresh_generation/etf_eu_ready_for_controlled_delivery_${ETF_EU_RUN_ID}.json" \
+            --routine-manifest "output/run_manifests/etf_eu_routine_run_manifest_${ETF_EU_REPORT_DATE}_${ETF_EU_RUN_ID}.json"
+          python tools/validate_etf_eu_routine_delivery_queue.py \
+            --queue "control/run_queue/etf_eu_routine_delivery_request_${ETF_EU_RUN_ID}.md"
+
+      - name: Execute guarded current-run delivery
+        env:
+          MRKT_RPRTS_SMTP_HOST: ${{ secrets.MRKT_RPRTS_SMTP_HOST }}
+          MRKT_RPRTS_SMTP_PORT: ${{ secrets.MRKT_RPRTS_SMTP_PORT }}
+          MRKT_RPRTS_SMTP_USER: ${{ secrets.MRKT_RPRTS_SMTP_USER }}
+          MRKT_RPRTS_SMTP_PASS: ${{ secrets.MRKT_RPRTS_SMTP_PASS }}
+          MRKT_RPRTS_MAIL_FROM: ${{ secrets.MRKT_RPRTS_MAIL_FROM }}
+          MRKT_RPRTS_MAIL_TO: ${{ secrets.MRKT_RPRTS_MAIL_TO }}
+          MRKT_RPRTS_MAIL_TO_NL: ${{ secrets.MRKT_RPRTS_MAIL_TO_NL }}
+          MRKT_RPRTS_SUBJECT_PREFIX_NL: ${{ vars.MRKT_RPRTS_SUBJECT_PREFIX_NL }}
+        run: |
+          set -euo pipefail
+          if [ "$ETF_EU_SEND_CONFIRMATION" != "confirm_guarded_send" ]; then
+            echo "ETF_EU_ROUTINE_SEND_CONFIRMATION_MISSING" >&2
+            exit 1
+          fi
+          RUNTIME_RUN_ID="$(date -u +'%Y%m%d_%H%M%S')"
+          echo "ETF_EU_RUNTIME_RUN_ID=$RUNTIME_RUN_ID" >> "$GITHUB_ENV"
+          python -m runtime.send_etf_eu_current_package_delivery \
+            --queue "control/run_queue/etf_eu_routine_delivery_request_${ETF_EU_RUN_ID}.md" \
+            --mode send \
+            --run-id "$RUNTIME_RUN_ID" \
+            --output-dir output/delivery
+          python tools/validate_etf_eu_current_package_transport_runner.py \
+            --adapter output/delivery_control/etf_eu_current_package_transport_runner_adapter_20260710_000000.json \
+            --result "output/delivery/etf_eu_current_package_transport_result_${RUNTIME_RUN_ID}.json"
+
+      - name: Update routine manifest after transport
+        run: |
+          set -euo pipefail
+          python tools/update_etf_eu_routine_after_transport.py \
+            --routine-manifest "output/run_manifests/etf_eu_routine_run_manifest_${ETF_EU_REPORT_DATE}_${ETF_EU_RUN_ID}.json" \
+            --transport-result "output/delivery/etf_eu_current_package_transport_result_${ETF_EU_RUNTIME_RUN_ID}.json" \
+            --delivery-evidence "output/delivery/etf_eu_current_package_delivery_evidence_${ETF_EU_RUNTIME_RUN_ID}.json"
+
+      - name: Persist routine production artifacts
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -f \
+            "output/pricing/ucits_close_price_validation_basket_results_${ETF_EU_RUN_ID}.json" \
+            "output/fresh_generation/weekly_etf_eu_review_nl_${ETF_EU_REPORT_SUFFIX}.md" \
+            "output/fresh_generation/weekly_etf_eu_review_${ETF_EU_REPORT_SUFFIX}.md" \
+            "output/fresh_generation/weekly_etf_eu_review_nl_${ETF_EU_REPORT_SUFFIX}.html" \
+            "output/fresh_generation/weekly_etf_eu_review_${ETF_EU_REPORT_SUFFIX}.html" \
+            "output/fresh_generation/weekly_etf_eu_review_nl_${ETF_EU_REPORT_SUFFIX}.pdf" \
+            "output/fresh_generation/weekly_etf_eu_review_${ETF_EU_REPORT_SUFFIX}.pdf" \
+            "output/fresh_generation/etf_eu_fresh_generation_package_manifest_${ETF_EU_RUN_ID}.json" \
+            "output/fresh_generation/etf_eu_ready_for_controlled_delivery_${ETF_EU_RUN_ID}.json" \
+            "output/fresh_generation/etf_eu_routine_package_readiness_${ETF_EU_RUN_ID}.json" \
+            "output/delivery_prep/etf_eu_guarded_fresh_package_delivery_prep_${ETF_EU_RUN_ID}.json" \
+            "output/delivery_authorization/etf_eu_guarded_send_authorization_${ETF_EU_RUN_ID}.json" \
+            "output/delivery_control/etf_eu_controlled_delivery_decision_${ETF_EU_RUN_ID}.json" \
+            "output/delivery_control/etf_eu_controlled_delivery_transport_selection_${ETF_EU_RUN_ID}.json" \
+            "control/run_queue/etf_eu_routine_delivery_request_${ETF_EU_RUN_ID}.md" \
+            "output/delivery/etf_eu_current_package_transport_result_${ETF_EU_RUNTIME_RUN_ID}.json" \
+            "output/delivery/etf_eu_current_package_delivery_evidence_${ETF_EU_RUNTIME_RUN_ID}.json" \
+            "output/run_manifests/etf_eu_routine_run_manifest_${ETF_EU_REPORT_DATE}_${ETF_EU_RUN_ID}.json" \
+            output/run_manifests/latest_etf_eu_routine_run_manifest_path.txt
+          if git diff --cached --quiet; then
+            echo "ETF_EU_ROUTINE_ARTIFACTS_NOT_STAGED" >&2
+            exit 1
+          fi
+          git commit -m "Persist ETF EU routine production run ${ETF_EU_RUN_ID} [skip ci]"
+          git push origin HEAD:main
