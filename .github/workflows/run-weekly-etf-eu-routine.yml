@@ -6,6 +6,12 @@ on:
       - main
     paths:
       - "control/run_queue/etf_eu_routine_report_request_*.md"
+  workflow_dispatch:
+    inputs:
+      request_path:
+        description: "Prepared routine report request path"
+        required: true
+        default: "control/run_queue/etf_eu_routine_report_request_20260712_125000.md"
 
 permissions:
   contents: write
@@ -34,7 +40,10 @@ jobs:
       - name: Resolve and validate routine request
         run: |
           set -euo pipefail
-          REQUEST_PATH="$(git diff-tree --no-commit-id --name-only -r HEAD | grep '^control/run_queue/etf_eu_routine_report_request_.*\.md$' | head -1 || true)"
+          REQUEST_PATH="${{ github.event.inputs.request_path || '' }}"
+          if [ -z "$REQUEST_PATH" ]; then
+            REQUEST_PATH="$(git diff-tree --no-commit-id --name-only -r HEAD | grep '^control/run_queue/etf_eu_routine_report_request_.*\.md$' | head -1 || true)"
+          fi
           if [ -z "$REQUEST_PATH" ]; then
             echo "ETF_EU_ROUTINE_REQUEST_NOT_RESOLVED" >&2
             exit 1
