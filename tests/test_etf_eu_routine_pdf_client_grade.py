@@ -6,10 +6,11 @@ from pathlib import Path
 import pytest
 
 from runtime.render_etf_eu_client_report import render_report
-from tools.validate_etf_eu_routine_pdf_client_grade import validate_pdf
+from tools.validate_etf_eu_routine_pdf_client_grade_v2 import validate_pdf
 
 
 ROOT = Path(__file__).resolve().parents[1]
+POPPLER_AVAILABLE = all(shutil.which(name) for name in ("pdfinfo", "pdftotext", "pdftoppm"))
 
 
 def _fixture_markdown(language: str) -> str:
@@ -26,6 +27,7 @@ def _fixture_markdown(language: str) -> str:
         ]
         title = "# Weekly ETF EU Review | Nederlands | 2026-07-12"
         intro = "Geen funding vóór volledige verificatie; de portefeuille blijft cash."
+        pricing_header = "| Trading line | ISIN | Markt | Slot | Valuta | Status |"
     else:
         titles = [
             "1. Decision at a glance",
@@ -39,6 +41,7 @@ def _fixture_markdown(language: str) -> str:
         ]
         title = "# Weekly ETF EU Review | English Companion | 2026-07-12"
         intro = "No funding before full verification; the portfolio remains in cash."
+        pricing_header = "| Trading line | ISIN | Market | Close | Currency | Status |"
 
     lines = [title, "", f"> **Review.** {intro}", ""]
     for idx, section in enumerate(titles, start=1):
@@ -52,10 +55,11 @@ def _fixture_markdown(language: str) -> str:
                 "",
             ]
         elif idx == 3:
-            lines += ["| Trading line | ISIN | Market | Close | Currency | Status |", "|---|---|---|---:|---|---|"]
+            lines += [pricing_header, "|---|---|---|---:|---|---|"]
             for number in range(10):
                 lines.append(
-                    f"| ETF{number} · Xetra | IE00B5BMR0{number:02d} | 2026-07-10 | {100 + number}.00 | EUR | candidate_requires_verification |"
+                    f"| ETF{number} · Xetra | IE00B5BMR0{number:02d} | 2026-07-10 | "
+                    f"{100 + number}.00 | EUR | candidate_requires_verification |"
                 )
             lines.append("")
         elif idx == 8:
@@ -77,6 +81,27 @@ def _fixture_markdown(language: str) -> str:
     return "\n".join(lines)
 
 
+def _render_and_validate(tmp_path: Path, language: str) -> dict[str, object]:
+    markdown = tmp_path / f"{language}.md"
+    html = tmp_path / f"{language}.html"
+    pdf = tmp_path / f"{language}.pdf"
+    markdown.write_text(_fixture_markdown(language), encoding="utf-8")
+    title = (
+        "Weekly ETF EU Review | Nederlands | 2026-07-12"
+        if language == "nl"
+        else "Weekly ETF EU Review | English Companion | 2026-07-12"
+    )
+    render_report(markdown_path=markdown, html_output=html, pdf_output=pdf, language=language, title=title)
+    return validate_pdf(
+        pdf=pdf,
+        html=html,
+        markdown=markdown,
+        language=language,
+        repair_run_id="fixture",
+        source_run_id="fixture",
+    )
+
+
 def test_routine_builder_does_not_use_plain_text_pdf() -> None:
     source = (ROOT / "tools/build_etf_eu_routine_report_package.py").read_text(encoding="utf-8")
     assert "_simple_pdf" not in source
@@ -91,29 +116,13 @@ def test_renderer_uses_semantic_html_and_weasyprint() -> None:
     assert "table-row" not in source
 
 
-@pytest.mark.skipif(not all(shutil.which(name) for name in ("pdfinfo", "pdftotext", "pdftoppm")), reason="Poppler unavailable")
+@pytest.mark.skipif(not POPPLER_AVAILABLE, reason="Poppler unavailable")
 @pytest.mark.parametrize("language", ["nl", "en"])
 def test_multi_page_client_report_passes(tmp_path: Path, language: str) -> None:
-    markdown = tmp_path / f"{language}.md"
-    html = tmp_path / f"{language}.html"
-    pdf = tmp_path / f"{language}.pdf"
-    markdown.write_text(_fixture_markdown(language), encoding="utf-8")
-    title = (
-        "Weekly ETF EU Review | Nederlands | 2026-07-12"
-        if language == "nl"
-        else "Weekly ETF EU Review | English Companion | 2026-07-12"
-    )
-    render_report(markdown_path=markdown, html_output=html, pdf_output=pdf, language=language, title=title)
-    result = validate_pdf(
-        pdf=pdf,
-        html=html,
-        markdown=markdown,
-        language=language,
-        repair_run_id="fixture",
-        source_run_id="fixture",
-    )
+    result = _render_and_validate(tmp_path, language)
     assert result["machine_validation_passed"] is True
     assert result["page_count"] >= 2
+    assert result["pricing_line_count_detected"] == 10
     assert result["table_rendering_passed"] is True
     assert result["markdown_leakage_detected"] is False
     assert result["duplicate_title_detected"] is False
@@ -156,7 +165,7 @@ def test_visual_review_template_remains_pending_until_inspected() -> None:
     assert "manual visual inspection required before corrected resend" in workflow
 
 
-@pytest.mark.skipif(not all(shutil.which(name) for name in ("pdfinfo", "pdftotext", "pdftoppm")), reason="Poppler unavailable")
+@pytest.mark.skipif(not POPPLER_AVAILABLE, reason="Poppler unavailable")
 def test_single_page_truncated_output_fails(tmp_path: Path) -> None:
     markdown = tmp_path / "truncated.md"
     html = tmp_path / "truncated.html"
@@ -186,13 +195,12 @@ def test_single_page_truncated_output_fails(tmp_path: Path) -> None:
     assert result["required_sections_present"] is False
 
 
-@pytest.mark.skipif(not all(shutil.which(name) for name in ("pdfinfo", "pdftotext", "pdftoppm")), reason="Poppler unavailable")
+@pytest.mark.skipif(not POPPLER_AVAILABLE, reason="Poppler unavailable")
 def test_duplicate_visible_title_fails(tmp_path: Path) -> None:
     markdown = tmp_path / "duplicate.md"
     html = tmp_path / "duplicate.html"
     pdf = tmp_path / "duplicate.pdf"
-    source = _fixture_markdown("en")
-    source = source.replace(
+    source = _fixture_markdown("en").replace(
         "# Weekly ETF EU Review | English Companion | 2026-07-12",
         "# Weekly ETF EU Review | English Companion | 2026-07-12\n\n"
         "Weekly ETF EU Review | English Companion | 2026-07-12",
