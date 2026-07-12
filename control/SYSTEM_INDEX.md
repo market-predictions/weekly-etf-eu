@@ -53,6 +53,8 @@ Do not reinvent an EU component from scratch until the upstream `weekly-etf` equ
 - `control/UCITS_INVESTABILITY_RULES.md` — Dutch/EU investability rules for UCITS, PRIIPs/KID, trading line, liquidity and disclosure.
 - `control/UCITS_SYMBOL_REGISTRY_CONTRACT.md` — ISIN-first instrument identity and proxy/candidate separation.
 - `control/UCITS_MIGRATION_PLAN.md` — staged migration and donor-port roadmap from the cloned U.S.-ETF codebase to the EU/UCITS model.
+- `control/ETF_EU_PRODUCTION_DELIVERY_CLOSEOUT_CONTRACT_V1.md` — evidence requirements for closing a production delivery cycle.
+- `control/ETF_EU_ROUTINE_WEEKLY_PRODUCTION_RUNBOOK_V1.md` — the authoritative operational runbook for fresh generation, validation, guarded delivery, delayed receipt verification and production closeout of routine Weekly ETF EU reports.
 
 ## Canonical EU config files
 
@@ -101,19 +103,28 @@ Operational rule:
 
 Never rely on the user as the default run-status checker when GitHub tool access is available.
 
-## Current direction of travel
+## Current operating mode
 
-The EU repo is in product-assembly mode:
+```text
+ROUTINE_WEEKLY_ETF_EU_PRODUCTION
+```
+
+The production-enablement cycle is closed. New weekly reports follow:
+
+```text
+control/ETF_EU_ROUTINE_WEEKLY_PRODUCTION_RUNBOOK_V1.md
+```
+
+Current direction of travel:
 
 ```text
 keep weekly-etf-eu as EU/UCITS source-of-truth
 → use weekly-etf as upstream donor for mature implementation layers
-→ check weekly-etf before creating new EU tasks, files, workflows, validators or delivery machinery
-→ preserve U.S. state as non-authoritative
-→ preserve UCITS control contracts and ISIN-first registry
-→ price UCITS trading lines using EU exchange-line symbols
-→ produce first EU markdown draft report
-→ port runtime/bilingual/report-quality/leakage safeguards from weekly-etf
-→ run shadow PDF/delivery dry run with no recipients
-→ only then enable production delivery after explicit receipt/manifest authority
+→ create a fresh run id, report date and suffix for every routine report
+→ use current pricing, EU state and ISIN-first instrument authority
+→ generate and validate Dutch-primary and English-companion outputs
+→ execute guarded current-package delivery
+→ perform delayed independent receipt verification
+→ create routine manifest and production closeout
+→ create architecture packages only for specific defects or material capability changes
 ```
