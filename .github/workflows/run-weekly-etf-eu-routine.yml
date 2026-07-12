@@ -19,7 +19,6 @@ permissions:
 jobs:
   routine-production:
     runs-on: ubuntu-latest
-
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
@@ -31,11 +30,25 @@ jobs:
         with:
           python-version: "3.11"
 
+      - name: Install system PDF packages
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libcairo2 \
+            libpango-1.0-0 \
+            libgdk-pixbuf-2.0-0 \
+            libffi-dev \
+            shared-mime-info \
+            fonts-liberation \
+            fonts-dejavu-core \
+            fonts-lato \
+            poppler-utils
+
       - name: Install routine dependencies
         run: |
           set -euo pipefail
           python -m pip install --upgrade pip
-          pip install pyyaml yfinance
+          pip install pyyaml yfinance mistune weasyprint
 
       - name: Resolve and validate routine request
         run: |
@@ -99,6 +112,113 @@ jobs:
             --previous-routine-manifest "$ETF_EU_PREVIOUS_ROUTINE_MANIFEST" \
             --previous-delivery-closeout-manifest "$ETF_EU_PREVIOUS_CLOSEOUT"
 
+      - name: Validate routine PDF machine contract
+        run: |
+          set -euo pipefail
+          mkdir -p output/quality
+          python tools/validate_etf_eu_routine_pdf_client_grade.py \
+            --pdf "output/fresh_generation/weekly_etf_eu_review_nl_${ETF_EU_REPORT_SUFFIX}.pdf" \
+            --html "output/fresh_generation/weekly_etf_eu_review_nl_${ETF_EU_REPORT_SUFFIX}.html" \
+            --markdown "output/fresh_generation/weekly_etf_eu_review_nl_${ETF_EU_REPORT_SUFFIX}.md" \
+            --language nl \
+            --repair-run-id "$ETF_EU_RUN_ID" \
+            --source-run-id "$ETF_EU_RUN_ID" \
+            --write-result "output/quality/etf_eu_routine_pdf_client_grade_${ETF_EU_RUN_ID}_nl.json"
+          python tools/validate_etf_eu_routine_pdf_client_grade.py \
+            --pdf "output/fresh_generation/weekly_etf_eu_review_${ETF_EU_REPORT_SUFFIX}.pdf" \
+            --html "output/fresh_generation/weekly_etf_eu_review_${ETF_EU_REPORT_SUFFIX}.html" \
+            --markdown "output/fresh_generation/weekly_etf_eu_review_${ETF_EU_REPORT_SUFFIX}.md" \
+            --language en \
+            --repair-run-id "$ETF_EU_RUN_ID" \
+            --source-run-id "$ETF_EU_RUN_ID" \
+            --write-result "output/quality/etf_eu_routine_pdf_client_grade_${ETF_EU_RUN_ID}_en.json"
+          python - "$ETF_EU_RUN_ID" <<'PY'
+          import json
+          import sys
+          from datetime import datetime, timezone
+          from pathlib import Path
+
+          run_id = sys.argv[1]
+          base = Path("output/quality")
+          nl = json.loads((base / f"etf_eu_routine_pdf_client_grade_{run_id}_nl.json").read_text())
+          en = json.loads((base / f"etf_eu_routine_pdf_client_grade_{run_id}_en.json").read_text())
+          payload = {
+              "schema_version": "etf_eu_routine_pdf_client_grade_combined_v1",
+              "artifact_type": "etf_eu_routine_pdf_client_grade_combined",
+              "generated_at_utc": datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z"),
+              "source_run_id": run_id,
+              "repair_run_id": run_id,
+              "dutch_artifact": str(base / f"etf_eu_routine_pdf_client_grade_{run_id}_nl.json"),
+              "english_artifact": str(base / f"etf_eu_routine_pdf_client_grade_{run_id}_en.json"),
+              "dutch_pdf_client_grade_passed": nl["machine_validation_passed"],
+              "english_pdf_client_grade_passed": en["machine_validation_passed"],
+              "pdf_client_grade_passed": nl["machine_validation_passed"] and en["machine_validation_passed"],
+              "blockers": nl["blockers"] + en["blockers"],
+              "warnings": nl["warnings"] + en["warnings"],
+          }
+          (base / f"etf_eu_routine_pdf_client_grade_{run_id}.json").write_text(
+              json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+          )
+          if payload["pdf_client_grade_passed"] is not True:
+              raise SystemExit(1)
+          PY
+
+      - name: Render routine PDF review pages
+        run: |
+          set -euo pipefail
+          python tools/render_etf_eu_pdf_review_pages.py \
+            --pdf "output/fresh_generation/weekly_etf_eu_review_nl_${ETF_EU_REPORT_SUFFIX}.pdf" \
+            --output-dir "output/quality/review_pages/${ETF_EU_RUN_ID}/nl" \
+            --write-index "output/quality/review_pages/${ETF_EU_RUN_ID}/nl/index.json"
+          python tools/render_etf_eu_pdf_review_pages.py \
+            --pdf "output/fresh_generation/weekly_etf_eu_review_${ETF_EU_REPORT_SUFFIX}.pdf" \
+            --output-dir "output/quality/review_pages/${ETF_EU_RUN_ID}/en" \
+            --write-index "output/quality/review_pages/${ETF_EU_RUN_ID}/en/index.json"
+
+      - name: Persist pre-delivery PDF QA preview
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -f \
+            "output/fresh_generation/weekly_etf_eu_review_nl_${ETF_EU_REPORT_SUFFIX}.md" \
+            "output/fresh_generation/weekly_etf_eu_review_${ETF_EU_REPORT_SUFFIX}.md" \
+            "output/fresh_generation/weekly_etf_eu_review_nl_${ETF_EU_REPORT_SUFFIX}.html" \
+            "output/fresh_generation/weekly_etf_eu_review_${ETF_EU_REPORT_SUFFIX}.html" \
+            "output/fresh_generation/weekly_etf_eu_review_nl_${ETF_EU_REPORT_SUFFIX}.pdf" \
+            "output/fresh_generation/weekly_etf_eu_review_${ETF_EU_REPORT_SUFFIX}.pdf" \
+            "output/fresh_generation/etf_eu_fresh_generation_package_manifest_${ETF_EU_RUN_ID}.json" \
+            "output/fresh_generation/etf_eu_ready_for_controlled_delivery_${ETF_EU_RUN_ID}.json" \
+            "output/quality/etf_eu_routine_pdf_client_grade_${ETF_EU_RUN_ID}_nl.json" \
+            "output/quality/etf_eu_routine_pdf_client_grade_${ETF_EU_RUN_ID}_en.json" \
+            "output/quality/etf_eu_routine_pdf_client_grade_${ETF_EU_RUN_ID}.json" \
+            "output/quality/review_pages/${ETF_EU_RUN_ID}" \
+            "output/run_manifests/etf_eu_routine_run_manifest_${ETF_EU_REPORT_DATE}_${ETF_EU_RUN_ID}.json"
+          if ! git diff --cached --quiet; then
+            git commit -m "Persist ETF EU pre-delivery PDF QA preview ${ETF_EU_RUN_ID} [skip ci]"
+            git push origin HEAD:main
+          fi
+
+      - name: Require explicit rendered-page visual review
+        run: |
+          set -euo pipefail
+          VISUAL_REVIEW="output/quality/etf_eu_routine_pdf_visual_review_${ETF_EU_RUN_ID}.json"
+          if [ ! -f "$VISUAL_REVIEW" ]; then
+            echo "ETF_EU_PDF_VISUAL_REVIEW_REQUIRED | artifact=$VISUAL_REVIEW" >&2
+            exit 1
+          fi
+          python - "$VISUAL_REVIEW" <<'PY'
+          import json
+          import sys
+          from pathlib import Path
+
+          path = Path(sys.argv[1])
+          payload = json.loads(path.read_text(encoding="utf-8"))
+          if payload.get("visual_review_passed") is not True or payload.get("blockers"):
+              raise SystemExit("ETF_EU_PDF_VISUAL_REVIEW_NOT_PASSED")
+          print(f"ETF_EU_PDF_VISUAL_REVIEW_OK | artifact={path}")
+          PY
+
       - name: Validate routine package readiness
         run: |
           set -euo pipefail
@@ -106,7 +226,9 @@ jobs:
             --manifest "output/fresh_generation/etf_eu_fresh_generation_package_manifest_${ETF_EU_RUN_ID}.json" \
             --ready-artifact "output/fresh_generation/etf_eu_ready_for_controlled_delivery_${ETF_EU_RUN_ID}.json" \
             --routine-manifest "output/run_manifests/etf_eu_routine_run_manifest_${ETF_EU_REPORT_DATE}_${ETF_EU_RUN_ID}.json" \
-            --write-gate "output/fresh_generation/etf_eu_routine_package_readiness_${ETF_EU_RUN_ID}.json"
+            --write-gate "output/fresh_generation/etf_eu_routine_package_readiness_${ETF_EU_RUN_ID}.json" \
+            --pdf-client-grade-gate "output/quality/etf_eu_routine_pdf_client_grade_${ETF_EU_RUN_ID}.json" \
+            --pdf-visual-review "output/quality/etf_eu_routine_pdf_visual_review_${ETF_EU_RUN_ID}.json"
 
       - name: Prepare current-run delivery control
         run: |
@@ -172,6 +294,11 @@ jobs:
             "output/fresh_generation/etf_eu_fresh_generation_package_manifest_${ETF_EU_RUN_ID}.json" \
             "output/fresh_generation/etf_eu_ready_for_controlled_delivery_${ETF_EU_RUN_ID}.json" \
             "output/fresh_generation/etf_eu_routine_package_readiness_${ETF_EU_RUN_ID}.json" \
+            "output/quality/etf_eu_routine_pdf_client_grade_${ETF_EU_RUN_ID}_nl.json" \
+            "output/quality/etf_eu_routine_pdf_client_grade_${ETF_EU_RUN_ID}_en.json" \
+            "output/quality/etf_eu_routine_pdf_client_grade_${ETF_EU_RUN_ID}.json" \
+            "output/quality/etf_eu_routine_pdf_visual_review_${ETF_EU_RUN_ID}.json" \
+            "output/quality/review_pages/${ETF_EU_RUN_ID}" \
             "output/delivery_prep/etf_eu_guarded_fresh_package_delivery_prep_${ETF_EU_RUN_ID}.json" \
             "output/delivery_authorization/etf_eu_guarded_send_authorization_${ETF_EU_RUN_ID}.json" \
             "output/delivery_control/etf_eu_controlled_delivery_decision_${ETF_EU_RUN_ID}.json" \
