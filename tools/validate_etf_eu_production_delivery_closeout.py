@@ -45,13 +45,10 @@ def validate(
 
     runtime_id = str(closeout.get("runtime_run_id") or "")
     _require(runtime_id == "20260711_175327", "unexpected runtime_run_id")
-    for label, payload in {
-        "transport": transport,
-        "delivery": delivery,
-        "receipt": receipt,
-        "routine": routine,
-    }.items():
-        _require(str(payload.get("run_id") or payload.get("runtime_run_id") or "") == runtime_id, f"{label}: runtime id mismatch")
+    _require(str(transport.get("run_id") or "") == runtime_id, "transport: runtime id mismatch")
+    _require(str(delivery.get("run_id") or "") == runtime_id, "delivery: runtime id mismatch")
+    _require(str(receipt.get("runtime_run_id") or "") == runtime_id, "receipt: runtime id mismatch")
+    _require(str(routine.get("runtime_run_id") or "") == runtime_id, "routine: runtime id mismatch")
 
     _require(closeout.get("transport_attempted") is True, "transport_attempted must be true")
     _require(closeout.get("transport_success") is True, "transport_success must be true")
