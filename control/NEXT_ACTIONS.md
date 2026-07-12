@@ -1,66 +1,81 @@
 # Weekly ETF EU Review OS — Next Actions
 
-Current priority: **DISPATCH_REPAIRED_ROUTINE_WEEKLY_ETF_EU_RUN**.
+Current priority: **COMPLETE_RUN260712_PDF_REPAIR_AND_VISUAL_REVIEW**.
 
-## Latest completed cycle
-
-```text
-work_package_id=ETF-EU-MVP30_PRODUCTION_DELIVERY_CLOSEOUT_AND_ROUTINE_RUNBOOK
-status=completed_production_delivery_closeout
-reference_architecture_repo=market-predictions/weekly-etf
-source_of_truth_repo=market-predictions/weekly-etf-eu
-runtime_run_id=20260711_175327
-transport_success=true
-send_executed=true
-receipt_confirmed_from_new_run=true
-production_delivery_cycle_closed=true
-routine_production_ready=true
-operating_mode=routine_production
-```
-
-## Active routine run
+## Active defect repair
 
 ```text
-routine_run_id=20260712_125000
+work_package_id=ETF-EU-RUN260712-FIX1_CLIENT_GRADE_PDF_RENDERER_REPAIR
+source_run_id=20260712_125000
+source_runtime_run_id=20260712_182002
 report_date=2026-07-12
 report_suffix=260712
-request_artifact=control/run_queue/etf_eu_routine_report_request_20260712_125000.md
-workflow_file=.github/workflows/run-weekly-etf-eu-routine.yml
-workflow_name=Weekly ETF EU routine production run
-workflow_dispatch_attempts=2
-latest_attempt_status=failed_before_delivery
-first_failure=builder_invoked_as_file_instead_of_module
-second_failure=routine_manifest_missing_send_executed_false
-first_failure_fixed=true
-second_failure_fixed=true
-fast_preflight_added=true
-fresh_package_committed=false
-transport_attempted=false
-transport_success=false
+original_transport_success=true
+original_client_output_valid=false
+repair_run_id=20260712_200000
+repair_workflow=.github/workflows/repair-weekly-etf-eu-routine-pdf.yml
+corrected_preview_generated=false
+corrected_resend_executed=false
 receipt_confirmed=false
 ```
 
 ## Exact next action
 
-Start a **new** workflow run from the current `main` branch:
+Run this GitHub Actions workflow from current `main`:
 
 ```text
 Repository: market-predictions/weekly-etf-eu
-Actions workflow: Weekly ETF EU routine production run
+Workflow: Weekly ETF EU routine PDF repair preview
 Branch: main
-request_path: control/run_queue/etf_eu_routine_report_request_20260712_125000.md
+source_run_id: 20260712_125000
+repair_run_id: 20260712_200000
+report_suffix: 260712
 ```
 
-Do not use **Re-run failed jobs** on either previous attempt, because GitHub reruns the historical commit associated with that attempt. Do not create a second request or change the run identity.
+The workflow is preview-only. It contains no mail secrets, transport runner or receipt checker.
 
-The repaired workflow now performs a fast import and manifest-contract preflight before the slower UCITS pricing stage.
+## Required review sequence
 
-After the run, verify committed current-run pricing, Dutch/English Markdown–HTML–PDF files, readiness evidence, transport result and delivery evidence. Then perform the delayed independent receipt check and production closeout.
+```text
+1. run Weekly ETF EU routine PDF repair preview
+2. verify Dutch and English machine-gate artifacts
+3. inspect Dutch first, middle and last rendered pages
+4. inspect English first, middle and last rendered pages
+5. confirm no right-edge or bottom clipping
+6. confirm no overlapping text
+7. confirm tables, headings and Dutch Unicode are readable
+8. confirm sections 1-8 and the authority block are visible
+9. update the visual-review artifact only after actual inspection
+10. do not resend in FIX1
+11. prepare an explicit corrected-resend package only after both gates pass
+```
 
-## Standing upstream-first reuse rule
+## Expected preview outputs
 
-Use `market-predictions/weekly-etf` for mature architecture and evidence patterns only. Keep `weekly-etf-eu` and its current EU/UCITS state as authority.
+```text
+output/repair_preview/20260712_200000/weekly_etf_eu_review_nl_260712.html
+output/repair_preview/20260712_200000/weekly_etf_eu_review_nl_260712.pdf
+output/repair_preview/20260712_200000/weekly_etf_eu_review_260712.html
+output/repair_preview/20260712_200000/weekly_etf_eu_review_260712.pdf
+output/repair_preview/20260712_200000/pages/nl/
+output/repair_preview/20260712_200000/pages/en/
+output/quality/etf_eu_routine_pdf_client_grade_20260712_200000.json
+output/quality/etf_eu_routine_pdf_visual_review_20260712_200000.json
+```
 
-## Architecture-package rule
+## Delivery boundary
 
-This remains a routine production run. Do not create MVP31. Create a narrow repair only for a specific failed step or invalid artifact.
+```text
+send_or_resend_allowed=false
+correction_transport_allowed=false
+receipt_check_allowed=false
+production_delivery_complete=false
+```
+
+The next action after passed machine and visual review is:
+
+```text
+PREPARE_EXPLICIT_CORRECTED_REPORT_RESEND
+```
+
+Do not create MVP31. Keep `weekly-etf-eu` as EU authority and use `weekly-etf` only for mature renderer, validation and delivery-control concepts.
