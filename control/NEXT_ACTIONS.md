@@ -14,6 +14,13 @@ original_transport_success=true
 original_client_output_valid=false
 repair_run_id=20260712_200000
 repair_workflow=.github/workflows/repair-weekly-etf-eu-routine-pdf.yml
+preview_attempt_count=2
+latest_preview_machine_gate_passed=true
+latest_preview_review_pages_rendered=true
+latest_preview_artifacts_persisted=false
+latest_preview_failure=decision_log_inline_heredoc_syntax_error
+latest_preview_failure_repaired=true
+workflow_fix_commit=5c09433c1327763290351a2ea20837fc44c5bbfd
 corrected_preview_generated=false
 corrected_resend_executed=false
 receipt_confirmed=false
@@ -21,7 +28,7 @@ receipt_confirmed=false
 
 ## Exact next action
 
-Run this GitHub Actions workflow from current `main`:
+Start a new GitHub Actions workflow run from current `main`. Do not use **Re-run failed jobs**, because that would execute the historical workflow commit.
 
 ```text
 Repository: market-predictions/weekly-etf-eu
@@ -32,13 +39,13 @@ repair_run_id: 20260712_200000
 report_suffix: 260712
 ```
 
-The workflow is preview-only. It contains no mail secrets, transport runner or receipt checker.
+The workflow is preview-only. It contains no mail secrets, transport runner or receipt checker. The nonessential inline decision-log step has been removed; stable decisions remain maintained directly in GitHub control files and decision artifacts.
 
 ## Required review sequence
 
 ```text
-1. run Weekly ETF EU routine PDF repair preview
-2. verify Dutch and English machine-gate artifacts
+1. run Weekly ETF EU routine PDF repair preview from current main
+2. verify Dutch and English machine-gate artifacts are committed
 3. inspect Dutch first, middle and last rendered pages
 4. inspect English first, middle and last rendered pages
 5. confirm no right-edge or bottom clipping
