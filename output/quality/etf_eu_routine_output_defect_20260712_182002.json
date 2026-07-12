@@ -1,0 +1,22 @@
+{
+  "artifact_type": "etf_eu_routine_output_defect",
+  "client_output_valid": false,
+  "corrected_resend_pending": true,
+  "defect_type": "routine_pdf_renderer_plain_text_single_page_clipping",
+  "generated_at_utc": "2026-07-12T20:00:00Z",
+  "original_dutch_pdf": "output/fresh_generation/weekly_etf_eu_review_nl_260712.pdf",
+  "original_english_pdf": "output/fresh_generation/weekly_etf_eu_review_260712.pdf",
+  "pdf_client_grade": false,
+  "production_delivery_complete": false,
+  "receipt_confirmed": false,
+  "repair_run_id": "20260712_200000",
+  "repair_work_package": "ETF-EU-RUN260712-FIX1_CLIENT_GRADE_PDF_RENDERER_REPAIR",
+  "report_date": "2026-07-12",
+  "report_suffix": "260712",
+  "root_cause": "_simple_pdf_latin1_plain_text_renderer",
+  "schema_version": "etf_eu_routine_output_defect_v1",
+  "source_run_id": "20260712_125000",
+  "source_runtime_run_id": "20260712_182002",
+  "transport_attempted": true,
+  "transport_success": true
+}
