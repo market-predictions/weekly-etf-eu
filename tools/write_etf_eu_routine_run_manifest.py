@@ -53,11 +53,16 @@ def build_manifest(args: argparse.Namespace) -> dict[str, Any]:
     ]:
         _reject_us_state(value, label)
 
+    send_executed = _bool(args.send_executed)
     transport_attempted = _bool(args.transport_attempted)
     transport_success = _bool(args.transport_success)
     receipt_confirmed = _bool(args.receipt_confirmed)
+    if send_executed and not transport_attempted:
+        raise SystemExit("send_executed=true requires transport_attempted=true")
     if transport_success and not transport_attempted:
         raise SystemExit("transport_success=true requires transport_attempted=true")
+    if send_executed and not transport_success:
+        raise SystemExit("send_executed=true requires transport_success=true")
     if receipt_confirmed and not _text(args.delivery_closeout_manifest):
         raise SystemExit("receipt_confirmed=true requires delivery_closeout_manifest")
 
@@ -88,6 +93,7 @@ def build_manifest(args: argparse.Namespace) -> dict[str, Any]:
         "english_companion_html": _text(args.english_companion_html),
         "dutch_primary_pdf": _text(args.dutch_primary_pdf),
         "english_companion_pdf": _text(args.english_companion_pdf),
+        "send_executed": send_executed,
         "transport_attempted": transport_attempted,
         "transport_success": transport_success,
         "receipt_confirmed": receipt_confirmed,
@@ -138,6 +144,7 @@ def main() -> None:
     parser.add_argument("--english-companion-html", default=None)
     parser.add_argument("--dutch-primary-pdf", default=None)
     parser.add_argument("--english-companion-pdf", default=None)
+    parser.add_argument("--send-executed", default="false")
     parser.add_argument("--transport-attempted", default="false")
     parser.add_argument("--transport-success", default="false")
     parser.add_argument("--receipt-confirmed", default="false")
