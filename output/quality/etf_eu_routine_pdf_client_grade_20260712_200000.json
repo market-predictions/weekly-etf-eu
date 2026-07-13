@@ -1,0 +1,14 @@
+{
+  "artifact_type": "etf_eu_routine_pdf_client_grade_combined",
+  "blockers": [],
+  "dutch_artifact": "output/quality/etf_eu_routine_pdf_client_grade_20260712_200000_nl.json",
+  "dutch_pdf_client_grade_passed": true,
+  "english_artifact": "output/quality/etf_eu_routine_pdf_client_grade_20260712_200000_en.json",
+  "english_pdf_client_grade_passed": true,
+  "generated_at_utc": "2026-07-13T11:32:21Z",
+  "pdf_client_grade_passed": true,
+  "repair_run_id": "20260712_200000",
+  "schema_version": "etf_eu_routine_pdf_client_grade_combined_v1",
+  "source_run_id": "20260712_125000",
+  "warnings": []
+}

@@ -1,0 +1,31 @@
+{
+  "all_sections_visible": false,
+  "artifact_type": "etf_eu_routine_pdf_visual_review",
+  "blockers": [
+    "manual visual inspection required before corrected resend"
+  ],
+  "duplicate_title_absent": false,
+  "dutch_page_count": 3,
+  "dutch_pages_reviewed": [],
+  "dutch_pdf": "output/repair_preview/20260712_200000/weekly_etf_eu_review_nl_260712.pdf",
+  "english_page_count": 3,
+  "english_pages_reviewed": [],
+  "english_pdf": "output/repair_preview/20260712_200000/weekly_etf_eu_review_260712.pdf",
+  "first_page_reviewed": false,
+  "generated_at_utc": "2026-07-13T11:32:23Z",
+  "headings_readable": false,
+  "last_page_reviewed": false,
+  "middle_page_reviewed": false,
+  "no_bottom_clipping": false,
+  "no_overlapping_text": false,
+  "no_right_edge_clipping": false,
+  "repair_run_id": "20260712_200000",
+  "review_notes": [
+    "Rendered first, middle and last pages are ready for explicit visual inspection."
+  ],
+  "schema_version": "etf_eu_routine_pdf_visual_review_v1",
+  "source_run_id": "20260712_125000",
+  "tables_readable": false,
+  "unicode_correct": false,
+  "visual_review_passed": false
+}
