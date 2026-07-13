@@ -83,12 +83,9 @@ def validate_result(
         _require(result.get("delivery_status") == "dry_run_no_transport", "dry-run status mismatch")
     elif expected_mode == "send":
         _require(result.get("transport_attempted") is True, "send did not attempt transport")
-        if result.get("transport_success") is True:
-            _require(result.get("send_executed") is True, "successful transport missing send_executed")
-            _require(result.get("delivery_status") == "smtp_sendmail_returned_no_exception", "send status mismatch")
-        else:
-            _require(result.get("send_executed") is False, "failed transport claimed send execution")
-            _require(result.get("delivery_status") == "smtp_sendmail_failed", "failure status mismatch")
+        _require(result.get("transport_success") is True, "corrected transport did not succeed")
+        _require(result.get("send_executed") is True, "successful transport missing send_executed")
+        _require(result.get("delivery_status") == "smtp_sendmail_returned_no_exception", "send status mismatch")
     else:
         raise RuntimeError(f"unsupported expected mode: {expected_mode}")
 
