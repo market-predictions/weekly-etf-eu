@@ -1,0 +1,21 @@
+{
+  "schema_version": "etf_eu_corrected_resend_manifest_v1",
+  "artifact_type": "etf_eu_corrected_resend_manifest",
+  "generated_at_utc": "2026-07-13T00:00:00Z",
+  "correction_control_id": "20260713_000000",
+  "source_run_id": "20260712_125000",
+  "source_runtime_run_id": "20260712_182002",
+  "repair_run_id": "20260712_200000",
+  "report_date": "2026-07-12",
+  "report_suffix": "260712",
+  "status": "implementation_ready",
+  "corrected_package_manifest": "output/delivery_control/etf_eu_corrected_resend_package_20260713_000000.json",
+  "corrected_queue": "control/run_queue/etf_eu_corrected_resend_request_20260713_000000.md",
+  "corrected_client_output_valid": true,
+  "corrected_resend_prepared": false,
+  "corrected_resend_executed": false,
+  "transport_attempted": false,
+  "transport_success": false,
+  "receipt_confirmed": false,
+  "next_action": "RUN_VALIDATE_ONLY"
+}
