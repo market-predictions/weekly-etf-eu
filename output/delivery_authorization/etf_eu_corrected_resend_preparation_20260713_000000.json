@@ -1,24 +1,20 @@
 {
-  "schema_version": "etf_eu_corrected_resend_preparation_v1",
   "artifact_type": "etf_eu_corrected_resend_preparation",
-  "generated_at_utc": "2026-07-13T00:00:00Z",
+  "blockers": [],
+  "corrected_package_manifest": "output/delivery_control/etf_eu_corrected_resend_package_20260713_000000.json",
+  "corrected_resend_executed": false,
+  "corrected_resend_prepared": true,
   "correction_control_id": "20260713_000000",
-  "source_run_id": "20260712_125000",
+  "generated_at_utc": "2026-07-13T16:55:08Z",
+  "next_action": "RUN_CORRECTED_RESEND_VALIDATE_ONLY",
+  "receipt_confirmed": false,
+  "recipient_plaintext_values_exposed": false,
   "repair_run_id": "20260712_200000",
   "report_date": "2026-07-12",
   "report_suffix": "260712",
-  "corrected_package_manifest": "output/delivery_control/etf_eu_corrected_resend_package_20260713_000000.json",
-  "implementation_ready": true,
-  "package_materialization_pending": true,
-  "corrected_resend_prepared": false,
-  "corrected_resend_executed": false,
-  "transport_attempted": false,
-  "transport_success": false,
-  "receipt_confirmed": false,
-  "recipient_plaintext_values_exposed": false,
+  "schema_version": "etf_eu_corrected_resend_preparation_v1",
   "secret_values_exposed": false,
-  "next_action": "RUN_CORRECTED_RESEND_VALIDATE_ONLY",
-  "blockers": [
-    "Run the corrected resend workflow in validate_only mode to create and validate the immutable delivery copies."
-  ]
+  "source_run_id": "20260712_125000",
+  "transport_attempted": false,
+  "transport_success": false
 }
