@@ -1,0 +1,48 @@
+{
+  "artifact_type": "etf_eu_corrected_transport_result",
+  "attachment_count": 4,
+  "attachment_paths": [
+    "output/corrected_delivery_package/20260713_000000/weekly_etf_eu_review_nl_260712_gecorrigeerd.pdf",
+    "output/corrected_delivery_package/20260713_000000/weekly_etf_eu_review_260712_corrected.pdf",
+    "output/corrected_delivery_package/20260713_000000/weekly_etf_eu_review_nl_260712_gecorrigeerd.html",
+    "output/corrected_delivery_package/20260713_000000/weekly_etf_eu_review_260712_corrected.html"
+  ],
+  "attachment_sha256": {
+    "dutch_primary_html": "a1a5f74e42de6e54c357f7822b6c92f8925aedfe9e187e15820e7fa4b653652d",
+    "dutch_primary_pdf": "7498ef60c2a3192d8d685c12ac8092be0d72f7c3c8afa53aa461c33bf5f3119b",
+    "english_companion_html": "1b96656ccb3b62b7ab347b8b31bd95f3c8b88027f53fba6cae4200c26bd2b609",
+    "english_companion_pdf": "380840b8a50d605ead7d85975aecb0859c24630be548b4a58d25f71381d8d5fa"
+  },
+  "correction_control_id": "20260713_000000",
+  "correction_transport": true,
+  "delivery_evidence_path": "output/delivery/etf_eu_corrected_delivery_evidence_20260713_165614.json",
+  "delivery_mode": "dry_run",
+  "delivery_status": "dry_run_no_transport",
+  "delivery_status_meaning": "Dry-run evidence only; no outbound transport was attempted.",
+  "funding_authority": false,
+  "generated_at_utc": "2026-07-13T16:56:15Z",
+  "message_reference_hash": null,
+  "original_transport_evidence_overwritten": false,
+  "portfolio_mutation": false,
+  "production_delivery_authority": false,
+  "raw_email_content_stored": false,
+  "raw_receipt_pdf_stored_in_github": false,
+  "receipt_confirmed": false,
+  "recipient_hashes": [
+    "sha256:8ca182adfd72e659b1d4b3d65333e97d8a09dc9faeff04e3e8a7e06d9148e39e"
+  ],
+  "recipient_plaintext_values_exposed": false,
+  "recipient_target_redacted": true,
+  "repair_run_id": "20260712_200000",
+  "report_date": "2026-07-12",
+  "report_suffix": "260712",
+  "run_id": "20260713_165614",
+  "schema_version": "etf_eu_corrected_transport_result_v1",
+  "secret_values_exposed": false,
+  "send_executed": false,
+  "source_run_id": "20260712_125000",
+  "transport_attempted": false,
+  "transport_error": null,
+  "transport_success": false,
+  "valuation_grade": false
+}
