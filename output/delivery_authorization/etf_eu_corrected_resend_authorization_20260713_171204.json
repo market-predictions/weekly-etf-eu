@@ -1,0 +1,15 @@
+{
+  "artifact_type": "etf_eu_corrected_resend_authorization",
+  "corrected_resend_authorized": true,
+  "correction_control_id": "20260713_000000",
+  "generated_at_utc": "2026-07-13T17:12:05Z",
+  "github_commit_sha": "3828e281e3bbc5c2b30b7727a489d3ff508b3a22",
+  "github_run_id": "29269475191",
+  "recipient_plaintext_values_exposed": false,
+  "runtime_run_id": "20260713_171204",
+  "schema_version": "etf_eu_corrected_resend_authorization_v1",
+  "secret_values_exposed": false,
+  "send_command_allowed": true,
+  "send_confirmation_received": true,
+  "workflow_dispatch": true
+}
