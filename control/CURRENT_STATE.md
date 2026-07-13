@@ -2,7 +2,7 @@
 
 ## Snapshot date
 
-2026-07-12
+2026-07-13
 
 ## Repository identity
 
@@ -25,7 +25,7 @@ routine_production_ready=true
 operating_mode=routine_production
 ```
 
-## Active routine run and output defect
+## Active routine run and corrected-output repair
 
 ```text
 work_package_id=ETF-EU-RUN260712-FIX1_CLIENT_GRADE_PDF_RENDERER_REPAIR
@@ -40,8 +40,8 @@ send_executed=true
 transport_attempted=true
 transport_success=true
 receipt_confirmed=false
-client_output_valid=false
-pdf_client_grade=false
+original_client_output_valid=false
+original_pdf_client_grade=false
 production_delivery_complete=false
 defect=routine_pdf_renderer_plain_text_single_page_clipping
 defect_artifact=output/quality/etf_eu_routine_output_defect_20260712_182002.json
@@ -49,23 +49,27 @@ original_dutch_pdf=output/fresh_generation/weekly_etf_eu_review_nl_260712.pdf
 original_english_pdf=output/fresh_generation/weekly_etf_eu_review_260712.pdf
 repair_run_id=20260712_200000
 repair_workflow=.github/workflows/repair-weekly-etf-eu-routine-pdf.yml
+repair_workflow_run_id=29246566901
+repair_workflow_artifact_id=8277605032
 renderer_repair_implemented=true
 machine_validator_created=true
 rendered_page_review_helper_created=true
 normal_routine_workflow_hardened=true
-preview_attempt_count=2
-latest_preview_attempt_status=failed_after_machine_validation_and_review_page_rendering
-latest_preview_failure=decision_log_inline_heredoc_syntax_error
-latest_preview_failure_repaired=true
-latest_preview_fix_commit=5c09433c1327763290351a2ea20837fc44c5bbfd
-corrected_preview_generated=false
-corrected_pdf_machine_gate_passed=false
-corrected_pdf_visual_gate_passed=false
+preview_attempt_count=3
+latest_preview_attempt_status=success
+corrected_preview_generated=true
+corrected_dutch_pdf=output/repair_preview/20260712_200000/weekly_etf_eu_review_nl_260712.pdf
+corrected_english_pdf=output/repair_preview/20260712_200000/weekly_etf_eu_review_260712.pdf
+corrected_dutch_page_count=3
+corrected_english_page_count=3
+corrected_pdf_machine_gate_passed=true
+corrected_pdf_visual_gate_passed=true
+corrected_client_output_valid=true
 transport_attempted_for_correction=false
 corrected_resend_executed=false
 corrected_resend_pending=true
-status=renderer_repair_implemented_awaiting_preview_rerun
-selected_next_action=RUN_CLIENT_GRADE_PDF_REPAIR_PREVIEW_FROM_CURRENT_MAIN
+status=completed_renderer_repair_preview_and_visual_review
+selected_next_action=PREPARE_EXPLICIT_CORRECTED_REPORT_RESEND
 ```
 
 ## Authority and privacy boundaries
@@ -87,4 +91,4 @@ weekly_etf_upstream_donor_only=true
 
 ## Current note
 
-The `2026-07-12` routine workflow completed SMTP transport, but the original plain-text PDF renderer produced materially incomplete client output. SMTP success is preserved as transport evidence while production delivery completion remains false. The repair renderer, PDF machine gate and review-page rendering now execute successfully. The latest preview attempt failed only in a nonessential inline decision-log step after those gates completed. That brittle step has been removed from the workflow. Start a new preview run from current `main`; do not use the historical failed run, resend the report or check receipt.
+The original `2026-07-12` transport remains SMTP-success evidence only because its plain-text PDFs failed the client output contract. The corrected Dutch and English previews were generated in GitHub Actions run `29246566901`, passed both machine gates, and passed explicit first/middle/last-page visual review. No correction transport or receipt check occurred. The next step is a separate explicit corrected-resend package using the approved repair-preview artifacts.
