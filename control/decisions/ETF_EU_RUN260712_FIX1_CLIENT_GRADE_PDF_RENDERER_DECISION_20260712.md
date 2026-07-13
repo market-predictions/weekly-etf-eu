@@ -13,7 +13,7 @@ source_runtime_run_id=20260712_182002
 transport_attempted=true
 transport_success=true
 receipt_confirmed=false
-client_output_valid=false
+original_client_output_valid=false
 production_delivery_complete=false
 ```
 
@@ -56,6 +56,54 @@ U.S. equity-curve-specific requirements
 seventeen-section U.S. report structure
 ```
 
+## Repair verification
+
+GitHub Actions run:
+
+```text
+run_id=29246566901
+job=repair-preview
+conclusion=success
+artifact_id=8277605032
+repair_run_id=20260712_200000
+```
+
+Machine gate:
+
+```text
+dutch_pdf_client_grade_passed=true
+english_pdf_client_grade_passed=true
+pdf_client_grade_passed=true
+dutch_page_count=3
+english_page_count=3
+pricing_lines_detected_nl=11
+pricing_lines_detected_en=11
+required_sections_present=true
+section_8_present_near_end=true
+semantic_tables_present=true
+markdown_leakage_detected=false
+unicode_integrity_passed=true
+duplicate_title_detected=false
+```
+
+Visual review:
+
+```text
+first_page_reviewed=true
+middle_page_reviewed=true
+last_page_reviewed=true
+no_right_edge_clipping=true
+no_bottom_clipping=true
+no_overlapping_text=true
+tables_readable=true
+headings_readable=true
+unicode_correct=true
+all_sections_visible=true
+duplicate_title_absent=true
+visual_review_passed=true
+blockers=[]
+```
+
 ## Implementation status
 
 ```text
@@ -64,12 +112,13 @@ machine_validator_created=true
 rendered_page_review_helper_created=true
 no_send_repair_workflow_created=true
 normal_routine_workflow_hardened=true
-repair_preview_generated=false
-visual_review_passed=false
+repair_preview_generated=true
+machine_review_passed=true
+visual_review_passed=true
 corrected_resend_executed=false
 ```
 
-The repair preview must use the already committed Dutch and English Markdown files. Pricing, recommendations and portfolio state are not changed.
+The repair preview used the already committed Dutch and English Markdown files. Pricing, recommendations and portfolio state were not changed.
 
 ## Authority boundaries
 
@@ -79,14 +128,16 @@ funding_authority=false
 portfolio_mutation=false
 production_delivery_authority=false
 receipt_confirmed=false
+correction_transport_attempted=false
+corrected_resend_executed=false
 ```
 
-No resend and no receipt check are permitted in FIX1.
+No resend and no receipt check occurred in FIX1.
 
 ## Next action
 
 ```text
-RUN_CLIENT_GRADE_PDF_REPAIR_PREVIEW
+PREPARE_EXPLICIT_CORRECTED_REPORT_RESEND
 ```
 
-After the workflow persists the corrected HTML/PDF files and first/middle/last page renders, complete explicit visual review. Only a separately authorized corrected-resend package may follow a passed machine and visual gate.
+The corrected Dutch and English previews have passed both machine and visual review. A separate corrected-resend package may now be prepared, but no transport may be claimed until that separately authorized workflow produces current correction transport evidence.
