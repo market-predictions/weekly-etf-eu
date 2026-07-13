@@ -49,14 +49,19 @@ corrected_queue_validator_created=true
 existing_transport_runner_reused=true
 corrected_workflow_created=true
 corrected_queue_created=true
-package_materialization_pending=true
-corrected_resend_prepared=false
+package_materialization_pending=false
+package_byte_identity_passed=true
+corrected_resend_prepared=true
+dry_run_workflow_run_id=29268423307
+dry_run_runtime_run_id=20260713_165614
+dry_run_completed=true
+dry_run_delivery_status=dry_run_no_transport
 corrected_resend_executed=false
 correction_transport_attempted=false
 correction_transport_success=false
 receipt_confirmed=false
-status=corrected_resend_implementation_ready_awaiting_validate_only
-selected_next_action=RUN_CORRECTED_RESEND_VALIDATE_ONLY
+status=corrected_resend_dry_run_completed
+selected_next_action=EXPLICITLY_DISPATCH_CORRECTED_RESEND
 ```
 
 ## Correction artifacts
@@ -68,6 +73,8 @@ preparation_artifact=output/delivery_authorization/etf_eu_corrected_resend_prepa
 queue=control/run_queue/etf_eu_corrected_resend_request_20260713_000000.md
 workflow=.github/workflows/send-weekly-etf-eu-corrected-report.yml
 run_manifest=output/run_manifests/etf_eu_corrected_resend_manifest_20260713_000000.json
+dry_run_transport_result=output/delivery/etf_eu_corrected_transport_result_20260713_165614.json
+dry_run_delivery_evidence=output/delivery/etf_eu_corrected_delivery_evidence_20260713_165614.json
 ```
 
 ## Authority and privacy boundaries
@@ -90,4 +97,4 @@ weekly_etf_upstream_donor_only=true
 
 ## Current note
 
-FIX2 implementation is ready. No correction transport has occurred. Run the dedicated corrected-report workflow in `validate_only` mode from current `main` to create the four byte-identical correction-package files, validate SHA-256 identity, and persist the prepared package. Do not select live execution until validate-only and dry-run evidence have succeeded.
+The corrected package is materialized and byte-identical to the approved repair-preview sources. GitHub Actions run `29268423307` completed the correction dry run successfully under runtime id `20260713_165614`. No outbound transport was attempted, no corrected report was sent, and receipt remains unconfirmed. The next step is one explicitly guarded corrected resend through the dedicated correction workflow. After successful SMTP transport, perform delayed independent receipt verification; do not resend automatically.
