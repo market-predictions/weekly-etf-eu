@@ -78,6 +78,7 @@ jobs:
       - name: Dry run
         if: env.CORR_MODE == 'dry_run'
         run: |
+          set -euo pipefail
           RESULT="output/delivery/etf_eu_corrected_transport_result_${CORR_RID}.json"
           python -m runtime.send_etf_eu_current_package_delivery --queue "$CORR_QUEUE" --mode dry_run --run-id "$CORR_RID" --output-dir output/delivery
           python tools/validate_etf_eu_corrected_transport_result.py --result "$RESULT" --package "$CORR_PACKAGE" --expected-mode dry_run
@@ -115,6 +116,7 @@ jobs:
           MRKT_RPRTS_MAIL_TO_NL: ${{ secrets.MRKT_RPRTS_MAIL_TO_NL }}
           MRKT_RPRTS_SUBJECT_PREFIX_NL: ${{ vars.MRKT_RPRTS_SUBJECT_PREFIX_NL }}
         run: |
+          set -euo pipefail
           RESULT="output/delivery/etf_eu_corrected_transport_result_${CORR_RID}.json"
           python -m runtime.send_etf_eu_current_package_delivery --queue "$CORR_QUEUE" --mode send --run-id "$CORR_RID" --output-dir output/delivery
           python tools/validate_etf_eu_corrected_transport_result.py --result "$RESULT" --package "$CORR_PACKAGE" --expected-mode send
@@ -128,9 +130,27 @@ jobs:
             --status corrected_resend_transport_succeeded \
             --result "$RESULT"
 
+      - name: Record corrected transport failure
+        if: failure() && env.CORR_MODE == 'send'
+        run: |
+          set -euo pipefail
+          RESULT="output/delivery/etf_eu_corrected_transport_result_${CORR_RID}.json"
+          if [ -f "$RESULT" ]; then
+            python tools/write_etf_eu_corrected_resend_manifest.py \
+              --path "$CORR_MANIFEST" \
+              --correction-control-id 20260713_000000 \
+              --source-run-id 20260712_125000 \
+              --repair-run-id 20260712_200000 \
+              --report-date 2026-07-12 \
+              --report-suffix 260712 \
+              --status corrected_resend_transport_failed \
+              --result "$RESULT"
+          fi
+
       - name: Persist artifacts
         if: always()
         run: |
+          set -euo pipefail
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           for p in \
