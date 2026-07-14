@@ -13,9 +13,9 @@ PREPARATION_SCHEMA = "etf_eu_corrected_resend_preparation_v1"
 RUN_MANIFEST_SCHEMA = "etf_eu_corrected_resend_manifest_v1"
 SOURCE_RUNTIME_RUN_ID = "20260712_182002"
 UPSTREAM_PATTERN = (
-    "weekly-etf explicit report-path delivery, pre-send rendered-output validation, "
-    "redacted recipient manifest, transport-versus-receipt separation and final "
-    "run-manifest closeout; adapted for the approved EU correction package"
+    "weekly-etf explicit report-path delivery, deterministic client-surface sanitization, "
+    "pre-send rendered-output validation, redacted recipient manifest, transport-versus-receipt "
+    "separation and final run-manifest closeout; adapted for the approved EU correction package"
 )
 
 
@@ -70,10 +70,14 @@ def prepare(
     report_suffix: str,
     output_dir: Path,
 ) -> dict[str, Any]:
-    combined_path = Path("output/quality") / f"etf_eu_routine_pdf_client_grade_{repair_run_id}.json"
-    nl_path = Path("output/quality") / f"etf_eu_routine_pdf_client_grade_{repair_run_id}_nl.json"
-    en_path = Path("output/quality") / f"etf_eu_routine_pdf_client_grade_{repair_run_id}_en.json"
-    visual_path = Path("output/quality") / f"etf_eu_routine_pdf_visual_review_{repair_run_id}.json"
+    quality = Path("output/quality")
+    combined_path = quality / f"etf_eu_routine_pdf_client_grade_{repair_run_id}.json"
+    nl_path = quality / f"etf_eu_routine_pdf_client_grade_{repair_run_id}_nl.json"
+    en_path = quality / f"etf_eu_routine_pdf_client_grade_{repair_run_id}_en.json"
+    visual_path = quality / f"etf_eu_routine_pdf_visual_review_{repair_run_id}.json"
+    clean_nl_path = quality / f"etf_eu_client_surface_clean_{repair_run_id}_nl.json"
+    clean_en_path = quality / f"etf_eu_client_surface_clean_{repair_run_id}_en.json"
+    separation_path = quality / f"etf_eu_client_surface_authority_separation_{repair_run_id}.json"
     original_result_path = Path("output/delivery") / f"etf_eu_current_package_transport_result_{SOURCE_RUNTIME_RUN_ID}.json"
     original_evidence_path = Path("output/delivery") / f"etf_eu_current_package_delivery_evidence_{SOURCE_RUNTIME_RUN_ID}.json"
 
@@ -81,6 +85,9 @@ def prepare(
     nl = _load_json(nl_path)
     en = _load_json(en_path)
     visual = _load_json(visual_path)
+    clean_nl = _load_json(clean_nl_path)
+    clean_en = _load_json(clean_en_path)
+    separation = _load_json(separation_path)
     original_result = _load_json(original_result_path)
     _load_json(original_evidence_path)
 
@@ -89,13 +96,20 @@ def prepare(
     _require(combined.get("dutch_pdf_client_grade_passed") is True, "Dutch combined machine gate did not pass")
     _require(combined.get("english_pdf_client_grade_passed") is True, "English combined machine gate did not pass")
     _require(combined.get("pdf_client_grade_passed") is True, "combined machine gate did not pass")
+    _require(combined.get("client_surface_clean") is True, "combined client-surface gate did not pass")
+    _require(combined.get("authority_metadata_absent") is True, "combined authority-metadata gate did not pass")
+    _require(combined.get("raw_status_enums_absent") is True, "combined raw-enum gate did not pass")
     _require(not combined.get("blockers"), "combined machine gate contains blockers")
     _require(nl.get("machine_validation_passed") is True, "Dutch machine validation did not pass")
     _require(en.get("machine_validation_passed") is True, "English machine validation did not pass")
+    _require(clean_nl.get("client_surface_clean") is True, "Dutch client surface is not clean")
+    _require(clean_en.get("client_surface_clean") is True, "English client surface is not clean")
     _require(visual.get("source_run_id") == source_run_id, "visual review source_run_id mismatch")
-    _require(visual.get("repair_run_id") == repair_run_id, "visual review repair_run_id mismatch")
+    _require(visual.get("repair_run_id") == repair_run_id or visual.get("sanitization_run_id") == repair_run_id, "visual review repair identity mismatch")
     _require(visual.get("visual_review_passed") is True, "visual review did not pass")
     _require(not visual.get("blockers"), "visual review contains blockers")
+    _require(separation.get("separation_gate_passed") is True, "authority separation did not pass")
+    _require(not separation.get("blockers"), "authority separation contains blockers")
     _require(original_result.get("transport_success") is True, "original transport success evidence missing")
     _require(original_result.get("report_date") == report_date, "original report date mismatch")
     _require(str(original_result.get("report_suffix")) == report_suffix, "original report suffix mismatch")
@@ -123,6 +137,7 @@ def prepare(
         _require(source_bytes[label] == delivery_bytes[label], f"byte size identity failed for {label}")
 
     generated_at = _utc_now()
+    manifest_path = Path("output/delivery_control") / f"etf_eu_corrected_resend_package_{correction_control_id}.json"
     package: dict[str, Any] = {
         "schema_version": PACKAGE_SCHEMA,
         "artifact_type": "etf_eu_corrected_resend_package",
@@ -136,18 +151,23 @@ def prepare(
         "source_of_truth_repo": "market-predictions/weekly-etf-eu",
         "reference_architecture_repo": "market-predictions/weekly-etf",
         "upstream_pattern_adapted": UPSTREAM_PATTERN,
-        "correction_reason": "The original transport succeeded, but its plain-text PDF attachments were materially incomplete.",
+        "correction_reason": "The original transport succeeded, but its original PDFs and first corrected client surface were not suitable for delivery.",
         "original_transport_result": str(original_result_path),
         "original_delivery_evidence": str(original_evidence_path),
         "original_client_output_valid": False,
         "combined_machine_gate_artifact": str(combined_path),
         "dutch_machine_gate_artifact": str(nl_path),
         "english_machine_gate_artifact": str(en_path),
+        "dutch_client_surface_artifact": str(clean_nl_path),
+        "english_client_surface_artifact": str(clean_en_path),
         "visual_review_artifact": str(visual_path),
+        "authority_separation_artifact": str(separation_path),
         "dutch_machine_gate_passed": True,
         "english_machine_gate_passed": True,
         "combined_machine_gate_passed": True,
         "visual_review_passed": True,
+        "client_surface_clean": True,
+        "authority_separation_gate_passed": True,
         "approved_source_files": {key: str(value) for key, value in sources.items()},
         "corrected_delivery_files": {key: str(value) for key, value in deliveries.items()},
         "source_sha256": source_sha,
@@ -169,7 +189,6 @@ def prepare(
         "blockers": [],
         "warnings": [],
     }
-    manifest_path = Path("output/delivery_control") / f"etf_eu_corrected_resend_package_{correction_control_id}.json"
     manifest_path.parent.mkdir(parents=True, exist_ok=True)
     manifest_path.write_text(json.dumps(package, indent=2, sort_keys=True) + "\n", encoding="utf-8")
 
@@ -183,6 +202,8 @@ def prepare(
         "report_date": report_date,
         "report_suffix": report_suffix,
         "corrected_package_manifest": str(manifest_path),
+        "client_surface_clean": True,
+        "authority_separation_gate_passed": True,
         "corrected_resend_prepared": True,
         "corrected_resend_executed": False,
         "transport_attempted": False,
@@ -211,6 +232,8 @@ def prepare(
         "corrected_package_manifest": str(manifest_path),
         "corrected_queue": f"control/run_queue/etf_eu_corrected_resend_request_{correction_control_id}.md",
         "corrected_client_output_valid": True,
+        "client_surface_clean": True,
+        "authority_separation_gate_passed": True,
         "corrected_resend_executed": False,
         "transport_attempted": False,
         "transport_success": False,
@@ -221,10 +244,7 @@ def prepare(
     run_manifest_path.parent.mkdir(parents=True, exist_ok=True)
     run_manifest_path.write_text(json.dumps(run_manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8")
 
-    print(
-        "ETF_EU_CORRECTED_RESEND_PACKAGE_OK | "
-        f"control_id={correction_control_id} | manifest={manifest_path} | files={len(deliveries)}"
-    )
+    print(f"ETF_EU_CORRECTED_RESEND_PACKAGE_OK | control_id={correction_control_id} | manifest={manifest_path} | files={len(deliveries)}")
     return package
 
 
