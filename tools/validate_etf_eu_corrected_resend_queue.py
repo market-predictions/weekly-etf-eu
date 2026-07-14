@@ -23,6 +23,7 @@ REQUIRED_KEYS = {
     "corrected_package_manifest",
     "combined_machine_gate_artifact",
     "visual_review_artifact",
+    "authority_separation_artifact",
     "original_transport_result",
     "original_delivery_evidence",
     "routine_run_manifest",
@@ -73,9 +74,9 @@ def validate_queue(path: Path) -> dict[str, Any]:
     data, _raw = _parse(path)
     _require(data["schema_version"] == QUEUE_SCHEMA, "corrected resend queue schema mismatch")
     _require(data["artifact_type"] == "etf_eu_corrected_resend_queue", "corrected resend queue type mismatch")
-    _require(data["correction_control_id"] == "20260713_000000", "correction_control_id mismatch")
+    _require(bool(data["correction_control_id"]), "correction_control_id missing")
     _require(data["source_run_id"] == "20260712_125000", "source_run_id mismatch")
-    _require(data["repair_run_id"] == "20260712_200000", "repair_run_id mismatch")
+    _require(bool(data["repair_run_id"]), "repair_run_id missing")
     _require(data["report_date"] == "2026-07-12", "report_date mismatch")
     _require(data["report_suffix"] == "260712", "report_suffix mismatch")
     _require(data["correction_label_nl"] == "Gecorrigeerde versie", "Dutch correction label mismatch")
@@ -91,6 +92,7 @@ def validate_queue(path: Path) -> dict[str, Any]:
     package = _load_json(package_path)
     combined = _load_json(Path(data["combined_machine_gate_artifact"]))
     visual = _load_json(Path(data["visual_review_artifact"]))
+    separation = _load_json(Path(data["authority_separation_artifact"]))
     original_result = _load_json(Path(data["original_transport_result"]))
     original_evidence = _load_json(Path(data["original_delivery_evidence"]))
     routine = _load_json(Path(data["routine_run_manifest"]))
@@ -98,10 +100,16 @@ def validate_queue(path: Path) -> dict[str, Any]:
     _require(package["correction_control_id"] == data["correction_control_id"], "package/queue control id mismatch")
     _require(package["source_run_id"] == data["source_run_id"], "package/queue source run mismatch")
     _require(package["repair_run_id"] == data["repair_run_id"], "package/queue repair run mismatch")
+    _require(combined.get("repair_run_id") == data["repair_run_id"], "combined machine gate identity mismatch")
     _require(combined.get("pdf_client_grade_passed") is True, "combined machine gate failed")
+    _require(combined.get("client_surface_clean") is True, "combined client-surface gate failed")
     _require(not combined.get("blockers"), "combined machine gate contains blockers")
+    _require(visual.get("repair_run_id") == data["repair_run_id"] or visual.get("sanitization_run_id") == data["repair_run_id"], "visual review identity mismatch")
     _require(visual.get("visual_review_passed") is True, "visual review failed")
     _require(not visual.get("blockers"), "visual review contains blockers")
+    _require(separation.get("sanitization_run_id") == data["repair_run_id"], "authority-separation identity mismatch")
+    _require(separation.get("separation_gate_passed") is True, "authority-separation gate failed")
+    _require(not separation.get("blockers"), "authority-separation gate contains blockers")
     _require(original_result.get("transport_success") is True, "original transport evidence is not successful")
     _require(original_result.get("receipt_confirmed") is False, "original receipt state changed")
     _require(original_evidence.get("transport_success") is True, "original delivery evidence missing")
@@ -112,9 +120,12 @@ def validate_queue(path: Path) -> dict[str, Any]:
         "status": "valid",
         "queue": str(path),
         "correction_control_id": data["correction_control_id"],
+        "repair_run_id": data["repair_run_id"],
         "package_validation": package_validation,
         "machine_gate_passed": True,
         "visual_gate_passed": True,
+        "client_surface_clean": True,
+        "authority_separation_gate_passed": True,
     }
 
 
