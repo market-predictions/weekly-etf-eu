@@ -8,7 +8,6 @@ import pytest
 from runtime.render_etf_eu_client_report import render_report
 from tools.validate_etf_eu_routine_pdf_client_grade_v2 import validate_pdf
 
-
 ROOT = Path(__file__).resolve().parents[1]
 POPPLER_AVAILABLE = all(shutil.which(name) for name in ("pdfinfo", "pdftotext", "pdftoppm"))
 
@@ -23,11 +22,11 @@ def _fixture_markdown(language: str) -> str:
             "5. Lane-oordeel",
             "6. Risico- en kwaliteitsgrenzen",
             "7. Volgende routineactie",
-            "8. Authority flags",
         ]
         title = "# Weekly ETF EU Review | Nederlands | 2026-07-12"
-        intro = "Geen funding vóór volledige verificatie; de portefeuille blijft cash."
-        pricing_header = "| Trading line | ISIN | Markt | Slot | Valuta | Status |"
+        intro = "Geen inzet van kapitaal vóór volledige verificatie; de portefeuille blijft cash."
+        pricing_header = "| Handelslijn | ISIN | Markt | Slot | Valuta | Status |"
+        status = "Handelslijn nog te verifiëren"
     else:
         titles = [
             "1. Decision at a glance",
@@ -37,11 +36,11 @@ def _fixture_markdown(language: str) -> str:
             "5. Lane assessment",
             "6. Risk and quality boundaries",
             "7. Next routine action",
-            "8. Authority flags",
         ]
         title = "# Weekly ETF EU Review | English Companion | 2026-07-12"
-        intro = "No funding before full verification; the portfolio remains in cash."
+        intro = "No capital allocation before full verification; the portfolio remains in cash."
         pricing_header = "| Trading line | ISIN | Market | Close | Currency | Status |"
+        status = "Trading line requires verification"
 
     lines = [title, "", f"> **Review.** {intro}", ""]
     for idx, section in enumerate(titles, start=1):
@@ -59,22 +58,9 @@ def _fixture_markdown(language: str) -> str:
             for number in range(10):
                 lines.append(
                     f"| ETF{number} · Xetra | IE00B5BMR0{number:02d} | 2026-07-10 | "
-                    f"{100 + number}.00 | EUR | candidate_requires_verification |"
+                    f"{100 + number}.00 | EUR | {status} |"
                 )
             lines.append("")
-        elif idx == 8:
-            lines += [
-                "```text",
-                "ready_for_controlled_delivery=false",
-                "send_executed=false",
-                "transport_attempted=false",
-                "receipt_confirmed=false",
-                "valuation_grade=false",
-                "funding_authority=false",
-                "portfolio_mutation=false",
-                "production_delivery_authority=false",
-                "```",
-            ]
         else:
             lines += [f"- {intro}" for _ in range(7)]
             lines.append("")
@@ -107,6 +93,9 @@ def test_routine_builder_does_not_use_plain_text_pdf() -> None:
     assert "_simple_pdf" not in source
     assert "latin-1" not in source.lower()
     assert "render_etf_eu_client_report" in source
+    assert "## 8. Authority flags" not in source
+    assert "verified_ucits_trading_line" in source
+    assert "UCITS-handelslijn geverifieerd" in source
 
 
 def test_renderer_uses_semantic_html_and_weasyprint() -> None:
@@ -126,6 +115,10 @@ def test_multi_page_client_report_passes(tmp_path: Path, language: str) -> None:
     assert result["table_rendering_passed"] is True
     assert result["markdown_leakage_detected"] is False
     assert result["duplicate_title_detected"] is False
+    assert result["client_surface_clean"] is True
+    assert result["authority_metadata_absent"] is True
+    assert result["raw_status_enums_absent"] is True
+    assert result["final_required_section_present_near_end"] is True
 
 
 def test_readiness_requires_machine_and_visual_gates() -> None:
@@ -146,7 +139,7 @@ def test_normal_workflow_blocks_delivery_before_visual_approval() -> None:
 
 
 def test_repair_workflow_has_no_transport_or_mail_secrets() -> None:
-    workflow = (ROOT / ".github/workflows/repair-weekly-etf-eu-routine-pdf.yml").read_text(encoding="utf-8")
+    workflow = (ROOT / ".github/workflows/repair-weekly-etf-eu-client-surface.yml").read_text(encoding="utf-8")
     forbidden = [
         "MRKT_RPRTS_SMTP_HOST",
         "MRKT_RPRTS_SMTP_PASS",
@@ -160,9 +153,9 @@ def test_repair_workflow_has_no_transport_or_mail_secrets() -> None:
 
 
 def test_visual_review_template_remains_pending_until_inspected() -> None:
-    workflow = (ROOT / ".github/workflows/repair-weekly-etf-eu-routine-pdf.yml").read_text(encoding="utf-8")
-    assert '"visual_review_passed": False' in workflow
-    assert "manual visual inspection required before corrected resend" in workflow
+    writer = (ROOT / "tools/write_etf_eu_visual_review_pending.py").read_text(encoding="utf-8")
+    assert '"visual_review_passed": False' in writer
+    assert "manual visual inspection required" in writer
 
 
 @pytest.mark.skipif(not POPPLER_AVAILABLE, reason="Poppler unavailable")
@@ -175,21 +168,8 @@ def test_single_page_truncated_output_fails(tmp_path: Path) -> None:
         "## 1. Decision at a glance\n\nOnly the first section is present.\n",
         encoding="utf-8",
     )
-    render_report(
-        markdown_path=markdown,
-        html_output=html,
-        pdf_output=pdf,
-        language="en",
-        title="Weekly ETF EU Review | English Companion | 2026-07-12",
-    )
-    result = validate_pdf(
-        pdf=pdf,
-        html=html,
-        markdown=markdown,
-        language="en",
-        repair_run_id="truncated",
-        source_run_id="truncated",
-    )
+    render_report(markdown_path=markdown, html_output=html, pdf_output=pdf, language="en", title="Weekly ETF EU Review | English Companion | 2026-07-12")
+    result = validate_pdf(pdf=pdf, html=html, markdown=markdown, language="en", repair_run_id="truncated", source_run_id="truncated")
     assert result["machine_validation_passed"] is False
     assert result["page_count"] == 1
     assert result["required_sections_present"] is False
@@ -202,25 +182,11 @@ def test_duplicate_visible_title_fails(tmp_path: Path) -> None:
     pdf = tmp_path / "duplicate.pdf"
     source = _fixture_markdown("en").replace(
         "# Weekly ETF EU Review | English Companion | 2026-07-12",
-        "# Weekly ETF EU Review | English Companion | 2026-07-12\n\n"
-        "Weekly ETF EU Review | English Companion | 2026-07-12",
+        "# Weekly ETF EU Review | English Companion | 2026-07-12\n\nWeekly ETF EU Review | English Companion | 2026-07-12",
         1,
     )
     markdown.write_text(source, encoding="utf-8")
-    render_report(
-        markdown_path=markdown,
-        html_output=html,
-        pdf_output=pdf,
-        language="en",
-        title="Weekly ETF EU Review | English Companion | 2026-07-12",
-    )
-    result = validate_pdf(
-        pdf=pdf,
-        html=html,
-        markdown=markdown,
-        language="en",
-        repair_run_id="duplicate",
-        source_run_id="duplicate",
-    )
+    render_report(markdown_path=markdown, html_output=html, pdf_output=pdf, language="en", title="Weekly ETF EU Review | English Companion | 2026-07-12")
+    result = validate_pdf(pdf=pdf, html=html, markdown=markdown, language="en", repair_run_id="duplicate", source_run_id="duplicate")
     assert result["machine_validation_passed"] is False
     assert result["duplicate_title_detected"] is True
