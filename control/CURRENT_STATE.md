@@ -2,7 +2,7 @@
 
 ## Snapshot date
 
-2026-07-13
+2026-07-14
 
 ## Repository identity
 
@@ -58,20 +58,25 @@ authority_separation_validator_created=true
 client_surface_preview_workflow_created=true
 corrected_resend_workflow_generalized=true
 new_queue_created=true
-sanitized_preview_generated=false
-client_surface_sanitization_passed=false
-client_surface_clean=false
-authority_separation_gate_passed=false
-pdf_machine_gate_passed=false
+sanitized_preview_generated=true
+sanitized_preview_commit=f0d07ac7ec2ede1825cc868f162b45d7060ad7b6
+client_surface_sanitization_passed=true
+client_surface_clean=true
+authority_separation_gate_passed=true
+pdf_machine_gate_passed=true
 pdf_visual_gate_passed=false
+visual_review_pending=true
+dutch_pdf_page_count=3
+english_pdf_page_count=3
+pricing_line_count_detected=11
 new_corrected_package_prepared=false
 new_corrected_package_byte_identity_passed=false
 new_dry_run_completed=false
 correction_transport_attempted=false
 corrected_resend_executed=false
 receipt_confirmed=false
-status=fix2a_implementation_ready_awaiting_client_surface_preview
-selected_next_action=RUN_CLIENT_SURFACE_REPAIR_PREVIEW
+status=sanitized_preview_passed_machine_gates_awaiting_visual_review
+selected_next_action=COMPLETE_SANITIZED_PDF_VISUAL_REVIEW
 ```
 
 ## Active FIX2A artifacts
@@ -83,6 +88,11 @@ sanitizer=runtime/scrub_etf_eu_client_surface.py
 client_surface_validator=tools/validate_etf_eu_client_surface_clean.py
 authority_separation_validator=tools/validate_etf_eu_client_surface_authority_separation.py
 preview_workflow=.github/workflows/repair-weekly-etf-eu-client-surface.yml
+sanitized_dutch_pdf=output/repair_preview/20260713_180000/weekly_etf_eu_review_nl_260712.pdf
+sanitized_english_pdf=output/repair_preview/20260713_180000/weekly_etf_eu_review_260712.pdf
+combined_machine_gate=output/quality/etf_eu_routine_pdf_client_grade_20260713_180000.json
+visual_review=output/quality/etf_eu_routine_pdf_visual_review_20260713_180000.json
+authority_separation=output/quality/etf_eu_client_surface_authority_separation_20260713_180000.json
 new_queue=control/run_queue/etf_eu_corrected_resend_request_20260713_180000.md
 new_package_manifest=output/delivery_control/etf_eu_corrected_resend_package_20260713_180000.json
 ```
@@ -107,4 +117,4 @@ weekly_etf_upstream_donor_only=true
 
 ## Current note
 
-The previous corrected package passed structural PDF review and dry-run transport simulation, but the uploaded client PDF exposed raw verification enums and internal authority/transport metadata. That package is now superseded and cannot be used for live send. FIX2A has implemented native client-safe language, deterministic sanitization, forbidden-token validation, section 1-7 PDF validation, authority-evidence separation and a preview-only workflow. No correction transport or receipt check occurred. Run the dedicated client-surface repair preview from current `main` before any new package or resend action.
+The dedicated client-surface repair workflow succeeded and persisted commit `f0d07ac7ec2ede1825cc868f162b45d7060ad7b6`. Dutch and English sanitization, forbidden-token validation, semantic PDF machine validation and authority-evidence separation passed with no blockers. Both PDFs contain three pages and 11 represented pricing lines. The visual-review artifact remains deliberately pending until the rendered first, middle and last pages of both languages are actually inspected. No new correction package has been built, no transport occurred and no receipt check occurred.
