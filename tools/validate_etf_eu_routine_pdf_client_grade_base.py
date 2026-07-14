@@ -13,18 +13,7 @@ from typing import Any
 
 import mistune
 
-
 MARKDOWN = mistune.create_markdown(plugins=["table"], escape=True)
-AUTHORITY_FLAGS = [
-    "ready_for_controlled_delivery=false",
-    "send_executed=false",
-    "transport_attempted=false",
-    "receipt_confirmed=false",
-    "valuation_grade=false",
-    "funding_authority=false",
-    "portfolio_mutation=false",
-    "production_delivery_authority=false",
-]
 SECTIONS = {
     "nl": [
         "1. Besluit in één oogopslag",
@@ -34,7 +23,6 @@ SECTIONS = {
         "5. Lane-oordeel",
         "6. Risico- en kwaliteitsgrenzen",
         "7. Volgende routineactie",
-        "8. Authority flags",
     ],
     "en": [
         "1. Decision at a glance",
@@ -44,7 +32,6 @@ SECTIONS = {
         "5. Lane assessment",
         "6. Risk and quality boundaries",
         "7. Next routine action",
-        "8. Authority flags",
     ],
 }
 LANGUAGE_TOKENS = {
@@ -52,10 +39,35 @@ LANGUAGE_TOKENS = {
     "en": ["Weekly ETF EU Review", "English Companion", "Decision at a glance", "Portfolio and capital"],
 }
 TABLE_HEADERS = {
-    "nl": ["Trading line", "ISIN", "Markt", "Slot", "Valuta", "Status"],
+    "nl": ["Handelslijn", "ISIN", "Markt", "Slot", "Valuta", "Status"],
     "en": ["Trading line", "ISIN", "Market", "Close", "Currency", "Status"],
 }
 MARKDOWN_LEAKAGE_TOKENS = ["|---|", "**", "```"]
+FORBIDDEN_CLIENT_TOKENS = [
+    "candidate_requires_verification",
+    "verified_ucits_trading_line",
+    "priced_non_authoritative",
+    "fetch_failed",
+    "valuation_grade=",
+    "ready_for_controlled_delivery=",
+    "send_executed=",
+    "transport_attempted=",
+    "receipt_confirmed=",
+    "funding_authority=",
+    "portfolio_mutation=",
+    "production_delivery_authority=",
+    "8. Authority flags",
+    "Authority flags",
+]
+FORBIDDEN_NL = [
+    "research candidates",
+    "fundable",
+    "pricing-line",
+    "client-facing",
+    "candidate/research",
+    "Technologie/semiconductors",
+]
+SNAKE_CASE_RE = re.compile(r"\b[a-z]+(?:_[a-z0-9]+){1,}\b")
 
 
 def _utc_now() -> str:
@@ -123,12 +135,9 @@ def validate_pdf(
     blockers: list[str] = []
     warnings: list[str] = []
 
-    if not pdf.exists():
-        raise AssertionError(f"PDF does not exist: {pdf}")
-    if not html.exists():
-        raise AssertionError(f"HTML does not exist: {html}")
-    if not markdown.exists():
-        raise AssertionError(f"Markdown does not exist: {markdown}")
+    for path in (pdf, html, markdown):
+        if not path.exists():
+            raise AssertionError(f"Required client artifact does not exist: {path}")
 
     raw_pdf = pdf.read_bytes()
     raw_html = html.read_text(encoding="utf-8")
@@ -145,9 +154,9 @@ def validate_pdf(
 
     missing_sections = [section for section in SECTIONS[language] if not _contains(pdf_text, section)]
     required_sections_present = not missing_sections
-    section_8_token = SECTIONS[language][-1]
-    section_8_index = _normalized(pdf_text).find(_normalized(section_8_token))
-    section_8_present_near_end = section_8_index >= int(len(_normalized(pdf_text)) * 0.60)
+    final_section_token = SECTIONS[language][-1]
+    final_section_index = _normalized(pdf_text).find(_normalized(final_section_token))
+    final_required_section_present_near_end = final_section_index >= int(len(_normalized(pdf_text)) * 0.60)
 
     html_lower = raw_html.casefold()
     table_rendering_passed = (
@@ -158,10 +167,9 @@ def validate_pdf(
         and "class='table-row'" not in html_lower
     )
 
-    combined_visible = f"{pdf_text}\n{html_text}"
-    markdown_leakage = [token for token in MARKDOWN_LEAKAGE_TOKENS if token in combined_visible]
+    combined_visible = f"{raw_markdown}\n{html_text}\n{pdf_text}"
+    markdown_leakage = [token for token in MARKDOWN_LEAKAGE_TOKENS if token in f"{html_text}\n{pdf_text}"]
     markdown_leakage_detected = bool(markdown_leakage)
-
     expected_language_tokens = LANGUAGE_TOKENS[language]
     missing_language_tokens = [token for token in expected_language_tokens if not _contains(pdf_text, token)]
     unicode_integrity_passed = "\ufffd" not in combined_visible and not missing_language_tokens
@@ -169,9 +177,28 @@ def validate_pdf(
     title_line = next((line[2:].strip() for line in raw_markdown.splitlines() if line.startswith("# ")), "")
     title_count = _normalized(html_text).count(_normalized(title_line)) if title_line else 0
     duplicate_title_detected = title_count != 1
-
-    missing_authority_flags = [flag for flag in AUTHORITY_FLAGS if not _contains(pdf_text, flag)]
     missing_table_headers = [header for header in TABLE_HEADERS[language] if not _contains(pdf_text, header)]
+
+    forbidden = list(FORBIDDEN_CLIENT_TOKENS)
+    if language == "nl":
+        forbidden.extend(FORBIDDEN_NL)
+    forbidden_hits = sorted({token for token in forbidden if token.casefold() in combined_visible.casefold()})
+    snake_case_hits = sorted(set(SNAKE_CASE_RE.findall(combined_visible)))
+    authority_metadata_absent = not any(
+        token.casefold() in combined_visible.casefold()
+        for token in FORBIDDEN_CLIENT_TOKENS
+        if token.endswith("=") or "Authority flags" in token
+    )
+    raw_status_enums_absent = not any(
+        token.casefold() in combined_visible.casefold()
+        for token in (
+            "candidate_requires_verification",
+            "verified_ucits_trading_line",
+            "priced_non_authoritative",
+            "fetch_failed",
+        )
+    )
+    client_surface_clean = not forbidden_hits and not snake_case_hits and authority_metadata_absent and raw_status_enums_absent
 
     checks = [
         (pdf_header_valid, "PDF header is invalid"),
@@ -180,13 +207,15 @@ def validate_pdf(
         (text_extraction_passed, "PDF text extraction produced too little text"),
         (completeness_ratio >= 0.72, f"PDF text completeness ratio is too low: {completeness_ratio:.3f}"),
         (required_sections_present, "Missing required sections: " + ", ".join(missing_sections)),
-        (section_8_present_near_end, "Section 8 is absent from the final portion of the PDF"),
-        (not missing_authority_flags, "Missing authority flags: " + ", ".join(missing_authority_flags)),
+        (final_required_section_present_near_end, "Final required section is absent from the final portion of the PDF"),
         (not missing_table_headers, "Missing pricing-table headers: " + ", ".join(missing_table_headers)),
         (not markdown_leakage_detected, "Raw Markdown leakage detected: " + ", ".join(markdown_leakage)),
         (unicode_integrity_passed, "Unicode/language tokens missing or corrupted: " + ", ".join(missing_language_tokens)),
         (table_rendering_passed, "Semantic HTML table structure is missing or legacy table-row divs remain"),
         (not duplicate_title_detected, f"Visible report title must occur exactly once, found {title_count}"),
+        (client_surface_clean, "Client-surface leakage detected: " + ", ".join(forbidden_hits + snake_case_hits)),
+        (authority_metadata_absent, "Authority or transport metadata is visible on the client surface"),
+        (raw_status_enums_absent, "Raw status enums remain visible on the client surface"),
     ]
     for passed, message in checks:
         if not passed:
@@ -194,7 +223,7 @@ def validate_pdf(
 
     machine_validation_passed = not blockers
     return {
-        "schema_version": "etf_eu_routine_pdf_client_grade_base_v1",
+        "schema_version": "etf_eu_routine_pdf_client_grade_base_v2",
         "artifact_type": "etf_eu_routine_pdf_client_grade",
         "generated_at_utc": _utc_now(),
         "repair_run_id": repair_run_id,
@@ -210,7 +239,7 @@ def validate_pdf(
         "text_completeness_ratio": round(completeness_ratio, 4),
         "required_sections_present": required_sections_present,
         "missing_sections": missing_sections,
-        "section_8_present_near_end": section_8_present_near_end,
+        "final_required_section_present_near_end": final_required_section_present_near_end,
         "table_rendering_passed": table_rendering_passed,
         "markdown_leakage_detected": markdown_leakage_detected,
         "markdown_leakage_tokens": markdown_leakage,
@@ -218,6 +247,11 @@ def validate_pdf(
         "missing_language_tokens": missing_language_tokens,
         "duplicate_title_detected": duplicate_title_detected,
         "visible_title_count": title_count,
+        "client_surface_clean": client_surface_clean,
+        "authority_metadata_absent": authority_metadata_absent,
+        "raw_status_enums_absent": raw_status_enums_absent,
+        "forbidden_client_tokens": forbidden_hits,
+        "snake_case_tokens": snake_case_hits,
         "machine_validation_passed": machine_validation_passed,
         "blockers": blockers,
         "warnings": warnings,
