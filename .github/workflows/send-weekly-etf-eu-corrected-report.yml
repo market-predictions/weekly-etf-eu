@@ -8,9 +8,15 @@ on:
         default: validate_only
         type: choice
         options: [validate_only, dry_run, send]
+      correction_control_id:
+        required: true
+        default: "20260713_180000"
+      repair_run_id:
+        required: true
+        default: "20260713_180000"
       queue_path:
         required: true
-        default: control/run_queue/etf_eu_corrected_resend_request_20260713_000000.md
+        default: control/run_queue/etf_eu_corrected_resend_request_20260713_180000.md
       send_confirmation:
         required: true
         default: not_confirmed
@@ -31,9 +37,11 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Resolve mode
+      - name: Resolve mode and correction identity
         env:
           MODE: ${{ inputs.delivery_mode }}
+          CONTROL_ID: ${{ inputs.correction_control_id }}
+          REPAIR_ID: ${{ inputs.repair_run_id }}
           QUEUE: ${{ inputs.queue_path }}
           CONFIRMATION: ${{ inputs.send_confirmation }}
         run: |
@@ -41,36 +49,41 @@ jobs:
           case "$MODE" in validate_only|dry_run|send) ;; *) exit 1 ;; esac
           if [ "$MODE" = send ] && [ "$CONFIRMATION" != confirm_corrected_resend ]; then exit 1; fi
           if [ "$MODE" != send ] && [ "$CONFIRMATION" = confirm_corrected_resend ]; then exit 1; fi
+          test -n "$CONTROL_ID"
+          test -n "$REPAIR_ID"
           test -f "$QUEUE"
           RID="$(date -u +'%Y%m%d_%H%M%S')"
           echo "CORR_MODE=$MODE" >> "$GITHUB_ENV"
           echo "CORR_QUEUE=$QUEUE" >> "$GITHUB_ENV"
           echo "CORR_RID=$RID" >> "$GITHUB_ENV"
-          echo "CORR_ID=20260713_000000" >> "$GITHUB_ENV"
-          echo "CORR_PACKAGE=output/delivery_control/etf_eu_corrected_resend_package_20260713_000000.json" >> "$GITHUB_ENV"
-          echo "CORR_MANIFEST=output/run_manifests/etf_eu_corrected_resend_manifest_20260713_000000.json" >> "$GITHUB_ENV"
+          echo "CORR_ID=$CONTROL_ID" >> "$GITHUB_ENV"
+          echo "CORR_REPAIR_ID=$REPAIR_ID" >> "$GITHUB_ENV"
+          echo "CORR_PACKAGE=output/delivery_control/etf_eu_corrected_resend_package_${CONTROL_ID}.json" >> "$GITHUB_ENV"
+          echo "CORR_MANIFEST=output/run_manifests/etf_eu_corrected_resend_manifest_${CONTROL_ID}.json" >> "$GITHUB_ENV"
+          echo "CORR_PACKAGE_DIR=output/corrected_delivery_package/${CONTROL_ID}" >> "$GITHUB_ENV"
 
       - name: Prepare and validate package
         run: |
           set -euo pipefail
           python tools/prepare_etf_eu_corrected_resend_package.py \
-            --correction-control-id 20260713_000000 \
+            --correction-control-id "$CORR_ID" \
             --source-run-id 20260712_125000 \
-            --repair-run-id 20260712_200000 \
+            --repair-run-id "$CORR_REPAIR_ID" \
             --report-date 2026-07-12 \
             --report-suffix 260712 \
-            --output-dir output/corrected_delivery_package/20260713_000000
+            --output-dir "$CORR_PACKAGE_DIR"
           python tools/validate_etf_eu_corrected_resend_package.py --package "$CORR_PACKAGE"
           python tools/validate_etf_eu_corrected_resend_queue.py --queue "$CORR_QUEUE"
 
       - name: Validate only
         if: env.CORR_MODE == 'validate_only'
         run: |
+          set -euo pipefail
           python tools/write_etf_eu_corrected_resend_manifest.py \
             --path "$CORR_MANIFEST" \
-            --correction-control-id 20260713_000000 \
+            --correction-control-id "$CORR_ID" \
             --source-run-id 20260712_125000 \
-            --repair-run-id 20260712_200000 \
+            --repair-run-id "$CORR_REPAIR_ID" \
             --report-date 2026-07-12 \
             --report-suffix 260712 \
             --status corrected_resend_validate_only_completed
@@ -84,9 +97,9 @@ jobs:
           python tools/validate_etf_eu_corrected_transport_result.py --result "$RESULT" --package "$CORR_PACKAGE" --expected-mode dry_run
           python tools/write_etf_eu_corrected_resend_manifest.py \
             --path "$CORR_MANIFEST" \
-            --correction-control-id 20260713_000000 \
+            --correction-control-id "$CORR_ID" \
             --source-run-id 20260712_125000 \
-            --repair-run-id 20260712_200000 \
+            --repair-run-id "$CORR_REPAIR_ID" \
             --report-date 2026-07-12 \
             --report-suffix 260712 \
             --status corrected_resend_dry_run_completed \
@@ -95,11 +108,12 @@ jobs:
       - name: Authorize send
         if: env.CORR_MODE == 'send'
         run: |
+          set -euo pipefail
           AUTH="output/delivery_authorization/etf_eu_corrected_resend_authorization_${CORR_RID}.json"
           python tools/write_etf_eu_corrected_resend_authorization.py \
             --output "$AUTH" \
             --runtime-run-id "$CORR_RID" \
-            --correction-control-id 20260713_000000 \
+            --correction-control-id "$CORR_ID" \
             --github-run-id "${{ github.run_id }}" \
             --github-commit-sha "${{ github.sha }}"
           echo "ETF_EU_CORRECTED_AUTHORIZATION_ARTIFACT=$AUTH" >> "$GITHUB_ENV"
@@ -122,9 +136,9 @@ jobs:
           python tools/validate_etf_eu_corrected_transport_result.py --result "$RESULT" --package "$CORR_PACKAGE" --expected-mode send
           python tools/write_etf_eu_corrected_resend_manifest.py \
             --path "$CORR_MANIFEST" \
-            --correction-control-id 20260713_000000 \
+            --correction-control-id "$CORR_ID" \
             --source-run-id 20260712_125000 \
-            --repair-run-id 20260712_200000 \
+            --repair-run-id "$CORR_REPAIR_ID" \
             --report-date 2026-07-12 \
             --report-suffix 260712 \
             --status corrected_resend_transport_succeeded \
@@ -138,9 +152,9 @@ jobs:
           if [ -f "$RESULT" ]; then
             python tools/write_etf_eu_corrected_resend_manifest.py \
               --path "$CORR_MANIFEST" \
-              --correction-control-id 20260713_000000 \
+              --correction-control-id "$CORR_ID" \
               --source-run-id 20260712_125000 \
-              --repair-run-id 20260712_200000 \
+              --repair-run-id "$CORR_REPAIR_ID" \
               --report-date 2026-07-12 \
               --report-suffix 260712 \
               --status corrected_resend_transport_failed \
@@ -153,16 +167,16 @@ jobs:
           set -euo pipefail
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          for p in \
-            "output/corrected_delivery_package/${CORR_ID}" \
-            "output/delivery_control/etf_eu_corrected_resend_package_${CORR_ID}.json" \
+          for path in \
+            "$CORR_PACKAGE_DIR" \
+            "$CORR_PACKAGE" \
             "output/delivery_authorization/etf_eu_corrected_resend_preparation_${CORR_ID}.json" \
-            "output/run_manifests/etf_eu_corrected_resend_manifest_${CORR_ID}.json" \
+            "$CORR_MANIFEST" \
             "output/delivery_authorization/etf_eu_corrected_resend_authorization_${CORR_RID}.json" \
             "output/delivery/etf_eu_corrected_transport_result_${CORR_RID}.json" \
             "output/delivery/etf_eu_corrected_delivery_evidence_${CORR_RID}.json"
           do
-            [ ! -e "$p" ] || git add -f "$p"
+            [ ! -e "$path" ] || git add -f "$path"
           done
           git diff --cached --quiet && exit 0
           git commit -m "Persist ETF EU correction artifacts ${CORR_RID} [skip ci]"
