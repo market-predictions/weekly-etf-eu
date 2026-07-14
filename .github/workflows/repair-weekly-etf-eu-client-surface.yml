@@ -1,0 +1,226 @@
+name: Weekly ETF EU client-surface repair preview
+
+on:
+  workflow_dispatch:
+    inputs:
+      source_run_id:
+        required: true
+        default: "20260712_125000"
+      sanitization_run_id:
+        required: true
+        default: "20260713_180000"
+      report_suffix:
+        required: true
+        default: "260712"
+
+permissions:
+  contents: write
+
+jobs:
+  client-surface-preview:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install rendering and PDF dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libcairo2 \
+            libpango-1.0-0 \
+            libgdk-pixbuf-2.0-0 \
+            libffi-dev \
+            shared-mime-info \
+            fonts-liberation \
+            fonts-dejavu-core \
+            fonts-lato \
+            poppler-utils
+          python -m pip install --upgrade pip
+          pip install mistune weasyprint pyyaml
+
+      - name: Sanitize Dutch and English client Markdown
+        env:
+          SOURCE_RUN_ID: ${{ inputs.source_run_id }}
+          SANITIZATION_RUN_ID: ${{ inputs.sanitization_run_id }}
+          REPORT_SUFFIX: ${{ inputs.report_suffix }}
+        run: |
+          set -euo pipefail
+          PREVIEW_DIR="output/repair_preview/${SANITIZATION_RUN_ID}"
+          mkdir -p "$PREVIEW_DIR" output/quality
+          python -m runtime.scrub_etf_eu_client_surface \
+            --input "output/fresh_generation/weekly_etf_eu_review_nl_${REPORT_SUFFIX}.md" \
+            --output "${PREVIEW_DIR}/weekly_etf_eu_review_nl_${REPORT_SUFFIX}.md" \
+            --language nl \
+            --source-run-id "$SOURCE_RUN_ID" \
+            --sanitization-run-id "$SANITIZATION_RUN_ID" \
+            --write-result "output/quality/etf_eu_client_surface_sanitization_${SANITIZATION_RUN_ID}_nl.json"
+          python -m runtime.scrub_etf_eu_client_surface \
+            --input "output/fresh_generation/weekly_etf_eu_review_${REPORT_SUFFIX}.md" \
+            --output "${PREVIEW_DIR}/weekly_etf_eu_review_${REPORT_SUFFIX}.md" \
+            --language en \
+            --source-run-id "$SOURCE_RUN_ID" \
+            --sanitization-run-id "$SANITIZATION_RUN_ID" \
+            --write-result "output/quality/etf_eu_client_surface_sanitization_${SANITIZATION_RUN_ID}_en.json"
+          python tools/validate_etf_eu_client_surface_clean.py \
+            --markdown "${PREVIEW_DIR}/weekly_etf_eu_review_nl_${REPORT_SUFFIX}.md" \
+            --language nl
+          python tools/validate_etf_eu_client_surface_clean.py \
+            --markdown "${PREVIEW_DIR}/weekly_etf_eu_review_${REPORT_SUFFIX}.md" \
+            --language en
+
+      - name: Render sanitized Dutch and English previews
+        env:
+          SANITIZATION_RUN_ID: ${{ inputs.sanitization_run_id }}
+          REPORT_SUFFIX: ${{ inputs.report_suffix }}
+        run: |
+          set -euo pipefail
+          PREVIEW_DIR="output/repair_preview/${SANITIZATION_RUN_ID}"
+          python -m runtime.render_etf_eu_client_report \
+            --markdown "${PREVIEW_DIR}/weekly_etf_eu_review_nl_${REPORT_SUFFIX}.md" \
+            --html-output "${PREVIEW_DIR}/weekly_etf_eu_review_nl_${REPORT_SUFFIX}.html" \
+            --pdf-output "${PREVIEW_DIR}/weekly_etf_eu_review_nl_${REPORT_SUFFIX}.pdf" \
+            --language nl \
+            --title "Weekly ETF EU Review | Nederlands | 2026-07-12"
+          python -m runtime.render_etf_eu_client_report \
+            --markdown "${PREVIEW_DIR}/weekly_etf_eu_review_${REPORT_SUFFIX}.md" \
+            --html-output "${PREVIEW_DIR}/weekly_etf_eu_review_${REPORT_SUFFIX}.html" \
+            --pdf-output "${PREVIEW_DIR}/weekly_etf_eu_review_${REPORT_SUFFIX}.pdf" \
+            --language en \
+            --title "Weekly ETF EU Review | English Companion | 2026-07-12"
+
+      - name: Validate clean client surfaces
+        env:
+          SANITIZATION_RUN_ID: ${{ inputs.sanitization_run_id }}
+          REPORT_SUFFIX: ${{ inputs.report_suffix }}
+        run: |
+          set -euo pipefail
+          PREVIEW_DIR="output/repair_preview/${SANITIZATION_RUN_ID}"
+          python tools/validate_etf_eu_client_surface_clean.py \
+            --markdown "${PREVIEW_DIR}/weekly_etf_eu_review_nl_${REPORT_SUFFIX}.md" \
+            --html "${PREVIEW_DIR}/weekly_etf_eu_review_nl_${REPORT_SUFFIX}.html" \
+            --pdf "${PREVIEW_DIR}/weekly_etf_eu_review_nl_${REPORT_SUFFIX}.pdf" \
+            --language nl \
+            --write-result "output/quality/etf_eu_client_surface_clean_${SANITIZATION_RUN_ID}_nl.json"
+          python tools/validate_etf_eu_client_surface_clean.py \
+            --markdown "${PREVIEW_DIR}/weekly_etf_eu_review_${REPORT_SUFFIX}.md" \
+            --html "${PREVIEW_DIR}/weekly_etf_eu_review_${REPORT_SUFFIX}.html" \
+            --pdf "${PREVIEW_DIR}/weekly_etf_eu_review_${REPORT_SUFFIX}.pdf" \
+            --language en \
+            --write-result "output/quality/etf_eu_client_surface_clean_${SANITIZATION_RUN_ID}_en.json"
+
+      - name: Validate PDF machine contract
+        env:
+          SOURCE_RUN_ID: ${{ inputs.source_run_id }}
+          SANITIZATION_RUN_ID: ${{ inputs.sanitization_run_id }}
+          REPORT_SUFFIX: ${{ inputs.report_suffix }}
+        run: |
+          set -euo pipefail
+          PREVIEW_DIR="output/repair_preview/${SANITIZATION_RUN_ID}"
+          python -m tools.validate_etf_eu_routine_pdf_client_grade \
+            --pdf "${PREVIEW_DIR}/weekly_etf_eu_review_nl_${REPORT_SUFFIX}.pdf" \
+            --html "${PREVIEW_DIR}/weekly_etf_eu_review_nl_${REPORT_SUFFIX}.html" \
+            --markdown "${PREVIEW_DIR}/weekly_etf_eu_review_nl_${REPORT_SUFFIX}.md" \
+            --language nl \
+            --repair-run-id "$SANITIZATION_RUN_ID" \
+            --source-run-id "$SOURCE_RUN_ID" \
+            --write-result "output/quality/etf_eu_routine_pdf_client_grade_${SANITIZATION_RUN_ID}_nl.json"
+          python -m tools.validate_etf_eu_routine_pdf_client_grade \
+            --pdf "${PREVIEW_DIR}/weekly_etf_eu_review_${REPORT_SUFFIX}.pdf" \
+            --html "${PREVIEW_DIR}/weekly_etf_eu_review_${REPORT_SUFFIX}.html" \
+            --markdown "${PREVIEW_DIR}/weekly_etf_eu_review_${REPORT_SUFFIX}.md" \
+            --language en \
+            --repair-run-id "$SANITIZATION_RUN_ID" \
+            --source-run-id "$SOURCE_RUN_ID" \
+            --write-result "output/quality/etf_eu_routine_pdf_client_grade_${SANITIZATION_RUN_ID}_en.json"
+          python tools/combine_etf_eu_pdf_client_grade_results.py \
+            --source-run-id "$SOURCE_RUN_ID" \
+            --repair-run-id "$SANITIZATION_RUN_ID" \
+            --dutch "output/quality/etf_eu_routine_pdf_client_grade_${SANITIZATION_RUN_ID}_nl.json" \
+            --english "output/quality/etf_eu_routine_pdf_client_grade_${SANITIZATION_RUN_ID}_en.json" \
+            --output "output/quality/etf_eu_routine_pdf_client_grade_${SANITIZATION_RUN_ID}.json"
+
+      - name: Validate authority separation
+        env:
+          SOURCE_RUN_ID: ${{ inputs.source_run_id }}
+          SANITIZATION_RUN_ID: ${{ inputs.sanitization_run_id }}
+          REPORT_SUFFIX: ${{ inputs.report_suffix }}
+        run: |
+          set -euo pipefail
+          PREVIEW_DIR="output/repair_preview/${SANITIZATION_RUN_ID}"
+          python tools/validate_etf_eu_client_surface_authority_separation.py \
+            --source-run-id "$SOURCE_RUN_ID" \
+            --sanitization-run-id "$SANITIZATION_RUN_ID" \
+            --internal-artifact "output/run_manifests/etf_eu_routine_run_manifest_2026-07-12_20260712_125000.json" \
+            --internal-artifact "output/fresh_generation/etf_eu_fresh_generation_package_manifest_20260712_125000.json" \
+            --internal-artifact "output/delivery/etf_eu_current_package_delivery_evidence_20260712_182002.json" \
+            --markdown "${PREVIEW_DIR}/weekly_etf_eu_review_nl_${REPORT_SUFFIX}.md" \
+            --markdown "${PREVIEW_DIR}/weekly_etf_eu_review_${REPORT_SUFFIX}.md" \
+            --html "${PREVIEW_DIR}/weekly_etf_eu_review_nl_${REPORT_SUFFIX}.html" \
+            --html "${PREVIEW_DIR}/weekly_etf_eu_review_${REPORT_SUFFIX}.html" \
+            --pdf "${PREVIEW_DIR}/weekly_etf_eu_review_nl_${REPORT_SUFFIX}.pdf" \
+            --pdf "${PREVIEW_DIR}/weekly_etf_eu_review_${REPORT_SUFFIX}.pdf" \
+            --output "output/quality/etf_eu_client_surface_authority_separation_${SANITIZATION_RUN_ID}.json"
+
+      - name: Render first middle and last pages
+        env:
+          SOURCE_RUN_ID: ${{ inputs.source_run_id }}
+          SANITIZATION_RUN_ID: ${{ inputs.sanitization_run_id }}
+          REPORT_SUFFIX: ${{ inputs.report_suffix }}
+        run: |
+          set -euo pipefail
+          PREVIEW_DIR="output/repair_preview/${SANITIZATION_RUN_ID}"
+          python tools/render_etf_eu_pdf_review_pages.py \
+            --pdf "${PREVIEW_DIR}/weekly_etf_eu_review_nl_${REPORT_SUFFIX}.pdf" \
+            --output-dir "${PREVIEW_DIR}/pages/nl" \
+            --write-index "${PREVIEW_DIR}/pages/nl/index.json"
+          python tools/render_etf_eu_pdf_review_pages.py \
+            --pdf "${PREVIEW_DIR}/weekly_etf_eu_review_${REPORT_SUFFIX}.pdf" \
+            --output-dir "${PREVIEW_DIR}/pages/en" \
+            --write-index "${PREVIEW_DIR}/pages/en/index.json"
+          python tools/write_etf_eu_visual_review_pending.py \
+            --source-run-id "$SOURCE_RUN_ID" \
+            --sanitization-run-id "$SANITIZATION_RUN_ID" \
+            --report-suffix "$REPORT_SUFFIX" \
+            --preview-dir "$PREVIEW_DIR" \
+            --dutch-index "${PREVIEW_DIR}/pages/nl/index.json" \
+            --english-index "${PREVIEW_DIR}/pages/en/index.json" \
+            --output "output/quality/etf_eu_routine_pdf_visual_review_${SANITIZATION_RUN_ID}.json"
+
+      - name: Upload client-surface preview
+        uses: actions/upload-artifact@v4
+        with:
+          name: etf-eu-client-surface-${{ inputs.sanitization_run_id }}
+          path: |
+            output/repair_preview/${{ inputs.sanitization_run_id }}
+            output/quality/etf_eu_client_surface_*_${{ inputs.sanitization_run_id }}*.json
+            output/quality/etf_eu_routine_pdf_client_grade_${{ inputs.sanitization_run_id }}*.json
+            output/quality/etf_eu_routine_pdf_visual_review_${{ inputs.sanitization_run_id }}.json
+
+      - name: Persist client-surface preview and QA evidence
+        env:
+          SANITIZATION_RUN_ID: ${{ inputs.sanitization_run_id }}
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -f \
+            "output/repair_preview/${SANITIZATION_RUN_ID}" \
+            "output/quality/etf_eu_client_surface_sanitization_${SANITIZATION_RUN_ID}_nl.json" \
+            "output/quality/etf_eu_client_surface_sanitization_${SANITIZATION_RUN_ID}_en.json" \
+            "output/quality/etf_eu_client_surface_clean_${SANITIZATION_RUN_ID}_nl.json" \
+            "output/quality/etf_eu_client_surface_clean_${SANITIZATION_RUN_ID}_en.json" \
+            "output/quality/etf_eu_routine_pdf_client_grade_${SANITIZATION_RUN_ID}_nl.json" \
+            "output/quality/etf_eu_routine_pdf_client_grade_${SANITIZATION_RUN_ID}_en.json" \
+            "output/quality/etf_eu_routine_pdf_client_grade_${SANITIZATION_RUN_ID}.json" \
+            "output/quality/etf_eu_routine_pdf_visual_review_${SANITIZATION_RUN_ID}.json" \
+            "output/quality/etf_eu_client_surface_authority_separation_${SANITIZATION_RUN_ID}.json"
+          git commit -m "Persist ETF EU client-surface repair preview ${SANITIZATION_RUN_ID} [skip ci]"
+          git push origin HEAD:main
