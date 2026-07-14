@@ -37,13 +37,28 @@ def _sha256(path: Path) -> str:
     return digest.hexdigest()
 
 
+def _reject_superseded(package: dict[str, Any]) -> None:
+    control_id = str(package.get("correction_control_id") or "")
+    supersession = Path("output/delivery_control") / f"etf_eu_corrected_resend_package_supersession_{control_id}.json"
+    if not supersession.exists():
+        return
+    payload = _load(supersession)
+    _require(payload.get("superseded") is not True, f"corrected package {control_id} is superseded and cannot be used for transport")
+    _require(payload.get("live_send_allowed") is not False, f"live send is blocked for corrected package {control_id}")
+
+
 def validate_package(path: Path) -> dict[str, Any]:
     package = _load(path)
     _require(package.get("schema_version") == PACKAGE_SCHEMA, "corrected package schema mismatch")
     _require(package.get("artifact_type") == "etf_eu_corrected_resend_package", "corrected package type mismatch")
+    _reject_superseded(package)
+
     _require(package.get("source_run_id") == "20260712_125000", "source_run_id mismatch")
     _require(package.get("source_runtime_run_id") == "20260712_182002", "source_runtime_run_id mismatch")
-    _require(package.get("repair_run_id") == "20260712_200000", "repair_run_id mismatch")
+    repair_run_id = str(package.get("repair_run_id") or "")
+    control_id = str(package.get("correction_control_id") or "")
+    _require(bool(repair_run_id), "repair_run_id missing")
+    _require(bool(control_id), "correction_control_id missing")
     _require(package.get("report_date") == "2026-07-12", "report_date mismatch")
     _require(str(package.get("report_suffix")) == "260712", "report_suffix mismatch")
     _require(package.get("original_client_output_valid") is False, "original output must remain invalid")
@@ -52,6 +67,8 @@ def validate_package(path: Path) -> dict[str, Any]:
     _require(package.get("combined_machine_gate_passed") is True, "combined machine gate missing")
     _require(package.get("visual_review_passed") is True, "visual review missing")
     _require(package.get("corrected_client_output_valid") is True, "corrected output is not valid")
+    _require(package.get("client_surface_clean") is True, "client-surface clean gate missing")
+    _require(package.get("authority_separation_gate_passed") is True, "authority-separation gate missing")
     _require(package.get("corrected_resend_prepared") is True, "corrected resend is not prepared")
     _require(package.get("corrected_resend_executed") is False, "corrected resend must not be marked executed during preparation")
     _require(package.get("byte_identity_passed") is True, "byte identity flag missing")
@@ -77,13 +94,14 @@ def validate_package(path: Path) -> dict[str, Any]:
     _require(set(source_sha) == REQUIRED_KEYS, "source sha keys mismatch")
     _require(set(delivery_sha) == REQUIRED_KEYS, "delivery sha keys mismatch")
 
-    expected_root = Path("output/corrected_delivery_package") / str(package["correction_control_id"])
+    expected_source_root = Path("output/repair_preview") / repair_run_id
+    expected_delivery_root = Path("output/corrected_delivery_package") / control_id
     for key in sorted(REQUIRED_KEYS):
         source = Path(str(approved[key]))
         destination = Path(str(delivery[key]))
-        _require(str(source).startswith("output/repair_preview/20260712_200000/"), f"unapproved source path: {source}")
+        _require(source.parent == expected_source_root, f"unapproved source path: {source}")
         _require(str(source) not in FORBIDDEN_ORIGINAL_PDFS, f"malformed original PDF selected: {source}")
-        _require(destination.parent == expected_root, f"delivery file outside correction package: {destination}")
+        _require(destination.parent == expected_delivery_root, f"delivery file outside correction package: {destination}")
         _require(source.exists(), f"approved source missing: {source}")
         _require(destination.exists(), f"corrected delivery file missing: {destination}")
         source_actual = _sha256(source)
@@ -94,10 +112,15 @@ def validate_package(path: Path) -> dict[str, Any]:
 
     combined = _load(Path(str(package["combined_machine_gate_artifact"])))
     visual = _load(Path(str(package["visual_review_artifact"])))
+    separation = _load(Path(str(package["authority_separation_artifact"])))
+    _require(combined.get("repair_run_id") == repair_run_id, "combined machine gate repair identity mismatch")
     _require(combined.get("pdf_client_grade_passed") is True, "combined machine gate artifact failed")
     _require(not combined.get("blockers"), "combined machine gate artifact contains blockers")
+    _require(visual.get("repair_run_id") == repair_run_id or visual.get("sanitization_run_id") == repair_run_id, "visual review identity mismatch")
     _require(visual.get("visual_review_passed") is True, "visual review artifact failed")
     _require(not visual.get("blockers"), "visual review artifact contains blockers")
+    _require(separation.get("separation_gate_passed") is True, "authority-separation artifact failed")
+    _require(not separation.get("blockers"), "authority-separation artifact contains blockers")
 
     original_result = _load(Path(str(package["original_transport_result"])))
     original_evidence = _load(Path(str(package["original_delivery_evidence"])))
@@ -109,11 +132,15 @@ def validate_package(path: Path) -> dict[str, Any]:
     return {
         "status": "valid",
         "package": str(path),
-        "correction_control_id": package["correction_control_id"],
+        "correction_control_id": control_id,
+        "repair_run_id": repair_run_id,
         "delivery_file_count": len(delivery),
         "byte_identity_passed": True,
         "machine_gate_passed": True,
         "visual_gate_passed": True,
+        "client_surface_clean": True,
+        "authority_separation_gate_passed": True,
+        "superseded": False,
     }
 
 
