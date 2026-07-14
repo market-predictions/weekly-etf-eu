@@ -6,7 +6,6 @@ from datetime import date, datetime, timezone
 from pathlib import Path
 from typing import Any
 
-
 AUTHORITY_FALSE = [
     "send_executed",
     "transport_attempted",
@@ -15,6 +14,21 @@ AUTHORITY_FALSE = [
     "funding_authority",
     "portfolio_mutation",
     "production_delivery_authority",
+]
+CLIENT_FORBIDDEN = [
+    "candidate_requires_verification",
+    "verified_ucits_trading_line",
+    "priced_non_authoritative",
+    "fetch_failed",
+    "ready_for_controlled_delivery=",
+    "send_executed=",
+    "transport_attempted=",
+    "receipt_confirmed=",
+    "valuation_grade=",
+    "funding_authority=",
+    "portfolio_mutation=",
+    "production_delivery_authority=",
+    "Authority flags",
 ]
 STALE_TOKENS = ["MVP24", "MVP25", "controlled resend", "guarded resend", "herverzending"]
 
@@ -54,8 +68,8 @@ def _check_outputs(manifest: dict[str, Any]) -> None:
         _require(marker in text, f"{key} title marker missing")
         for token in STALE_TOKENS:
             _require(token.lower() not in text.lower(), f"{key} contains stale token: {token}")
-        for flag in AUTHORITY_FALSE:
-            _require(f"{flag}=false" in text, f"{key} missing authority flag: {flag}")
+        for token in CLIENT_FORBIDDEN:
+            _require(token.lower() not in text.lower(), f"{key} contains internal client-surface token: {token}")
 
     for key in ["dutch_primary_pdf", "english_companion_pdf"]:
         path = Path(str(manifest.get(key) or ""))
@@ -88,6 +102,10 @@ def _check_pdf_quality(machine_gate: dict[str, Any], visual_review: dict[str, An
     _require(machine_gate.get("dutch_pdf_client_grade_passed") is True, "Dutch PDF machine gate did not pass")
     _require(machine_gate.get("english_pdf_client_grade_passed") is True, "English PDF machine gate did not pass")
     _require(machine_gate.get("pdf_client_grade_passed") is True, "Combined PDF client-grade gate did not pass")
+    _require(machine_gate.get("client_surface_clean") is True, "Combined client-surface gate did not pass")
+    _require(machine_gate.get("authority_metadata_absent") is True, "Authority metadata remains on client surface")
+    _require(machine_gate.get("raw_status_enums_absent") is True, "Raw status enums remain on client surface")
+    _require(not machine_gate.get("blockers"), "Combined PDF/client-surface gate has blockers")
     _require(visual_review.get("visual_review_passed") is True, "Rendered-page visual review did not pass")
     _require(not visual_review.get("blockers"), "Rendered-page visual review has blockers")
 
@@ -126,7 +144,7 @@ def prepare(
     _check_pdf_quality(machine_gate, visual_review)
 
     gate = {
-        "schema_version": "etf_eu_routine_package_readiness_v2",
+        "schema_version": "etf_eu_routine_package_readiness_v3",
         "artifact_type": "etf_eu_routine_package_readiness",
         "generated_at_utc": _utc_now(),
         "run_id": manifest["run_id"],
@@ -140,6 +158,9 @@ def prepare(
         "pdf_client_grade_gate": str(pdf_client_grade_gate_path),
         "dutch_pdf_machine_gate": True,
         "english_pdf_machine_gate": True,
+        "client_surface_clean": True,
+        "authority_metadata_absent": True,
+        "raw_status_enums_absent": True,
         "pdf_visual_review_artifact": str(pdf_visual_review_path),
         "pdf_visual_review_passed": True,
         "client_output_valid": True,
@@ -158,47 +179,32 @@ def prepare(
     }
     _write(gate_path, gate)
 
-    manifest.update(
-        {
-            "package_readiness_gate": str(gate_path),
-            "pdf_client_grade_gate": str(pdf_client_grade_gate_path),
-            "pdf_machine_gate_passed": True,
-            "pdf_visual_review_artifact": str(pdf_visual_review_path),
-            "pdf_visual_gate_passed": True,
-            "client_output_valid": True,
-            "readiness_gate_passed": True,
-            "ready_for_controlled_delivery": True,
-            "delivery_authorized": False,
-            "next_action": "RUN_ROUTINE_GUARDED_DELIVERY",
-        }
-    )
-    ready.update(
-        {
-            "package_readiness_gate": str(gate_path),
-            "pdf_client_grade_gate": str(pdf_client_grade_gate_path),
-            "pdf_machine_gate_passed": True,
-            "pdf_visual_review_artifact": str(pdf_visual_review_path),
-            "pdf_visual_gate_passed": True,
-            "client_output_valid": True,
-            "ready_for_controlled_delivery": True,
-            "delivery_authorized": False,
-            "next_action": "RUN_ROUTINE_GUARDED_DELIVERY",
-        }
-    )
+    common_update = {
+        "package_readiness_gate": str(gate_path),
+        "pdf_client_grade_gate": str(pdf_client_grade_gate_path),
+        "pdf_machine_gate_passed": True,
+        "client_surface_clean": True,
+        "authority_metadata_absent": True,
+        "raw_status_enums_absent": True,
+        "pdf_visual_review_artifact": str(pdf_visual_review_path),
+        "pdf_visual_gate_passed": True,
+        "client_output_valid": True,
+        "readiness_gate_passed": True,
+        "ready_for_controlled_delivery": True,
+        "delivery_authorized": False,
+        "next_action": "RUN_ROUTINE_GUARDED_DELIVERY",
+    }
+    manifest.update(common_update)
+    ready.update(common_update)
     routine.update(
         {
             "routine_stage": "routine_package_readiness_passed",
             "workflow_status": "routine_package_readiness_passed",
-            "package_readiness_gate": str(gate_path),
-            "pdf_client_grade_gate": str(pdf_client_grade_gate_path),
-            "pdf_visual_review_artifact": str(pdf_visual_review_path),
-            "client_output_valid": True,
-            "ready_for_controlled_delivery": True,
+            **common_update,
             "transport_attempted": False,
             "transport_success": False,
             "receipt_confirmed": False,
             "next_package": None,
-            "next_action": "RUN_ROUTINE_GUARDED_DELIVERY",
         }
     )
     _write(manifest_path, manifest)
