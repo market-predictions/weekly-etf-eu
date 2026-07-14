@@ -1,6 +1,6 @@
 # ETF EU Routine Weekly Production Runbook V1
 
-Date: 2026-07-12  
+Date: 2026-07-13  
 Repository: `market-predictions/weekly-etf-eu`
 
 This is the authoritative operational runbook for fresh generation, validation, guarded delivery, delayed receipt verification and production closeout of routine Weekly ETF EU reports.
@@ -24,25 +24,50 @@ This is the authoritative operational runbook for fresh generation, validation, 
 5. Do not fund or promote an ETF without required pricing and investability evidence.
 6. Produce current-run pricing, state and analysis artifacts.
 
-## Phase 3 — Generation and output validation
+## Phase 3 — Native client generation and sanitization
 
-1. Generate Dutch-primary Markdown, semantic HTML and paginated PDF.
-2. Generate English companion Markdown, semantic HTML and paginated PDF.
+1. Generate Dutch-primary client Markdown directly in natural Dutch.
+2. Generate the English companion directly in client-facing English.
+3. Map structured runtime statuses to controlled client labels before they enter tables.
+4. Run `runtime/scrub_etf_eu_client_surface.py` as a narrow normalization and guard layer.
+5. Do not use broad arbitrary prose translation in the renderer.
+6. Keep internal authority and transport flags in JSON manifests and evidence only.
+7. Client Markdown, HTML, PDF and email body must not contain raw machine enums or an `Authority flags` section.
+
+Required client-surface gates:
+
+```text
+client_surface_clean=true
+authority_metadata_absent=true
+raw_status_enums_absent=true
+```
+
+Client reports end at the final decision-relevant section. Internal delivery state is not a client-report section.
+
+## Phase 4 — Rendering and output validation
+
+1. Render Dutch-primary semantic HTML and paginated PDF.
+2. Render the English companion semantic HTML and paginated PDF.
 3. Use `runtime/render_etf_eu_client_report.py`; plain-text PDF generation is prohibited.
-4. Create the current fresh-generation package manifest.
-5. Run content, pricing, leakage, bilingual and client-surface validators.
-6. Run Dutch and English client-grade PDF machine validation.
-7. Render first, middle and last pages for visual-contract review.
-8. Confirm the package contains all required current-run files.
-9. Reject stale report-date or run-id paths.
+4. Keep the renderer presentation-only: Markdown, HTML, CSS, typography and pagination.
+5. Create the current fresh-generation package manifest.
+6. Run content, pricing, leakage, bilingual and clean-client-surface validators.
+7. Run Dutch and English client-grade PDF machine validation.
+8. Render first, middle and last pages for visual-contract review.
+9. Confirm the package contains all required current-run files.
+10. Reject stale report-date or run-id paths.
 
-### Mandatory PDF output contract
+### Mandatory client and PDF output contract
 
-A routine production report may not enter guarded delivery when PDF validation consists only of file existence, PDF header or EOF checks.
+A routine production report may not enter guarded delivery when validation consists only of file existence, PDF header, EOF or visual completeness.
 
 Every routine run requires:
 
 ```text
+native client-safe language
+deterministic structured-label normalization
+forbidden-token validation
+authority-evidence separation
 semantic HTML rendering
 Mistune table parsing
 WeasyPrint PDF generation
@@ -51,11 +76,13 @@ rendered-page visual-contract evidence
 client_output_valid=true
 ```
 
-The PDF contract must prove:
+The output contract must prove:
 
 ```text
-multi-page output
-all required sections present
+all required client sections present
+internal authority section absent
+raw structured-state enums absent
+authority and transport metadata absent from client output
 semantic tables present
 no raw Markdown leakage
 Unicode integrity
@@ -63,29 +90,31 @@ no duplicate title
 no visible clipping or overlap
 ```
 
-Any renderer change additionally requires explicit first/middle/last-page visual review before delivery. The visual review artifact must contain `visual_review_passed=true` and no blockers.
+Any renderer, sanitization or client-copy change requires explicit first/middle/last-page visual review before delivery. The visual review artifact must contain `visual_review_passed=true` and no blockers.
 
-## Phase 4 — Delivery preparation
+## Phase 5 — Delivery preparation
 
 1. Create the current-run delivery preparation artifact.
 2. Confirm `delivery_authorized` and `send_command_allowed` for that run.
 3. Create and validate a current-run queue artifact.
-4. Require the PDF machine and visual gates before creating delivery authority.
-5. Use validate-only or dry-run after workflow/runtime changes.
-6. An unchanged routine path may proceed to guarded delivery only after all gates pass.
+4. Require clean-client, authority-separation, PDF machine and visual gates before creating delivery authority.
+5. Use validate-only and dry-run after workflow, runtime, renderer or client-surface changes.
+6. A superseded correction package is historical evidence only and may not enter live transport.
+7. An unchanged routine path may proceed to guarded delivery only after all gates pass.
 
-## Phase 5 — Guarded delivery
+## Phase 6 — Guarded delivery
 
-1. Use the current-package EU workflow.
+1. Use the current-package EU workflow or the dedicated correction workflow for an approved correction.
 2. Select the delivery branch explicitly.
-3. Use the current run's queue path.
+3. Use the current run's queue path and correction control ID.
 4. Require the guarded confirmation value.
-5. Persist the current-run transport result and delivery evidence.
-6. Require `transport_attempted=true` and `transport_success=true` before proceeding.
-7. Treat SMTP success only as transport-layer evidence.
-8. SMTP success does not compensate for `client_output_valid=false`.
+5. Revalidate package hashes and supersession state before secrets are available.
+6. Persist the current-run transport result and delivery evidence.
+7. Require `transport_attempted=true` and `transport_success=true` before proceeding.
+8. Treat SMTP success only as transport-layer evidence.
+9. SMTP success does not compensate for `client_output_valid=false` or `client_surface_clean=false`.
 
-## Phase 6 — Delayed receipt verification
+## Phase 7 — Delayed receipt verification
 
 Independent delayed receipt verification is mandatory.
 
@@ -98,28 +127,31 @@ Independent delayed receipt verification is mandatory.
 7. Keep `receipt_confirmed=false` if independent evidence is not found.
 8. Use delayed recheck rather than automatic resend.
 
-## Phase 7 — Closeout
+## Phase 8 — Closeout
 
 1. Create or update the routine run manifest.
 2. Create the production delivery closeout manifest.
-3. Require `transport_success=true`.
-4. Require `client_output_valid=true`.
-5. Require `receipt_confirmed=true` for completed production closeout.
-6. Record blockers explicitly.
-7. Update `control/CURRENT_STATE.md` and `control/NEXT_ACTIONS.md`.
-8. Never claim completed delivery without client-output, transport and receipt artifacts.
+3. Require `client_surface_clean=true`.
+4. Require `transport_success=true`.
+5. Require `client_output_valid=true`.
+6. Require `receipt_confirmed=true` for completed production closeout.
+7. Record blockers explicitly.
+8. Update `control/CURRENT_STATE.md` and `control/NEXT_ACTIONS.md`.
+9. Never claim completed delivery without client-output, transport and receipt artifacts.
 
 ## Failure routing
 
 ```text
 generation or validation failure -> repair current run; do not deliver
+client-surface or authority-separation failure -> sanitize and visually review; do not deliver
 PDF machine or visual gate failure -> repair renderer/output; do not deliver
 dry-run failure -> repair workflow/runtime; do not deliver
+superseded package selected -> reject before secret scope
 guarded transport failure -> investigate before creating another queue
 transport success with invalid client output -> record defect; repair and visually approve before corrected resend
 transport success but no receipt -> delayed receipt recheck; do not resend automatically
 receipt mismatch or missing attachments -> delivery evidence investigation
-valid client output plus successful transport plus confirmed receipt -> production closeout
+valid clean client output plus successful transport plus confirmed receipt -> production closeout
 ```
 
 ## Routine completion definition
@@ -129,6 +161,8 @@ A routine weekly run is complete only when:
 ```text
 fresh current-run package exists
 all required validators passed
+client_surface_clean=true
+authority_separation_gate_passed=true
 client_output_valid=true
 PDF machine gate passed
 PDF visual gate passed
