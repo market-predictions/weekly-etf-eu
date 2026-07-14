@@ -25,56 +25,66 @@ routine_production_ready=true
 operating_mode=routine_production
 ```
 
-## Active corrected-output delivery repair
+## Active client-surface correction repair
 
 ```text
-work_package_id=ETF-EU-RUN260712-FIX2_EXPLICIT_CORRECTED_REPORT_RESEND
+work_package_id=ETF-EU-RUN260712-FIX2A_CLIENT_SURFACE_SANITIZATION_BEFORE_RESEND
 source_of_truth_repo=market-predictions/weekly-etf-eu
 reference_architecture_repo=market-predictions/weekly-etf
 source_run_id=20260712_125000
 source_runtime_run_id=20260712_182002
-repair_run_id=20260712_200000
-correction_control_id=20260713_000000
+previous_repair_run_id=20260712_200000
+previous_correction_control_id=20260713_000000
+sanitization_run_id=20260713_180000
+new_correction_control_id=20260713_180000
 report_date=2026-07-12
 report_suffix=260712
 original_transport_success=true
 original_client_output_valid=false
-corrected_preview_generated=true
-corrected_pdf_machine_gate_passed=true
-corrected_pdf_visual_gate_passed=true
-corrected_client_output_valid=true
-corrected_package_builder_created=true
-corrected_package_validator_created=true
-corrected_queue_validator_created=true
-existing_transport_runner_reused=true
-corrected_workflow_created=true
-corrected_queue_created=true
-package_materialization_pending=false
-package_byte_identity_passed=true
-corrected_resend_prepared=true
-dry_run_workflow_run_id=29268423307
-dry_run_runtime_run_id=20260713_165614
-dry_run_completed=true
-dry_run_delivery_status=dry_run_no_transport
-corrected_resend_executed=false
+previous_corrected_pdf_machine_gate_passed=true
+previous_corrected_pdf_visual_gate_passed=true
+previous_correction_dry_run_completed=true
+previous_correction_transport_attempted=false
+previous_corrected_resend_executed=false
+previous_corrected_package_client_surface_valid=false
+previous_corrected_package_superseded=true
+previous_corrected_package_live_send_allowed=false
+client_surface_cleanup_required=true
+live_corrected_resend_allowed=false
+client_surface_sanitizer_created=true
+client_surface_validator_created=true
+pdf_machine_contract_updated=true
+authority_separation_validator_created=true
+client_surface_preview_workflow_created=true
+corrected_resend_workflow_generalized=true
+new_queue_created=true
+sanitized_preview_generated=false
+client_surface_sanitization_passed=false
+client_surface_clean=false
+authority_separation_gate_passed=false
+pdf_machine_gate_passed=false
+pdf_visual_gate_passed=false
+new_corrected_package_prepared=false
+new_corrected_package_byte_identity_passed=false
+new_dry_run_completed=false
 correction_transport_attempted=false
-correction_transport_success=false
+corrected_resend_executed=false
 receipt_confirmed=false
-status=corrected_resend_dry_run_completed
-selected_next_action=EXPLICITLY_DISPATCH_CORRECTED_RESEND
+status=fix2a_implementation_ready_awaiting_client_surface_preview
+selected_next_action=RUN_CLIENT_SURFACE_REPAIR_PREVIEW
 ```
 
-## Correction artifacts
+## Active FIX2A artifacts
 
 ```text
-contract=control/ETF_EU_CORRECTED_RESEND_CONTRACT_V1.md
-package_manifest=output/delivery_control/etf_eu_corrected_resend_package_20260713_000000.json
-preparation_artifact=output/delivery_authorization/etf_eu_corrected_resend_preparation_20260713_000000.json
-queue=control/run_queue/etf_eu_corrected_resend_request_20260713_000000.md
-workflow=.github/workflows/send-weekly-etf-eu-corrected-report.yml
-run_manifest=output/run_manifests/etf_eu_corrected_resend_manifest_20260713_000000.json
-dry_run_transport_result=output/delivery/etf_eu_corrected_transport_result_20260713_165614.json
-dry_run_delivery_evidence=output/delivery/etf_eu_corrected_delivery_evidence_20260713_165614.json
+decision=control/decisions/ETF_EU_RUN260712_FIX2A_CLIENT_SURFACE_SANITIZATION_DECISION_20260713.md
+supersession=output/delivery_control/etf_eu_corrected_resend_package_supersession_20260713_000000.json
+sanitizer=runtime/scrub_etf_eu_client_surface.py
+client_surface_validator=tools/validate_etf_eu_client_surface_clean.py
+authority_separation_validator=tools/validate_etf_eu_client_surface_authority_separation.py
+preview_workflow=.github/workflows/repair-weekly-etf-eu-client-surface.yml
+new_queue=control/run_queue/etf_eu_corrected_resend_request_20260713_180000.md
+new_package_manifest=output/delivery_control/etf_eu_corrected_resend_package_20260713_180000.json
 ```
 
 ## Authority and privacy boundaries
@@ -97,4 +107,4 @@ weekly_etf_upstream_donor_only=true
 
 ## Current note
 
-The corrected package is materialized and byte-identical to the approved repair-preview sources. GitHub Actions run `29268423307` completed the correction dry run successfully under runtime id `20260713_165614`. No outbound transport was attempted, no corrected report was sent, and receipt remains unconfirmed. The next step is one explicitly guarded corrected resend through the dedicated correction workflow. After successful SMTP transport, perform delayed independent receipt verification; do not resend automatically.
+The previous corrected package passed structural PDF review and dry-run transport simulation, but the uploaded client PDF exposed raw verification enums and internal authority/transport metadata. That package is now superseded and cannot be used for live send. FIX2A has implemented native client-safe language, deterministic sanitization, forbidden-token validation, section 1-7 PDF validation, authority-evidence separation and a preview-only workflow. No correction transport or receipt check occurred. Run the dedicated client-surface repair preview from current `main` before any new package or resend action.
