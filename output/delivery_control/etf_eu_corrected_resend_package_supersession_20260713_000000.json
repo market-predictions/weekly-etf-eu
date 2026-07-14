@@ -1,0 +1,15 @@
+{
+  "schema_version": "etf_eu_corrected_resend_package_supersession_v1",
+  "artifact_type": "etf_eu_corrected_resend_package_supersession",
+  "superseded_correction_control_id": "20260713_000000",
+  "superseded_package_manifest": "output/delivery_control/etf_eu_corrected_resend_package_20260713_000000.json",
+  "superseded_dry_run_result": "output/delivery/etf_eu_corrected_transport_result_20260713_165614.json",
+  "superseded_dry_run_evidence": "output/delivery/etf_eu_corrected_delivery_evidence_20260713_165614.json",
+  "superseded": true,
+  "superseded_reason": "client_surface_internal_metadata_and_machine_label_leakage",
+  "live_send_allowed": false,
+  "superseded_by_sanitization_run_id": "20260713_180000",
+  "superseded_by_correction_control_id": "20260713_180000",
+  "original_evidence_deleted": false,
+  "original_evidence_overwritten": false
+}
