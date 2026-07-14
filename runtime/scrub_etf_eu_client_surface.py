@@ -32,6 +32,7 @@ PHRASE_REPLACEMENTS = {
         "trading line": "handelslijn",
         "research candidates": "onderzoekskandidaten",
         "fundable geworden": "geschikt geworden voor opname in de portefeuille",
+        "geen funding vóór volledige verificatie": "geen inzet van kapitaal vóór volledige verificatie",
         "Technologie/semiconductors": "Technologie en halfgeleiders",
         "kandidaat/research": "onderzoekskandidaat",
         "client-facing beslisclaim": "besluitvorming voor de cliënt",
@@ -72,6 +73,7 @@ FORBIDDEN_NL = [
     "client-facing",
     "candidate/research",
     "Technologie/semiconductors",
+    "geen funding vóór volledige verificatie",
 ]
 SNAKE_CASE_RE = re.compile(r"\b[a-z]+(?:_[a-z0-9]+){1,}\b")
 AUTHORITY_SECTION_RE = re.compile(
