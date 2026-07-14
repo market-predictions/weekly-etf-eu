@@ -1,0 +1,21 @@
+{
+  "artifact_type": "etf_eu_client_surface_sanitization",
+  "authority_section_removed": true,
+  "blockers": [],
+  "client_surface_sanitized": true,
+  "forbidden_tokens_detected": [],
+  "generated_at_utc": "2026-07-14T21:55:54Z",
+  "input_path": "output/fresh_generation/weekly_etf_eu_review_nl_260712.md",
+  "input_sha256": "0ad59d82ba42cd2f6d7db760143e26a953637b40b33b824cda7983272121717b",
+  "language": "nl",
+  "output_path": "output/repair_preview/20260713_180000/weekly_etf_eu_review_nl_260712.md",
+  "output_sha256": "762379f785b87813761cfb5bf319ccc4e5d5344bfbfd7fe49c20ee32605ac598",
+  "sanitization_run_id": "20260713_180000",
+  "schema_version": "etf_eu_client_surface_sanitization_v1",
+  "source_run_id": "20260712_125000",
+  "status_labels_normalized": [
+    "candidate_requires_verification",
+    "verified_ucits_trading_line"
+  ],
+  "warnings": []
+}

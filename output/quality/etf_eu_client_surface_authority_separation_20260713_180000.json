@@ -1,0 +1,30 @@
+{
+  "artifact_type": "etf_eu_client_surface_authority_separation",
+  "authority_flags_absent_from_client_html": true,
+  "authority_flags_absent_from_client_markdown": true,
+  "authority_flags_absent_from_client_pdf": true,
+  "authority_flags_preserved_in_internal_evidence": true,
+  "blockers": [],
+  "client_html_paths": [
+    "output/repair_preview/20260713_180000/weekly_etf_eu_review_nl_260712.html",
+    "output/repair_preview/20260713_180000/weekly_etf_eu_review_260712.html"
+  ],
+  "client_markdown_paths": [
+    "output/repair_preview/20260713_180000/weekly_etf_eu_review_nl_260712.md",
+    "output/repair_preview/20260713_180000/weekly_etf_eu_review_260712.md"
+  ],
+  "client_pdf_paths": [
+    "output/repair_preview/20260713_180000/weekly_etf_eu_review_nl_260712.pdf",
+    "output/repair_preview/20260713_180000/weekly_etf_eu_review_260712.pdf"
+  ],
+  "generated_at_utc": "2026-07-14T21:55:57Z",
+  "internal_authority_source_artifacts": [
+    "output/run_manifests/etf_eu_routine_run_manifest_2026-07-12_20260712_125000.json",
+    "output/fresh_generation/etf_eu_fresh_generation_package_manifest_20260712_125000.json",
+    "output/delivery/etf_eu_current_package_delivery_evidence_20260712_182002.json"
+  ],
+  "sanitization_run_id": "20260713_180000",
+  "schema_version": "etf_eu_client_surface_authority_separation_v1",
+  "separation_gate_passed": true,
+  "source_run_id": "20260712_125000"
+}

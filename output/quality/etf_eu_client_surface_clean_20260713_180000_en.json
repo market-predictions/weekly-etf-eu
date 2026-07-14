@@ -1,0 +1,18 @@
+{
+  "artifact_type": "etf_eu_client_surface_clean",
+  "authority_metadata_absent": true,
+  "authority_metadata_visible": false,
+  "blockers": [],
+  "client_surface_clean": true,
+  "forbidden_tokens": [],
+  "generated_at_utc": "2026-07-14T21:55:57Z",
+  "html": "output/repair_preview/20260713_180000/weekly_etf_eu_review_260712.html",
+  "language": "en",
+  "markdown": "output/repair_preview/20260713_180000/weekly_etf_eu_review_260712.md",
+  "pdf": "output/repair_preview/20260713_180000/weekly_etf_eu_review_260712.pdf",
+  "raw_status_enums_absent": true,
+  "schema_version": "etf_eu_client_surface_clean_v1",
+  "snake_case_tokens": [],
+  "status_labels_client_safe": true,
+  "warnings": []
+}
