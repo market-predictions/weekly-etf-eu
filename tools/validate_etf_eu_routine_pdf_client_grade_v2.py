@@ -6,8 +6,10 @@ import re
 from pathlib import Path
 from typing import Any
 
-from validate_etf_eu_routine_pdf_client_grade_base import validate_pdf as validate_pdf_v1
-
+try:
+    from tools.validate_etf_eu_routine_pdf_client_grade_base import validate_pdf as validate_pdf_v1
+except ModuleNotFoundError:
+    from validate_etf_eu_routine_pdf_client_grade_base import validate_pdf as validate_pdf_v1
 
 ISIN_RE = re.compile(r"\b[A-Z]{2}[A-Z0-9]{9}\d\b")
 PRICING_BLOCKER_PREFIX = "Expected at least 8 represented pricing lines"
@@ -43,7 +45,7 @@ def validate_pdf(
     result["pricing_line_count_source"] = "source_markdown_isin_rows"
     result["blockers"] = blockers
     result["machine_validation_passed"] = not blockers
-    result["schema_version"] = "etf_eu_routine_pdf_client_grade_v2"
+    result["schema_version"] = "etf_eu_routine_pdf_client_grade_v3"
     return result
 
 
