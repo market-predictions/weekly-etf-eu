@@ -98,16 +98,41 @@ def _check_pricing(manifest: dict[str, Any], pricing: dict[str, Any]) -> None:
     _require(str(manifest.get("pricing_as_of")) == close_dates[-1], "manifest pricing_as_of mismatch")
 
 
-def _check_pdf_quality(machine_gate: dict[str, Any], visual_review: dict[str, Any]) -> None:
+def _language_machine_gates(machine_gate: dict[str, Any]) -> tuple[dict[str, Any], dict[str, Any]]:
+    dutch_path = Path(str(machine_gate.get("dutch_artifact") or ""))
+    english_path = Path(str(machine_gate.get("english_artifact") or ""))
+    return _load(dutch_path), _load(english_path)
+
+
+def _check_pdf_quality(machine_gate: dict[str, Any], visual_review: dict[str, Any]) -> dict[str, bool]:
     _require(machine_gate.get("dutch_pdf_client_grade_passed") is True, "Dutch PDF machine gate did not pass")
     _require(machine_gate.get("english_pdf_client_grade_passed") is True, "English PDF machine gate did not pass")
     _require(machine_gate.get("pdf_client_grade_passed") is True, "Combined PDF client-grade gate did not pass")
-    _require(machine_gate.get("client_surface_clean") is True, "Combined client-surface gate did not pass")
-    _require(machine_gate.get("authority_metadata_absent") is True, "Authority metadata remains on client surface")
-    _require(machine_gate.get("raw_status_enums_absent") is True, "Raw status enums remain on client surface")
     _require(not machine_gate.get("blockers"), "Combined PDF/client-surface gate has blockers")
+
+    dutch, english = _language_machine_gates(machine_gate)
+    client_surface_clean = (
+        machine_gate.get("client_surface_clean") is True
+        or (dutch.get("client_surface_clean") is True and english.get("client_surface_clean") is True)
+    )
+    authority_metadata_absent = (
+        machine_gate.get("authority_metadata_absent") is True
+        or (dutch.get("authority_metadata_absent") is True and english.get("authority_metadata_absent") is True)
+    )
+    raw_status_enums_absent = (
+        machine_gate.get("raw_status_enums_absent") is True
+        or (dutch.get("raw_status_enums_absent") is True and english.get("raw_status_enums_absent") is True)
+    )
+    _require(client_surface_clean, "Combined client-surface gate did not pass")
+    _require(authority_metadata_absent, "Authority metadata remains on client surface")
+    _require(raw_status_enums_absent, "Raw status enums remain on client surface")
     _require(visual_review.get("visual_review_passed") is True, "Rendered-page visual review did not pass")
     _require(not visual_review.get("blockers"), "Rendered-page visual review has blockers")
+    return {
+        "client_surface_clean": client_surface_clean,
+        "authority_metadata_absent": authority_metadata_absent,
+        "raw_status_enums_absent": raw_status_enums_absent,
+    }
 
 
 def prepare(
@@ -141,7 +166,7 @@ def prepare(
 
     _check_outputs(manifest)
     _check_pricing(manifest, pricing)
-    _check_pdf_quality(machine_gate, visual_review)
+    clean_state = _check_pdf_quality(machine_gate, visual_review)
 
     gate = {
         "schema_version": "etf_eu_routine_package_readiness_v3",
@@ -158,9 +183,7 @@ def prepare(
         "pdf_client_grade_gate": str(pdf_client_grade_gate_path),
         "dutch_pdf_machine_gate": True,
         "english_pdf_machine_gate": True,
-        "client_surface_clean": True,
-        "authority_metadata_absent": True,
-        "raw_status_enums_absent": True,
+        **clean_state,
         "pdf_visual_review_artifact": str(pdf_visual_review_path),
         "pdf_visual_review_passed": True,
         "client_output_valid": True,
@@ -183,9 +206,7 @@ def prepare(
         "package_readiness_gate": str(gate_path),
         "pdf_client_grade_gate": str(pdf_client_grade_gate_path),
         "pdf_machine_gate_passed": True,
-        "client_surface_clean": True,
-        "authority_metadata_absent": True,
-        "raw_status_enums_absent": True,
+        **clean_state,
         "pdf_visual_review_artifact": str(pdf_visual_review_path),
         "pdf_visual_gate_passed": True,
         "client_output_valid": True,
