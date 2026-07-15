@@ -1,6 +1,6 @@
 # ETF EU Routine Weekly Production Runbook V1
 
-Date: 2026-07-13  
+Date: 2026-07-15  
 Repository: `market-predictions/weekly-etf-eu`
 
 This is the authoritative operational runbook for fresh generation, validation, guarded delivery, delayed receipt verification and production closeout of routine Weekly ETF EU reports.
@@ -127,6 +127,10 @@ Independent delayed receipt verification is mandatory.
 7. Keep `receipt_confirmed=false` if independent evidence is not found.
 8. Use delayed recheck rather than automatic resend.
 
+### Existing-receipt reconciliation rule
+
+If the expected message and attachment set have already been independently observed in the destination mailbox, do not dispatch another send merely to create or improve evidence. Reconcile the existing successful transport and receipt, create redacted receipt evidence, complete closeout, and return to routine production.
+
 ## Phase 8 — Closeout
 
 1. Create or update the routine run manifest.
@@ -150,6 +154,7 @@ superseded package selected -> reject before secret scope
 guarded transport failure -> investigate before creating another queue
 transport success with invalid client output -> record defect; repair and visually approve before corrected resend
 transport success but no receipt -> delayed receipt recheck; do not resend automatically
+existing valid receipt found -> reconcile existing transport and receipt; do not send again
 receipt mismatch or missing attachments -> delivery evidence investigation
 valid clean client output plus successful transport plus confirmed receipt -> production closeout
 ```
