@@ -40,8 +40,8 @@ def test_cash_only_state_uses_truthful_callout_and_full_report_structure() -> No
     assert "Analistenrapport" in nl
     assert "Besliscockpit" in nl
     assert "UCITS-kandidaten en prijsbewijs" in nl
-    assert "cash-callout" in nl
-    assert "equity-curve-svg" not in nl
+    assert '<div class="cash-callout">' in nl
+    assert '<svg class="equity-curve-svg"' not in nl
     assert "Macro-refresh vereist" in nl
     assert "candidate_requires_verification" not in nl
     assert "Investor report" in en
@@ -62,5 +62,5 @@ def test_equity_curve_activates_only_with_meaningful_history() -> None:
         }
     )
     html = build_html(state, language="nl")
-    assert "equity-curve-svg" in html
-    assert "cash-callout" not in html
+    assert '<svg class="equity-curve-svg"' in html
+    assert '<div class="cash-callout">' not in html
