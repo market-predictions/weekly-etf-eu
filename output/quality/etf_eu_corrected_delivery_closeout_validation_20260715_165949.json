@@ -1,0 +1,20 @@
+{
+  "schema_version": "etf_eu_corrected_delivery_closeout_validation_v1",
+  "artifact_type": "etf_eu_corrected_delivery_closeout_validation",
+  "generated_at_utc": "2026-07-15T17:05:00Z",
+  "validator": "tools/validate_etf_eu_corrected_delivery_closeout.py",
+  "validation_execution_mode": "isolated_local_invariant_reproduction",
+  "github_actions_validator_run": false,
+  "closeout_manifest": "output/delivery_control/etf_eu_corrected_delivery_closeout_20260713_180000.json",
+  "correction_control_id": "20260713_180000",
+  "transport_runtime_run_id": "20260715_152543",
+  "receipt_check_id": "20260715_165949",
+  "closeout_valid": true,
+  "receipt_confirmed": true,
+  "attachment_count_seen": 4,
+  "additional_resend_required": false,
+  "routine_production_ready": true,
+  "next_action": "RUN_NEXT_ROUTINE_WEEKLY_ETF_EU_REPORT",
+  "blockers": [],
+  "warnings": ["The repository test suite was committed but not executed in GitHub Actions during this closeout session."]
+}
