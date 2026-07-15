@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 import json
 import re
+import subprocess
 from pathlib import Path
 from typing import Any
 
@@ -10,6 +11,52 @@ from tools.validate_etf_eu_routine_pdf_client_grade_base import validate_pdf as 
 
 
 ISIN_RE = re.compile(r"\b[A-Z]{2}[A-Z0-9]{9}\d\b")
+SEMANTIC_HEADER = {
+    "nl": "| Handelslijn | ISIN | Peildatum | Slot | Valuta | Status |",
+    "en": "| Trading line | ISIN | Pricing date | Close | Currency | Status |",
+}
+SEMANTIC_PDF_TOKEN = {"nl": "Peildatum", "en": "Pricing date"}
+RESIDUAL_LANGUAGE_DEFECTS = {
+    "nl": [
+        "Trading line",
+        "broker- en bevestiging",
+        "afzonderlijke afzonderlijk",
+        "waarderingsautoriteit",
+        "Core aandelen",
+        "Core-aandelen",
+    ],
+    "en": [
+        "not funding or valuation authority",
+        "do not fund thematic or gold exposure",
+        "no funding before full verification",
+        "No portfolio mutation without a separate funding decision",
+        "Technology/semiconductors",
+    ],
+}
+
+
+def validate_language_contract(*, markdown_text: str, html_text: str, pdf_text: str, language: str) -> dict[str, Any]:
+    if language not in {"nl", "en"}:
+        raise ValueError("language must be nl or en")
+    combined = "\n".join((markdown_text, html_text, pdf_text))
+    residual = sorted(
+        token for token in RESIDUAL_LANGUAGE_DEFECTS[language]
+        if token.casefold() in combined.casefold()
+    )
+    semantic_header_passed = (
+        SEMANTIC_HEADER[language] in markdown_text
+        and SEMANTIC_PDF_TOKEN[language].casefold() in pdf_text.casefold()
+    )
+    blockers = [f"Residual client-language defect: {token}" for token in residual]
+    if not semantic_header_passed:
+        blockers.append("Pricing table header is not client-safe or does not describe the pricing-date column")
+    return {
+        "client_language_contract_version": "v2",
+        "semantic_pricing_header_passed": semantic_header_passed,
+        "residual_client_language_defects": residual,
+        "client_language_contract_passed": not blockers,
+        "client_language_blockers": blockers,
+    }
 
 
 def validate_pdf(
@@ -29,15 +76,35 @@ def validate_pdf(
         repair_run_id=repair_run_id,
         source_run_id=source_run_id,
     )
-    represented_rows = len(ISIN_RE.findall(markdown.read_text(encoding="utf-8").upper()))
-    blockers = list(result.get("blockers", []))
+    markdown_text = markdown.read_text(encoding="utf-8")
+    html_text = html.read_text(encoding="utf-8")
+    pdf_text = subprocess.run(
+        ["pdftotext", "-layout", str(pdf), "-"],
+        check=True,
+        text=True,
+        capture_output=True,
+    ).stdout
+    language_contract = validate_language_contract(
+        markdown_text=markdown_text,
+        html_text=html_text,
+        pdf_text=pdf_text,
+        language=language,
+    )
+
+    represented_rows = len(ISIN_RE.findall(markdown_text.upper()))
+    blockers = [
+        blocker for blocker in result.get("blockers", [])
+        if not blocker.startswith("Missing pricing-table headers:")
+    ]
     if represented_rows < 8:
         blockers.append(f"Expected at least 8 represented pricing lines, found {represented_rows}")
+    blockers.extend(language_contract["client_language_blockers"])
     result.update(
         {
-            "schema_version": "etf_eu_routine_pdf_client_grade_v2",
+            "schema_version": "etf_eu_routine_pdf_client_grade_v3",
             "pricing_line_count_detected": represented_rows,
             "pricing_line_count_source": "source_markdown_isin_rows",
+            **language_contract,
             "blockers": blockers,
             "machine_validation_passed": not blockers,
         }
