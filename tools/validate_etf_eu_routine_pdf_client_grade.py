@@ -16,6 +16,7 @@ SEMANTIC_HEADER = {
     "en": "| Trading line | ISIN | Pricing date | Close | Currency | Status |",
 }
 SEMANTIC_PDF_TOKEN = {"nl": "Peildatum", "en": "Pricing date"}
+LEGACY_DATE_HEADERS = {"nl": "Markt", "en": "Market"}
 RESIDUAL_LANGUAGE_DEFECTS = {
     "nl": [
         "Trading line",
@@ -59,6 +60,21 @@ def validate_language_contract(*, markdown_text: str, html_text: str, pdf_text: 
     }
 
 
+def _upgrade_legacy_header_blockers(blockers: list[str], *, language: str) -> list[str]:
+    upgraded: list[str] = []
+    prefix = "Missing pricing-table headers:"
+    legacy_date_header = LEGACY_DATE_HEADERS[language]
+    for blocker in blockers:
+        if not blocker.startswith(prefix):
+            upgraded.append(blocker)
+            continue
+        missing = [item.strip() for item in blocker[len(prefix):].split(",") if item.strip()]
+        remaining = [item for item in missing if item != legacy_date_header]
+        if remaining:
+            upgraded.append(prefix + " " + ", ".join(remaining))
+    return upgraded
+
+
 def validate_pdf(
     *,
     pdf: Path,
@@ -92,10 +108,7 @@ def validate_pdf(
     )
 
     represented_rows = len(ISIN_RE.findall(markdown_text.upper()))
-    blockers = [
-        blocker for blocker in result.get("blockers", [])
-        if not blocker.startswith("Missing pricing-table headers:")
-    ]
+    blockers = _upgrade_legacy_header_blockers(list(result.get("blockers", [])), language=language)
     if represented_rows < 8:
         blockers.append(f"Expected at least 8 represented pricing lines, found {represented_rows}")
     blockers.extend(language_contract["client_language_blockers"])
