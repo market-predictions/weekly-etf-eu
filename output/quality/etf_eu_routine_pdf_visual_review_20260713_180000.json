@@ -1,33 +1,45 @@
 {
-  "all_sections_visible": false,
+  "all_sections_visible": true,
   "artifact_type": "etf_eu_routine_pdf_visual_review",
-  "blockers": [
-    "manual visual inspection required"
-  ],
-  "client_surface_language_clean": false,
-  "duplicate_title_absent": false,
+  "blockers": [],
+  "client_surface_language_clean": true,
+  "duplicate_title_absent": true,
   "dutch_page_count": 3,
-  "dutch_pages_reviewed": [],
+  "dutch_pages_reviewed": [
+    1,
+    2,
+    3
+  ],
   "dutch_pdf": "output/repair_preview/20260713_180000/weekly_etf_eu_review_nl_260712.pdf",
   "english_page_count": 3,
-  "english_pages_reviewed": [],
+  "english_pages_reviewed": [
+    1,
+    2,
+    3
+  ],
   "english_pdf": "output/repair_preview/20260713_180000/weekly_etf_eu_review_260712.pdf",
-  "first_page_reviewed": false,
+  "first_page_reviewed": true,
   "generated_at_utc": "2026-07-15T12:45:57Z",
-  "headings_readable": false,
-  "last_page_reviewed": false,
-  "middle_page_reviewed": false,
-  "no_bottom_clipping": false,
-  "no_overlapping_text": false,
-  "no_right_edge_clipping": false,
+  "headings_readable": true,
+  "last_page_reviewed": true,
+  "middle_page_reviewed": true,
+  "no_bottom_clipping": true,
+  "no_overlapping_text": true,
+  "no_right_edge_clipping": true,
   "repair_run_id": "20260713_180000",
   "review_notes": [
-    "Rendered first, middle and last pages are ready for explicit visual inspection."
+    "Workflow run 29416431004 completed successfully and persisted the v2 sanitized preview.",
+    "Dutch and English first, middle and last pages were inspected from the workflow artifact.",
+    "Layout, pagination, tables, headings, Unicode, sections 1-7 and client language passed.",
+    "Dutch headers use Handelslijn and Peildatum; English headers use Trading line and Pricing date.",
+    "Section 8, raw status enums, authority flags and transport metadata are absent from the client surface."
   ],
+  "reviewed_at_utc": "2026-07-15T13:10:00Z",
+  "reviewed_workflow_run_id": 29416431004,
   "sanitization_run_id": "20260713_180000",
   "schema_version": "etf_eu_routine_pdf_visual_review_v1",
   "source_run_id": "20260712_125000",
-  "tables_readable": false,
-  "unicode_correct": false,
-  "visual_review_passed": false
+  "tables_readable": true,
+  "unicode_correct": true,
+  "visual_review_passed": true
 }
