@@ -21,6 +21,9 @@ on:
   push:
     paths:
       - "control/run_queue/etf_eu_client_grade_v2_preview_request_*.md"
+  pull_request:
+    paths:
+      - "control/run_queue/etf_eu_client_grade_v2_preview_request_*.md"
 
 permissions:
   contents: write
@@ -146,6 +149,7 @@ jobs:
             output/quality/etf_eu_client_grade_v2_validation_${{ env.PREVIEW_RUN_ID }}.json
 
       - name: Persist preview and evidence
+        if: github.event_name != 'pull_request'
         run: |
           set -euo pipefail
           git config user.name "github-actions[bot]"
