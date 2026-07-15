@@ -6,6 +6,10 @@ from pathlib import Path
 from weasyprint import HTML
 
 
+COMMON_REPLACEMENTS = {
+    "Weekly ETF EU · client-grade preview": "Weekly ETF EU",
+}
+
 NL_REPLACEMENTS = {
     "AI / semiconductor leadership remains the dominant equity impulse.": "AI- en semiconductorleiderschap blijft de dominante aandelenimpuls.",
     "AI and semiconductor leadership remains the dominant equity impulse.": "AI- en semiconductorleiderschap blijft de dominante aandelenimpuls.",
@@ -17,6 +21,9 @@ NL_REPLACEMENTS = {
     "Defense and sovereign resilience": "Defensie en strategische weerbaarheid",
     "Defense-budget durability remains a structural support, but ETF vehicle choice still matters.": "De duurzaamheid van defensiebudgetten blijft een structurele steun, maar de keuze van het ETF-instrument blijft belangrijk.",
     "Do not rotate aggressively unless a regime shift persists for at least two runs or cross-asset confirmation becomes broad.": "Roteer niet agressief tenzij een regimeverschuiving minstens twee runs aanhoudt of de bevestiging over meerdere activaklassen breed wordt.",
+    "Maintain quality and cash discipline; any allocation still requires a verified UCITS instrument, current pricing and a separate capital decision.": "Behoud kwaliteit en kasdiscipline; iedere allocatie vereist nog steeds een geverifieerd UCITS-instrument, actuele prijzen en een afzonderlijk kapitaalbesluit.",
+    "European equity or bond exposure remains conditional on UCITS identity, trading-line verification, current pricing and relative-strength confirmation.": "Blootstelling aan Europese aandelen of obligaties blijft afhankelijk van UCITS-identiteit, verificatie van de handelslijn, actuele prijzen en bevestiging van relatieve sterkte.",
+    "Historical context; no allocation authority.": "Beschrijvende macrocontext; geen allocatiebevoegdheid.",
     "Initial cash-only EU/UCITS bootstrap state": "Initiële EU/UCITS-modelportefeuille volledig in cash",
     "refresh macro policy pack": "Ververs het macrobeleidspakket.",
     "verify broker availability and preferred EUR trading lines": "Verifieer brokerbeschikbaarheid en de gewenste EUR-handelslijnen.",
@@ -36,6 +43,7 @@ NL_REPLACEMENTS = {
 }
 
 EN_REPLACEMENTS = {
+    "Historical context; no allocation authority.": "Descriptive macro context; no allocation authority.",
     "<th>UCITS candidates</th>": "<th>UCITS lines</th>",
     "<th>Research reference</th>": "<th>Reference</th>",
     "<th>Why relevant</th>": "<th>Relevance</th>",
@@ -52,6 +60,9 @@ NL_FORBIDDEN_RESIDUALS = [
     "Non-U.S. developed exposure remains",
     "Capital spending and strategic supply-chain policy",
     "Defense-budget durability remains",
+    "Maintain quality and cash discipline",
+    "European equity or bond exposure remains conditional",
+    "Historical context; no allocation authority",
     "refresh macro policy pack",
     "verify broker availability",
     "strengthen pricing source agreement",
@@ -62,10 +73,12 @@ NL_FORBIDDEN_RESIDUALS = [
 
 def _append_print_polish(html_text: str, *, language: str) -> str:
     page_word = "Pagina" if language == "nl" else "Page"
+    of_word = "van" if language == "nl" else "of"
     extra = f"""
 <style id="etf-eu-client-grade-final-polish">
   @page {{
-    @bottom-right {{ content: "{page_word} " counter(page) " van " counter(pages); }}
+    @bottom-left {{ content: "Weekly ETF EU"; }}
+    @bottom-right {{ content: "{page_word} " counter(page) " {of_word} " counter(pages); }}
   }}
   th {{ overflow-wrap: normal; word-break: normal; hyphens: none; }}
   .wide-table {{ font-size: 6.45pt; }}
@@ -87,6 +100,8 @@ def _append_print_polish(html_text: str, *, language: str) -> str:
 
 
 def polish(html_text: str, *, language: str) -> str:
+    for source, target in COMMON_REPLACEMENTS.items():
+        html_text = html_text.replace(source, target)
     replacements = NL_REPLACEMENTS if language == "nl" else EN_REPLACEMENTS
     for source, target in sorted(replacements.items(), key=lambda item: len(item[0]), reverse=True):
         html_text = html_text.replace(source, target)
