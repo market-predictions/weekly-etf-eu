@@ -1,0 +1,14 @@
+# Weekly ETF EU routine production request
+
+schema_version=etf_eu_routine_report_request_v1
+artifact_type=etf_eu_routine_report_request
+run_id=20260716_004315
+report_date=2026-07-16
+report_suffix=260716
+previous_routine_manifest=output/run_manifests/etf_eu_routine_run_manifest_2026-07-12_20260712_125000.json
+previous_delivery_closeout_manifest=output/delivery_control/etf_eu_corrected_delivery_closeout_20260713_180000.json
+execution_mode=generate_validate_send
+send_confirmation=confirm_guarded_send
+recipient_plaintext_values_exposed=false
+secret_values_exposed=false
+raw_receipt_pdf_stored_in_github=false
