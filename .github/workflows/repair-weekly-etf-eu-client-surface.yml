@@ -55,14 +55,14 @@ jobs:
           set -euo pipefail
           PREVIEW_DIR="output/repair_preview/${SANITIZATION_RUN_ID}"
           mkdir -p "$PREVIEW_DIR" output/quality
-          python -m runtime.scrub_etf_eu_client_surface \
+          python -m runtime.scrub_etf_eu_client_surface_v2 \
             --input "output/fresh_generation/weekly_etf_eu_review_nl_${REPORT_SUFFIX}.md" \
             --output "${PREVIEW_DIR}/weekly_etf_eu_review_nl_${REPORT_SUFFIX}.md" \
             --language nl \
             --source-run-id "$SOURCE_RUN_ID" \
             --sanitization-run-id "$SANITIZATION_RUN_ID" \
             --write-result "output/quality/etf_eu_client_surface_sanitization_${SANITIZATION_RUN_ID}_nl.json"
-          python -m runtime.scrub_etf_eu_client_surface \
+          python -m runtime.scrub_etf_eu_client_surface_v2 \
             --input "output/fresh_generation/weekly_etf_eu_review_${REPORT_SUFFIX}.md" \
             --output "${PREVIEW_DIR}/weekly_etf_eu_review_${REPORT_SUFFIX}.md" \
             --language en \
