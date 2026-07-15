@@ -1,139 +1,74 @@
 # Weekly ETF EU Review OS — Next Actions
 
-Current priority: **RUN_SANITIZED_CORRECTION_PACKAGE_VALIDATE_ONLY**.
+Current priority: **RUN_NEXT_ROUTINE_WEEKLY_ETF_EU_REPORT**.
 
-## Active package
+## Closed correction cycle
 
 ```text
-work_package_id=ETF-EU-RUN260712-FIX2A_CLIENT_SURFACE_SANITIZATION_BEFORE_RESEND
+work_package_id=ETF-EU-RUN260712-FIX2B_CORRECTED_RESEND_RECEIPT_CLOSEOUT
 source_run_id=20260712_125000
 source_runtime_run_id=20260712_182002
-previous_correction_control_id=20260713_000000
-sanitization_run_id=20260713_180000
-new_correction_control_id=20260713_180000
+correction_control_id=20260713_180000
+repair_run_id=20260713_180000
+transport_runtime_run_id=20260715_152543
+github_workflow_run_id=29428021408
 report_date=2026-07-12
 report_suffix=260712
-previous_corrected_package_superseded=true
-previous_corrected_package_live_send_allowed=false
-live_corrected_resend_allowed=false
-sanitized_preview_workflow_run_id=29416431004
-sanitized_preview_workflow_job_id=87355635163
-sanitized_preview_commit=af88817eadf2bccb60aa6fe677d34e2a35b97c7b
-client_surface_sanitization_passed=true
-client_surface_clean=true
-authority_separation_gate_passed=true
-pdf_machine_gate_passed=true
-pdf_visual_gate_passed=true
-client_surface_language_clean=true
-visual_review_passed=true
-visual_review_blockers=[]
-new_corrected_package_prepared=false
-new_corrected_package_byte_identity_passed=false
-new_dry_run_completed=false
-correction_transport_attempted=false
-corrected_resend_executed=false
-receipt_confirmed=false
+corrected_resend_executed=true
+correction_transport_success=true
+receipt_confirmed=true
+expected_attachment_set_seen=true
+attachment_count_seen=4
+production_delivery_cycle_closed=true
+routine_production_ready=true
+additional_resend_required=false
+operating_mode=routine_production
 ```
 
-## Verified v2 preview result
+## Do not rerun the correction
+
+Do not rerun the corrected-resend workflow for report suffix `260712`.
+
+Do not reuse:
 
 ```text
-Dutch PDF pages=3
-English PDF pages=3
-pricing lines represented=11
-Dutch headers=Handelslijn / Peildatum
-English headers=Trading line / Pricing date
-sections 1-7 complete=true
-section 8 absent=true
-raw status enums absent=true
-authority and transport metadata absent=true
-no clipping=true
-no overlap=true
-tables readable=true
-headings readable=true
-Dutch Unicode correct=true
-client language clean=true
-duplicate title absent=true
+source_run_id=20260712_125000
+correction_control_id=20260713_180000
+transport_runtime_run_id=20260715_152543
+report_suffix=260712
+control/run_queue/etf_eu_corrected_resend_request_20260713_180000.md
+output/delivery_control/etf_eu_corrected_resend_package_20260713_180000.json
 ```
 
-## Exact next action — validate only
+These are closed historical evidence.
 
-Start a fresh GitHub Actions run from current `main`:
+## Exact next action
+
+Start the next normal routine Weekly ETF EU cycle under:
 
 ```text
-Repository: market-predictions/weekly-etf-eu
-Workflow: Weekly ETF EU corrected report resend
-Branch: main
-
-delivery_mode: validate_only
-correction_control_id: 20260713_180000
-repair_run_id: 20260713_180000
-queue_path: control/run_queue/etf_eu_corrected_resend_request_20260713_180000.md
-send_confirmation: not_confirmed
+control/ETF_EU_ROUTINE_WEEKLY_PRODUCTION_RUNBOOK_V1.md
 ```
 
-This run must:
+The new routine cycle must use:
 
 ```text
-1. build the new sanitized correction package
-2. copy only the 20260713_180000 approved preview files
-3. recalculate all four file hashes
-4. prove source and delivery byte identity
-5. revalidate machine, visual and authority-separation gates
-6. validate the correction queue
-7. persist the new package and run manifest
-8. perform no transport
+a new run_id
+a new report_date
+a new report_suffix
+current pricing
+current EU portfolio state
+ISIN-first instrument authority
+Dutch-primary and English-companion clean client outputs
+machine and visual PDF gates
+guarded delivery
+delayed independent receipt verification
 ```
 
-Expected:
+The next selected action is:
 
 ```text
-corrected_resend_prepared=true
-package_byte_identity_passed=true
-transport_attempted=false
-transport_success=false
-corrected_resend_executed=false
-receipt_confirmed=false
+RUN_NEXT_ROUTINE_WEEKLY_ETF_EU_REPORT
 ```
 
-## After validate-only succeeds
-
-Run the same workflow with:
-
-```text
-delivery_mode: dry_run
-correction_control_id: 20260713_180000
-repair_run_id: 20260713_180000
-queue_path: control/run_queue/etf_eu_corrected_resend_request_20260713_180000.md
-send_confirmation: not_confirmed
-```
-
-Expected:
-
-```text
-attachment_count=4
-transport_attempted=false
-transport_success=false
-send_executed=false
-receipt_confirmed=false
-original_transport_evidence_overwritten=false
-```
-
-Stop after verified dry-run success. Do not execute live send inside FIX2A.
-
-## Delivery boundary
-
-```text
-send_or_resend_allowed=false
-correction_transport_allowed=false
-receipt_check_allowed=false
-production_delivery_complete=false
-```
-
-After successful validate-only and dry-run, the next action becomes:
-
-```text
-EXPLICITLY_DISPATCH_SANITIZED_CORRECTED_RESEND
-```
-
-Do not reuse correction package `20260713_000000`. Do not create MVP31.
+No correction architecture package or MVP31 is required unless a new concrete defect is found.
