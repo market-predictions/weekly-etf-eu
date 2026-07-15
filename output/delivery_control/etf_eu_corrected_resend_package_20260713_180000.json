@@ -43,7 +43,7 @@
   "english_machine_gate_artifact": "output/quality/etf_eu_routine_pdf_client_grade_20260713_180000_en.json",
   "english_machine_gate_passed": true,
   "funding_authority": false,
-  "generated_at_utc": "2026-07-15T14:38:31Z",
+  "generated_at_utc": "2026-07-15T15:25:43Z",
   "next_action": "RUN_CORRECTED_RESEND_VALIDATE_ONLY",
   "original_client_output_valid": false,
   "original_delivery_evidence": "output/delivery/etf_eu_current_package_delivery_evidence_20260712_182002.json",

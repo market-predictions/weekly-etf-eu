@@ -1,0 +1,94 @@
+{
+  "artifact_type": "etf_eu_corrected_delivery_evidence",
+  "attachment_count": 4,
+  "attachment_paths": [
+    "output/corrected_delivery_package/20260713_180000/weekly_etf_eu_review_nl_260712_gecorrigeerd.pdf",
+    "output/corrected_delivery_package/20260713_180000/weekly_etf_eu_review_260712_corrected.pdf",
+    "output/corrected_delivery_package/20260713_180000/weekly_etf_eu_review_nl_260712_gecorrigeerd.html",
+    "output/corrected_delivery_package/20260713_180000/weekly_etf_eu_review_260712_corrected.html"
+  ],
+  "attachment_sha256": {
+    "dutch_primary_html": "4fd39c2db2a4d383538b2b1dbe91b5db8aec1e76105731e21e49b922b3b82741",
+    "dutch_primary_pdf": "d32e729990d3218d5f47eb0bb537b54afa7e3fa3f2b992619a04437763c4a567",
+    "english_companion_html": "492744a4c7f254a250b98991c77ef5f5373245aeaa2a7ede43fce25807bb2056",
+    "english_companion_pdf": "9c781ae3db988c5831b3a77d2ebc27510d5780405bde709c2c2b1b2a7473b34e"
+  },
+  "authorization_artifact": "output/delivery_authorization/etf_eu_corrected_resend_authorization_20260715_152543.json",
+  "correction_control_id": "20260713_180000",
+  "correction_transport": true,
+  "delivery_mode": "send",
+  "delivery_status": "smtp_sendmail_returned_no_exception",
+  "delivery_status_meaning": "SMTP success is not an end-recipient inbox receipt.",
+  "delivery_success_claimed": false,
+  "funding_authority": false,
+  "generated_at_utc": "2026-07-15T15:25:44Z",
+  "language_count": 2,
+  "languages": [
+    {
+      "attachment_count": 2,
+      "attachments": [
+        "output/corrected_delivery_package/20260713_180000/weekly_etf_eu_review_nl_260712_gecorrigeerd.pdf",
+        "output/corrected_delivery_package/20260713_180000/weekly_etf_eu_review_nl_260712_gecorrigeerd.html"
+      ],
+      "html_body": true,
+      "language": "nl",
+      "mode": "corrected_resend_transport",
+      "pdf_attached": "yes",
+      "pdf_attachments": [
+        "output/corrected_delivery_package/20260713_180000/weekly_etf_eu_review_nl_260712_gecorrigeerd.pdf"
+      ],
+      "recipient_hash": "sha256:602badb30fe408fccf59e816bc5666ad80064d8436a7431767b7bc98b8234ad3",
+      "recipient_redacted": true,
+      "report": "Dutch primary corrected client report",
+      "report_path": "output/corrected_delivery_package/20260713_180000/weekly_etf_eu_review_nl_260712_gecorrigeerd.pdf",
+      "source_manifest_path": "output/delivery_control/etf_eu_corrected_resend_package_20260713_180000.json",
+      "source_manifest_type": "etf_eu_corrected_resend_package_v1",
+      "timestamp_utc": "2026-07-15T15:25:44Z"
+    },
+    {
+      "attachment_count": 2,
+      "attachments": [
+        "output/corrected_delivery_package/20260713_180000/weekly_etf_eu_review_260712_corrected.pdf",
+        "output/corrected_delivery_package/20260713_180000/weekly_etf_eu_review_260712_corrected.html"
+      ],
+      "html_body": false,
+      "language": "en",
+      "mode": "corrected_resend_transport_companion",
+      "pdf_attached": "yes",
+      "pdf_attachments": [
+        "output/corrected_delivery_package/20260713_180000/weekly_etf_eu_review_260712_corrected.pdf"
+      ],
+      "recipient_hash": "sha256:602badb30fe408fccf59e816bc5666ad80064d8436a7431767b7bc98b8234ad3",
+      "recipient_redacted": true,
+      "report": "English corrected companion report",
+      "report_path": "output/corrected_delivery_package/20260713_180000/weekly_etf_eu_review_260712_corrected.pdf",
+      "source_manifest_path": "output/delivery_control/etf_eu_corrected_resend_package_20260713_180000.json",
+      "source_manifest_type": "etf_eu_corrected_resend_package_v1",
+      "timestamp_utc": "2026-07-15T15:25:44Z"
+    }
+  ],
+  "message_reference_hash": "sha256:864e04af91fba68abd96816524e1e5ad81a50e2fc73fc3b32b509352a5a10c00",
+  "original_transport_evidence_overwritten": false,
+  "package_manifest": "output/delivery_control/etf_eu_corrected_resend_package_20260713_180000.json",
+  "portfolio_mutation": false,
+  "production_delivery_authority": false,
+  "queue_artifact": "control/run_queue/etf_eu_corrected_resend_request_20260713_180000.md",
+  "raw_email_content_stored": false,
+  "raw_receipt_pdf_stored_in_github": false,
+  "receipt_confirmed": false,
+  "recipient_data_policy": "redacted_hash_only",
+  "recipient_plaintext_values_exposed": false,
+  "repair_run_id": "20260713_180000",
+  "report_date": "2026-07-12",
+  "report_suffix": "260712",
+  "run_id": "20260715_152543",
+  "schema_version": "etf_eu_corrected_delivery_evidence_v1",
+  "secret_values_exposed": false,
+  "send_executed": true,
+  "smtp_or_transport_provider": "smtp",
+  "source_run_id": "20260712_125000",
+  "transport_attempted": true,
+  "transport_error": null,
+  "transport_success": true,
+  "valuation_grade": false
+}
