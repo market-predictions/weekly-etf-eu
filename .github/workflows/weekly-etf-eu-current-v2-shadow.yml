@@ -112,9 +112,9 @@ jobs:
             --language en \
             --pdf "$PREVIEW_DIR/weekly_etf_eu_client_grade_${REPORT_SUFFIX}.pdf"
 
-      - name: Strictly validate current v2 product contract
+      - name: Record strict current v2 product validation
         run: |
-          set -euo pipefail
+          set +e
           python tools/validate_etf_eu_client_grade_report_v2_strict.py \
             --state "$STATE_ARTIFACT" \
             --dutch-html "$PREVIEW_DIR/weekly_etf_eu_client_grade_nl_${REPORT_SUFFIX}.html" \
@@ -122,6 +122,10 @@ jobs:
             --english-html "$PREVIEW_DIR/weekly_etf_eu_client_grade_${REPORT_SUFFIX}.html" \
             --english-pdf "$PREVIEW_DIR/weekly_etf_eu_client_grade_${REPORT_SUFFIX}.pdf" \
             --output "output/quality/etf_eu_client_grade_v2_validation_${RUN_ID}.json"
+          STATUS=$?
+          echo "ETF_EU_V2_STRICT_VALIDATOR_EXIT=$STATUS"
+          test -f "output/quality/etf_eu_client_grade_v2_validation_${RUN_ID}.json"
+          exit 0
 
       - name: Render legacy and v2 review pages
         run: |
@@ -144,7 +148,6 @@ jobs:
           legacy = Path("output/fresh_generation")
           state = json.loads(Path(f"output/runtime/etf_eu_client_grade_report_state_{run_id}.json").read_text())
           validation = json.loads(Path(f"output/quality/etf_eu_client_grade_v2_validation_{run_id}.json").read_text())
-
           files = {
               "legacy_nl_pdf": legacy / f"weekly_etf_eu_review_nl_{suffix}.pdf",
               "legacy_en_pdf": legacy / f"weekly_etf_eu_review_{suffix}.pdf",
@@ -159,6 +162,7 @@ jobs:
               raise RuntimeError(path)
           def sha(path):
               return hashlib.sha256(path.read_bytes()).hexdigest()
+          passed = validation.get("client_grade_v2_passed") is True
           payload = {
               "schema_version": "etf_eu_current_v2_shadow_comparison_v1",
               "run_id": run_id,
@@ -170,10 +174,10 @@ jobs:
               "same_current_portfolio_state": True,
               "macro_fresh_for_report": state["macro"]["fresh_for_report"],
               "equity_surface": "equity_curve" if state["equity_curve"]["show_chart"] else "cash_preservation_callout",
-              "strict_v2_validation_passed": validation["client_grade_v2_passed"],
-              "validation_blockers": validation["blockers"],
+              "strict_v2_validation_passed": passed,
+              "validation_blockers": validation.get("blockers") or [],
               "files": {key: {"path": str(path), "pages": pages(path), "sha256": sha(path), "bytes": path.stat().st_size} for key, path in files.items()},
-              "promotion_candidate": bool(validation["client_grade_v2_passed"] and state["macro"]["fresh_for_report"]),
+              "promotion_candidate": bool(passed and state["macro"]["fresh_for_report"]),
               "production_delivery_performed": False,
               "portfolio_mutation": False,
           }
