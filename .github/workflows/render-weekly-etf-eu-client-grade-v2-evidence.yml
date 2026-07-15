@@ -57,16 +57,17 @@ jobs:
           python -m runtime.polish_etf_eu_client_grade_html --html "${PREVIEW_DIR}/weekly_etf_eu_client_grade_nl_${REPORT_SUFFIX}.html" --language nl --pdf "${PREVIEW_DIR}/weekly_etf_eu_client_grade_nl_${REPORT_SUFFIX}.pdf"
           python -m runtime.polish_etf_eu_client_grade_html --html "${PREVIEW_DIR}/weekly_etf_eu_client_grade_${REPORT_SUFFIX}.html" --language en --pdf "${PREVIEW_DIR}/weekly_etf_eu_client_grade_${REPORT_SUFFIX}.pdf"
 
-      - name: Record validator evidence
+      - name: Validate final client-grade contract
         run: |
           PREVIEW_DIR="output/client_grade_preview/${PREVIEW_RUN_ID}"
-          python tools/validate_etf_eu_client_grade_report_v2.py \
+          python tools/validate_etf_eu_client_grade_report_v2_standalone.py \
             --state "output/runtime/etf_eu_client_grade_report_state_${PREVIEW_RUN_ID}.json" \
             --dutch-html "${PREVIEW_DIR}/weekly_etf_eu_client_grade_nl_${REPORT_SUFFIX}.html" \
             --dutch-pdf "${PREVIEW_DIR}/weekly_etf_eu_client_grade_nl_${REPORT_SUFFIX}.pdf" \
             --english-html "${PREVIEW_DIR}/weekly_etf_eu_client_grade_${REPORT_SUFFIX}.html" \
             --english-pdf "${PREVIEW_DIR}/weekly_etf_eu_client_grade_${REPORT_SUFFIX}.pdf" \
-            --output "output/quality/etf_eu_client_grade_v2_validation_${PREVIEW_RUN_ID}.json" || true
+            --output "output/quality/etf_eu_client_grade_v2_validation_${PREVIEW_RUN_ID}.json" \
+            --strict
 
       - name: Render review pages
         run: |
