@@ -51,7 +51,7 @@ no_clipping=true
 no_overlap=true
 tables_readable=true
 unicode_correct=true
-transport_attempted=false
+production_action_performed=false
 portfolio_mutation=false
 ```
 
@@ -68,6 +68,16 @@ visual_review_evidence_accepted=true
 v2_readiness_adapter_passed=true
 ready_for_controlled_delivery_contract_passed=true
 production_action_performed=false
+```
+
+## Production wiring verification
+
+```text
+workflow_run_id=29457483207
+routine_workflow_yaml_parsed=true
+promoted_modules_compiled=true
+required_v2_wiring_present=true
+result=success
 ```
 
 ## Promoted path
@@ -98,4 +108,4 @@ production_delivery_authority=false
 
 ## Conclusion
 
-The current-date comparison, promoted package smoke, complete visual review and readiness-adapter verification all passed. Client-grade v2 is approved and implemented as the routine Weekly ETF EU production renderer.
+The current-date comparison, promoted package smoke, complete visual review, readiness-adapter verification and static production wiring check all passed. Client-grade v2 is approved and implemented as the routine Weekly ETF EU production renderer.
