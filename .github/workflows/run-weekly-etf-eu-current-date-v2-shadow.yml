@@ -81,7 +81,7 @@ jobs:
             --comment "Validated current-date EU/UCITS shadow observation" \
             --output "output/current_date_comparison/${RUN_ID}/state/etf_eu_valuation_history.csv"
 
-      - name: Generate current production-format report
+      - name: Generate and validate current production-format report
         run: |
           set -euo pipefail
           LEGACY_DIR="output/current_date_comparison/${RUN_ID}/production"
@@ -97,27 +97,22 @@ jobs:
             --recommendation-scorecard output/etf_eu_recommendation_scorecard.csv \
             --previous-routine-manifest "$PREVIOUS_ROUTINE_MANIFEST" \
             --previous-delivery-closeout-manifest "$PREVIOUS_CLOSEOUT"
-          set +e
-          python tools/validate_etf_eu_routine_pdf_client_grade.py \
+          python -m tools.validate_etf_eu_routine_pdf_client_grade \
             --pdf "${LEGACY_DIR}/weekly_etf_eu_review_nl_${REPORT_SUFFIX}.pdf" \
             --html "${LEGACY_DIR}/weekly_etf_eu_review_nl_${REPORT_SUFFIX}.html" \
             --markdown "${LEGACY_DIR}/weekly_etf_eu_review_nl_${REPORT_SUFFIX}.md" \
             --language nl \
             --repair-run-id "$RUN_ID" \
             --source-run-id "$RUN_ID" \
-            --write-result "output/current_date_comparison/${RUN_ID}/production/validation_nl.json"
-          NL_STATUS=$?
-          python tools/validate_etf_eu_routine_pdf_client_grade.py \
+            --write-result "${LEGACY_DIR}/validation_nl.json"
+          python -m tools.validate_etf_eu_routine_pdf_client_grade \
             --pdf "${LEGACY_DIR}/weekly_etf_eu_review_${REPORT_SUFFIX}.pdf" \
             --html "${LEGACY_DIR}/weekly_etf_eu_review_${REPORT_SUFFIX}.html" \
             --markdown "${LEGACY_DIR}/weekly_etf_eu_review_${REPORT_SUFFIX}.md" \
             --language en \
             --repair-run-id "$RUN_ID" \
             --source-run-id "$RUN_ID" \
-            --write-result "output/current_date_comparison/${RUN_ID}/production/validation_en.json"
-          EN_STATUS=$?
-          printf '{"legacy_validation_diagnostic": true, "dutch_exit_code": %s, "english_exit_code": %s}\n' "$NL_STATUS" "$EN_STATUS" > "${LEGACY_DIR}/validation_summary.json"
-          exit 0
+            --write-result "${LEGACY_DIR}/validation_en.json"
 
       - name: Build current client-grade v2 state
         run: |
@@ -135,7 +130,7 @@ jobs:
             --report-suffix "$REPORT_SUFFIX" \
             --output "output/current_date_comparison/${RUN_ID}/v2/etf_eu_client_grade_report_state_${RUN_ID}.json"
 
-      - name: Render current client-grade v2 and record strict validator evidence
+      - name: Render and strictly validate current client-grade v2
         run: |
           set -euo pipefail
           V2_DIR="output/current_date_comparison/${RUN_ID}/v2"
@@ -158,8 +153,7 @@ jobs:
             --html "${V2_DIR}/weekly_etf_eu_client_grade_${REPORT_SUFFIX}.html" \
             --language en \
             --pdf "${V2_DIR}/weekly_etf_eu_client_grade_${REPORT_SUFFIX}.pdf"
-          set +e
-          python tools/validate_etf_eu_client_grade_report_v2.py \
+          python -m tools.validate_etf_eu_client_grade_report_v2 \
             --state "$STATE" \
             --dutch-html "${V2_DIR}/weekly_etf_eu_client_grade_nl_${REPORT_SUFFIX}.html" \
             --dutch-pdf "${V2_DIR}/weekly_etf_eu_client_grade_nl_${REPORT_SUFFIX}.pdf" \
@@ -167,13 +161,10 @@ jobs:
             --english-pdf "${V2_DIR}/weekly_etf_eu_client_grade_${REPORT_SUFFIX}.pdf" \
             --output "${V2_DIR}/etf_eu_client_grade_v2_validation_${RUN_ID}.json" \
             --strict
-          V2_STATUS=$?
-          printf '{"strict_validator_exit_code": %s, "evidence_only_run": true}\n' "$V2_STATUS" > "${V2_DIR}/strict_validation_summary.json"
-          exit 0
 
-      - name: Record production and v2 comparison evidence
+      - name: Strictly compare production and v2 from identical current inputs
         run: |
-          set +e
+          set -euo pipefail
           LEGACY_DIR="output/current_date_comparison/${RUN_ID}/production"
           V2_DIR="output/current_date_comparison/${RUN_ID}/v2"
           python tools/compare_etf_eu_production_and_v2.py \
@@ -189,8 +180,8 @@ jobs:
             --legacy-english-pdf "${LEGACY_DIR}/weekly_etf_eu_review_${REPORT_SUFFIX}.pdf" \
             --v2-dutch-pdf "${V2_DIR}/weekly_etf_eu_client_grade_nl_${REPORT_SUFFIX}.pdf" \
             --v2-english-pdf "${V2_DIR}/weekly_etf_eu_client_grade_${REPORT_SUFFIX}.pdf" \
-            --output "output/current_date_comparison/${RUN_ID}/etf_eu_production_v2_comparison_${RUN_ID}.json"
-          exit 0
+            --output "output/current_date_comparison/${RUN_ID}/etf_eu_production_v2_comparison_${RUN_ID}.json" \
+            --strict
 
       - name: Render complete visual comparison pages
         run: |
