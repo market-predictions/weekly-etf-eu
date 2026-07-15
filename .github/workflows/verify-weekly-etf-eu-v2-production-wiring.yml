@@ -1,0 +1,55 @@
+name: Verify Weekly ETF EU v2 production wiring
+
+on:
+  pull_request:
+    paths:
+      - "control/run_queue/etf_eu_v2_wiring_check_request_*.md"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify-wiring:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Parse workflow and compile promoted modules
+        run: |
+          python -m pip install --upgrade pip
+          pip install pyyaml
+          python - <<'PY'
+          from pathlib import Path
+          import yaml
+
+          workflow = Path('.github/workflows/run-weekly-etf-eu-routine.yml')
+          parsed = yaml.safe_load(workflow.read_text(encoding='utf-8'))
+          if not isinstance(parsed, dict):
+              raise SystemExit('routine workflow did not parse as a mapping')
+          text = workflow.read_text(encoding='utf-8')
+          required = [
+              'runtime.adapt_weekly_etf_macro_for_eu',
+              'tools.build_etf_eu_routine_report_package_v2',
+              'tools.validate_etf_eu_client_grade_report_v2',
+              'tools.write_etf_eu_routine_v2_machine_gate',
+              'tools.prepare_etf_eu_routine_package_readiness_v2',
+          ]
+          missing = [item for item in required if item not in text]
+          if missing:
+              raise SystemExit('promoted wiring missing: ' + ', '.join(missing))
+          print('ETF_EU_V2_WORKFLOW_YAML_OK')
+          PY
+          python -m py_compile \
+            runtime/adapt_weekly_etf_macro_for_eu.py \
+            runtime/build_etf_eu_client_grade_report_state.py \
+            runtime/render_etf_eu_client_grade_v2.py \
+            runtime/polish_etf_eu_client_grade_html.py \
+            tools/build_etf_eu_routine_report_package_v2.py \
+            tools/validate_etf_eu_client_grade_report_v2.py \
+            tools/write_etf_eu_routine_v2_machine_gate.py \
+            tools/prepare_etf_eu_routine_package_readiness_v2.py
