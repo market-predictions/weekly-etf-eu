@@ -98,6 +98,19 @@ jobs:
             --html-output "${PREVIEW_DIR}/weekly_etf_eu_client_grade_${REPORT_SUFFIX}.html" \
             --pdf-output "${PREVIEW_DIR}/weekly_etf_eu_client_grade_${REPORT_SUFFIX}.pdf"
 
+      - name: Apply bilingual editorial polish
+        run: |
+          set -euo pipefail
+          PREVIEW_DIR="output/client_grade_preview/${PREVIEW_RUN_ID}"
+          python -m runtime.polish_etf_eu_client_grade_html \
+            --html "${PREVIEW_DIR}/weekly_etf_eu_client_grade_nl_${REPORT_SUFFIX}.html" \
+            --language nl \
+            --pdf "${PREVIEW_DIR}/weekly_etf_eu_client_grade_nl_${REPORT_SUFFIX}.pdf"
+          python -m runtime.polish_etf_eu_client_grade_html \
+            --html "${PREVIEW_DIR}/weekly_etf_eu_client_grade_${REPORT_SUFFIX}.html" \
+            --language en \
+            --pdf "${PREVIEW_DIR}/weekly_etf_eu_client_grade_${REPORT_SUFFIX}.pdf"
+
       - name: Validate client-grade product contract
         run: |
           set -euo pipefail
