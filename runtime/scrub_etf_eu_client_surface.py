@@ -40,6 +40,8 @@ PHRASE_REPLACEMENTS = {
         "UCITS-only beleid": "beleid dat uitsluitend UCITS-fondsen toestaat",
         "fundingbeslissing": "afzonderlijk besluit over inzet van kapitaal",
         "portfolio-mutatie": "portefeuillewijziging",
+        "Core-aandelen": "Kernaandelen",
+        "Core aandelen": "Kernaandelen",
     },
     "en": {
         "pricing-line confirmation": "trading-line confirmation",
