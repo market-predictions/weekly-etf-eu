@@ -50,6 +50,15 @@ PHRASE_REPLACEMENTS = {
     },
 }
 
+SEMANTIC_TABLE_HEADERS = {
+    "nl": {
+        "| Handelslijn | ISIN | Markt | Slot | Valuta | Status |": "| Handelslijn | ISIN | Peildatum | Slot | Valuta | Status |",
+    },
+    "en": {
+        "| Trading line | ISIN | Market | Close | Currency | Status |": "| Trading line | ISIN | Pricing date | Close | Currency | Status |",
+    },
+}
+
 FORBIDDEN_COMMON = [
     "candidate_requires_verification",
     "verified_ucits_trading_line",
@@ -116,6 +125,8 @@ def sanitize_text(text: str, *, language: str) -> tuple[str, dict[str, Any]]:
 
     for source, target in PHRASE_REPLACEMENTS[language].items():
         text = text.replace(source, target)
+    for source, target in SEMANTIC_TABLE_HEADERS[language].items():
+        text = text.replace(source, target)
 
     if language == "nl":
         text = text.replace(
@@ -133,6 +144,7 @@ def sanitize_text(text: str, *, language: str) -> tuple[str, dict[str, Any]]:
     metadata = {
         "authority_section_removed": authority_present and "Authority flags" not in text,
         "status_labels_normalized": sorted(normalized_labels),
+        "semantic_pricing_header_normalized": any(target in text for target in SEMANTIC_TABLE_HEADERS[language].values()),
         "forbidden_tokens_detected": forbidden,
         "client_surface_sanitized": not blockers,
         "blockers": blockers,
