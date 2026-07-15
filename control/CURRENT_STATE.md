@@ -13,6 +13,68 @@ market-predictions/weekly-etf-eu
 ## Latest completed production cycle
 
 ```text
+work_package_id=ETF-EU-RUN260712-FIX2B_CORRECTED_RESEND_RECEIPT_CLOSEOUT
+status=corrected_resend_receipt_confirmed_and_closed
+source_run_id=20260712_125000
+source_runtime_run_id=20260712_182002
+correction_control_id=20260713_180000
+repair_run_id=20260713_180000
+transport_runtime_run_id=20260715_152543
+github_workflow_run_id=29428021408
+report_date=2026-07-12
+report_suffix=260712
+corrected_resend_executed=true
+correction_transport_attempted=true
+correction_transport_success=true
+receipt_check_status=receipt_confirmed
+receipt_confirmed=true
+expected_attachment_set_seen=true
+attachment_count_seen=4
+corrected_client_output_valid=true
+client_surface_clean=true
+authority_separation_gate_passed=true
+pdf_machine_gate_passed=true
+pdf_visual_gate_passed=true
+production_delivery_complete=true
+production_delivery_cycle_closed=true
+routine_production_ready=true
+additional_resend_required=false
+live_corrected_resend_allowed=false
+operating_mode=routine_production
+selected_next_action=RUN_NEXT_ROUTINE_WEEKLY_ETF_EU_REPORT
+```
+
+## Closeout evidence
+
+```text
+package_manifest=output/delivery_control/etf_eu_corrected_resend_package_20260713_180000.json
+transport_result=output/delivery/etf_eu_corrected_transport_result_20260715_152543.json
+delivery_evidence=output/delivery/etf_eu_corrected_delivery_evidence_20260715_152543.json
+receipt_check=output/delivery/etf_eu_corrected_receipt_check_20260715_165949.json
+receipt_evidence=output/delivery/etf_eu_corrected_receipt_evidence_20260715_165949.json
+closeout_manifest=output/delivery_control/etf_eu_corrected_delivery_closeout_20260713_180000.json
+corrected_run_manifest=output/run_manifests/etf_eu_corrected_resend_manifest_20260713_180000.json
+```
+
+## Receipt verification result
+
+```text
+mailbox_search_performed=true
+matching_message_found=true
+attachment_count_seen=4
+attachment_names_match=true
+attachment_sizes_match=true
+attachment_hash_verification=not_available_from_connector
+attachment_hashes_match=null
+additional_resend_required=false
+duplicate_send_prevented=true
+```
+
+The mailbox connector exposed the exact four filenames, MIME types and byte sizes. These matched the corrected package manifest. It did not expose raw bytes consistently for all four attachments, so hash equality was not claimed.
+
+## Previous completed production cycle
+
+```text
 work_package_id=ETF-EU-MVP30_PRODUCTION_DELIVERY_CLOSEOUT_AND_ROUTINE_RUNBOOK
 status=completed_production_delivery_closeout
 run_id=20260710_000000
@@ -22,77 +84,6 @@ transport_success=true
 receipt_confirmed_from_new_run=true
 production_delivery_cycle_closed=true
 routine_production_ready=true
-operating_mode=routine_production
-```
-
-## Active corrected-resend cycle
-
-```text
-work_package_id=ETF-EU-RUN260712-FIX2A_CLIENT_SURFACE_SANITIZATION_BEFORE_RESEND
-source_of_truth_repo=market-predictions/weekly-etf-eu
-reference_architecture_repo=market-predictions/weekly-etf
-source_run_id=20260712_125000
-source_runtime_run_id=20260712_182002
-previous_correction_control_id=20260713_000000
-correction_control_id=20260713_180000
-repair_run_id=20260713_180000
-report_date=2026-07-12
-report_suffix=260712
-previous_corrected_package_superseded=true
-previous_corrected_package_live_send_allowed=false
-sanitized_preview_generated=true
-sanitized_preview_workflow_run_id=29416431004
-sanitized_preview_commit=af88817eadf2bccb60aa6fe677d34e2a35b97c7b
-client_surface_sanitization_passed=true
-client_surface_clean=true
-authority_separation_gate_passed=true
-pdf_machine_gate_passed=true
-pdf_visual_gate_passed=true
-client_surface_language_clean=true
-package_validate_only_completed=true
-package_validate_only_runtime_run_id=20260715_143724
-package_validate_only_commit=9bfc11e4ec262a41f71bd980bf7153d6fd6ae210
-new_corrected_package_prepared=true
-new_corrected_package_byte_identity_passed=true
-new_dry_run_completed=true
-dry_run_runtime_run_id=20260715_143831
-dry_run_commit=f434fc7d24dabd195cf295bb412c5718093851e5
-dry_run_attachment_count=4
-correction_transport_attempted=false
-correction_transport_success=false
-corrected_resend_executed=false
-receipt_confirmed=false
-live_corrected_resend_allowed=true
-status=sanitized_corrected_package_dry_run_completed_awaiting_explicit_send
-selected_next_action=EXPLICITLY_DISPATCH_SANITIZED_CORRECTED_RESEND
-```
-
-## Active correction artifacts
-
-```text
-visual_review=output/quality/etf_eu_routine_pdf_visual_review_20260713_180000.json
-package_manifest=output/delivery_control/etf_eu_corrected_resend_package_20260713_180000.json
-queue=control/run_queue/etf_eu_corrected_resend_request_20260713_180000.md
-run_manifest=output/run_manifests/etf_eu_corrected_resend_manifest_20260713_180000.json
-dry_run_result=output/delivery/etf_eu_corrected_transport_result_20260715_143831.json
-dry_run_evidence=output/delivery/etf_eu_corrected_delivery_evidence_20260715_143831.json
-```
-
-## Verified dry-run state
-
-```text
-delivery_mode=dry_run
-delivery_status=dry_run_no_transport
-attachment_count=4
-transport_attempted=false
-transport_success=false
-send_executed=false
-receipt_confirmed=false
-original_transport_evidence_overwritten=false
-recipient_plaintext_values_exposed=false
-secret_values_exposed=false
-raw_email_content_stored=false
-raw_receipt_pdf_stored_in_github=false
 ```
 
 ## Authority and privacy boundaries
@@ -107,6 +98,7 @@ production_delivery_authority=false
 recipient_plaintext_values_exposed=false
 secret_values_exposed=false
 raw_email_content_stored=false
+raw_mailbox_headers_stored=false
 raw_receipt_pdf_stored_in_github=false
 original_transport_evidence_overwritten=false
 weekly_etf_eu_source_of_truth=true
@@ -115,4 +107,4 @@ weekly_etf_upstream_donor_only=true
 
 ## Current note
 
-The sanitized correction package passed validate-only and dry-run. The four corrected attachments were resolved and hash-validated, no outbound transport occurred, and receipt remains unconfirmed. The next action is one explicit guarded live corrected resend using correction control `20260713_180000`, followed by delayed independent receipt verification. The superseded `20260713_000000` package remains blocked.
+The corrected 2026-07-12 report was sent once through guarded workflow run `29428021408` and transport runtime `20260715_152543`. Independent mailbox verification found the existing message and all four expected corrected attachments. No duplicate resend was performed. The correction cycle is closed and the repository has returned to routine production. The next report must use a new run id, report date and report suffix.
