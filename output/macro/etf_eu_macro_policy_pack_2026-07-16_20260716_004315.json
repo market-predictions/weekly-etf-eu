@@ -1,0 +1,109 @@
+{
+  "artifact_type": "etf_eu_macro_policy_pack",
+  "schema_version": "etf_eu_macro_policy_pack_v1",
+  "generated_at_utc": "2026-07-15T23:43:15Z",
+  "report_date": "2026-07-16",
+  "run_id": "20260716_004315",
+  "authority": {
+    "decision_authority": "descriptive_context_only",
+    "valuation_grade": false,
+    "funding_authority": false,
+    "portfolio_mutation": false,
+    "production_delivery_authority": false
+  },
+  "regime": {
+    "current": "Policy transition / mixed regime",
+    "confidence": 0.68,
+    "previous": "Risk-on growth",
+    "what_changed": [
+      "Softer U.S. inflation reduced the immediate probability of additional Federal Reserve tightening, but policymakers still require more evidence before changing course.",
+      "The ECB remains inflation-sensitive after its June rate increase, while current communication favours caution rather than an immediate additional move.",
+      "Semiconductor demand remains structurally supportive, while higher oil prices and geopolitical tension keep cross-asset confirmation mixed."
+    ]
+  },
+  "regime_memory": {
+    "current_regime": "Policy transition / mixed regime",
+    "prior_regime": "Risk-on growth",
+    "transition_state": "transition",
+    "current_confidence": 0.68,
+    "previous_confidence": 0.66,
+    "regime_changed_this_run": true,
+    "report_date": "2026-07-16",
+    "decision_rule": "Retain cash and require current UCITS pricing, verified trading-line identity and a separate allocation decision before funding any candidate.",
+    "report_transfer": {
+      "show_in_report": true,
+      "max_lines": 3,
+      "summary": "Disinflation improves the policy backdrop, but ECB vigilance, oil risk and mixed breadth do not yet justify automatic capital deployment."
+    }
+  },
+  "central_banks": {
+    "fed": {
+      "stance": "Restrictive / data-dependent",
+      "likely_direction": "Hold while assessing whether softer inflation persists",
+      "main_risk": "A renewed inflation impulse or stronger AI-related demand could delay easing and pressure duration-sensitive assets.",
+      "etf_implication": "Prefer broad profitable equity exposure and cash discipline over unverified high-beta thematic allocations.",
+      "confidence": 0.7
+    },
+    "ecb": {
+      "stance": "Tightening / inflation-sensitive",
+      "likely_direction": "Hold near term while monitoring oil, wages and second-round inflation effects",
+      "main_risk": "Renewed energy inflation may raise the hurdle for rate-sensitive European assets and bonds.",
+      "etf_implication": "Do not add European or duration exposure without current relative-strength, pricing and instrument verification.",
+      "confidence": 0.72
+    }
+  },
+  "portfolio_implications": [
+    "Retain the cash-only portfolio until current pricing, broker availability and the separate allocation decision align.",
+    "Keep broad U.S. equity UCITS lines at the front of the implementation queue because their identity and pricing evidence are most mature.",
+    "Treat technology and semiconductor exposure as a satellite candidate subject to concentration discipline, not as an automatic core holding."
+  ],
+  "policy_catalysts": [
+    {
+      "policy_area": "U.S. disinflation and Federal Reserve patience",
+      "latest_signal": "June inflation softened materially, reducing the immediate probability of further tightening while officials continue to seek confirmation.",
+      "affected_lanes": ["Core U.S. equity through UCITS", "Technology and semiconductors", "Global aggregate bonds"],
+      "direction": "supportive but confirmation-dependent",
+      "time_horizon": "1-6 months",
+      "confidence": 0.7,
+      "transfer_to_report": true
+    },
+    {
+      "policy_area": "ECB inflation vigilance",
+      "latest_signal": "ECB officials favour caution after the June rate increase and remain alert to oil-driven inflation without signalling an immediate additional move.",
+      "affected_lanes": ["Global equity", "Global aggregate bonds", "Infrastructure and electrification"],
+      "direction": "mixed / inflation-sensitive",
+      "time_horizon": "1-6 months",
+      "confidence": 0.72,
+      "transfer_to_report": true
+    },
+    {
+      "policy_area": "AI infrastructure and semiconductor demand",
+      "latest_signal": "Strong semiconductor demand and improved industry guidance continue to support the structural compute and infrastructure lane.",
+      "affected_lanes": ["Technology and semiconductors", "Infrastructure and electrification"],
+      "direction": "supportive but concentration-sensitive",
+      "time_horizon": "3-12 months",
+      "confidence": 0.74,
+      "transfer_to_report": true
+    }
+  ],
+  "source_evidence": [
+    {
+      "publisher": "Reuters",
+      "title": "ECB policymakers take measured tone on price risks but urge vigilance",
+      "published_date": "2026-07-15",
+      "url": "https://www.reuters.com/business/ecb-policymakers-take-measured-tone-price-risks-urge-vigilance-2026-07-15/"
+    },
+    {
+      "publisher": "Reuters",
+      "title": "Morning Bid: Melting core",
+      "published_date": "2026-07-15",
+      "url": "https://www.reuters.com/commentary/reuters-open-interest/global-markets-view-usa-2026-07-15/"
+    },
+    {
+      "publisher": "Associated Press",
+      "title": "Fed chair Warsh sidesteps Senate questions on inflation, AI, contact with Trump",
+      "published_date": "2026-07-15",
+      "url": "https://apnews.com/article/09923713ddb06f25d17c975717e4fb15"
+    }
+  ]
+}
