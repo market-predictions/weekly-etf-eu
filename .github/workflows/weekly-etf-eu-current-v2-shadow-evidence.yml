@@ -1,0 +1,75 @@
+name: Weekly ETF EU current-date v2 shadow evidence
+
+on:
+  pull_request:
+    paths:
+      - "control/run_queue/etf_eu_current_v2_shadow_evidence_request_*.md"
+
+permissions:
+  contents: read
+
+jobs:
+  shadow-evidence:
+    runs-on: ubuntu-latest
+    env:
+      RUN_ID: "20260716_004315"
+      REPORT_DATE: "2026-07-16"
+      REPORT_SUFFIX: "260716"
+      MACRO_ARTIFACT: "output/macro/etf_eu_macro_policy_pack_2026-07-16_20260716_004315.json"
+      PRICING_ARTIFACT: "output/pricing/ucits_close_price_validation_basket_results_20260716_004315.json"
+      PREVIEW_DIR: "output/client_grade_preview/20260716_004315"
+      HISTORY_SHADOW: "output/runtime/etf_eu_valuation_history_20260716_004315.csv"
+      STATE_ARTIFACT: "output/runtime/etf_eu_client_grade_report_state_20260716_004315.json"
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libcairo2 libpango-1.0-0 libgdk-pixbuf-2.0-0 libffi-dev shared-mime-info fonts-liberation fonts-dejavu-core fonts-lato poppler-utils
+          python -m pip install --upgrade pip
+          pip install pyyaml yfinance mistune weasyprint
+      - name: Build fresh pricing and both report surfaces
+        run: |
+          set -euo pipefail
+          python pricing/build_ucits_close_price_validation_basket_results.py --run-id "$RUN_ID" --pause-seconds 15 --rate-limit-cooldown-seconds 600 --max-attempts 2 --rate-limit-mode stop
+          python tools/validate_ucits_close_price_validation_basket_results.py --artifact "$PRICING_ARTIFACT"
+          python -m tools.build_etf_eu_routine_report_package --run-id "$RUN_ID" --report-date "$REPORT_DATE" --report-suffix "$REPORT_SUFFIX" --pricing-artifact "$PRICING_ARTIFACT" --previous-routine-manifest output/run_manifests/etf_eu_routine_run_manifest_2026-07-12_20260712_125000.json --previous-delivery-closeout-manifest output/delivery_control/etf_eu_corrected_delivery_closeout_20260713_180000.json
+          mkdir -p output/runtime "$PREVIEW_DIR" output/quality
+          python tools/update_etf_eu_valuation_history.py --portfolio-state output/etf_eu_portfolio_state.json --history output/etf_eu_valuation_history.csv --report-date "$REPORT_DATE" --source-report "weekly_etf_eu_client_grade_v2_${REPORT_SUFFIX}" --comment "Current-date v2 shadow valuation observation; no portfolio mutation" --output "$HISTORY_SHADOW"
+          python -m runtime.build_etf_eu_client_grade_report_state --portfolio-state output/etf_eu_portfolio_state.json --valuation-history "$HISTORY_SHADOW" --pricing-artifact "$PRICING_ARTIFACT" --macro-pack "$MACRO_ARTIFACT" --registry config/ucits_symbol_registry.yml --run-id "$RUN_ID" --source-run-id "$RUN_ID" --report-date "$REPORT_DATE" --report-suffix "$REPORT_SUFFIX" --output "$STATE_ARTIFACT"
+          python -m runtime.render_etf_eu_client_grade_v2 --state "$STATE_ARTIFACT" --language nl --html-output "$PREVIEW_DIR/weekly_etf_eu_client_grade_nl_${REPORT_SUFFIX}.html" --pdf-output "$PREVIEW_DIR/weekly_etf_eu_client_grade_nl_${REPORT_SUFFIX}.pdf"
+          python -m runtime.render_etf_eu_client_grade_v2 --state "$STATE_ARTIFACT" --language en --html-output "$PREVIEW_DIR/weekly_etf_eu_client_grade_${REPORT_SUFFIX}.html" --pdf-output "$PREVIEW_DIR/weekly_etf_eu_client_grade_${REPORT_SUFFIX}.pdf"
+          python -m runtime.polish_etf_eu_client_grade_html --html "$PREVIEW_DIR/weekly_etf_eu_client_grade_nl_${REPORT_SUFFIX}.html" --language nl --pdf "$PREVIEW_DIR/weekly_etf_eu_client_grade_nl_${REPORT_SUFFIX}.pdf"
+          python -m runtime.polish_etf_eu_client_grade_html --html "$PREVIEW_DIR/weekly_etf_eu_client_grade_${REPORT_SUFFIX}.html" --language en --pdf "$PREVIEW_DIR/weekly_etf_eu_client_grade_${REPORT_SUFFIX}.pdf"
+      - name: Record strict validation evidence
+        run: |
+          set +e
+          python tools/validate_etf_eu_client_grade_report_v2_strict.py --state "$STATE_ARTIFACT" --dutch-html "$PREVIEW_DIR/weekly_etf_eu_client_grade_nl_${REPORT_SUFFIX}.html" --dutch-pdf "$PREVIEW_DIR/weekly_etf_eu_client_grade_nl_${REPORT_SUFFIX}.pdf" --english-html "$PREVIEW_DIR/weekly_etf_eu_client_grade_${REPORT_SUFFIX}.html" --english-pdf "$PREVIEW_DIR/weekly_etf_eu_client_grade_${REPORT_SUFFIX}.pdf" --output "output/quality/etf_eu_client_grade_v2_validation_${RUN_ID}.json"
+          echo "validator_exit=$?"
+          test -f "output/quality/etf_eu_client_grade_v2_validation_${RUN_ID}.json"
+          exit 0
+      - name: Render all comparison pages
+        run: |
+          set -euo pipefail
+          mkdir -p "output/comparison/${RUN_ID}"
+          pdftoppm -png -r 120 "output/fresh_generation/weekly_etf_eu_review_nl_${REPORT_SUFFIX}.pdf" "output/comparison/${RUN_ID}/legacy_nl"
+          pdftoppm -png -r 120 "output/fresh_generation/weekly_etf_eu_review_${REPORT_SUFFIX}.pdf" "output/comparison/${RUN_ID}/legacy_en"
+          pdftoppm -png -r 120 "$PREVIEW_DIR/weekly_etf_eu_client_grade_nl_${REPORT_SUFFIX}.pdf" "output/comparison/${RUN_ID}/v2_nl"
+          pdftoppm -png -r 120 "$PREVIEW_DIR/weekly_etf_eu_client_grade_${REPORT_SUFFIX}.pdf" "output/comparison/${RUN_ID}/v2_en"
+      - name: Upload full evidence bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: etf-eu-current-v2-shadow-evidence-${{ env.RUN_ID }}
+          path: |
+            output/pricing/ucits_close_price_validation_basket_results_${{ env.RUN_ID }}.json
+            output/fresh_generation/weekly_etf_eu_review_nl_${{ env.REPORT_SUFFIX }}.*
+            output/fresh_generation/weekly_etf_eu_review_${{ env.REPORT_SUFFIX }}.*
+            output/runtime/etf_eu_valuation_history_${{ env.RUN_ID }}.csv
+            output/runtime/etf_eu_client_grade_report_state_${{ env.RUN_ID }}.json
+            output/client_grade_preview/${{ env.RUN_ID }}
+            output/quality/etf_eu_client_grade_v2_validation_${{ env.RUN_ID }}.json
+            output/comparison/${{ env.RUN_ID }}
