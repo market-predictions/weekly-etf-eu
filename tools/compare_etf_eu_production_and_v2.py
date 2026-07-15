@@ -33,7 +33,14 @@ def _page_count(path: Path) -> int:
     return int(match.group(1))
 
 
-def _language_result(*, legacy_pdf: Path, v2_pdf: Path, report_date: str, language: str) -> dict[str, Any]:
+def _language_result(
+    *,
+    legacy_pdf: Path,
+    v2_pdf: Path,
+    report_date: str,
+    language: str,
+    validated_isin_first: bool,
+) -> dict[str, Any]:
     legacy_text = _pdf_text(legacy_pdf)
     v2_text = _pdf_text(v2_pdf)
     legacy_pages = _page_count(legacy_pdf)
@@ -47,8 +54,8 @@ def _language_result(*, legacy_pdf: Path, v2_pdf: Path, report_date: str, langua
         blockers.append("v2 investor/analyst hierarchy missing")
     if v2_pages <= legacy_pages:
         blockers.append(f"v2 does not add report depth: legacy_pages={legacy_pages}, v2_pages={v2_pages}")
-    if v2_text.upper().count("ISIN") < 8:
-        blockers.append("v2 ISIN-first evidence is insufficient")
+    if not validated_isin_first:
+        blockers.append("strict v2 validator did not confirm ISIN-first evidence")
     forbidden = [
         "candidate_requires_verification",
         "verified_ucits_trading_line",
@@ -68,7 +75,9 @@ def _language_result(*, legacy_pdf: Path, v2_pdf: Path, report_date: str, langua
         "additional_pages": v2_pages - legacy_pages,
         "report_date_consistent": report_date in legacy_text and report_date in v2_text,
         "investor_analyst_hierarchy_present": investor.casefold() in v2_text.casefold() and analyst.casefold() in v2_text.casefold(),
-        "isin_first_visible": v2_text.upper().count("ISIN") >= 8,
+        "isin_first_visible": validated_isin_first,
+        "isin_first_evidence_source": "strict_client_grade_validator",
+        "pdf_isin_literal_count_diagnostic": v2_text.upper().count("ISIN"),
         "internal_token_leakage": leaked,
         "passed": not blockers,
         "blockers": blockers,
@@ -98,17 +107,21 @@ def compare(args: argparse.Namespace) -> dict[str, Any]:
     if (macro.get("eu_adaptation") or {}).get("isin_first") is not True:
         blockers.append("macro adaptation does not preserve ISIN-first EU authority")
 
+    dutch_validation = validation.get("dutch") if isinstance(validation.get("dutch"), dict) else {}
+    english_validation = validation.get("english") if isinstance(validation.get("english"), dict) else {}
     dutch = _language_result(
         legacy_pdf=Path(args.legacy_dutch_pdf),
         v2_pdf=Path(args.v2_dutch_pdf),
         report_date=args.report_date,
         language="nl",
+        validated_isin_first=dutch_validation.get("isin_first_visible") is True,
     )
     english = _language_result(
         legacy_pdf=Path(args.legacy_english_pdf),
         v2_pdf=Path(args.v2_english_pdf),
         report_date=args.report_date,
         language="en",
+        validated_isin_first=english_validation.get("isin_first_visible") is True,
     )
     blockers.extend("NL: " + blocker for blocker in dutch["blockers"])
     blockers.extend("EN: " + blocker for blocker in english["blockers"])
@@ -119,7 +132,7 @@ def compare(args: argparse.Namespace) -> dict[str, Any]:
             blockers.append(f"authority field must remain false: {field}")
 
     result = {
-        "schema_version": "etf_eu_production_v2_comparison_v1",
+        "schema_version": "etf_eu_production_v2_comparison_v2",
         "artifact_type": "etf_eu_production_v2_comparison",
         "generated_at_utc": _utc_now(),
         "run_id": args.run_id,
