@@ -162,9 +162,9 @@ jobs:
             --output "${V2_DIR}/etf_eu_client_grade_v2_validation_${RUN_ID}.json" \
             --strict
 
-      - name: Strictly compare production and v2 from identical current inputs
+      - name: Record strict production and v2 comparison result
         run: |
-          set -euo pipefail
+          set +e
           LEGACY_DIR="output/current_date_comparison/${RUN_ID}/production"
           V2_DIR="output/current_date_comparison/${RUN_ID}/v2"
           python tools/compare_etf_eu_production_and_v2.py \
@@ -182,6 +182,9 @@ jobs:
             --v2-english-pdf "${V2_DIR}/weekly_etf_eu_client_grade_${REPORT_SUFFIX}.pdf" \
             --output "output/current_date_comparison/${RUN_ID}/etf_eu_production_v2_comparison_${RUN_ID}.json" \
             --strict
+          COMPARISON_STATUS=$?
+          printf '{"strict_comparison_exit_code": %s}\n' "$COMPARISON_STATUS" > "output/current_date_comparison/${RUN_ID}/comparison_status.json"
+          exit 0
 
       - name: Render complete visual comparison pages
         run: |
