@@ -1,147 +1,112 @@
 # Weekly ETF EU Review OS — Next Actions
 
-The repository now has two synchronized priorities:
+Current priority:
 
 ```text
-operational_priority=RUN_NEXT_ROUTINE_WEEKLY_ETF_EU_REPORT
-development_priority=RUN_FRESH_CURRENT_DATE_V2_SHADOW_AND_DECIDE_PROMOTION
+RUN_NEXT_ROUTINE_WEEKLY_ETF_EU_REPORT_WITH_CLIENT_GRADE_V2
 ```
 
-## Closed correction cycle
-
-```text
-work_package_id=ETF-EU-RUN260712-FIX2B_CORRECTED_RESEND_RECEIPT_CLOSEOUT
-source_run_id=20260712_125000
-source_runtime_run_id=20260712_182002
-correction_control_id=20260713_180000
-repair_run_id=20260713_180000
-transport_runtime_run_id=20260715_152543
-github_workflow_run_id=29428021408
-report_date=2026-07-12
-report_suffix=260712
-corrected_resend_executed=true
-correction_transport_success=true
-receipt_confirmed=true
-expected_attachment_set_seen=true
-attachment_count_seen=4
-production_delivery_cycle_closed=true
-routine_production_ready=true
-additional_resend_required=false
-operating_mode=routine_production
-```
-
-Do not rerun or reuse this correction cycle. These identities and artifacts are closed historical evidence.
-
-## Completed client-grade v2 development stream
+## Production status
 
 ```text
 workstream=ETF-EU-RPT01_CLIENT_GRADE_REPORT_V2
-preview_run_id=20260715_190000
-workflow_run_id=29442173869
-workflow_conclusion=success
-artifact_id=8353893752
-strict_validation_passed=true
-validation_blockers=0
-dutch_page_count=6
-english_page_count=6
-all_pages_visually_reviewed=true
-visual_review_passed=true
-production_renderer_replaced=false
-production_delivery_performed=false
+status=promoted_to_routine_production
+production_renderer=client_grade_v2
+fresh_comparison_passed=true
+promotion_smoke_passed=true
+routine_production_ready=true
 ```
 
-Completed capabilities:
+The v2 development and shadow-comparison lane is closed. Do not request another architecture promotion cycle unless a new concrete defect appears.
 
-```text
-premium investor brief
-premium analyst appendix
-normalized EU report state
-macro and policy dashboard
-structural UCITS opportunity radar
-risk and invalidation surface
-allocation map
-second-order effects
-UCITS pricing and identity appendix
-verification funnel
-conditional position and rotation sections
-valuation-history updater
-conditional deterministic equity curve
-cash-preservation fallback
-Dutch and English component renderer
-bilingual polish layer
-strict client-grade validator
-single preview workflow
-```
+## Next routine cycle
 
-Evidence:
-
-```text
-control/evidence/ETF_EU_RPT01_CLIENT_GRADE_V2_PREVIEW_EVIDENCE_20260715.md
-docs/roadmaps/WEEKLY_ETF_EU_CLIENT_GRADE_REPORT_ROADMAP_20260715.md
-```
-
-## Exact operational next action
-
-Start the next normal routine Weekly ETF EU cycle under:
+Use:
 
 ```text
 control/ETF_EU_ROUTINE_WEEKLY_PRODUCTION_RUNBOOK_V1.md
+.github/workflows/run-weekly-etf-eu-routine.yml
 ```
 
-Use:
+The next cycle must have:
 
 ```text
 a new run_id
 a new report_date
 a new report_suffix
-current pricing
+current UCITS pricing
 current EU portfolio state
-current macro evidence
-ISIN-first instrument authority
-Dutch-primary and English-companion outputs
-guarded delivery
-delayed independent receipt verification
+refreshed valuation history
+current donor macro context adapted for EU descriptive use
+ISIN-first instrument identity
+Dutch-primary client-grade v2 output
+English-companion client-grade v2 output
+strict v2 validation
+complete rendered-page review evidence
 ```
 
-## Exact development next action
-
-After that fresh routine cycle has produced current state, pricing and macro artifacts, run the existing workflow once:
+The routine path now performs:
 
 ```text
-Workflow: Weekly ETF EU client-grade v2 preview
-preview_run_id: <new unique preview id>
-source_run_id: <new routine run id>
-report_date: <new routine report date>
-report_suffix: <new routine report suffix>
-pricing_artifact: <fresh routine pricing artifact>
+pricing refresh
+→ macro adaptation
+→ valuation-history refresh
+→ normalized EU report state
+→ investor brief and analyst appendix
+→ conditional equity curve or cash-preservation surface
+→ strict v2 validation
+→ page-review evidence
+→ existing production closeout path
 ```
 
-This is a shadow render only. It performs no portfolio mutation and no delivery.
-
-Required outcome:
+## Equity surface
 
 ```text
-strict client-grade validation passes
-fresh macro warning is absent
-Dutch and English visual review passes
-equity curve or cash-preservation surface is truthful
-production and v2 report use the same current state and pricing authority
+portfolio_position_count=0
+cash_eur=100000
+current_equity_surface=cash_preservation_callout
 ```
 
-If that one fresh shadow comparison passes, make one explicit decision:
+Do not show a decorative flat graph. The equity curve activates automatically after meaningful validated NAV history or a funded position exists.
+
+## Promotion evidence
 
 ```text
-PROMOTE_CLIENT_GRADE_V2_TO_ROUTINE_PRODUCTION
+comparison_run_id=20260715_213100
+comparison_workflow_run_id=29455916014
+comparison_artifact_id=8359334286
+comparison_blockers=0
+promotion_recommended=true
+
+smoke_run_id=20260715_224700
+smoke_workflow_run_id=29456627922
+smoke_artifact_id=8359605163
+promoted_package_builder_passed=true
+strict_v2_validation_passed=true
+routine_v2_machine_gate_adapter_passed=true
+visual_review_passed=true
+production_action_performed=false
 ```
 
-Do not create six new work packages, repeated approval gates or another architecture roadmap. Repair only concrete defects found in the fresh shadow comparison.
+Decision record:
 
-## Closed identities that must not be reused
+```text
+control/decisions/ETF_EU_RPT01_CLIENT_GRADE_V2_PRODUCTION_PROMOTION_DECISION_20260716.md
+```
+
+## Closed identities
+
+Do not reuse:
 
 ```text
 source_run_id=20260712_125000
 correction_control_id=20260713_180000
-transport_runtime_run_id=20260715_152543
 report_suffix=260712
 preview_run_id=20260715_190000
+comparison_run_id=20260715_213100
+promotion_smoke_run_id=20260715_224700
 ```
+
+## Development rule
+
+Repair concrete defects directly in the promoted production path. Do not create new multi-stage architecture packages, repeated approval loops or parallel renderers for ordinary improvements.
