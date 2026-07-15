@@ -1,0 +1,84 @@
+name: Weekly ETF EU client-grade v2 evidence
+
+on:
+  pull_request:
+    paths:
+      - "control/run_queue/etf_eu_client_grade_v2_evidence_request_*.md"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  render-evidence:
+    runs-on: ubuntu-latest
+    env:
+      PREVIEW_RUN_ID: "20260715_190000"
+      SOURCE_RUN_ID: "20260712_125000"
+      REPORT_DATE: "2026-07-12"
+      REPORT_SUFFIX: "260712"
+      PRICING_ARTIFACT: "output/pricing/ucits_close_price_validation_basket_results_20260712_125000.json"
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install render dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libcairo2 libpango-1.0-0 libgdk-pixbuf-2.0-0 libffi-dev shared-mime-info fonts-liberation fonts-dejavu-core fonts-lato poppler-utils
+          python -m pip install --upgrade pip
+          pip install pyyaml weasyprint
+
+      - name: Build normalized state
+        run: |
+          python -m runtime.build_etf_eu_client_grade_report_state \
+            --portfolio-state output/etf_eu_portfolio_state.json \
+            --valuation-history output/etf_eu_valuation_history.csv \
+            --pricing-artifact "$PRICING_ARTIFACT" \
+            --macro-pack output/macro/latest.json \
+            --registry config/ucits_symbol_registry.yml \
+            --run-id "$PREVIEW_RUN_ID" \
+            --source-run-id "$SOURCE_RUN_ID" \
+            --report-date "$REPORT_DATE" \
+            --report-suffix "$REPORT_SUFFIX" \
+            --output "output/runtime/etf_eu_client_grade_report_state_${PREVIEW_RUN_ID}.json"
+
+      - name: Render and polish both languages
+        run: |
+          PREVIEW_DIR="output/client_grade_preview/${PREVIEW_RUN_ID}"
+          STATE="output/runtime/etf_eu_client_grade_report_state_${PREVIEW_RUN_ID}.json"
+          mkdir -p "$PREVIEW_DIR" output/quality
+          python -m runtime.render_etf_eu_client_grade_v2 --state "$STATE" --language nl --html-output "${PREVIEW_DIR}/weekly_etf_eu_client_grade_nl_${REPORT_SUFFIX}.html" --pdf-output "${PREVIEW_DIR}/weekly_etf_eu_client_grade_nl_${REPORT_SUFFIX}.pdf"
+          python -m runtime.render_etf_eu_client_grade_v2 --state "$STATE" --language en --html-output "${PREVIEW_DIR}/weekly_etf_eu_client_grade_${REPORT_SUFFIX}.html" --pdf-output "${PREVIEW_DIR}/weekly_etf_eu_client_grade_${REPORT_SUFFIX}.pdf"
+          python -m runtime.polish_etf_eu_client_grade_html --html "${PREVIEW_DIR}/weekly_etf_eu_client_grade_nl_${REPORT_SUFFIX}.html" --language nl --pdf "${PREVIEW_DIR}/weekly_etf_eu_client_grade_nl_${REPORT_SUFFIX}.pdf"
+          python -m runtime.polish_etf_eu_client_grade_html --html "${PREVIEW_DIR}/weekly_etf_eu_client_grade_${REPORT_SUFFIX}.html" --language en --pdf "${PREVIEW_DIR}/weekly_etf_eu_client_grade_${REPORT_SUFFIX}.pdf"
+
+      - name: Record validator evidence
+        run: |
+          PREVIEW_DIR="output/client_grade_preview/${PREVIEW_RUN_ID}"
+          python tools/validate_etf_eu_client_grade_report_v2.py \
+            --state "output/runtime/etf_eu_client_grade_report_state_${PREVIEW_RUN_ID}.json" \
+            --dutch-html "${PREVIEW_DIR}/weekly_etf_eu_client_grade_nl_${REPORT_SUFFIX}.html" \
+            --dutch-pdf "${PREVIEW_DIR}/weekly_etf_eu_client_grade_nl_${REPORT_SUFFIX}.pdf" \
+            --english-html "${PREVIEW_DIR}/weekly_etf_eu_client_grade_${REPORT_SUFFIX}.html" \
+            --english-pdf "${PREVIEW_DIR}/weekly_etf_eu_client_grade_${REPORT_SUFFIX}.pdf" \
+            --output "output/quality/etf_eu_client_grade_v2_validation_${PREVIEW_RUN_ID}.json" || true
+
+      - name: Render review pages
+        run: |
+          PREVIEW_DIR="output/client_grade_preview/${PREVIEW_RUN_ID}"
+          python tools/render_etf_eu_pdf_review_pages.py --pdf "${PREVIEW_DIR}/weekly_etf_eu_client_grade_nl_${REPORT_SUFFIX}.pdf" --output-dir "${PREVIEW_DIR}/pages/nl" --write-index "${PREVIEW_DIR}/pages/nl/index.json"
+          python tools/render_etf_eu_pdf_review_pages.py --pdf "${PREVIEW_DIR}/weekly_etf_eu_client_grade_${REPORT_SUFFIX}.pdf" --output-dir "${PREVIEW_DIR}/pages/en" --write-index "${PREVIEW_DIR}/pages/en/index.json"
+
+      - name: Upload evidence bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: etf-eu-client-grade-v2-evidence-${{ env.PREVIEW_RUN_ID }}
+          path: |
+            output/runtime/etf_eu_client_grade_report_state_${{ env.PREVIEW_RUN_ID }}.json
+            output/client_grade_preview/${{ env.PREVIEW_RUN_ID }}
+            output/quality/etf_eu_client_grade_v2_validation_${{ env.PREVIEW_RUN_ID }}.json
