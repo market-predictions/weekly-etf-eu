@@ -4,6 +4,7 @@ import argparse
 import json
 import re
 import subprocess
+import sys
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -96,7 +97,7 @@ def validate_language(state: dict[str, Any], *, language: str, html_path: Path, 
     }
 
 
-def main() -> None:
+def _parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
     parser.add_argument("--state", required=True)
     parser.add_argument("--dutch-html", required=True)
@@ -105,8 +106,10 @@ def main() -> None:
     parser.add_argument("--english-pdf", required=True)
     parser.add_argument("--output", required=True)
     parser.add_argument("--strict", action="store_true")
-    args = parser.parse_args()
+    return parser.parse_args()
 
+
+def run(args: argparse.Namespace) -> dict[str, Any]:
     state = json.loads(_text(Path(args.state)))
     blockers: list[str] = []
     if state.get("state_valid") is not True:
@@ -122,8 +125,7 @@ def main() -> None:
     en = validate_language(state, language="en", html_path=Path(args.english_html), pdf_path=Path(args.english_pdf))
     blockers.extend("NL: " + item for item in nl["blockers"])
     blockers.extend("EN: " + item for item in en["blockers"])
-
-    result = {
+    return {
         "schema_version": "etf_eu_client_grade_report_v2_validation_v1",
         "generated_at_utc": _now(),
         "run_id": state.get("run_id"),
@@ -132,14 +134,37 @@ def main() -> None:
         "dutch": nl,
         "english": en,
         "client_grade_v2_passed": not blockers,
+        "validator_crashed": False,
         "strict_mode": args.strict,
         "blockers": blockers,
         "warnings": state.get("warnings") or [],
     }
-    output = Path(args.output)
+
+
+def _write(path: str, result: dict[str, Any]) -> None:
+    output = Path(path)
     output.parent.mkdir(parents=True, exist_ok=True)
     output.write_text(json.dumps(result, indent=2, sort_keys=True, ensure_ascii=False) + "\n", encoding="utf-8")
     print(json.dumps(result, indent=2, sort_keys=True, ensure_ascii=False))
+
+
+def main() -> None:
+    args = _parse_args()
+    try:
+        result = run(args)
+    except Exception as exc:
+        result = {
+            "schema_version": "etf_eu_client_grade_report_v2_validation_v1",
+            "generated_at_utc": _now(),
+            "client_grade_v2_passed": False,
+            "validator_crashed": True,
+            "strict_mode": args.strict,
+            "exception_type": type(exc).__name__,
+            "exception_message": str(exc),
+            "blockers": ["validator crash: " + type(exc).__name__ + ": " + str(exc)],
+            "warnings": [],
+        }
+    _write(args.output, result)
     if args.strict and result["client_grade_v2_passed"] is not True:
         raise SystemExit(1)
 
