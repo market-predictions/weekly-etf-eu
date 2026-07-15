@@ -14,6 +14,8 @@ except ImportError:  # pragma: no cover
     yaml = None
 
 RATE_LIMIT_ERROR_TOKENS = ("YFRateLimitError", "Too Many Requests", "Rate limited", "rate limit", "429")
+MIN_PAUSE_SECONDS = 10.0
+MIN_RATE_LIMIT_COOLDOWN_SECONDS = 300.0
 
 
 def _utc_now() -> str:
@@ -212,6 +214,8 @@ def build_results(
     max_attempts: int,
     rate_limit_mode: str,
 ) -> Path:
+    pause_seconds = max(float(pause_seconds), MIN_PAUSE_SECONDS)
+    rate_limit_cooldown_seconds = max(float(rate_limit_cooldown_seconds), MIN_RATE_LIMIT_COOLDOWN_SECONDS)
     basket = _load_yaml(basket_path)
     lines = list(basket.get('trading_lines') or [])
     rows: list[dict[str, Any]] = []
@@ -257,6 +261,7 @@ def build_results(
             'rate_limit_cooldown_seconds': rate_limit_cooldown_seconds,
             'max_attempts_per_symbol': max_attempts,
             'default_policy': 'pause_between_requests_and_stop_batch_on_rate_limit_by_default',
+            'minimum_policy_enforced': True,
         },
         'rate_limit_observed': any(row.get('rate_limited') for row in rows),
         'batch_stopped_for_rate_limit': batch_stopped_for_rate_limit,
