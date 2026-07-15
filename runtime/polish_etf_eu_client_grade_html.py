@@ -17,6 +17,33 @@ NL_REPLACEMENTS = {
     "Defense and sovereign resilience": "Defensie en strategische weerbaarheid",
     "Defense-budget durability remains a structural support, but ETF vehicle choice still matters.": "De duurzaamheid van defensiebudgetten blijft een structurele steun, maar de keuze van het ETF-instrument blijft belangrijk.",
     "Do not rotate aggressively unless a regime shift persists for at least two runs or cross-asset confirmation becomes broad.": "Roteer niet agressief tenzij een regimeverschuiving minstens twee runs aanhoudt of de bevestiging over meerdere activaklassen breed wordt.",
+    "Initial cash-only EU/UCITS bootstrap state": "Initiële EU/UCITS-modelportefeuille volledig in cash",
+    "refresh macro policy pack": "Ververs het macrobeleidspakket.",
+    "verify broker availability and preferred EUR trading lines": "Verifieer brokerbeschikbaarheid en de gewenste EUR-handelslijnen.",
+    "strengthen pricing source agreement": "Versterk de overeenstemming tussen prijsbronnen.",
+    "take a separate allocation decision before funding": "Neem een afzonderlijk allocatiebesluit voordat kapitaal wordt ingezet.",
+    "Inverse of leveraged producten": "Inverse en hefboomproducten",
+    "3–12 months": "3–12 mnd",
+    "6–18 months": "6–18 mnd",
+    "<th>UCITS-kandidaten</th>": "<th>UCITS-lijnen</th>",
+    "<th>Onderzoeksreferentie</th>": "<th>Referentie</th>",
+    "<th>Waarom relevant</th>": "<th>Relevantie</th>",
+    "<th>Structureel</th>": "<th>S</th>",
+    "<th>Implementatie</th>": "<th>I</th>",
+    "<th>Benodigde bevestiging</th>": "<th>Volgende bevestiging</th>",
+    "<th>Handelslijn</th>": "<th>Lijn</th>",
+    "<th>Peildatum</th>": "<th>Datum</th>",
+}
+
+EN_REPLACEMENTS = {
+    "<th>UCITS candidates</th>": "<th>UCITS lines</th>",
+    "<th>Research reference</th>": "<th>Reference</th>",
+    "<th>Why relevant</th>": "<th>Relevance</th>",
+    "<th>Structural</th>": "<th>S</th>",
+    "<th>Implementation</th>": "<th>I</th>",
+    "<th>Required confirmation</th>": "<th>Next confirmation</th>",
+    "<th>Trading line</th>": "<th>Line</th>",
+    "<th>Pricing date</th>": "<th>Date</th>",
 }
 
 NL_FORBIDDEN_RESIDUALS = [
@@ -25,16 +52,49 @@ NL_FORBIDDEN_RESIDUALS = [
     "Non-U.S. developed exposure remains",
     "Capital spending and strategic supply-chain policy",
     "Defense-budget durability remains",
+    "refresh macro policy pack",
+    "verify broker availability",
+    "strengthen pricing source agreement",
+    "take a separate allocation decision before funding",
+    "Inverse of leveraged producten",
 ]
 
 
-def polish(html_text: str, *, language: str) -> str:
+def _append_print_polish(html_text: str, *, language: str) -> str:
+    page_word = "Pagina" if language == "nl" else "Page"
+    extra = f"""
+<style id="etf-eu-client-grade-final-polish">
+  @page {{
+    @bottom-right {{ content: "{page_word} " counter(page) " van " counter(pages); }}
+  }}
+  th {{ overflow-wrap: normal; word-break: normal; hyphens: none; }}
+  .wide-table {{ font-size: 6.45pt; }}
+  .pricing-table {{ font-size: 6.15pt; }}
+  .pricing-table th:nth-child(1) {{ width: 6%; }}
+  .pricing-table th:nth-child(2) {{ width: 25%; }}
+  .pricing-table th:nth-child(3) {{ width: 10%; }}
+  .pricing-table th:nth-child(4) {{ width: 12%; }}
+  .pricing-table th:nth-child(5) {{ width: 8%; }}
+  .pricing-table th:nth-child(6) {{ width: 6%; }}
+  .pricing-table th:nth-child(7) {{ width: 6%; }}
+  .pricing-table th:nth-child(8) {{ width: 15%; }}
+  .pricing-table th:nth-child(9) {{ width: 12%; }}
+</style>
+"""
     if language == "nl":
-        for source, target in sorted(NL_REPLACEMENTS.items(), key=lambda item: len(item[0]), reverse=True):
-            html_text = html_text.replace(source, target)
+        extra = extra.replace("</style>", "  .masthead { font-size: 19pt; letter-spacing: .025em; }\n</style>")
+    return html_text.replace("</head>", extra + "</head>", 1)
+
+
+def polish(html_text: str, *, language: str) -> str:
+    replacements = NL_REPLACEMENTS if language == "nl" else EN_REPLACEMENTS
+    for source, target in sorted(replacements.items(), key=lambda item: len(item[0]), reverse=True):
+        html_text = html_text.replace(source, target)
+    html_text = _append_print_polish(html_text, language=language)
+    if language == "nl":
         residuals = [token for token in NL_FORBIDDEN_RESIDUALS if token.casefold() in html_text.casefold()]
         if residuals:
-            raise RuntimeError("Dutch client-grade HTML contains untranslated macro wording: " + ", ".join(residuals))
+            raise RuntimeError("Dutch client-grade HTML contains untranslated or malformed wording: " + ", ".join(residuals))
     return html_text
 
 
