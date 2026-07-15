@@ -6,7 +6,7 @@
 
 - **Actie:** geen transactie; EUR 100.000 cash behouden.
 - **Reden:** de portefeuille bevat nog geen gefinancierde UCITS-posities en de huidige prijsrun levert marktobservaties, geen zelfstandige basis voor aankoop of waardering.
-- **Beste operationele kandidaat:** de geverifieerde S&P 500 UCITS-lijnen blijven het verst gevorderd voor verdere broker- en bevestiging van de handelslijn.
+- **Beste operationele kandidaat:** de geverifieerde S&P 500 UCITS-lijnen blijven het verst gevorderd voor verdere bevestiging bij de broker en van de handelslijn.
 - **Niet doen:** geen thematische of goudblootstelling financieren zolang identiteit, KID, handelslijn of productbeleid niet volledig zijn gevalideerd.
 
 ## 2. Portefeuille en kapitaal
@@ -21,7 +21,7 @@
 
 ## 3. Actuele UCITS-prijssnapshot
 
-| Trading line | ISIN | Markt | Slot | Valuta | Status |
+| Handelslijn | ISIN | Peildatum | Slot | Valuta | Status |
 |---|---|---|---:|---|---|
 | SMH · London Stock Exchange | IE00BMC38736 | 2026-07-10 | 114.82 | USD | Handelslijn nog te verifiëren |
 | VWCE · Xetra | IE00BK5BQT80 | 2026-07-10 | 166.14 | EUR | Handelslijn nog te verifiëren |
@@ -47,22 +47,22 @@ De getoonde prijzen zijn marktobservaties uit de huidige routine-run en vormen g
 
 ## 5. Lane-oordeel
 
-- **Core aandelen:** operationeel het meest volwassen; SXR8/CSPX blijven onderzoekskandidaten, niet gefinancierd.
+- **Kernaandelen:** operationeel het meest volwassen; SXR8/CSPX blijven onderzoekskandidaten, niet gefinancierd.
 - **Wereldwijde aandelen:** IWDA/EUNL/VWCE blijven interessant voor brede spreiding, maar lijn- en bronverificatie is nog niet volledig.
 - **Technologie en halfgeleiders:** SXRV/CNDX/SMH bieden hogere beta en concentratierisico; geen inzet van kapitaal vóór volledige verificatie.
-- **Obligaties:** EUNA/AGGH kunnen later stabiliteit leveren; huidige rol blijft onderzoekskandidaat.
-- **Goud:** Europese blootstelling betreft vaak ETC-structuren; geblokkeerd binnen beleid dat uitsluitend UCITS-fondsen toestaat totdat een expliciete beleidsbeslissing bestaat.
+- **Obligaties:** EUNA/AGGH kunnen later stabiliteit leveren; hun huidige rol blijft die van onderzoekskandidaat.
+- **Goud:** Europese blootstelling betreft vaak ETC-structuren en blijft geblokkeerd binnen het beleid dat uitsluitend UCITS-fondsen toestaat, totdat een expliciete beleidsbeslissing bestaat.
 
 ## 6. Risico- en kwaliteitsgrenzen
 
-1. Prijsobservatie is geen waarderingsautoriteit.
+1. Een prijsobservatie is geen zelfstandige waarderingsbasis.
 2. Een ticker is geen canonieke identiteit; ISIN blijft leidend.
-3. Geen portefeuillewijziging zonder afzonderlijke afzonderlijk besluit over inzet van kapitaal.
+3. Geen portefeuillewijziging zonder een afzonderlijk besluit over inzet van kapitaal.
 4. Vorige rapporten zijn historische strategiecontext, niet actuele prijswaarheid.
 5. Onopgeloste lijnen blijven buiten de besluitvorming voor de cliënt.
 
 ## 7. Volgende routineactie
 
 - Rond verificatie van brokerbeschikbaarheid en EUR-handelslijnen af.
-- Verbeter bronovereenkomst voordat de prijsinformatie als voldoende betrouwbaar voor waardering kan worden beschouwd.
+- Verbeter de bronovereenkomst voordat de prijsinformatie als voldoende betrouwbaar voor waardering kan worden beschouwd.
 - Herbeoordeel pas daarna of cash gedeeltelijk mag worden ingezet.

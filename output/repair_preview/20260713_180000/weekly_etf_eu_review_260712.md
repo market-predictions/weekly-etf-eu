@@ -1,13 +1,13 @@
 # Weekly ETF EU Review | English Companion | 2026-07-12
 
-> **Routine production review.** Pricing date: 2026-07-10. The EU portfolio remains ISIN-first. U.S. ETF symbols are research proxies only and are not investable in this model.
+> **Routine production review.** Pricing date: 2026-07-10. The EU portfolio remains ISIN-first. U.S. ETF symbols are research references only and are not investable in this model.
 
 ## 1. Decision at a glance
 
 - **Action:** no trade; retain EUR 100,000 cash.
-- **Reason:** the portfolio still has no funded UCITS positions and the current pricing run provides market observations, not funding or valuation authority.
+- **Reason:** the portfolio still has no funded UCITS positions and the current pricing run provides market observations, not an independent basis for purchase or valuation.
 - **Most advanced operational candidate:** the verified S&P 500 UCITS lines remain furthest advanced for broker and trading-line confirmation.
-- **Avoid:** do not fund thematic or gold exposure until identity, KID, trading line and product-policy checks are complete.
+- **Avoid:** do not allocate capital to thematic or gold exposure until identity, KID, trading line and product-policy checks are complete.
 
 ## 2. Portfolio and capital
 
@@ -21,7 +21,7 @@
 
 ## 3. Current UCITS pricing snapshot
 
-| Trading line | ISIN | Market | Close | Currency | Status |
+| Trading line | ISIN | Pricing date | Close | Currency | Status |
 |---|---|---|---:|---|---|
 | SMH · London Stock Exchange | IE00BMC38736 | 2026-07-10 | 114.82 | USD | Trading line requires verification |
 | VWCE · Xetra | IE00BK5BQT80 | 2026-07-10 | 166.14 | EUR | Trading line requires verification |
@@ -49,15 +49,15 @@ The displayed prices are market observations from the current routine run and do
 
 - **Core equity:** operationally most mature; SXR8/CSPX remain research candidates, not funded.
 - **Global equity:** IWDA/EUNL/VWCE remain relevant for broad diversification, but line and source verification is incomplete.
-- **Technology/semiconductors:** SXRV/CNDX/SMH carry higher beta and concentration risk; no funding before full verification.
-- **Bonds:** EUNA/AGGH may later provide stability; their current role remains research candidate.
+- **Technology and semiconductors:** SXRV/CNDX/SMH carry higher beta and concentration risk; no capital allocation before full verification.
+- **Bonds:** EUNA/AGGH may later provide stability; their current role remains that of research candidates.
 - **Gold:** European exposure often uses ETC structures; blocked under UCITS-only policy until an explicit policy decision exists.
 
 ## 6. Risk and quality boundaries
 
-1. A price observation is not valuation authority.
+1. A price observation is not an independent valuation basis.
 2. A ticker is not canonical identity; ISIN remains authoritative.
-3. No portfolio mutation without a separate funding decision.
+3. No portfolio change without a separate capital-allocation decision.
 4. Previous reports are historical strategy context, not current-price truth.
 5. Unresolved lines remain outside the client decision.
 

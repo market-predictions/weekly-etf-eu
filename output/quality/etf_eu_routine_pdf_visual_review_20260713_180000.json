@@ -1,45 +1,33 @@
 {
-  "all_sections_visible": true,
+  "all_sections_visible": false,
   "artifact_type": "etf_eu_routine_pdf_visual_review",
   "blockers": [
-    "Dutch pricing table uses the English header 'Trading line' and labels a pricing-date column as 'Markt'.",
-    "Dutch decision copy contains the malformed phrase 'broker- en bevestiging van de handelslijn'.",
-    "Dutch risk copy contains the duplicated phrase 'afzonderlijke afzonderlijk besluit'."
+    "manual visual inspection required"
   ],
   "client_surface_language_clean": false,
-  "duplicate_title_absent": true,
+  "duplicate_title_absent": false,
   "dutch_page_count": 3,
-  "dutch_pages_reviewed": [
-    1,
-    2,
-    3
-  ],
+  "dutch_pages_reviewed": [],
   "dutch_pdf": "output/repair_preview/20260713_180000/weekly_etf_eu_review_nl_260712.pdf",
   "english_page_count": 3,
-  "english_pages_reviewed": [
-    1,
-    2,
-    3
-  ],
+  "english_pages_reviewed": [],
   "english_pdf": "output/repair_preview/20260713_180000/weekly_etf_eu_review_260712.pdf",
-  "first_page_reviewed": true,
-  "generated_at_utc": "2026-07-15T11:40:00Z",
-  "headings_readable": true,
-  "last_page_reviewed": true,
-  "middle_page_reviewed": true,
-  "no_bottom_clipping": true,
-  "no_overlapping_text": true,
-  "no_right_edge_clipping": true,
+  "first_page_reviewed": false,
+  "generated_at_utc": "2026-07-15T12:45:57Z",
+  "headings_readable": false,
+  "last_page_reviewed": false,
+  "middle_page_reviewed": false,
+  "no_bottom_clipping": false,
+  "no_overlapping_text": false,
+  "no_right_edge_clipping": false,
   "repair_run_id": "20260713_180000",
   "review_notes": [
-    "All Dutch and English first, middle and last pages were rendered from the committed HTML and inspected.",
-    "Layout, pagination, tables, headings and Unicode passed visual inspection.",
-    "Visual approval remains blocked by three Dutch client-language defects; sanitizer v2 and the preview workflow have been updated for a new preview run."
+    "Rendered first, middle and last pages are ready for explicit visual inspection."
   ],
   "sanitization_run_id": "20260713_180000",
   "schema_version": "etf_eu_routine_pdf_visual_review_v1",
   "source_run_id": "20260712_125000",
-  "tables_readable": true,
-  "unicode_correct": true,
+  "tables_readable": false,
+  "unicode_correct": false,
   "visual_review_passed": false
 }
