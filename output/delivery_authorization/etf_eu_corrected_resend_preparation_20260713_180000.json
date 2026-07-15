@@ -1,0 +1,22 @@
+{
+  "artifact_type": "etf_eu_corrected_resend_preparation",
+  "authority_separation_gate_passed": true,
+  "blockers": [],
+  "client_surface_clean": true,
+  "corrected_package_manifest": "output/delivery_control/etf_eu_corrected_resend_package_20260713_180000.json",
+  "corrected_resend_executed": false,
+  "corrected_resend_prepared": true,
+  "correction_control_id": "20260713_180000",
+  "generated_at_utc": "2026-07-15T14:37:25Z",
+  "next_action": "RUN_CORRECTED_RESEND_VALIDATE_ONLY",
+  "receipt_confirmed": false,
+  "recipient_plaintext_values_exposed": false,
+  "repair_run_id": "20260713_180000",
+  "report_date": "2026-07-12",
+  "report_suffix": "260712",
+  "schema_version": "etf_eu_corrected_resend_preparation_v1",
+  "secret_values_exposed": false,
+  "source_run_id": "20260712_125000",
+  "transport_attempted": false,
+  "transport_success": false
+}

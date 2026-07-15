@@ -1,0 +1,81 @@
+{
+  "approved_source_files": {
+    "dutch_primary_html": "output/repair_preview/20260713_180000/weekly_etf_eu_review_nl_260712.html",
+    "dutch_primary_pdf": "output/repair_preview/20260713_180000/weekly_etf_eu_review_nl_260712.pdf",
+    "english_companion_html": "output/repair_preview/20260713_180000/weekly_etf_eu_review_260712.html",
+    "english_companion_pdf": "output/repair_preview/20260713_180000/weekly_etf_eu_review_260712.pdf"
+  },
+  "artifact_type": "etf_eu_corrected_resend_package",
+  "authority_separation_artifact": "output/quality/etf_eu_client_surface_authority_separation_20260713_180000.json",
+  "authority_separation_gate_passed": true,
+  "blockers": [],
+  "byte_identity_passed": true,
+  "client_surface_clean": true,
+  "combined_machine_gate_artifact": "output/quality/etf_eu_routine_pdf_client_grade_20260713_180000.json",
+  "combined_machine_gate_passed": true,
+  "corrected_client_output_valid": true,
+  "corrected_delivery_files": {
+    "dutch_primary_html": "output/corrected_delivery_package/20260713_180000/weekly_etf_eu_review_nl_260712_gecorrigeerd.html",
+    "dutch_primary_pdf": "output/corrected_delivery_package/20260713_180000/weekly_etf_eu_review_nl_260712_gecorrigeerd.pdf",
+    "english_companion_html": "output/corrected_delivery_package/20260713_180000/weekly_etf_eu_review_260712_corrected.html",
+    "english_companion_pdf": "output/corrected_delivery_package/20260713_180000/weekly_etf_eu_review_260712_corrected.pdf"
+  },
+  "corrected_resend_executed": false,
+  "corrected_resend_prepared": true,
+  "correction_control_id": "20260713_180000",
+  "correction_reason": "The original transport succeeded, but its original PDFs and first corrected client surface were not suitable for delivery.",
+  "delivery_bytes": {
+    "dutch_primary_html": 9946,
+    "dutch_primary_pdf": 30703,
+    "english_companion_html": 9767,
+    "english_companion_pdf": 30069
+  },
+  "delivery_sha256": {
+    "dutch_primary_html": "4fd39c2db2a4d383538b2b1dbe91b5db8aec1e76105731e21e49b922b3b82741",
+    "dutch_primary_pdf": "d32e729990d3218d5f47eb0bb537b54afa7e3fa3f2b992619a04437763c4a567",
+    "english_companion_html": "492744a4c7f254a250b98991c77ef5f5373245aeaa2a7ede43fce25807bb2056",
+    "english_companion_pdf": "9c781ae3db988c5831b3a77d2ebc27510d5780405bde709c2c2b1b2a7473b34e"
+  },
+  "dutch_client_surface_artifact": "output/quality/etf_eu_client_surface_clean_20260713_180000_nl.json",
+  "dutch_machine_gate_artifact": "output/quality/etf_eu_routine_pdf_client_grade_20260713_180000_nl.json",
+  "dutch_machine_gate_passed": true,
+  "english_client_surface_artifact": "output/quality/etf_eu_client_surface_clean_20260713_180000_en.json",
+  "english_machine_gate_artifact": "output/quality/etf_eu_routine_pdf_client_grade_20260713_180000_en.json",
+  "english_machine_gate_passed": true,
+  "funding_authority": false,
+  "generated_at_utc": "2026-07-15T14:37:25Z",
+  "next_action": "RUN_CORRECTED_RESEND_VALIDATE_ONLY",
+  "original_client_output_valid": false,
+  "original_delivery_evidence": "output/delivery/etf_eu_current_package_delivery_evidence_20260712_182002.json",
+  "original_transport_result": "output/delivery/etf_eu_current_package_transport_result_20260712_182002.json",
+  "portfolio_mutation": false,
+  "production_delivery_authority": false,
+  "raw_receipt_pdf_stored_in_github": false,
+  "recipient_plaintext_values_exposed": false,
+  "reference_architecture_repo": "market-predictions/weekly-etf",
+  "repair_run_id": "20260713_180000",
+  "report_date": "2026-07-12",
+  "report_suffix": "260712",
+  "schema_version": "etf_eu_corrected_resend_package_v1",
+  "secret_values_exposed": false,
+  "source_bytes": {
+    "dutch_primary_html": 9946,
+    "dutch_primary_pdf": 30703,
+    "english_companion_html": 9767,
+    "english_companion_pdf": 30069
+  },
+  "source_of_truth_repo": "market-predictions/weekly-etf-eu",
+  "source_run_id": "20260712_125000",
+  "source_runtime_run_id": "20260712_182002",
+  "source_sha256": {
+    "dutch_primary_html": "4fd39c2db2a4d383538b2b1dbe91b5db8aec1e76105731e21e49b922b3b82741",
+    "dutch_primary_pdf": "d32e729990d3218d5f47eb0bb537b54afa7e3fa3f2b992619a04437763c4a567",
+    "english_companion_html": "492744a4c7f254a250b98991c77ef5f5373245aeaa2a7ede43fce25807bb2056",
+    "english_companion_pdf": "9c781ae3db988c5831b3a77d2ebc27510d5780405bde709c2c2b1b2a7473b34e"
+  },
+  "upstream_pattern_adapted": "weekly-etf explicit report-path delivery, deterministic client-surface sanitization, pre-send rendered-output validation, redacted recipient manifest, transport-versus-receipt separation and final run-manifest closeout; adapted for the approved EU correction package",
+  "valuation_grade": false,
+  "visual_review_artifact": "output/quality/etf_eu_routine_pdf_visual_review_20260713_180000.json",
+  "visual_review_passed": true,
+  "warnings": []
+}
