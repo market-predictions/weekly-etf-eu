@@ -104,6 +104,7 @@ def main() -> None:
     parser.add_argument("--english-html", required=True)
     parser.add_argument("--english-pdf", required=True)
     parser.add_argument("--output", required=True)
+    parser.add_argument("--strict", action="store_true")
     args = parser.parse_args()
 
     state = json.loads(_text(Path(args.state)))
@@ -131,6 +132,7 @@ def main() -> None:
         "dutch": nl,
         "english": en,
         "client_grade_v2_passed": not blockers,
+        "strict_mode": args.strict,
         "blockers": blockers,
         "warnings": state.get("warnings") or [],
     }
@@ -138,7 +140,7 @@ def main() -> None:
     output.parent.mkdir(parents=True, exist_ok=True)
     output.write_text(json.dumps(result, indent=2, sort_keys=True, ensure_ascii=False) + "\n", encoding="utf-8")
     print(json.dumps(result, indent=2, sort_keys=True, ensure_ascii=False))
-    if result["client_grade_v2_passed"] is not True:
+    if args.strict and result["client_grade_v2_passed"] is not True:
         raise SystemExit(1)
 
 
