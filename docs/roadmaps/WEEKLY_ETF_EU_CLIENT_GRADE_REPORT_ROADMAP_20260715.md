@@ -1,38 +1,49 @@
 # Weekly ETF EU Client-Grade Report Roadmap
 
-Date: 2026-07-15
-Status: active fast-track implementation
+Date opened: 2026-07-15  
+Date completed: 2026-07-16  
+Status: completed and promoted to routine production  
 Workstream: `ETF-EU-RPT01_CLIENT_GRADE_REPORT_V2`
 
 ## Objective
 
 Move the Weekly ETF EU product from a technically clean UCITS verification memo to a premium client-grade decision report, using `market-predictions/weekly-etf` as the architectural donor while preserving EU/UCITS authority.
 
-This roadmap is executed as one integrated preview stream. It does not require separate permission for each internal phase.
-
-## Operating rule
+Outcome:
 
 ```text
-weekly-etf donor architecture
-→ EU-specific normalized report state
-→ conditional portfolio analytics
-→ macro/opportunity decision surfaces
-→ component-based client renderer
-→ proportionate product-quality validation
-→ one preview review
-→ explicit promotion decision
+all_six_phases_completed=true
+fresh_current_date_comparison_passed=true
+promotion_smoke_passed=true
+readiness_adapter_passed=true
+production_renderer=client_grade_v2
 ```
 
-Do not copy U.S. holdings, U.S. instrument authority, U.S. recipient authority or U.S. funding assumptions.
+## Completed architecture
 
-## Phase 1 — Premium EU report contract
+```text
+weekly-etf donor concepts
+→ EU-specific normalized report state
+→ current pricing and macro provenance
+→ valuation-history update
+→ conditional portfolio analytics
+→ investor brief + analyst appendix
+→ component-based Dutch and English renderer
+→ strict client-grade validation
+→ complete page-review evidence
+→ routine production promotion
+```
 
-Create two coherent client surfaces in one PDF.
+The EU repository remains the source of truth. U.S. holdings, ticker authority, recipient authority and funding assumptions were not copied.
+
+## Phase 1 — Premium EU report contract — completed
+
+One PDF per language now contains two coherent surfaces.
 
 ### Investor brief
 
-1. Executive cockpit
-2. Portfolio action and capital
+1. Decision cockpit
+2. Portfolio and capital
 3. Regime and policy dashboard
 4. Structural UCITS opportunity radar
 5. Key risks and invalidations
@@ -43,104 +54,135 @@ Create two coherent client surfaces in one PDF.
 
 8. Allocation map
 9. Second-order effects
-10. UCITS candidate and pricing evidence
+10. UCITS candidates and pricing evidence
 11. Verification funnel
-12. Current positions — conditional
-13. Replacement and rotation analysis — conditional
+12. Current-position review
+13. Replacement, rotation and avoidance radar
 14. Input for the next run
 15. Disclaimer
 
-Target length: 6–12 pages depending on available state. Do not manufacture empty sections merely to increase page count.
+The validated current-date reports contain six pages per language.
 
-## Phase 2 — Normalized EU runtime report state
+## Phase 2 — Normalized EU runtime report state — completed
 
-Build a single run-scoped JSON artifact from:
+The renderer now consumes one run-scoped state artifact combining:
 
-- EU portfolio state
-- EU valuation history
-- current UCITS pricing artifact
-- UCITS symbol registry
-- current macro policy pack
-- candidate/watchlist and investability evidence
+- EU portfolio state;
+- EU valuation history;
+- current UCITS pricing;
+- UCITS registry;
+- current macro-policy context;
+- candidate and verification evidence.
 
-The runtime state is the only input to the v2 renderer. Markdown and prior PDFs are not state authority.
+```text
+render_source_authority=normalized_report_state
+markdown_role=decision_summary_audit_companion_not_v2_render_source
+```
 
-## Phase 3 — Valuation history and equity curve
+## Phase 3 — Valuation history and equity curve — completed
 
-Adapt the donor SVG equity-curve contract.
+Implemented:
 
-Rules:
+- deterministic valuation-history updates;
+- current NAV reconciliation;
+- deterministic SVG equity curve;
+- cash-preservation fallback;
+- automatic chart activation after meaningful validated history or a funded position.
 
-- append or consume validated EU valuation observations only;
-- reconcile the final point to current NAV;
-- show a graph only when at least two meaningful observations exist;
-- when the model is still cash-only with no meaningful NAV movement, show a clear cash-preservation callout instead of a decorative flat graph;
-- activate the graph automatically after meaningful portfolio history exists.
+The current cash-only model correctly shows the cash-preservation surface instead of a decorative flat graph.
 
-## Phase 4 — Macro, opportunity and decision layers
+## Phase 4 — Macro, opportunity and decision layers — completed
 
-Adapt the donor macro and decision-surface concepts for the EU product:
+Implemented:
 
-- regime summary with freshness disclosure;
-- ECB/Fed policy context only when the macro artifact is sufficiently fresh;
+- current donor macro adaptation with provenance and freshness limits;
+- regime and central-bank context;
 - structural UCITS opportunity radar;
+- risks and invalidations;
 - allocation map;
 - second-order effects;
 - verification funnel;
-- downside-risk and avoidance radar instead of a literal leveraged/inverse short-product recommendation surface.
+- downside-risk and avoidance radar.
 
-U.S. ETFs remain benchmark or research references only.
+U.S. ETFs remain research references only. EU identity remains ISIN-first.
 
-## Phase 5 — Component-based premium renderer
+## Phase 5 — Component-based premium renderer — completed
 
-Create a portrait A4 renderer with:
+Implemented:
 
+- portrait A4 layout;
 - premium masthead;
-- investor-report and analyst-appendix separation;
+- investor/analyst separation;
 - executive summary cards;
 - numbered section badges;
 - reusable panels and callouts;
 - branded tables;
-- deterministic SVG chart support;
+- conditional chart placement;
 - print-aware pagination;
-- Dutch-primary and English-companion parity.
+- Dutch-primary and English-companion parity;
+- bilingual editorial polish.
 
-The current production renderer remains intact until explicit promotion.
+The legacy three-page surface is no longer the routine production renderer.
 
-## Phase 6 — Proportionate product-quality validation
+## Phase 6 — Proportionate product-quality validation — completed
 
-Validate only material product contracts:
+The promoted path validates:
 
-- required investor and analyst sections;
-- clean Dutch and English client language;
+- all fifteen report sections;
+- investor/analyst hierarchy;
+- Dutch and English client language;
 - ISIN-first identity;
-- U.S. proxies labelled research-only;
-- no internal workflow or authority metadata;
+- research-only labelling;
+- internal-metadata absence;
+- chart/cash-callout correctness;
+- page count;
 - semantic tables;
-- chart/cash-callout conditional correctness;
-- readable PDF pagination;
-- reasonable page count;
-- no clipping or raw Markdown leakage.
+- PDF completeness and visual quality.
 
-Do not create a large gate hierarchy or repeated approval loop. One automated preview pass and one final side-by-side client review are sufficient before promotion.
+Validation remains proportionate: one strict product contract plus complete page-review evidence, without a large parallel gate hierarchy.
 
-## Delivery boundary
+## Promotion evidence
 
-This workstream is preview-only.
+Fresh comparison:
 
 ```text
-portfolio_mutation=false
-transport_attempted=false
-send_executed=false
-receipt_check_performed=false
-production_renderer_replaced=false
+run_id=20260715_213100
+workflow_run_id=29455916014
+artifact_id=8359334286
+promotion_recommended=true
+blockers=[]
 ```
 
-## Promotion rule
+Promotion smoke:
 
-After the integrated preview passes automated validation and side-by-side review against the donor report, make one explicit decision:
+```text
+run_id=20260715_224700
+workflow_run_id=29456627922
+artifact_id=8359605163
+strict_validation_passed=true
+visual_review_passed=true
+```
 
-- promote v2 into routine production; or
-- record a short, concrete defect list and repair only those defects.
+Readiness verification:
 
-Do not restart architecture planning unless a specific structural defect is found.
+```text
+run_id=20260715_225500
+workflow_run_id=29457156167
+artifact_id=8359792531
+readiness_adapter_passed=true
+```
+
+Detailed evidence:
+
+```text
+control/evidence/ETF_EU_RPT01_CLIENT_GRADE_V2_PRODUCTION_PROMOTION_EVIDENCE_20260716.md
+control/decisions/ETF_EU_RPT01_CLIENT_GRADE_V2_PRODUCTION_PROMOTION_DECISION_20260716.md
+```
+
+## Production boundary
+
+The comparison and promotion verification performed no production action and did not modify portfolio state. The established run-specific authority and receipt layers remain separate from report generation.
+
+## Final operating rule
+
+Client-grade v2 is the routine production renderer. Normal weekly runs use the promoted path automatically. Repair concrete defects directly; restart architecture planning only for a genuine material capability change.
