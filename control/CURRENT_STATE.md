@@ -45,19 +45,22 @@ previous_corrected_package_superseded=true
 previous_corrected_package_live_send_allowed=false
 live_corrected_resend_allowed=false
 sanitized_preview_generated=true
-sanitized_preview_commit=f0d07ac7ec2ede1825cc868f162b45d7060ad7b6
+sanitized_preview_workflow_run_id=29416431004
+sanitized_preview_workflow_job_id=87355635163
+sanitized_preview_commit=af88817eadf2bccb60aa6fe677d34e2a35b97c7b
+sanitized_preview_artifact_id=8343309423
 client_surface_sanitization_passed=true
+client_surface_clean=true
 authority_separation_gate_passed=true
 pdf_machine_gate_passed=true
 visual_review_completed=true
 visual_layout_gate_passed=true
-client_surface_language_clean=false
-pdf_visual_gate_passed=false
-visual_language_blocker_count=3
-latest_corrected_resend_workflow_run_id=29411450220
-latest_corrected_resend_job_id=87339249817
-latest_corrected_resend_attempt_status=blocked_before_package_preparation
-latest_corrected_resend_failure=visual_review_did_not_pass
+client_surface_language_clean=true
+pdf_visual_gate_passed=true
+visual_language_blocker_count=0
+dutch_pdf_page_count=3
+english_pdf_page_count=3
+pricing_line_count_detected=11
 new_corrected_package_prepared=false
 new_corrected_package_byte_identity_passed=false
 new_dry_run_completed=false
@@ -67,8 +70,8 @@ receipt_confirmed=false
 client_surface_sanitizer_v2_created=true
 client_surface_preview_workflow_v2_enabled=true
 semantic_pricing_header_gate_created=true
-status=visual_review_failed_language_contract_awaiting_v2_preview
-selected_next_action=RERUN_CLIENT_SURFACE_REPAIR_PREVIEW_WITH_V2
+status=sanitized_v2_preview_visual_approved_awaiting_validate_only
+selected_next_action=RUN_SANITIZED_CORRECTION_PACKAGE_VALIDATE_ONLY
 ```
 
 ## Active FIX2A artifacts
@@ -91,15 +94,23 @@ new_queue=control/run_queue/etf_eu_corrected_resend_request_20260713_180000.md
 new_package_manifest=output/delivery_control/etf_eu_corrected_resend_package_20260713_180000.json
 ```
 
-## Confirmed visual-language blockers in superseded preview
+## Passed v2 client-output gates
 
 ```text
-1. Dutch pricing table used the English header Trading line and labelled the pricing-date column as Markt.
-2. Dutch decision copy contained broker- en bevestiging van de handelslijn.
-3. Dutch risk copy contained afzonderlijke afzonderlijk besluit.
+Dutch client-surface clean=true
+English client-surface clean=true
+Dutch semantic pricing header=Handelslijn / Peildatum
+English semantic pricing header=Trading line / Pricing date
+raw status enums absent=true
+authority and transport metadata absent=true
+sections 1-7 complete=true
+section 8 absent=true
+Dutch PDF pages=3
+English PDF pages=3
+pricing lines represented=11
+visual_review_passed=true
+blockers=[]
 ```
-
-The page layout, pagination, tables, headings and Unicode passed. The preview did not pass the complete visual contract because client language is part of the visual/client-grade gate.
 
 ## Authority and privacy boundaries
 
@@ -121,4 +132,4 @@ weekly_etf_upstream_donor_only=true
 
 ## Current note
 
-Corrected-resend workflow run `29411450220`, job `87339249817`, was correctly blocked in package preparation because the visual-review artifact had not passed. Validate-only, dry-run, authorization and send were skipped. Manual inspection then confirmed clean layout but three Dutch client-language defects. Sanitizer v2, the preview workflow and the semantic PDF language gate have been updated. Start a new client-surface repair preview from current `main`; do not rerun the failed corrected-resend job and do not attempt transport.
+Workflow run `29416431004` completed successfully. Sanitizer v2, Dutch and English client-surface validation, semantic PDF language validation, authority separation, page rendering, artifact upload and persistence all passed. All six first, middle and last page renders were inspected and the visual-review artifact was approved with no blockers. The next action is to run the generalized corrected-report workflow in `validate_only` mode for correction control id `20260713_180000`. No correction transport or receipt check has occurred.
