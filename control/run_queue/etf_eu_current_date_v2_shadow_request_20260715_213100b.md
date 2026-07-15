@@ -1,0 +1,13 @@
+# Weekly ETF EU current-date production and v2 shadow request
+
+```text
+schema_version=etf_eu_current_date_v2_shadow_request_v1
+artifact_type=etf_eu_current_date_v2_shadow_request
+run_id=20260715_213100
+report_date=2026-07-15
+report_suffix=260715
+pricing_throttle_policy=repository_minimum_enforced
+production_delivery=false
+portfolio_mutation=false
+selected_action=RUN_CURRENT_DATE_PRODUCTION_AND_V2_SHADOW_COMPARISON
+```
