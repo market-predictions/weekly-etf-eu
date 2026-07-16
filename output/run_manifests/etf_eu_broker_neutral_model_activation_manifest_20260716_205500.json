@@ -1,0 +1,58 @@
+{
+  "schema_version": "etf_eu_broker_neutral_model_activation_manifest_v1",
+  "run_id": "20260716_205500",
+  "activation_id": "ETF-EU-BROKER-NEUTRAL-20260716_205500",
+  "report_date": "2026-07-16",
+  "status": "model_activation_applied_validated_and_closed",
+  "execution_path": "in_session_guarded_activation_after_connector_queue_produced_no_actions_run",
+  "github_actions_run_verified": false,
+  "authority": {
+    "model_portfolio_only": true,
+    "portfolio_mutation": true,
+    "real_broker_execution": false,
+    "broker_specific_permission_required_for_model": false,
+    "broker_permission_required_for_real_execution": true,
+    "production_delivery": false,
+    "email_send": false
+  },
+  "source_artifacts": {
+    "pricing": "output/pricing/etf_eu_exact_line_review_pricing_20260716_205500.json",
+    "review": "output/runtime/etf_eu_broker_neutral_allocation_review_20260716_205500.json",
+    "review_validation": "output/quality/etf_eu_broker_neutral_allocation_review_validation_20260716_205500.json",
+    "activation_decision": "control/decisions/ETF_EU_BROKER_NEUTRAL_FIRST_TRANCHE_ACTIVATION_DECISION_20260716.md"
+  },
+  "output_artifacts": {
+    "activation_result": "output/runtime/etf_eu_broker_neutral_model_activation_result_20260716_205500.json",
+    "activation_validation": "output/quality/etf_eu_broker_neutral_model_activation_validation_20260716_205500.json",
+    "portfolio_state": "output/etf_eu_portfolio_state.json",
+    "trade_ledger": "output/etf_eu_trade_ledger.csv",
+    "valuation_history": "output/etf_eu_valuation_history.csv"
+  },
+  "post_activation_portfolio": {
+    "cash_eur": 60439.44,
+    "invested_market_value_eur": 39577.16,
+    "nav_eur": 100016.60,
+    "position_count": 3,
+    "positions": [
+      {"ticker": "VWCE", "isin": "IE00BK5BQT80", "shares": 151, "market_value_eur": 24963.32, "weight_pct": 24.959177},
+      {"ticker": "EUNA", "isin": "IE00BDBRDM35", "shares": 1526, "market_value_eur": 7497.24, "weight_pct": 7.495996},
+      {"ticker": "SXR8", "isin": "IE00B5BMR087", "shares": 10, "market_value_eur": 7116.60, "weight_pct": 7.115419}
+    ]
+  },
+  "validation": {
+    "passed": true,
+    "cash_reconciliation_passed": true,
+    "nav_reconciliation_passed": true,
+    "whole_share_contract_passed": true,
+    "cent_precision_passed": true,
+    "trade_ledger_unique_ids_passed": true,
+    "broker_neutral_model_authority_passed": true,
+    "sxr8_second_tranche_authorized": false
+  },
+  "delivery": {
+    "attempted": false,
+    "send_executed": false,
+    "receipt_created": false
+  },
+  "next_action": "GENERATE_AND_VISUALLY_REVIEW_FUNDED_AWARE_THREE_POSITION_ROUTINE_REPORT"
+}
