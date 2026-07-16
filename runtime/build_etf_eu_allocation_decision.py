@@ -162,7 +162,7 @@ def build_decision(*, policy_path: Path, portfolio_state_path: Path, pricing_art
             "trade_value_eur": trade_value if eligible else 0.0, "projected_market_value_eur": projected_value,
             "projected_weight_pct": round(projected_value / nav * 100.0, 6) if nav else 0.0,
             "eligibility_status": "eligible_for_model_activation" if eligible else "blocked", "action": action, "blockers": blockers,
-            "reason_codes": ["first_tranche", "whole_shares_only", "blocked_capacity_not_reallocated"] + (["exact_isin_and_line_verified", "current_public_close_available"] if eligible else []),
+            "reason_codes": ["first_tranche", "whole_shares_only", "blocked_capacity_not_reallocated"] + (["exact_isin_and_line_verified", "current_public_close_available", "broker_permission_not_required_for_model"] if eligible else []),
             "conviction_tier": target.get("conviction_tier"), "rationale": target.get("rationale"),
             "instrument_metadata": {name: target.get(name) for name in ("ter_pct", "distribution_policy", "replication_method", "domicile", "benchmark_index") if target.get(name) is not None},
         })
@@ -183,13 +183,13 @@ def build_decision(*, policy_path: Path, portfolio_state_path: Path, pricing_art
         "generated_at_utc": datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z"),
         "activation_id": f"ETF-EU-CAP01-{run_id}", "run_id": run_id, "report_date": report_date_raw,
         "source_files": {"target_allocation": str(policy_path), "portfolio_state": str(portfolio_state_path), "pricing_artifact": str(pricing_artifact_path)},
-        "authority": {"model_portfolio_only": True, "real_broker_execution": False, "personal_investment_advice": False, "canonical_identity": "isin_plus_exact_trading_line", "whole_shares_only": True, "blocked_capacity_reallocated": False, "valuation_grade": False, "model_capital_activation_authority": True},
+        "authority": {"model_portfolio_only": True, "real_broker_execution": False, "personal_investment_advice": False, "canonical_identity": "isin_plus_exact_trading_line", "whole_shares_only": True, "blocked_capacity_reallocated": False, "valuation_grade": False, "model_capital_activation_authority": True, "broker_specific_permission_required_for_model": False, "broker_permission_required_for_real_execution": True},
         "policy": {"allocation_style": config.get("allocation_style"), "phase_id": activation.get("phase_id"), "phase_fraction": phase_fraction, "minimum_cash_reserve_pct": min_cash_pct, "minimum_cash_reserve_eur": min_cash_eur, "blocked_capacity_policy": activation.get("blocked_capacity_policy"), "strategic_target_weight_total_pct": target_total},
         "pre_activation_portfolio": {"cash_eur": round(cash, 2), "invested_market_value_eur": round(f(state.get("invested_market_value_eur")), 2), "nav_eur": round(nav, 2), "position_count": len(state.get("positions") or [])},
         "decisions": decisions,
         "summary": {"executable_position_count": len(buys), "blocked_target_count": len(blocked), "executable_trade_value_eur": total_trade, "projected_cash_eur": remaining_cash, "projected_invested_market_value_eur": projected_invested, "projected_nav_eur": projected_nav, "projected_cash_weight_pct": round(remaining_cash / nav * 100.0, 6), "nav_reconciliation_ok": abs(projected_nav - nav) <= 0.01, "blocked_target_capacity_retained_as_cash": True},
         "allocation_status": "ready_for_guarded_model_activation" if not hard_blockers else "blocked", "hard_blockers": hard_blockers,
-        "warnings": ["Public close supports only the repository model portfolio, not a brokerage execution.", "Blocked strategic capacity remains cash and is not redistributed."],
+        "warnings": ["Public close supports only the repository model portfolio, not a brokerage execution.", "Broker-specific account permissions are outside the model-allocation gate and must be checked only before real execution.", "Blocked strategic capacity remains cash and is not redistributed."],
     }
     output_path.parent.mkdir(parents=True, exist_ok=True)
     output_path.write_text(json.dumps(payload, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
