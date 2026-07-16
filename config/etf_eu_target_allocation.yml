@@ -10,6 +10,8 @@ activation:
   minimum_cash_reserve_pct: 7.50
   blocked_capacity_policy: retain_as_cash
   whole_shares_only: true
+  broker_specific_permission_required_for_model: false
+  broker_permission_required_for_real_execution: true
   fees_eur: 0.0
   max_price_age_days: 3
   accepted_pricing_statuses:
@@ -33,7 +35,7 @@ strategic_targets:
     trading_currency: EUR
     target_weight_pct: 50.0
     conviction_tier: Core
-    rationale: Broad global core exposure; blocked until the exact trading line is verified.
+    rationale: Broad global core exposure on a verified Xetra line; requires fresh completed-close pricing and a new allocation decision.
   - priority: 20
     allocation_id: us_equity_overweight
     portfolio_role: U.S. equity overweight
@@ -62,7 +64,7 @@ strategic_targets:
     trading_currency: EUR
     target_weight_pct: 15.0
     conviction_tier: Stabiliser
-    rationale: Portfolio ballast; blocked until share-class identity and line verification are repaired.
+    rationale: Portfolio ballast on the broker-neutral canonical Xetra EUNA line; requires fresh completed-close pricing and a new allocation decision.
   - priority: 40
     allocation_id: nasdaq_satellite
     portfolio_role: Technology growth satellite
@@ -86,7 +88,7 @@ strategic_targets:
     trading_currency: USD
     target_weight_pct: 5.0
     conviction_tier: Satellite
-    rationale: Structural AI and compute exposure; blocked until line verification and EUR execution policy are complete.
+    rationale: Structural AI and compute exposure; blocked until line verification and EUR/FX model-execution policy are complete.
   - priority: 100
     allocation_id: cash_reserve
     portfolio_role: Strategic cash reserve
