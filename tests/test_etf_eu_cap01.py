@@ -6,7 +6,9 @@ from pathlib import Path
 
 from runtime.apply_etf_eu_guarded_capital_activation import apply
 from runtime.build_etf_eu_allocation_decision import build_decision
+from runtime.render_etf_eu_client_grade_v2_funded import funded_overlay, patch_copy
 from tools.validate_etf_eu_allocation_decision import validate
+from tools.validate_etf_eu_client_grade_report_v2_standalone import funded_state_blockers
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -46,3 +48,39 @@ def test_cap01_dry_run_and_guarded_apply(tmp_path: Path) -> None:
     second = apply(decision_path=decision_path, validation_path=validation_path, portfolio_state_path=state, trade_ledger_path=ledger, confirmation="CONFIRM_ETF_EU_MODEL_CAPITAL_ACTIVATION", output_path=tmp_path / "result2.json")
     assert second["status"] == "already_applied"
     assert len(list(csv.DictReader(ledger.open("r", encoding="utf-8", newline="")))) == len(rows)
+
+
+def test_funded_report_reconciles_three_positions_and_removes_broker_model_gates() -> None:
+    positions = [
+        {"exchange_ticker": "VWCE", "shares": 151, "current_weight_pct": 24.959177, "strategic_target_weight_pct": 50.0, "shares_delta_this_run": 151, "price_date": "2026-07-16"},
+        {"exchange_ticker": "EUNA", "shares": 1526, "current_weight_pct": 7.495996, "strategic_target_weight_pct": 15.0, "shares_delta_this_run": 1526, "price_date": "2026-07-15"},
+        {"exchange_ticker": "SXR8", "shares": 10, "current_weight_pct": 7.115419, "strategic_target_weight_pct": 15.0, "shares_delta_this_run": 0, "price_date": "2026-07-16"},
+    ]
+    state = {
+        "portfolio": {"positions": positions, "nav_eur": 100016.60, "cash_eur": 60439.44, "invested_market_value_eur": 39577.16},
+        "opportunity_radar": [
+            {"lane_id": "core_us_equity", "candidate_tickers": ["CSPX", "SXR8"], "status": "operationally_mature_not_funded", "next_confirmation_nl": "Bevestig brokerbeschikbaarheid", "next_confirmation_en": "Confirm broker availability"},
+            {"lane_id": "global_equity", "candidate_tickers": ["VWCE", "EUNL", "IWDA"], "status": "operationally_mature_not_funded", "next_confirmation_nl": "Bevestig brokerbeschikbaarheid", "next_confirmation_en": "Confirm broker availability"},
+            {"lane_id": "aggregate_bonds", "candidate_tickers": ["EUNA"], "status": "operationally_mature_not_funded", "next_confirmation_nl": "Bevestig brokerbeschikbaarheid", "next_confirmation_en": "Confirm broker availability"},
+        ],
+        "verification_funnel": {"funded_positions": 1},
+        "next_run_input": {"required_actions": ["verify broker availability"], "priority_candidates": []},
+        "risks": [{"invalidation_nl": "Geen financiering vóór identiteit, KID, handelslijn en brokerbeschikbaarheid zijn bevestigd.", "invalidation_en": "No funding before identity, KID, trading line and broker availability are confirmed."}],
+        "macro": {"portfolio_implications": ["Retain cash until the selected UCITS trading line, broker availability and current pricing are jointly verified."]},
+        "authority": {"canonical_identity": "isin_first", "us_etfs_research_only": True, "valuation_grade": False, "funding_authority": False, "portfolio_mutation": False, "production_delivery_authority": False},
+    }
+    reconciled = funded_overlay(state)
+    assert funded_state_blockers(reconciled) == []
+    assert reconciled["funded_consistency"]["position_count"] == 3
+    assert reconciled["funded_consistency"]["funded_tickers"] == ["VWCE", "EUNA", "SXR8"]
+    assert all(lane["status"] == "funded_model_position_active" for lane in reconciled["opportunity_radar"])
+    serialized = json.dumps(reconciled, ensure_ascii=False).casefold()
+    assert "brokerbeschikbaarheid" not in serialized
+    assert "broker availability" not in serialized
+
+    base_nl = "Cash behouden. Deze week: geen portefeuilletransactie; de EU-modelportefeuille blijft volledig in cash. <p>Position analysis active.</p>"
+    rendered_nl = patch_copy(base_nl, reconciled, "nl")
+    assert "3 modelposities actief" in rendered_nl
+    assert "151 VWCE" in rendered_nl and "1.526 EUNA" in rendered_nl and "10 SXR8" in rendered_nl
+    assert "Eerste modelpositie actief" not in rendered_nl
+    assert "Peildatum" in rendered_nl
