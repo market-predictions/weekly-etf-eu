@@ -3,7 +3,7 @@
 Date: 2026-07-16  
 Repository: `market-predictions/weekly-etf-eu`
 
-This is the authoritative operational runbook for fresh generation, client-grade v2 validation, controlled production action, delayed receipt verification and closeout of routine Weekly ETF EU reports.
+This is the authoritative operational runbook for fresh pricing, active-position review, candidate verification, allocation decisions, funded-aware report generation, guarded production action, delayed receipt verification and closeout.
 
 ## Phase 1 — Session start and authority
 
@@ -12,39 +12,110 @@ This is the authoritative operational runbook for fresh generation, client-grade
 3. Read `control/NEXT_ACTIONS.md`.
 4. Inspect the closest `market-predictions/weekly-etf` implementation before changing EU machinery.
 5. Keep `weekly-etf-eu` as EU/UCITS source of truth.
-6. Create a new `run_id`, `report_date` and `report_suffix`.
-7. Never reuse a previous run's dated queue, manifests or evidence as current-run authority.
+6. Create a new `run_id`, `report_date` and `report_suffix` for a report run.
+7. Never reuse dated queue, manifest or delivery evidence as current-run authority.
+8. Ordinary repricing, position review and candidate verification are routine operations, not new architecture packages.
 
 ## Phase 2 — Current inputs and normalized state
 
-1. Obtain current UCITS pricing evidence.
-2. Validate UCITS identity through the EU registry and ISIN-first rules.
-3. Use current EU portfolio state as authority.
-4. Append or replace the current report-date observation in EU valuation history.
-5. Adapt the current `weekly-etf` macro-policy pack as descriptive EU context with provenance.
-6. Reject donor macro evidence that is more than three days older than the EU report date.
-7. Treat previous reports as historical strategy context only.
-8. Do not fund or promote an ETF without required pricing, identity and investability evidence.
-9. Build one normalized run-scoped ETF EU report state.
-
-Required input/state contract:
+Required inputs:
 
 ```text
 portfolio_state=output/etf_eu_portfolio_state.json
 valuation_history=output/etf_eu_valuation_history.csv
+recommendation_scorecard=output/etf_eu_recommendation_scorecard.csv
 pricing_artifact=output/pricing/ucits_close_price_validation_basket_results_<run_id>.json
 macro_pack=output/macro/etf_eu_macro_policy_pack_<run_id>.json
 ucits_registry=config/ucits_symbol_registry.yml
-canonical_identity=isin_first
+canonical_identity=isin_plus_exact_trading_line
 us_etfs_research_only=true
 ```
 
-## Phase 3 — Client-grade v2 generation
+Rules:
 
-The routine production renderer is:
+1. Obtain current completed-close UCITS pricing evidence.
+2. Validate fund identity and exact trading line through the registry.
+3. Use current EU portfolio state as quantity and cash authority.
+4. Append or replace the report-date valuation-history observation deterministically.
+5. Adapt current donor macro context with provenance; reject evidence more than three days older than the report date.
+6. Treat previous reports as historical strategy context only.
+7. Do not substitute issuer NAV for an exchange close.
+8. Do not infer broker-account product permission from general venue support.
+9. Do not fund or promote an ETF without required pricing, identity, investability and explicit allocation evidence.
+10. Build one normalized run-scoped report state.
+
+## Phase 3 — Active-position review
+
+Every funded position must receive one canonical action:
 
 ```text
-runtime/render_etf_eu_client_grade_v2.py
+hold
+hold_with_override
+add_from_cash
+reduce
+replace_partial
+replace_full
+close
+```
+
+The review must determine:
+
+```text
+current market value
+unrealized P&L
+portfolio contribution
+current weight
+role validity
+thesis status
+relative-strength status
+action_code
+reason_codes
+target_weight
+trade_intent or explicit no-trade result
+```
+
+Rules:
+
+1. Portfolio state is incumbent quantity authority.
+2. A stale or unavailable exact-line close must be disclosed; do not invent a price.
+3. A fresh-cash add requires fresh exact-line pricing, sufficient confirming evidence, concentration review and a new allocation decision.
+4. No automatic second tranche is allowed.
+5. Prose cannot create a trade. Only explicit validated `trade_intents[]` may support a guarded mutation.
+6. If evidence is insufficient, use a governed hold/defer result and retain capital as cash.
+
+## Phase 4 — Candidate verification and allocation review
+
+For every candidate considered for capital, require:
+
+```text
+ISIN
+UCITS status
+PRIIPs/KID status
+exact venue
+exchange ticker
+provider/Bloomberg/RIC identifiers where relevant
+trading currency
+fresh completed close
+broker account-level product permission
+portfolio overlap and concentration review
+whole-share sizing
+separate allocation decision
+```
+
+Identifier rules:
+
+1. Ticker alone is never canonical authority.
+2. Different share classes may not share one ISIN record.
+3. Issuer exchange ticker and data-vendor/broker identifier must be stored separately when they differ.
+4. Blocked target capacity remains cash and may not be silently reallocated.
+5. The allocation artifact must expose `incumbent_reviews[]`, `candidate_reviews[]`, `trade_intents[]`, reason codes and authority fields.
+
+## Phase 5 — Funded-aware client-grade v2 generation
+
+The production renderer is:
+
+```text
+runtime/render_etf_eu_client_grade_v2_funded.py
 ```
 
 The report builder is:
@@ -53,7 +124,9 @@ The report builder is:
 tools/build_etf_eu_routine_report_package_v2.py
 ```
 
-The native output consists of two client surfaces in each language:
+Generate Dutch-primary and English-companion outputs from the same normalized state.
+
+Required hierarchy:
 
 ### Investor brief
 
@@ -78,41 +151,23 @@ The native output consists of two client surfaces in each language:
 
 Rules:
 
-1. Generate Dutch-primary and English-companion reports from the same normalized state.
-2. Use component-based HTML and WeasyPrint PDF generation.
-3. Run the narrow bilingual polish layer after rendering.
-4. Keep internal authority and production-state fields outside client output.
-5. Preserve U.S. ETFs as research references only.
-6. Preserve ISIN-first identity and explicit trading-line evidence.
-7. Keep the generated Markdown as a decision-summary audit companion; the normalized JSON report state is the authoritative v2 render source.
-8. Never regenerate client prose from previous PDF text.
+1. Use component-based HTML and WeasyPrint PDF generation.
+2. Run the bilingual polish layer after rendering.
+3. Keep internal authority fields outside client output.
+4. Preserve U.S. ETFs as research-only references.
+5. Preserve ISIN plus exact trading-line evidence.
+6. Render funded positions, contribution and valuation history truthfully.
+7. The normalized JSON state is the render authority; previous PDF prose is not an input.
 
-Required client hierarchy:
+## Phase 6 — Portfolio development and equity surface
 
-```text
-investor_brief_present=true
-analyst_appendix_present=true
-report_section_count=15
-client_renderer_mode=client_grade_v2
-```
+1. Reconcile the latest history NAV to portfolio state.
+2. Show the equity curve when meaningful validated history exists or a funded position exists.
+3. Show a cash-preservation surface only while the portfolio is fully cash and history is flat.
+4. Never publish a decorative or unreconciled graph.
+5. A flat contribution caused by retention of the latest valid close must be explicitly described.
 
-## Phase 4 — Portfolio development and equity surface
-
-1. Update valuation history deterministically for the report date.
-2. Reconcile the latest history NAV to current portfolio NAV.
-3. Show the equity curve only when meaningful validated history exists or a funded position exists.
-4. Show the cash-preservation surface while the portfolio is fully in cash and NAV history is flat.
-5. Never publish a decorative flat graph merely to fill report space.
-
-Current activation rule:
-
-```text
-show_equity_curve =
-  at_least_two_meaningful_validated_NAV_observations
-  OR funded_position_exists
-```
-
-## Phase 5 — Machine and visual validation
+## Phase 7 — Machine and visual validation
 
 Run:
 
@@ -122,7 +177,7 @@ tools/write_etf_eu_routine_v2_machine_gate.py
 tools/prepare_etf_eu_routine_package_readiness_v2.py
 ```
 
-The strict client-grade contract must prove:
+Required machine proof:
 
 ```text
 normalized_report_state_valid=true
@@ -136,13 +191,11 @@ client_surface_clean=true
 authority_metadata_absent=true
 raw_status_enums_absent=true
 internal_authority_fields_absent=true
-no_raw_Markdown_leakage=true
+no_raw_markdown_leakage=true
 page_count_between_6_and_14=true
 ```
 
-Render all Dutch and English pages for review. First/middle/last-page extracts may remain as navigation aids, but the complete report must be available for visual inspection.
-
-The visual review must confirm:
+Render all Dutch and English pages for review. Confirm:
 
 ```text
 no clipping
@@ -152,40 +205,34 @@ correct Unicode
 natural Dutch and English
 correct investor/analyst hierarchy
 no internal metadata
-truthful equity surface
+truthful position and equity surfaces
 visual_review_passed=true
 blockers=[]
 ```
 
-Ordinary wording or layout repairs may be made directly. Do not create a new architecture package for a concrete client-copy defect.
+Concrete copy or layout defects are repaired directly; do not create an architecture package.
 
-## Phase 6 — Package readiness
+## Phase 8 — Package readiness
 
 1. Create the current-run package manifest.
-2. Record the normalized report-state path, macro pack, registry and renderer mode.
-3. Require the strict v2 machine gate.
-4. Require the rendered-page visual review.
-5. Require current pricing coverage and date freshness.
-6. Keep all authority fields false until the existing production-action layer authorizes the specific run.
-7. Reject stale paths, superseded packages and reused identities.
+2. Record state, pricing, macro, registry and renderer paths.
+3. Require the strict machine gate and complete visual review.
+4. Require current pricing coverage and date freshness.
+5. Keep production-action authority false until a specific guarded run authorizes it.
+6. Reject stale paths, superseded packages and reused identities.
 
-Required package fields include:
+Required fields include:
 
 ```text
-client_renderer_mode=client_grade_v2
-production_renderer=runtime/render_etf_eu_client_grade_v2.py
+client_renderer_mode=client_grade_v2_funded_aware
+production_renderer=runtime/render_etf_eu_client_grade_v2_funded.py
 normalized_report_state=<run-scoped path>
 macro_policy_pack=<run-scoped path>
-investor_brief_present=true
-analyst_appendix_present=true
-conditional_equity_curve_enabled=true
 client_output_valid=true
 ready_for_controlled_delivery=true
 ```
 
-## Phase 7 — Existing production-action layer
-
-The v2 promotion changes the client-generation and validation layers only.
+## Phase 9 — Existing production-action layer
 
 The established production-action implementation remains authoritative for:
 
@@ -196,62 +243,62 @@ The established production-action implementation remains authoritative for:
 - receipt verification;
 - final closeout.
 
-Do not infer successful delivery from successful rendering or validation. A completed action still requires its own result and evidence.
+Successful rendering or allocation review is not delivery. No real broker execution is performed by the report workflow.
 
-## Phase 8 — Delayed receipt verification
+## Phase 10 — Delayed receipt verification
 
-Independent delayed receipt verification remains mandatory after successful production action.
+After an explicitly authorized successful production action:
 
-1. Wait approximately 10 minutes.
-2. Search the connected receipt mailbox/API for the matching current-run message.
-3. Match run/date evidence and the expected four-file attachment set.
-4. Confirm Dutch PDF, English PDF, Dutch HTML and English HTML.
-5. Store only redacted metadata, hashes where available, timestamps and booleans.
-6. Keep `receipt_confirmed=false` if independent evidence is not found.
-7. Recheck later rather than creating an automatic duplicate.
+1. wait approximately ten minutes;
+2. search the connected receipt mailbox/API for the matching run;
+3. match date/run evidence and four expected attachments;
+4. confirm Dutch PDF, English PDF, Dutch HTML and English HTML;
+5. store only redacted metadata, hashes, timestamps and booleans;
+6. keep `receipt_confirmed=false` when independent evidence is absent;
+7. reconcile an existing receipt rather than sending a duplicate.
 
-### Existing-receipt reconciliation rule
+## Phase 11 — Closeout
 
-If the expected message and attachment set have already been independently observed, reconcile the existing result and receipt. Do not perform another production action merely to improve evidence.
-
-## Phase 9 — Closeout
-
-1. Update the routine run manifest.
+1. Update the routine manifest.
 2. Create the production closeout manifest.
-3. Require valid client output.
-4. Require successful production result.
-5. Require confirmed independent receipt for completed closeout.
-6. Record blockers explicitly.
-7. Update `control/CURRENT_STATE.md` and `control/NEXT_ACTIONS.md`.
-8. Never claim completed delivery without client-output, result and receipt evidence.
+3. Require valid client output, production result and independent receipt for delivery closeout.
+4. Record blockers explicitly.
+5. Update `control/CURRENT_STATE.md` and `control/NEXT_ACTIONS.md`.
+6. Record stable identifier, allocation or authority decisions in a decision artifact and, where practical, `control/DECISION_LOG.md`.
+7. Never claim completed delivery without client-output, result and receipt evidence.
 
 ## Failure routing
 
 ```text
 pricing failure -> repair current pricing run
-macro donor too old -> refresh donor macro evidence
-valuation-history mismatch -> repair current history observation
-normalized state invalid -> repair state builder input
-v2 machine failure -> repair concrete report defect
-visual defect -> repair report and repeat complete page review
+fresh exact-line close unavailable -> disclose and block new allocation
+broker permission unknown -> block candidate funding
+identity conflict -> repair registry and basket before allocation
+macro donor too old -> refresh donor evidence
+valuation-history mismatch -> repair current observation
+normalized state invalid -> repair state-builder input
+machine failure -> repair concrete report defect
+visual defect -> repair and repeat complete review
 readiness failure -> repair package references or authority separation
-production-action failure -> investigate the current run
+production-action failure -> investigate current run
 successful action but no receipt -> delayed independent recheck
 existing valid receipt found -> reconcile; do not repeat action
-valid client output + successful action + confirmed receipt -> closeout
+valid output + successful action + confirmed receipt -> closeout
 ```
 
 ## Routine completion definition
 
-A routine weekly run is complete only when:
+A full delivered weekly run is complete only when:
 
 ```text
 fresh current-run pricing exists
+active positions were reviewed
+candidate allocation decision exists
 current macro provenance exists
 valuation history contains the report-date observation
-normalized v2 report state is valid
-Dutch and English v2 outputs exist
-strict v2 machine gate passed
+normalized funded-aware report state is valid
+Dutch and English outputs exist
+strict machine gate passed
 complete visual review passed
 package readiness passed
 current-run production result exists
@@ -261,6 +308,4 @@ routine manifest updated
 closeout manifest created
 ```
 
-## Operating rule
-
-Client-grade v2 is the routine production renderer. New architecture packages are created only for a material capability change. Normal weekly reports and concrete defect repairs are routine operations under this runbook.
+A no-trade allocation review may close independently of report delivery when its evidence, state and control files are complete and no delivery was requested.
