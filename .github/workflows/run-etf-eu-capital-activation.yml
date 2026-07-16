@@ -1,0 +1,184 @@
+name: ETF EU CAP01 capital activation
+
+on:
+  push:
+    branches:
+      - feature/etf-eu-cap01-capital-activation
+    paths:
+      - "control/run_queue/etf_eu_capital_activation_request_*.md"
+  workflow_dispatch:
+    inputs:
+      request_path:
+        description: Prepared CAP01 activation request
+        required: true
+        default: control/run_queue/etf_eu_capital_activation_request_20260716_010500.md
+
+permissions:
+  contents: write
+
+jobs:
+  cap01:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install system and Python dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libcairo2 libpango-1.0-0 libgdk-pixbuf-2.0-0 libffi-dev shared-mime-info fonts-liberation fonts-dejavu-core fonts-lato poppler-utils
+          python -m pip install --upgrade pip
+          pip install pyyaml yfinance weasyprint pytest
+
+      - name: Resolve and validate request
+        run: |
+          set -euo pipefail
+          REQUEST_PATH="${{ github.event.inputs.request_path || '' }}"
+          if [ -z "$REQUEST_PATH" ]; then
+            REQUEST_PATH="$(git diff-tree --no-commit-id --name-only -r HEAD | grep '^control/run_queue/etf_eu_capital_activation_request_.*\.md$' | head -1 || true)"
+          fi
+          test -n "$REQUEST_PATH" && test -f "$REQUEST_PATH"
+          python - "$REQUEST_PATH" <<'PY'
+          from pathlib import Path
+          import sys
+          data = {}
+          for raw in Path(sys.argv[1]).read_text(encoding="utf-8").splitlines():
+              raw = raw.strip()
+              if raw and not raw.startswith("#") and "=" in raw:
+                  key, value = raw.split("=", 1)
+                  data[key.strip()] = value.strip()
+          required = ["run_id", "report_date", "report_suffix", "activation_confirmation"]
+          missing = [key for key in required if not data.get(key)]
+          if missing:
+              raise SystemExit("ETF_EU_CAP01_REQUEST_MISSING:" + ",".join(missing))
+          if data["activation_confirmation"] != "CONFIRM_ETF_EU_MODEL_CAPITAL_ACTIVATION":
+              raise SystemExit("ETF_EU_CAP01_CONFIRMATION_INVALID")
+          mapping = {
+              "ETF_EU_REQUEST_PATH": sys.argv[1],
+              "ETF_EU_RUN_ID": data["run_id"],
+              "ETF_EU_REPORT_DATE": data["report_date"],
+              "ETF_EU_REPORT_SUFFIX": data["report_suffix"],
+              "ETF_EU_ACTIVATION_CONFIRMATION": data["activation_confirmation"],
+          }
+          Path("env.out").write_text("".join(f"{key}={value}\n" for key, value in mapping.items()), encoding="utf-8")
+          PY
+          cat env.out >> "$GITHUB_ENV"
+
+      - name: Run focused tests
+        run: pytest -q tests/test_etf_eu_cap01.py
+
+      - name: Build current UCITS pricing evidence
+        run: |
+          set -euo pipefail
+          python pricing/build_ucits_close_price_validation_basket_results.py --run-id "$ETF_EU_RUN_ID" --pause-seconds 15 --rate-limit-cooldown-seconds 600 --max-attempts 2 --rate-limit-mode stop
+          python tools/validate_ucits_close_price_validation_basket_results.py --artifact "output/pricing/ucits_close_price_validation_basket_results_${ETF_EU_RUN_ID}.json"
+
+      - name: Build and validate allocation dry run
+        run: |
+          set -euo pipefail
+          DECISION="output/allocation/etf_eu_allocation_decision_${ETF_EU_RUN_ID}.json"
+          VALIDATION="output/quality/etf_eu_allocation_decision_validation_${ETF_EU_RUN_ID}.json"
+          python -m runtime.build_etf_eu_allocation_decision --policy config/etf_eu_target_allocation.yml --portfolio-state output/etf_eu_portfolio_state.json --pricing-artifact "output/pricing/ucits_close_price_validation_basket_results_${ETF_EU_RUN_ID}.json" --run-id "$ETF_EU_RUN_ID" --report-date "$ETF_EU_REPORT_DATE" --output "$DECISION"
+          python -m tools.validate_etf_eu_allocation_decision --decision "$DECISION" --output "$VALIDATION"
+          echo "ETF_EU_DECISION=$DECISION" >> "$GITHUB_ENV"
+          echo "ETF_EU_DECISION_VALIDATION=$VALIDATION" >> "$GITHUB_ENV"
+
+      - name: Apply and validate guarded model capital activation
+        run: |
+          set -euo pipefail
+          RESULT="output/runtime/etf_eu_guarded_capital_activation_result_${ETF_EU_RUN_ID}.json"
+          POST_VALIDATION="output/quality/etf_eu_guarded_capital_activation_validation_${ETF_EU_RUN_ID}.json"
+          python -m runtime.apply_etf_eu_guarded_capital_activation --decision "$ETF_EU_DECISION" --validation "$ETF_EU_DECISION_VALIDATION" --portfolio-state output/etf_eu_portfolio_state.json --trade-ledger output/etf_eu_trade_ledger.csv --confirmation "$ETF_EU_ACTIVATION_CONFIRMATION" --output "$RESULT"
+          python -m tools.validate_etf_eu_guarded_capital_activation --result "$RESULT" --portfolio-state output/etf_eu_portfolio_state.json --trade-ledger output/etf_eu_trade_ledger.csv --output "$POST_VALIDATION"
+          echo "ETF_EU_ACTIVATION_RESULT=$RESULT" >> "$GITHUB_ENV"
+          echo "ETF_EU_ACTIVATION_VALIDATION=$POST_VALIDATION" >> "$GITHUB_ENV"
+
+      - name: Refresh macro context and valuation history
+        run: |
+          set -euo pipefail
+          MACRO="output/macro/etf_eu_macro_policy_pack_${ETF_EU_RUN_ID}.json"
+          python -m runtime.adapt_weekly_etf_macro_for_eu --source-url "https://raw.githubusercontent.com/market-predictions/weekly-etf/main/output/macro/latest.json" --report-date "$ETF_EU_REPORT_DATE" --run-id "$ETF_EU_RUN_ID" --output "$MACRO" --latest-output output/macro/latest.json
+          python tools/update_etf_eu_valuation_history.py --portfolio-state output/etf_eu_portfolio_state.json --history output/etf_eu_valuation_history.csv --report-date "$ETF_EU_REPORT_DATE" --source-report "cap01-funded-client-grade-v2-${ETF_EU_RUN_ID}" --comment "First guarded Weekly ETF EU model capital activation" --output output/etf_eu_valuation_history.csv
+          echo "ETF_EU_MACRO_ARTIFACT=$MACRO" >> "$GITHUB_ENV"
+
+      - name: Build funded normalized report state
+        run: |
+          set -euo pipefail
+          STATE="output/runtime/etf_eu_client_grade_report_state_${ETF_EU_RUN_ID}.json"
+          python -m runtime.build_etf_eu_client_grade_report_state --portfolio-state output/etf_eu_portfolio_state.json --valuation-history output/etf_eu_valuation_history.csv --pricing-artifact "output/pricing/ucits_close_price_validation_basket_results_${ETF_EU_RUN_ID}.json" --macro-pack "$ETF_EU_MACRO_ARTIFACT" --registry config/ucits_symbol_registry.yml --run-id "$ETF_EU_RUN_ID" --source-run-id "$ETF_EU_RUN_ID" --report-date "$ETF_EU_REPORT_DATE" --report-suffix "$ETF_EU_REPORT_SUFFIX" --output "$STATE"
+          echo "ETF_EU_REPORT_STATE=$STATE" >> "$GITHUB_ENV"
+
+      - name: Render and strictly validate funded client-grade v2 reports
+        run: |
+          set -euo pipefail
+          mkdir -p output/fresh_generation output/quality
+          NL_HTML="output/fresh_generation/weekly_etf_eu_review_nl_${ETF_EU_REPORT_SUFFIX}.html"
+          NL_PDF="output/fresh_generation/weekly_etf_eu_review_nl_${ETF_EU_REPORT_SUFFIX}.pdf"
+          EN_HTML="output/fresh_generation/weekly_etf_eu_review_${ETF_EU_REPORT_SUFFIX}.html"
+          EN_PDF="output/fresh_generation/weekly_etf_eu_review_${ETF_EU_REPORT_SUFFIX}.pdf"
+          python -m runtime.render_etf_eu_client_grade_v2_funded --state "$ETF_EU_REPORT_STATE" --language nl --html-output "$NL_HTML" --pdf-output "$NL_PDF"
+          python -m runtime.render_etf_eu_client_grade_v2_funded --state "$ETF_EU_REPORT_STATE" --language en --html-output "$EN_HTML" --pdf-output "$EN_PDF"
+          python -m runtime.polish_etf_eu_client_grade_html --html "$NL_HTML" --language nl --pdf "$NL_PDF"
+          python -m runtime.polish_etf_eu_client_grade_html --html "$EN_HTML" --language en --pdf "$EN_PDF"
+          python -m tools.validate_etf_eu_client_grade_report_v2 --state "$ETF_EU_REPORT_STATE" --dutch-html "$NL_HTML" --dutch-pdf "$NL_PDF" --english-html "$EN_HTML" --english-pdf "$EN_PDF" --output "output/quality/etf_eu_client_grade_v2_validation_${ETF_EU_RUN_ID}.json" --strict
+
+      - name: Render all report pages for human review
+        run: |
+          set -euo pipefail
+          ROOT="output/quality/review_pages/${ETF_EU_RUN_ID}"
+          mkdir -p "$ROOT/nl/all" "$ROOT/en/all"
+          pdftoppm -png -r 120 "output/fresh_generation/weekly_etf_eu_review_nl_${ETF_EU_REPORT_SUFFIX}.pdf" "$ROOT/nl/all/page"
+          pdftoppm -png -r 120 "output/fresh_generation/weekly_etf_eu_review_${ETF_EU_REPORT_SUFFIX}.pdf" "$ROOT/en/all/page"
+
+      - name: Write CAP01 closeout manifest
+        run: |
+          python - <<'PY'
+          import hashlib, json, os
+          from pathlib import Path
+          run_id = os.environ["ETF_EU_RUN_ID"]
+          suffix = os.environ["ETF_EU_REPORT_SUFFIX"]
+          state = json.loads(Path("output/etf_eu_portfolio_state.json").read_text(encoding="utf-8"))
+          decision = json.loads(Path(os.environ["ETF_EU_DECISION"]).read_text(encoding="utf-8"))
+          paths = [Path(f"output/fresh_generation/weekly_etf_eu_review_nl_{suffix}.html"), Path(f"output/fresh_generation/weekly_etf_eu_review_nl_{suffix}.pdf"), Path(f"output/fresh_generation/weekly_etf_eu_review_{suffix}.html"), Path(f"output/fresh_generation/weekly_etf_eu_review_{suffix}.pdf")]
+          payload = {
+              "schema_version": "etf_eu_cap01_closeout_manifest_v1", "work_package_id": "ETF-EU-CAP01", "run_id": run_id,
+              "report_date": os.environ["ETF_EU_REPORT_DATE"], "status": "funded_model_report_generated_pending_human_visual_review",
+              "model_portfolio_only": True, "real_broker_execution": False,
+              "portfolio": {"cash_eur": state["cash_eur"], "invested_market_value_eur": state["invested_market_value_eur"], "nav_eur": state["nav_eur"], "position_count": len(state.get("positions") or [])},
+              "allocation": decision["summary"], "outputs": [{"path": str(path), "sha256": hashlib.sha256(path.read_bytes()).hexdigest(), "bytes": path.stat().st_size} for path in paths],
+              "dry_run_validation_passed": True, "guarded_activation_validation_passed": True, "strict_client_grade_v2_validation_passed": True,
+              "visual_review_pending": True, "delivery_attempted": False, "send_executed": False,
+          }
+          out = Path(f"output/run_manifests/etf_eu_cap01_closeout_manifest_{run_id}.json")
+          out.parent.mkdir(parents=True, exist_ok=True)
+          out.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+          PY
+
+      - name: Upload CAP01 evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: etf-eu-cap01-${{ env.ETF_EU_RUN_ID }}
+          path: |
+            output/allocation/etf_eu_allocation_decision_${{ env.ETF_EU_RUN_ID }}.json
+            output/quality/etf_eu_allocation_decision_validation_${{ env.ETF_EU_RUN_ID }}.json
+            output/runtime/etf_eu_guarded_capital_activation_result_${{ env.ETF_EU_RUN_ID }}.json
+            output/quality/etf_eu_guarded_capital_activation_validation_${{ env.ETF_EU_RUN_ID }}.json
+            output/pricing/ucits_close_price_validation_basket_results_${{ env.ETF_EU_RUN_ID }}.json
+            output/runtime/etf_eu_client_grade_report_state_${{ env.ETF_EU_RUN_ID }}.json
+            output/fresh_generation/weekly_etf_eu_review_nl_${{ env.ETF_EU_REPORT_SUFFIX }}.*
+            output/fresh_generation/weekly_etf_eu_review_${{ env.ETF_EU_REPORT_SUFFIX }}.*
+            output/quality/etf_eu_client_grade_v2_validation_${{ env.ETF_EU_RUN_ID }}.json
+            output/quality/review_pages/${{ env.ETF_EU_RUN_ID }}
+            output/run_manifests/etf_eu_cap01_closeout_manifest_${{ env.ETF_EU_RUN_ID }}.json
+
+      - name: Persist CAP01 state and evidence
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -f output/etf_eu_portfolio_state.json output/etf_eu_trade_ledger.csv output/etf_eu_valuation_history.csv "output/pricing/ucits_close_price_validation_basket_results_${ETF_EU_RUN_ID}.json" "output/allocation/etf_eu_allocation_decision_${ETF_EU_RUN_ID}.json" "output/quality/etf_eu_allocation_decision_validation_${ETF_EU_RUN_ID}.json" "output/runtime/etf_eu_guarded_capital_activation_result_${ETF_EU_RUN_ID}.json" "output/quality/etf_eu_guarded_capital_activation_validation_${ETF_EU_RUN_ID}.json" "$ETF_EU_MACRO_ARTIFACT" output/macro/latest.json "$ETF_EU_REPORT_STATE" "output/fresh_generation/weekly_etf_eu_review_nl_${ETF_EU_REPORT_SUFFIX}.html" "output/fresh_generation/weekly_etf_eu_review_nl_${ETF_EU_REPORT_SUFFIX}.pdf" "output/fresh_generation/weekly_etf_eu_review_${ETF_EU_REPORT_SUFFIX}.html" "output/fresh_generation/weekly_etf_eu_review_${ETF_EU_REPORT_SUFFIX}.pdf" "output/quality/etf_eu_client_grade_v2_validation_${ETF_EU_RUN_ID}.json" "output/quality/review_pages/${ETF_EU_RUN_ID}" "output/run_manifests/etf_eu_cap01_closeout_manifest_${ETF_EU_RUN_ID}.json"
+          git commit -m "Persist ETF EU CAP01 funded model report ${ETF_EU_RUN_ID} [skip ci]"
+          git push origin HEAD:feature/etf-eu-cap01-capital-activation
