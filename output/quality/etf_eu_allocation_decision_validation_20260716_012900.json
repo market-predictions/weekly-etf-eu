@@ -1,0 +1,14 @@
+{
+  "schema_version": "etf_eu_allocation_decision_validation_v1",
+  "decision": "output/allocation/etf_eu_allocation_decision_20260716_012900.json",
+  "passed": true,
+  "errors": [],
+  "warnings": ["blocked_targets_present:4"],
+  "allocation_decision_valid": true,
+  "executable_position_count": 1,
+  "blocked_target_count": 4,
+  "whole_share_contract_passed": true,
+  "cash_reconciliation_passed": true,
+  "exact_line_identity_passed": true,
+  "model_only_authority_passed": true
+}
