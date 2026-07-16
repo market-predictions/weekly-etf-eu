@@ -1,0 +1,18 @@
+{
+  "schema_version": "etf_eu_broker_neutral_allocation_review_validation_v1",
+  "review": "output/runtime/etf_eu_broker_neutral_allocation_review_20260716_205500.json",
+  "passed": true,
+  "errors": [],
+  "warnings": [],
+  "review_valid": true,
+  "broker_neutral_model_authority_passed": true,
+  "active_portfolio_revaluation_passed": true,
+  "whole_share_contract_passed": true,
+  "cash_policy_passed": true,
+  "trade_intent_count": 2,
+  "incumbent_review_count": 1,
+  "ready_for_guarded_model_activation": true,
+  "portfolio_mutation": false,
+  "execution_context": "in_session_fallback_after_connector_queue_produced_no_actions_run",
+  "github_actions_run_verified": false
+}
