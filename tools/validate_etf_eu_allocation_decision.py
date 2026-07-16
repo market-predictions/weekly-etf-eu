@@ -30,7 +30,14 @@ def validate(payload: dict[str, Any]) -> tuple[list[str], list[str], dict[str, A
         errors.append("allocation_not_ready")
     if payload.get("hard_blockers"):
         errors.append("hard_blockers_present")
-    expected = {"model_portfolio_only": True, "real_broker_execution": False, "whole_shares_only": True, "blocked_capacity_reallocated": False}
+    expected = {
+        "model_portfolio_only": True,
+        "real_broker_execution": False,
+        "whole_shares_only": True,
+        "blocked_capacity_reallocated": False,
+        "broker_specific_permission_required_for_model": False,
+        "broker_permission_required_for_real_execution": True,
+    }
     for key, value in expected.items():
         if authority.get(key) is not value:
             errors.append(f"authority_invalid:{key}")
@@ -60,6 +67,10 @@ def validate(payload: dict[str, Any]) -> tuple[list[str], list[str], dict[str, A
             errors.append(f"price_status_invalid:{row.get('exchange_ticker')}")
         if row.get("trading_currency") != "EUR":
             errors.append(f"currency_not_eur:{row.get('exchange_ticker')}")
+        if "broker_permission_not_required_for_model" not in (row.get("reason_codes") or []):
+            errors.append(f"broker_neutral_reason_missing:{row.get('exchange_ticker')}")
+        if any("broker" in str(blocker).lower() for blocker in (row.get("blockers") or [])):
+            errors.append(f"broker_blocker_present_in_model_decision:{row.get('exchange_ticker')}")
         isin = str(row.get("isin") or "")
         line = (isin, str(row.get("exchange_ticker") or ""))
         if not all(line):
@@ -92,6 +103,7 @@ def validate(payload: dict[str, Any]) -> tuple[list[str], list[str], dict[str, A
         "cash_reconciliation_passed": not any("cash" in error or "nav" in error for error in errors),
         "exact_line_identity_passed": not any("identity" in error or "duplicate" in error or "verified" in error for error in errors),
         "model_only_authority_passed": not any("authority" in error for error in errors),
+        "broker_neutral_model_authority_passed": not any("broker" in error for error in errors),
     }
     return errors, warnings, evidence
 
