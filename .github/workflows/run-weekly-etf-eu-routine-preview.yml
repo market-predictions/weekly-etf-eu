@@ -35,7 +35,7 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y libcairo2 libpango-1.0-0 libgdk-pixbuf-2.0-0 libffi-dev shared-mime-info fonts-liberation fonts-dejavu-core fonts-lato poppler-utils
           python -m pip install --upgrade pip
-          pip install pyyaml yfinance mistune weasyprint
+          python -m pip install pyyaml yfinance mistune weasyprint pytest
 
       - name: Resolve broker-neutral non-delivery request
         run: |
@@ -98,7 +98,7 @@ jobs:
       - name: Run focused funded-aware tests
         run: |
           set -euo pipefail
-          pytest -q tests/test_etf_eu_cap01.py
+          python -m pytest -q tests/test_etf_eu_cap01.py
 
       - name: Build current UCITS pricing evidence
         run: |
