@@ -3,12 +3,12 @@
 ## Snapshot
 
 ```text
-date=2026-07-16
+date=2026-07-17
 repository=market-predictions/weekly-etf-eu
 operating_mode=routine_production_with_three_position_active_model_portfolio
 production_renderer=client_grade_v2_funded_aware
 routine_production_ready=true
-selected_next_action=GENERATE_AND_VISUALLY_REVIEW_FUNDED_AWARE_THREE_POSITION_ROUTINE_REPORT
+selected_next_action=RUN_CORRECTED_THREE_POSITION_NON_DELIVERY_PREVIEW_20260717_005500
 ```
 
 ## Latest completed delivery
@@ -21,27 +21,9 @@ receipt_confirmed=true
 production_delivery_cycle_closed=true
 ```
 
-This remains the latest email-delivery closeout. The 2026-07-16 allocation and activation cycle performed no transport and sent no email.
+This remains the latest completed email-delivery cycle. No 2026-07-16 or 2026-07-17 preview run performed transport or email delivery.
 
-## Broker-neutral review and activation
-
-```text
-run_id=20260716_205500
-status=model_activation_applied_validated_and_closed
-review=output/runtime/etf_eu_broker_neutral_allocation_review_20260716_205500.json
-review_validation=output/quality/etf_eu_broker_neutral_allocation_review_validation_20260716_205500.json
-activation_result=output/runtime/etf_eu_broker_neutral_model_activation_result_20260716_205500.json
-activation_validation=output/quality/etf_eu_broker_neutral_model_activation_validation_20260716_205500.json
-closeout_manifest=output/run_manifests/etf_eu_broker_neutral_model_activation_manifest_20260716_205500.json
-portfolio_mutation=true
-real_broker_execution=false
-production_delivery=false
-github_actions_run_verified=false
-```
-
-The connector-authored queue did not produce a verifiable Actions run. The review and guarded model activation were executed and checked in-session; no workflow-success claim is made.
-
-## Active model portfolio
+## Active broker-neutral model portfolio
 
 ```text
 starting_capital_eur=100000.00
@@ -50,29 +32,86 @@ cash_eur=60439.44
 invested_market_value_eur=39577.16
 cash_weight_pct=60.4294
 position_count=3
+model_portfolio_only=true
+real_broker_execution=false
 ```
+
+| Position | ISIN | Shares | Model price | Market value | Weight | Current status |
+|---|---|---:|---:|---:|---:|---|
+| VWCE | IE00BK5BQT80 | 151 | €165.32 | €24,963.32 | 24.959177% | Funded global-core first tranche |
+| EUNA | IE00BDBRDM35 | 1,526 | €4.913 | €7,497.24 | 7.495996% | Funded aggregate-bond first tranche |
+| SXR8 | IE00B5BMR087 | 10 | €711.66 | €7,116.60 | 7.115419% | Hold; no second tranche authorised |
 
 Cash plus invested market value reconciles exactly to NAV at eurocent precision.
 
-| Position | ISIN | Shares | Model price | Market value | Weight | Action |
-|---|---|---:|---:|---:|---:|---|
-| VWCE | IE00BK5BQT80 | 151 | €165.32 | €24,963.32 | 24.959177% | Buy |
-| EUNA | IE00BDBRDM35 | 1,526 | €4.913 | €7,497.24 | 7.495996% | Buy |
-| SXR8 | IE00B5BMR087 | 10 | €711.66 | €7,116.60 | 7.115419% | Hold |
-
-VWCE is the global-core first tranche. EUNA is the EUR-hedged aggregate-bond first tranche. EUNA is the canonical repository Xetra ticker; AGGH is retained as issuer alias. SXR8 was revalued from €710.00 to €711.66, producing €16.60 unrealized model P&L. No second SXR8 tranche is authorized.
-
-## Ledger and valuation authority
+## Preview run 20260716_214500
 
 ```text
-trade_ledger=output/etf_eu_trade_ledger.csv
-valuation_history=output/etf_eu_valuation_history.csv
-new_trade_id_1=model-eu-2026-07-16-20260716_205500-01-VWCE-BUY
-new_trade_id_2=model-eu-2026-07-16-20260716_205500-02-EUNA-BUY
-latest_nav_eur=100016.60
-since_inception_return_pct=0.016600
-drawdown_pct=0.000000
+workflow=ETF EU - Generate and Validate Preview (NO EMAIL)
+workflow_result=success
+machine_validation_passed=true
+dutch_page_count=6
+english_page_count=6
+visual_review_passed=false
+content_consistency_passed=false
+status=machine_validated_but_rejected_by_content_and_visual_review
+superseded=true
+superseded_by_run_id=20260717_005500
 ```
+
+Machine validation passed, but the report was not accepted because the funded portfolio and client narrative conflicted. The rejected package:
+
+- described only one active model position while the portfolio contained VWCE, EUNA and SXR8;
+- described funded VWCE and EUNA lanes as not funded or still awaiting already-closed verification gates;
+- retained broker-availability wording in model-investability copy;
+- retained stale next-run instructions;
+- omitted pricing dates from the funded-position table.
+
+Authoritative review evidence:
+
+```text
+output/quality/etf_eu_routine_pdf_visual_review_20260716_214500.json
+output/run_manifests/etf_eu_routine_preview_manifest_20260716_214500.json
+```
+
+The rejected HTML/PDF files are historical preview evidence only and must not be delivered or promoted.
+
+## Implemented repair
+
+```text
+renderer_repair_commit=56e10fd45a4cac5e4ebd8883e97c20bc6876a300
+validator_repair_commit=320afd5d97f68d14c3883c0ae6e98fc3d445d8f1
+regression_test_commit=f4ff86adf8b3fb4b0b9be11d9d0ce42977091b04
+preview_contract_commit=b7ff878d8a05f24cfc844f80f680f36643cde127
+```
+
+The funded-aware renderer now:
+
+- reconciles all three funded positions;
+- marks VWCE, EUNA and SXR8 opportunity lanes as active funded model positions;
+- separates active core/bond positions from unfunded satellites;
+- removes broker-specific model gates;
+- renders dynamic plural cockpit and conclusion copy;
+- includes position pricing dates;
+- updates overlap, contribution and next-run language.
+
+The strict client-grade validator now fails on funded-state contradictions, singular one-position copy, broker-dependent model wording and stale funded-lane statuses. Regression tests cover the three-position state.
+
+## Corrected preview queue
+
+```text
+run_id=20260717_005500
+report_date=2026-07-17
+report_suffix=260717
+queue_path=control/run_queue/etf_eu_routine_preview_request_20260717_005500.md
+workflow=.github/workflows/run-weekly-etf-eu-routine-preview.yml
+execution_mode=generate_validate_only
+status=queued_not_executed
+workflow_run_verified=false
+production_delivery_authority=false
+```
+
+The connector-authored queue push did not create a verifiable GitHub Actions run. Manual workflow dispatch is therefore the only remaining external action.
 
 ## Authority boundaries
 
@@ -86,13 +125,13 @@ valuation_grade=false
 production_delivery_authority=false
 ```
 
-Broker product permission, account eligibility, contract IDs, routing and order preview belong only to an optional real-execution adapter.
+No portfolio mutation, real broker order, transport or email send is authorised by the corrected preview cycle.
 
 ## Four-layer status
 
 ### Decision framework
 
-Model investability requires verified UCITS/KID status, canonical identity, verified exchange line, fresh completed-close pricing, currency/product-policy gates, concentration review, whole-share sizing and cash reconciliation. No automatic later tranche or satellite activation is authorized.
+Review VWCE, EUNA and SXR8 independently for role validity, contribution, overlap and invalidation. No automatic add, reduction, exit, second tranche or satellite activation is allowed.
 
 ### Input/state contract
 
@@ -103,30 +142,22 @@ config/etf_eu_target_allocation.yml
 output/etf_eu_portfolio_state.json
 output/etf_eu_trade_ledger.csv
 output/etf_eu_valuation_history.csv
-output/pricing/etf_eu_exact_line_review_pricing_20260716_205500.json
 ```
-
-Public closes remain model-only, non-valuation-grade evidence and are not real execution prices.
 
 ### Output contract
 
-The next report must show three funded model positions, cash, quantities, exact UCITS lines, price dates, weights, contribution, equity curve and explicit model-only disclosures. Dutch is primary; English is companion.
+The corrected report must visibly and consistently show all three funded positions, cash, exact UCITS identities, whole-share quantities, pricing dates, current weights, contribution, overlap and the reconciled equity curve. Dutch is primary; English is companion.
 
 ### Operational runbook
 
 ```text
-three-position portfolio state
-+ valuation history
-+ exact-line pricing
-+ donor macro context adapted for EU
-+ UCITS registry
-→ funded-aware report state
-→ Dutch and English client-grade v2 reports
-→ strict validation
-→ complete visual review
-→ no delivery without explicit authority and receipt evidence
+manual dispatch corrected preview 20260717_005500
+→ focused funded-aware regression tests
+→ fresh UCITS pricing and macro refresh
+→ normalized funded-aware state
+→ Dutch and English HTML/PDF
+→ strict funded-state consistency gate
+→ complete page review
+→ review manifest
+→ no delivery without separate explicit authority
 ```
-
-## Current note
-
-The broker-neutral first-tranche activation is closed. The next work is routine funded-aware report generation and visual review, followed by monitoring of VWCE, EUNA and SXR8. No real order and no report delivery are authorized.
