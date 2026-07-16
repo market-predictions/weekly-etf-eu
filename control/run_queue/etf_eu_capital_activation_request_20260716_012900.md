@@ -1,0 +1,14 @@
+# Weekly ETF EU CAP01 capital activation request
+
+schema_version=etf_eu_capital_activation_request_v1
+artifact_type=etf_eu_capital_activation_request
+run_id=20260716_012900
+report_date=2026-07-16
+report_suffix=260716
+execution_mode=guarded_model_capital_activation_and_funded_report
+activation_confirmation=CONFIRM_ETF_EU_MODEL_CAPITAL_ACTIVATION
+model_portfolio_only=true
+real_broker_execution=false
+send_executed=false
+execution_status=applied_and_validated
+closeout_manifest=output/run_manifests/etf_eu_cap01_closeout_manifest_20260716_012900.json
