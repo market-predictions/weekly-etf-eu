@@ -25,8 +25,13 @@ def test_cap01_dry_run_and_guarded_apply(tmp_path: Path) -> None:
     decision = build_decision(policy_path=ROOT / "config/etf_eu_target_allocation.yml", portfolio_state_path=state, pricing_artifact_path=pricing, run_id="20260716_010500", report_date_raw="2026-07-16", output_path=decision_path)
     errors, _, evidence = validate(decision)
     assert not errors and evidence["allocation_decision_valid"] is True
+    assert evidence["broker_neutral_model_authority_passed"] is True
+    assert decision["authority"]["broker_specific_permission_required_for_model"] is False
+    assert decision["authority"]["broker_permission_required_for_real_execution"] is True
+    assert all("broker" not in str(blocker).lower() for row in decision["decisions"] for blocker in (row.get("blockers") or []))
     buys = [row for row in decision["decisions"] if row.get("action") == "buy"]
     assert len(buys) == 1 and buys[0]["exchange_ticker"] == "SXR8"
+    assert "broker_permission_not_required_for_model" in buys[0]["reason_codes"]
     assert buys[0]["shares_delta"] == 10 and buys[0]["trade_value_eur"] == 7100.0
     assert decision["summary"]["projected_cash_eur"] == 92900.0
     validation_path = tmp_path / "validation.json"
