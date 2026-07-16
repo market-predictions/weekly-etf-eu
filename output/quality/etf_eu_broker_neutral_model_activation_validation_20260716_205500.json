@@ -1,0 +1,37 @@
+{
+  "schema_version": "etf_eu_broker_neutral_model_activation_validation_v1",
+  "activation_result": "output/runtime/etf_eu_broker_neutral_model_activation_result_20260716_205500.json",
+  "portfolio_state": "output/etf_eu_portfolio_state.json",
+  "trade_ledger": "output/etf_eu_trade_ledger.csv",
+  "valuation_history": "output/etf_eu_valuation_history.csv",
+  "passed": true,
+  "errors": [],
+  "warnings": [
+    "GitHub Actions did not produce a verified workflow run; the guarded activation was executed and checked in-session before repository persistence."
+  ],
+  "portfolio_reconciliation_passed": true,
+  "cash_plus_invested_equals_nav": true,
+  "cash_eur": 60439.44,
+  "invested_market_value_eur": 39577.16,
+  "nav_eur": 100016.60,
+  "position_count": 3,
+  "unique_isin_line_count": 3,
+  "whole_share_contract_passed": true,
+  "cent_precision_passed": true,
+  "incumbent_revaluation_passed": true,
+  "sxr8_shares_unchanged": true,
+  "sxr8_second_tranche_authorized": false,
+  "vwce_first_tranche_passed": true,
+  "euna_first_tranche_passed": true,
+  "trade_ledger_idempotency_keys_unique": true,
+  "expected_trade_ids_present": [
+    "model-eu-2026-07-16-20260716_205500-01-VWCE-BUY",
+    "model-eu-2026-07-16-20260716_205500-02-EUNA-BUY"
+  ],
+  "broker_neutral_model_authority_passed": true,
+  "model_portfolio_only": true,
+  "real_broker_execution": false,
+  "production_delivery": false,
+  "email_send": false,
+  "github_actions_run_verified": false
+}
