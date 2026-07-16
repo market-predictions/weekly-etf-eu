@@ -18,7 +18,7 @@ production_renderer=client_grade_v2_funded_aware
 client_grade_v2_promoted=true
 routine_production_ready=true
 capital_activation_policy=control/ETF_EU_CAPITAL_ACTIVATION_POLICY_V1.md
-selected_next_action=OBTAIN_FRESH_EXACT_LINE_PRICING_AND_BROKER_PERMISSION_THEN_REVIEW_VWCE_ACTIVATION
+selected_next_action=OBTAIN_FRESH_EXACT_LINE_PRICING_THEN_RUN_BROKER_NEUTRAL_VWCE_EUNA_ALLOCATION_REVIEW
 ```
 
 ## Latest completed production delivery cycle
@@ -105,6 +105,19 @@ relative_strength_status=insufficient_post_entry_window
 
 A fresher completed exact-line Xetra close was not obtained through the available connected data path. The model therefore retained the latest validated exact-line close rather than inventing or substituting a price. No automatic second tranche is allowed.
 
+## Broker-neutral model authority correction
+
+```text
+decision=control/decisions/ETF_EU_BROKER_NEUTRAL_MODEL_INVESTABILITY_DECISION_20260716.md
+broker_specific_permission_required_for_model=false
+broker_permission_required_for_real_execution=true
+historical_review_artifacts_rewritten=false
+portfolio_mutation=false
+trade_ledger_mutation=false
+```
+
+The prior routine review included broker-account permission and broker execution-symbol language as model-funding blockers. That was an authority-layer error. Broker-specific permission belongs only to an optional real-execution adapter. The current model-investability gates are product, identity, exact exchange line, completed-close pricing, currency, concentration, whole-share sizing and cash policy.
+
 ## Candidate verification results
 
 ### VWCE — global core
@@ -119,18 +132,19 @@ exchange_ticker=VWCE
 bloomberg_ticker=VWCE_GY
 reuters_ric=VWCE.DE
 trading_currency=EUR
-allocation_status=verified_line_not_yet_fundable
+allocation_status=verified_line_waiting_for_fresh_price_and_new_decision
 ```
 
-Remaining blockers:
+Remaining model blockers:
 
 ```text
 fresh_completed_xetra_close_not_obtained
-broker_account_product_permission_not_verified
 separate_allocation_decision_required
 ```
 
-The first-tranche overlap review is complete. A 25% VWCE sleeve would contain material embedded U.S. equity exposure alongside the direct SXR8 overweight, but the combined exposure remains within the current strategic design. This does not authorize funding.
+Broker/account availability is an execution-layer disclosure, not a model blocker.
+
+The first-tranche overlap review is complete. A 25% VWCE sleeve would contain material embedded U.S. equity exposure alongside the direct SXR8 overweight, but the combined exposure remains within the current strategic design. This does not authorize funding without a fresh price and new allocation decision.
 
 ### Aggregate bonds — EUNA / AGGH identity repair
 
@@ -143,10 +157,20 @@ bloomberg_identifier=EUNA
 reuters_ric=EUNA.DE
 pricing_symbol=EUNA.DE
 identity_status=repaired
-allocation_status=identity_repaired_not_yet_fundable
+allocation_status=identity_repaired_waiting_for_broker_neutral_line_reconciliation_and_fresh_price
 ```
 
-The incorrect LSE GBP Hedged Distributing mapping using ISIN `IE00BDBRDM35` has been removed. That ISIN identifies the EUR Hedged Accumulating share class. Broker-level execution-symbol confirmation and a fresh completed Xetra close remain required.
+The incorrect LSE GBP Hedged Distributing mapping using ISIN `IE00BDBRDM35` has been removed. That ISIN identifies the EUR Hedged Accumulating share class.
+
+Remaining model blockers:
+
+```text
+canonical_xetra_exchange_line_alias_reconciliation_required
+fresh_completed_xetra_close_not_obtained
+separate_allocation_decision_required
+```
+
+The reconciliation must be completed in the UCITS registry using canonical ISIN, share class, venue, exchange trading line and currency. It must not depend on a particular broker symbol.
 
 ## Current evidence
 
@@ -159,6 +183,7 @@ output/quality/etf_eu_routine_allocation_review_validation_20260716_092600.json
 output/etf_eu_portfolio_state.json
 output/etf_eu_valuation_history.csv
 output/etf_eu_recommendation_scorecard.csv
+control/decisions/ETF_EU_BROKER_NEUTRAL_MODEL_INVESTABILITY_DECISION_20260716.md
 ```
 
 ## Strategic target policy
@@ -183,6 +208,7 @@ fresh UCITS pricing
 + current donor macro context adapted for EU use
 + UCITS registry
 → normalized ETF EU report state
+→ broker-neutral allocation decision
 → funded-aware Dutch investor brief + analyst appendix
 → funded-aware English investor brief + analyst appendix
 → strict client-grade v2 validation
@@ -210,6 +236,8 @@ canonical_identity=isin_plus_exact_trading_line
 us_etfs_research_only=true
 model_portfolio_only=true
 real_broker_execution=false
+broker_specific_permission_required_for_model=false
+broker_permission_required_for_real_execution=true
 valuation_grade=false
 production_delivery_authority=false
 recipient_plaintext_values_exposed=false
@@ -218,4 +246,4 @@ secret_values_exposed=false
 
 ## Current note
 
-The routine review is closed with a clean hold and no model mutation. The next material action is not another architecture package. It is to obtain a fresh completed exact-line price and broker-account product permission evidence for VWCE, confirm the Xetra execution-symbol mapping for the aggregate-bond line, then run a new allocation review. Until those gates pass, SXR8 remains at 10 shares and blocked target capacity remains cash.
+The routine review remains closed with a clean SXR8 hold and no portfolio mutation. Broker permission is no longer a prerequisite for the general Weekly ETF EU Report or its model portfolio. The next material action is to obtain fresh completed exact-line prices for SXR8, VWCE and the canonical aggregate-bond Xetra line, finish broker-neutral alias reconciliation for EUNA/AGGH, and then run a new allocation review. Until those gates pass, SXR8 remains at 10 shares and blocked target capacity remains cash.
