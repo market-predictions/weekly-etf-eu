@@ -8,7 +8,7 @@ from typing import Any
 
 from runtime.build_etf_eu_client_grade_report_state import build_state
 from runtime.polish_etf_eu_client_grade_html import polish
-from runtime.render_etf_eu_client_grade_v2 import render
+from runtime.render_etf_eu_client_grade_v2_funded import render
 from tools.build_etf_eu_routine_report_package import build as build_legacy_package
 from weasyprint import HTML
 
@@ -68,8 +68,8 @@ def build(args: argparse.Namespace) -> dict[str, Path]:
     routine = _load(routine_path)
 
     promotion_fields = {
-        "client_renderer_mode": "client_grade_v2",
-        "production_renderer": "runtime/render_etf_eu_client_grade_v2.py",
+        "client_renderer_mode": "client_grade_v2_funded_aware",
+        "production_renderer": "runtime/render_etf_eu_client_grade_v2_funded.py",
         "renderer_engine": "weasyprint",
         "render_source_authority": "normalized_report_state",
         "normalized_report_state": str(state_path),
@@ -81,11 +81,12 @@ def build(args: argparse.Namespace) -> dict[str, Path]:
         "report_section_count": 15,
         "conditional_equity_curve_enabled": True,
         "equity_surface": "chart" if state["equity_curve"]["show_chart"] else "cash_preservation_callout",
+        "funded_position_count": state["portfolio"]["position_count"],
         "full_generation_status": "client_grade_v2_generated_pending_quality_gates",
         "upstream_pattern_adapted": "weekly-etf normalized report state, investor/analyst hierarchy, macro surface, conditional equity curve and component renderer adapted for EU/UCITS production",
     }
     manifest.update(promotion_fields)
-    manifest["renderer"] = "runtime/render_etf_eu_client_grade_v2.py"
+    manifest["renderer"] = "runtime/render_etf_eu_client_grade_v2_funded.py"
     manifest["client_surface_sanitizer"] = "runtime/polish_etf_eu_client_grade_html.py"
     manifest["html_generation_status"] = "client_grade_v2_generated"
     manifest["pdf_generation_status"] = "client_grade_v2_generated_pending_quality_gates"
