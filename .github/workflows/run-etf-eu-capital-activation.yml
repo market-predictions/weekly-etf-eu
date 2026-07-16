@@ -3,6 +3,7 @@ name: ETF EU CAP01 capital activation
 on:
   push:
     branches:
+      - main
       - feature/etf-eu-cap01-capital-activation
     paths:
       - "control/run_queue/etf_eu_capital_activation_request_*.md"
@@ -11,7 +12,7 @@ on:
       request_path:
         description: Prepared CAP01 activation request
         required: true
-        default: control/run_queue/etf_eu_capital_activation_request_20260716_010500.md
+        default: control/run_queue/etf_eu_capital_activation_request_20260716_015500.md
 
 permissions:
   contents: write
@@ -181,4 +182,4 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -f output/etf_eu_portfolio_state.json output/etf_eu_trade_ledger.csv output/etf_eu_valuation_history.csv "output/pricing/ucits_close_price_validation_basket_results_${ETF_EU_RUN_ID}.json" "output/allocation/etf_eu_allocation_decision_${ETF_EU_RUN_ID}.json" "output/quality/etf_eu_allocation_decision_validation_${ETF_EU_RUN_ID}.json" "output/runtime/etf_eu_guarded_capital_activation_result_${ETF_EU_RUN_ID}.json" "output/quality/etf_eu_guarded_capital_activation_validation_${ETF_EU_RUN_ID}.json" "$ETF_EU_MACRO_ARTIFACT" output/macro/latest.json "$ETF_EU_REPORT_STATE" "output/fresh_generation/weekly_etf_eu_review_nl_${ETF_EU_REPORT_SUFFIX}.html" "output/fresh_generation/weekly_etf_eu_review_nl_${ETF_EU_REPORT_SUFFIX}.pdf" "output/fresh_generation/weekly_etf_eu_review_${ETF_EU_REPORT_SUFFIX}.html" "output/fresh_generation/weekly_etf_eu_review_${ETF_EU_REPORT_SUFFIX}.pdf" "output/quality/etf_eu_client_grade_v2_validation_${ETF_EU_RUN_ID}.json" "output/quality/review_pages/${ETF_EU_RUN_ID}" "output/run_manifests/etf_eu_cap01_closeout_manifest_${ETF_EU_RUN_ID}.json"
           git commit -m "Persist ETF EU CAP01 funded model report ${ETF_EU_RUN_ID} [skip ci]"
-          git push origin HEAD:feature/etf-eu-cap01-capital-activation
+          git push origin HEAD:"$GITHUB_REF_NAME"
