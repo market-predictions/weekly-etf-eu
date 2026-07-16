@@ -3,21 +3,40 @@
 Current priority:
 
 ```text
-RUN_NEXT_ROUTINE_WEEKLY_ETF_EU_REPORT_WITH_CLIENT_GRADE_V2
+RUN_NEXT_ROUTINE_REPORT_AND_MONITOR_FIRST_POSITION
 ```
 
-## Production status
+## Current production and portfolio status
 
 ```text
-workstream=ETF-EU-RPT01_CLIENT_GRADE_REPORT_V2
-status=promoted_to_routine_production
-production_renderer=client_grade_v2
-fresh_comparison_passed=true
-promotion_smoke_passed=true
+client_grade_v2_promoted=true
+production_renderer=client_grade_v2_funded_aware
 routine_production_ready=true
+cap01_completed=true
+model_portfolio_active=true
+position_count=1
+cash_eur=92900.00
+invested_market_value_eur=7100.00
+nav_eur=100000.00
 ```
 
-The v2 development and shadow-comparison lane is closed. Do not request another architecture promotion cycle unless a new concrete defect appears.
+The cash-only bootstrap lane is closed. Do not recreate CAP01, another allocation architecture package, or another parallel renderer.
+
+## Current funded model position
+
+```text
+isin=IE00B5BMR087
+exchange_ticker=SXR8
+exchange=Xetra
+trading_currency=EUR
+shares=10
+model_entry_price_eur=710.00
+current_model_weight_pct=7.10
+phase_target_weight_pct=7.50
+strategic_target_weight_pct=15.00
+```
+
+This is a repository model position only. No real brokerage order was placed.
 
 ## Next routine cycle
 
@@ -26,87 +45,111 @@ Use:
 ```text
 control/ETF_EU_ROUTINE_WEEKLY_PRODUCTION_RUNBOOK_V1.md
 .github/workflows/run-weekly-etf-eu-routine.yml
+tools/build_etf_eu_routine_report_package_v2.py
+runtime/render_etf_eu_client_grade_v2_funded.py
 ```
 
-The next cycle must have:
+The next report must use:
 
 ```text
-a new run_id
-a new report_date
-a new report_suffix
-current UCITS pricing
-current EU portfolio state
+new run_id
+new report_date
+new report_suffix
+latest available completed-close UCITS pricing
+active EU portfolio state
 refreshed valuation history
-current donor macro context adapted for EU descriptive use
-ISIN-first instrument identity
-Dutch-primary client-grade v2 output
-English-companion client-grade v2 output
+current donor macro context adapted for EU use
+ISIN-first plus exact trading-line identity
+funded-aware Dutch-primary output
+funded-aware English companion
 strict v2 validation
-complete rendered-page review evidence
+complete rendered-page review
 ```
 
-The routine path now performs:
+## Required position review
+
+The next run must explicitly determine:
+
+1. current SXR8 market value and contribution;
+2. whether the SXR8 thesis and relative strength remain intact;
+3. current weight versus the 7.50% first-tranche target;
+4. whether any add, hold, reduce or exit action is justified;
+5. whether a second tranche is allowed under fresh evidence.
+
+No automatic second tranche is authorized.
+
+## Candidate verification priority
+
+### 1. Global core
 
 ```text
-pricing refresh
-→ macro adaptation
-→ valuation-history refresh
-→ normalized EU report state
-→ investor brief and analyst appendix
-→ conditional equity curve or cash-preservation surface
-→ strict v2 validation
-→ page-review evidence
-→ existing production closeout path
+candidate=VWCE
+strategic_target_weight_pct=50.0
+first_tranche_target_weight_pct=25.0
+current_status=blocked
 ```
+
+Required before funding:
+
+- exact Xetra trading-line verification;
+- issuer/KID evidence reconciliation;
+- broker availability;
+- fresh usable EUR price;
+- overlap review against SXR8;
+- separate allocation decision.
+
+### 2. Aggregate bonds
+
+```text
+candidate=EUNA
+strategic_target_weight_pct=15.0
+first_tranche_target_weight_pct=7.5
+current_status=blocked
+```
+
+Repair the EUNA/AGGH share-class and ISIN inconsistency before any bond allocation. Do not treat different accumulating/distributing or hedged share classes as one instrument identity.
+
+### 3. Satellites
+
+```text
+SXRV_target=7.5%
+semiconductor_target=5.0%
+current_status=blocked
+```
+
+Keep these as satellites. Require exact-line verification, fresh pricing and concentration review. The semiconductor line also requires an approved EUR/FX execution policy.
+
+## Cash policy
+
+```text
+minimum_strategic_cash_reserve_pct=7.5
+blocked_capacity_policy=retain_as_cash
+blocked_capacity_reallocation=false
+```
+
+The current 92.90% cash weight is temporary because four target sleeves remain blocked. It must not be interpreted as a permanent bearish market call.
 
 ## Equity surface
 
 ```text
-portfolio_position_count=0
-cash_eur=100000
-current_equity_surface=cash_preservation_callout
+portfolio_position_count=1
+current_equity_surface=active_equity_curve
 ```
 
-Do not show a decorative flat graph. The equity curve activates automatically after meaningful validated NAV history or a funded position exists.
+The equity curve is now allowed because a funded model position exists. It must reconcile to `output/etf_eu_valuation_history.csv` and the current portfolio NAV.
 
-## Promotion evidence
-
-```text
-comparison_run_id=20260715_213100
-comparison_workflow_run_id=29455916014
-comparison_artifact_id=8359334286
-comparison_blockers=0
-promotion_recommended=true
-
-smoke_run_id=20260715_224700
-smoke_workflow_run_id=29456627922
-smoke_artifact_id=8359605163
-promoted_package_builder_passed=true
-strict_v2_validation_passed=true
-routine_v2_machine_gate_adapter_passed=true
-visual_review_passed=true
-production_action_performed=false
-```
-
-Decision record:
-
-```text
-control/decisions/ETF_EU_RPT01_CLIENT_GRADE_V2_PRODUCTION_PROMOTION_DECISION_20260716.md
-```
-
-## Closed identities
+## CAP01 closed identity
 
 Do not reuse:
 
 ```text
-source_run_id=20260712_125000
-correction_control_id=20260713_180000
-report_suffix=260712
-preview_run_id=20260715_190000
-comparison_run_id=20260715_213100
-promotion_smoke_run_id=20260715_224700
+work_package_id=ETF-EU-CAP01
+run_id=20260716_012900
+activation_id=ETF-EU-CAP01-20260716_012900
+report_suffix=260716
+trade_id=model-eu-2026-07-16-20260716_012900-02-SXR8-BUY
 ```
 
 ## Development rule
 
-Repair concrete defects directly in the promoted production path. Do not create new multi-stage architecture packages, repeated approval loops or parallel renderers for ordinary improvements.
+Repair concrete defects directly in the funded-aware production path. Create a new architecture package only for a material capability change. Ordinary repricing, position monitoring, candidate verification, allocation reviews and report generation are routine operations.
