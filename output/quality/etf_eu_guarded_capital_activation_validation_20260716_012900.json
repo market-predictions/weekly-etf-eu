@@ -1,0 +1,14 @@
+{
+  "schema_version": "etf_eu_guarded_capital_activation_validation_v1",
+  "passed": true,
+  "errors": [],
+  "activation_id": "ETF-EU-CAP01-20260716_012900",
+  "position_count": 1,
+  "cash_eur": 92900.0,
+  "invested_market_value_eur": 7100.0,
+  "nav_eur": 100000.0,
+  "whole_share_contract_passed": true,
+  "portfolio_reconciliation_passed": true,
+  "ledger_persistence_passed": true,
+  "model_only_authority_passed": true
+}
