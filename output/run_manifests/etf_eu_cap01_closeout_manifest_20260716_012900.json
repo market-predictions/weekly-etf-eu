@@ -1,0 +1,63 @@
+{
+  "schema_version": "etf_eu_cap01_closeout_manifest_v1",
+  "work_package_id": "ETF-EU-CAP01",
+  "run_id": "20260716_012900",
+  "report_date": "2026-07-16",
+  "status": "model_capital_activated_report_generated_and_visually_reviewed",
+  "model_portfolio_only": true,
+  "real_broker_execution": false,
+  "portfolio": {
+    "cash_eur": 92900.0,
+    "invested_market_value_eur": 7100.0,
+    "nav_eur": 100000.0,
+    "position_count": 1,
+    "position": {
+      "isin": "IE00B5BMR087",
+      "exchange_ticker": "SXR8",
+      "shares": 10,
+      "price_eur": 710.0,
+      "market_value_eur": 7100.0,
+      "weight_pct": 7.1,
+      "phase_target_weight_pct": 7.5
+    }
+  },
+  "evidence": {
+    "allocation_decision": "output/allocation/etf_eu_allocation_decision_20260716_012900.json",
+    "allocation_validation": "output/quality/etf_eu_allocation_decision_validation_20260716_012900.json",
+    "pricing_artifact": "output/pricing/ucits_close_price_validation_basket_results_20260716_012900.json",
+    "activation_result": "output/runtime/etf_eu_guarded_capital_activation_result_20260716_012900.json",
+    "activation_validation": "output/quality/etf_eu_guarded_capital_activation_validation_20260716_012900.json",
+    "visual_review": "output/quality/etf_eu_routine_pdf_visual_review_20260716_012900.json",
+    "portfolio_state": "output/etf_eu_portfolio_state.json",
+    "trade_ledger": "output/etf_eu_trade_ledger.csv",
+    "valuation_history": "output/etf_eu_valuation_history.csv"
+  },
+  "validation": {
+    "focused_tests_passed": true,
+    "dry_run_validation_passed": true,
+    "guarded_activation_validation_passed": true,
+    "whole_share_contract_passed": true,
+    "cash_nav_reconciliation_passed": true,
+    "ledger_persistence_passed": true,
+    "strict_client_grade_v2_validation_passed": true,
+    "visual_review_passed": true,
+    "dutch_page_count": 6,
+    "english_page_count": 6,
+    "blockers": []
+  },
+  "generated_outputs": [
+    {"path": "output/fresh_generation/weekly_etf_eu_review_nl_260716.html", "sha256": "f29b194f2fc15e0458b9c28e53f9d0d6b448c1a6036c7a029f8a8b0f54cea79c", "bytes": 23024},
+    {"path": "output/fresh_generation/weekly_etf_eu_review_nl_260716.pdf", "sha256": "d840f50a1a51242604fa0b6cffa324e77a9cdff19c0beef93a9c08ca6266732d", "bytes": 59811},
+    {"path": "output/fresh_generation/weekly_etf_eu_review_260716.html", "sha256": "45906ad661ab74bcd1cfc7d600498488c929b966bd91f7490c7f350d613779b1", "bytes": 22641},
+    {"path": "output/fresh_generation/weekly_etf_eu_review_260716.pdf", "sha256": "0d3f1f45a42a9cd7306a4ab2eb041e41d124a29c72b096299d3158aec742f6f8", "bytes": 57997}
+  ],
+  "binary_artifact_persistence": {
+    "github_binary_files_committed": false,
+    "reason": "GitHub connector in this session supports text writes but did not expose a reliable binary upload or Actions trigger path.",
+    "hash_manifest_committed": true,
+    "downloadable_session_artifacts_generated": true
+  },
+  "delivery_attempted": false,
+  "send_executed": false,
+  "receipt_confirmed": false
+}
