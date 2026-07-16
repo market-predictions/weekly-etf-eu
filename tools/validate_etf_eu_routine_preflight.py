@@ -4,7 +4,6 @@ import argparse
 from pathlib import Path
 from types import SimpleNamespace
 
-from tools.build_etf_eu_routine_report_package import _markdown_en, _markdown_nl
 from tools.write_etf_eu_routine_run_manifest import build_manifest
 
 
@@ -66,19 +65,10 @@ def main() -> None:
         if manifest.get(key) is not False:
             raise SystemExit(f"routine manifest preflight failed: {key} must be false")
 
-    state = {
-        "starting_capital_eur": 100000.0,
-        "cash_eur": 100000.0,
-        "invested_market_value_eur": 0.0,
-        "nav_eur": 100000.0,
-        "positions": [],
-    }
-    pricing = {"rows": []}
-    if "send_executed=false" not in _markdown_nl("2026-07-12", state, pricing):
-        raise SystemExit("Dutch report preflight missing send_executed=false")
-    if "send_executed=false" not in _markdown_en("2026-07-12", state, pricing):
-        raise SystemExit("English report preflight missing send_executed=false")
-
+    # Client reports must not expose internal authority enums such as
+    # `send_executed=false`. Those values belong in manifests and validation
+    # evidence, not in Dutch or English client-facing report prose. Client
+    # surface cleanliness is enforced later by the strict v2 report validator.
     print("ETF_EU_ROUTINE_PREFLIGHT_OK")
 
 
