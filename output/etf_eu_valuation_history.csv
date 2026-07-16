@@ -1,3 +1,3 @@
 date,nav_eur,cash_eur,invested_market_value_eur,daily_return_pct,since_inception_return_pct,drawdown_pct,comment,source_report
 2026-05-30,100000.0,100000.0,0.0,0.0,0.0,0.0,Initial cash-only EU/UCITS bootstrap state,bootstrap
-2026-07-16,100000.0,92900.0,7100.0,0.0,0.0,0.0,First guarded Weekly ETF EU model capital activation,cap01-funded-client-grade-v2-20260716_012900
+2026-07-16,100000.0,92900.0,7100.0,0.0,0.0,0.0,SXR8 held at latest validated exact-line close; no fresh close and no new trade,routine-review-20260716_092600
