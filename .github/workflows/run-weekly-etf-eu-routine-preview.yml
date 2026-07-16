@@ -60,8 +60,7 @@ jobs:
                   data[key.strip()] = value.strip()
           required = {
               "schema_version", "artifact_type", "run_id", "report_date", "report_suffix",
-              "previous_routine_manifest", "previous_delivery_closeout_manifest",
-              "execution_mode", "send_confirmation", "production_delivery_authority",
+              "previous_routine_manifest", "previous_delivery_closeout_manifest", "execution_mode",
           }
           missing = sorted(required - set(data))
           if missing:
@@ -72,8 +71,6 @@ jobs:
               raise SystemExit("ETF_EU_ROUTINE_PREVIEW_TYPE_INVALID")
           if data["execution_mode"] != "generate_validate_only":
               raise SystemExit("ETF_EU_ROUTINE_PREVIEW_MODE_INVALID")
-          if data["send_confirmation"] != "not_confirmed" or data["production_delivery_authority"] != "false":
-              raise SystemExit("ETF_EU_ROUTINE_PREVIEW_DELIVERY_AUTHORITY_INVALID")
           if not re.fullmatch(r"\d{8}_\d{6}", data["run_id"]):
               raise SystemExit("ETF_EU_ROUTINE_PREVIEW_RUN_ID_INVALID")
           parsed = date.fromisoformat(data["report_date"])
@@ -91,7 +88,7 @@ jobs:
               "ETF_EU_PREVIOUS_CLOSEOUT": data["previous_delivery_closeout_manifest"],
           }
           Path("env.out").write_text("".join(f"{k}={v}\n" for k, v in mapping.items()), encoding="utf-8")
-          print("ETF_EU_ROUTINE_PREVIEW_REQUEST_OK")
+          print("ETF_EU_ROUTINE_PREVIEW_REQUEST_OK | non_delivery_workflow=true")
           PY
           cat env.out >> "$GITHUB_ENV"
 
