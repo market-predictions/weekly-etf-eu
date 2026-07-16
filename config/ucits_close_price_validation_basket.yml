@@ -26,7 +26,7 @@ trading_lines:
     pricing_status: pending_fresh_completed_close
     valuation_grade: false
     fundable: false
-    funding_blockers: [fresh_completed_xetra_close_required, broker_account_product_permission_required]
+    funding_blockers: [fresh_completed_xetra_close_required, separate_allocation_decision_required]
   - {basket_id: emim_xams_eur, role: Emerging markets equity UCITS, fund_name: iShares Core MSCI EM IMI UCITS ETF USD Acc, isin: IE00BKM4GZ66, instrument_type: UCITS ETF, exchange: Euronext Amsterdam, venue_code: XAMS, ticker: EMIM, provider_symbol_yahoo: EMIM.AS, currency: EUR, verification_status: candidate_requires_verification, pricing_status: pending_fetch_validation, valuation_grade: false, fundable: false}
   - {basket_id: cndx_lse_usd, role: Nasdaq 100 technology UCITS, fund_name: iShares NASDAQ 100 UCITS ETF USD Acc, isin: IE00B53SZB19, instrument_type: UCITS ETF, exchange: London Stock Exchange, venue_code: XLON, ticker: CNDX, provider_symbol_yahoo: CNDX.L, currency: USD, verification_status: candidate_requires_verification, pricing_status: pending_fetch_validation, valuation_grade: false, fundable: false}
   - {basket_id: sxrv_xetra_eur, role: Nasdaq 100 technology UCITS, fund_name: iShares NASDAQ 100 UCITS ETF USD Acc, isin: IE00B53SZB19, instrument_type: UCITS ETF, exchange: Xetra, venue_code: XETR, ticker: SXRV, provider_symbol_yahoo: SXRV.DE, currency: EUR, verification_status: candidate_requires_verification, pricing_status: pending_fetch_validation, valuation_grade: false, fundable: false}
@@ -44,17 +44,18 @@ trading_lines:
     reuters_ric: EUNA.DE
     provider_symbol_yahoo: EUNA.DE
     currency: EUR
-    verification_status: issuer_verified_line_identifiers
+    verification_status: verified_ucits_trading_line
+    alias_reconciliation_status: completed_broker_neutral
     pricing_status: pending_fresh_completed_close
     valuation_grade: false
     fundable: false
-    funding_blockers: [broker_execution_symbol_mapping_required, fresh_completed_xetra_close_required]
+    funding_blockers: [fresh_completed_xetra_close_required, separate_allocation_decision_required]
 
 removed_mappings:
   - basket_id: aggh_lse_gbp
     previous_claim: iShares Core Global Aggregate Bond UCITS ETF GBP Hedged Dist with ISIN IE00BDBRDM35
     removal_status: removed_incorrect_share_class_identity
-    reason: IE00BDBRDM35 identifies the EUR Hedged Accumulating share class. Issuer evidence lists Xetra exchange ticker AGGH, Bloomberg EUNA and RIC EUNA.DE.
+    reason: IE00BDBRDM35 identifies the EUR Hedged Accumulating share class. The canonical repository Xetra line is EUNA; AGGH is retained only as issuer alias.
 
 excluded_or_policy_review:
   - {basket_id: sgln_gold_etc, role: Gold exposure, fund_name: iShares Physical Gold ETC, isin: TBD, instrument_type: ETC, exchange: London Stock Exchange, ticker: SGLN, provider_symbol_yahoo: SGLN.L, currency: USD, verification_status: policy_review_required_not_ucits, pricing_status: diagnostics_only, valuation_grade: false, fundable: false}
