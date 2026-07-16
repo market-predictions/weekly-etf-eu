@@ -1,0 +1,98 @@
+schema_version: etf_eu_target_allocation_v1
+portfolio_id: weekly_etf_eu_model
+base_currency: EUR
+model_portfolio_only: true
+real_broker_execution: false
+allocation_style: core_satellite
+activation:
+  phase_id: first_tranche
+  phase_fraction: 0.50
+  minimum_cash_reserve_pct: 7.50
+  blocked_capacity_policy: retain_as_cash
+  whole_shares_only: true
+  fees_eur: 0.0
+  max_price_age_days: 3
+  accepted_pricing_statuses:
+    - priced_non_authoritative
+  accepted_verification_statuses:
+    - verified_ucits_trading_line
+  accepted_instrument_types:
+    - UCITS ETF
+  cap01_currency_scope:
+    - EUR
+  confirmation_phrase: CONFIRM_ETF_EU_MODEL_CAPITAL_ACTIVATION
+strategic_targets:
+  - priority: 10
+    allocation_id: global_core
+    portfolio_role: Global core equity
+    isin: IE00BK5BQT80
+    exchange_ticker: VWCE
+    fund_name: Vanguard FTSE All-World UCITS ETF USD Acc
+    provider: Vanguard
+    primary_exchange: Xetra
+    trading_currency: EUR
+    target_weight_pct: 50.0
+    conviction_tier: Core
+    rationale: Broad global core exposure; blocked until the exact trading line is verified.
+  - priority: 20
+    allocation_id: us_equity_overweight
+    portfolio_role: U.S. equity overweight
+    isin: IE00B5BMR087
+    exchange_ticker: SXR8
+    fund_name: iShares Core S&P 500 UCITS ETF USD (Acc)
+    provider: iShares / BlackRock
+    primary_exchange: Xetra
+    trading_currency: EUR
+    target_weight_pct: 15.0
+    conviction_tier: Core satellite
+    rationale: Most mature EUR-denominated verified UCITS implementation line.
+    ter_pct: 0.07
+    distribution_policy: accumulating
+    replication_method: physical_replication
+    domicile: Ireland
+    benchmark_index: S&P 500 Index
+  - priority: 30
+    allocation_id: aggregate_bonds
+    portfolio_role: Stabilising aggregate bonds
+    isin: IE00BDBRDM35
+    exchange_ticker: EUNA
+    fund_name: iShares Core Global Aggregate Bond UCITS ETF EUR Hedged Acc
+    provider: iShares / BlackRock
+    primary_exchange: Xetra
+    trading_currency: EUR
+    target_weight_pct: 15.0
+    conviction_tier: Stabiliser
+    rationale: Portfolio ballast; blocked until share-class identity and line verification are repaired.
+  - priority: 40
+    allocation_id: nasdaq_satellite
+    portfolio_role: Technology growth satellite
+    isin: IE00B53SZB19
+    exchange_ticker: SXRV
+    fund_name: iShares NASDAQ 100 UCITS ETF USD Acc
+    provider: iShares / BlackRock
+    primary_exchange: Xetra
+    trading_currency: EUR
+    target_weight_pct: 7.5
+    conviction_tier: Satellite
+    rationale: Structural growth exposure with a capped portfolio weight.
+  - priority: 50
+    allocation_id: semiconductor_satellite
+    portfolio_role: Semiconductor satellite
+    isin: IE00BMC38736
+    exchange_ticker: SMH
+    fund_name: VanEck Semiconductor UCITS ETF
+    provider: VanEck
+    primary_exchange: London Stock Exchange
+    trading_currency: USD
+    target_weight_pct: 5.0
+    conviction_tier: Satellite
+    rationale: Structural AI and compute exposure; blocked until line verification and EUR execution policy are complete.
+  - priority: 100
+    allocation_id: cash_reserve
+    portfolio_role: Strategic cash reserve
+    exchange_ticker: CASH
+    fund_name: Cash
+    trading_currency: EUR
+    target_weight_pct: 7.5
+    conviction_tier: Reserve
+    rationale: Liquidity reserve and residual whole-share cash.
