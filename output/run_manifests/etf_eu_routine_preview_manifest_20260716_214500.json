@@ -16,7 +16,19 @@
   "run_id": "20260716_214500",
   "schema_version": "etf_eu_routine_preview_manifest_v1",
   "send_executed": false,
-  "status": "generated_and_machine_validated_pending_complete_visual_review",
+  "status": "machine_validated_but_rejected_by_content_and_visual_review",
+  "machine_validation_passed": true,
+  "visual_review_artifact": "output/quality/etf_eu_routine_pdf_visual_review_20260716_214500.json",
+  "visual_review_pending": false,
+  "visual_review_passed": false,
+  "content_consistency_passed": false,
+  "superseded": true,
+  "superseded_by_run_id": "20260717_005500",
   "transport_attempted": false,
-  "visual_review_pending": true
+  "portfolio_mutation": false,
+  "blockers": [
+    "Funded portfolio state and client narrative were inconsistent.",
+    "Funded lanes were described as not funded or still awaiting closed verification gates.",
+    "Broker-dependent model wording remained after broker-neutral authority adoption."
+  ]
 }
