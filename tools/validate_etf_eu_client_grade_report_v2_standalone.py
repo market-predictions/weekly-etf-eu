@@ -29,13 +29,33 @@ SECTIONS = {
 FORBIDDEN = [
     "valuation_grade=", "funding_authority=", "portfolio_mutation=",
     "production_delivery_authority=", "candidate_requires_verification",
-    "verified_ucits_trading_line", "priced_non_authoritative", "fetch_failed", "```", "|---|",
+    "verified_ucits_trading_line", "priced_non_authoritative", "fetch_failed",
+    "funded_model_position_active", "```", "|---|",
 ]
 
 NL_FORBIDDEN = [
     "refresh macro policy pack", "verify broker availability", "strengthen pricing source agreement",
     "take a separate allocation decision before funding", "Inverse of leveraged producten",
 ]
+
+FUNDED_STALE = {
+    "nl": [
+        "Eerste modelpositie actief",
+        "eerste modelaankoop uitgevoerd",
+        "VWCE-capaciteit blijft cash totdat de exacte handelslijn is geverifieerd",
+        "EUNA, SXRV en semiconductorblootstelling blijven geblokkeerd",
+        "Bevestig brokerbeschikbaarheid",
+        "Geen inzet vóór identiteit, KID, broker en lijn zijn bevestigd",
+    ],
+    "en": [
+        "First model position active",
+        "first model purchase executed",
+        "VWCE capacity remains cash until the exact trading line is verified",
+        "EUNA, SXRV and semiconductor exposure remain blocked",
+        "Confirm broker availability",
+        "No allocation before identity, KID, broker and trading line are confirmed",
+    ],
+}
 
 
 def utc_now() -> str:
@@ -58,6 +78,61 @@ def page_count(path: Path) -> int:
     if not match:
         raise RuntimeError(f"Could not determine page count: {path}")
     return int(match.group(1))
+
+
+def ticker_of(row: dict[str, Any]) -> str:
+    return str(row.get("exchange_ticker") or row.get("ticker") or "").strip().upper()
+
+
+def funded_state_blockers(state: dict[str, Any]) -> list[str]:
+    portfolio = state.get("portfolio") if isinstance(state.get("portfolio"), dict) else {}
+    positions = [row for row in portfolio.get("positions") or [] if isinstance(row, dict)]
+    if not positions:
+        return []
+
+    blockers: list[str] = []
+    funded_tickers = {ticker_of(row) for row in positions if ticker_of(row)}
+    consistency = state.get("funded_consistency") if isinstance(state.get("funded_consistency"), dict) else {}
+    if consistency.get("position_count") != len(positions):
+        blockers.append("funded consistency position count mismatch")
+    for key in ["allocation_map_reconciled", "opportunity_radar_reconciled", "broker_neutral_model_language"]:
+        if consistency.get(key) is not True:
+            blockers.append(f"funded consistency flag missing: {key}")
+    if set(consistency.get("funded_tickers") or []) != funded_tickers:
+        blockers.append("funded consistency ticker set mismatch")
+
+    for lane in state.get("opportunity_radar") or []:
+        if not isinstance(lane, dict):
+            continue
+        lane_tickers = {str(value).strip().upper() for value in (lane.get("candidate_tickers") or lane.get("tickers") or [])}
+        active = lane_tickers & funded_tickers
+        if active:
+            if lane.get("status") != "funded_model_position_active":
+                blockers.append("funded opportunity lane is not marked active: " + ",".join(sorted(active)))
+            if int(lane.get("funded_count") or 0) < 1:
+                blockers.append("funded opportunity lane count missing: " + ",".join(sorted(active)))
+            next_copy = " ".join(
+                [str(lane.get("next_confirmation_nl") or ""), str(lane.get("next_confirmation_en") or "")]
+            ).casefold()
+            if "brokerbeschikbaarheid" in next_copy or "broker availability" in next_copy:
+                blockers.append("funded opportunity lane contains broker-dependent model gate: " + ",".join(sorted(active)))
+        elif lane.get("status") == "funded_model_position_active":
+            blockers.append("opportunity lane marked funded without a funded position")
+
+    allocation_text = json.dumps(state.get("allocation_map") or [], ensure_ascii=False).casefold()
+    next_text = json.dumps((state.get("next_run_input") or {}).get("required_actions") or [], ensure_ascii=False).casefold()
+    narrative = allocation_text + " " + next_text
+    stale_tokens = [
+        "brokerbeschikbaarheid", "broker availability",
+        "vwce-capaciteit blijft cash totdat de exacte handelslijn is geverifieerd",
+        "vwce capacity remains cash until the exact trading line is verified",
+        "repair aggregate-bond share-class identity before any bond allocation",
+        "verify the preferred global-core trading line before releasing its blocked capacity",
+    ]
+    for token in stale_tokens:
+        if token in narrative:
+            blockers.append("funded state contains stale narrative: " + token)
+    return blockers
 
 
 def validate_language(state: dict[str, Any], language: str, html_path: Path, pdf_path: Path) -> dict[str, Any]:
@@ -108,6 +183,22 @@ def validate_language(state: dict[str, Any], language: str, html_path: Path, pdf
         if not cash_callout_visible:
             blockers.append("cash-preservation callout missing while equity curve is suppressed")
 
+    portfolio = state.get("portfolio") if isinstance(state.get("portfolio"), dict) else {}
+    positions = [row for row in portfolio.get("positions") or [] if isinstance(row, dict)]
+    funded_surface_blockers: list[str] = []
+    if positions:
+        expected_label = f"{len(positions)} modelposities actief" if language == "nl" else f"{len(positions)} model positions active"
+        if expected_label.casefold() not in folded:
+            funded_surface_blockers.append("funded position-count summary missing")
+        for row in positions:
+            ticker = ticker_of(row)
+            if ticker and ticker.casefold() not in folded:
+                funded_surface_blockers.append("funded ticker missing from client output: " + ticker)
+        for token in FUNDED_STALE[language]:
+            if token.casefold() in folded:
+                funded_surface_blockers.append("stale funded-state wording: " + token)
+    blockers.extend(funded_surface_blockers)
+
     return {
         "language": language,
         "html_path": str(html_path),
@@ -120,6 +211,7 @@ def validate_language(state: dict[str, Any], language: str, html_path: Path, pdf
         "research_only_labelling_passed": research.casefold() in folded,
         "macro_freshness_disclosure_passed": not any("macro disclosure" in blocker for blocker in blockers),
         "equity_curve_contract_passed": not any("equity curve" in blocker or "cash-preservation" in blocker for blocker in blockers),
+        "funded_surface_consistency_passed": not funded_surface_blockers,
         "passed": not blockers,
         "blockers": blockers,
     }
@@ -139,6 +231,8 @@ def validate(args: argparse.Namespace) -> dict[str, Any]:
         if authority.get(field) is not False:
             blockers.append(f"authority field must remain false: {field}")
 
+    state_consistency = funded_state_blockers(state)
+    blockers.extend(state_consistency)
     dutch = validate_language(state, "nl", Path(args.dutch_html), Path(args.dutch_pdf))
     english = validate_language(state, "en", Path(args.english_html), Path(args.english_pdf))
     blockers.extend("NL: " + blocker for blocker in dutch["blockers"])
@@ -152,6 +246,7 @@ def validate(args: argparse.Namespace) -> dict[str, Any]:
         "report_date": state.get("report_date"),
         "dutch": dutch,
         "english": english,
+        "funded_state_consistency_passed": not state_consistency,
         "client_grade_v2_passed": not blockers,
         "transport_attempted": False,
         "send_executed": False,
