@@ -1,0 +1,11 @@
+# Weekly ETF EU funded-aware routine preview request
+schema_version=etf_eu_routine_preview_request_v1
+artifact_type=etf_eu_routine_preview_request
+run_id=20260716_214500
+report_date=2026-07-16
+report_suffix=260716_02
+previous_routine_manifest=output/run_manifests/etf_eu_routine_run_manifest_2026-07-12_20260712_125000.json
+previous_delivery_closeout_manifest=output/run_manifests/etf_eu_production_delivery_closeout_manifest_20260711_175327.json
+execution_mode=generate_validate_only
+send_confirmation=not_confirmed
+production_delivery_authority=false
