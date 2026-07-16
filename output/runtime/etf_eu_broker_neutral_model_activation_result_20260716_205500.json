@@ -1,0 +1,93 @@
+{
+  "schema_version": "etf_eu_broker_neutral_model_activation_result_v1",
+  "activation_id": "ETF-EU-BROKER-NEUTRAL-20260716_205500",
+  "run_id": "20260716_205500",
+  "report_date": "2026-07-16",
+  "status": "applied",
+  "execution_context": "in_session_guarded_activation_after_connector_queue_produced_no_actions_run",
+  "github_actions_run_verified": false,
+  "portfolio_state_written": true,
+  "trade_ledger_written": true,
+  "valuation_history_written": true,
+  "model_portfolio_only": true,
+  "real_broker_execution": false,
+  "broker_specific_permission_required_for_model": false,
+  "broker_permission_required_for_real_execution": true,
+  "portfolio_state": "output/etf_eu_portfolio_state.json",
+  "trade_ledger": "output/etf_eu_trade_ledger.csv",
+  "valuation_history": "output/etf_eu_valuation_history.csv",
+  "source_review": "output/runtime/etf_eu_broker_neutral_allocation_review_20260716_205500.json",
+  "source_validation": "output/quality/etf_eu_broker_neutral_allocation_review_validation_20260716_205500.json",
+  "post_activation_portfolio": {
+    "cash_eur": 60439.44,
+    "invested_market_value_eur": 39577.16,
+    "nav_eur": 100016.60,
+    "position_count": 3
+  },
+  "position_outcomes": [
+    {
+      "isin": "IE00B5BMR087",
+      "exchange_ticker": "SXR8",
+      "shares": 10,
+      "action": "Hold",
+      "current_price_eur": 711.66,
+      "market_value_eur": 7116.60,
+      "current_weight_pct": 7.115419,
+      "second_tranche_authorized": false
+    },
+    {
+      "isin": "IE00BK5BQT80",
+      "exchange_ticker": "VWCE",
+      "shares": 151,
+      "action": "Buy",
+      "current_price_eur": 165.32,
+      "market_value_eur": 24963.32,
+      "current_weight_pct": 24.959177
+    },
+    {
+      "isin": "IE00BDBRDM35",
+      "exchange_ticker": "EUNA",
+      "shares": 1526,
+      "action": "Buy",
+      "current_price_eur": 4.913,
+      "market_value_eur": 7497.24,
+      "current_weight_pct": 7.495996
+    }
+  ],
+  "ledger_rows_appended": [
+    {
+      "trade_id": "model-eu-2026-07-16-20260716_205500-01-VWCE-BUY",
+      "trade_date": "2026-07-16",
+      "source_report": "broker-neutral-review:etf_eu_broker_neutral_allocation_review_20260716_205500.json",
+      "isin": "IE00BK5BQT80",
+      "exchange_ticker": "VWCE",
+      "action": "Buy",
+      "shares_delta": "151",
+      "previous_weight_pct": "0.000000",
+      "new_weight_pct": "24.959177",
+      "weight_change_pct": "24.959177",
+      "target_weight_pct": "25.000000",
+      "conviction_tier": "Core",
+      "portfolio_role": "Global core equity",
+      "funding_source_note": "Guarded broker-neutral Weekly ETF EU model activation funded from cash; no real broker order was placed."
+    },
+    {
+      "trade_id": "model-eu-2026-07-16-20260716_205500-02-EUNA-BUY",
+      "trade_date": "2026-07-16",
+      "source_report": "broker-neutral-review:etf_eu_broker_neutral_allocation_review_20260716_205500.json",
+      "isin": "IE00BDBRDM35",
+      "exchange_ticker": "EUNA",
+      "action": "Buy",
+      "shares_delta": "1526",
+      "previous_weight_pct": "0.000000",
+      "new_weight_pct": "7.495996",
+      "weight_change_pct": "7.495996",
+      "target_weight_pct": "7.500000",
+      "conviction_tier": "Stabiliser",
+      "portfolio_role": "Stabilising aggregate bonds",
+      "funding_source_note": "Guarded broker-neutral Weekly ETF EU model activation funded from cash; no real broker order was placed."
+    }
+  ],
+  "production_delivery": false,
+  "email_send": false
+}
