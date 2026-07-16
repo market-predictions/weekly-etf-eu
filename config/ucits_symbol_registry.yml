@@ -35,7 +35,7 @@ funds:
     ucits_status: confirmed
     priips_kid_status: available
     investability_status: verified_candidate_not_funded
-    fundable_status: blocked_pending_fresh_xetra_close_and_broker_permission
+    fundable_status: blocked_pending_fresh_xetra_close_and_new_allocation_decision
     domicile: Ireland
     base_currency: USD
     distribution_policy: accumulating
@@ -57,8 +57,8 @@ funds:
     instrument_type: UCITS ETF
     ucits_status: confirmed
     priips_kid_status: available
-    investability_status: identity_repaired_candidate_not_funded
-    fundable_status: blocked_pending_fresh_xetra_close_and_broker_symbol_confirmation
+    investability_status: verified_candidate_not_funded
+    fundable_status: blocked_pending_fresh_xetra_close_and_new_allocation_decision
     domicile: Ireland
     share_class_currency: EUR
     distribution_policy: accumulating
@@ -66,12 +66,23 @@ funds:
     benchmark_index: Bloomberg Global Aggregate Bond Index
     ter_pct: 0.10
     trading_lines:
-      - {exchange: Xetra, venue_code: XETR, issuer_exchange_ticker: AGGH, broker_or_data_symbol: EUNA, trading_currency: EUR, bloomberg_ticker: EUNA, reuters_ric: EUNA.DE, pricing_symbol_yahoo: EUNA.DE, line_verification_status: issuer_verified_line_identifiers, execution_symbol_status: broker_confirmation_required}
+      - exchange: Xetra
+        venue_code: XETR
+        exchange_ticker: EUNA
+        trading_currency: EUR
+        issuer_exchange_ticker: AGGH
+        bloomberg_ticker: EUNA
+        reuters_ric: EUNA.DE
+        pricing_symbol_yahoo: EUNA.DE
+        line_verification_status: verified_ucits_trading_line
+        alias_reconciliation_status: completed_broker_neutral
     identity_notes:
       - IE00BDBRDM35 is EUR Hedged Accumulating, not GBP Hedged Distributing.
-      - AGGH is the issuer exchange ticker; EUNA is the Bloomberg/RIC/data-vendor identifier for Xetra.
+      - Deutsche Börse identifies the Xetra trading line as EUNA; the issuer listings table labels the same Xetra line with issuer ticker AGGH and Bloomberg/RIC aliases EUNA and EUNA.DE.
+      - The repository model uses EUNA as the canonical Xetra exchange ticker and preserves AGGH as an issuer alias; no broker-specific symbol is authoritative.
     evidence:
       - https://www.ishares.com/ch/individual/en/products/291770/ishares-core-global-aggregate-bond-ucits-etf-fund
+      - https://live.deutsche-boerse.com/en/etf/ishares-core-global-aggregate-bond-ucits-etf-eur-hedged-acc
 
   - registry_id: semiconductor_vaneck_smh_ucits
     role: Semiconductor thematic exposure
@@ -111,6 +122,8 @@ funds:
 
 registry_notes:
   - Current funded model position: 10 whole shares SXR8.
-  - VWCE exact Xetra line is verified but not yet fundable.
-  - Incorrect AGGH LSE/GBP share-class mapping removed.
+  - VWCE exact Xetra line is verified and awaits fresh pricing plus a new allocation decision.
+  - IE00BDBRDM35 Xetra alias reconciliation is complete: EUNA is canonical for the model and AGGH is retained as issuer alias.
+  - Incorrect AGGH LSE/GBP share-class mapping remains removed.
+  - Broker/account permissions are outside the broker-neutral model-investability gate.
   - U.S. ETFs remain research references only.
