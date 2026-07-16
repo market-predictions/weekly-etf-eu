@@ -11,7 +11,7 @@ on:
       request_path:
         description: Prepared broker-neutral allocation review request
         required: true
-        default: control/run_queue/etf_eu_broker_neutral_allocation_review_request_20260716_205500.md
+        default: control/run_queue/etf_eu_broker_neutral_allocation_review_request_20260716_204700.md
 
 permissions:
   contents: write
@@ -78,6 +78,7 @@ jobs:
         run: |
           pytest -q \
             tests/test_etf_eu_broker_neutral_registry.py \
+            tests/test_etf_eu_broker_neutral_allocation_review.py \
             tests/test_etf_eu_cap01.py
 
       - name: Build current UCITS pricing evidence
@@ -93,54 +94,23 @@ jobs:
           python tools/validate_ucits_close_price_validation_basket_results.py --artifact "$PRICING"
           echo "ETF_EU_PRICING=$PRICING" >> "$GITHUB_ENV"
 
-      - name: Build broker-neutral allocation decision
+      - name: Build and validate active broker-neutral allocation review
         run: |
           set -euo pipefail
-          DECISION="output/allocation/etf_eu_allocation_decision_${ETF_EU_RUN_ID}.json"
-          VALIDATION="output/quality/etf_eu_allocation_decision_validation_${ETF_EU_RUN_ID}.json"
-          mkdir -p output/allocation output/quality
-          set +e
-          python -m runtime.build_etf_eu_allocation_decision \
+          REVIEW="output/runtime/etf_eu_broker_neutral_allocation_review_${ETF_EU_RUN_ID}.json"
+          VALIDATION="output/quality/etf_eu_broker_neutral_allocation_review_validation_${ETF_EU_RUN_ID}.json"
+          python -m runtime.build_etf_eu_broker_neutral_allocation_review \
             --policy config/etf_eu_target_allocation.yml \
             --portfolio-state output/etf_eu_portfolio_state.json \
             --pricing-artifact "$ETF_EU_PRICING" \
             --run-id "$ETF_EU_RUN_ID" \
             --report-date "$ETF_EU_REPORT_DATE" \
-            --output "$DECISION"
-          BUILD_RC=$?
-          set -e
-          if [ "$BUILD_RC" -eq 0 ]; then
-            python -m tools.validate_etf_eu_allocation_decision \
-              --decision "$DECISION" \
-              --output "$VALIDATION"
-          else
-            python - "$DECISION" "$VALIDATION" "$BUILD_RC" <<'PY'
-          from pathlib import Path
-          import json
-          import sys
-
-          decision_path = Path(sys.argv[1])
-          validation_path = Path(sys.argv[2])
-          build_rc = int(sys.argv[3])
-          decision = json.loads(decision_path.read_text(encoding="utf-8"))
-          summary = decision.get("summary") or {}
-          payload = {
-              "schema_version": "etf_eu_allocation_review_validation_v1",
-              "decision": str(decision_path),
-              "review_valid": True,
-              "ready_for_guarded_model_activation": False,
-              "builder_exit_code": build_rc,
-              "allocation_status": decision.get("allocation_status"),
-              "hard_blockers": decision.get("hard_blockers") or [],
-              "nav_reconciliation_ok": summary.get("nav_reconciliation_ok") is True,
-              "broker_neutral_model_authority": (decision.get("authority") or {}).get("broker_specific_permission_required_for_model") is False,
-              "portfolio_mutation": False,
-          }
-          validation_path.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
-          PY
-          fi
-          echo "ETF_EU_DECISION=$DECISION" >> "$GITHUB_ENV"
-          echo "ETF_EU_DECISION_VALIDATION=$VALIDATION" >> "$GITHUB_ENV"
+            --output "$REVIEW"
+          python -m tools.validate_etf_eu_broker_neutral_allocation_review \
+            --review "$REVIEW" \
+            --output "$VALIDATION"
+          echo "ETF_EU_REVIEW=$REVIEW" >> "$GITHUB_ENV"
+          echo "ETF_EU_REVIEW_VALIDATION=$VALIDATION" >> "$GITHUB_ENV"
 
       - name: Write broker-neutral review manifest
         run: |
@@ -151,27 +121,23 @@ jobs:
 
           run_id = os.environ["ETF_EU_RUN_ID"]
           pricing_path = Path(os.environ["ETF_EU_PRICING"])
-          decision_path = Path(os.environ["ETF_EU_DECISION"])
-          validation_path = Path(os.environ["ETF_EU_DECISION_VALIDATION"])
+          review_path = Path(os.environ["ETF_EU_REVIEW"])
+          validation_path = Path(os.environ["ETF_EU_REVIEW_VALIDATION"])
           pricing = json.loads(pricing_path.read_text(encoding="utf-8"))
-          decision = json.loads(decision_path.read_text(encoding="utf-8"))
+          review = json.loads(review_path.read_text(encoding="utf-8"))
           validation = json.loads(validation_path.read_text(encoding="utf-8"))
-          focus = {row.get("ticker"): row for row in pricing.get("rows") or [] if row.get("ticker") in {"SXR8", "VWCE", "EUNA"}}
+          focus = {
+              row.get("ticker"): row
+              for row in pricing.get("rows") or []
+              if row.get("ticker") in {"SXR8", "VWCE", "EUNA"}
+          }
           payload = {
               "schema_version": "etf_eu_broker_neutral_allocation_review_manifest_v1",
               "run_id": run_id,
               "report_date": os.environ["ETF_EU_REPORT_DATE"],
               "review_mode": os.environ["ETF_EU_REVIEW_MODE"],
               "source_request": os.environ["ETF_EU_REQUEST_PATH"],
-              "authority": {
-                  "model_portfolio_only": True,
-                  "real_broker_execution": False,
-                  "broker_specific_permission_required_for_model": False,
-                  "broker_permission_required_for_real_execution": True,
-                  "model_mutation_authorized": False,
-                  "portfolio_mutation": False,
-                  "production_delivery": False,
-              },
+              "authority": review["authority"],
               "pricing_artifact": str(pricing_path),
               "pricing_focus": {
                   key: {
@@ -188,18 +154,20 @@ jobs:
                   }
                   for key, row in sorted(focus.items())
               },
-              "allocation_decision": str(decision_path),
-              "allocation_validation": str(validation_path),
-              "allocation_status": decision.get("allocation_status"),
-              "hard_blockers": decision.get("hard_blockers") or [],
-              "summary": decision.get("summary") or {},
-              "decision_rows": [
-                  row for row in decision.get("decisions") or []
-                  if row.get("exchange_ticker") in {"SXR8", "VWCE", "EUNA", "CASH"}
-              ],
+              "review_artifact": str(review_path),
+              "review_validation": str(validation_path),
+              "portfolio_revaluation": review["portfolio_revaluation"],
+              "allocation_decision": review["allocation_decision"],
+              "trade_intents": review["trade_intents"],
+              "hard_blockers": review["hard_blockers"],
               "validation": validation,
+              "portfolio_mutation": False,
+              "real_broker_execution": False,
+              "production_delivery": False,
           }
-          out = Path(f"output/run_manifests/etf_eu_broker_neutral_allocation_review_manifest_{run_id}.json")
+          out = Path(
+              f"output/run_manifests/etf_eu_broker_neutral_allocation_review_manifest_{run_id}.json"
+          )
           out.parent.mkdir(parents=True, exist_ok=True)
           out.write_text(json.dumps(payload, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
           print(f"ETF_EU_BROKER_NEUTRAL_REVIEW_MANIFEST_OK | path={out}")
@@ -211,8 +179,8 @@ jobs:
           name: etf-eu-broker-neutral-allocation-review-${{ env.ETF_EU_RUN_ID }}
           path: |
             output/pricing/ucits_close_price_validation_basket_results_${{ env.ETF_EU_RUN_ID }}.json
-            output/allocation/etf_eu_allocation_decision_${{ env.ETF_EU_RUN_ID }}.json
-            output/quality/etf_eu_allocation_decision_validation_${{ env.ETF_EU_RUN_ID }}.json
+            output/runtime/etf_eu_broker_neutral_allocation_review_${{ env.ETF_EU_RUN_ID }}.json
+            output/quality/etf_eu_broker_neutral_allocation_review_validation_${{ env.ETF_EU_RUN_ID }}.json
             output/run_manifests/etf_eu_broker_neutral_allocation_review_manifest_${{ env.ETF_EU_RUN_ID }}.json
 
       - name: Persist review evidence
@@ -222,8 +190,8 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -f \
             "output/pricing/ucits_close_price_validation_basket_results_${ETF_EU_RUN_ID}.json" \
-            "output/allocation/etf_eu_allocation_decision_${ETF_EU_RUN_ID}.json" \
-            "output/quality/etf_eu_allocation_decision_validation_${ETF_EU_RUN_ID}.json" \
+            "output/runtime/etf_eu_broker_neutral_allocation_review_${ETF_EU_RUN_ID}.json" \
+            "output/quality/etf_eu_broker_neutral_allocation_review_validation_${ETF_EU_RUN_ID}.json" \
             "output/run_manifests/etf_eu_broker_neutral_allocation_review_manifest_${ETF_EU_RUN_ID}.json"
           git commit -m "Persist ETF EU broker-neutral allocation review ${ETF_EU_RUN_ID}"
           git push origin HEAD:main
