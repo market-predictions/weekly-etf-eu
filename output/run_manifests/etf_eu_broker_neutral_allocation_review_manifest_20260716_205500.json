@@ -1,0 +1,52 @@
+{
+  "schema_version": "etf_eu_broker_neutral_allocation_review_manifest_v1",
+  "run_id": "20260716_205500",
+  "report_date": "2026-07-16",
+  "status": "review_valid_ready_for_separate_guarded_model_activation",
+  "execution_path": "in_session_fallback_after_connector_queue_produced_no_actions_run",
+  "github_actions_run_verified": false,
+  "queued_requests": [
+    "control/run_queue/etf_eu_broker_neutral_allocation_review_request_20260716_204700.md",
+    "control/run_queue/etf_eu_broker_neutral_allocation_review_request_20260716_205500.md"
+  ],
+  "authority": {
+    "model_portfolio_only": true,
+    "real_broker_execution": false,
+    "broker_specific_permission_required_for_model": false,
+    "broker_permission_required_for_real_execution": true,
+    "portfolio_mutation": false,
+    "production_delivery": false,
+    "email_send": false
+  },
+  "pricing_artifact": "output/pricing/etf_eu_exact_line_review_pricing_20260716_205500.json",
+  "review_artifact": "output/runtime/etf_eu_broker_neutral_allocation_review_20260716_205500.json",
+  "review_validation": "output/quality/etf_eu_broker_neutral_allocation_review_validation_20260716_205500.json",
+  "pricing_focus": {
+    "SXR8": {"isin": "IE00B5BMR087", "exchange": "Xetra", "currency": "EUR", "close_date": "2026-07-16", "close_price": 711.66},
+    "VWCE": {"isin": "IE00BK5BQT80", "exchange": "Xetra", "currency": "EUR", "close_date": "2026-07-16", "close_price": 165.32},
+    "EUNA": {"isin": "IE00BDBRDM35", "exchange": "Xetra", "currency": "EUR", "close_date": "2026-07-14", "close_price": 4.913}
+  },
+  "portfolio_revaluation": {
+    "prior_nav_eur": 100000.00,
+    "revalued_nav_eur": 100016.60,
+    "nav_change_eur": 16.60,
+    "sxr8_shares": 10,
+    "sxr8_market_value_eur": 7116.60,
+    "sxr8_action": "hold",
+    "second_tranche_authorized": false
+  },
+  "trade_intents": [
+    {"action": "BUY", "isin": "IE00BK5BQT80", "exchange_ticker": "VWCE", "shares_delta": 151, "model_price_eur": 165.32, "trade_value_eur": 24963.32, "phase_target_weight_pct": 25.0},
+    {"action": "BUY", "isin": "IE00BDBRDM35", "exchange_ticker": "EUNA", "shares_delta": 1526, "model_price_eur": 4.913, "trade_value_eur_pre_settlement_rounding": 7497.238, "phase_target_weight_pct": 7.5}
+  ],
+  "review_result": {
+    "passed": true,
+    "hard_blockers": [],
+    "trade_intent_count": 2,
+    "new_position_authorized": true,
+    "portfolio_mutation": false,
+    "cash_after_decision_eur_pre_settlement_rounding": 60439.442,
+    "nav_reconciliation_ok": true
+  },
+  "next_gate": "separate_guarded_model_activation_with_cent_rounded_cash_and_state_reconciliation"
+}
