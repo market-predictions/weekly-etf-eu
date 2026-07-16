@@ -81,6 +81,8 @@ def test_funded_report_reconciles_three_positions_and_removes_broker_model_gates
     base_nl = "Cash behouden. Deze week: geen portefeuilletransactie; de EU-modelportefeuille blijft volledig in cash. <p>Position analysis active.</p>"
     rendered_nl = patch_copy(base_nl, reconciled, "nl")
     assert "3 modelposities actief" in rendered_nl
-    assert "151 VWCE" in rendered_nl and "1.526 EUNA" in rendered_nl and "10 SXR8" in rendered_nl
+    assert "151 VWCE" in rendered_nl and "1.526 EUNA" in rendered_nl
+    assert "SXR8 aangehouden" in rendered_nl
+    assert "<td>SXR8</td>" in rendered_nl and "<td>10</td>" in rendered_nl
     assert "Eerste modelpositie actief" not in rendered_nl
     assert "Peildatum" in rendered_nl
