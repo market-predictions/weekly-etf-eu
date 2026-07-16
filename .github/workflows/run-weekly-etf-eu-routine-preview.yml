@@ -1,4 +1,4 @@
-name: Weekly ETF EU routine generate and validate
+name: ETF EU - Generate and Validate Preview (NO EMAIL)
 
 on:
   push:
