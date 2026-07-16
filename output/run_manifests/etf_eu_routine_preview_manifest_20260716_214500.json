@@ -1,0 +1,22 @@
+{
+  "artifact_type": "etf_eu_routine_preview_manifest",
+  "model_portfolio_only": true,
+  "outputs": [
+    "output/fresh_generation/weekly_etf_eu_review_nl_260716_02.html",
+    "output/fresh_generation/weekly_etf_eu_review_nl_260716_02.pdf",
+    "output/fresh_generation/weekly_etf_eu_review_260716_02.html",
+    "output/fresh_generation/weekly_etf_eu_review_260716_02.pdf"
+  ],
+  "position_count_expected": 3,
+  "production_delivery_authority": false,
+  "real_broker_execution": false,
+  "receipt_confirmed": false,
+  "report_date": "2026-07-16",
+  "report_suffix": "260716_02",
+  "run_id": "20260716_214500",
+  "schema_version": "etf_eu_routine_preview_manifest_v1",
+  "send_executed": false,
+  "status": "generated_and_machine_validated_pending_complete_visual_review",
+  "transport_attempted": false,
+  "visual_review_pending": true
+}

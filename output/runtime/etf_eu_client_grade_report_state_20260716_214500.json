@@ -1,0 +1,1070 @@
+{
+  "allocation_map": [
+    {
+      "note_en": "Non-executable target capacity remains cash and is not redistributed to other themes.",
+      "note_nl": "Niet-uitvoerbare doelgewichten blijven cash en worden niet naar andere thema’s doorgeschoven.",
+      "segment_en": "Cash",
+      "segment_nl": "Cash",
+      "stance_en": "Current 60.43% · reserve at least 7.50%",
+      "stance_nl": "Huidig 60.43% · reserve minimaal 7,50%"
+    },
+    {
+      "note_en": "First tranche, whole shares, model portfolio; no brokerage order was placed.",
+      "note_nl": "Eerste tranche, hele stukken, modelportefeuille; geen brokerorder uitgevoerd.",
+      "segment_en": "Funded UCITS positions",
+      "segment_nl": "Gefinancierde UCITS-posities",
+      "stance_en": "39.57% invested through VWCE, EUNA, SXR8",
+      "stance_nl": "39.57% belegd via VWCE, EUNA, SXR8"
+    },
+    {
+      "note_en": "VWCE capacity remains cash until the exact trading line is verified.",
+      "note_nl": "VWCE-capaciteit blijft cash totdat de exacte handelslijn is geverifieerd.",
+      "segment_en": "Global equity core",
+      "segment_nl": "Wereldwijde aandelenkern",
+      "stance_en": "Target 50% · verification required",
+      "stance_nl": "Doel 50% · verificatie vereist"
+    },
+    {
+      "note_en": "EUNA, SXRV and semiconductor exposure remain blocked until their own gates pass.",
+      "note_nl": "EUNA, SXRV en semiconductorblootstelling blijven geblokkeerd tot hun eigen gates slagen.",
+      "segment_en": "Bonds and satellites",
+      "segment_nl": "Obligaties en satellieten",
+      "stance_en": "Not yet funded",
+      "stance_nl": "Nog niet gefinancierd"
+    },
+    {
+      "note_en": "The ETC structure remains outside the current UCITS-only policy.",
+      "note_nl": "ETC-structuur valt buiten het huidige UCITS-only beleid.",
+      "segment_en": "Gold / hard assets",
+      "segment_nl": "Goud / harde activa",
+      "stance_en": "Policy blocked",
+      "stance_nl": "Beleidsmatig geblokkeerd"
+    }
+  ],
+  "artifact_type": "etf_eu_client_grade_report_state",
+  "authority": {
+    "canonical_identity": "isin_first",
+    "funding_authority": false,
+    "model_position_present": true,
+    "portfolio_mutation": false,
+    "production_delivery_authority": false,
+    "real_broker_execution": false,
+    "us_etfs_research_only": true,
+    "valuation_grade": false
+  },
+  "blockers": [],
+  "conditional_sections": {
+    "cash_preservation_callout": false,
+    "current_positions": true,
+    "portfolio_curve": true,
+    "replacement_analysis": true,
+    "rotation_plan": true
+  },
+  "equity_curve": {
+    "activation_rule": "show after at least two meaningful validated NAV observations or a funded position",
+    "fallback_en": "The EU model portfolio has remained fully in cash since inception; no investment return has been generated yet.",
+    "fallback_nl": "De EU-modelportefeuille staat sinds de start volledig in cash; er is nog geen beleggingsrendement opgebouwd.",
+    "latest_nav_matches_state": true,
+    "point_count": 2,
+    "points": [
+      {
+        "date": "2026-05-30",
+        "nav_eur": 100000.0
+      },
+      {
+        "date": "2026-07-16",
+        "nav_eur": 100016.6
+      }
+    ],
+    "show_chart": true
+  },
+  "generated_at_utc": "2026-07-16T22:22:55Z",
+  "macro": {
+    "age_days": 0,
+    "catalysts": [
+      {
+        "area": "ECB rate-policy tightening",
+        "confidence": 0.7,
+        "direction": "restrictive / inflation-sensitive",
+        "horizon": "1-6 months",
+        "signal": "The ECB raised rates this week in response to renewed inflation pressure; this raises the hurdle for rate-sensitive and non-U.S. developed-market exposure but does not override pricing, relative-strength or portfolio-discipline gates."
+      },
+      {
+        "area": "AI infrastructure and semiconductor supply chains",
+        "confidence": 0.72,
+        "direction": "supportive",
+        "horizon": "3-12 months",
+        "signal": "Capital spending and strategic supply-chain policy continue to support semiconductor and infrastructure lanes."
+      },
+      {
+        "area": "Defense and sovereign resilience",
+        "confidence": 0.65,
+        "direction": "supportive but implementation-sensitive",
+        "horizon": "6-18 months",
+        "signal": "Defense-budget durability remains a structural support, but ETF vehicle choice still matters."
+      }
+    ],
+    "confidence_pct": 66.0,
+    "decision_rule": "Do not rotate aggressively unless a regime shift persists for at least two runs or cross-asset confirmation becomes broad.",
+    "ecb": {
+      "implication": "European equity or bond exposure remains conditional on UCITS identity, trading-line verification, current pricing and relative-strength confirmation.",
+      "main_risk": "Renewed energy-led inflation pressure can raise the hurdle for rate-sensitive and non-U.S. developed-market exposure.",
+      "stance": "Tightening / inflation-sensitive",
+      "stance_nl": "Verkrappend / inflatiegevoelig"
+    },
+    "fed": {
+      "implication": "Maintain quality and cash discipline; any allocation still requires a verified UCITS instrument, current pricing and a separate capital decision.",
+      "main_risk": "Real-rate repricing or delayed easing can pressure duration and speculative beta.",
+      "stance": "Restrictive / data-dependent",
+      "stance_nl": "Restrictief / datagedreven"
+    },
+    "fresh_for_report": true,
+    "freshness_status": "current",
+    "memory_summary": "Risk-on growth has persisted for 62 run(s); transition state is stable, breadth is mixed, and cross-asset confirmation is mixed.",
+    "portfolio_implications": [
+      "Retain cash until the selected UCITS trading line, broker availability and current pricing are jointly verified.",
+      "Broad U.S. core equity through verified UCITS lines remains the most mature implementation lane; thematic exposure still requires concentration discipline.",
+      "Macro context is descriptive and cannot by itself authorize funding, valuation or portfolio mutation."
+    ],
+    "regime": "Risk-on growth",
+    "regime_nl": "Risk-on groei",
+    "source_generated_at_utc": "2026-07-16T22:22:54Z",
+    "source_report_date": "2026-07-16",
+    "what_changed": [
+      "AI / semiconductor leadership remains the dominant equity impulse.",
+      "Gold hedge behavior remains under review rather than automatic ballast."
+    ]
+  },
+  "next_run_input": {
+    "macro_refresh_required": false,
+    "portfolio_state": "output/etf_eu_portfolio_state.json",
+    "pricing_artifact": "output/pricing/ucits_close_price_validation_basket_results_20260716_214500.json",
+    "priority_candidates": [
+      "SXR8",
+      "CSPX",
+      "IWDA",
+      "EUNL",
+      "VWCE"
+    ],
+    "required_actions": [
+      "monitor the funded SXR8 model position against its phase target and invalidation conditions",
+      "verify the preferred global-core trading line before releasing its blocked capacity",
+      "repair aggregate-bond share-class identity before any bond allocation",
+      "rerun the guarded allocation decision with fresh pricing; do not redistribute blocked capacity"
+    ],
+    "valuation_history": "output/etf_eu_valuation_history.csv"
+  },
+  "opportunity_radar": [
+    {
+      "allocation_authority": false,
+      "candidate_tickers": [
+        "CSPX",
+        "SXR8"
+      ],
+      "horizon": "3–12 months",
+      "implementation_score": 5,
+      "lane_id": "core_us_equity",
+      "member_count": 2,
+      "members": [
+        {
+          "blockers": [],
+          "close_date": "2026-07-16",
+          "close_price": 815.0700073242188,
+          "currency": "USD",
+          "exchange": "London Stock Exchange",
+          "fund_name": "iShares Core S&P 500 UCITS ETF USD Acc",
+          "instrument_type": "UCITS ETF",
+          "isin": "IE00B5BMR087",
+          "priced": true,
+          "pricing_status": "priced_non_authoritative",
+          "research_reference": null,
+          "source_name": "Yahoo/yfinance connectivity evidence",
+          "source_quality_status": "non_authoritative_connectivity_only",
+          "ticker": "CSPX",
+          "venue_code": "XLON",
+          "verification_status": "verified_ucits_trading_line",
+          "verified": true
+        },
+        {
+          "blockers": [],
+          "close_date": "2026-07-15",
+          "close_price": 711.6199951171875,
+          "currency": "EUR",
+          "exchange": "Xetra",
+          "fund_name": "iShares Core S&P 500 UCITS ETF USD Acc",
+          "instrument_type": "UCITS ETF",
+          "isin": "IE00B5BMR087",
+          "priced": true,
+          "pricing_status": "priced_non_authoritative",
+          "research_reference": null,
+          "source_name": "Yahoo/yfinance connectivity evidence",
+          "source_quality_status": "non_authoritative_connectivity_only",
+          "ticker": "SXR8",
+          "venue_code": "XETR",
+          "verification_status": "verified_ucits_trading_line",
+          "verified": true
+        }
+      ],
+      "name_en": "Core U.S. equity through UCITS",
+      "name_nl": "Amerikaanse kernaandelen via UCITS",
+      "next_confirmation_en": "Confirm broker availability, current pricing basis and a separate allocation decision.",
+      "next_confirmation_nl": "Bevestig brokerbeschikbaarheid, actuele prijsbasis en afzonderlijk allocatiebesluit.",
+      "priced_count": 2,
+      "registry_candidates": [],
+      "research_reference": "SPY",
+      "status": "operationally_mature_not_funded",
+      "structural_score": 5,
+      "tickers": [
+        "CSPX",
+        "SXR8"
+      ],
+      "verified_count": 2,
+      "why_en": "Broad U.S. earnings exposure and liquidity make this the most mature implementation lane.",
+      "why_nl": "Brede Amerikaanse winstgroei en liquiditeit maken dit de meest volwassen implementatielijn."
+    },
+    {
+      "allocation_authority": false,
+      "candidate_tickers": [
+        "VWCE",
+        "EUNL",
+        "IWDA"
+      ],
+      "horizon": "3–12 months",
+      "implementation_score": 4,
+      "lane_id": "global_equity",
+      "member_count": 3,
+      "members": [
+        {
+          "blockers": [],
+          "close_date": "2026-07-15",
+          "close_price": 165.8000030517578,
+          "currency": "EUR",
+          "exchange": "Xetra",
+          "fund_name": "Vanguard FTSE All-World UCITS ETF USD Acc",
+          "instrument_type": "UCITS ETF",
+          "isin": "IE00BK5BQT80",
+          "priced": true,
+          "pricing_status": "priced_non_authoritative",
+          "research_reference": null,
+          "source_name": "Yahoo/yfinance connectivity evidence",
+          "source_quality_status": "non_authoritative_connectivity_only",
+          "ticker": "VWCE",
+          "venue_code": "XETR",
+          "verification_status": "verified_ucits_trading_line",
+          "verified": true
+        },
+        {
+          "blockers": [
+            "identity_or_line_verification_pending"
+          ],
+          "close_date": "2026-07-15",
+          "close_price": 126.30000305175781,
+          "currency": "EUR",
+          "exchange": "Xetra",
+          "fund_name": "iShares Core MSCI World UCITS ETF USD Acc",
+          "instrument_type": "UCITS ETF",
+          "isin": "IE00B4L5Y983",
+          "priced": true,
+          "pricing_status": "priced_non_authoritative",
+          "research_reference": null,
+          "source_name": "Yahoo/yfinance connectivity evidence",
+          "source_quality_status": "non_authoritative_connectivity_only",
+          "ticker": "EUNL",
+          "venue_code": "XETR",
+          "verification_status": "candidate_requires_verification",
+          "verified": false
+        },
+        {
+          "blockers": [
+            "identity_or_line_verification_pending"
+          ],
+          "close_date": "2026-07-15",
+          "close_price": 126.29000091552734,
+          "currency": "EUR",
+          "exchange": "Euronext Amsterdam",
+          "fund_name": "iShares Core MSCI World UCITS ETF USD Acc",
+          "instrument_type": "UCITS ETF",
+          "isin": "IE00B4L5Y983",
+          "priced": true,
+          "pricing_status": "priced_non_authoritative",
+          "research_reference": null,
+          "source_name": "Yahoo/yfinance connectivity evidence",
+          "source_quality_status": "non_authoritative_connectivity_only",
+          "ticker": "IWDA",
+          "venue_code": "XAMS",
+          "verification_status": "candidate_requires_verification",
+          "verified": false
+        }
+      ],
+      "name_en": "Global equity",
+      "name_nl": "Wereldwijde aandelen",
+      "next_confirmation_en": "Confirm broker availability, current pricing basis and a separate allocation decision.",
+      "next_confirmation_nl": "Bevestig brokerbeschikbaarheid, actuele prijsbasis en afzonderlijk allocatiebesluit.",
+      "priced_count": 3,
+      "registry_candidates": [],
+      "research_reference": "VT",
+      "status": "operationally_mature_not_funded",
+      "structural_score": 4,
+      "tickers": [
+        "IWDA",
+        "EUNL",
+        "VWCE"
+      ],
+      "verified_count": 1,
+      "why_en": "Broad global diversification reduces dependence on one region or factor.",
+      "why_nl": "Brede wereldwijde spreiding verlaagt de afhankelijkheid van één regio of factor."
+    },
+    {
+      "allocation_authority": false,
+      "candidate_tickers": [
+        "EMIM"
+      ],
+      "horizon": "6–18 months",
+      "implementation_score": 3,
+      "lane_id": "emerging_equity",
+      "member_count": 1,
+      "members": [
+        {
+          "blockers": [
+            "identity_or_line_verification_pending"
+          ],
+          "close_date": "2026-07-15",
+          "close_price": 46.78499984741211,
+          "currency": "EUR",
+          "exchange": "Euronext Amsterdam",
+          "fund_name": "iShares Core MSCI EM IMI UCITS ETF USD Acc",
+          "instrument_type": "UCITS ETF",
+          "isin": "IE00BKM4GZ66",
+          "priced": true,
+          "pricing_status": "priced_non_authoritative",
+          "research_reference": null,
+          "source_name": "Yahoo/yfinance connectivity evidence",
+          "source_quality_status": "non_authoritative_connectivity_only",
+          "ticker": "EMIM",
+          "venue_code": "XAMS",
+          "verification_status": "candidate_requires_verification",
+          "verified": false
+        }
+      ],
+      "name_en": "Emerging-market equity",
+      "name_nl": "Opkomende markten",
+      "next_confirmation_en": "Complete identity, KID, trading-line and source-agreement checks.",
+      "next_confirmation_nl": "Rond identiteit, KID, handelslijn en bronovereenkomst af.",
+      "priced_count": 1,
+      "registry_candidates": [],
+      "research_reference": "EEM",
+      "status": "watchlist_verification_required",
+      "structural_score": 3,
+      "tickers": [
+        "EMIM"
+      ],
+      "verified_count": 0,
+      "why_en": "Additional growth and valuation diversification, with higher currency and policy risk.",
+      "why_nl": "Aanvullende groeibronnen en waarderingsspreiding, maar met hogere valuta- en beleidsrisico’s."
+    },
+    {
+      "allocation_authority": false,
+      "candidate_tickers": [
+        "SMH",
+        "CNDX",
+        "SXRV"
+      ],
+      "horizon": "3–12 months",
+      "implementation_score": 3,
+      "lane_id": "technology_semiconductors",
+      "member_count": 3,
+      "members": [
+        {
+          "blockers": [
+            "identity_or_line_verification_pending"
+          ],
+          "close_date": "2026-07-16",
+          "close_price": 108.13999938964844,
+          "currency": "USD",
+          "exchange": "London Stock Exchange",
+          "fund_name": "VanEck Semiconductor UCITS ETF",
+          "instrument_type": "UCITS ETF",
+          "isin": "IE00BMC38736",
+          "priced": true,
+          "pricing_status": "priced_non_authoritative",
+          "research_reference": null,
+          "source_name": "Yahoo/yfinance connectivity evidence",
+          "source_quality_status": "non_authoritative_connectivity_only",
+          "ticker": "SMH",
+          "venue_code": "XLON",
+          "verification_status": "candidate_requires_verification",
+          "verified": false
+        },
+        {
+          "blockers": [
+            "identity_or_line_verification_pending"
+          ],
+          "close_date": "2026-07-16",
+          "close_price": 1680.0,
+          "currency": "USD",
+          "exchange": "London Stock Exchange",
+          "fund_name": "iShares NASDAQ 100 UCITS ETF USD Acc",
+          "instrument_type": "UCITS ETF",
+          "isin": "IE00B53SZB19",
+          "priced": true,
+          "pricing_status": "priced_non_authoritative",
+          "research_reference": null,
+          "source_name": "Yahoo/yfinance connectivity evidence",
+          "source_quality_status": "non_authoritative_connectivity_only",
+          "ticker": "CNDX",
+          "venue_code": "XLON",
+          "verification_status": "candidate_requires_verification",
+          "verified": false
+        },
+        {
+          "blockers": [
+            "identity_or_line_verification_pending"
+          ],
+          "close_date": "2026-07-15",
+          "close_price": 1476.800048828125,
+          "currency": "EUR",
+          "exchange": "Xetra",
+          "fund_name": "iShares NASDAQ 100 UCITS ETF USD Acc",
+          "instrument_type": "UCITS ETF",
+          "isin": "IE00B53SZB19",
+          "priced": true,
+          "pricing_status": "priced_non_authoritative",
+          "research_reference": null,
+          "source_name": "Yahoo/yfinance connectivity evidence",
+          "source_quality_status": "non_authoritative_connectivity_only",
+          "ticker": "SXRV",
+          "venue_code": "XETR",
+          "verification_status": "candidate_requires_verification",
+          "verified": false
+        }
+      ],
+      "name_en": "Technology and semiconductors",
+      "name_nl": "Technologie en halfgeleiders",
+      "next_confirmation_en": "Complete identity, KID, trading-line and source-agreement checks.",
+      "next_confirmation_nl": "Rond identiteit, KID, handelslijn en bronovereenkomst af.",
+      "priced_count": 3,
+      "registry_candidates": [],
+      "research_reference": "QQQ / SMH",
+      "status": "watchlist_verification_required",
+      "structural_score": 5,
+      "tickers": [
+        "CNDX",
+        "SXRV",
+        "SMH"
+      ],
+      "verified_count": 0,
+      "why_en": "AI infrastructure and compute remain structural growth drivers, but concentration risk is high.",
+      "why_nl": "AI-infrastructuur en rekenkracht blijven structurele groeidrijvers, maar concentratierisico is hoog."
+    },
+    {
+      "allocation_authority": false,
+      "candidate_tickers": [
+        "EUNA"
+      ],
+      "horizon": "3–12 months",
+      "implementation_score": 5,
+      "lane_id": "aggregate_bonds",
+      "member_count": 1,
+      "members": [
+        {
+          "blockers": [],
+          "close_date": "2026-07-15",
+          "close_price": 4.913000106811523,
+          "currency": "EUR",
+          "exchange": "Xetra",
+          "fund_name": "iShares Core Global Aggregate Bond UCITS ETF EUR Hedged Acc",
+          "instrument_type": "UCITS ETF",
+          "isin": "IE00BDBRDM35",
+          "priced": true,
+          "pricing_status": "priced_non_authoritative",
+          "research_reference": null,
+          "source_name": "Yahoo/yfinance connectivity evidence",
+          "source_quality_status": "non_authoritative_connectivity_only",
+          "ticker": "EUNA",
+          "venue_code": "XETR",
+          "verification_status": "verified_ucits_trading_line",
+          "verified": true
+        }
+      ],
+      "name_en": "Global aggregate bonds",
+      "name_nl": "Wereldwijde obligaties",
+      "next_confirmation_en": "Confirm broker availability, current pricing basis and a separate allocation decision.",
+      "next_confirmation_nl": "Bevestig brokerbeschikbaarheid, actuele prijsbasis en afzonderlijk allocatiebesluit.",
+      "priced_count": 1,
+      "registry_candidates": [],
+      "research_reference": "AGG",
+      "status": "operationally_mature_not_funded",
+      "structural_score": 3,
+      "tickers": [
+        "EUNA",
+        "AGGH"
+      ],
+      "verified_count": 1,
+      "why_en": "May later add stability and duration diversification once trading lines and pricing are confirmed.",
+      "why_nl": "Kan later stabiliteit en renterisicospreiding bieden zodra handelslijnen en prijsbasis zijn bevestigd."
+    },
+    {
+      "allocation_authority": false,
+      "candidate_tickers": [
+        "INFR"
+      ],
+      "horizon": "6–18 months",
+      "implementation_score": 1,
+      "lane_id": "infrastructure",
+      "member_count": 0,
+      "members": [],
+      "name_en": "Infrastructure and electrification",
+      "name_nl": "Infrastructuur en elektrificatie",
+      "next_confirmation_en": "Complete registry and pricing coverage before comparison is decision-useful.",
+      "next_confirmation_nl": "Voltooi register- en prijsdekking voordat vergelijking zinvol is.",
+      "priced_count": 0,
+      "registry_candidates": [],
+      "research_reference": "PAVE / GRID",
+      "status": "research_only_not_priced",
+      "structural_score": 4,
+      "tickers": [
+        "INFR"
+      ],
+      "verified_count": 0,
+      "why_en": "Grid investment, data centres and electrification support the structural case.",
+      "why_nl": "Netuitbreiding, datacenters en elektrificatie ondersteunen de structurele investeringscase."
+    },
+    {
+      "allocation_authority": false,
+      "candidate_tickers": [
+        "SGLN"
+      ],
+      "horizon": "6–18 months",
+      "implementation_score": 1,
+      "lane_id": "gold_policy",
+      "member_count": 0,
+      "members": [],
+      "name_en": "Gold and hard assets",
+      "name_nl": "Goud en harde activa",
+      "next_confirmation_en": "Decide explicitly whether ETC structures are permitted by product policy.",
+      "next_confirmation_nl": "Beslis expliciet of ETC-structuren binnen het productbeleid zijn toegestaan.",
+      "priced_count": 0,
+      "registry_candidates": [],
+      "research_reference": "GLD",
+      "status": "policy_blocked",
+      "structural_score": 2,
+      "tickers": [
+        "SGLN"
+      ],
+      "verified_count": 0,
+      "why_en": "Diversification potential exists, but the European ETC structure requires an explicit policy decision.",
+      "why_nl": "Diversificatiepotentieel bestaat, maar de Europese ETC-structuur vereist een expliciete beleidsbeslissing."
+    }
+  ],
+  "portfolio": {
+    "base_currency": "EUR",
+    "cash_eur": 60439.44,
+    "cash_weight_pct": 60.429408718152786,
+    "inception_date": "2026-05-30",
+    "invested_market_value_eur": 39577.16,
+    "nav_eur": 100016.6,
+    "portfolio_mode": "dutch_eu_ucits_model_active",
+    "position_count": 3,
+    "positions": [
+      {
+        "action_executed_this_run": "Broker-neutral model buy",
+        "avg_entry_local": 165.32,
+        "base_currency": "USD",
+        "conviction_tier": "Core",
+        "current_price_local": 165.32,
+        "current_weight_pct": 24.959177,
+        "exchange_ticker": "VWCE",
+        "fund_name": "Vanguard FTSE All-World UCITS ETF USD Acc",
+        "investability_status": "funded_model_position",
+        "isin": "IE00BK5BQT80",
+        "last_action": "Buy",
+        "market_value_eur": 24963.32,
+        "market_value_local": 24963.32,
+        "model_execution_price_basis": "fresh_exact_line_completed_close_model_only",
+        "model_portfolio_only": true,
+        "phase_target_weight_pct": 25.0,
+        "portfolio_contribution_eur": 0.0,
+        "portfolio_contribution_pct_nav": 0.0,
+        "portfolio_role": "Global core equity",
+        "previous_market_value_eur": 24963.32,
+        "previous_market_value_local": 24963.32,
+        "previous_price_local": 165.32,
+        "previous_weight_pct": 24.959177,
+        "price_date": "2026-07-16",
+        "pricing_status": "priced_non_authoritative",
+        "priips_kid_status": "available",
+        "primary_exchange": "Xetra",
+        "provider": "Vanguard",
+        "real_broker_execution": false,
+        "shares": 151,
+        "shares_delta_this_run": 151,
+        "source_run_id": "20260716_205500",
+        "strategic_target_weight_pct": 50.0,
+        "target_weight_pct": 25.0,
+        "ticker": "VWCE",
+        "trading_currency": "EUR",
+        "ucits_status": "confirmed",
+        "unrealized_pnl_eur": 0.0,
+        "unrealized_pnl_pct": 0.0,
+        "verification_status": "verified_ucits_trading_line",
+        "weight_inherited_pct": 24.959177
+      },
+      {
+        "action_executed_this_run": "Broker-neutral model buy",
+        "avg_entry_local": 4.913,
+        "base_currency": "USD",
+        "conviction_tier": "Stabiliser",
+        "current_price_local": 4.913,
+        "current_weight_pct": 7.495996,
+        "exchange_ticker": "EUNA",
+        "fund_name": "iShares Core Global Aggregate Bond UCITS ETF EUR Hedged Acc",
+        "investability_status": "funded_model_position",
+        "isin": "IE00BDBRDM35",
+        "last_action": "Buy",
+        "market_value_eur": 7497.24,
+        "market_value_local": 7497.24,
+        "model_execution_price_basis": "fresh_exact_line_completed_close_model_only",
+        "model_portfolio_only": true,
+        "phase_target_weight_pct": 7.5,
+        "portfolio_contribution_eur": 0.0,
+        "portfolio_contribution_pct_nav": 0.0,
+        "portfolio_role": "Stabilising aggregate bonds",
+        "previous_market_value_eur": 7497.24,
+        "previous_market_value_local": 7497.24,
+        "previous_price_local": 4.913,
+        "previous_weight_pct": 7.495996,
+        "price_date": "2026-07-14",
+        "pricing_status": "priced_non_authoritative",
+        "priips_kid_status": "available",
+        "primary_exchange": "Xetra",
+        "provider": "iShares / BlackRock",
+        "real_broker_execution": false,
+        "shares": 1526,
+        "shares_delta_this_run": 1526,
+        "source_run_id": "20260716_205500",
+        "strategic_target_weight_pct": 15.0,
+        "target_weight_pct": 7.5,
+        "ticker": "EUNA",
+        "trading_currency": "EUR",
+        "ucits_status": "confirmed",
+        "unrealized_pnl_eur": 0.0,
+        "unrealized_pnl_pct": 0.0,
+        "verification_status": "verified_ucits_trading_line",
+        "weight_inherited_pct": 7.495996
+      },
+      {
+        "action_executed_this_run": "Revalue and hold",
+        "avg_entry_local": 710.0,
+        "base_currency": "USD",
+        "benchmark_index": "S&P 500 Index",
+        "conviction_tier": "Core satellite",
+        "current_price_local": 711.66,
+        "current_weight_pct": 7.115419,
+        "distribution_policy": "accumulating",
+        "domicile": "Ireland",
+        "exchange_ticker": "SXR8",
+        "fund_name": "iShares Core S&P 500 UCITS ETF USD (Acc)",
+        "investability_status": "funded_model_position",
+        "isin": "IE00B5BMR087",
+        "last_action": "Hold",
+        "market_value_eur": 7116.6,
+        "market_value_local": 7116.6,
+        "model_execution_price_basis": "fresh_exact_line_completed_close_model_only",
+        "model_portfolio_only": true,
+        "phase_target_weight_pct": 7.5,
+        "portfolio_contribution_eur": 16.6,
+        "portfolio_contribution_pct_nav": 0.016597,
+        "portfolio_role": "U.S. equity overweight",
+        "previous_market_value_eur": 7100.0,
+        "previous_market_value_local": 7100.0,
+        "previous_price_local": 710.0,
+        "previous_weight_pct": 7.115419,
+        "price_date": "2026-07-16",
+        "pricing_status": "priced_non_authoritative",
+        "priips_kid_status": "available",
+        "primary_exchange": "Xetra",
+        "provider": "iShares / BlackRock",
+        "real_broker_execution": false,
+        "relative_strength_status": "insufficient_post_entry_window",
+        "replication_method": "physical_replication",
+        "review_run_id": "20260716_205500",
+        "role_validity": "pass",
+        "second_tranche_authorized": false,
+        "shares": 10,
+        "shares_delta_this_run": 0,
+        "source_run_id": "20260716_012900",
+        "strategic_target_weight_pct": 15.0,
+        "target_weight_pct": 7.1,
+        "ter_pct": 0.07,
+        "ticker": "SXR8",
+        "trading_currency": "EUR",
+        "ucits_status": "confirmed",
+        "unrealized_pnl_eur": 16.6,
+        "unrealized_pnl_pct": 0.233803,
+        "verification_status": "verified_ucits_trading_line",
+        "weight_inherited_pct": 7.115419
+      }
+    ],
+    "since_inception_return_pct": 0.01660000000001105,
+    "starting_capital_eur": 100000.0
+  },
+  "pricing": {
+    "as_of": "2026-07-16",
+    "line_count": 10,
+    "priced_line_count": 10,
+    "rows": [
+      {
+        "blockers": [
+          "identity_or_line_verification_pending"
+        ],
+        "close_date": "2026-07-16",
+        "close_price": 108.13999938964844,
+        "currency": "USD",
+        "exchange": "London Stock Exchange",
+        "fund_name": "VanEck Semiconductor UCITS ETF",
+        "instrument_type": "UCITS ETF",
+        "isin": "IE00BMC38736",
+        "priced": true,
+        "pricing_status": "priced_non_authoritative",
+        "research_reference": null,
+        "source_name": "Yahoo/yfinance connectivity evidence",
+        "source_quality_status": "non_authoritative_connectivity_only",
+        "ticker": "SMH",
+        "venue_code": "XLON",
+        "verification_status": "candidate_requires_verification",
+        "verified": false
+      },
+      {
+        "blockers": [],
+        "close_date": "2026-07-15",
+        "close_price": 165.8000030517578,
+        "currency": "EUR",
+        "exchange": "Xetra",
+        "fund_name": "Vanguard FTSE All-World UCITS ETF USD Acc",
+        "instrument_type": "UCITS ETF",
+        "isin": "IE00BK5BQT80",
+        "priced": true,
+        "pricing_status": "priced_non_authoritative",
+        "research_reference": null,
+        "source_name": "Yahoo/yfinance connectivity evidence",
+        "source_quality_status": "non_authoritative_connectivity_only",
+        "ticker": "VWCE",
+        "venue_code": "XETR",
+        "verification_status": "verified_ucits_trading_line",
+        "verified": true
+      },
+      {
+        "blockers": [],
+        "close_date": "2026-07-15",
+        "close_price": 4.913000106811523,
+        "currency": "EUR",
+        "exchange": "Xetra",
+        "fund_name": "iShares Core Global Aggregate Bond UCITS ETF EUR Hedged Acc",
+        "instrument_type": "UCITS ETF",
+        "isin": "IE00BDBRDM35",
+        "priced": true,
+        "pricing_status": "priced_non_authoritative",
+        "research_reference": null,
+        "source_name": "Yahoo/yfinance connectivity evidence",
+        "source_quality_status": "non_authoritative_connectivity_only",
+        "ticker": "EUNA",
+        "venue_code": "XETR",
+        "verification_status": "verified_ucits_trading_line",
+        "verified": true
+      },
+      {
+        "blockers": [
+          "identity_or_line_verification_pending"
+        ],
+        "close_date": "2026-07-15",
+        "close_price": 46.78499984741211,
+        "currency": "EUR",
+        "exchange": "Euronext Amsterdam",
+        "fund_name": "iShares Core MSCI EM IMI UCITS ETF USD Acc",
+        "instrument_type": "UCITS ETF",
+        "isin": "IE00BKM4GZ66",
+        "priced": true,
+        "pricing_status": "priced_non_authoritative",
+        "research_reference": null,
+        "source_name": "Yahoo/yfinance connectivity evidence",
+        "source_quality_status": "non_authoritative_connectivity_only",
+        "ticker": "EMIM",
+        "venue_code": "XAMS",
+        "verification_status": "candidate_requires_verification",
+        "verified": false
+      },
+      {
+        "blockers": [
+          "identity_or_line_verification_pending"
+        ],
+        "close_date": "2026-07-15",
+        "close_price": 126.30000305175781,
+        "currency": "EUR",
+        "exchange": "Xetra",
+        "fund_name": "iShares Core MSCI World UCITS ETF USD Acc",
+        "instrument_type": "UCITS ETF",
+        "isin": "IE00B4L5Y983",
+        "priced": true,
+        "pricing_status": "priced_non_authoritative",
+        "research_reference": null,
+        "source_name": "Yahoo/yfinance connectivity evidence",
+        "source_quality_status": "non_authoritative_connectivity_only",
+        "ticker": "EUNL",
+        "venue_code": "XETR",
+        "verification_status": "candidate_requires_verification",
+        "verified": false
+      },
+      {
+        "blockers": [
+          "identity_or_line_verification_pending"
+        ],
+        "close_date": "2026-07-15",
+        "close_price": 126.29000091552734,
+        "currency": "EUR",
+        "exchange": "Euronext Amsterdam",
+        "fund_name": "iShares Core MSCI World UCITS ETF USD Acc",
+        "instrument_type": "UCITS ETF",
+        "isin": "IE00B4L5Y983",
+        "priced": true,
+        "pricing_status": "priced_non_authoritative",
+        "research_reference": null,
+        "source_name": "Yahoo/yfinance connectivity evidence",
+        "source_quality_status": "non_authoritative_connectivity_only",
+        "ticker": "IWDA",
+        "venue_code": "XAMS",
+        "verification_status": "candidate_requires_verification",
+        "verified": false
+      },
+      {
+        "blockers": [],
+        "close_date": "2026-07-16",
+        "close_price": 815.0700073242188,
+        "currency": "USD",
+        "exchange": "London Stock Exchange",
+        "fund_name": "iShares Core S&P 500 UCITS ETF USD Acc",
+        "instrument_type": "UCITS ETF",
+        "isin": "IE00B5BMR087",
+        "priced": true,
+        "pricing_status": "priced_non_authoritative",
+        "research_reference": null,
+        "source_name": "Yahoo/yfinance connectivity evidence",
+        "source_quality_status": "non_authoritative_connectivity_only",
+        "ticker": "CSPX",
+        "venue_code": "XLON",
+        "verification_status": "verified_ucits_trading_line",
+        "verified": true
+      },
+      {
+        "blockers": [],
+        "close_date": "2026-07-15",
+        "close_price": 711.6199951171875,
+        "currency": "EUR",
+        "exchange": "Xetra",
+        "fund_name": "iShares Core S&P 500 UCITS ETF USD Acc",
+        "instrument_type": "UCITS ETF",
+        "isin": "IE00B5BMR087",
+        "priced": true,
+        "pricing_status": "priced_non_authoritative",
+        "research_reference": null,
+        "source_name": "Yahoo/yfinance connectivity evidence",
+        "source_quality_status": "non_authoritative_connectivity_only",
+        "ticker": "SXR8",
+        "venue_code": "XETR",
+        "verification_status": "verified_ucits_trading_line",
+        "verified": true
+      },
+      {
+        "blockers": [
+          "identity_or_line_verification_pending"
+        ],
+        "close_date": "2026-07-16",
+        "close_price": 1680.0,
+        "currency": "USD",
+        "exchange": "London Stock Exchange",
+        "fund_name": "iShares NASDAQ 100 UCITS ETF USD Acc",
+        "instrument_type": "UCITS ETF",
+        "isin": "IE00B53SZB19",
+        "priced": true,
+        "pricing_status": "priced_non_authoritative",
+        "research_reference": null,
+        "source_name": "Yahoo/yfinance connectivity evidence",
+        "source_quality_status": "non_authoritative_connectivity_only",
+        "ticker": "CNDX",
+        "venue_code": "XLON",
+        "verification_status": "candidate_requires_verification",
+        "verified": false
+      },
+      {
+        "blockers": [
+          "identity_or_line_verification_pending"
+        ],
+        "close_date": "2026-07-15",
+        "close_price": 1476.800048828125,
+        "currency": "EUR",
+        "exchange": "Xetra",
+        "fund_name": "iShares NASDAQ 100 UCITS ETF USD Acc",
+        "instrument_type": "UCITS ETF",
+        "isin": "IE00B53SZB19",
+        "priced": true,
+        "pricing_status": "priced_non_authoritative",
+        "research_reference": null,
+        "source_name": "Yahoo/yfinance connectivity evidence",
+        "source_quality_status": "non_authoritative_connectivity_only",
+        "ticker": "SXRV",
+        "venue_code": "XETR",
+        "verification_status": "candidate_requires_verification",
+        "verified": false
+      }
+    ],
+    "unresolved_line_count": 0,
+    "verified_line_count": 4
+  },
+  "reference_architecture_repo": "market-predictions/weekly-etf",
+  "report_contract": {
+    "analyst_sections": [
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15
+    ],
+    "client_grade_v2": true,
+    "investor_sections": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "target_page_range": [
+      6,
+      12
+    ]
+  },
+  "report_date": "2026-07-16",
+  "report_suffix": "260716_02",
+  "risks": [
+    {
+      "invalidation_en": "Promote only after source agreement and pricing lineage are sufficiently strong.",
+      "invalidation_nl": "Promoveer pas wanneer bronovereenkomst en prijslineage voldoende sterk zijn.",
+      "risk_en": "Price observations are not yet valuation-grade.",
+      "risk_nl": "Prijsobservaties zijn nog niet waarderingswaardig."
+    },
+    {
+      "invalidation_en": "No funding before identity, KID, trading line and broker availability are confirmed.",
+      "invalidation_nl": "Geen financiering vóór identiteit, KID, handelslijn en brokerbeschikbaarheid zijn bevestigd.",
+      "risk_en": "6 trading lines still require full verification.",
+      "risk_nl": "6 handelslijnen wachten nog op volledige verificatie."
+    },
+    {
+      "invalidation_en": "Keep unresolved lines outside comparison and allocation.",
+      "invalidation_nl": "Laat onopgeloste lijnen buiten vergelijking en allocatie.",
+      "risk_en": "0 line has no usable price in this run.",
+      "risk_nl": "0 lijn heeft geen bruikbare prijs in deze run."
+    },
+    {
+      "invalidation_en": "Cap satellite weight and always compare with broad core exposure.",
+      "invalidation_nl": "Beperk satellietgewicht en vergelijk altijd met brede kernblootstelling.",
+      "risk_en": "Technology candidates may create overly narrow factor exposure.",
+      "risk_nl": "Technologiekandidaten kunnen een te smalle factorblootstelling creëren."
+    },
+    {
+      "invalidation_en": "No inclusion without an explicit product-policy decision.",
+      "invalidation_nl": "Geen opname zonder expliciete productbeleidsbeslissing.",
+      "risk_en": "Gold exposure often uses ETC structures outside the current policy.",
+      "risk_nl": "Goudblootstelling gebruikt vaak ETC-structuren buiten het huidige beleid."
+    }
+  ],
+  "run_id": "20260716_214500",
+  "schema_version": "etf_eu_client_grade_report_state_v1",
+  "second_order_effects": [
+    {
+      "driver_en": "First funded model position",
+      "driver_nl": "Eerste gefinancierde modelpositie",
+      "first_en": "Part of the capital now carries market risk through a verified UCITS trading line.",
+      "first_nl": "Een deel van het kapitaal neemt nu marktrisico via een geverifieerde UCITS-handelslijn.",
+      "implication_en": "Review contribution and relative strength before releasing the next tranche.",
+      "implication_nl": "Beoordeel bijdrage en relatieve kracht voordat de volgende tranche wordt vrijgegeven.",
+      "second_en": "Return and drawdown become observable while blocked target weights remain cash.",
+      "second_nl": "Rendement en drawdown worden zichtbaar, terwijl geblokkeerde doelgewichten cash blijven."
+    },
+    {
+      "driver_en": "Two verified S&P 500 trading lines",
+      "driver_nl": "Twee geverifieerde S&P 500-handelslijnen",
+      "first_en": "Implementation risk falls for core exposure.",
+      "first_nl": "Implementatierisico daalt voor de kernblootstelling.",
+      "implication_en": "Compare broker availability and total execution cost before allocation.",
+      "implication_nl": "Vergelijk brokerbeschikbaarheid en totale uitvoeringskosten vóór allocatie.",
+      "second_en": "Choosing USD versus EUR trading lines affects broker access, currency and operational simplicity.",
+      "second_nl": "Keuze tussen USD- en EUR-handelslijn beïnvloedt broker, valuta en operationele eenvoud."
+    },
+    {
+      "driver_en": "Multiple lines per ISIN",
+      "driver_nl": "Meerdere lijnen per ISIN",
+      "first_en": "Fund identity is clearer than ticker identity.",
+      "first_nl": "Fondsidentiteit is duidelijker dan tickeridentiteit.",
+      "implication_en": "Remain ISIN-first and treat the trading line as an explicit decision variable.",
+      "implication_nl": "Behoud ISIN-first en maak de handelslijn een expliciete beslisvariabele.",
+      "second_en": "Selecting the wrong line can introduce liquidity, currency or pricing differences.",
+      "second_nl": "Een verkeerde lijnkeuze kan liquiditeits-, valuta- of prijsverschillen introduceren."
+    },
+    {
+      "driver_en": "Technology and semiconductor candidates",
+      "driver_nl": "Technologie- en halfgeleiderkandidaten",
+      "first_en": "Higher structural growth exposure.",
+      "first_nl": "Hogere structurele groeiblootstelling.",
+      "implication_en": "Treat as satellite exposure, not an automatic core holding.",
+      "implication_nl": "Behandel als satellietblootstelling, niet als automatische kernpositie.",
+      "second_en": "Greater factor concentration and volatility than broad core exposure.",
+      "second_nl": "Meer factorconcentratie en hogere volatiliteit dan brede kernblootstelling."
+    }
+  ],
+  "source_of_truth_repo": "market-predictions/weekly-etf-eu",
+  "source_run_id": "20260716_214500",
+  "sources": {
+    "macro_pack": "output/macro/etf_eu_macro_policy_pack_20260716_214500.json",
+    "portfolio_state": "output/etf_eu_portfolio_state.json",
+    "pricing_artifact": "output/pricing/ucits_close_price_validation_basket_results_20260716_214500.json",
+    "ucits_registry": "config/ucits_symbol_registry.yml",
+    "valuation_history": "output/etf_eu_valuation_history.csv"
+  },
+  "state_valid": true,
+  "upstream_pattern_adapted": "normalized runtime report state, macro client surface, deterministic conditional equity curve and component renderer",
+  "valuation_history": [
+    {
+      "cash_eur": 100000.0,
+      "comment": "Initial cash-only EU/UCITS bootstrap state",
+      "date": "2026-05-30",
+      "drawdown_pct": 0.0,
+      "invested_market_value_eur": 0.0,
+      "nav_eur": 100000.0,
+      "since_inception_return_pct": 0.0,
+      "source_report": "bootstrap"
+    },
+    {
+      "cash_eur": 60439.44,
+      "comment": "Three-position funded-aware non-delivery preview",
+      "date": "2026-07-16",
+      "drawdown_pct": 0.0,
+      "invested_market_value_eur": 39577.16,
+      "nav_eur": 100016.6,
+      "since_inception_return_pct": 0.0166,
+      "source_report": "routine-client-grade-v2-20260716_214500"
+    }
+  ],
+  "verification_funnel": {
+    "cash_eur": 60439.44,
+    "decision": "maintain_first_funded_model_position_and_verify_next_targets",
+    "funded_positions": 3,
+    "observed_lines": 10,
+    "priced_lines": 10,
+    "unresolved_lines": 0,
+    "verified_lines": 4
+  },
+  "warnings": []
+}

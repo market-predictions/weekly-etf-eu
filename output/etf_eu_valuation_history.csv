@@ -1,3 +1,3 @@
 date,nav_eur,cash_eur,invested_market_value_eur,daily_return_pct,since_inception_return_pct,drawdown_pct,comment,source_report
 2026-05-30,100000.00,100000.00,0.00,0.000000,0.000000,0.000000,Initial cash-only EU/UCITS bootstrap state,bootstrap
-2026-07-16,100016.60,60439.44,39577.16,0.016600,0.016600,0.000000,Broker-neutral VWCE and EUNA first tranches activated; SXR8 revalued and held,broker-neutral-activation-20260716_205500
+2026-07-16,100016.60,60439.44,39577.16,0.016600,0.016600,0.000000,Three-position funded-aware non-delivery preview,routine-client-grade-v2-20260716_214500
