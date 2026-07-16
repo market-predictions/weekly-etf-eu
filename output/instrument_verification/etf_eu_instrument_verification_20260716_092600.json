@@ -1,0 +1,84 @@
+{
+  "schema_version": "etf_eu_instrument_verification_v1",
+  "artifact_type": "etf_eu_instrument_verification",
+  "generated_at_utc": "2026-07-16T08:26:00Z",
+  "run_id": "20260716_092600",
+  "authority": {
+    "canonical_identity": "isin_plus_venue_plus_line_identifiers",
+    "model_portfolio_only": true,
+    "real_broker_execution": false
+  },
+  "vwce": {
+    "fund_name": "Vanguard FTSE All-World UCITS ETF (USD) Accumulating",
+    "isin": "IE00BK5BQT80",
+    "instrument_type": "UCITS ETF",
+    "domicile": "Ireland",
+    "ucits_status": "confirmed",
+    "priips_kid_status": "available",
+    "replication_method": "physical",
+    "benchmark_index": "FTSE All-World Index",
+    "distribution_policy": "accumulating",
+    "provider": "Vanguard",
+    "exact_line": {
+      "venue": "Deutsche Boerse / Xetra",
+      "venue_code": "XETR",
+      "exchange_ticker": "VWCE",
+      "bloomberg_ticker": "VWCE GY",
+      "reuters_ric": "VWCE.DE",
+      "trading_currency": "EUR",
+      "line_verification_status": "verified_ucits_trading_line"
+    },
+    "issuer_nav": {
+      "date": "2026-07-15",
+      "nav_usd": 190.0137
+    },
+    "latest_repository_xetra_close": {
+      "date": "2026-07-14",
+      "close_eur": 165.66000366210938,
+      "status": "priced_non_authoritative"
+    },
+    "broker": {
+      "platform": "Interactive Brokers",
+      "venue_support_status": "not_independently_verified_in_this_run",
+      "account_product_permission_status": "not_independently_verified"
+    },
+    "allocation_status": "verified_line_not_yet_fundable",
+    "blockers": [
+      "fresh_completed_xetra_close_not_obtained",
+      "broker_account_product_permission_not_verified",
+      "overlap_review_completed_but_requires_allocation_decision"
+    ]
+  },
+  "aggregate_bond_identity": {
+    "fund_name": "iShares Core Global Aggregate Bond UCITS ETF EUR Hedged (Accumulating)",
+    "isin": "IE00BDBRDM35",
+    "instrument_type": "UCITS ETF",
+    "share_class_currency": "EUR",
+    "distribution_policy": "accumulating",
+    "ucits_status": "confirmed",
+    "domicile": "Ireland",
+    "ter_pct": 0.1,
+    "provider": "iShares / BlackRock",
+    "exact_line": {
+      "venue": "Xetra",
+      "venue_code": "XETR",
+      "issuer_exchange_ticker": "AGGH",
+      "bloomberg_ticker": "EUNA",
+      "reuters_ric": "EUNA.DE",
+      "pricing_symbol_yahoo": "EUNA.DE",
+      "trading_currency": "EUR",
+      "line_verification_status": "issuer_verified_line_identifiers"
+    },
+    "identity_resolution": {
+      "EUNA": "Bloomberg/RIC/data-vendor identifier for the Xetra listing",
+      "AGGH": "issuer exchange ticker used across several EUR listings",
+      "removed_mapping": "LSE GBP Hedged Distributing with ISIN IE00BDBRDM35",
+      "reason": "IE00BDBRDM35 is the EUR Hedged Accumulating share class; it cannot simultaneously identify a GBP Hedged Distributing share class."
+    },
+    "allocation_status": "identity_repaired_execution_symbol_pending_broker_confirmation",
+    "blockers": [
+      "broker_execution_symbol_mapping_not_verified",
+      "fresh_completed_xetra_close_not_obtained"
+    ]
+  }
+}
