@@ -1,0 +1,35 @@
+{
+  "schema_version": "etf_eu_guarded_capital_activation_result_v1",
+  "activation_id": "ETF-EU-CAP01-20260716_012900",
+  "status": "applied",
+  "portfolio_state_written": true,
+  "trade_ledger_written": true,
+  "model_portfolio_only": true,
+  "real_broker_execution": false,
+  "portfolio_state": "output/etf_eu_portfolio_state.json",
+  "trade_ledger": "output/etf_eu_trade_ledger.csv",
+  "post_activation_portfolio": {
+    "cash_eur": 92900.0,
+    "invested_market_value_eur": 7100.0,
+    "nav_eur": 100000.0,
+    "position_count": 1
+  },
+  "ledger_rows_appended": [
+    {
+      "trade_id": "model-eu-2026-07-16-20260716_012900-02-SXR8-BUY",
+      "trade_date": "2026-07-16",
+      "source_report": "allocation:etf_eu_allocation_decision_20260716_012900.json",
+      "isin": "IE00B5BMR087",
+      "exchange_ticker": "SXR8",
+      "action": "Buy",
+      "shares_delta": "10",
+      "previous_weight_pct": "0.000000",
+      "new_weight_pct": "7.100000",
+      "weight_change_pct": "7.100000",
+      "target_weight_pct": "7.500000",
+      "conviction_tier": "Core satellite",
+      "portfolio_role": "U.S. equity overweight",
+      "funding_source_note": "Guarded Weekly ETF EU model activation funded from cash; no real broker order was placed."
+    }
+  ]
+}
