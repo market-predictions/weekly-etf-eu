@@ -1,2 +1,3 @@
 trade_id,trade_date,source_report,isin,exchange_ticker,action,shares_delta,previous_weight_pct,new_weight_pct,weight_change_pct,target_weight_pct,conviction_tier,portfolio_role,funding_source_note
 bootstrap-2026-05-30-CASH,2026-05-30,bootstrap,,CASH,Initial cash-only state,0.0,0.0,0.0,0.0,0.0,,,EU/UCITS model starts cash-only until candidates pass investability validation
+model-eu-2026-07-16-20260716_012900-02-SXR8-BUY,2026-07-16,allocation:etf_eu_allocation_decision_20260716_012900.json,IE00B5BMR087,SXR8,Buy,10,0.000000,7.100000,7.100000,7.500000,Core satellite,U.S. equity overweight,Guarded Weekly ETF EU model activation funded from cash; no real broker order was placed.
