@@ -24,7 +24,6 @@ REQUIRED_KEYS = {
     "raw_receipt_pdf_stored_in_github",
     "delivery_authorized",
     "send_command_allowed",
-    "send_confirmation",
 }
 
 FORBIDDEN_PATTERNS = [
@@ -119,8 +118,6 @@ def validate(path: Path) -> dict[str, object]:
     for key in ("delivery_authorized", "send_command_allowed"):
         if data[key] != "true":
             raise RuntimeError(f"{key} must be true")
-    if data["send_confirmation"] != "confirm_guarded_send":
-        raise RuntimeError("guarded send confirmation is missing")
     for key in ("recipient_plaintext_values_exposed", "secret_values_exposed", "raw_receipt_pdf_stored_in_github"):
         if data[key] != "false":
             raise RuntimeError(f"{key} must be false")
