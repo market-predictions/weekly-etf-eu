@@ -1,13 +1,13 @@
 # Weekly ETF EU Review | English Companion | 2026-07-17
 
-> **Routine production review.** Pricing date: 2026-07-17. The EU portfolio remains ISIN-first. U.S. ETF symbols are research references only and are not investable in this model.
+> **Funded routine review.** The normalized run state is authoritative. The model portfolio holds three active UCITS positions; U.S. ETF symbols are research references only.
 
 ## 1. Decision at a glance
 
-- **Action:** no trade; retain EUR 100,000 cash.
-- **Reason:** the portfolio still has no funded UCITS positions and the current pricing run provides market observations, not an independent basis for purchase or valuation.
-- **Most advanced operational candidate:** the verified S&P 500 UCITS lines remain furthest advanced for broker and trading-line confirmation.
-- **Avoid:** do not allocate capital to thematic or gold exposure until identity, KID, trading-line and product-policy checks are complete.
+- **Action:** maintain VWCE, EUNA and SXR8; remaining liquidity is EUR 60,439.44.
+- **Reason:** the review has shifted from activation to role, contribution and overlap; remaining target capacity stays in cash.
+- **Current structure:** VWCE is the global core, EUNA the bond stabiliser and SXR8 the U.S. equity overweight.
+- **Avoid:** do not activate a second tranche, reduction or satellite position automatically.
 
 ## 2. Portfolio and capital
 
@@ -19,7 +19,15 @@
 | Total portfolio value | EUR 100,016.60 |
 | Funded positions | 3 |
 
-## 3. Current UCITS pricing snapshot
+## 3. Active model positions
+
+| Line | ISIN | Shares | Market value | Weight | Current action |
+|---|---|---:|---:|---:|---|
+| VWCE | IE00BK5BQT80 | 151 | EUR 24,963.32 | 24.96% | Maintain |
+| EUNA | IE00BDBRDM35 | 1,526 | EUR 7,497.24 | 7.50% | Maintain |
+| SXR8 | IE00B5BMR087 | 10 | EUR 7,116.60 | 7.12% | Maintain; no second tranche |
+
+## 4. Current UCITS pricing snapshot
 
 | Trading line | ISIN | Pricing date | Close | Currency | Status |
 |---|---|---|---:|---|---|
@@ -34,34 +42,27 @@
 | CNDX · London Stock Exchange | IE00B53SZB19 | 2026-07-17 | 1,637.40 | USD | Trading line requires verification |
 | SXRV · Xetra | IE00B53SZB19 | 2026-07-17 | 1,432.40 | EUR | Trading line requires verification |
 
-The displayed prices are market observations from the current routine run and do not independently authorize valuation or purchase.
+Prices are market observations for the transparent model review and do not independently authorize execution or purchase.
 
-## 4. Coverage and decision quality
+## 5. Coverage and decision quality
 
 - **Pricing coverage:** 10 of 10 trading lines priced.
 - **Fully verified lines:** 4.
-- **Priced but identity or trading-line verification still pending:** 6.
-- **Unresolved:** 0.
-- **Portfolio decision:** retain cash; this pricing run did not automatically make any instrument eligible for portfolio inclusion.
-
-## 5. Lane assessment
-
-- **Core equity:** operationally most mature; SXR8 and CSPX remain research candidates and are not funded.
-- **Global equity:** IWDA, EUNL and VWCE remain relevant for broad diversification, but trading-line and source verification is incomplete.
-- **Technology and semiconductors:** SXRV, CNDX and SMH carry higher beta and concentration risk; no capital allocation before full verification.
-- **Bonds:** EUNA and AGGH may later provide stability; their current role remains that of research candidates.
-- **Gold:** European exposure often uses ETC structures and remains blocked under the UCITS-only policy until an explicit policy decision exists.
+- **Funded model positions:** 3.
+- **Portfolio decision:** maintain existing positions; no automatic add or new position.
+- **Satellites:** SXRV and semiconductor exposure remain unfunded until a separate decision authorises change.
 
 ## 6. Risk and quality boundaries
 
-1. A price observation is not an independent valuation basis.
-2. A ticker is not canonical identity; ISIN remains authoritative.
-3. No portfolio change without a separate capital-allocation decision.
-4. Previous reports are historical strategy context, not current-price truth.
-5. Unresolved lines remain outside the client decision.
+1. A market-price observation is not an independent valuation basis.
+2. ISIN plus exact trading line remains the canonical product identity.
+3. VWCE already contains U.S. exposure; measure overlap before any further SXR8 deployment.
+4. EUNA is a stabiliser, not guaranteed protection.
+5. Remaining target capacity stays in cash without a separate validated allocation decision.
 
 ## 7. Next routine action
 
-- Complete broker availability and EUR trading-line verification.
-- Improve source agreement before the pricing evidence is considered sufficiently reliable for valuation.
-- Only then reassess whether part of the cash may be deployed.
+- Monitor VWCE, EUNA and SXR8 against role, contribution, overlap and invalidation conditions.
+- Obtain fresh exact-line completed closes before any add, reduction or new position.
+- Review global-equity overlap between VWCE and the direct SXR8 overweight.
+- Keep satellite and later-tranche capacity in cash unless a separate validated allocation decision authorises change.
