@@ -1,0 +1,16 @@
+{
+  "artifact_digest": "a90ba93433284ceead5f497e977414439dcc50fcefcc883a93b5bebe941b3b8f",
+  "artifact_id": 8406966817,
+  "artifact_name": "etf-eu-preview-20260717_141500",
+  "artifact_type": "etf_eu_preview_artifact_export",
+  "artifact_url": "https://github.com/market-predictions/weekly-etf-eu/actions/runs/29580942826/artifacts/8406966817",
+  "export_workflow_run_id": 29580942826,
+  "portfolio_mutation": false,
+  "schema_version": "etf_eu_preview_artifact_export_v1",
+  "send_executed": false,
+  "source_workflow_conclusion": "failure",
+  "source_workflow_run_id": 29575699421,
+  "target_report_suffix": "260717_06",
+  "target_run_id": "20260717_141500",
+  "transport_attempted": false
+}
