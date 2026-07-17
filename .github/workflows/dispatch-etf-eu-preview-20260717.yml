@@ -1,0 +1,82 @@
+name: ETF EU - Dispatch Final Visual Preview 20260717
+
+on:
+  workflow_run:
+    workflows:
+      - "ETF EU - Generate and Validate Preview (NO EMAIL)"
+    types:
+      - completed
+
+permissions:
+  actions: write
+  contents: write
+
+jobs:
+  dispatch-final-preview:
+    runs-on: ubuntu-latest
+    env:
+      TARGET_RUN_ID: "20260717_141500"
+      TARGET_REQUEST_PATH: "control/run_queue/etf_eu_routine_preview_request_20260717_141500.md"
+      TARGET_OUTPUT_MANIFEST: "output/run_manifests/etf_eu_routine_preview_manifest_20260717_141500.json"
+      DISPATCH_RECEIPT: "output/run_manifests/etf_eu_preview_dispatch_20260717_141500.json"
+    steps:
+      - name: Check out current main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Dispatch once when target output is absent
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SOURCE_WORKFLOW_RUN_ID: ${{ github.event.workflow_run.id }}
+        run: |
+          set -euo pipefail
+          test -f "$TARGET_REQUEST_PATH"
+          if [ -f "$TARGET_OUTPUT_MANIFEST" ] || [ -f "$DISPATCH_RECEIPT" ]; then
+            echo "ETF_EU_FINAL_PREVIEW_DISPATCH_ALREADY_CLOSED"
+            exit 0
+          fi
+
+          gh workflow run run-weekly-etf-eu-routine-preview.yml \
+            --ref main \
+            -f request_path="$TARGET_REQUEST_PATH"
+
+          sleep 8
+          DISPATCHED_RUN_ID="$(gh run list \
+            --workflow run-weekly-etf-eu-routine-preview.yml \
+            --event workflow_dispatch \
+            --limit 10 \
+            --json databaseId,createdAt,status \
+            --jq 'sort_by(.createdAt) | reverse | .[0].databaseId')"
+          test -n "$DISPATCHED_RUN_ID"
+
+          export DISPATCHED_RUN_ID
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          path = Path(os.environ["DISPATCH_RECEIPT"])
+          path.parent.mkdir(parents=True, exist_ok=True)
+          payload = {
+              "schema_version": "etf_eu_preview_dispatch_v1",
+              "artifact_type": "etf_eu_preview_dispatch",
+              "target_run_id": os.environ["TARGET_RUN_ID"],
+              "request_path": os.environ["TARGET_REQUEST_PATH"],
+              "github_workflow_run_id": int(os.environ["DISPATCHED_RUN_ID"]),
+              "source_workflow_run_id": int(os.environ["SOURCE_WORKFLOW_RUN_ID"]),
+              "execution_mode": "generate_validate_only",
+              "production_delivery_authority": False,
+              "portfolio_mutation": False,
+              "transport_attempted": False,
+              "send_executed": False,
+          }
+          path.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+          PY
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add "$DISPATCH_RECEIPT"
+          git commit -m "Persist ETF EU final preview dispatch ${TARGET_RUN_ID} [skip ci]"
+          git push origin HEAD:main
