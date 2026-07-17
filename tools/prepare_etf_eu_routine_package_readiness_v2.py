@@ -6,6 +6,7 @@ from typing import Any
 import tools.prepare_etf_eu_routine_package_readiness as base
 
 
+V2_RENDERER_MODES = {"client_grade_v2", "client_grade_v2_funded_aware"}
 V2_HTML_MARKERS = {
     "dutch_primary_html": ["WEKELIJKSE ETF EU-REVIEW", "Beleggersrapport", "Analistenrapport"],
     "english_companion_html": ["WEEKLY ETF EU REVIEW", "Investor report", "Analyst report"],
@@ -49,13 +50,13 @@ def _check_v2_outputs(manifest: dict[str, Any]) -> None:
 
     state_path = Path(str(manifest.get("normalized_report_state") or ""))
     base._require(state_path.exists(), f"normalized report state missing: {state_path}")
-    base._require(manifest.get("client_renderer_mode") == "client_grade_v2", "client renderer mode is not v2")
+    base._require(manifest.get("client_renderer_mode") in V2_RENDERER_MODES, "client renderer mode is not a supported v2 mode")
     base._require(manifest.get("investor_brief_present") is True, "investor brief missing")
     base._require(manifest.get("analyst_appendix_present") is True, "analyst appendix missing")
 
 
 def _v2_aware_check_outputs(manifest: dict[str, Any]) -> None:
-    if manifest.get("client_renderer_mode") == "client_grade_v2":
+    if manifest.get("client_renderer_mode") in V2_RENDERER_MODES:
         _check_v2_outputs(manifest)
     else:
         ORIGINAL_CHECK_OUTPUTS(manifest)
