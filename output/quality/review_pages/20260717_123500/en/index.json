@@ -1,0 +1,11 @@
+{
+  "dpi": 160,
+  "generated_at_utc": "2026-07-17T11:08:53Z",
+  "page_count": 6,
+  "pdf": "output/fresh_generation/weekly_etf_eu_review_260717_05.pdf",
+  "rendered_pages": {
+    "first": "output/quality/review_pages/20260717_123500/en/first_001.png",
+    "last": "output/quality/review_pages/20260717_123500/en/last_006.png",
+    "middle": "output/quality/review_pages/20260717_123500/en/middle_003.png"
+  }
+}

@@ -1,0 +1,91 @@
+{
+  "artifact_type": "etf_eu_client_grade_report_v2_validation",
+  "blockers": [],
+  "client_grade_v2_passed": true,
+  "dutch": {
+    "blockers": [],
+    "equity_curve_contract_passed": true,
+    "forbidden_tokens": [],
+    "funded_surface_consistency_passed": true,
+    "html_path": "output/fresh_generation/weekly_etf_eu_review_nl_260717_05.html",
+    "investor_analyst_hierarchy_passed": true,
+    "isin_evidence": {
+      "blockers": [],
+      "funded_isins": [
+        "IE00B5BMR087",
+        "IE00BDBRDM35",
+        "IE00BK5BQT80"
+      ],
+      "html_header_visible": true,
+      "missing_html_isins": [],
+      "missing_pdf_funded_isins": [],
+      "passed": true,
+      "pdf_header_visible": true,
+      "pricing_isins": [
+        "IE00B4L5Y983",
+        "IE00B53SZB19",
+        "IE00B5BMR087",
+        "IE00BDBRDM35",
+        "IE00BK5BQT80",
+        "IE00BKM4GZ66",
+        "IE00BMC38736"
+      ]
+    },
+    "isin_first_visible": true,
+    "language": "nl",
+    "macro_freshness_disclosure_passed": true,
+    "missing_sections": [],
+    "page_count": 6,
+    "passed": true,
+    "pdf_path": "output/fresh_generation/weekly_etf_eu_review_nl_260717_05.pdf",
+    "research_only_labelling_passed": true
+  },
+  "english": {
+    "blockers": [],
+    "equity_curve_contract_passed": true,
+    "forbidden_tokens": [],
+    "funded_surface_consistency_passed": true,
+    "html_path": "output/fresh_generation/weekly_etf_eu_review_260717_05.html",
+    "investor_analyst_hierarchy_passed": true,
+    "isin_evidence": {
+      "blockers": [],
+      "funded_isins": [
+        "IE00B5BMR087",
+        "IE00BDBRDM35",
+        "IE00BK5BQT80"
+      ],
+      "html_header_visible": true,
+      "missing_html_isins": [],
+      "missing_pdf_funded_isins": [],
+      "passed": true,
+      "pdf_header_visible": true,
+      "pricing_isins": [
+        "IE00B4L5Y983",
+        "IE00B53SZB19",
+        "IE00B5BMR087",
+        "IE00BDBRDM35",
+        "IE00BK5BQT80",
+        "IE00BKM4GZ66",
+        "IE00BMC38736"
+      ]
+    },
+    "isin_first_visible": true,
+    "language": "en",
+    "macro_freshness_disclosure_passed": true,
+    "missing_sections": [],
+    "page_count": 6,
+    "passed": true,
+    "pdf_path": "output/fresh_generation/weekly_etf_eu_review_260717_05.pdf",
+    "research_only_labelling_passed": true
+  },
+  "funded_state_consistency_passed": true,
+  "generated_at_utc": "2026-07-17T11:08:51Z",
+  "portfolio_mutation": false,
+  "report_date": "2026-07-17",
+  "run_id": "20260717_123500",
+  "schema_version": "etf_eu_client_grade_report_v2_validation_v2",
+  "send_executed": false,
+  "source_run_id": "20260717_123500",
+  "transport_attempted": false,
+  "warnings": []
+}
