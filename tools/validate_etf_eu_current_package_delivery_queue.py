@@ -155,7 +155,7 @@ def validate(path: Path) -> dict[str, object]:
         raise RuntimeError("authorization does not record explicit send confirmation")
     if decision.get("controlled_delivery_decision_status") != "routine_guarded_delivery_selected":
         raise RuntimeError("unexpected controlled delivery decision status")
-    if selection.get("transport_selection_status") != "current_package_smtp_runner_selected":
+    if selection.get("transport_selection_status") != "current_package_transport_runner_selected":
         raise RuntimeError("unexpected transport selection status")
     for payload in (package, authorization, decision, selection, routine):
         for key in ("valuation_grade", "funding_authority", "portfolio_mutation", "production_delivery_authority"):
