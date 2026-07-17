@@ -1,5 +1,7 @@
 {
   "artifact_type": "etf_eu_routine_preview_manifest",
+  "client_grade_preview_accepted": true,
+  "delivery_authorized": false,
   "model_portfolio_only": true,
   "outputs": [
     "output/fresh_generation/weekly_etf_eu_review_nl_260717_06.html",
@@ -7,8 +9,10 @@
     "output/fresh_generation/weekly_etf_eu_review_260717_06.html",
     "output/fresh_generation/weekly_etf_eu_review_260717_06.pdf"
   ],
+  "package_readiness_gate": "output/quality/etf_eu_routine_package_readiness_20260717_141500.json",
   "position_count_expected": 3,
   "production_delivery_authority": false,
+  "ready_for_controlled_delivery": true,
   "real_broker_execution": false,
   "receipt_confirmed": false,
   "report_date": "2026-07-17",
@@ -16,7 +20,8 @@
   "run_id": "20260717_141500",
   "schema_version": "etf_eu_routine_preview_manifest_v1",
   "send_executed": false,
-  "status": "generated_and_machine_validated_pending_complete_visual_review",
+  "status": "machine_and_visual_validation_passed_ready_for_controlled_delivery",
   "transport_attempted": false,
-  "visual_review_pending": true
+  "visual_review_artifact": "output/quality/etf_eu_routine_pdf_visual_review_20260717_141500.json",
+  "visual_review_pending": false
 }
