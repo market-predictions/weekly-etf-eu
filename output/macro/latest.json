@@ -31,7 +31,7 @@
       "etf_implication": "European equity or bond exposure remains conditional on UCITS identity, trading-line verification, current pricing and relative-strength confirmation.",
       "event_date": "2026-06-11",
       "event_status": "verified_report_week_policy_event",
-      "likely_direction": "Rate hike delivered; the next step remains data- and inflation-dependent.",
+      "likely_direction": "Following the 11 June 2026 rate increase, the next step remains data- and inflation-dependent.",
       "main_risk": "Renewed energy-led inflation pressure can raise the hurdle for rate-sensitive and non-U.S. developed-market exposure.",
       "stance": "Tightening / inflation-sensitive"
     },
@@ -53,10 +53,10 @@
   "confidence_decomposition": {
     "client_facing_authority": false,
     "components": {
-      "GLD_return_3m_pct": -16.24,
-      "IWM_rs_vs_SPY_3m_pct": 1.65,
-      "SMH_return_3m_pct": 29.98,
-      "SPY_return_3m_pct": 8.89,
+      "GLD_return_3m_pct": -17.14,
+      "IWM_rs_vs_SPY_3m_pct": 2.46,
+      "SMH_return_3m_pct": 25.59,
+      "SPY_return_3m_pct": 7.53,
       "TLT_return_3m_pct": 0.0,
       "legacy_confidence": 0.66
     },
@@ -70,16 +70,16 @@
     "shadow_only": true
   },
   "cross_asset_confirmation": [
-    "Semiconductor leadership supports SMH, but SPY overlap must remain explicit.",
+    "Semiconductor leadership supports SMH, but factor overlap must remain explicit.",
     "Small-cap and duration signals are not strong enough to justify broad beta expansion.",
-    "Gold is treated as a hedge review item unless price behavior improves."
+    "Hedge exposures must re-earn their role through current contribution and price behavior."
   ],
   "donor_provenance": {
-    "age_days_at_eu_report_date": 3,
-    "source_generated_at_utc": "2026-07-15T18:00:39.405697Z",
+    "age_days_at_eu_report_date": 1,
+    "source_generated_at_utc": "2026-07-17T09:51:02.795703Z",
     "source_repo": "market-predictions/weekly-etf",
-    "source_report_date": "2026-07-14",
-    "source_sha256": "07bce16292e1c76c9c43397572abc1311aa20dc9a6f80593d69ae35888e165d2",
+    "source_report_date": "2026-07-16",
+    "source_sha256": "ec81cbb53340bc9ff9abb808009d348f3d443a5be19bfd95e83bd668680f562b",
     "source_url": "https://raw.githubusercontent.com/market-predictions/weekly-etf/main/output/macro/latest.json"
   },
   "eu_adaptation": {
@@ -182,7 +182,7 @@
       ]
     }
   },
-  "generated_at_utc": "2026-07-17T09:50:01Z",
+  "generated_at_utc": "2026-07-17T10:03:22Z",
   "lane_adjustments": {
     "AI compute infrastructure": {
       "reason": "Regime and price leadership still support AI compute exposure, but concentration discipline applies.",
@@ -232,35 +232,20 @@
     },
     "equity_leadership": {
       "evidence": {
-        "IWM_rs_vs_SPY_3m_pct": 1.65,
-        "SMH_return_3m_pct": 29.98,
-        "SPY_return_3m_pct": 8.89
+        "IWM_rs_vs_SPY_3m_pct": 2.46,
+        "SMH_return_3m_pct": 25.59,
+        "SPY_return_3m_pct": 7.53
       },
       "signal": "mixed"
     },
     "hedge_ballast": {
       "evidence": {
-        "GLD_return_3m_pct": -16.24
+        "GLD_return_3m_pct": -17.14
       },
       "signal": "under_review"
     }
   },
   "policy_catalysts": [
-    {
-      "affected_lanes": [
-        "Non-U.S. developed diversification",
-        "Rate-sensitive small caps",
-        "Long-duration bonds"
-      ],
-      "confidence": 0.7,
-      "direction": "restrictive / inflation-sensitive",
-      "event_date": "2026-06-11",
-      "event_status": "verified_report_week_policy_event",
-      "latest_signal": "The ECB raised rates this week in response to renewed inflation pressure; this raises the hurdle for rate-sensitive and non-U.S. developed-market exposure but does not override pricing, relative-strength or portfolio-discipline gates.",
-      "policy_area": "ECB rate-policy tightening",
-      "time_horizon": "1-6 months",
-      "transfer_to_report": true
-    },
     {
       "affected_lanes": [
         "AI compute infrastructure",
@@ -343,12 +328,11 @@
     "current": "Risk-on growth",
     "previous": "Unknown",
     "what_changed": [
-      "AI / semiconductor leadership remains the dominant equity impulse.",
-      "Gold hedge behavior remains under review rather than automatic ballast."
+      "No material regime change was recorded versus the prior review; the Risk-on growth backdrop remained intact, market breadth is improving, and cross-asset confirmation is mixed."
     ]
   },
   "regime_memory": {
-    "breadth_trend": "mixed",
+    "breadth_trend": "improving",
     "confidence_trend": "flat",
     "cross_asset_confirmation": "mixed",
     "current_confidence": 0.66,
@@ -359,15 +343,15 @@
     "previous_confidence": 0.66,
     "prior_regime": "Risk-on growth",
     "regime_changed_this_run": false,
-    "report_date": "2026-07-14",
+    "report_date": "2026-07-16",
     "report_transfer": {
       "max_lines": 2,
       "show_in_report": true,
-      "summary": "Risk-on growth has persisted for 62 run(s); transition state is stable, breadth is mixed, and cross-asset confirmation is mixed."
+      "summary": "Risk-on growth has persisted for 63 run(s); transition state is stable, breadth is improving, and cross-asset confirmation is mixed."
     },
     "transition_state": "stable",
-    "updated_at_utc": "2026-07-15T18:00:39.405759Z",
-    "weeks_in_regime": 62
+    "updated_at_utc": "2026-07-17T09:51:02.795785Z",
+    "weeks_in_regime": 63
   },
   "report_date": "2026-07-17",
   "report_transfer": {

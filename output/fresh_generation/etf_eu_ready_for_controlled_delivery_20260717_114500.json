@@ -12,7 +12,7 @@
   "full_generation_status": "client_grade_v2_generated_pending_quality_gates",
   "funded_position_count": 3,
   "funding_authority": false,
-  "generated_at_utc": "2026-07-17T09:50:03Z",
+  "generated_at_utc": "2026-07-17T10:03:24Z",
   "investor_brief_present": true,
   "macro_policy_pack": "output/macro/etf_eu_macro_policy_pack_20260717_114500.json",
   "markdown_role": "decision_summary_audit_companion_not_v2_render_source",

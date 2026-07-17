@@ -103,17 +103,10 @@
     "opportunity_radar_reconciled": true,
     "position_count": 3
   },
-  "generated_at_utc": "2026-07-17T09:50:03Z",
+  "generated_at_utc": "2026-07-17T10:03:24Z",
   "macro": {
     "age_days": 0,
     "catalysts": [
-      {
-        "area": "ECB rate-policy tightening",
-        "confidence": 0.7,
-        "direction": "restrictive / inflation-sensitive",
-        "horizon": "1-6 months",
-        "signal": "The ECB raised rates this week in response to renewed inflation pressure; this raises the hurdle for rate-sensitive and non-U.S. developed-market exposure but does not override pricing, relative-strength or portfolio-discipline gates."
-      },
       {
         "area": "AI infrastructure and semiconductor supply chains",
         "confidence": 0.72,
@@ -145,7 +138,7 @@
     },
     "fresh_for_report": true,
     "freshness_status": "current",
-    "memory_summary": "Risk-on growth has persisted for 62 run(s); transition state is stable, breadth is mixed, and cross-asset confirmation is mixed.",
+    "memory_summary": "Risk-on growth has persisted for 63 run(s); transition state is stable, breadth is improving, and cross-asset confirmation is mixed.",
     "portfolio_implications": [
       "Retain cash until the selected UCITS trading line and current pricing are verified and a separate allocation decision exists.",
       "Broad U.S. core equity through verified UCITS lines remains the most mature implementation lane; thematic exposure still requires concentration discipline.",
@@ -153,7 +146,7 @@
     ],
     "regime": "Risk-on growth",
     "regime_nl": "Risk-on groei",
-    "source_generated_at_utc": "2026-07-17T09:50:01Z",
+    "source_generated_at_utc": "2026-07-17T10:03:22Z",
     "source_report_date": "2026-07-17",
     "what_changed": [
       "The model portfolio now holds VWCE, EUNA and SXR8; review shifts from activation to contribution and overlap.",
@@ -198,7 +191,7 @@
         {
           "blockers": [],
           "close_date": "2026-07-17",
-          "close_price": 804.1199951171875,
+          "close_price": 803.8099975585938,
           "currency": "USD",
           "exchange": "London Stock Exchange",
           "fund_name": "iShares Core S&P 500 UCITS ETF USD Acc",
@@ -217,7 +210,7 @@
         {
           "blockers": [],
           "close_date": "2026-07-17",
-          "close_price": 702.9600219726562,
+          "close_price": 702.760009765625,
           "currency": "EUR",
           "exchange": "Xetra",
           "fund_name": "iShares Core S&P 500 UCITS ETF USD Acc",
@@ -270,7 +263,7 @@
         {
           "blockers": [],
           "close_date": "2026-07-17",
-          "close_price": 163.0,
+          "close_price": 162.94000244140625,
           "currency": "EUR",
           "exchange": "Xetra",
           "fund_name": "Vanguard FTSE All-World UCITS ETF USD Acc",
@@ -291,7 +284,7 @@
             "identity_or_line_verification_pending"
           ],
           "close_date": "2026-07-17",
-          "close_price": 124.68000030517578,
+          "close_price": 124.61499786376953,
           "currency": "EUR",
           "exchange": "Xetra",
           "fund_name": "iShares Core MSCI World UCITS ETF USD Acc",
@@ -312,7 +305,7 @@
             "identity_or_line_verification_pending"
           ],
           "close_date": "2026-07-17",
-          "close_price": 124.68000030517578,
+          "close_price": 124.61000061035156,
           "currency": "EUR",
           "exchange": "Euronext Amsterdam",
           "fund_name": "iShares Core MSCI World UCITS ETF USD Acc",
@@ -364,7 +357,7 @@
             "identity_or_line_verification_pending"
           ],
           "close_date": "2026-07-17",
-          "close_price": 44.654998779296875,
+          "close_price": 44.68000030517578,
           "currency": "EUR",
           "exchange": "Euronext Amsterdam",
           "fund_name": "iShares Core MSCI EM IMI UCITS ETF USD Acc",
@@ -416,7 +409,7 @@
             "identity_or_line_verification_pending"
           ],
           "close_date": "2026-07-17",
-          "close_price": 102.81800079345703,
+          "close_price": 103.12000274658203,
           "currency": "USD",
           "exchange": "London Stock Exchange",
           "fund_name": "VanEck Semiconductor UCITS ETF",
@@ -437,7 +430,7 @@
             "identity_or_line_verification_pending"
           ],
           "close_date": "2026-07-17",
-          "close_price": 1636.4000244140625,
+          "close_price": 1638.5999755859375,
           "currency": "USD",
           "exchange": "London Stock Exchange",
           "fund_name": "iShares NASDAQ 100 UCITS ETF USD Acc",
@@ -458,7 +451,7 @@
             "identity_or_line_verification_pending"
           ],
           "close_date": "2026-07-17",
-          "close_price": 1430.4000244140625,
+          "close_price": 1432.4000244140625,
           "currency": "EUR",
           "exchange": "Xetra",
           "fund_name": "iShares NASDAQ 100 UCITS ETF USD Acc",
@@ -510,7 +503,7 @@
         {
           "blockers": [],
           "close_date": "2026-07-17",
-          "close_price": 4.9141998291015625,
+          "close_price": 4.914999961853027,
           "currency": "EUR",
           "exchange": "Xetra",
           "fund_name": "iShares Core Global Aggregate Bond UCITS ETF EUR Hedged Acc",
@@ -763,7 +756,7 @@
           "identity_or_line_verification_pending"
         ],
         "close_date": "2026-07-17",
-        "close_price": 102.81800079345703,
+        "close_price": 103.12000274658203,
         "currency": "USD",
         "exchange": "London Stock Exchange",
         "fund_name": "VanEck Semiconductor UCITS ETF",
@@ -782,7 +775,7 @@
       {
         "blockers": [],
         "close_date": "2026-07-17",
-        "close_price": 163.0,
+        "close_price": 162.94000244140625,
         "currency": "EUR",
         "exchange": "Xetra",
         "fund_name": "Vanguard FTSE All-World UCITS ETF USD Acc",
@@ -801,7 +794,7 @@
       {
         "blockers": [],
         "close_date": "2026-07-17",
-        "close_price": 4.9141998291015625,
+        "close_price": 4.914999961853027,
         "currency": "EUR",
         "exchange": "Xetra",
         "fund_name": "iShares Core Global Aggregate Bond UCITS ETF EUR Hedged Acc",
@@ -822,7 +815,7 @@
           "identity_or_line_verification_pending"
         ],
         "close_date": "2026-07-17",
-        "close_price": 44.654998779296875,
+        "close_price": 44.68000030517578,
         "currency": "EUR",
         "exchange": "Euronext Amsterdam",
         "fund_name": "iShares Core MSCI EM IMI UCITS ETF USD Acc",
@@ -843,7 +836,7 @@
           "identity_or_line_verification_pending"
         ],
         "close_date": "2026-07-17",
-        "close_price": 124.68000030517578,
+        "close_price": 124.61499786376953,
         "currency": "EUR",
         "exchange": "Xetra",
         "fund_name": "iShares Core MSCI World UCITS ETF USD Acc",
@@ -864,7 +857,7 @@
           "identity_or_line_verification_pending"
         ],
         "close_date": "2026-07-17",
-        "close_price": 124.68000030517578,
+        "close_price": 124.61000061035156,
         "currency": "EUR",
         "exchange": "Euronext Amsterdam",
         "fund_name": "iShares Core MSCI World UCITS ETF USD Acc",
@@ -883,7 +876,7 @@
       {
         "blockers": [],
         "close_date": "2026-07-17",
-        "close_price": 804.1199951171875,
+        "close_price": 803.8099975585938,
         "currency": "USD",
         "exchange": "London Stock Exchange",
         "fund_name": "iShares Core S&P 500 UCITS ETF USD Acc",
@@ -902,7 +895,7 @@
       {
         "blockers": [],
         "close_date": "2026-07-17",
-        "close_price": 702.9600219726562,
+        "close_price": 702.760009765625,
         "currency": "EUR",
         "exchange": "Xetra",
         "fund_name": "iShares Core S&P 500 UCITS ETF USD Acc",
@@ -923,7 +916,7 @@
           "identity_or_line_verification_pending"
         ],
         "close_date": "2026-07-17",
-        "close_price": 1636.4000244140625,
+        "close_price": 1638.5999755859375,
         "currency": "USD",
         "exchange": "London Stock Exchange",
         "fund_name": "iShares NASDAQ 100 UCITS ETF USD Acc",
@@ -944,7 +937,7 @@
           "identity_or_line_verification_pending"
         ],
         "close_date": "2026-07-17",
-        "close_price": 1430.4000244140625,
+        "close_price": 1432.4000244140625,
         "currency": "EUR",
         "exchange": "Xetra",
         "fund_name": "iShares NASDAQ 100 UCITS ETF USD Acc",

@@ -23,16 +23,16 @@
 
 | Trading line | ISIN | Pricing date | Close | Currency | Status |
 |---|---|---|---:|---|---|
-| SMH · London Stock Exchange | IE00BMC38736 | 2026-07-17 | 102.82 | USD | Trading line requires verification |
-| VWCE · Xetra | IE00BK5BQT80 | 2026-07-17 | 163.00 | EUR | Verified UCITS trading line |
+| SMH · London Stock Exchange | IE00BMC38736 | 2026-07-17 | 103.12 | USD | Trading line requires verification |
+| VWCE · Xetra | IE00BK5BQT80 | 2026-07-17 | 162.94 | EUR | Verified UCITS trading line |
 | EUNA · Xetra | IE00BDBRDM35 | 2026-07-17 | 4.91 | EUR | Verified UCITS trading line |
-| EMIM · Euronext Amsterdam | IE00BKM4GZ66 | 2026-07-17 | 44.65 | EUR | Trading line requires verification |
-| EUNL · Xetra | IE00B4L5Y983 | 2026-07-17 | 124.68 | EUR | Trading line requires verification |
-| IWDA · Euronext Amsterdam | IE00B4L5Y983 | 2026-07-17 | 124.68 | EUR | Trading line requires verification |
-| CSPX · London Stock Exchange | IE00B5BMR087 | 2026-07-17 | 804.12 | USD | Verified UCITS trading line |
-| SXR8 · Xetra | IE00B5BMR087 | 2026-07-17 | 702.96 | EUR | Verified UCITS trading line |
-| CNDX · London Stock Exchange | IE00B53SZB19 | 2026-07-17 | 1,636.40 | USD | Trading line requires verification |
-| SXRV · Xetra | IE00B53SZB19 | 2026-07-17 | 1,430.40 | EUR | Trading line requires verification |
+| EMIM · Euronext Amsterdam | IE00BKM4GZ66 | 2026-07-17 | 44.68 | EUR | Trading line requires verification |
+| EUNL · Xetra | IE00B4L5Y983 | 2026-07-17 | 124.61 | EUR | Trading line requires verification |
+| IWDA · Euronext Amsterdam | IE00B4L5Y983 | 2026-07-17 | 124.61 | EUR | Trading line requires verification |
+| CSPX · London Stock Exchange | IE00B5BMR087 | 2026-07-17 | 803.81 | USD | Verified UCITS trading line |
+| SXR8 · Xetra | IE00B5BMR087 | 2026-07-17 | 702.76 | EUR | Verified UCITS trading line |
+| CNDX · London Stock Exchange | IE00B53SZB19 | 2026-07-17 | 1,638.60 | USD | Trading line requires verification |
+| SXRV · Xetra | IE00B53SZB19 | 2026-07-17 | 1,432.40 | EUR | Trading line requires verification |
 
 The displayed prices are market observations from the current routine run and do not independently authorize valuation or purchase.
 

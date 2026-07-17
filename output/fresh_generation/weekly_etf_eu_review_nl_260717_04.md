@@ -23,16 +23,16 @@
 
 | Handelslijn | ISIN | Peildatum | Slot | Valuta | Status |
 |---|---|---|---:|---|---|
-| SMH · London Stock Exchange | IE00BMC38736 | 2026-07-17 | 102.82 | USD | Handelslijn nog te verifiëren |
-| VWCE · Xetra | IE00BK5BQT80 | 2026-07-17 | 163.00 | EUR | UCITS-handelslijn geverifieerd |
+| SMH · London Stock Exchange | IE00BMC38736 | 2026-07-17 | 103.12 | USD | Handelslijn nog te verifiëren |
+| VWCE · Xetra | IE00BK5BQT80 | 2026-07-17 | 162.94 | EUR | UCITS-handelslijn geverifieerd |
 | EUNA · Xetra | IE00BDBRDM35 | 2026-07-17 | 4.91 | EUR | UCITS-handelslijn geverifieerd |
-| EMIM · Euronext Amsterdam | IE00BKM4GZ66 | 2026-07-17 | 44.65 | EUR | Handelslijn nog te verifiëren |
-| EUNL · Xetra | IE00B4L5Y983 | 2026-07-17 | 124.68 | EUR | Handelslijn nog te verifiëren |
-| IWDA · Euronext Amsterdam | IE00B4L5Y983 | 2026-07-17 | 124.68 | EUR | Handelslijn nog te verifiëren |
-| CSPX · London Stock Exchange | IE00B5BMR087 | 2026-07-17 | 804.12 | USD | UCITS-handelslijn geverifieerd |
-| SXR8 · Xetra | IE00B5BMR087 | 2026-07-17 | 702.96 | EUR | UCITS-handelslijn geverifieerd |
-| CNDX · London Stock Exchange | IE00B53SZB19 | 2026-07-17 | 1,636.40 | USD | Handelslijn nog te verifiëren |
-| SXRV · Xetra | IE00B53SZB19 | 2026-07-17 | 1,430.40 | EUR | Handelslijn nog te verifiëren |
+| EMIM · Euronext Amsterdam | IE00BKM4GZ66 | 2026-07-17 | 44.68 | EUR | Handelslijn nog te verifiëren |
+| EUNL · Xetra | IE00B4L5Y983 | 2026-07-17 | 124.61 | EUR | Handelslijn nog te verifiëren |
+| IWDA · Euronext Amsterdam | IE00B4L5Y983 | 2026-07-17 | 124.61 | EUR | Handelslijn nog te verifiëren |
+| CSPX · London Stock Exchange | IE00B5BMR087 | 2026-07-17 | 803.81 | USD | UCITS-handelslijn geverifieerd |
+| SXR8 · Xetra | IE00B5BMR087 | 2026-07-17 | 702.76 | EUR | UCITS-handelslijn geverifieerd |
+| CNDX · London Stock Exchange | IE00B53SZB19 | 2026-07-17 | 1,638.60 | USD | Handelslijn nog te verifiëren |
+| SXRV · Xetra | IE00B53SZB19 | 2026-07-17 | 1,432.40 | EUR | Handelslijn nog te verifiëren |
 
 De getoonde prijzen zijn marktobservaties uit de huidige routine-run en vormen geen zelfstandige basis voor waardering of aankoop.
 
