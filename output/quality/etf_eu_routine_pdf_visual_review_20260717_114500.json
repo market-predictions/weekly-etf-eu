@@ -1,0 +1,55 @@
+{
+  "artifact_type": "etf_eu_routine_pdf_visual_review",
+  "schema_version": "etf_eu_routine_pdf_visual_review_v1",
+  "run_id": "20260717_114500",
+  "report_date": "2026-07-17",
+  "report_suffix": "260717_04",
+  "machine_validation_passed": true,
+  "machine_validation_path": "output/quality/etf_eu_client_grade_v2_validation_20260717_114500.json",
+  "dutch_page_count": 6,
+  "english_page_count": 6,
+  "content_consistency_passed": false,
+  "visual_review_passed": false,
+  "client_grade_preview_accepted": false,
+  "status": "machine_validated_but_rejected_by_visual_review",
+  "review_scope": {
+    "dutch_rendered_pages_reviewed": true,
+    "english_machine_and_html_structure_reviewed": true,
+    "english_complete_page_review_pending_corrected_run": true
+  },
+  "blockers": [
+    {
+      "code": "equity_curve_adjacent_date_labels_overlap",
+      "languages": ["nl", "en"],
+      "affected_section": 6,
+      "severity": "client_grade_blocker",
+      "finding": "The 2026-07-16 and 2026-07-17 x-axis labels are too close and overlap at the right edge of the equity curve.",
+      "required_change": "Suppress ticks that do not meet a minimum pixel spacing while always preserving the first and last dates."
+    },
+    {
+      "code": "funded_position_table_identifier_and_numeric_wrapping",
+      "languages": ["nl", "en"],
+      "affected_section": 12,
+      "severity": "client_grade_blocker",
+      "finding": "Ticker, ISIN, price and pricing-date cells wrap too aggressively in the ten-column funded-position table.",
+      "required_change": "Apply a funded-position table class, fixed column widths and nowrap rules for identifiers and numeric fields."
+    },
+    {
+      "code": "dutch_valuation_history_comment_not_localized",
+      "languages": ["nl"],
+      "affected_section": 6,
+      "severity": "client_grade_blocker",
+      "finding": "The Dutch valuation-history table contains the English comment 'Three-position funded-aware non-delivery preview'.",
+      "required_change": "Render the comment as 'Preview zonder levering met drie gefinancierde posities'."
+    }
+  ],
+  "implemented_repair_commits": [
+    "ada050751f8a3084bf02acacacc71ab97c19d190",
+    "2ed921e440de336d92d1edd0a11d7b88d455016b",
+    "5a07084d3249d508dd6c2d6acf74cf946a163a9a"
+  ],
+  "portfolio_mutation": false,
+  "transport_attempted": false,
+  "send_executed": false,
+  "production_delivery_authority": false
+}
