@@ -8,20 +8,19 @@ repository=market-predictions/weekly-etf-eu
 operating_mode=routine_production_with_three_position_active_model_portfolio
 production_renderer=client_grade_v2_funded_aware
 routine_production_ready=true
-selected_next_action=DISPATCH_AND_VERIFY_CORRECTED_VISUAL_PREVIEW_20260717_123500
+selected_next_action=MANUAL_DISPATCH_ACCEPTED_PACKAGE_20260717_141500
 ```
 
 ## Latest completed delivery
 
 ```text
-work_package_id=ETF-EU-RUN260712-FIX2B_CORRECTED_RESEND_RECEIPT_CLOSEOUT
 report_date=2026-07-12
 github_workflow_run_id=29428021408
 receipt_confirmed=true
 production_delivery_cycle_closed=true
 ```
 
-This remains the latest completed email-delivery cycle. No 2026-07-17 preview performed transport or email delivery.
+This remains the latest independently confirmed email-delivery cycle. The 2026-07-17 package has not yet performed transport.
 
 ## Active broker-neutral model portfolio
 
@@ -44,73 +43,90 @@ real_broker_execution=false
 
 Cash plus invested market value reconciles exactly to NAV at eurocent precision.
 
-## Preview run 20260717_114500
+## Accepted report package
 
 ```text
-github_workflow_run_id=29571969253
-workflow=ETF EU - Generate and Validate Preview (NO EMAIL)
-workflow_result=success
+run_id=20260717_141500
+report_date=2026-07-17
+report_suffix=260717_06
+source_workflow_run_id=29575699421
 machine_validation_passed=true
+visual_review_passed=true
 dutch_page_count=6
 english_page_count=6
-visual_review_passed=false
-client_grade_preview_accepted=false
-status=machine_validated_but_rejected_by_visual_review
-superseded=true
-superseded_by_run_id=20260717_123500
+client_grade_preview_accepted=true
+readiness_gate_passed=true
+ready_for_controlled_delivery=true
 ```
-
-Machine validation passed with no blockers and confirmed all three funded ISINs in Dutch and English HTML/PDF. The complete preview nevertheless remains rejected because visual review found:
-
-1. overlapping adjacent date labels at the right edge of the equity curve;
-2. aggressive wrapping of ticker, ISIN, price and date cells in the funded-position table;
-3. an English valuation-history comment in the Dutch report.
 
 Authoritative evidence:
 
 ```text
-output/quality/etf_eu_client_grade_v2_validation_20260717_114500.json
-output/quality/etf_eu_routine_pdf_visual_review_20260717_114500.json
-output/run_manifests/etf_eu_routine_preview_manifest_20260717_114500.json
+output/quality/etf_eu_client_grade_v2_validation_20260717_141500.json
+output/quality/etf_eu_routine_pdf_client_grade_20260717_141500.json
+output/quality/etf_eu_routine_pdf_visual_review_20260717_141500.json
+output/quality/etf_eu_routine_package_readiness_20260717_141500.json
+output/run_manifests/etf_eu_routine_preview_manifest_20260717_141500.json
+output/run_manifests/etf_eu_routine_run_manifest_2026-07-17_20260717_141500.json
 ```
 
-The HTML/PDF files for suffix `260717_04` are historical preview evidence only and must not be delivered.
+The accepted package contains Dutch-primary and English-companion HTML/PDF output. All twelve rendered pages were reviewed at high resolution. The final report has no known clipping, overlap, broken identifiers, orphaned headings or language mismatch.
 
-## Implemented visual correction
+## Immutable delivery lock
 
 ```text
-equity_tick_spacing_commit=ada050751f8a3084bf02acacacc71ab97c19d190
-funded_table_and_localization_commit=2ed921e440de336d92d1edd0a11d7b88d455016b
-visual_regression_test_commit=5a07084d3249d508dd6c2d6acf74cf946a163a9a
+lock_artifact=output/delivery_control/etf_eu_accepted_package_lock_20260717_141500.json
+locked_file_count=4
+lock_method=git_blob_sha_exact_byte_identity
 ```
 
-The corrected output contract now:
-
-- suppresses intermediate equity-curve ticks when date labels cannot meet a minimum spacing;
-- preserves and edge-aligns the first and last curve dates;
-- applies fixed column widths and nowrap rules to funded identifiers and numeric fields;
-- improves pricing-table identifier/date handling;
-- uses language-aware hyphenation for wide tables;
-- localizes the Dutch valuation-history comment;
-- retains the visible funded ISIN identity strip.
-
-The implementation adapts the upstream `weekly-etf` SVG contract but intentionally adds collision avoidance because the donor implementation uses fixed representative ticks without a spacing gate.
-
-## Corrected preview queue
+Locked client files:
 
 ```text
-run_id=20260717_123500
-report_date=2026-07-17
-report_suffix=260717_05
-queue_path=control/run_queue/etf_eu_routine_preview_request_20260717_123500.md
-workflow=.github/workflows/run-weekly-etf-eu-routine-preview.yml
-execution_mode=generate_validate_only
-status=queued_not_executed
-workflow_run_verified=false
-production_delivery_authority=false
+output/fresh_generation/weekly_etf_eu_review_nl_260717_06.html
+output/fresh_generation/weekly_etf_eu_review_nl_260717_06.pdf
+output/fresh_generation/weekly_etf_eu_review_260717_06.html
+output/fresh_generation/weekly_etf_eu_review_260717_06.pdf
 ```
 
-The connector-authored queue push did not create a verifiable GitHub Actions run. One manual workflow dispatch is the only remaining external action.
+The delivery validator recalculates each Git blob identity before transport. Any byte change blocks delivery.
+
+## Guarded delivery preparation
+
+```text
+delivery_prep=output/delivery_prep/etf_eu_guarded_fresh_package_delivery_prep_20260717_141500.json
+authorization=output/delivery_authorization/etf_eu_guarded_send_authorization_20260717_141500.json
+decision=output/delivery_control/etf_eu_controlled_delivery_decision_20260717_141500.json
+transport_selection=output/delivery_control/etf_eu_controlled_delivery_transport_selection_20260717_141500.json
+prepared_queue=control/prepared_delivery/etf_eu_current_package_delivery_request_20260717_141500.md
+delivery_authorized=true
+send_command_allowed=true
+send_confirmation_received=true
+transport_attempted=false
+send_executed=false
+receipt_confirmed=false
+```
+
+The connector security boundary blocks creation of an automatically triggering live-send queue. One manual GitHub `workflow_dispatch` is therefore required. This is the only remaining external action before transport verification.
+
+## Workflow to dispatch
+
+```text
+workflow=Weekly ETF EU current-package delivery workflow
+branch=main
+delivery_mode=send
+queue_path=control/prepared_delivery/etf_eu_current_package_delivery_request_20260717_141500.md
+send_confirmation=confirm_guarded_send
+```
+
+The workflow:
+
+1. validates the package, authorization chain and exact-byte lock;
+2. blocks duplicate successful delivery for this queue and suffix;
+3. uses the existing current-package transport runner;
+4. persists redacted result and evidence;
+5. updates the routine manifest to awaiting-receipt state;
+6. does not change portfolio state or regenerate the report.
 
 ## Authority boundaries
 
@@ -121,43 +137,24 @@ broker_permission_required_for_real_execution=true
 model_portfolio_only=true
 real_broker_execution=false
 valuation_grade=false
+funding_authority=false
 portfolio_mutation=false
 production_delivery_authority=false
 transport_attempted=false
 send_executed=false
+receipt_confirmed=false
 ```
 
-## Four-layer status
-
-### Decision framework
-
-Review VWCE, EUNA and SXR8 independently for role validity, contribution, overlap and invalidation. No automatic add, reduction, exit, second tranche or satellite activation is allowed.
-
-### Input/state contract
+## Next closeout sequence
 
 ```text
-config/ucits_symbol_registry.yml
-config/ucits_close_price_validation_basket.yml
-config/etf_eu_target_allocation.yml
-output/etf_eu_portfolio_state.json
-output/etf_eu_trade_ledger.csv
-output/etf_eu_valuation_history.csv
+manual guarded workflow dispatch
+→ inspect workflow result and committed transport evidence
+→ wait approximately ten minutes
+→ independently verify receipt in connected mailbox
+→ confirm four attachments and matching report identity
+→ update routine manifest and production closeout
+→ update CURRENT_STATE, NEXT_ACTIONS and DECISION_LOG
 ```
 
-### Output contract
-
-The corrected report must visibly and consistently show all three funded positions, cash, exact UCITS identities, whole-share quantities, pricing dates, current weights, contribution, overlap and a non-overlapping equity curve. Dutch is primary; English is companion.
-
-### Operational runbook
-
-```text
-manual dispatch corrected preview 20260717_123500
-→ focused funded-aware and visual-contract regression tests
-→ fresh UCITS pricing and macro refresh
-→ normalized funded-aware state
-→ Dutch and English HTML/PDF
-→ strict funded-state and ISIN consistency gates
-→ complete page review
-→ visual-review manifest
-→ no delivery without separate explicit authority
-```
+Do not claim completed delivery until independent receipt evidence sets `receipt_confirmed=true`.
