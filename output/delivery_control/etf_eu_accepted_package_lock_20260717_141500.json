@@ -1,0 +1,44 @@
+{
+  "schema_version": "etf_eu_accepted_package_lock_v1",
+  "artifact_type": "etf_eu_accepted_package_lock",
+  "generated_at_utc": "2026-07-17T15:45:00Z",
+  "run_id": "20260717_141500",
+  "report_date": "2026-07-17",
+  "report_suffix": "260717_06",
+  "package_manifest": "output/fresh_generation/etf_eu_fresh_generation_package_manifest_20260717_141500.json",
+  "package_manifest_git_blob_sha": "56b3c13dd9f338a11aee895427582459176a74f8",
+  "machine_validation_artifact": "output/quality/etf_eu_routine_pdf_client_grade_20260717_141500.json",
+  "visual_review_artifact": "output/quality/etf_eu_routine_pdf_visual_review_20260717_141500.json",
+  "readiness_artifact": "output/quality/etf_eu_routine_package_readiness_20260717_141500.json",
+  "machine_validation_passed": true,
+  "visual_review_passed": true,
+  "ready_for_controlled_delivery": true,
+  "files": [
+    {
+      "role": "dutch_primary_html",
+      "path": "output/fresh_generation/weekly_etf_eu_review_nl_260717_06.html",
+      "git_blob_sha": "8d200d1bbc623f19669487fdbe073b66978bd199"
+    },
+    {
+      "role": "dutch_primary_pdf",
+      "path": "output/fresh_generation/weekly_etf_eu_review_nl_260717_06.pdf",
+      "git_blob_sha": "47948470c3d8ec17a0d8855cf12a54b706c480c7"
+    },
+    {
+      "role": "english_companion_html",
+      "path": "output/fresh_generation/weekly_etf_eu_review_260717_06.html",
+      "git_blob_sha": "e672139adf883cb40016702c18fd5b41bc6f18b5"
+    },
+    {
+      "role": "english_companion_pdf",
+      "path": "output/fresh_generation/weekly_etf_eu_review_260717_06.pdf",
+      "git_blob_sha": "428d5217412ae2c93fe861f2abb410dfddf8334a"
+    }
+  ],
+  "portfolio_mutation": false,
+  "funding_authority": false,
+  "production_delivery_authority": false,
+  "transport_attempted": false,
+  "send_executed": false,
+  "receipt_confirmed": false
+}
