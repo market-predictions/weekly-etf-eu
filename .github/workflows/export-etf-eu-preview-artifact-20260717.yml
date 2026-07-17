@@ -1,0 +1,93 @@
+name: ETF EU - Export Preview Artifact 20260717
+
+on:
+  workflow_run:
+    workflows:
+      - "ETF EU - Generate and Validate Preview (NO EMAIL)"
+    types:
+      - completed
+
+permissions:
+  contents: write
+
+jobs:
+  export-preview-artifact:
+    runs-on: ubuntu-latest
+    env:
+      TARGET_RUN_ID: "20260717_123500"
+      TARGET_SUFFIX: "260717_05"
+      ARTIFACT_NAME: "etf-eu-preview-20260717_123500"
+    steps:
+      - name: Check out current main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Verify accepted export inputs exist
+        run: |
+          set -euo pipefail
+          test -f "output/fresh_generation/weekly_etf_eu_review_nl_${TARGET_SUFFIX}.html"
+          test -f "output/fresh_generation/weekly_etf_eu_review_nl_${TARGET_SUFFIX}.pdf"
+          test -f "output/fresh_generation/weekly_etf_eu_review_${TARGET_SUFFIX}.html"
+          test -f "output/fresh_generation/weekly_etf_eu_review_${TARGET_SUFFIX}.pdf"
+          test -f "output/quality/etf_eu_client_grade_v2_validation_${TARGET_RUN_ID}.json"
+          test -d "output/quality/review_pages/${TARGET_RUN_ID}"
+
+      - name: Upload complete preview evidence
+        id: upload
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.ARTIFACT_NAME }}
+          if-no-files-found: error
+          retention-days: 7
+          path: |
+            output/fresh_generation/weekly_etf_eu_review_nl_${{ env.TARGET_SUFFIX }}.html
+            output/fresh_generation/weekly_etf_eu_review_nl_${{ env.TARGET_SUFFIX }}.pdf
+            output/fresh_generation/weekly_etf_eu_review_${{ env.TARGET_SUFFIX }}.html
+            output/fresh_generation/weekly_etf_eu_review_${{ env.TARGET_SUFFIX }}.pdf
+            output/quality/etf_eu_client_grade_v2_validation_${{ env.TARGET_RUN_ID }}.json
+            output/run_manifests/etf_eu_routine_preview_manifest_${{ env.TARGET_RUN_ID }}.json
+            output/quality/review_pages/${{ env.TARGET_RUN_ID }}/
+
+      - name: Persist artifact export receipt
+        env:
+          EXPORT_WORKFLOW_RUN_ID: ${{ github.run_id }}
+          SOURCE_WORKFLOW_RUN_ID: ${{ github.event.workflow_run.id }}
+          SOURCE_WORKFLOW_CONCLUSION: ${{ github.event.workflow_run.conclusion }}
+          ARTIFACT_ID: ${{ steps.upload.outputs.artifact-id }}
+          ARTIFACT_URL: ${{ steps.upload.outputs.artifact-url }}
+          ARTIFACT_DIGEST: ${{ steps.upload.outputs.artifact-digest }}
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          run_id = os.environ["TARGET_RUN_ID"]
+          payload = {
+              "schema_version": "etf_eu_preview_artifact_export_v1",
+              "artifact_type": "etf_eu_preview_artifact_export",
+              "target_run_id": run_id,
+              "target_report_suffix": os.environ["TARGET_SUFFIX"],
+              "source_workflow_run_id": int(os.environ["SOURCE_WORKFLOW_RUN_ID"]),
+              "source_workflow_conclusion": os.environ["SOURCE_WORKFLOW_CONCLUSION"],
+              "export_workflow_run_id": int(os.environ["EXPORT_WORKFLOW_RUN_ID"]),
+              "artifact_name": os.environ["ARTIFACT_NAME"],
+              "artifact_id": int(os.environ["ARTIFACT_ID"]),
+              "artifact_url": os.environ["ARTIFACT_URL"],
+              "artifact_digest": os.environ["ARTIFACT_DIGEST"],
+              "portfolio_mutation": False,
+              "transport_attempted": False,
+              "send_executed": False,
+          }
+          path = Path(f"output/run_manifests/etf_eu_preview_artifact_export_{run_id}.json")
+          path.parent.mkdir(parents=True, exist_ok=True)
+          path.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+          PY
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add "output/run_manifests/etf_eu_preview_artifact_export_${TARGET_RUN_ID}.json"
+          git commit -m "Persist ETF EU preview artifact export ${TARGET_RUN_ID} [skip ci]"
+          git push origin HEAD:main
