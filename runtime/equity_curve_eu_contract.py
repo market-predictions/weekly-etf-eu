@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import html
 from datetime import datetime
-from typing import Any
+from typing import Any, Callable
 
 
 EquityPoint = tuple[str, float]
@@ -19,6 +19,34 @@ def _points_from_state(state: dict[str, Any]) -> list[EquityPoint]:
         except (TypeError, ValueError):
             continue
     return points
+
+
+def _select_tick_indices(
+    parsed: list[tuple[datetime, float]],
+    sx: Callable[[datetime], float],
+    *,
+    min_gap_px: float = 110.0,
+) -> list[int]:
+    """Keep representative ticks while preventing adjacent date-label collisions."""
+    if len(parsed) <= 2:
+        return list(range(len(parsed)))
+
+    candidates = sorted({0, len(parsed) // 3, (2 * len(parsed)) // 3, len(parsed) - 1})
+    first = candidates[0]
+    last = candidates[-1]
+    selected = [first]
+
+    for idx in candidates[1:-1]:
+        x = sx(parsed[idx][0])
+        if x - sx(parsed[selected[-1]][0]) < min_gap_px:
+            continue
+        if sx(parsed[last][0]) - x < min_gap_px:
+            continue
+        selected.append(idx)
+
+    if last != selected[-1]:
+        selected.append(last)
+    return selected
 
 
 def render_equity_curve_svg(state: dict[str, Any], *, language: str = "nl") -> str:
@@ -73,15 +101,16 @@ def render_equity_curve_svg(state: dict[str, Any], *, language: str = "nl") -> s
             f'<text x="{left-12}" y="{y+5:.2f}" text-anchor="end" font-family="Arial, sans-serif" font-size="12" fill="#4d5b65">{html.escape(label)}</text>'
         )
 
-    tick_indices = sorted({0, len(parsed) // 3, (2 * len(parsed)) // 3, len(parsed) - 1})
+    tick_indices = _select_tick_indices(parsed, sx)
     ticks: list[str] = []
     for idx in tick_indices:
         point_date, _ = parsed[idx]
         x = sx(point_date)
         label = point_date.strftime("%d-%m-%Y" if is_nl else "%Y-%m-%d")
+        anchor = "start" if idx == 0 else ("end" if idx == len(parsed) - 1 else "middle")
         ticks.append(
             f'<line x1="{x:.2f}" y1="{top}" x2="{x:.2f}" y2="{height-bottom}" stroke="#e8ecef" stroke-width="1" />'
-            f'<text x="{x:.2f}" y="{height-bottom+24}" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" fill="#4d5b65">{html.escape(label)}</text>'
+            f'<text x="{x:.2f}" y="{height-bottom+24}" text-anchor="{anchor}" font-family="Arial, sans-serif" font-size="12" fill="#4d5b65">{html.escape(label)}</text>'
         )
 
     circles = "".join(f'<circle cx="{x:.2f}" cy="{y:.2f}" r="4.8" fill="#2A5384" />' for x, y in coords)
