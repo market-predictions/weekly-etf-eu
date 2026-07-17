@@ -92,10 +92,10 @@ jobs:
           PY
           cat env.out >> "$GITHUB_ENV"
 
-      - name: Run focused funded-aware tests
+      - name: Run focused funded-aware and visual-contract tests
         run: |
           set -euo pipefail
-          python -m pytest -q tests/test_etf_eu_cap01.py
+          python -m pytest -q tests/test_etf_eu_cap01.py tests/test_etf_eu_final_visual_polish.py
 
       - name: Build current UCITS pricing evidence
         run: |
@@ -169,6 +169,21 @@ jobs:
           out.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
           PY
 
+      - name: Upload complete preview review package
+        uses: actions/upload-artifact@v4
+        with:
+          name: etf-eu-preview-${{ env.ETF_EU_RUN_ID }}
+          if-no-files-found: error
+          retention-days: 7
+          path: |
+            output/fresh_generation/weekly_etf_eu_review_nl_${{ env.ETF_EU_REPORT_SUFFIX }}.html
+            output/fresh_generation/weekly_etf_eu_review_nl_${{ env.ETF_EU_REPORT_SUFFIX }}.pdf
+            output/fresh_generation/weekly_etf_eu_review_${{ env.ETF_EU_REPORT_SUFFIX }}.html
+            output/fresh_generation/weekly_etf_eu_review_${{ env.ETF_EU_REPORT_SUFFIX }}.pdf
+            output/quality/etf_eu_client_grade_v2_validation_${{ env.ETF_EU_RUN_ID }}.json
+            output/run_manifests/etf_eu_routine_preview_manifest_${{ env.ETF_EU_RUN_ID }}.json
+            output/quality/review_pages/${{ env.ETF_EU_RUN_ID }}/
+
       - name: Persist preview and review evidence
         run: |
           set -euo pipefail
@@ -176,4 +191,5 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -f "output/pricing/ucits_close_price_validation_basket_results_${ETF_EU_RUN_ID}.json" "$ETF_EU_MACRO_ARTIFACT" output/macro/latest.json output/etf_eu_valuation_history.csv "output/runtime/etf_eu_client_grade_report_state_${ETF_EU_RUN_ID}.json" "output/fresh_generation/weekly_etf_eu_review_nl_${ETF_EU_REPORT_SUFFIX}.md" "output/fresh_generation/weekly_etf_eu_review_${ETF_EU_REPORT_SUFFIX}.md" "output/fresh_generation/weekly_etf_eu_review_nl_${ETF_EU_REPORT_SUFFIX}.html" "output/fresh_generation/weekly_etf_eu_review_${ETF_EU_REPORT_SUFFIX}.html" "output/fresh_generation/weekly_etf_eu_review_nl_${ETF_EU_REPORT_SUFFIX}.pdf" "output/fresh_generation/weekly_etf_eu_review_${ETF_EU_REPORT_SUFFIX}.pdf" "output/fresh_generation/etf_eu_fresh_generation_package_manifest_${ETF_EU_RUN_ID}.json" "output/fresh_generation/etf_eu_ready_for_controlled_delivery_${ETF_EU_RUN_ID}.json" "output/quality/etf_eu_client_grade_v2_validation_${ETF_EU_RUN_ID}.json" "output/quality/etf_eu_routine_pdf_client_grade_${ETF_EU_RUN_ID}_nl.json" "output/quality/etf_eu_routine_pdf_client_grade_${ETF_EU_RUN_ID}_en.json" "output/quality/etf_eu_routine_pdf_client_grade_${ETF_EU_RUN_ID}.json" "output/quality/review_pages/${ETF_EU_RUN_ID}" "output/run_manifests/etf_eu_routine_run_manifest_${ETF_EU_REPORT_DATE}_${ETF_EU_RUN_ID}.json" "output/run_manifests/etf_eu_routine_preview_manifest_${ETF_EU_RUN_ID}.json"
           git commit -m "Persist ETF EU three-position routine preview ${ETF_EU_RUN_ID} [skip ci]"
+          git pull --rebase origin main
           git push origin HEAD:main
