@@ -7,6 +7,7 @@ from pathlib import Path
 from typing import Any
 
 from runtime.build_etf_eu_client_grade_report_state import build_state
+from runtime.inject_etf_eu_funded_identity_strip import inject_funded_identity_strip
 from runtime.polish_etf_eu_client_grade_html import polish
 from runtime.render_etf_eu_client_grade_v2_funded import render
 from tools.build_etf_eu_routine_report_package import build as build_legacy_package
@@ -55,6 +56,8 @@ def build(args: argparse.Namespace) -> dict[str, Path]:
 
     nl_polished = polish(nl_html.read_text(encoding="utf-8"), language="nl")
     en_polished = polish(en_html.read_text(encoding="utf-8"), language="en")
+    nl_polished = inject_funded_identity_strip(nl_polished, language="nl")
+    en_polished = inject_funded_identity_strip(en_polished, language="en")
     nl_html.write_text(nl_polished, encoding="utf-8")
     en_html.write_text(en_polished, encoding="utf-8")
     HTML(string=nl_polished, base_url=str(nl_html.parent.resolve())).write_pdf(str(nl_pdf))
