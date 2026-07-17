@@ -1,0 +1,4 @@
+Traceback (most recent call last):
+  File "/home/runner/work/weekly-etf-eu/weekly-etf-eu/tools/prepare_etf_eu_routine_package_readiness_v2.py", line 6, in <module>
+    import tools.prepare_etf_eu_routine_package_readiness as base
+ModuleNotFoundError: No module named 'tools'
