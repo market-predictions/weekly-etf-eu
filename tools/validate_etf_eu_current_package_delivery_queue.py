@@ -5,6 +5,7 @@ import json
 import re
 from pathlib import Path
 
+
 REQUIRED_KEYS = {
     "schema_version",
     "artifact_type",
@@ -64,12 +65,12 @@ def validate(path: Path) -> dict[str, object]:
         raise RuntimeError("queue schema mismatch")
     if data["artifact_type"] != "etf_eu_current_package_delivery_queue":
         raise RuntimeError("queue artifact type mismatch")
-    if data["recipient_plaintext_values_exposed"] != "false":
-        raise RuntimeError("recipient plaintext exposure flag must be false")
-    if data["secret_values_exposed"] != "false":
-        raise RuntimeError("secret exposure flag must be false")
-    if data["raw_receipt_pdf_stored_in_github"] != "false":
-        raise RuntimeError("raw receipt storage flag must be false")
+    for key in ("delivery_authorized", "send_command_allowed"):
+        if data[key] != "true":
+            raise RuntimeError(f"{key} must be true")
+    for key in ("recipient_plaintext_values_exposed", "secret_values_exposed", "raw_receipt_pdf_stored_in_github"):
+        if data[key] != "false":
+            raise RuntimeError(f"{key} must be false")
     if "20260709" in path.read_text(encoding="utf-8") or "MVP19" in path.read_text(encoding="utf-8"):
         raise RuntimeError("queue artifact must not reference legacy MVP19/FIX2 package chain")
 
@@ -77,20 +78,35 @@ def validate(path: Path) -> dict[str, object]:
     authorization = _read_json(data["authorization_artifact"])
     decision = _read_json(data["controlled_delivery_decision_artifact"])
     selection = _read_json(data["transport_selection_artifact"])
-    _read_json(data["routine_run_manifest"])
+    routine = _read_json(data["routine_run_manifest"])
+
+    run_id = data["run_id"]
+    for label, payload in (
+        ("package", package),
+        ("authorization", authorization),
+        ("decision", decision),
+        ("selection", selection),
+        ("routine", routine),
+    ):
+        if str(payload.get("run_id")) != run_id:
+            raise RuntimeError(f"{label} run id mismatch")
 
     if package.get("schema_version") != "etf_eu_fresh_generation_package_v1":
         raise RuntimeError("fresh package schema mismatch")
-    if authorization.get("delivery_authorized") is not True:
-        raise RuntimeError("delivery_authorized is not true")
-    if authorization.get("send_command_allowed") is not True:
-        raise RuntimeError("send_command_allowed is not true")
-    if decision.get("controlled_delivery_decision_status") != "blocked_no_transport_selected":
+    if package.get("ready_for_controlled_delivery") is not True:
+        raise RuntimeError("fresh package is not ready")
+    if authorization.get("delivery_authorized") is not True or authorization.get("send_command_allowed") is not True:
+        raise RuntimeError("guarded delivery authorization is incomplete")
+    if decision.get("controlled_delivery_decision_status") != "routine_guarded_delivery_selected":
         raise RuntimeError("unexpected controlled delivery decision status")
-    if selection.get("transport_selection_status") != "blocked_missing_eu_delivery_workflow_wiring":
+    if selection.get("transport_selection_status") != "current_package_smtp_runner_selected":
         raise RuntimeError("unexpected transport selection status")
+    for payload in (package, authorization, decision, selection, routine):
+        for key in ("valuation_grade", "funding_authority", "portfolio_mutation", "production_delivery_authority"):
+            if payload.get(key) is not False:
+                raise RuntimeError(f"{key} must remain false")
 
-    return {"status": "valid", "queue": str(path), "run_id": data["run_id"]}
+    return {"status": "valid", "queue": str(path), "run_id": run_id}
 
 
 def main() -> None:
