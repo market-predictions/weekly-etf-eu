@@ -6,6 +6,7 @@ from pathlib import Path
 
 from runtime.apply_etf_eu_guarded_capital_activation import apply
 from runtime.build_etf_eu_allocation_decision import build_decision
+from runtime.equity_curve_eu_contract import render_equity_curve_svg
 from runtime.inject_etf_eu_funded_identity_strip import inject_funded_identity_strip
 from runtime.render_etf_eu_client_grade_v2_funded import funded_overlay, patch_copy
 from tools.validate_etf_eu_allocation_decision import validate
@@ -120,22 +121,49 @@ def test_isin_surface_uses_canonical_identity_not_raw_token_count() -> None:
     assert missing["missing_html_isins"] == ["IE00BDBRDM35"]
 
 
-def test_funded_identity_strip_is_visible_bilingual_and_idempotent() -> None:
+def test_funded_identity_strip_is_visible_bilingual_idempotent_and_print_safe() -> None:
     rows = (
-        "<tr><td>VWCE</td><td>Vanguard</td><td>IE00BK5BQT80</td></tr>"
-        "<tr><td>EUNA</td><td>iShares Bonds</td><td>IE00BDBRDM35</td></tr>"
-        "<tr><td>SXR8</td><td>iShares S&P 500</td><td>IE00B5BMR087</td></tr>"
+        "<tr><td>VWCE</td><td>Vanguard</td><td>IE00BK5BQT80</td><td>151</td><td>€ 165,32</td><td>2026-07-16</td><td>€ 24.963,32</td><td>24,96%</td><td>25,00%</td><td>Modelpositie · geen brokerorder</td></tr>"
+        "<tr><td>EUNA</td><td>iShares Bonds</td><td>IE00BDBRDM35</td><td>1.526</td><td>€ 4,91</td><td>2026-07-14</td><td>€ 7.497,24</td><td>7,50%</td><td>7,50%</td><td>Modelpositie · geen brokerorder</td></tr>"
+        "<tr><td>SXR8</td><td>iShares S&P 500</td><td>IE00B5BMR087</td><td>10</td><td>€ 711,66</td><td>2026-07-16</td><td>€ 7.116,60</td><td>7,12%</td><td>7,50%</td><td>Modelpositie · geen brokerorder</td></tr>"
     )
-    nl = f'<html><head></head><body><section><span>Review huidige posities</span><div class="note-box">Model</div><table>{rows}</table></section></body></html>'
-    en = f'<html><head></head><body><section><span>Current-position review</span><div class="note-box">Model</div><table>{rows}</table></section></body></html>'
+    history = "Three-position funded-aware non-delivery preview"
+    nl = f'<html><head></head><body>{history}<section><span>Review huidige posities</span><div class="note-box">Model</div><table class="data-table">{rows}</table></section></body></html>'
+    en = f'<html><head></head><body>{history}<section><span>Current-position review</span><div class="note-box">Model</div><table class="data-table">{rows}</table></section></body></html>'
 
     polished_nl = inject_funded_identity_strip(nl, language="nl")
     polished_en = inject_funded_identity_strip(en, language="en")
     for output in [polished_nl, polished_en]:
         assert output.count('class="funded-identity-strip"') == 1
+        assert 'class="data-table funded-position-table"' in output
+        assert ".funded-position-table" in output and ".pricing-table" in output
         assert "VWCE" in output and "IE00BK5BQT80" in output
         assert "EUNA" in output and "IE00BDBRDM35" in output
         assert "SXR8" in output and "IE00B5BMR087" in output
     assert "Gefinancierde ISIN-identiteiten" in polished_nl
     assert "Funded ISIN identities" in polished_en
+    assert "Preview zonder levering met drie gefinancierde posities" in polished_nl
+    assert history not in polished_nl and history in polished_en
+    assert "Model · geen brokerorder" in polished_nl
     assert inject_funded_identity_strip(polished_nl, language="nl") == polished_nl
+
+
+def test_equity_curve_suppresses_colliding_date_ticks_but_keeps_endpoints() -> None:
+    state = {
+        "equity_curve": {
+            "show_chart": True,
+            "latest_nav_matches_state": True,
+            "points": [
+                {"date": "2026-05-30", "nav_eur": 100000.0},
+                {"date": "2026-07-16", "nav_eur": 100016.6},
+                {"date": "2026-07-17", "nav_eur": 100016.6},
+            ],
+        }
+    }
+    nl_svg = render_equity_curve_svg(state, language="nl")
+    en_svg = render_equity_curve_svg(state, language="en")
+    assert "30-05-2026" in nl_svg and "17-07-2026" in nl_svg
+    assert "16-07-2026" not in nl_svg
+    assert "2026-05-30" in en_svg and "2026-07-17" in en_svg
+    assert "2026-07-16" not in en_svg
+    assert 'text-anchor="start"' in nl_svg and 'text-anchor="end"' in nl_svg
