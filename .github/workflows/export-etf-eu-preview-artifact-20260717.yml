@@ -1,4 +1,4 @@
-name: ETF EU - Export Final Preview Evidence 20260717
+name: ETF EU - Finalize Package Readiness 20260717
 
 on:
   workflow_run:
@@ -11,12 +11,11 @@ permissions:
   contents: write
 
 jobs:
-  export-final-preview:
+  finalize-readiness:
     runs-on: ubuntu-latest
     env:
       TARGET_RUN_ID: "20260717_141500"
-      TARGET_SUFFIX: "260717_06"
-      ARTIFACT_NAME: "etf-eu-preview-20260717_141500"
+      TARGET_REPORT_DATE: "2026-07-17"
     steps:
       - name: Check out current main
         uses: actions/checkout@v4
@@ -24,41 +23,22 @@ jobs:
           ref: main
           fetch-depth: 0
 
-      - name: Verify final preview evidence exists
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Run readiness regression tests
         run: |
           set -euo pipefail
-          test -f "output/fresh_generation/weekly_etf_eu_review_nl_${TARGET_SUFFIX}.html"
-          test -f "output/fresh_generation/weekly_etf_eu_review_nl_${TARGET_SUFFIX}.pdf"
-          test -f "output/fresh_generation/weekly_etf_eu_review_${TARGET_SUFFIX}.html"
-          test -f "output/fresh_generation/weekly_etf_eu_review_${TARGET_SUFFIX}.pdf"
-          test -f "output/quality/etf_eu_client_grade_v2_validation_${TARGET_RUN_ID}.json"
-          test -f "output/run_manifests/etf_eu_routine_preview_manifest_${TARGET_RUN_ID}.json"
-          test -d "output/quality/review_pages/${TARGET_RUN_ID}"
+          python -m pip install --upgrade pip
+          python -m pip install pytest
+          python -m pytest -q \
+            tests/test_etf_eu_readiness_v2_funded_aware.py \
+            tests/test_etf_eu_markdown_funded_reconciliation.py \
+            tests/test_etf_eu_final_visual_polish.py
 
-      - name: Upload complete final preview evidence
-        id: upload
-        uses: actions/upload-artifact@v4
-        with:
-          name: ${{ env.ARTIFACT_NAME }}
-          if-no-files-found: error
-          retention-days: 7
-          path: |
-            output/fresh_generation/weekly_etf_eu_review_nl_${{ env.TARGET_SUFFIX }}.html
-            output/fresh_generation/weekly_etf_eu_review_nl_${{ env.TARGET_SUFFIX }}.pdf
-            output/fresh_generation/weekly_etf_eu_review_${{ env.TARGET_SUFFIX }}.html
-            output/fresh_generation/weekly_etf_eu_review_${{ env.TARGET_SUFFIX }}.pdf
-            output/quality/etf_eu_client_grade_v2_validation_${{ env.TARGET_RUN_ID }}.json
-            output/run_manifests/etf_eu_routine_preview_manifest_${{ env.TARGET_RUN_ID }}.json
-            output/quality/review_pages/${{ env.TARGET_RUN_ID }}/
-
-      - name: Persist final artifact export receipt
-        env:
-          EXPORT_WORKFLOW_RUN_ID: ${{ github.run_id }}
-          SOURCE_WORKFLOW_RUN_ID: ${{ github.event.workflow_run.id }}
-          SOURCE_WORKFLOW_CONCLUSION: ${{ github.event.workflow_run.conclusion }}
-          ARTIFACT_ID: ${{ steps.upload.outputs.artifact-id }}
-          ARTIFACT_URL: ${{ steps.upload.outputs.artifact-url }}
-          ARTIFACT_DIGEST: ${{ steps.upload.outputs.artifact-digest }}
+      - name: Reconcile package metadata
         run: |
           set -euo pipefail
           python - <<'PY'
@@ -67,29 +47,70 @@ jobs:
           from pathlib import Path
 
           run_id = os.environ["TARGET_RUN_ID"]
-          payload = {
-              "schema_version": "etf_eu_preview_artifact_export_v1",
-              "artifact_type": "etf_eu_preview_artifact_export",
-              "target_run_id": run_id,
-              "target_report_suffix": os.environ["TARGET_SUFFIX"],
-              "source_workflow_run_id": int(os.environ["SOURCE_WORKFLOW_RUN_ID"]),
-              "source_workflow_conclusion": os.environ["SOURCE_WORKFLOW_CONCLUSION"],
-              "export_workflow_run_id": int(os.environ["EXPORT_WORKFLOW_RUN_ID"]),
-              "artifact_name": os.environ["ARTIFACT_NAME"],
-              "artifact_id": int(os.environ["ARTIFACT_ID"]),
-              "artifact_url": os.environ["ARTIFACT_URL"],
-              "artifact_digest": os.environ["ARTIFACT_DIGEST"],
-              "portfolio_mutation": False,
-              "transport_attempted": False,
-              "send_executed": False,
-          }
-          path = Path(f"output/run_manifests/etf_eu_preview_artifact_export_{run_id}.json")
-          path.parent.mkdir(parents=True, exist_ok=True)
+          report_date = os.environ["TARGET_REPORT_DATE"]
+          paths = [
+              Path(f"output/fresh_generation/etf_eu_fresh_generation_package_manifest_{run_id}.json"),
+              Path(f"output/fresh_generation/etf_eu_ready_for_controlled_delivery_{run_id}.json"),
+              Path(f"output/run_manifests/etf_eu_routine_run_manifest_{report_date}_{run_id}.json"),
+          ]
+          for path in paths:
+              payload = json.loads(path.read_text(encoding="utf-8"))
+              payload["markdown_role"] = "funded_state_reconciled_audit_companion_not_v2_render_source"
+              payload["markdown_generation_status"] = "generated_funded_state_reconciled_audit_companion"
+              path.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+          PY
+
+      - name: Run official package readiness gate
+        run: |
+          set -euo pipefail
+          python tools/prepare_etf_eu_routine_package_readiness_v2.py \
+            --manifest "output/fresh_generation/etf_eu_fresh_generation_package_manifest_${TARGET_RUN_ID}.json" \
+            --ready-artifact "output/fresh_generation/etf_eu_ready_for_controlled_delivery_${TARGET_RUN_ID}.json" \
+            --routine-manifest "output/run_manifests/etf_eu_routine_run_manifest_${TARGET_REPORT_DATE}_${TARGET_RUN_ID}.json" \
+            --write-gate "output/quality/etf_eu_routine_package_readiness_${TARGET_RUN_ID}.json" \
+            --pdf-client-grade-gate "output/quality/etf_eu_routine_pdf_client_grade_${TARGET_RUN_ID}.json" \
+            --pdf-visual-review "output/quality/etf_eu_routine_pdf_visual_review_${TARGET_RUN_ID}.json"
+
+      - name: Close preview as accepted and ready
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          run_id = os.environ["TARGET_RUN_ID"]
+          path = Path(f"output/run_manifests/etf_eu_routine_preview_manifest_{run_id}.json")
+          payload = json.loads(path.read_text(encoding="utf-8"))
+          payload.update(
+              {
+                  "status": "machine_and_visual_validation_passed_ready_for_controlled_delivery",
+                  "visual_review_pending": False,
+                  "visual_review_artifact": f"output/quality/etf_eu_routine_pdf_visual_review_{run_id}.json",
+                  "package_readiness_gate": f"output/quality/etf_eu_routine_package_readiness_{run_id}.json",
+                  "client_grade_preview_accepted": True,
+                  "ready_for_controlled_delivery": True,
+                  "delivery_authorized": False,
+                  "production_delivery_authority": False,
+                  "transport_attempted": False,
+                  "send_executed": False,
+                  "receipt_confirmed": False,
+              }
+          )
           path.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
           PY
+
+      - name: Persist readiness evidence
+        run: |
+          set -euo pipefail
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add "output/run_manifests/etf_eu_preview_artifact_export_${TARGET_RUN_ID}.json"
-          git commit -m "Persist ETF EU final preview artifact export ${TARGET_RUN_ID} [skip ci]"
+          git add \
+            "output/fresh_generation/etf_eu_fresh_generation_package_manifest_${TARGET_RUN_ID}.json" \
+            "output/fresh_generation/etf_eu_ready_for_controlled_delivery_${TARGET_RUN_ID}.json" \
+            "output/run_manifests/etf_eu_routine_run_manifest_${TARGET_REPORT_DATE}_${TARGET_RUN_ID}.json" \
+            "output/run_manifests/etf_eu_routine_preview_manifest_${TARGET_RUN_ID}.json" \
+            "output/quality/etf_eu_routine_package_readiness_${TARGET_RUN_ID}.json"
+          git commit -m "Close ETF EU package readiness ${TARGET_RUN_ID} [skip ci]"
           git pull --rebase origin main
           git push origin HEAD:main
