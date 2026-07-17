@@ -69,11 +69,21 @@ def read_text(path: Path) -> str:
 
 
 def pdf_text(path: Path) -> str:
-    return subprocess.run(["pdftotext", "-layout", str(path), "-"], check=True, text=True, capture_output=True).stdout
+    return subprocess.run(
+        ["pdftotext", "-layout", str(path), "-"],
+        check=True,
+        text=True,
+        capture_output=True,
+    ).stdout
 
 
 def page_count(path: Path) -> int:
-    raw = subprocess.run(["pdfinfo", str(path)], check=True, text=True, capture_output=True).stdout
+    raw = subprocess.run(
+        ["pdfinfo", str(path)],
+        check=True,
+        text=True,
+        capture_output=True,
+    ).stdout
     match = re.search(r"^Pages:\s+(\d+)\s*$", raw, flags=re.MULTILINE)
     if not match:
         raise RuntimeError(f"Could not determine page count: {path}")
@@ -82,6 +92,62 @@ def page_count(path: Path) -> int:
 
 def ticker_of(row: dict[str, Any]) -> str:
     return str(row.get("exchange_ticker") or row.get("ticker") or "").strip().upper()
+
+
+def isin_of(row: dict[str, Any]) -> str:
+    value = str(row.get("isin") or "").strip().upper()
+    return value if re.fullmatch(r"[A-Z]{2}[A-Z0-9]{9}\d", value) else ""
+
+
+def normalized_alnum(value: str) -> str:
+    return re.sub(r"[^A-Z0-9]", "", value.upper())
+
+
+def isin_surface_evidence(state: dict[str, Any], html: str, extracted: str) -> dict[str, Any]:
+    """Validate canonical identity semantically instead of counting raw ISIN tokens.
+
+    HTML is the deterministic source surface and must contain every canonical ISIN
+    represented by funded positions or pricing rows. The PDF must contain the ISIN
+    header and every funded-position ISIN. Normalization tolerates PDF line breaks
+    or spacing without weakening the identity contract.
+    """
+    portfolio = state.get("portfolio") if isinstance(state.get("portfolio"), dict) else {}
+    pricing = state.get("pricing") if isinstance(state.get("pricing"), dict) else {}
+    positions = [row for row in portfolio.get("positions") or [] if isinstance(row, dict)]
+    pricing_rows = [row for row in pricing.get("rows") or [] if isinstance(row, dict)]
+
+    funded_isins = sorted({isin_of(row) for row in positions if isin_of(row)})
+    pricing_isins = sorted({isin_of(row) for row in pricing_rows if isin_of(row)})
+    expected_html_isins = sorted(set(funded_isins) | set(pricing_isins))
+
+    html_normalized = normalized_alnum(html)
+    pdf_normalized = normalized_alnum(extracted)
+
+    missing_html = [isin for isin in expected_html_isins if isin not in html_normalized]
+    missing_pdf_funded = [isin for isin in funded_isins if isin not in pdf_normalized]
+    html_header_visible = "ISIN" in html.upper()
+    pdf_header_visible = "ISIN" in extracted.upper()
+
+    blockers: list[str] = []
+    if not html_header_visible:
+        blockers.append("ISIN header missing from HTML")
+    if not pdf_header_visible:
+        blockers.append("ISIN header missing from PDF")
+    if missing_html:
+        blockers.append("canonical ISIN missing from HTML: " + ",".join(missing_html))
+    if missing_pdf_funded:
+        blockers.append("funded-position ISIN missing from PDF: " + ",".join(missing_pdf_funded))
+
+    return {
+        "passed": not blockers,
+        "funded_isins": funded_isins,
+        "pricing_isins": pricing_isins,
+        "html_header_visible": html_header_visible,
+        "pdf_header_visible": pdf_header_visible,
+        "missing_html_isins": missing_html,
+        "missing_pdf_funded_isins": missing_pdf_funded,
+        "blockers": blockers,
+    }
 
 
 def funded_state_blockers(state: dict[str, Any]) -> list[str]:
@@ -104,7 +170,10 @@ def funded_state_blockers(state: dict[str, Any]) -> list[str]:
     for lane in state.get("opportunity_radar") or []:
         if not isinstance(lane, dict):
             continue
-        lane_tickers = {str(value).strip().upper() for value in (lane.get("candidate_tickers") or lane.get("tickers") or [])}
+        lane_tickers = {
+            str(value).strip().upper()
+            for value in (lane.get("candidate_tickers") or lane.get("tickers") or [])
+        }
         active = lane_tickers & funded_tickers
         if active:
             if lane.get("status") != "funded_model_position_active":
@@ -115,12 +184,18 @@ def funded_state_blockers(state: dict[str, Any]) -> list[str]:
                 [str(lane.get("next_confirmation_nl") or ""), str(lane.get("next_confirmation_en") or "")]
             ).casefold()
             if "brokerbeschikbaarheid" in next_copy or "broker availability" in next_copy:
-                blockers.append("funded opportunity lane contains broker-dependent model gate: " + ",".join(sorted(active)))
+                blockers.append(
+                    "funded opportunity lane contains broker-dependent model gate: "
+                    + ",".join(sorted(active))
+                )
         elif lane.get("status") == "funded_model_position_active":
             blockers.append("opportunity lane marked funded without a funded position")
 
     allocation_text = json.dumps(state.get("allocation_map") or [], ensure_ascii=False).casefold()
-    next_text = json.dumps((state.get("next_run_input") or {}).get("required_actions") or [], ensure_ascii=False).casefold()
+    next_text = json.dumps(
+        (state.get("next_run_input") or {}).get("required_actions") or [],
+        ensure_ascii=False,
+    ).casefold()
     narrative = allocation_text + " " + next_text
     stale_tokens = [
         "brokerbeschikbaarheid", "broker availability",
@@ -135,7 +210,12 @@ def funded_state_blockers(state: dict[str, Any]) -> list[str]:
     return blockers
 
 
-def validate_language(state: dict[str, Any], language: str, html_path: Path, pdf_path: Path) -> dict[str, Any]:
+def validate_language(
+    state: dict[str, Any],
+    language: str,
+    html_path: Path,
+    pdf_path: Path,
+) -> dict[str, Any]:
     html = read_text(html_path)
     extracted = pdf_text(pdf_path)
     combined = html + "\n" + extracted
@@ -157,8 +237,10 @@ def validate_language(state: dict[str, Any], language: str, html_path: Path, pdf
     analyst = "Analistenrapport" if language == "nl" else "Analyst report"
     if investor.casefold() not in folded or analyst.casefold() not in folded:
         blockers.append("investor/analyst hierarchy missing")
-    if combined.upper().count("ISIN") < 8:
-        blockers.append("ISIN-first evidence not sufficiently visible")
+
+    isin_evidence = isin_surface_evidence(state, html, extracted)
+    blockers.extend(isin_evidence["blockers"])
+
     research = "alleen onderzoek" if language == "nl" else "research only"
     if research.casefold() not in folded:
         blockers.append("U.S. references are not labelled research-only")
@@ -187,7 +269,11 @@ def validate_language(state: dict[str, Any], language: str, html_path: Path, pdf
     positions = [row for row in portfolio.get("positions") or [] if isinstance(row, dict)]
     funded_surface_blockers: list[str] = []
     if positions:
-        expected_label = f"{len(positions)} modelposities actief" if language == "nl" else f"{len(positions)} model positions active"
+        expected_label = (
+            f"{len(positions)} modelposities actief"
+            if language == "nl"
+            else f"{len(positions)} model positions active"
+        )
         if expected_label.casefold() not in folded:
             funded_surface_blockers.append("funded position-count summary missing")
         for row in positions:
@@ -207,10 +293,14 @@ def validate_language(state: dict[str, Any], language: str, html_path: Path, pdf
         "missing_sections": missing,
         "forbidden_tokens": sorted(set(forbidden)),
         "investor_analyst_hierarchy_passed": not any("hierarchy" in blocker for blocker in blockers),
-        "isin_first_visible": combined.upper().count("ISIN") >= 8,
+        "isin_first_visible": isin_evidence["passed"],
+        "isin_evidence": isin_evidence,
         "research_only_labelling_passed": research.casefold() in folded,
         "macro_freshness_disclosure_passed": not any("macro disclosure" in blocker for blocker in blockers),
-        "equity_curve_contract_passed": not any("equity curve" in blocker or "cash-preservation" in blocker for blocker in blockers),
+        "equity_curve_contract_passed": not any(
+            "equity curve" in blocker or "cash-preservation" in blocker
+            for blocker in blockers
+        ),
         "funded_surface_consistency_passed": not funded_surface_blockers,
         "passed": not blockers,
         "blockers": blockers,
@@ -257,7 +347,9 @@ def validate(args: argparse.Namespace) -> dict[str, Any]:
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Validate Weekly ETF EU client-grade v2 report outputs.")
+    parser = argparse.ArgumentParser(
+        description="Validate Weekly ETF EU client-grade v2 report outputs."
+    )
     parser.add_argument("--state", required=True)
     parser.add_argument("--dutch-html", required=True)
     parser.add_argument("--dutch-pdf", required=True)
@@ -269,7 +361,10 @@ def main() -> None:
     result = validate(args)
     output = Path(args.output)
     output.parent.mkdir(parents=True, exist_ok=True)
-    output.write_text(json.dumps(result, indent=2, sort_keys=True, ensure_ascii=False) + "\n", encoding="utf-8")
+    output.write_text(
+        json.dumps(result, indent=2, sort_keys=True, ensure_ascii=False) + "\n",
+        encoding="utf-8",
+    )
     print(json.dumps(result, indent=2, sort_keys=True, ensure_ascii=False))
     if args.strict and result["client_grade_v2_passed"] is not True:
         raise SystemExit(1)
