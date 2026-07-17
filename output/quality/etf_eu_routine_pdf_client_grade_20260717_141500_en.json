@@ -1,0 +1,23 @@
+{
+  "artifact_type": "etf_eu_routine_pdf_client_grade",
+  "authority_metadata_absent": true,
+  "blockers": [],
+  "client_surface_clean": true,
+  "equity_curve_contract_passed": true,
+  "forbidden_client_tokens": [],
+  "generated_at_utc": "2026-07-17T12:24:48Z",
+  "investor_analyst_hierarchy_passed": true,
+  "isin_first_visible": true,
+  "language": "en",
+  "machine_validation_passed": true,
+  "macro_freshness_disclosure_passed": true,
+  "missing_sections": [],
+  "page_count": 6,
+  "raw_status_enums_absent": true,
+  "repair_run_id": "20260717_141500",
+  "required_sections_present": true,
+  "research_only_labelling_passed": true,
+  "schema_version": "etf_eu_routine_pdf_client_grade_v2_adapter_v1",
+  "source_run_id": "20260717_141500",
+  "warnings": []
+}
