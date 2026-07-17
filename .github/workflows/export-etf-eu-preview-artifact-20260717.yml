@@ -65,17 +65,23 @@ jobs:
       - id: readiness
         name: Run official package readiness gate
         run: |
-          set -euo pipefail
+          set +e
           python tools/prepare_etf_eu_routine_package_readiness_v2.py \
             --manifest "output/fresh_generation/etf_eu_fresh_generation_package_manifest_${TARGET_RUN_ID}.json" \
             --ready-artifact "output/fresh_generation/etf_eu_ready_for_controlled_delivery_${TARGET_RUN_ID}.json" \
             --routine-manifest "output/run_manifests/etf_eu_routine_run_manifest_${TARGET_REPORT_DATE}_${TARGET_RUN_ID}.json" \
             --write-gate "output/quality/etf_eu_routine_package_readiness_${TARGET_RUN_ID}.json" \
             --pdf-client-grade-gate "output/quality/etf_eu_routine_pdf_client_grade_${TARGET_RUN_ID}.json" \
-            --pdf-visual-review "output/quality/etf_eu_routine_pdf_visual_review_${TARGET_RUN_ID}.json"
+            --pdf-visual-review "output/quality/etf_eu_routine_pdf_visual_review_${TARGET_RUN_ID}.json" \
+            > /tmp/etf-eu-readiness.log 2>&1
+          EXIT_CODE=$?
+          cat /tmp/etf-eu-readiness.log
+          echo "exit_code=$EXIT_CODE" >> "$GITHUB_OUTPUT"
+          exit 0
 
       - id: close_preview
         name: Close preview as accepted and ready
+        if: steps.readiness.outputs.exit_code == '0'
         run: |
           set -euo pipefail
           python - <<'PY'
@@ -106,6 +112,7 @@ jobs:
 
       - id: persist
         name: Persist readiness evidence
+        if: steps.readiness.outputs.exit_code == '0'
         run: |
           set -euo pipefail
           git config user.name "github-actions[bot]"
@@ -127,6 +134,7 @@ jobs:
           REGRESSION_OUTCOME: ${{ steps.regression.outcome }}
           METADATA_OUTCOME: ${{ steps.metadata.outcome }}
           READINESS_OUTCOME: ${{ steps.readiness.outcome }}
+          READINESS_EXIT_CODE: ${{ steps.readiness.outputs.exit_code }}
           CLOSE_OUTCOME: ${{ steps.close_preview.outcome }}
           PERSIST_OUTCOME: ${{ steps.persist.outcome }}
           HELPER_RUN_ID: ${{ github.run_id }}
@@ -135,6 +143,8 @@ jobs:
           set -euo pipefail
           git fetch origin main
           git reset --hard origin/main
+          mkdir -p output/run_manifests
+          cp /tmp/etf-eu-readiness.log "output/run_manifests/etf_eu_readiness_attempt_${TARGET_RUN_ID}.log"
           python - <<'PY'
           import json
           import os
@@ -151,16 +161,19 @@ jobs:
               "regression_outcome": os.environ["REGRESSION_OUTCOME"],
               "metadata_outcome": os.environ["METADATA_OUTCOME"],
               "readiness_outcome": os.environ["READINESS_OUTCOME"],
+              "readiness_exit_code": int(os.environ["READINESS_EXIT_CODE"] or -1),
               "close_outcome": os.environ["CLOSE_OUTCOME"],
               "persist_outcome": os.environ["PERSIST_OUTCOME"],
+              "diagnostic_log": f"output/run_manifests/etf_eu_readiness_attempt_{target}.log",
           }
           path = Path(f"output/run_manifests/etf_eu_readiness_attempt_{target}.json")
-          path.parent.mkdir(parents=True, exist_ok=True)
           path.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
           PY
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add "output/run_manifests/etf_eu_readiness_attempt_${TARGET_RUN_ID}.json"
-          git commit -m "Persist ETF EU readiness attempt ${TARGET_RUN_ID} [skip ci]"
+          git add \
+            "output/run_manifests/etf_eu_readiness_attempt_${TARGET_RUN_ID}.json" \
+            "output/run_manifests/etf_eu_readiness_attempt_${TARGET_RUN_ID}.log"
+          git commit -m "Persist ETF EU readiness diagnostic ${TARGET_RUN_ID} [skip ci]"
           git pull --rebase origin main
           git push origin HEAD:main
