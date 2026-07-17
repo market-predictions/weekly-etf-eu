@@ -8,7 +8,7 @@ repository=market-predictions/weekly-etf-eu
 operating_mode=routine_production_with_three_position_active_model_portfolio
 production_renderer=client_grade_v2_funded_aware
 routine_production_ready=true
-selected_next_action=RUN_CORRECTED_THREE_POSITION_NON_DELIVERY_PREVIEW_20260717_005500
+selected_next_action=DISPATCH_AND_VERIFY_CORRECTED_VISUAL_PREVIEW_20260717_123500
 ```
 
 ## Latest completed delivery
@@ -21,7 +21,7 @@ receipt_confirmed=true
 production_delivery_cycle_closed=true
 ```
 
-This remains the latest completed email-delivery cycle. No 2026-07-16 or 2026-07-17 preview run performed transport or email delivery.
+This remains the latest completed email-delivery cycle. No 2026-07-17 preview performed transport or email delivery.
 
 ## Active broker-neutral model portfolio
 
@@ -44,66 +44,65 @@ real_broker_execution=false
 
 Cash plus invested market value reconciles exactly to NAV at eurocent precision.
 
-## Preview run 20260716_214500
+## Preview run 20260717_114500
 
 ```text
+github_workflow_run_id=29571969253
 workflow=ETF EU - Generate and Validate Preview (NO EMAIL)
 workflow_result=success
 machine_validation_passed=true
 dutch_page_count=6
 english_page_count=6
 visual_review_passed=false
-content_consistency_passed=false
-status=machine_validated_but_rejected_by_content_and_visual_review
+client_grade_preview_accepted=false
+status=machine_validated_but_rejected_by_visual_review
 superseded=true
-superseded_by_run_id=20260717_005500
+superseded_by_run_id=20260717_123500
 ```
 
-Machine validation passed, but the report was not accepted because the funded portfolio and client narrative conflicted. The rejected package:
+Machine validation passed with no blockers and confirmed all three funded ISINs in Dutch and English HTML/PDF. The complete preview nevertheless remains rejected because visual review found:
 
-- described only one active model position while the portfolio contained VWCE, EUNA and SXR8;
-- described funded VWCE and EUNA lanes as not funded or still awaiting already-closed verification gates;
-- retained broker-availability wording in model-investability copy;
-- retained stale next-run instructions;
-- omitted pricing dates from the funded-position table.
+1. overlapping adjacent date labels at the right edge of the equity curve;
+2. aggressive wrapping of ticker, ISIN, price and date cells in the funded-position table;
+3. an English valuation-history comment in the Dutch report.
 
-Authoritative review evidence:
+Authoritative evidence:
 
 ```text
-output/quality/etf_eu_routine_pdf_visual_review_20260716_214500.json
-output/run_manifests/etf_eu_routine_preview_manifest_20260716_214500.json
+output/quality/etf_eu_client_grade_v2_validation_20260717_114500.json
+output/quality/etf_eu_routine_pdf_visual_review_20260717_114500.json
+output/run_manifests/etf_eu_routine_preview_manifest_20260717_114500.json
 ```
 
-The rejected HTML/PDF files are historical preview evidence only and must not be delivered or promoted.
+The HTML/PDF files for suffix `260717_04` are historical preview evidence only and must not be delivered.
 
-## Implemented repair
+## Implemented visual correction
 
 ```text
-renderer_repair_commit=56e10fd45a4cac5e4ebd8883e97c20bc6876a300
-validator_repair_commit=320afd5d97f68d14c3883c0ae6e98fc3d445d8f1
-regression_test_commit=f4ff86adf8b3fb4b0b9be11d9d0ce42977091b04
-preview_contract_commit=b7ff878d8a05f24cfc844f80f680f36643cde127
+equity_tick_spacing_commit=ada050751f8a3084bf02acacacc71ab97c19d190
+funded_table_and_localization_commit=2ed921e440de336d92d1edd0a11d7b88d455016b
+visual_regression_test_commit=5a07084d3249d508dd6c2d6acf74cf946a163a9a
 ```
 
-The funded-aware renderer now:
+The corrected output contract now:
 
-- reconciles all three funded positions;
-- marks VWCE, EUNA and SXR8 opportunity lanes as active funded model positions;
-- separates active core/bond positions from unfunded satellites;
-- removes broker-specific model gates;
-- renders dynamic plural cockpit and conclusion copy;
-- includes position pricing dates;
-- updates overlap, contribution and next-run language.
+- suppresses intermediate equity-curve ticks when date labels cannot meet a minimum spacing;
+- preserves and edge-aligns the first and last curve dates;
+- applies fixed column widths and nowrap rules to funded identifiers and numeric fields;
+- improves pricing-table identifier/date handling;
+- uses language-aware hyphenation for wide tables;
+- localizes the Dutch valuation-history comment;
+- retains the visible funded ISIN identity strip.
 
-The strict client-grade validator now fails on funded-state contradictions, singular one-position copy, broker-dependent model wording and stale funded-lane statuses. Regression tests cover the three-position state.
+The implementation adapts the upstream `weekly-etf` SVG contract but intentionally adds collision avoidance because the donor implementation uses fixed representative ticks without a spacing gate.
 
 ## Corrected preview queue
 
 ```text
-run_id=20260717_005500
+run_id=20260717_123500
 report_date=2026-07-17
-report_suffix=260717
-queue_path=control/run_queue/etf_eu_routine_preview_request_20260717_005500.md
+report_suffix=260717_05
+queue_path=control/run_queue/etf_eu_routine_preview_request_20260717_123500.md
 workflow=.github/workflows/run-weekly-etf-eu-routine-preview.yml
 execution_mode=generate_validate_only
 status=queued_not_executed
@@ -111,7 +110,7 @@ workflow_run_verified=false
 production_delivery_authority=false
 ```
 
-The connector-authored queue push did not create a verifiable GitHub Actions run. Manual workflow dispatch is therefore the only remaining external action.
+The connector-authored queue push did not create a verifiable GitHub Actions run. One manual workflow dispatch is the only remaining external action.
 
 ## Authority boundaries
 
@@ -122,10 +121,11 @@ broker_permission_required_for_real_execution=true
 model_portfolio_only=true
 real_broker_execution=false
 valuation_grade=false
+portfolio_mutation=false
 production_delivery_authority=false
+transport_attempted=false
+send_executed=false
 ```
-
-No portfolio mutation, real broker order, transport or email send is authorised by the corrected preview cycle.
 
 ## Four-layer status
 
@@ -146,18 +146,18 @@ output/etf_eu_valuation_history.csv
 
 ### Output contract
 
-The corrected report must visibly and consistently show all three funded positions, cash, exact UCITS identities, whole-share quantities, pricing dates, current weights, contribution, overlap and the reconciled equity curve. Dutch is primary; English is companion.
+The corrected report must visibly and consistently show all three funded positions, cash, exact UCITS identities, whole-share quantities, pricing dates, current weights, contribution, overlap and a non-overlapping equity curve. Dutch is primary; English is companion.
 
 ### Operational runbook
 
 ```text
-manual dispatch corrected preview 20260717_005500
-→ focused funded-aware regression tests
+manual dispatch corrected preview 20260717_123500
+→ focused funded-aware and visual-contract regression tests
 → fresh UCITS pricing and macro refresh
 → normalized funded-aware state
 → Dutch and English HTML/PDF
-→ strict funded-state consistency gate
+→ strict funded-state and ISIN consistency gates
 → complete page review
-→ review manifest
+→ visual-review manifest
 → no delivery without separate explicit authority
 ```
