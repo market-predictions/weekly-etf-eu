@@ -66,7 +66,7 @@ jobs:
         name: Run official package readiness gate
         run: |
           set +e
-          python tools/prepare_etf_eu_routine_package_readiness_v2.py \
+          python -m tools.prepare_etf_eu_routine_package_readiness_v2 \
             --manifest "output/fresh_generation/etf_eu_fresh_generation_package_manifest_${TARGET_RUN_ID}.json" \
             --ready-artifact "output/fresh_generation/etf_eu_ready_for_controlled_delivery_${TARGET_RUN_ID}.json" \
             --routine-manifest "output/run_manifests/etf_eu_routine_run_manifest_${TARGET_REPORT_DATE}_${TARGET_RUN_ID}.json" \
