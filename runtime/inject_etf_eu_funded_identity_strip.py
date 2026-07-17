@@ -5,6 +5,9 @@ import re
 
 
 ISIN_PATTERN = re.compile(r"[A-Z]{2}[A-Z0-9]{9}\d")
+NL_HISTORY_REPLACEMENTS = {
+    "Three-position funded-aware non-delivery preview": "Preview zonder levering met drie gefinancierde posities",
+}
 
 
 def _pairs(section_html: str) -> list[tuple[str, str]]:
@@ -20,7 +23,16 @@ def _pairs(section_html: str) -> list[tuple[str, str]]:
     return pairs
 
 
+def _localize_history_comments(html_text: str, *, language: str) -> str:
+    if language != "nl":
+        return html_text
+    for source, target in NL_HISTORY_REPLACEMENTS.items():
+        html_text = html_text.replace(source, target)
+    return html_text
+
+
 def inject_funded_identity_strip(html_text: str, *, language: str) -> str:
+    html_text = _localize_history_comments(html_text, language=language)
     if 'class="funded-identity-strip"' in html_text:
         return html_text
 
@@ -48,11 +60,58 @@ def inject_funded_identity_strip(html_text: str, *, language: str) -> str:
     if insertion < 0:
         insertion = section_html.find("</div>") + len("</div>")
     section_html = section_html[:insertion] + strip + section_html[insertion:]
+    section_html = section_html.replace(
+        '<table class="data-table">',
+        '<table class="data-table funded-position-table">',
+        1,
+    )
+    if language == "nl":
+        section_html = section_html.replace("Modelpositie · geen brokerorder", "Model · geen brokerorder")
+    else:
+        section_html = section_html.replace("Model position · no brokerage order", "Model only · no broker order")
 
     css = """
 <style id="etf-eu-funded-identity-polish">
   .funded-identity-strip { margin: 0 0 8px; padding: 7px 9px; border: 1px solid #C9D2D8; border-radius: 7px; background: #F4F7F8; font-size: 8.5pt; line-height: 1.35; }
   .funded-identity-item { white-space: nowrap; }
+
+  .funded-position-table { table-layout: fixed; font-size: 6.25pt; }
+  .funded-position-table th, .funded-position-table td { padding: 3px; overflow-wrap: normal; word-break: normal; hyphens: auto; }
+  .funded-position-table th:nth-child(1) { width: 6%; }
+  .funded-position-table th:nth-child(2) { width: 22%; }
+  .funded-position-table th:nth-child(3) { width: 13%; }
+  .funded-position-table th:nth-child(4) { width: 6%; }
+  .funded-position-table th:nth-child(5) { width: 8%; }
+  .funded-position-table th:nth-child(6) { width: 11%; }
+  .funded-position-table th:nth-child(7) { width: 10%; }
+  .funded-position-table th:nth-child(8) { width: 7%; }
+  .funded-position-table th:nth-child(9) { width: 7%; }
+  .funded-position-table th:nth-child(10) { width: 10%; }
+  .funded-position-table th:nth-child(1), .funded-position-table td:nth-child(1),
+  .funded-position-table th:nth-child(3), .funded-position-table td:nth-child(3),
+  .funded-position-table th:nth-child(4), .funded-position-table td:nth-child(4),
+  .funded-position-table th:nth-child(5), .funded-position-table td:nth-child(5),
+  .funded-position-table th:nth-child(6), .funded-position-table td:nth-child(6),
+  .funded-position-table th:nth-child(7), .funded-position-table td:nth-child(7),
+  .funded-position-table th:nth-child(8), .funded-position-table td:nth-child(8),
+  .funded-position-table th:nth-child(9), .funded-position-table td:nth-child(9) { white-space: nowrap; }
+
+  .wide-table th, .wide-table td { overflow-wrap: normal; word-break: normal; hyphens: auto; }
+  .pricing-table { table-layout: fixed; font-size: 5.95pt; }
+  .pricing-table th:nth-child(1) { width: 6%; }
+  .pricing-table th:nth-child(2) { width: 22%; }
+  .pricing-table th:nth-child(3) { width: 13%; }
+  .pricing-table th:nth-child(4) { width: 11%; }
+  .pricing-table th:nth-child(5) { width: 9%; }
+  .pricing-table th:nth-child(6) { width: 7%; }
+  .pricing-table th:nth-child(7) { width: 6%; }
+  .pricing-table th:nth-child(8) { width: 14%; }
+  .pricing-table th:nth-child(9) { width: 12%; }
+  .pricing-table th:nth-child(1), .pricing-table td:nth-child(1),
+  .pricing-table th:nth-child(3), .pricing-table td:nth-child(3),
+  .pricing-table th:nth-child(5), .pricing-table td:nth-child(5),
+  .pricing-table th:nth-child(6), .pricing-table td:nth-child(6),
+  .pricing-table th:nth-child(7), .pricing-table td:nth-child(7) { white-space: nowrap; }
 </style>
 """
     result = html_text[:section_start] + section_html + html_text[section_end:]
