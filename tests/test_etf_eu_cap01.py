@@ -6,12 +6,10 @@ from pathlib import Path
 
 from runtime.apply_etf_eu_guarded_capital_activation import apply
 from runtime.build_etf_eu_allocation_decision import build_decision
+from runtime.inject_etf_eu_funded_identity_strip import inject_funded_identity_strip
 from runtime.render_etf_eu_client_grade_v2_funded import funded_overlay, patch_copy
 from tools.validate_etf_eu_allocation_decision import validate
-from tools.validate_etf_eu_client_grade_report_v2_standalone import (
-    funded_state_blockers,
-    isin_surface_evidence,
-)
+from tools.validate_etf_eu_client_grade_report_v2_standalone import funded_state_blockers, isin_surface_evidence
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -109,14 +107,35 @@ def test_isin_surface_uses_canonical_identity_not_raw_token_count() -> None:
             ]
         },
     }
-    html = "<th>ISIN</th> IE00BK5BQT80 IE00BDBRDM35 IE00B5BMR087 IE00BMC38736"
+    html_text = "<th>ISIN</th> IE00BK5BQT80 IE00BDBRDM35 IE00B5BMR087 IE00BMC38736"
     extracted = "ISIN\nIE00BK5BQT80\nIE00BDBRDM35\nIE00B5BMR087"
-    assert (html + extracted).upper().count("ISIN") < 8
-    evidence = isin_surface_evidence(state, html, extracted)
+    assert (html_text + extracted).upper().count("ISIN") < 8
+    evidence = isin_surface_evidence(state, html_text, extracted)
     assert evidence["passed"] is True
     assert evidence["missing_html_isins"] == []
     assert evidence["missing_pdf_funded_isins"] == []
 
-    missing = isin_surface_evidence(state, html.replace("IE00BDBRDM35", ""), extracted)
+    missing = isin_surface_evidence(state, html_text.replace("IE00BDBRDM35", ""), extracted)
     assert missing["passed"] is False
     assert missing["missing_html_isins"] == ["IE00BDBRDM35"]
+
+
+def test_funded_identity_strip_is_visible_bilingual_and_idempotent() -> None:
+    rows = (
+        "<tr><td>VWCE</td><td>Vanguard</td><td>IE00BK5BQT80</td></tr>"
+        "<tr><td>EUNA</td><td>iShares Bonds</td><td>IE00BDBRDM35</td></tr>"
+        "<tr><td>SXR8</td><td>iShares S&P 500</td><td>IE00B5BMR087</td></tr>"
+    )
+    nl = f'<html><head></head><body><section><span>Review huidige posities</span><div class="note-box">Model</div><table>{rows}</table></section></body></html>'
+    en = f'<html><head></head><body><section><span>Current-position review</span><div class="note-box">Model</div><table>{rows}</table></section></body></html>'
+
+    polished_nl = inject_funded_identity_strip(nl, language="nl")
+    polished_en = inject_funded_identity_strip(en, language="en")
+    for output in [polished_nl, polished_en]:
+        assert output.count('class="funded-identity-strip"') == 1
+        assert "VWCE" in output and "IE00BK5BQT80" in output
+        assert "EUNA" in output and "IE00BDBRDM35" in output
+        assert "SXR8" in output and "IE00B5BMR087" in output
+    assert "Gefinancierde ISIN-identiteiten" in polished_nl
+    assert "Funded ISIN identities" in polished_en
+    assert inject_funded_identity_strip(polished_nl, language="nl") == polished_nl
