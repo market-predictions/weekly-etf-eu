@@ -8,7 +8,10 @@ from runtime.apply_etf_eu_guarded_capital_activation import apply
 from runtime.build_etf_eu_allocation_decision import build_decision
 from runtime.render_etf_eu_client_grade_v2_funded import funded_overlay, patch_copy
 from tools.validate_etf_eu_allocation_decision import validate
-from tools.validate_etf_eu_client_grade_report_v2_standalone import funded_state_blockers
+from tools.validate_etf_eu_client_grade_report_v2_standalone import (
+    funded_state_blockers,
+    isin_surface_evidence,
+)
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -86,3 +89,34 @@ def test_funded_report_reconciles_three_positions_and_removes_broker_model_gates
     assert "<td>SXR8</td>" in rendered_nl and "<td>10</td>" in rendered_nl
     assert "Eerste modelpositie actief" not in rendered_nl
     assert "Peildatum" in rendered_nl
+
+
+def test_isin_surface_uses_canonical_identity_not_raw_token_count() -> None:
+    state = {
+        "portfolio": {
+            "positions": [
+                {"isin": "IE00BK5BQT80"},
+                {"isin": "IE00BDBRDM35"},
+                {"isin": "IE00B5BMR087"},
+            ]
+        },
+        "pricing": {
+            "rows": [
+                {"isin": "IE00BK5BQT80"},
+                {"isin": "IE00BDBRDM35"},
+                {"isin": "IE00B5BMR087"},
+                {"isin": "IE00BMC38736"},
+            ]
+        },
+    }
+    html = "<th>ISIN</th> IE00BK5BQT80 IE00BDBRDM35 IE00B5BMR087 IE00BMC38736"
+    extracted = "ISIN\nIE00BK5BQT80\nIE00BDBRDM35\nIE00B5BMR087"
+    assert (html + extracted).upper().count("ISIN") < 8
+    evidence = isin_surface_evidence(state, html, extracted)
+    assert evidence["passed"] is True
+    assert evidence["missing_html_isins"] == []
+    assert evidence["missing_pdf_funded_isins"] == []
+
+    missing = isin_surface_evidence(state, html.replace("IE00BDBRDM35", ""), extracted)
+    assert missing["passed"] is False
+    assert missing["missing_html_isins"] == ["IE00BDBRDM35"]
