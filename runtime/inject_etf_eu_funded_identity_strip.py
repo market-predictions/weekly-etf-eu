@@ -31,8 +31,17 @@ def _localize_history_comments(html_text: str, *, language: str) -> str:
     return html_text
 
 
+def _mark_next_run_panel(html_text: str) -> str:
+    return html_text.replace(
+        '<section class="panel "><div class="section-head"><span class="badge">14</span>',
+        '<section class="panel next-run-panel"><div class="section-head"><span class="badge">14</span>',
+        1,
+    )
+
+
 def inject_funded_identity_strip(html_text: str, *, language: str) -> str:
     html_text = _localize_history_comments(html_text, language=language)
+    html_text = _mark_next_run_panel(html_text)
     if 'class="funded-identity-strip"' in html_text:
         return html_text
 
@@ -69,24 +78,26 @@ def inject_funded_identity_strip(html_text: str, *, language: str) -> str:
         section_html = section_html.replace("Modelpositie · geen brokerorder", "Model · geen brokerorder")
     else:
         section_html = section_html.replace("Model position · no brokerage order", "Model only · no broker order")
+        section_html = section_html.replace("<th>Phase target</th>", "<th>Target</th>")
 
     css = """
 <style id="etf-eu-funded-identity-polish">
+  .next-run-panel { break-before: page; page-break-before: always; }
   .funded-identity-strip { margin: 0 0 8px; padding: 7px 9px; border: 1px solid #C9D2D8; border-radius: 7px; background: #F4F7F8; font-size: 8.5pt; line-height: 1.35; }
   .funded-identity-item { white-space: nowrap; }
 
   .funded-position-table { table-layout: fixed; font-size: 6.25pt; }
   .funded-position-table th, .funded-position-table td { padding: 3px; overflow-wrap: normal; word-break: normal; hyphens: auto; }
   .funded-position-table th:nth-child(1) { width: 6%; }
-  .funded-position-table th:nth-child(2) { width: 22%; }
+  .funded-position-table th:nth-child(2) { width: 20%; }
   .funded-position-table th:nth-child(3) { width: 13%; }
   .funded-position-table th:nth-child(4) { width: 6%; }
   .funded-position-table th:nth-child(5) { width: 8%; }
   .funded-position-table th:nth-child(6) { width: 11%; }
   .funded-position-table th:nth-child(7) { width: 10%; }
   .funded-position-table th:nth-child(8) { width: 7%; }
-  .funded-position-table th:nth-child(9) { width: 7%; }
-  .funded-position-table th:nth-child(10) { width: 10%; }
+  .funded-position-table th:nth-child(9) { width: 8%; }
+  .funded-position-table th:nth-child(10) { width: 11%; }
   .funded-position-table th:nth-child(1), .funded-position-table td:nth-child(1),
   .funded-position-table th:nth-child(3), .funded-position-table td:nth-child(3),
   .funded-position-table th:nth-child(4), .funded-position-table td:nth-child(4),
