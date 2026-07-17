@@ -60,6 +60,13 @@ def validate_adapter(adapter_path: Path) -> dict[str, Any]:
     return {"status": "valid", "adapter": str(adapter_path), "runner": str(RUNNER), "workflow": str(WORKFLOW)}
 
 
+def _message_reference_present(data: dict[str, Any]) -> bool:
+    hashed = str(data.get("message_reference_hash") or "")
+    if hashed.startswith("sha256:") and len(hashed) == 71:
+        return True
+    return bool(data.get("message_id_or_receipt_reference"))
+
+
 def validate_result(result_path: Path) -> dict[str, Any]:
     _require(result_path.exists(), f"result missing: {result_path}")
     data = _load(result_path)
@@ -75,7 +82,7 @@ def validate_result(result_path: Path) -> dict[str, Any]:
         _require(data.get("transport_success") is False, "dry_run claimed success")
     if data.get("transport_success") is True:
         _require(data.get("transport_attempted") is True, "success requires attempted transport")
-        _require(bool(data.get("message_id_or_receipt_reference")), "success requires message reference")
+        _require(_message_reference_present(data), "success requires a redacted message reference")
     evidence = Path(str(data.get("delivery_evidence_path") or ""))
     _require(evidence.exists(), f"evidence missing: {evidence}")
     return {"status": "valid", "result": str(result_path), "evidence": str(evidence)}
