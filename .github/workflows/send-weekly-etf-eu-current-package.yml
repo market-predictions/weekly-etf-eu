@@ -55,9 +55,11 @@ jobs:
           QUEUE_PATH="${{ github.event.inputs.queue_path || 'control/run_queue/etf_eu_current_package_delivery_request_20260710_000000.md' }}"
           CONFIRMATION="${{ github.event.inputs.send_confirmation || 'not_confirmed' }}"
           if [ "${{ github.event_name }}" != "workflow_dispatch" ]; then
-            MODE="validate_only"
-            CONFIRMATION="not_confirmed"
             QUEUE_PATH="$(git diff-tree --no-commit-id --name-only -r HEAD | grep '^control/run_queue/etf_eu_current_package_delivery_request_.*\.md$' | head -1 || true)"
+            if [ -n "$QUEUE_PATH" ]; then
+              MODE="$(awk -F= '$1 == "delivery_mode" {print $2}' "$QUEUE_PATH" | tail -1)"
+              CONFIRMATION="$(awk -F= '$1 == "send_confirmation" {print $2}' "$QUEUE_PATH" | tail -1)"
+            fi
           fi
           if [ -z "$QUEUE_PATH" ]; then
             echo "ETF_EU_CURRENT_PACKAGE_QUEUE_NOT_RESOLVED" >&2
@@ -72,10 +74,37 @@ jobs:
           echo "ETF_EU_SEND_CONFIRMATION=$CONFIRMATION" >> "$GITHUB_ENV"
           echo "ETF_EU_CURRENT_PACKAGE_QUEUE_OK | mode=$MODE | queue=$QUEUE_PATH"
 
-      - name: Validate current-package queue
+      - name: Validate current-package queue and immutable lock
         run: |
           set -euo pipefail
           python tools/validate_etf_eu_current_package_delivery_queue.py --queue "$ETF_EU_QUEUE_PATH"
+
+      - name: Block duplicate successful delivery
+        if: env.ETF_EU_DELIVERY_MODE == 'send'
+        run: |
+          set -euo pipefail
+          python - "$ETF_EU_QUEUE_PATH" <<'PY'
+          import json
+          import sys
+          from pathlib import Path
+
+          queue = {}
+          for raw in Path(sys.argv[1]).read_text(encoding="utf-8").splitlines():
+              if "=" in raw and not raw.lstrip().startswith("#"):
+                  key, value = raw.split("=", 1)
+                  queue[key.strip()] = value.strip()
+          suffix = queue["report_suffix"]
+          package = queue["package_manifest"]
+          for path in Path("output/delivery").glob("etf_eu_current_package_transport_result_*.json"):
+              payload = json.loads(path.read_text(encoding="utf-8"))
+              if (
+                  payload.get("transport_success") is True
+                  and str(payload.get("report_suffix")) == suffix
+                  and str(payload.get("queue_artifact")) == str(sys.argv[1])
+              ):
+                  raise SystemExit(f"ETF_EU_CURRENT_PACKAGE_ALREADY_SENT | result={path} | package={package}")
+          print("ETF_EU_CURRENT_PACKAGE_IDEMPOTENCY_OK")
+          PY
 
       - name: Validate current-package workflow wiring artifact
         run: |
@@ -108,8 +137,8 @@ jobs:
           python tools/validate_etf_eu_current_package_transport_runner.py \
             --adapter output/delivery_control/etf_eu_current_package_transport_runner_adapter_20260710_000000.json \
             --result "output/delivery/etf_eu_current_package_transport_result_${RUN_ID}.json"
-          echo "ETF_EU_CURRENT_PACKAGE_DRY_RUN_RESULT=output/delivery/etf_eu_current_package_transport_result_${RUN_ID}.json" >> "$GITHUB_ENV"
-          echo "ETF_EU_CURRENT_PACKAGE_DRY_RUN_EVIDENCE=output/delivery/etf_eu_current_package_delivery_evidence_${RUN_ID}.json" >> "$GITHUB_ENV"
+          echo "ETF_EU_CURRENT_PACKAGE_RESULT=output/delivery/etf_eu_current_package_transport_result_${RUN_ID}.json" >> "$GITHUB_ENV"
+          echo "ETF_EU_CURRENT_PACKAGE_EVIDENCE=output/delivery/etf_eu_current_package_delivery_evidence_${RUN_ID}.json" >> "$GITHUB_ENV"
 
       - name: Guarded current-package send transport
         if: env.ETF_EU_DELIVERY_MODE == 'send'
@@ -137,8 +166,19 @@ jobs:
           python tools/validate_etf_eu_current_package_transport_runner.py \
             --adapter output/delivery_control/etf_eu_current_package_transport_runner_adapter_20260710_000000.json \
             --result "output/delivery/etf_eu_current_package_transport_result_${RUN_ID}.json"
-          echo "ETF_EU_CURRENT_PACKAGE_SEND_RESULT=output/delivery/etf_eu_current_package_transport_result_${RUN_ID}.json" >> "$GITHUB_ENV"
-          echo "ETF_EU_CURRENT_PACKAGE_SEND_EVIDENCE=output/delivery/etf_eu_current_package_delivery_evidence_${RUN_ID}.json" >> "$GITHUB_ENV"
+          echo "ETF_EU_CURRENT_PACKAGE_RESULT=output/delivery/etf_eu_current_package_transport_result_${RUN_ID}.json" >> "$GITHUB_ENV"
+          echo "ETF_EU_CURRENT_PACKAGE_EVIDENCE=output/delivery/etf_eu_current_package_delivery_evidence_${RUN_ID}.json" >> "$GITHUB_ENV"
+
+      - name: Update routine manifest after successful transport
+        if: env.ETF_EU_DELIVERY_MODE == 'send'
+        run: |
+          set -euo pipefail
+          ROUTINE_MANIFEST="$(awk -F= '$1 == "routine_run_manifest" {print $2}' "$ETF_EU_QUEUE_PATH" | tail -1)"
+          python tools/update_etf_eu_routine_after_transport.py \
+            --routine-manifest "$ROUTINE_MANIFEST" \
+            --transport-result "$ETF_EU_CURRENT_PACKAGE_RESULT" \
+            --delivery-evidence "$ETF_EU_CURRENT_PACKAGE_EVIDENCE"
+          echo "ETF_EU_ROUTINE_MANIFEST=$ROUTINE_MANIFEST" >> "$GITHUB_ENV"
 
       - name: Commit current-package transport evidence
         if: env.ETF_EU_DELIVERY_MODE == 'dry_run' || env.ETF_EU_DELIVERY_MODE == 'send'
@@ -146,10 +186,14 @@ jobs:
           set -euo pipefail
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -f output/delivery/etf_eu_current_package_transport_result_*.json output/delivery/etf_eu_current_package_delivery_evidence_*.json
+          git add -f "$ETF_EU_CURRENT_PACKAGE_RESULT" "$ETF_EU_CURRENT_PACKAGE_EVIDENCE"
+          if [ "$ETF_EU_DELIVERY_MODE" = "send" ]; then
+            git add "$ETF_EU_ROUTINE_MANIFEST"
+          fi
           if git diff --cached --quiet; then
             echo "ETF_EU_CURRENT_PACKAGE_TRANSPORT_EVIDENCE_NOT_STAGED" >&2
             exit 1
           fi
           git commit -m "Persist ETF EU current-package transport evidence [skip ci]"
+          git pull --rebase origin main
           git push origin HEAD:main
