@@ -16,7 +16,12 @@
   "run_id": "20260717_114500",
   "schema_version": "etf_eu_routine_preview_manifest_v1",
   "send_executed": false,
-  "status": "generated_and_machine_validated_pending_complete_visual_review",
+  "status": "machine_validated_but_rejected_by_visual_review",
   "transport_attempted": false,
-  "visual_review_pending": true
+  "visual_review_pending": false,
+  "visual_review_passed": false,
+  "client_grade_preview_accepted": false,
+  "visual_review_artifact": "output/quality/etf_eu_routine_pdf_visual_review_20260717_114500.json",
+  "superseded": true,
+  "superseded_by_run_id": "20260717_123500"
 }
