@@ -18,9 +18,9 @@ on:
           - dry_run
           - send
       queue_path:
-        description: "Current-package queue artifact path"
+        description: "Prepared current-package queue artifact path"
         required: true
-        default: "control/run_queue/etf_eu_current_package_delivery_request_20260710_000000.md"
+        default: "control/prepared_delivery/etf_eu_current_package_delivery_request_20260717_141500.md"
       send_confirmation:
         description: "Guarded boundary for current-package send"
         required: true
@@ -51,9 +51,13 @@ jobs:
       - name: Resolve current-package queue and mode
         run: |
           set -euo pipefail
+          DEFAULT_QUEUE="control/prepared_delivery/etf_eu_current_package_delivery_request_20260717_141500.md"
           MODE="${{ github.event.inputs.delivery_mode || 'validate_only' }}"
-          QUEUE_PATH="${{ github.event.inputs.queue_path || 'control/run_queue/etf_eu_current_package_delivery_request_20260710_000000.md' }}"
+          QUEUE_PATH="${{ github.event.inputs.queue_path || '' }}"
           CONFIRMATION="${{ github.event.inputs.send_confirmation || 'not_confirmed' }}"
+          if [ -z "$QUEUE_PATH" ]; then
+            QUEUE_PATH="$DEFAULT_QUEUE"
+          fi
           if [ "${{ github.event_name }}" != "workflow_dispatch" ]; then
             QUEUE_PATH="$(git diff-tree --no-commit-id --name-only -r HEAD | grep '^control/run_queue/etf_eu_current_package_delivery_request_.*\.md$' | head -1 || true)"
             if [ -n "$QUEUE_PATH" ]; then
@@ -65,14 +69,33 @@ jobs:
             echo "ETF_EU_CURRENT_PACKAGE_QUEUE_NOT_RESOLVED" >&2
             exit 1
           fi
+          if [ ! -f "$QUEUE_PATH" ]; then
+            echo "ETF_EU_CURRENT_PACKAGE_QUEUE_MISSING | queue=$QUEUE_PATH" >&2
+            exit 1
+          fi
           case "$MODE" in
             validate_only|dry_run|send) ;;
             *) echo "Unsupported current-package mode=$MODE" >&2; exit 1 ;;
           esac
+          if [ "$MODE" = "send" ]; then
+            case "$QUEUE_PATH" in
+              control/prepared_delivery/*) ;;
+              *)
+                echo "ETF_EU_SEND_REQUIRES_PREPARED_DELIVERY_QUEUE | queue=$QUEUE_PATH" >&2
+                exit 1
+                ;;
+            esac
+            if ! grep -q '^accepted_package_lock=' "$QUEUE_PATH"; then
+              echo "ETF_EU_PREPARED_QUEUE_LOCK_REFERENCE_MISSING | queue=$QUEUE_PATH" >&2
+              exit 1
+            fi
+          fi
+          QUEUE_RUN_ID="$(awk -F= '$1 == "run_id" {print $2}' "$QUEUE_PATH" | tail -1)"
+          LOCK_PATH="$(awk -F= '$1 == "accepted_package_lock" {print $2}' "$QUEUE_PATH" | tail -1)"
           echo "ETF_EU_DELIVERY_MODE=$MODE" >> "$GITHUB_ENV"
           echo "ETF_EU_QUEUE_PATH=$QUEUE_PATH" >> "$GITHUB_ENV"
           echo "ETF_EU_SEND_CONFIRMATION=$CONFIRMATION" >> "$GITHUB_ENV"
-          echo "ETF_EU_CURRENT_PACKAGE_QUEUE_OK | mode=$MODE | queue=$QUEUE_PATH"
+          echo "ETF_EU_CURRENT_PACKAGE_QUEUE_OK | mode=$MODE | queue=$QUEUE_PATH | run_id=$QUEUE_RUN_ID | lock=$LOCK_PATH"
 
       - name: Validate current-package queue and immutable lock
         run: |
