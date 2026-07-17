@@ -9,6 +9,7 @@ from typing import Any
 from runtime.build_etf_eu_client_grade_report_state import build_state
 from runtime.inject_etf_eu_funded_identity_strip import inject_funded_identity_strip
 from runtime.polish_etf_eu_client_grade_html import polish
+from runtime.reconcile_etf_eu_funded_markdown import reconcile_funded_markdown
 from runtime.render_etf_eu_client_grade_v2_funded import render
 from tools.build_etf_eu_routine_report_package import build as build_legacy_package
 from weasyprint import HTML
@@ -63,6 +64,7 @@ def build(args: argparse.Namespace) -> dict[str, Path]:
     HTML(string=nl_polished, base_url=str(nl_html.parent.resolve())).write_pdf(str(nl_pdf))
     HTML(string=en_polished, base_url=str(en_html.parent.resolve())).write_pdf(str(en_pdf))
 
+    funded_state = _load(state_path)
     manifest_path = Path(legacy_outputs["manifest"])
     ready_path = Path(legacy_outputs["ready"])
     routine_path = Path(legacy_outputs["routine"])
@@ -70,21 +72,27 @@ def build(args: argparse.Namespace) -> dict[str, Path]:
     ready = _load(ready_path)
     routine = _load(routine_path)
 
+    nl_md = Path(str(manifest["dutch_primary_markdown"]))
+    en_md = Path(str(manifest["english_companion_markdown"]))
+    nl_md.write_text(reconcile_funded_markdown(nl_md.read_text(encoding="utf-8"), funded_state, language="nl"), encoding="utf-8")
+    en_md.write_text(reconcile_funded_markdown(en_md.read_text(encoding="utf-8"), funded_state, language="en"), encoding="utf-8")
+
     promotion_fields = {
         "client_renderer_mode": "client_grade_v2_funded_aware",
         "production_renderer": "runtime/render_etf_eu_client_grade_v2_funded.py",
         "renderer_engine": "weasyprint",
         "render_source_authority": "normalized_report_state",
         "normalized_report_state": str(state_path),
-        "markdown_role": "decision_summary_audit_companion_not_v2_render_source",
+        "markdown_role": "funded_state_reconciled_audit_companion_not_v2_render_source",
+        "markdown_generation_status": "generated_funded_state_reconciled_audit_companion",
         "macro_policy_pack": args.macro_pack,
         "ucits_registry": args.registry,
         "investor_brief_present": True,
         "analyst_appendix_present": True,
         "report_section_count": 15,
         "conditional_equity_curve_enabled": True,
-        "equity_surface": "chart" if state["equity_curve"]["show_chart"] else "cash_preservation_callout",
-        "funded_position_count": state["portfolio"]["position_count"],
+        "equity_surface": "chart" if funded_state["equity_curve"]["show_chart"] else "cash_preservation_callout",
+        "funded_position_count": funded_state["portfolio"]["position_count"],
         "full_generation_status": "client_grade_v2_generated_pending_quality_gates",
         "upstream_pattern_adapted": "weekly-etf normalized report state, investor/analyst hierarchy, macro surface, conditional equity curve and component renderer adapted for EU/UCITS production",
     }
