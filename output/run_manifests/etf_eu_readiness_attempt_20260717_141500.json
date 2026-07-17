@@ -1,0 +1,13 @@
+{
+  "artifact_type": "etf_eu_readiness_attempt",
+  "close_outcome": "skipped",
+  "helper_workflow_run_id": 29582604005,
+  "job_status": "failure",
+  "metadata_outcome": "success",
+  "persist_outcome": "skipped",
+  "readiness_outcome": "failure",
+  "regression_outcome": "success",
+  "schema_version": "etf_eu_readiness_attempt_v1",
+  "source_workflow_run_id": 29575699421,
+  "target_run_id": "20260717_141500"
+}
