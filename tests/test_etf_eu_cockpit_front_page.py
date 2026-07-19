@@ -36,19 +36,24 @@ def test_disabled_and_invalid_preserve_classic_html():
     assert inject(source, state=sample_state(), language="nl", feature_value="yes").html == source
 
 
-def test_enabled_browser_preserves_order_and_sections():
+def test_enabled_browser_preserves_order_sections_and_precision():
     result = inject(classic("nl"), state=sample_state(), language="nl", feature_value="enabled", render_mode="browser")
     assert result.status == "enabled"
     assert result.html.count(FRONT_PAGE_MARKER) == 1
     assert result.html.count(SUPPRESSED_SUMMARY_CLASS) == 1
+    assert "display:none!important" in result.html
     assert result.html.index(FRONT_PAGE_MARKER) < result.html.index("Beleggersrapport") < result.html.index("Analistenrapport")
     assert all(f'<span class="badge">{n}</span>' in result.html for n in range(1, 16))
     assert "3/3" in result.html
+    assert "+0,02%" in result.html
+    assert "2 waarderingspunten" in result.html
 
 
-def test_email_surface_uses_inline_presentation():
+def test_email_surface_uses_inline_presentation_and_history_depth():
     result = inject(classic("en"), state=sample_state(), language="en", feature_value="enabled", render_mode="email")
     front = result.html[result.html.index(FRONT_PAGE_MARKER):result.html.index("</section>")]
     assert "style=" in front
     assert "<style" not in front.lower()
     assert "Funded ISINs" in front and "3/3" in front
+    assert "+0.02%" in front
+    assert "2 valuation points" in front
