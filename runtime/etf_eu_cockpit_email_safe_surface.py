@@ -38,14 +38,32 @@ def _metric(label: str, value: str, sub: str) -> str:
 
 
 def _sparkline_text(state: dict[str, Any]) -> str:
-    values = [float(row.get("nav_eur")) for row in (state.get("equity_curve") or {}).get("points") or [] if row.get("nav_eur")]
+    values = [
+        float(row.get("nav_eur"))
+        for row in (state.get("equity_curve") or {}).get("points") or []
+        if row.get("nav_eur")
+    ]
     if not values:
         return "—"
     low, high = min(values), max(values)
     bars = "▁▂▃▄▅▆▇█"
     if high <= low:
         return bars[3] * len(values)
-    return "".join(bars[min(7, max(0, round((value - low) / (high - low) * 7)))] for value in values)
+    return "".join(
+        bars[min(7, max(0, round((value - low) / (high - low) * 7)))]
+        for value in values
+    )
+
+
+def _evidence_rows(items: list[str]) -> str:
+    cells = [
+        '<td style="width:50%;vertical-align:top;border-top:1px solid #D8CDB8;padding:7px 8px 6px 0;'
+        f'font-family:Courier New,monospace;font-size:9px;line-height:1.35;color:#211C16">{escape(item)}</td>'
+        for item in items
+    ]
+    if len(cells) % 2:
+        cells.append('<td style="width:50%"></td>')
+    return "".join("<tr>" + cells[index] + cells[index + 1] + "</tr>" for index in range(0, len(cells), 2))
 
 
 def render_email_safe_front_page(state: dict[str, Any], language: str) -> str:
@@ -69,21 +87,7 @@ def render_email_safe_front_page(state: dict[str, Any], language: str) -> str:
         "Macrobeeld gekoppeld" if is_nl else "Macro context linked",
         "Runregistratie gekoppeld" if is_nl else "Run record linked",
     ]
-    evidence_cells = "".join(
-        '<td style="width:50%;vertical-align:top;border-top:1px solid #D8CDB8;padding:7px 8px 6px 0;'
-        f'font-family:Courier New,monospace;font-size:9px;line-height:1.35;color:#211C16">{escape(item)}</td>'
-        for item in evidence
-    )
-    evidence_rows = "".join(
-        "<tr>" + evidence_cells[index : index + 2 * 1] + "</tr>" for index in []
-    )
-    # Build rows explicitly because each cell is an HTML fragment rather than a scalar.
-    cells = [
-        '<td style="width:50%;vertical-align:top;border-top:1px solid #D8CDB8;padding:7px 8px 6px 0;'
-        f'font-family:Courier New,monospace;font-size:9px;line-height:1.35;color:#211C16">{escape(item)}</td>'
-        for item in evidence
-    ]
-    evidence_rows = "".join("<tr>" + cells[i] + cells[i + 1] + "</tr>" for i in range(0, len(cells), 2))
+    evidence_rows = _evidence_rows(evidence)
     metrics = [
         _metric("Rendement sinds start" if is_nl else "Return since inception", _pct(snap.since_inception_pct, language, True), f"€100.000 → {_money(snap.nav_eur, language)}" if is_nl else f"€100,000 → {_money(snap.nav_eur, language)}"),
         _metric("Grootste terugval" if is_nl else "Max drawdown", _pct(snap.max_drawdown_pct, language), "sinds start" if is_nl else "since inception"),
