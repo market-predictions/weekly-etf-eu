@@ -7,8 +7,6 @@ import subprocess
 from pathlib import Path
 from typing import Any
 
-from bs4 import BeautifulSoup, Tag
-
 from runtime.additive_etf_eu_cockpit_front_page import SUPPRESSED_SUMMARY_CLASS
 from runtime.inline_etf_eu_email_report_styles import MARKER_ATTRIBUTE
 from runtime.render_etf_eu_cockpit_front_page import FRONT_PAGE_MARKER
@@ -37,11 +35,14 @@ def _front(html_text: str) -> str:
     return html_text[start : end + len("</section>")] if start >= 0 and end >= 0 else ""
 
 
-def _style_map(tag: Tag | None) -> dict[str, str]:
-    if tag is None:
+def _style_map(tag_text: str | None) -> dict[str, str]:
+    if not tag_text:
+        return {}
+    match = re.search(r'\bstyle="([^"]*)"', tag_text, flags=re.IGNORECASE)
+    if match is None:
         return {}
     result: dict[str, str] = {}
-    for item in str(tag.get("style") or "").split(";"):
+    for item in match.group(1).split(";"):
         if ":" not in item:
             continue
         key, value = item.split(":", 1)
@@ -50,28 +51,43 @@ def _style_map(tag: Tag | None) -> dict[str, str]:
     return result
 
 
+def _class_tag(html_text: str, class_name: str) -> str | None:
+    pattern = rf'<[^>]+class="[^"]*(?:^|\s){re.escape(class_name)}(?:\s|$)[^"]*"[^>]*>'
+    match = re.search(pattern, html_text, flags=re.IGNORECASE)
+    return match.group(0) if match else None
+
+
+def _tag(html_text: str, tag_name: str) -> str | None:
+    match = re.search(rf'<{tag_name}\b[^>]*>', html_text, flags=re.IGNORECASE)
+    return match.group(0) if match else None
+
+
 def _head_css_removed_hierarchy(html_text: str) -> tuple[bool, list[str]]:
     stripped = re.sub(r"<style\b[^>]*>.*?</style>", "", html_text, flags=re.IGNORECASE | re.DOTALL)
-    soup = BeautifulSoup(stripped, "html.parser")
     missing: list[str] = []
-    requirements = {
-        ".etf-eu-cockpit-page": ("background", "font-family"),
-        ".hero": ("background", "padding"),
-        ".panel": ("background", "border", "padding"),
-        ".section-head": ("display", "border-bottom"),
-        ".badge": ("background", "border-radius"),
-        ".section-title": ("font-weight", "text-transform"),
+    class_requirements = {
+        "etf-eu-cockpit-page": ("background", "font-family"),
+        "hero": ("background", "padding"),
+        "panel": ("background", "border", "padding"),
+        "section-head": ("display", "border-bottom"),
+        "badge": ("background", "border-radius"),
+        "section-title": ("font-weight", "text-transform"),
+    }
+    tag_requirements = {
         "table": ("width", "border-collapse"),
         "th": ("background", "border"),
         "td": ("border", "padding"),
     }
-    for selector, properties in requirements.items():
-        tag = soup.select_one(selector)
-        styles = _style_map(tag)
-        if tag is None or any(prop not in styles for prop in properties):
-            missing.append(selector)
-    suppressed = soup.select_one(f".{SUPPRESSED_SUMMARY_CLASS}")
-    if suppressed is None or "display:none!important" not in str(suppressed.get("style") or ""):
+    for class_name, properties in class_requirements.items():
+        styles = _style_map(_class_tag(stripped, class_name))
+        if any(prop not in styles for prop in properties):
+            missing.append(f".{class_name}")
+    for tag_name, properties in tag_requirements.items():
+        styles = _style_map(_tag(stripped, tag_name))
+        if any(prop not in styles for prop in properties):
+            missing.append(tag_name)
+    suppressed = _class_tag(stripped, SUPPRESSED_SUMMARY_CLASS)
+    if suppressed is None or "display:none!important" not in suppressed:
         missing.append("inline investor-summary suppression")
     return not missing, missing
 
@@ -156,10 +172,7 @@ def validate(args: argparse.Namespace) -> dict[str, Any]:
         if _pages(paths[pdf_key]) != (enabled.get("enabled_pages") or {}).get(language):
             blockers.append(f"{language}: replay PDF page count mismatch")
         hierarchy_passed, hierarchy_missing = _head_css_removed_hierarchy(primary)
-        stripped_results[language] = {
-            "passed": hierarchy_passed,
-            "missing": hierarchy_missing,
-        }
+        stripped_results[language] = {"passed": hierarchy_passed, "missing": hierarchy_missing}
         if not hierarchy_passed:
             blockers.append(f"{language}: head-CSS removal hierarchy failed: {','.join(hierarchy_missing)}")
 
@@ -184,8 +197,8 @@ def validate(args: argparse.Namespace) -> dict[str, Any]:
         blockers.append("routine workflow does not explicitly enable the cockpit")
     if "Generate and Validate Preview (NO EMAIL)" not in workflow_text:
         blockers.append("routine workflow non-delivery boundary missing")
-    if "tests/test_etf_eu_email_report_inliner.py" not in workflow_text:
-        blockers.append("routine workflow does not run email-inliner regressions")
+    if "tests/test_etf_eu_cockpit_production_integration.py" not in workflow_text:
+        blockers.append("routine workflow does not run cockpit production integration regressions")
 
     payload = {
         "schema_version": "etf_eu_cockpit_production_enablement_validation_v1",
