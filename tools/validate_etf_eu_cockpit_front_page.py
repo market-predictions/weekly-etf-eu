@@ -25,16 +25,33 @@ def _pages(path: Path) -> int:
 
 
 def _front_fragment(html_text: str) -> str:
-    start = html_text.find(FRONT_PAGE_MARKER)
-    if start < 0:
+    marker = html_text.find(FRONT_PAGE_MARKER)
+    if marker < 0:
         return ""
-    root_start = html_text.rfind("<section", 0, start)
-    end = html_text.find("</section>", start)
-    return html_text[root_start : end + len("</section>")] if root_start >= 0 and end >= 0 else ""
+    start = html_text.rfind("<section", 0, marker)
+    end = html_text.find("</section>", marker)
+    return html_text[start : end + len("</section>")] if start >= 0 and end >= 0 else ""
 
 
 def _strip_head_styles(html_text: str) -> str:
     return re.sub(r"<style\b[^>]*>.*?</style>", "", html_text, flags=re.IGNORECASE | re.DOTALL)
+
+
+def _expected_precision(state: dict[str, Any], language: str) -> tuple[str, str]:
+    portfolio = state.get("portfolio") or {}
+    starting = float(portfolio.get("starting_capital_eur") or 100000.0)
+    nav = float(portfolio.get("nav_eur") or starting)
+    value = float(portfolio.get("since_inception_return_pct") or ((nav / starting - 1.0) * 100.0 if starting else 0.0))
+    sign = "+" if value > 0 else ""
+    text = f"{sign}{value:.2f}%" if abs(value) < 1 else f"{sign}{value:.1f}%"
+    if language == "nl":
+        text = text.replace(".", ",")
+    point_count = len([
+        row for row in (state.get("equity_curve") or {}).get("points") or []
+        if isinstance(row, dict) and row.get("nav_eur")
+    ])
+    history = f"{point_count} waarderingspunten" if language == "nl" else f"{point_count} valuation points"
+    return text, history
 
 
 def validate_language(
@@ -67,6 +84,8 @@ def validate_language(
         blockers.append("email front-page count is not exactly one")
     if enabled_text.count(SUPPRESSED_SUMMARY_CLASS) != 1:
         blockers.append("investor summary strip is not suppressed exactly once")
+    if "display:none!important" not in email_text:
+        blockers.append("email summary suppression is not inline")
 
     investor_token = "Beleggersrapport" if language == "nl" else "Investor report"
     analyst_token = "Analistenrapport" if language == "nl" else "Analyst report"
@@ -89,18 +108,17 @@ def validate_language(
         blockers.append(f"enabled PDF page delta is not +1: {classic_pages}->{enabled_pages}")
 
     portfolio = state.get("portfolio") or {}
-    expected_values = [
-        str(portfolio.get("position_count")),
-        "VWCE",
-        "EUNA",
-        "SXR8",
-        "3/3",
-    ]
+    expected_values = [str(portfolio.get("position_count")), "VWCE", "EUNA", "SXR8", "3/3"]
     for value in expected_values:
         if value not in front:
             blockers.append(f"front page missing funded-state evidence: {value}")
 
-    forbidden_front_tokens = [
+    precise_return, history_depth = _expected_precision(state, language)
+    for value in (precise_return, history_depth):
+        if value not in front or value not in email_front:
+            blockers.append(f"front-page precision disclosure missing: {value}")
+
+    forbidden = [
         "US ETF strategy",
         "US ETF-strategie",
         "MRKT_RPRTS",
@@ -110,20 +128,12 @@ def validate_language(
         "real broker order",
     ]
     lowered_front = front.lower()
-    for token in forbidden_front_tokens:
+    for token in forbidden:
         if token.lower() in lowered_front:
             blockers.append(f"front page contains forbidden token: {token}")
 
-    stripped_email = _strip_head_styles(email_text)
-    stripped_front = _front_fragment(stripped_email)
-    essential_email_tokens = [
-        "style=",
-        "etf-eu-cockpit-page",
-        "ISIN-first",
-        investor_token,
-        "3/3",
-    ]
-    for token in essential_email_tokens:
+    stripped_front = _front_fragment(_strip_head_styles(email_text))
+    for token in ("style=", "etf-eu-cockpit-page", "ISIN-first", investor_token, "3/3"):
         if token not in stripped_front:
             blockers.append(f"email-safe hierarchy missing after style stripping: {token}")
     if "<style" in email_front.lower():
@@ -143,6 +153,8 @@ def validate_language(
         "classic_section_count_preserved": sum(
             f'<span class="badge">{number}</span>' in enabled_text for number in range(1, 16)
         ),
+        "precise_return_visible": precise_return in front,
+        "history_depth_visible": history_depth in front,
         "disabled_html_sha256": _sha256(disabled_html),
         "classic_html_sha256": _sha256(classic_html),
         "disabled_pdf_sha256": _sha256(disabled_pdf),
@@ -152,49 +164,28 @@ def validate_language(
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Validate the additive Weekly ETF EU cockpit preview contract.")
-    parser.add_argument("--state", required=True)
-    parser.add_argument("--classic-nl-html", required=True)
-    parser.add_argument("--classic-nl-pdf", required=True)
-    parser.add_argument("--classic-en-html", required=True)
-    parser.add_argument("--classic-en-pdf", required=True)
-    parser.add_argument("--disabled-nl-html", required=True)
-    parser.add_argument("--disabled-nl-pdf", required=True)
-    parser.add_argument("--disabled-en-html", required=True)
-    parser.add_argument("--disabled-en-pdf", required=True)
-    parser.add_argument("--enabled-nl-html", required=True)
-    parser.add_argument("--enabled-nl-pdf", required=True)
-    parser.add_argument("--enabled-en-html", required=True)
-    parser.add_argument("--enabled-en-pdf", required=True)
-    parser.add_argument("--email-nl-html", required=True)
-    parser.add_argument("--email-en-html", required=True)
-    parser.add_argument("--output", required=True)
+    for name in (
+        "state", "classic-nl-html", "classic-nl-pdf", "classic-en-html", "classic-en-pdf",
+        "disabled-nl-html", "disabled-nl-pdf", "disabled-en-html", "disabled-en-pdf",
+        "enabled-nl-html", "enabled-nl-pdf", "enabled-en-html", "enabled-en-pdf",
+        "email-nl-html", "email-en-html", "output",
+    ):
+        parser.add_argument(f"--{name}", required=True)
     args = parser.parse_args()
-
     state = json.loads(Path(args.state).read_text(encoding="utf-8"))
-    common = {
-        "state": state,
-    }
     dutch = validate_language(
-        language="nl",
-        classic_html=Path(args.classic_nl_html),
-        classic_pdf=Path(args.classic_nl_pdf),
-        disabled_html=Path(args.disabled_nl_html),
-        disabled_pdf=Path(args.disabled_nl_pdf),
-        enabled_html=Path(args.enabled_nl_html),
-        enabled_pdf=Path(args.enabled_nl_pdf),
+        language="nl", state=state,
+        classic_html=Path(args.classic_nl_html), classic_pdf=Path(args.classic_nl_pdf),
+        disabled_html=Path(args.disabled_nl_html), disabled_pdf=Path(args.disabled_nl_pdf),
+        enabled_html=Path(args.enabled_nl_html), enabled_pdf=Path(args.enabled_nl_pdf),
         email_html=Path(args.email_nl_html),
-        **common,
     )
     english = validate_language(
-        language="en",
-        classic_html=Path(args.classic_en_html),
-        classic_pdf=Path(args.classic_en_pdf),
-        disabled_html=Path(args.disabled_en_html),
-        disabled_pdf=Path(args.disabled_en_pdf),
-        enabled_html=Path(args.enabled_en_html),
-        enabled_pdf=Path(args.enabled_en_pdf),
+        language="en", state=state,
+        classic_html=Path(args.classic_en_html), classic_pdf=Path(args.classic_en_pdf),
+        disabled_html=Path(args.disabled_en_html), disabled_pdf=Path(args.disabled_en_pdf),
+        enabled_html=Path(args.enabled_en_html), enabled_pdf=Path(args.enabled_en_pdf),
         email_html=Path(args.email_en_html),
-        **common,
     )
     blockers = [f"NL: {item}" for item in dutch["blockers"]] + [f"EN: {item}" for item in english["blockers"]]
     payload = {
@@ -204,11 +195,9 @@ def main() -> None:
         "blockers": blockers,
         "dutch": dutch,
         "english": english,
-        "portfolio_mutation": false if False else False,
+        "portfolio_mutation": False,
         "production_enablement": False,
     }
-    # Keep JSON booleans explicit without relying on truthy strings.
-    payload["portfolio_mutation"] = False
     output = Path(args.output)
     output.parent.mkdir(parents=True, exist_ok=True)
     output.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
