@@ -52,7 +52,7 @@ def _style_map(tag_text: str | None) -> dict[str, str]:
 
 
 def _class_tag(html_text: str, class_name: str) -> str | None:
-    pattern = rf'<[^>]+class="[^"]*(?:^|\s){re.escape(class_name)}(?:\s|$)[^"]*"[^>]*>'
+    pattern = rf'<[^>]+class="[^"]*\b{re.escape(class_name)}\b[^"]*"[^>]*>'
     match = re.search(pattern, html_text, flags=re.IGNORECASE)
     return match.group(0) if match else None
 
