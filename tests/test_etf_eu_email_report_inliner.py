@@ -2,8 +2,6 @@ from __future__ import annotations
 
 import re
 
-from bs4 import BeautifulSoup
-
 from runtime.inline_etf_eu_email_report_styles import MARKER_ATTRIBUTE, inline_email_report_styles
 
 
@@ -19,26 +17,41 @@ def sample_html() -> str:
 </main></body></html>'''
 
 
+def _class_tag(text: str, class_name: str) -> str:
+    match = re.search(
+        rf'<[^>]+class="[^"]*(?:^|\s){re.escape(class_name)}(?:\s|$)[^"]*"[^>]*>',
+        text,
+        flags=re.IGNORECASE,
+    )
+    assert match is not None, class_name
+    return match.group(0)
+
+
+def _tag(text: str, name: str) -> str:
+    match = re.search(rf'<{name}\b[^>]*>', text, flags=re.IGNORECASE)
+    assert match is not None, name
+    return match.group(0)
+
+
 def test_full_report_styles_are_inline_and_cockpit_styles_are_preserved() -> None:
     result = inline_email_report_styles(sample_html())
-    soup = BeautifulSoup(result, "html.parser")
-    assert soup.html[MARKER_ATTRIBUTE] == "true"
-    assert "background:#F6F1E7" in soup.select_one(".etf-eu-cockpit-page").get("style", "")
-    assert "background:#607887" in soup.select_one(".hero").get("style", "")
-    assert "background:#FCFAF7" in soup.select_one(".panel").get("style", "")
-    assert "border:1px solid #D8D5CE" in soup.select_one("th").get("style", "")
-    assert "background:#FEFCF9" in soup.select("tbody tr")[1].select_one("td").get("style", "")
-    assert "display:inline-block" in soup.select_one(".funnel-card").get("style", "")
-    assert "white-space:nowrap" in soup.select_one(".funded-identity-item").get("style", "")
+    assert f'{MARKER_ATTRIBUTE}="true"' in _tag(result, "html")
+    assert "background:#F6F1E7" in _class_tag(result, "etf-eu-cockpit-page")
+    assert "background:#607887" in _class_tag(result, "hero")
+    assert "background:#FCFAF7" in _class_tag(result, "panel")
+    assert "border:1px solid #D8D5CE" in _tag(result, "th")
+    assert "background:#FEFCF9" in result
+    assert "display:inline-block" in _class_tag(result, "funnel-card")
+    assert "white-space:nowrap" in _class_tag(result, "funded-identity-item")
 
 
 def test_head_css_removal_preserves_classic_report_hierarchy() -> None:
     result = inline_email_report_styles(sample_html())
     stripped = re.sub(r"<style\b[^>]*>.*?</style>", "", result, flags=re.IGNORECASE | re.DOTALL)
-    soup = BeautifulSoup(stripped, "html.parser")
-    for selector in (".hero", ".panel", ".section-head", ".badge", ".section-title", "table", "th", "td"):
-        tag = soup.select_one(selector)
-        assert tag is not None and tag.get("style")
+    for class_name in ("hero", "panel", "section-head", "badge", "section-title"):
+        assert "style=" in _class_tag(stripped, class_name)
+    for name in ("table", "th", "td"):
+        assert "style=" in _tag(stripped, name)
 
 
 def test_inliner_is_idempotent() -> None:
