@@ -3,38 +3,51 @@
 Date: 2026-07-19
 Role: independent critical review pass
 Mutation authority: none
-Initial status: pending rendered evidence
+Final status: passed after two iterations
 
 ## Review mandate
 
 Challenge the primary implementation from the perspectives of client comprehension, factual authority, EU/UCITS identity, duplication, email degradation, PDF pagination, accessibility and operational isolation.
 
-## Required challenges
+## Challenges completed
 
-1. **Authority:** every visible portfolio figure must derive from the normalized EU state; no donor holdings or U.S. investability assumptions may appear.
-2. **Action semantics:** the page must distinguish model activity from a real brokerage transaction and must not imply a later tranche is approved.
-3. **Cash semantics:** remaining cash must be described as capacity, not automatic deployment authority.
-4. **Risk semantics:** EUNA may be described as a stabiliser, not guaranteed protection; VWCE/SXR8 overlap must remain visible as a discipline issue.
-5. **History limits:** return and drawdown must not imply a richer observation history than the valuation series provides.
-6. **Duplication:** successful full-page injection must suppress the compact investor summary strip while preserving section 1 as detailed rationale.
-7. **Document order:** cockpit, investor report and analyst report must remain visually distinct and ordered.
-8. **Email robustness:** essential hierarchy must survive removal of head-level CSS; hidden duplicate content must remain hidden through inline styling.
-9. **PDF quality:** all seven pages per language require inspection for clipping, overflow, orphaned headings, broken glyphs and poor page transitions.
-10. **Operational isolation:** preview execution may not modify portfolio state, pricing evidence, ledgers, recommendation memory or current production files.
+1. Every visible portfolio figure was reconciled to the normalized EU state.
+2. The page describes repository-model activity and does not imply a real brokerage transaction or approved later tranche.
+3. Remaining cash is explicitly described as capacity rather than automatic deployment authority.
+4. EUNA is described as a stabiliser rather than guaranteed protection; VWCE/SXR8 overlap remains a discipline issue.
+5. Return precision was increased from `+0.0%` to `+0.02%`, and max drawdown now discloses the three-point valuation history.
+6. Successful injection suppresses the compact investor summary strip while retaining section 1 as detailed rationale.
+7. The order cockpit -> investor report -> analyst report is preserved in Dutch and English.
+8. The email-safe page uses inline presentation styles, and duplicate summary content remains hidden without head CSS.
+9. All seven pages in each language were inspected at 200 dpi.
+10. Protected portfolio, ledger, recommendation, state and classic-report inputs remained unchanged.
 
-## Initial findings
+## Resolved findings
 
-- A duplicate-summary risk was found in the first email-safe design because suppression depended on head CSS. The injector was changed to inline `display:none!important` before the first workflow run.
-- The maximum-drawdown metric is based on a short valuation history. Final review must require a visible observation-count qualifier or record this as a blocker.
-- The first page may still be too dense at A4 print scale; rendered evidence is required before acceptance.
-- Section 1 remains intentionally present. Final review must decide whether it reads as useful detail or repetitive executive copy.
+- The first email-safe design depended on head CSS for summary suppression. This was replaced by inline `display:none!important`.
+- One-decimal percentage formatting masked the actual small positive return. The cockpit now shows `+0.02%` / `+0,02%`.
+- The initial max-drawdown label did not disclose the short history. It now states `3 valuation points` / `3 waarderingspunten`.
+- A4 page density, document transitions and section-1 duplication were inspected and accepted. Section 1 adds detailed decision rationale rather than repeating the compact metric surface.
+
+## Evidence
+
+```text
+github_run_id=29666911258
+machine_validation_passed=true
+protected_inputs_unchanged=true
+visual_review_artifact=output/cockpit_preview/etf_eu_wp32_visual_review_20260719.json
+NL_pages_reviewed=7
+EN_pages_reviewed=7
+blockers=0
+```
 
 ## Gate
 
 ```text
-secondary_review_passed=false
-rendered_evidence_reviewed=false
-production_promotion_recommended=false
+secondary_review_passed=true
+rendered_evidence_reviewed=true
+production_promotion_recommended=true
+production_enablement_granted=false
 ```
 
-The gate may be changed only after machine validation and complete bilingual visual review.
+Production enablement remains a separate WP33 decision and requires an exact-current replay with rollback evidence.
