@@ -1,0 +1,11 @@
+{
+  "artifact_type": "etf_eu_wp33_diagnostic",
+  "enablement_validator_exit_code": 99,
+  "external_transport": false,
+  "front_validator_exit_code": 99,
+  "github_run_id": "29668557152",
+  "replay_exit_code": 99,
+  "schema_version": "etf_eu_wp33_diagnostic_v1",
+  "test_exit_code": 1,
+  "validated_sha": "e0000d9418255a1eb55beb0f265e099a92fdb8a3"
+}
