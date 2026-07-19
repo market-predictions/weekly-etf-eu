@@ -3,33 +3,21 @@
 ## Current priority
 
 ```text
-MANUAL_DISPATCH_ACCEPTED_PACKAGE_20260717_141500
+ETF-EU-WP33_COCKPIT_FRONT_PAGE_PRODUCTION_ENABLEMENT
 ```
 
-## Accepted package
+## Current authoritative baseline
 
 ```text
-run_id=20260717_141500
-report_date=2026-07-17
-report_suffix=260717_06
-source_workflow_run_id=29575699421
-machine_validation_passed=true
-visual_review_passed=true
-readiness_gate_passed=true
-ready_for_controlled_delivery=true
-```
-
-The accepted package is authoritative. Do not regenerate pricing, state, HTML or PDF before delivery.
-
-## Active model state
-
-```text
-position_count=3
+portfolio_position_count=3
 cash_eur=60439.44
 invested_market_value_eur=39577.16
 nav_eur=100016.60
-real_broker_execution=false
-portfolio_mutation=false
+latest_report_run_id=20260717_141500
+latest_transport_run_id=20260717_170931
+transport_success=true
+send_executed=true
+resend_allowed=false
 ```
 
 | Ticker | Role | Shares | Value | Weight | Current action |
@@ -38,124 +26,124 @@ portfolio_mutation=false
 | EUNA | Aggregate-bond stabiliser | 1,526 | €7,497.24 | 7.495996% | Hold after first tranche |
 | SXR8 | U.S. equity overweight | 10 | €7,116.60 | 7.115419% | Hold; no second tranche |
 
-No automatic add, reduce, exit, later tranche or satellite activation is authorised.
+No automatic add, reduction, exit, later tranche or satellite activation is authorised.
 
-## Exact manual dispatch
-
-In GitHub Actions, open:
+## Completed WP32 preview capability
 
 ```text
-Weekly ETF EU current-package delivery workflow
+pull_request=61
+merge_commit=348c324d911b142f0871e9a67f875b76b3450447
+final_validation_run=29667194382
+status=merged_validated_preview_only
+production_enablement=false
 ```
 
-Run from branch:
+WP32 proved:
 
 ```text
-main
+cockpit_front_page_count_NL=1
+cockpit_front_page_count_EN=1
+classic_pdf_pages=6
+cockpit_pdf_pages=7
+page_delta=1
+classic_sections_preserved=15
+email_safe_surface_passed=true
+primary_visual_review_passed=true
+secondary_adversarial_review_passed=true
+protected_inputs_unchanged=true
+blockers=0
 ```
 
-Use these inputs exactly:
+The selected document hierarchy is:
 
 ```text
-delivery_mode=send
-queue_path=control/prepared_delivery/etf_eu_current_package_delivery_request_20260717_141500.md
-send_confirmation=confirm_guarded_send
+EU/UCITS cockpit front page
+→ investor report
+→ analyst report
 ```
 
-Do not run the routine-production workflow. Do not re-run an older current-package job.
+## WP33 exact-current production-enablement package
 
-## Delivery safeguards already prepared
+Create and claim:
 
 ```text
-accepted_package_lock=output/delivery_control/etf_eu_accepted_package_lock_20260717_141500.json
-delivery_prep=output/delivery_prep/etf_eu_guarded_fresh_package_delivery_prep_20260717_141500.json
-authorization=output/delivery_authorization/etf_eu_guarded_send_authorization_20260717_141500.json
-decision=output/delivery_control/etf_eu_controlled_delivery_decision_20260717_141500.json
-transport_selection=output/delivery_control/etf_eu_controlled_delivery_transport_selection_20260717_141500.json
-prepared_queue=control/prepared_delivery/etf_eu_current_package_delivery_request_20260717_141500.md
+ETF-EU-WP33_COCKPIT_FRONT_PAGE_PRODUCTION_ENABLEMENT
 ```
 
-The queue validator must confirm:
+### Required implementation boundary
+
+WP33 may change only the report output and operational integration layers. It must not change:
 
 ```text
-four exact client files present
-Git blob identities unchanged
-machine_validation_passed=true
-visual_review_passed=true
-ready_for_controlled_delivery=true
-delivery_authorized=true
-send_command_allowed=true
-valuation_grade=false
-funding_authority=false
-portfolio_mutation=false
-production_delivery_authority=false
+portfolio state
+trade ledger
+recommendation scorecard
+pricing authority
+macro authority
+allocation authority
+real broker execution
+current accepted 2026-07-17 package
 ```
 
-## Required transport verification
+### Required sequence
 
-After dispatch:
+1. Re-read the donor production enablement decision and current EU package builder.
+2. Create an exact-current, non-delivery replay using the latest valid EU normalized state.
+3. Integrate the additive cockpit through the existing package-build path rather than duplicating report logic.
+4. Keep the EU feature flag explicit:
 
-1. inspect the workflow job and failing step, if any;
-2. verify a new current-package transport result was committed;
-3. require `transport_attempted=true`;
-4. require `transport_success=true`;
-5. require `send_executed=true`;
-6. require a redacted message-reference hash;
-7. keep `receipt_confirmed=false` until independent mailbox evidence exists.
+   ```text
+   MRKT_RPRTS_ETF_EU_COCKPIT_FRONT_PAGE=disabled|enabled
+   ```
 
-The workflow has an idempotency gate. A prior successful result for the same queue and suffix blocks a second send.
+5. Prove disabled mode reproduces the current two-part report.
+6. Prove enabled mode adds exactly one page before the investor and analyst reports.
+7. Prove render failure and invalid feature values fall back to the current report.
+8. Prove the email-safe surface remains readable without head-level CSS.
+9. Re-run the full client-grade machine gate and complete NL/EN page review.
+10. Require a separate secondary adversarial review.
+11. Verify protected input hashes before and after the replay.
+12. Record a separate production-enablement decision only when every gate passes.
 
-## Delayed receipt verification
-
-Approximately ten minutes after successful transport:
-
-1. search the connected receipt mailbox for the 17 July 2026 Weekly ETF EU report;
-2. match the recipient-safe report identity and transport timestamp;
-3. confirm these four attachments:
-   - Dutch PDF;
-   - English PDF;
-   - Dutch HTML;
-   - English HTML;
-4. reconcile attachment hashes against transport evidence;
-5. store only redacted receipt metadata and booleans;
-6. do not resend when the existing message is found.
-
-Only then may the closeout state:
+### WP33 acceptance contract
 
 ```text
-receipt_confirmed=true
-production_delivery_cycle_closed=true
+exact_current_state_used=true
+non_delivery_replay=true
+disabled_classic_contract_passed=true
+enabled_page_delta=1
+cockpit_investor_analyst_order_passed=true
+classic_sections_preserved=15
+email_safe_surface_passed=true
+protected_inputs_unchanged=true
+primary_review_passed=true
+secondary_review_passed=true
+blockers=[]
 ```
 
-## Closeout files
+## WP31 governance closeout boundary
 
-After confirmed receipt, update:
+The 2026-07-17 transport result and delivery evidence are committed. An independent connected-mailbox match was observed with all four expected file roles, but connector privacy controls prevented persistence of mailbox-derived receipt metadata.
 
 ```text
-output/run_manifests/etf_eu_routine_run_manifest_2026-07-17_20260717_141500.json
-output/run_manifests/etf_eu_production_delivery_closeout_manifest_<runtime_run_id>.json
+transport_success=true
+send_executed=true
+independent_mailbox_match_observed=true
+formal_receipt_artifact_persisted=false
+production_delivery_cycle_closed_in_repo=false
+resend_allowed=false
+```
+
+Do not combine WP31 persistence work with WP33. Do not resend the accepted package.
+
+## After WP33
+
+When WP33 passes, update:
+
+```text
 control/CURRENT_STATE.md
 control/NEXT_ACTIONS.md
 control/DECISION_LOG.md
 ```
 
-## Failure routing
-
-```text
-immutable lock mismatch -> stop; investigate changed output bytes
-queue or authorization mismatch -> repair control artifacts; do not send
-transport failure -> preserve redacted result and exact error; do not claim delivery
-transport success without mailbox receipt -> wait and recheck; do not resend
-mailbox receipt mismatch -> investigate attachments and message identity
-valid transport plus confirmed receipt -> close production delivery cycle
-```
-
-## Later portfolio monitoring
-
-Once delivery is closed, resume routine monitoring of:
-
-1. VWCE role validity and broad-equity contribution;
-2. EUNA stabilising contribution;
-3. SXR8 overweight validity and overlap with VWCE;
-4. remaining cash capacity;
-5. separately authorised later tranches or satellite candidates.
+Then decide whether the next routine Weekly ETF EU generation should use the enabled cockpit. A real future report run and any later delivery remain separately governed.
