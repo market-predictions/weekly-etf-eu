@@ -1,0 +1,64 @@
+{
+  "schema_version": "etf_eu_wp32_visual_review_v1",
+  "artifact_type": "etf_eu_wp32_visual_review",
+  "review_date": "2026-07-19",
+  "source_run_id": "29666911258",
+  "review_resolution_dpi": 200,
+  "primary_review_passed": true,
+  "secondary_adversarial_review_passed": true,
+  "visual_review_passed": true,
+  "content_consistency_passed": true,
+  "email_safe_surface_reviewed": true,
+  "blockers": [],
+  "resolved_findings": [
+    "email-safe summary suppression now uses inline display:none!important",
+    "small positive return now displays as +0.02% rather than +0.0%",
+    "maximum drawdown now discloses that the history contains three valuation points"
+  ],
+  "dutch": {
+    "page_count": 7,
+    "all_pages_reviewed": true,
+    "html_sha256": "07afdbecbe738de412c5abef4bdcd6b5234c7f8b8e727944a7529e199eb9e1ba",
+    "pdf_sha256": "2c2f377c018b16407b6aa132b09a2c53bc614dd7a2ccbb8c48708d0c58ee6a63",
+    "email_html_sha256": "8886e079aabf92bca793c504869ce3a37dd7aaf31d621ec375dd733c7b17565d",
+    "page_sha256": [
+      "ed3e3b2e0cd74d7d276bf475beb1e4c2c9cc99bfda60cb94e4c6fd74492fcfca",
+      "6156f81d99a701692fcf8721fd7f74a894d3c6cfc4cfdf39b217f24f0e40495a",
+      "35a3c79905da2d8502689dc49a13f5562b4119757df28c90ff6e9a6a898ef5b5",
+      "409d6512b43f2a8ec784ead0d1e8f3eaa5e845930097cc885b11cd813379d01c",
+      "9a3745c3c6582492e2bdd15ea30db92e123492edf1b3ede56594b7d326751598",
+      "8a537f8ee6561f48644f24ff016bcd5c0e326faf7a3d89b3ca93ea0729891cf4",
+      "e7d283e20e871cf0b10f906d30e985d77007da36aa903b484ca07fa1b132a7cd"
+    ]
+  },
+  "english": {
+    "page_count": 7,
+    "all_pages_reviewed": true,
+    "html_sha256": "87f6ad5d8b6b91fe717fa339f5e21aac0ec8600975eee04705ad9bcde5f77ade",
+    "pdf_sha256": "b749bd7fbcd5a407e70a4cc0351b28f1f96fd05dde6cbcaab905df8daf922335",
+    "email_html_sha256": "40e70b7c782d8725cb97707077bfa33be1389e7e311a283c0c6e7c372a234101",
+    "page_sha256": [
+      "42d66ef9910e75835700e734b2e04705fc3a84541cfffaa90c2575da7ea40f4e",
+      "66cd7bc3f450a5a9e093a79533d4a4afb5c6dd20ffb0781a5a646c5b3466d10d",
+      "0d377e522933432da4ec2250013830a27503a714f3dc46b3760432308d306bd5",
+      "0216e18c8a56a106b20c052b2c75a81cd93f639071703061340e4015ffda71db",
+      "03243afd5a8831671fa5780846d4374f44d7452327e4bb42b0162b52217d352a",
+      "ef2a82805aedf13e6f79aeba052acf3f96a705ba3918f0768528473e0ae71641",
+      "b0acae3aa1549518d65faf48806a5906f09ae0a8fd38a6573d7d5cfc29fc2251"
+    ]
+  },
+  "checks": {
+    "front_page_clipping_absent": true,
+    "overlap_absent": true,
+    "broken_glyphs_absent": true,
+    "orphaned_headings_absent": true,
+    "cockpit_investor_analyst_order_passed": true,
+    "classic_sections_preserved": 15,
+    "investor_summary_duplicate_absent": true,
+    "funded_state_reconciled": true,
+    "isin_first_language_preserved": true,
+    "ucits_first_language_preserved": true,
+    "protected_inputs_unchanged": true,
+    "production_enablement": false
+  }
+}
