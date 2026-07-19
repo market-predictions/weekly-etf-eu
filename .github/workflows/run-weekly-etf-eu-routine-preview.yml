@@ -18,6 +18,8 @@ permissions:
 jobs:
   generate-validate:
     runs-on: ubuntu-latest
+    env:
+      MRKT_RPRTS_ETF_EU_COCKPIT_FRONT_PAGE: enabled
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
@@ -92,10 +94,14 @@ jobs:
           PY
           cat env.out >> "$GITHUB_ENV"
 
-      - name: Run focused funded-aware and visual-contract tests
+      - name: Run funded-aware, cockpit and visual-contract tests
         run: |
           set -euo pipefail
-          python -m pytest -q tests/test_etf_eu_cap01.py tests/test_etf_eu_final_visual_polish.py
+          python -m pytest -q \
+            tests/test_etf_eu_cap01.py \
+            tests/test_etf_eu_final_visual_polish.py \
+            tests/test_etf_eu_cockpit_front_page.py \
+            tests/test_etf_eu_cockpit_production_integration.py
 
       - name: Build current UCITS pricing evidence
         run: |
@@ -108,13 +114,42 @@ jobs:
           set -euo pipefail
           MACRO_ARTIFACT="output/macro/etf_eu_macro_policy_pack_${ETF_EU_RUN_ID}.json"
           python -m runtime.adapt_weekly_etf_macro_for_eu --source-url "https://raw.githubusercontent.com/market-predictions/weekly-etf/main/output/macro/latest.json" --report-date "$ETF_EU_REPORT_DATE" --run-id "$ETF_EU_RUN_ID" --output "$MACRO_ARTIFACT" --latest-output output/macro/latest.json
-          python tools/update_etf_eu_valuation_history.py --portfolio-state output/etf_eu_portfolio_state.json --history output/etf_eu_valuation_history.csv --report-date "$ETF_EU_REPORT_DATE" --source-report "routine-client-grade-v2-${ETF_EU_RUN_ID}" --comment "Three-position funded-aware non-delivery preview" --output output/etf_eu_valuation_history.csv
+          python tools/update_etf_eu_valuation_history.py --portfolio-state output/etf_eu_portfolio_state.json --history output/etf_eu_valuation_history.csv --report-date "$ETF_EU_REPORT_DATE" --source-report "routine-client-grade-v2-${ETF_EU_RUN_ID}" --comment "Three-position funded-aware cockpit non-delivery preview" --output output/etf_eu_valuation_history.csv
           echo "ETF_EU_MACRO_ARTIFACT=$MACRO_ARTIFACT" >> "$GITHUB_ENV"
 
-      - name: Build funded-aware Dutch and English outputs
+      - name: Build funded-aware Dutch and English cockpit outputs
         run: |
           set -euo pipefail
           python -m tools.build_etf_eu_routine_report_package_v2 --run-id "$ETF_EU_RUN_ID" --report-date "$ETF_EU_REPORT_DATE" --report-suffix "$ETF_EU_REPORT_SUFFIX" --pricing-artifact "output/pricing/ucits_close_price_validation_basket_results_${ETF_EU_RUN_ID}.json" --macro-pack "$ETF_EU_MACRO_ARTIFACT" --registry config/ucits_symbol_registry.yml --previous-routine-manifest "$ETF_EU_PREVIOUS_ROUTINE_MANIFEST" --previous-delivery-closeout-manifest "$ETF_EU_PREVIOUS_CLOSEOUT"
+
+      - name: Validate enabled cockpit package metadata
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          run_id = os.environ["ETF_EU_RUN_ID"]
+          suffix = os.environ["ETF_EU_REPORT_SUFFIX"]
+          manifest = json.loads(Path(f"output/fresh_generation/etf_eu_fresh_generation_package_manifest_{run_id}.json").read_text(encoding="utf-8"))
+          required = {
+              "cockpit_front_page_enabled": True,
+              "cockpit_front_page_count_nl": 1,
+              "cockpit_front_page_count_en": 1,
+              "cockpit_document_order": "cockpit_then_investor_then_analyst",
+              "cockpit_email_safe_surface_is_primary_html": True,
+              "cockpit_browser_html_retained_for_pdf_audit": True,
+          }
+          for key, expected in required.items():
+              if manifest.get(key) != expected:
+                  raise SystemExit(f"ETF_EU_COCKPIT_MANIFEST_MISMATCH:{key}:{manifest.get(key)!r}")
+          for path in (
+              Path(f"output/fresh_generation/weekly_etf_eu_review_nl_{suffix}_browser.html"),
+              Path(f"output/fresh_generation/weekly_etf_eu_review_{suffix}_browser.html"),
+          ):
+              if not path.exists():
+                  raise SystemExit(f"ETF_EU_COCKPIT_BROWSER_AUDIT_MISSING:{path}")
+          print("ETF_EU_COCKPIT_PACKAGE_METADATA_OK")
+          PY
 
       - name: Run strict machine validation
         run: |
@@ -150,6 +185,8 @@ jobs:
               "report_suffix": suffix,
               "status": "generated_and_machine_validated_pending_complete_visual_review",
               "position_count_expected": 3,
+              "cockpit_front_page_enabled": True,
+              "cockpit_document_order": "cockpit_then_investor_then_analyst",
               "model_portfolio_only": True,
               "real_broker_execution": False,
               "production_delivery_authority": False,
@@ -162,6 +199,10 @@ jobs:
                   f"output/fresh_generation/weekly_etf_eu_review_nl_{suffix}.pdf",
                   f"output/fresh_generation/weekly_etf_eu_review_{suffix}.html",
                   f"output/fresh_generation/weekly_etf_eu_review_{suffix}.pdf",
+              ],
+              "internal_browser_audit_outputs": [
+                  f"output/fresh_generation/weekly_etf_eu_review_nl_{suffix}_browser.html",
+                  f"output/fresh_generation/weekly_etf_eu_review_{suffix}_browser.html",
               ],
           }
           out = Path(f"output/run_manifests/etf_eu_routine_preview_manifest_{run_id}.json")
@@ -180,6 +221,8 @@ jobs:
             output/fresh_generation/weekly_etf_eu_review_nl_${{ env.ETF_EU_REPORT_SUFFIX }}.pdf
             output/fresh_generation/weekly_etf_eu_review_${{ env.ETF_EU_REPORT_SUFFIX }}.html
             output/fresh_generation/weekly_etf_eu_review_${{ env.ETF_EU_REPORT_SUFFIX }}.pdf
+            output/fresh_generation/weekly_etf_eu_review_nl_${{ env.ETF_EU_REPORT_SUFFIX }}_browser.html
+            output/fresh_generation/weekly_etf_eu_review_${{ env.ETF_EU_REPORT_SUFFIX }}_browser.html
             output/quality/etf_eu_client_grade_v2_validation_${{ env.ETF_EU_RUN_ID }}.json
             output/run_manifests/etf_eu_routine_preview_manifest_${{ env.ETF_EU_RUN_ID }}.json
             output/quality/review_pages/${{ env.ETF_EU_RUN_ID }}/
@@ -189,7 +232,7 @@ jobs:
           set -euo pipefail
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -f "output/pricing/ucits_close_price_validation_basket_results_${ETF_EU_RUN_ID}.json" "$ETF_EU_MACRO_ARTIFACT" output/macro/latest.json output/etf_eu_valuation_history.csv "output/runtime/etf_eu_client_grade_report_state_${ETF_EU_RUN_ID}.json" "output/fresh_generation/weekly_etf_eu_review_nl_${ETF_EU_REPORT_SUFFIX}.md" "output/fresh_generation/weekly_etf_eu_review_${ETF_EU_REPORT_SUFFIX}.md" "output/fresh_generation/weekly_etf_eu_review_nl_${ETF_EU_REPORT_SUFFIX}.html" "output/fresh_generation/weekly_etf_eu_review_${ETF_EU_REPORT_SUFFIX}.html" "output/fresh_generation/weekly_etf_eu_review_nl_${ETF_EU_REPORT_SUFFIX}.pdf" "output/fresh_generation/weekly_etf_eu_review_${ETF_EU_REPORT_SUFFIX}.pdf" "output/fresh_generation/etf_eu_fresh_generation_package_manifest_${ETF_EU_RUN_ID}.json" "output/fresh_generation/etf_eu_ready_for_controlled_delivery_${ETF_EU_RUN_ID}.json" "output/quality/etf_eu_client_grade_v2_validation_${ETF_EU_RUN_ID}.json" "output/quality/etf_eu_routine_pdf_client_grade_${ETF_EU_RUN_ID}_nl.json" "output/quality/etf_eu_routine_pdf_client_grade_${ETF_EU_RUN_ID}_en.json" "output/quality/etf_eu_routine_pdf_client_grade_${ETF_EU_RUN_ID}.json" "output/quality/review_pages/${ETF_EU_RUN_ID}" "output/run_manifests/etf_eu_routine_run_manifest_${ETF_EU_REPORT_DATE}_${ETF_EU_RUN_ID}.json" "output/run_manifests/etf_eu_routine_preview_manifest_${ETF_EU_RUN_ID}.json"
-          git commit -m "Persist ETF EU three-position routine preview ${ETF_EU_RUN_ID} [skip ci]"
+          git add -f "output/pricing/ucits_close_price_validation_basket_results_${ETF_EU_RUN_ID}.json" "$ETF_EU_MACRO_ARTIFACT" output/macro/latest.json output/etf_eu_valuation_history.csv "output/runtime/etf_eu_client_grade_report_state_${ETF_EU_RUN_ID}.json" "output/fresh_generation/weekly_etf_eu_review_nl_${ETF_EU_REPORT_SUFFIX}.md" "output/fresh_generation/weekly_etf_eu_review_${ETF_EU_REPORT_SUFFIX}.md" "output/fresh_generation/weekly_etf_eu_review_nl_${ETF_EU_REPORT_SUFFIX}.html" "output/fresh_generation/weekly_etf_eu_review_${ETF_EU_REPORT_SUFFIX}.html" "output/fresh_generation/weekly_etf_eu_review_nl_${ETF_EU_REPORT_SUFFIX}.pdf" "output/fresh_generation/weekly_etf_eu_review_${ETF_EU_REPORT_SUFFIX}.pdf" "output/fresh_generation/weekly_etf_eu_review_nl_${ETF_EU_REPORT_SUFFIX}_browser.html" "output/fresh_generation/weekly_etf_eu_review_${ETF_EU_REPORT_SUFFIX}_browser.html" "output/fresh_generation/etf_eu_fresh_generation_package_manifest_${ETF_EU_RUN_ID}.json" "output/fresh_generation/etf_eu_ready_for_controlled_delivery_${ETF_EU_RUN_ID}.json" "output/quality/etf_eu_client_grade_v2_validation_${ETF_EU_RUN_ID}.json" "output/quality/etf_eu_routine_pdf_client_grade_${ETF_EU_RUN_ID}_nl.json" "output/quality/etf_eu_routine_pdf_client_grade_${ETF_EU_RUN_ID}_en.json" "output/quality/etf_eu_routine_pdf_client_grade_${ETF_EU_RUN_ID}.json" "output/quality/review_pages/${ETF_EU_RUN_ID}" "output/run_manifests/etf_eu_routine_run_manifest_${ETF_EU_REPORT_DATE}_${ETF_EU_RUN_ID}.json" "output/run_manifests/etf_eu_routine_preview_manifest_${ETF_EU_RUN_ID}.json"
+          git commit -m "Persist ETF EU three-position cockpit routine preview ${ETF_EU_RUN_ID} [skip ci]"
           git pull --rebase origin main
           git push origin HEAD:main
