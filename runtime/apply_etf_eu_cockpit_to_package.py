@@ -21,8 +21,8 @@ class PackageCockpitResult:
     english_front_page_count: int
     dutch_summary_suppressed: bool
     english_summary_suppressed: bool
-    dutch_email_html: Path | None
-    english_email_html: Path | None
+    dutch_browser_html: Path | None
+    english_browser_html: Path | None
 
 
 def _render_pdf_bytes(html_text: str, *, base_url: Path) -> bytes:
@@ -48,15 +48,16 @@ def apply_cockpit_to_package(
     english_html: Path,
     dutch_pdf: Path,
     english_pdf: Path,
-    dutch_email_html: Path,
-    english_email_html: Path,
+    dutch_browser_html: Path,
+    english_browser_html: Path,
     feature_value: str | None = None,
 ) -> PackageCockpitResult:
-    """Apply the additive cockpit as one atomic bilingual output mutation.
+    """Apply one bilingual cockpit mutation without changing the attachment contract.
 
-    Disabled mode leaves all existing package files byte-identical. Enabled mode
-    first builds both browser/PDF and email-safe variants in memory. No package
-    file is replaced unless all four injections and both PDF renders succeed.
+    The primary HTML files become the inline/table client versions used by the
+    mail body and HTML attachments. PDFs are rendered from the richer browser
+    versions, which are retained as internal audit files. Disabled or failed
+    integration leaves the existing package byte-identical.
     """
 
     try:
@@ -71,8 +72,8 @@ def apply_cockpit_to_package(
             english_front_page_count=0,
             dutch_summary_suppressed=False,
             english_summary_suppressed=False,
-            dutch_email_html=None,
-            english_email_html=None,
+            dutch_browser_html=None,
+            english_browser_html=None,
         )
 
     if feature == "disabled":
@@ -85,8 +86,8 @@ def apply_cockpit_to_package(
             english_front_page_count=0,
             dutch_summary_suppressed=False,
             english_summary_suppressed=False,
-            dutch_email_html=None,
-            english_email_html=None,
+            dutch_browser_html=None,
+            english_browser_html=None,
         )
 
     classic_nl = dutch_html.read_text(encoding="utf-8")
@@ -107,8 +108,8 @@ def apply_cockpit_to_package(
             english_front_page_count=browser_en.front_page_count,
             dutch_summary_suppressed=browser_nl.investor_summary_suppressed,
             english_summary_suppressed=browser_en.investor_summary_suppressed,
-            dutch_email_html=None,
-            english_email_html=None,
+            dutch_browser_html=None,
+            english_browser_html=None,
         )
 
     if not all(result.investor_summary_suppressed for result in results):
@@ -121,8 +122,8 @@ def apply_cockpit_to_package(
             english_front_page_count=browser_en.front_page_count,
             dutch_summary_suppressed=browser_nl.investor_summary_suppressed,
             english_summary_suppressed=browser_en.investor_summary_suppressed,
-            dutch_email_html=None,
-            english_email_html=None,
+            dutch_browser_html=None,
+            english_browser_html=None,
         )
 
     try:
@@ -140,17 +141,17 @@ def apply_cockpit_to_package(
             english_front_page_count=browser_en.front_page_count,
             dutch_summary_suppressed=True,
             english_summary_suppressed=True,
-            dutch_email_html=None,
-            english_email_html=None,
+            dutch_browser_html=None,
+            english_browser_html=None,
         )
 
-    # Commit the prepared bilingual package only after every build step succeeds.
-    _write_text_atomic(dutch_html, browser_nl.html)
-    _write_text_atomic(english_html, browser_en.html)
+    # Commit only after both languages and both render modes have succeeded.
+    _write_text_atomic(dutch_html, email_nl.html)
+    _write_text_atomic(english_html, email_en.html)
     _write_atomic(dutch_pdf, nl_pdf_bytes)
     _write_atomic(english_pdf, en_pdf_bytes)
-    _write_text_atomic(dutch_email_html, email_nl.html)
-    _write_text_atomic(english_email_html, email_en.html)
+    _write_text_atomic(dutch_browser_html, browser_nl.html)
+    _write_text_atomic(english_browser_html, browser_en.html)
 
     return PackageCockpitResult(
         status="enabled",
@@ -161,8 +162,8 @@ def apply_cockpit_to_package(
         english_front_page_count=1,
         dutch_summary_suppressed=True,
         english_summary_suppressed=True,
-        dutch_email_html=dutch_email_html,
-        english_email_html=english_email_html,
+        dutch_browser_html=dutch_browser_html,
+        english_browser_html=english_browser_html,
     )
 
 
