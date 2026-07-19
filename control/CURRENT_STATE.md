@@ -3,24 +3,13 @@
 ## Snapshot
 
 ```text
-date=2026-07-17
+date=2026-07-19
 repository=market-predictions/weekly-etf-eu
 operating_mode=routine_production_with_three_position_active_model_portfolio
 production_renderer=client_grade_v2_funded_aware
 routine_production_ready=true
-selected_next_action=MANUAL_DISPATCH_ACCEPTED_PACKAGE_20260717_141500
+selected_next_action=RUN_WP33_EXACT_CURRENT_NON_DELIVERY_REPLAY
 ```
-
-## Latest completed delivery
-
-```text
-report_date=2026-07-12
-github_workflow_run_id=29428021408
-receipt_confirmed=true
-production_delivery_cycle_closed=true
-```
-
-This remains the latest independently confirmed email-delivery cycle. The 2026-07-17 package has not yet performed transport.
 
 ## Active broker-neutral model portfolio
 
@@ -43,90 +32,85 @@ real_broker_execution=false
 
 Cash plus invested market value reconciles exactly to NAV at eurocent precision.
 
-## Accepted report package
+## Latest accepted and transported report
 
 ```text
-run_id=20260717_141500
+report_run_id=20260717_141500
+runtime_transport_run_id=20260717_170931
 report_date=2026-07-17
 report_suffix=260717_06
-source_workflow_run_id=29575699421
+source_preview_workflow_run_id=29575699421
+transport_workflow_run_id=29598942372
 machine_validation_passed=true
 visual_review_passed=true
-dutch_page_count=6
-english_page_count=6
-client_grade_preview_accepted=true
 readiness_gate_passed=true
-ready_for_controlled_delivery=true
+transport_attempted=true
+transport_success=true
+send_executed=true
+attachment_count=4
 ```
 
-Authoritative evidence:
+Authoritative transport evidence:
 
 ```text
-output/quality/etf_eu_client_grade_v2_validation_20260717_141500.json
-output/quality/etf_eu_routine_pdf_client_grade_20260717_141500.json
-output/quality/etf_eu_routine_pdf_visual_review_20260717_141500.json
-output/quality/etf_eu_routine_package_readiness_20260717_141500.json
-output/run_manifests/etf_eu_routine_preview_manifest_20260717_141500.json
+output/delivery/etf_eu_current_package_transport_result_20260717_170931.json
+output/delivery/etf_eu_current_package_delivery_evidence_20260717_170931.json
 output/run_manifests/etf_eu_routine_run_manifest_2026-07-17_20260717_141500.json
 ```
 
-The accepted package contains Dutch-primary and English-companion HTML/PDF output. All twelve rendered pages were reviewed at high resolution. The final report has no known clipping, overlap, broken identifiers, orphaned headings or language mismatch.
-
-## Immutable delivery lock
+An independent connected-mailbox check found the matching report with all four expected file roles. Connector privacy controls prevented persistence of mailbox-derived receipt metadata to GitHub. Therefore:
 
 ```text
-lock_artifact=output/delivery_control/etf_eu_accepted_package_lock_20260717_141500.json
-locked_file_count=4
-lock_method=git_blob_sha_exact_byte_identity
+independent_mailbox_match_observed=true
+formal_receipt_artifact_persisted=false
+production_delivery_cycle_closed_in_repo=false
+resend_allowed=false
 ```
 
-Locked client files:
+The report must not be resent. WP31 remains a governance closeout item only, pending an allowed privacy-minimal persistence route.
+
+## WP32 additive cockpit preview
 
 ```text
-output/fresh_generation/weekly_etf_eu_review_nl_260717_06.html
-output/fresh_generation/weekly_etf_eu_review_nl_260717_06.pdf
-output/fresh_generation/weekly_etf_eu_review_260717_06.html
-output/fresh_generation/weekly_etf_eu_review_260717_06.pdf
+work_package=ETF-EU-WP32_ADDITIVE_COCKPIT_FRONT_PAGE_PREVIEW
+pull_request=61
+merge_commit=348c324d911b142f0871e9a67f875b76b3450447
+final_validation_run=29667194382
+status=merged_validated_preview_only
+production_enablement=false
 ```
 
-The delivery validator recalculates each Git blob identity before transport. Any byte change blocks delivery.
-
-## Guarded delivery preparation
+Delivered capability:
 
 ```text
-delivery_prep=output/delivery_prep/etf_eu_guarded_fresh_package_delivery_prep_20260717_141500.json
-authorization=output/delivery_authorization/etf_eu_guarded_send_authorization_20260717_141500.json
-decision=output/delivery_control/etf_eu_controlled_delivery_decision_20260717_141500.json
-transport_selection=output/delivery_control/etf_eu_controlled_delivery_transport_selection_20260717_141500.json
-prepared_queue=control/prepared_delivery/etf_eu_current_package_delivery_request_20260717_141500.md
-delivery_authorized=true
-send_command_allowed=true
-send_confirmation_received=true
-transport_attempted=false
-send_executed=false
-receipt_confirmed=false
+EU/UCITS cockpit front page
+→ existing investor report
+→ existing analyst report
 ```
 
-The connector security boundary blocks creation of an automatically triggering live-send queue. One manual GitHub `workflow_dispatch` is therefore required. This is the only remaining external action before transport verification.
-
-## Workflow to dispatch
+Validation facts:
 
 ```text
-workflow=Weekly ETF EU current-package delivery workflow
-branch=main
-delivery_mode=send
-queue_path=control/prepared_delivery/etf_eu_current_package_delivery_request_20260717_141500.md
-send_confirmation=confirm_guarded_send
+NL_page_count=7
+EN_page_count=7
+classic_page_count=6
+page_delta=1
+classic_sections_preserved=15
+regression_tests_passed=true
+machine_validation_passed=true
+primary_visual_review_passed=true
+secondary_adversarial_review_passed=true
+protected_inputs_unchanged=true
+blockers=0
 ```
 
-The workflow:
+The implementation uses current normalized EU state, ISIN-first identity, EUR portfolio metrics, a separate email-safe inline renderer and a fail-closed feature gate:
 
-1. validates the package, authorization chain and exact-byte lock;
-2. blocks duplicate successful delivery for this queue and suffix;
-3. uses the existing current-package transport runner;
-4. persists redacted result and evidence;
-5. updates the routine manifest to awaiting-receipt state;
-6. does not change portfolio state or regenerate the report.
+```text
+MRKT_RPRTS_ETF_EU_COCKPIT_FRONT_PAGE=disabled|enabled
+```
+
+The feature remains preview-only. The routine package builder and production generation path have not yet been enabled.
 
 ## Authority boundaries
 
@@ -140,21 +124,18 @@ valuation_grade=false
 funding_authority=false
 portfolio_mutation=false
 production_delivery_authority=false
-transport_attempted=false
-send_executed=false
-receipt_confirmed=false
+cockpit_production_enablement=false
 ```
 
-## Next closeout sequence
+## Current development sequence
 
 ```text
-manual guarded workflow dispatch
-→ inspect workflow result and committed transport evidence
-→ wait approximately ten minutes
-→ independently verify receipt in connected mailbox
-→ confirm four attachments and matching report identity
-→ update routine manifest and production closeout
-→ update CURRENT_STATE, NEXT_ACTIONS and DECISION_LOG
+WP32 merged and validated
+→ WP33 exact-current non-delivery production replay
+→ prove disabled rollback and enabled +1 page behavior
+→ integrate only the output layer when all gates pass
+→ record a separate production-enablement decision
+→ keep actual future report delivery separately governed
 ```
 
-Do not claim completed delivery until independent receipt evidence sets `receipt_confirmed=true`.
+Do not regenerate or resend the accepted 2026-07-17 package as part of WP33.
