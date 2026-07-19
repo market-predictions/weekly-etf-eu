@@ -1,0 +1,42 @@
+{
+  "artifact_type": "etf_eu_cockpit_front_page_validation",
+  "blockers": [],
+  "dutch": {
+    "blockers": [],
+    "classic_html": "output/fresh_generation/weekly_etf_eu_review_nl_260717_06.html",
+    "classic_html_sha256": "c72d43b08e07c06cff8458b8ee909d904a9b23a16a00e4d6d61c7b935493648b",
+    "classic_pdf_pages": 6,
+    "classic_pdf_sha256": "9b0b454dee08677a86590a6d49dc1c6d23c1a35b09711c514388787a3e0ef341",
+    "classic_section_count_preserved": 15,
+    "disabled_html_sha256": "c72d43b08e07c06cff8458b8ee909d904a9b23a16a00e4d6d61c7b935493648b",
+    "disabled_pdf_pages": 6,
+    "disabled_pdf_sha256": "9b0b454dee08677a86590a6d49dc1c6d23c1a35b09711c514388787a3e0ef341",
+    "email_html": "output/cockpit_preview/email/weekly_etf_eu_review_nl_260717_06_cockpit_email.html",
+    "enabled_html": "output/cockpit_preview/enabled/weekly_etf_eu_review_nl_260717_06_cockpit.html",
+    "enabled_pdf_pages": 7,
+    "front_page_count": 1,
+    "language": "nl",
+    "passed": true
+  },
+  "english": {
+    "blockers": [],
+    "classic_html": "output/fresh_generation/weekly_etf_eu_review_260717_06.html",
+    "classic_html_sha256": "bf28d1aee669949d30caf47e44d294367940a4ff4b0fa81f06ab1cba12348a43",
+    "classic_pdf_pages": 6,
+    "classic_pdf_sha256": "27923b2c3a554a134a5c4cfd7e93a257461d7fec7dbc7304223b547e4b5ba59b",
+    "classic_section_count_preserved": 15,
+    "disabled_html_sha256": "bf28d1aee669949d30caf47e44d294367940a4ff4b0fa81f06ab1cba12348a43",
+    "disabled_pdf_pages": 6,
+    "disabled_pdf_sha256": "27923b2c3a554a134a5c4cfd7e93a257461d7fec7dbc7304223b547e4b5ba59b",
+    "email_html": "output/cockpit_preview/email/weekly_etf_eu_review_260717_06_cockpit_email.html",
+    "enabled_html": "output/cockpit_preview/enabled/weekly_etf_eu_review_260717_06_cockpit.html",
+    "enabled_pdf_pages": 7,
+    "front_page_count": 1,
+    "language": "en",
+    "passed": true
+  },
+  "passed": true,
+  "portfolio_mutation": false,
+  "production_enablement": false,
+  "schema_version": "etf_eu_cockpit_front_page_validation_v1"
+}

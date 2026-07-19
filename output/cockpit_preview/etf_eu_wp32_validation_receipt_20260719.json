@@ -1,0 +1,12 @@
+{
+  "artifact_type": "etf_eu_wp32_validation_receipt",
+  "github_run_id": "29666602192",
+  "github_sha": "e0274d2cb6afa3d26b9b187b0321a6fe48deb6b8",
+  "machine_validation_passed": true,
+  "production_enablement": false,
+  "protected_inputs_unchanged": true,
+  "regression_tests_passed": true,
+  "schema_version": "etf_eu_wp32_validation_receipt_v1",
+  "validated_ref": "feature/etf-eu-wp32-additive-cockpit-preview",
+  "visual_review_pending": true
+}
