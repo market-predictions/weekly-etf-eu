@@ -9,6 +9,7 @@ from pathlib import Path
 from typing import Any
 
 from runtime.apply_etf_eu_cockpit_to_package import apply_cockpit_to_package
+from runtime.inline_etf_eu_email_report_styles import MARKER_ATTRIBUTE
 
 
 def _load(path: Path) -> dict[str, Any]:
@@ -103,6 +104,16 @@ def replay(args: argparse.Namespace) -> dict[str, Any]:
     if not all(disabled_identity.values()):
         raise RuntimeError(f"disabled replay changed classic files: {disabled_identity}")
 
+    marker = f'{MARKER_ATTRIBUTE}="true"'
+    enabled_nl_text = enabled["nl_html"].read_text(encoding="utf-8")
+    enabled_en_text = enabled["en_html"].read_text(encoding="utf-8")
+    full_report_inlined = {
+        "nl": marker in enabled_nl_text,
+        "en": marker in enabled_en_text,
+    }
+    if not all(full_report_inlined.values()):
+        raise RuntimeError(f"full-report email inlining missing: {full_report_inlined}")
+
     classic_pages = {"nl": _page_count(classic["nl_pdf"]), "en": _page_count(classic["en_pdf"])}
     enabled_pages = {"nl": _page_count(enabled["nl_pdf"]), "en": _page_count(enabled["en_pdf"])}
     if enabled_pages["nl"] != classic_pages["nl"] + 1 or enabled_pages["en"] != classic_pages["en"] + 1:
@@ -136,7 +147,9 @@ def replay(args: argparse.Namespace) -> dict[str, Any]:
             "enabled_pages": enabled_pages,
             "page_delta_nl": enabled_pages["nl"] - classic_pages["nl"],
             "page_delta_en": enabled_pages["en"] - classic_pages["en"],
-            "primary_html_mode": "email_safe_inline",
+            "primary_html_mode": "email_safe_inline_full_report",
+            "full_report_email_inline_styled_nl": full_report_inlined["nl"],
+            "full_report_email_inline_styled_en": full_report_inlined["en"],
             "pdf_source_mode": "browser_svg",
             "attachment_contract_file_count": 4,
             "dutch_primary_html": str(enabled["nl_html"]),
