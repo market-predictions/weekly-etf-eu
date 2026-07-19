@@ -52,8 +52,8 @@ def build(args: argparse.Namespace) -> dict[str, Path]:
     en_html = output_dir / f"weekly_etf_eu_review_{args.report_suffix}.html"
     nl_pdf = output_dir / f"weekly_etf_eu_review_nl_{args.report_suffix}.pdf"
     en_pdf = output_dir / f"weekly_etf_eu_review_{args.report_suffix}.pdf"
-    nl_email_html = output_dir / f"weekly_etf_eu_review_nl_{args.report_suffix}_email.html"
-    en_email_html = output_dir / f"weekly_etf_eu_review_{args.report_suffix}_email.html"
+    nl_browser_html = output_dir / f"weekly_etf_eu_review_nl_{args.report_suffix}_browser.html"
+    en_browser_html = output_dir / f"weekly_etf_eu_review_{args.report_suffix}_browser.html"
 
     render(state_path, "nl", nl_html, nl_pdf)
     render(state_path, "en", en_html, en_pdf)
@@ -74,8 +74,8 @@ def build(args: argparse.Namespace) -> dict[str, Path]:
         english_html=en_html,
         dutch_pdf=nl_pdf,
         english_pdf=en_pdf,
-        dutch_email_html=nl_email_html,
-        english_email_html=en_email_html,
+        dutch_browser_html=nl_browser_html,
+        english_browser_html=en_browser_html,
         feature_value=configured_feature_value(),
     )
 
@@ -106,6 +106,8 @@ def build(args: argparse.Namespace) -> dict[str, Path]:
         "cockpit_investor_summary_suppressed_en": cockpit_result.english_summary_suppressed,
         "cockpit_document_order": "cockpit_then_investor_then_analyst" if cockpit_result.enabled else "investor_then_analyst",
         "cockpit_email_safe_surface_available": cockpit_result.enabled,
+        "cockpit_email_safe_surface_is_primary_html": cockpit_result.enabled,
+        "cockpit_browser_html_retained_for_pdf_audit": cockpit_result.enabled,
         "cockpit_fallback_diagnostic": cockpit_result.diagnostic,
         "renderer_engine": "weasyprint",
         "render_source_authority": "normalized_report_state",
@@ -129,18 +131,18 @@ def build(args: argparse.Namespace) -> dict[str, Path]:
     manifest["html_generation_status"] = "client_grade_v2_generated"
     manifest["pdf_generation_status"] = "client_grade_v2_generated_pending_quality_gates"
     if cockpit_result.enabled:
-        manifest["dutch_primary_email_html"] = str(nl_email_html)
-        manifest["english_companion_email_html"] = str(en_email_html)
+        manifest["dutch_primary_browser_html"] = str(nl_browser_html)
+        manifest["english_companion_browser_html"] = str(en_browser_html)
     else:
-        manifest.pop("dutch_primary_email_html", None)
-        manifest.pop("english_companion_email_html", None)
+        manifest.pop("dutch_primary_browser_html", None)
+        manifest.pop("english_companion_browser_html", None)
     ready.update(promotion_fields)
     routine.update(promotion_fields)
     if cockpit_result.enabled:
-        ready["dutch_primary_email_html"] = str(nl_email_html)
-        ready["english_companion_email_html"] = str(en_email_html)
-        routine["dutch_primary_email_html"] = str(nl_email_html)
-        routine["english_companion_email_html"] = str(en_email_html)
+        ready["dutch_primary_browser_html"] = str(nl_browser_html)
+        ready["english_companion_browser_html"] = str(en_browser_html)
+        routine["dutch_primary_browser_html"] = str(nl_browser_html)
+        routine["english_companion_browser_html"] = str(en_browser_html)
     routine["routine_stage"] = "routine_client_grade_v2_generation_completed_pending_quality_gates"
     routine["workflow_status"] = "routine_client_grade_v2_generation_completed_pending_quality_gates"
 
@@ -156,8 +158,8 @@ def build(args: argparse.Namespace) -> dict[str, Path]:
         "english_pdf": en_pdf,
     }
     if cockpit_result.enabled:
-        outputs["dutch_email_html"] = nl_email_html
-        outputs["english_email_html"] = en_email_html
+        outputs["dutch_browser_html"] = nl_browser_html
+        outputs["english_browser_html"] = en_browser_html
     return outputs
 
 
