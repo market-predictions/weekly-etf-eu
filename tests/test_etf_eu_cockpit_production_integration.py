@@ -6,6 +6,7 @@ from pathlib import Path
 from weasyprint import HTML
 
 import runtime.apply_etf_eu_cockpit_to_package as integration
+from runtime.inline_etf_eu_email_report_styles import MARKER_ATTRIBUTE
 from runtime.render_etf_eu_cockpit_front_page import FRONT_PAGE_MARKER
 
 
@@ -39,17 +40,20 @@ def _classic(language: str) -> str:
     investor = "Beleggersrapport" if language == "nl" else "Investor report"
     analyst = "Analistenrapport" if language == "nl" else "Analyst report"
     sections = "".join(
-        f'<section><span class="badge">{number}</span><p>Section {number}</p></section>'
+        '<section class="panel"><div class="section-head">'
+        f'<span class="badge">{number}</span><span class="section-title">Section {number}</span>'
+        '</div><table><thead><tr><th>Key</th><th>Value</th></tr></thead>'
+        f'<tbody><tr><td>{number}</td><td>Evidence</td></tr></tbody></table></section>'
         for number in range(1, 16)
     )
     return (
         '<!doctype html><html><head><meta charset="utf-8"><style>'
         '@page{size:A4;margin:12mm}.hero-secondary{break-before:page}.panel{margin:8px}'
         '</style></head><body><main>'
-        f'<header class="hero"><div class="hero-type">{investor}</div></header>'
-        '<div class="summary-strip"><div class="mini-card">summary</div></div>'
+        f'<header class="hero"><div class="hero-row"><div><div class="masthead">ETF EU</div></div><div class="hero-type">{investor}</div></div></header>'
+        '<div class="hero-rule"></div><div class="summary-strip"><div class="mini-card">summary</div></div>'
         + sections[: len(sections) // 2]
-        + f'<header class="hero hero-secondary"><div class="hero-type">{analyst}</div></header>'
+        + f'<header class="hero hero-secondary"><div class="hero-row"><div><div class="masthead">ETF EU</div></div><div class="hero-type">{analyst}</div></div></header>'
         + sections[len(sections) // 2 :]
         + '</main></body></html>'
     )
@@ -98,7 +102,7 @@ def test_disabled_mode_is_byte_identical(tmp_path: Path) -> None:
     assert not paths["nl_browser"].exists() and not paths["en_browser"].exists()
 
 
-def test_enabled_mode_uses_inline_primary_html_and_browser_pdf_source(tmp_path: Path) -> None:
+def test_enabled_mode_inlines_full_client_body_and_retains_browser_pdf_source(tmp_path: Path) -> None:
     paths = _package(tmp_path)
     result = _apply(paths, "enabled")
     assert result.status == "enabled" and result.enabled is True
@@ -106,14 +110,17 @@ def test_enabled_mode_uses_inline_primary_html_and_browser_pdf_source(tmp_path: 
     en_primary = paths["en_html"].read_text(encoding="utf-8")
     nl_browser = paths["nl_browser"].read_text(encoding="utf-8")
     en_browser = paths["en_browser"].read_text(encoding="utf-8")
-    assert nl_primary.count(FRONT_PAGE_MARKER) == 1
-    assert en_primary.count(FRONT_PAGE_MARKER) == 1
-    assert 'data-render-mode="email"' in nl_primary and "style=" in nl_primary
-    assert 'data-render-mode="email"' in en_primary and "style=" in en_primary
-    assert 'data-render-mode="browser"' in nl_browser
-    assert 'data-render-mode="browser"' in en_browser
-    assert "<svg" in nl_browser and "<svg" in en_browser
-    assert "display:none!important" in nl_primary and "display:none!important" in en_primary
+    marker = f'{MARKER_ATTRIBUTE}="true"'
+    for primary in (nl_primary, en_primary):
+        assert primary.count(FRONT_PAGE_MARKER) == 1
+        assert 'data-render-mode="email"' in primary and "style=" in primary
+        assert marker in primary
+        assert 'class="hero" style="' in primary
+        assert 'class="panel" style="' in primary
+        assert '<th style="' in primary and '<td style="' in primary
+        assert "display:none!important" in primary
+    assert 'data-render-mode="browser"' in nl_browser and '<svg' in nl_browser
+    assert 'data-render-mode="browser"' in en_browser and '<svg' in en_browser
     assert paths["nl_pdf"].stat().st_size > 0 and paths["en_pdf"].stat().st_size > 0
 
 
