@@ -11,12 +11,7 @@ from pathlib import Path
 from weasyprint import HTML
 
 from runtime.etf_eu_cockpit_email_safe_surface import render_email_safe_front_page
-from runtime.render_etf_eu_cockpit_front_page import (
-    FRONT_PAGE_MARKER,
-    STYLE_ID,
-    CockpitFragment,
-    render_browser_fragment,
-)
+from runtime.render_etf_eu_cockpit_front_page import FRONT_PAGE_MARKER, STYLE_ID, CockpitFragment, render_browser_fragment
 
 FEATURE_FLAG = "MRKT_RPRTS_ETF_EU_COCKPIT_FRONT_PAGE"
 VALID_VALUES = frozenset({"disabled", "enabled"})
@@ -45,12 +40,11 @@ def _suppress_first_investor_summary(html_text: str) -> tuple[str, bool]:
     marker = '<div class="summary-strip">'
     if marker not in html_text:
         return html_text, False
-    updated = html_text.replace(
-        marker,
-        f'<div class="summary-strip {SUPPRESSED_SUMMARY_CLASS}" aria-hidden="true">',
-        1,
+    replacement = (
+        f'<div class="summary-strip {SUPPRESSED_SUMMARY_CLASS}" '
+        'aria-hidden="true" style="display:none!important">'
     )
-    return updated, True
+    return html_text.replace(marker, replacement, 1), True
 
 
 def _inject_style(html_text: str, css: str) -> str:
@@ -59,9 +53,7 @@ def _inject_style(html_text: str, css: str) -> str:
     head_close = re.search(r"</head\s*>", html_text, flags=re.IGNORECASE)
     if head_close is None:
         return css + html_text
-    suppression = f"<style>.{SUPPRESSED_SUMMARY_CLASS}{{display:none!important}}</style>"
-    payload = css + suppression
-    return html_text[: head_close.start()] + payload + html_text[head_close.start() :]
+    return html_text[: head_close.start()] + css + html_text[head_close.start() :]
 
 
 def _inject_after_body(html_text: str, fragment_html: str) -> str:
@@ -71,47 +63,23 @@ def _inject_after_body(html_text: str, fragment_html: str) -> str:
     return html_text[: body.end()] + fragment_html + html_text[body.end() :]
 
 
-def inject(
-    classic_html: str,
-    *,
-    state: dict,
-    language: str,
-    feature_value: str | None = None,
-    render_mode: str = "browser",
-) -> InjectionResult:
+def inject(classic_html: str, *, state: dict, language: str, feature_value: str | None = None, render_mode: str = "browser") -> InjectionResult:
     try:
         mode = parse_feature_value(feature_value)
     except Exception as exc:
-        return InjectionResult(
-            html=classic_html,
-            status="fallback",
-            diagnostic=f"invalid_feature_value:{type(exc).__name__}",
-            feature_value=str(feature_value),
-            front_page_count=classic_html.count(FRONT_PAGE_MARKER),
-            investor_summary_suppressed=False,
-        )
-
+        return InjectionResult(classic_html, "fallback", f"invalid_feature_value:{type(exc).__name__}", str(feature_value), classic_html.count(FRONT_PAGE_MARKER), False)
     if mode == "disabled":
-        return InjectionResult(
-            html=classic_html,
-            status="disabled",
-            diagnostic="feature_disabled",
-            feature_value=mode,
-            front_page_count=classic_html.count(FRONT_PAGE_MARKER),
-            investor_summary_suppressed=False,
-        )
-
+        return InjectionResult(classic_html, "disabled", "feature_disabled", mode, classic_html.count(FRONT_PAGE_MARKER), False)
     if FRONT_PAGE_MARKER in classic_html:
         count = classic_html.count(FRONT_PAGE_MARKER)
         return InjectionResult(
-            html=classic_html,
-            status="enabled" if count == 1 else "fallback",
-            diagnostic="already_injected" if count == 1 else "multiple_existing_front_pages",
-            feature_value=mode,
-            front_page_count=count,
-            investor_summary_suppressed=SUPPRESSED_SUMMARY_CLASS in classic_html,
+            classic_html,
+            "enabled" if count == 1 else "fallback",
+            "already_injected" if count == 1 else "multiple_existing_front_pages",
+            mode,
+            count,
+            SUPPRESSED_SUMMARY_CLASS in classic_html and "display:none!important" in classic_html,
         )
-
     try:
         if render_mode == "email":
             fragment = CockpitFragment(css="", html=render_email_safe_front_page(state, language), language=language)
@@ -125,45 +93,15 @@ def inject(
         count = updated.count(FRONT_PAGE_MARKER)
         if count != 1:
             raise RuntimeError("front-page count is not exactly one after injection")
-        return InjectionResult(
-            html=updated,
-            status="enabled",
-            diagnostic="front_page_injected",
-            feature_value=mode,
-            front_page_count=count,
-            investor_summary_suppressed=suppressed,
-        )
+        return InjectionResult(updated, "enabled", "front_page_injected", mode, count, suppressed)
     except Exception as exc:
-        return InjectionResult(
-            html=classic_html,
-            status="fallback",
-            diagnostic=f"render_or_injection_failure:{type(exc).__name__}:{exc}",
-            feature_value=mode,
-            front_page_count=classic_html.count(FRONT_PAGE_MARKER),
-            investor_summary_suppressed=False,
-        )
+        return InjectionResult(classic_html, "fallback", f"render_or_injection_failure:{type(exc).__name__}:{exc}", mode, classic_html.count(FRONT_PAGE_MARKER), False)
 
 
-def render_preview(
-    *,
-    state_path: Path,
-    classic_html_path: Path,
-    output_html_path: Path,
-    language: str,
-    feature_value: str,
-    render_mode: str,
-    output_pdf_path: Path | None = None,
-    classic_pdf_path: Path | None = None,
-) -> InjectionResult:
+def render_preview(*, state_path: Path, classic_html_path: Path, output_html_path: Path, language: str, feature_value: str, render_mode: str, output_pdf_path: Path | None = None, classic_pdf_path: Path | None = None) -> InjectionResult:
     state = json.loads(state_path.read_text(encoding="utf-8"))
     classic = classic_html_path.read_text(encoding="utf-8")
-    result = inject(
-        classic,
-        state=state,
-        language=language,
-        feature_value=feature_value,
-        render_mode=render_mode,
-    )
+    result = inject(classic, state=state, language=language, feature_value=feature_value, render_mode=render_mode)
     output_html_path.parent.mkdir(parents=True, exist_ok=True)
     output_html_path.write_text(result.html, encoding="utf-8")
     if output_pdf_path is not None:
