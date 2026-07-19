@@ -96,6 +96,7 @@ def build(args: argparse.Namespace) -> dict[str, Path]:
         "client_renderer_mode": renderer_mode,
         "production_renderer": "runtime/render_etf_eu_client_grade_v2_funded.py",
         "cockpit_integration_layer": "runtime/apply_etf_eu_cockpit_to_package.py",
+        "cockpit_email_inliner": "runtime/inline_etf_eu_email_report_styles.py",
         "cockpit_feature_flag": "MRKT_RPRTS_ETF_EU_COCKPIT_FRONT_PAGE",
         "cockpit_feature_value": cockpit_result.feature_value,
         "cockpit_front_page_status": cockpit_result.status,
@@ -107,6 +108,7 @@ def build(args: argparse.Namespace) -> dict[str, Path]:
         "cockpit_document_order": "cockpit_then_investor_then_analyst" if cockpit_result.enabled else "investor_then_analyst",
         "cockpit_email_safe_surface_available": cockpit_result.enabled,
         "cockpit_email_safe_surface_is_primary_html": cockpit_result.enabled,
+        "cockpit_full_report_email_inline_styled": cockpit_result.enabled,
         "cockpit_browser_html_retained_for_pdf_audit": cockpit_result.enabled,
         "cockpit_fallback_diagnostic": cockpit_result.diagnostic,
         "renderer_engine": "weasyprint",
@@ -123,7 +125,7 @@ def build(args: argparse.Namespace) -> dict[str, Path]:
         "equity_surface": "chart" if funded_state["equity_curve"]["show_chart"] else "cash_preservation_callout",
         "funded_position_count": funded_state["portfolio"]["position_count"],
         "full_generation_status": "client_grade_v2_generated_pending_quality_gates",
-        "upstream_pattern_adapted": "weekly-etf normalized report state, investor/analyst hierarchy, additive cockpit and email-safe front-page surface adapted for EU/UCITS production",
+        "upstream_pattern_adapted": "weekly-etf normalized report state, investor/analyst hierarchy, additive cockpit and full-report email-safe surface adapted for EU/UCITS production",
     }
     manifest.update(promotion_fields)
     manifest["renderer"] = "runtime/render_etf_eu_client_grade_v2_funded.py"
