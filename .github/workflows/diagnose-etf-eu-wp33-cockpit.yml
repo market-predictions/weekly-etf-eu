@@ -1,0 +1,131 @@
+name: ETF EU - Diagnose WP33 cockpit integration
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "control/run_queue/etf_eu_wp33_diagnostic_*.md"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out WP33 branch
+        uses: actions/checkout@v4
+        with:
+          ref: feature/etf-eu-wp33-cockpit-production-enablement
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install diagnostic dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libcairo2 libpango-1.0-0 libgdk-pixbuf-2.0-0 libffi-dev shared-mime-info fonts-liberation fonts-dejavu-core fonts-lato poppler-utils
+          python -m pip install --upgrade pip
+          python -m pip install weasyprint pytest
+
+      - name: Run diagnostic chain
+        id: diagnostic
+        continue-on-error: true
+        run: |
+          set +e
+          mkdir -p output/cockpit_enablement_diagnostics output/cockpit_enablement_preview
+          python -m pytest -q tests/test_etf_eu_cockpit_front_page.py tests/test_etf_eu_cockpit_production_integration.py tests/test_etf_eu_email_report_inliner.py > output/cockpit_enablement_diagnostics/tests.log 2>&1
+          TEST_EXIT=$?
+          REPLAY_EXIT=99
+          FRONT_EXIT=99
+          ENABLE_EXIT=99
+          if [ "$TEST_EXIT" -eq 0 ]; then
+            rm -rf output/cockpit_enablement_preview
+            python -m tools.replay_etf_eu_cockpit_production_enablement \
+              --state output/runtime/etf_eu_client_grade_report_state_20260717_141500.json \
+              --classic-nl-html output/fresh_generation/weekly_etf_eu_review_nl_260717_06.html \
+              --classic-nl-pdf output/fresh_generation/weekly_etf_eu_review_nl_260717_06.pdf \
+              --classic-en-html output/fresh_generation/weekly_etf_eu_review_260717_06.html \
+              --classic-en-pdf output/fresh_generation/weekly_etf_eu_review_260717_06.pdf \
+              --protected output/etf_eu_portfolio_state.json \
+              --protected output/etf_eu_trade_ledger.csv \
+              --protected output/etf_eu_recommendation_scorecard.csv \
+              --protected output/runtime/etf_eu_client_grade_report_state_20260717_141500.json \
+              --protected output/pricing/ucits_close_price_validation_basket_results_20260717_141500.json \
+              --protected output/fresh_generation/weekly_etf_eu_review_nl_260717_06.html \
+              --protected output/fresh_generation/weekly_etf_eu_review_nl_260717_06.pdf \
+              --protected output/fresh_generation/weekly_etf_eu_review_260717_06.html \
+              --protected output/fresh_generation/weekly_etf_eu_review_260717_06.pdf \
+              --output-root output/cockpit_enablement_preview > output/cockpit_enablement_diagnostics/replay.log 2>&1
+            REPLAY_EXIT=$?
+          fi
+          if [ "$REPLAY_EXIT" -eq 0 ]; then
+            python -m tools.validate_etf_eu_cockpit_front_page \
+              --state output/runtime/etf_eu_client_grade_report_state_20260717_141500.json \
+              --classic-nl-html output/fresh_generation/weekly_etf_eu_review_nl_260717_06.html \
+              --classic-nl-pdf output/fresh_generation/weekly_etf_eu_review_nl_260717_06.pdf \
+              --classic-en-html output/fresh_generation/weekly_etf_eu_review_260717_06.html \
+              --classic-en-pdf output/fresh_generation/weekly_etf_eu_review_260717_06.pdf \
+              --disabled-nl-html output/cockpit_enablement_preview/disabled/weekly_etf_eu_review_nl_260717_06.html \
+              --disabled-nl-pdf output/cockpit_enablement_preview/disabled/weekly_etf_eu_review_nl_260717_06.pdf \
+              --disabled-en-html output/cockpit_enablement_preview/disabled/weekly_etf_eu_review_260717_06.html \
+              --disabled-en-pdf output/cockpit_enablement_preview/disabled/weekly_etf_eu_review_260717_06.pdf \
+              --enabled-nl-html output/cockpit_enablement_preview/enabled/weekly_etf_eu_review_nl_260717_06.html \
+              --enabled-nl-pdf output/cockpit_enablement_preview/enabled/weekly_etf_eu_review_nl_260717_06.pdf \
+              --enabled-en-html output/cockpit_enablement_preview/enabled/weekly_etf_eu_review_260717_06.html \
+              --enabled-en-pdf output/cockpit_enablement_preview/enabled/weekly_etf_eu_review_260717_06.pdf \
+              --email-nl-html output/cockpit_enablement_preview/enabled/weekly_etf_eu_review_nl_260717_06.html \
+              --email-en-html output/cockpit_enablement_preview/enabled/weekly_etf_eu_review_260717_06.html \
+              --output output/cockpit_enablement_preview/etf_eu_cockpit_front_page_validation_20260719.json > output/cockpit_enablement_diagnostics/front_validator.log 2>&1
+            FRONT_EXIT=$?
+            python -m tools.validate_etf_eu_cockpit_production_enablement \
+              --replay output/cockpit_enablement_preview/etf_eu_cockpit_production_enablement_replay_20260719.json \
+              --builder tools/build_etf_eu_routine_report_package_v2.py \
+              --workflow .github/workflows/run-weekly-etf-eu-routine-preview.yml \
+              --output output/cockpit_enablement_preview/etf_eu_cockpit_production_enablement_validation_20260719.json > output/cockpit_enablement_diagnostics/enablement_validator.log 2>&1
+            ENABLE_EXIT=$?
+          fi
+          export TEST_EXIT REPLAY_EXIT FRONT_EXIT ENABLE_EXIT
+          python - <<'PY'
+          import json, os, subprocess
+          from pathlib import Path
+          payload = {
+              "schema_version": "etf_eu_wp33_diagnostic_v1",
+              "artifact_type": "etf_eu_wp33_diagnostic",
+              "github_run_id": os.environ.get("GITHUB_RUN_ID"),
+              "validated_sha": subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip(),
+              "test_exit_code": int(os.environ["TEST_EXIT"]),
+              "replay_exit_code": int(os.environ["REPLAY_EXIT"]),
+              "front_validator_exit_code": int(os.environ["FRONT_EXIT"]),
+              "enablement_validator_exit_code": int(os.environ["ENABLE_EXIT"]),
+              "external_transport": False
+          }
+          Path("output/cockpit_enablement_diagnostics/diagnostic.json").write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+          PY
+          exit 0
+
+      - name: Upload diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: etf-eu-wp33-diagnostics
+          retention-days: 7
+          path: |
+            output/cockpit_enablement_diagnostics/
+            output/cockpit_enablement_preview/*.json
+
+      - name: Persist diagnostics to WP33 branch
+        if: always()
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -f output/cockpit_enablement_diagnostics output/cockpit_enablement_preview/*.json || true
+          git commit -m "Persist ETF EU WP33 diagnostics [skip ci]" || true
+          git pull --rebase origin feature/etf-eu-wp33-cockpit-production-enablement
+          git push origin HEAD:feature/etf-eu-wp33-cockpit-production-enablement
