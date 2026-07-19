@@ -33,14 +33,15 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y libcairo2 libpango-1.0-0 libgdk-pixbuf-2.0-0 libffi-dev shared-mime-info fonts-liberation fonts-dejavu-core fonts-lato poppler-utils
           python -m pip install --upgrade pip
-          python -m pip install weasyprint pytest
+          python -m pip install weasyprint pytest beautifulsoup4
 
       - name: Run cockpit production integration regressions
         run: |
           set -euo pipefail
           python -m pytest -q \
             tests/test_etf_eu_cockpit_front_page.py \
-            tests/test_etf_eu_cockpit_production_integration.py
+            tests/test_etf_eu_cockpit_production_integration.py \
+            tests/test_etf_eu_email_report_inliner.py
 
       - name: Run exact-current non-delivery replay
         run: |
@@ -100,6 +101,33 @@ jobs:
           pdftoppm -png -r 200 output/cockpit_enablement_preview/enabled/weekly_etf_eu_review_nl_260717_06.pdf output/cockpit_enablement_preview/review_pages/nl/page
           pdftoppm -png -r 200 output/cockpit_enablement_preview/enabled/weekly_etf_eu_review_260717_06.pdf output/cockpit_enablement_preview/review_pages/en/page
 
+      - name: Render CSS-stripped receiving-mail simulations
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import re
+          from pathlib import Path
+          from weasyprint import HTML
+
+          root = Path("output/cockpit_enablement_preview")
+          target = root / "email_css_stripped"
+          target.mkdir(parents=True, exist_ok=True)
+          sources = {
+              "nl": root / "enabled/weekly_etf_eu_review_nl_260717_06.html",
+              "en": root / "enabled/weekly_etf_eu_review_260717_06.html",
+          }
+          for language, source in sources.items():
+              text = source.read_text(encoding="utf-8")
+              stripped = re.sub(r"<style\b[^>]*>.*?</style>", "", text, flags=re.IGNORECASE | re.DOTALL)
+              html_path = target / f"weekly_etf_eu_review_{language}_css_stripped.html"
+              pdf_path = target / f"weekly_etf_eu_review_{language}_css_stripped.pdf"
+              html_path.write_text(stripped, encoding="utf-8")
+              HTML(string=stripped, base_url=str(source.parent.resolve())).write_pdf(str(pdf_path))
+          PY
+          mkdir -p output/cockpit_enablement_preview/email_css_stripped/review_pages/nl output/cockpit_enablement_preview/email_css_stripped/review_pages/en
+          pdftoppm -png -r 160 output/cockpit_enablement_preview/email_css_stripped/weekly_etf_eu_review_nl_css_stripped.pdf output/cockpit_enablement_preview/email_css_stripped/review_pages/nl/page
+          pdftoppm -png -r 160 output/cockpit_enablement_preview/email_css_stripped/weekly_etf_eu_review_en_css_stripped.pdf output/cockpit_enablement_preview/email_css_stripped/review_pages/en/page
+
       - name: Write WP33 validation receipt
         run: |
           python - <<'PY'
@@ -114,6 +142,8 @@ jobs:
               "exact_current_replay_passed": True,
               "regression_tests_passed": True,
               "machine_validation_passed": True,
+              "full_report_email_inline_gate_passed": True,
+              "css_strip_simulation_rendered": True,
               "protected_inputs_unchanged": True,
               "external_transport": False,
               "visual_review_pending": True,
