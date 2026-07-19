@@ -15,8 +15,10 @@
     "enabled_html": "output/cockpit_preview/enabled/weekly_etf_eu_review_nl_260717_06_cockpit.html",
     "enabled_pdf_pages": 7,
     "front_page_count": 1,
+    "history_depth_visible": true,
     "language": "nl",
-    "passed": true
+    "passed": true,
+    "precise_return_visible": true
   },
   "english": {
     "blockers": [],
@@ -32,8 +34,10 @@
     "enabled_html": "output/cockpit_preview/enabled/weekly_etf_eu_review_260717_06_cockpit.html",
     "enabled_pdf_pages": 7,
     "front_page_count": 1,
+    "history_depth_visible": true,
     "language": "en",
-    "passed": true
+    "passed": true,
+    "precise_return_visible": true
   },
   "passed": true,
   "portfolio_mutation": false,

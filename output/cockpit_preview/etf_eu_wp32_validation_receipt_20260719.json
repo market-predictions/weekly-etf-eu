@@ -1,7 +1,7 @@
 {
   "artifact_type": "etf_eu_wp32_validation_receipt",
-  "github_run_id": "29666911258",
-  "github_sha": "c5fd33eba9bdb994e91e934c8b62d3adcbe8742a",
+  "github_run_id": "29667194382",
+  "github_sha": "25fb1a70f852e0f104f665d4620f4233c4828e62",
   "machine_validation_passed": true,
   "production_enablement": false,
   "protected_inputs_unchanged": true,
