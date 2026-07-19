@@ -1,0 +1,14 @@
+{
+  "artifact_type": "etf_eu_wp33_validation_receipt",
+  "exact_current_replay_passed": true,
+  "external_transport": false,
+  "github_run_id": "29667719241",
+  "machine_validation_passed": true,
+  "production_enablement_decision_recorded": false,
+  "protected_inputs_unchanged": true,
+  "regression_tests_passed": true,
+  "schema_version": "etf_eu_wp33_validation_receipt_v1",
+  "validated_ref": "feature/etf-eu-wp33-cockpit-production-enablement",
+  "validated_sha": "9f9a788b287b4e1e1281a1494a4e86cdff28f661",
+  "visual_review_pending": true
+}

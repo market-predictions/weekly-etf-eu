@@ -1,0 +1,61 @@
+{
+  "artifact_type": "etf_eu_cockpit_production_enablement_replay",
+  "disabled_result": {
+    "browser_audit_files_created": false,
+    "byte_identity": {
+      "en_html": true,
+      "en_pdf": true,
+      "nl_html": true,
+      "nl_pdf": true
+    },
+    "status": "disabled"
+  },
+  "enabled_result": {
+    "attachment_contract_file_count": 4,
+    "classic_pages": {
+      "en": 6,
+      "nl": 6
+    },
+    "dutch_browser_html": "output/cockpit_enablement_preview/enabled/weekly_etf_eu_review_nl_260717_06_browser.html",
+    "dutch_primary_html": "output/cockpit_enablement_preview/enabled/weekly_etf_eu_review_nl_260717_06.html",
+    "dutch_primary_pdf": "output/cockpit_enablement_preview/enabled/weekly_etf_eu_review_nl_260717_06.pdf",
+    "enabled_pages": {
+      "en": 7,
+      "nl": 7
+    },
+    "english_browser_html": "output/cockpit_enablement_preview/enabled/weekly_etf_eu_review_260717_06_browser.html",
+    "english_companion_html": "output/cockpit_enablement_preview/enabled/weekly_etf_eu_review_260717_06.html",
+    "english_companion_pdf": "output/cockpit_enablement_preview/enabled/weekly_etf_eu_review_260717_06.pdf",
+    "front_page_count_en": 1,
+    "front_page_count_nl": 1,
+    "page_delta_en": 1,
+    "page_delta_nl": 1,
+    "pdf_source_mode": "browser_svg",
+    "primary_html_mode": "email_safe_inline",
+    "status": "enabled",
+    "summary_suppressed_en": true,
+    "summary_suppressed_nl": true
+  },
+  "exact_current_state_used": true,
+  "external_transport": false,
+  "non_delivery_replay": true,
+  "portfolio_mutation": false,
+  "pricing_mutation": false,
+  "production_enablement_decision_recorded": false,
+  "protected_inputs": {
+    "output/etf_eu_portfolio_state.json": "a034c434c7aa31c0f31cd8a5261beeec5a1276628dcf1adf7df1ee61bdda054d",
+    "output/etf_eu_recommendation_scorecard.csv": "95dea81e029fa80c9b6e41ecfbb4908cf14e9c4c0ed5dd70e1c72ebad78e194e",
+    "output/etf_eu_trade_ledger.csv": "718f0681fe0d1162f9a91c34aa90489eb8566aecb06c12a1a2d9ad251be3e87c",
+    "output/fresh_generation/weekly_etf_eu_review_260717_06.html": "bf28d1aee669949d30caf47e44d294367940a4ff4b0fa81f06ab1cba12348a43",
+    "output/fresh_generation/weekly_etf_eu_review_260717_06.pdf": "27923b2c3a554a134a5c4cfd7e93a257461d7fec7dbc7304223b547e4b5ba59b",
+    "output/fresh_generation/weekly_etf_eu_review_nl_260717_06.html": "c72d43b08e07c06cff8458b8ee909d904a9b23a16a00e4d6d61c7b935493648b",
+    "output/fresh_generation/weekly_etf_eu_review_nl_260717_06.pdf": "9b0b454dee08677a86590a6d49dc1c6d23c1a35b09711c514388787a3e0ef341",
+    "output/pricing/ucits_close_price_validation_basket_results_20260717_141500.json": "2d3692691ece54742d51052d14b9c532b7f720edd6fead7159843aff823f837b",
+    "output/runtime/etf_eu_client_grade_report_state_20260717_141500.json": "b10c145c6b76faa9a9a16a8fbe2c82807707e335cda5d53e3d7c5ba0d67b2e3a"
+  },
+  "protected_inputs_unchanged": true,
+  "report_date": "2026-07-17",
+  "schema_version": "etf_eu_cockpit_production_enablement_replay_v1",
+  "source_run_id": "20260717_141500",
+  "source_state": "output/runtime/etf_eu_client_grade_report_state_20260717_141500.json"
+}

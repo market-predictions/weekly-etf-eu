@@ -1,0 +1,17 @@
+{
+  "artifact_type": "etf_eu_cockpit_production_enablement_validation",
+  "attachment_contract_file_count": 4,
+  "blockers": [],
+  "disabled_classic_contract_passed": true,
+  "enabled_page_delta_en": 1,
+  "enabled_page_delta_nl": 1,
+  "exact_current_state_used": true,
+  "external_transport": false,
+  "non_delivery_replay": true,
+  "passed": true,
+  "portfolio_mutation": false,
+  "production_workflow_feature_enabled": true,
+  "protected_inputs_unchanged": true,
+  "schema_version": "etf_eu_cockpit_production_enablement_validation_v1",
+  "source_replay": "output/cockpit_enablement_preview/etf_eu_cockpit_production_enablement_replay_20260719.json"
+}
