@@ -1,0 +1,114 @@
+name: ETF EU - WP32 cockpit preview validation bridge
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/validate-etf-eu-wp32-cockpit-preview-bridge.yml"
+      - "control/run_queue/etf_eu_wp32_cockpit_preview_validation_*.md"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  validate-feature-branch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out WP32 feature branch
+        uses: actions/checkout@v4
+        with:
+          ref: feature/etf-eu-wp32-additive-cockpit-preview
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install preview dependencies
+        run: |
+          set -euo pipefail
+          sudo apt-get update
+          sudo apt-get install -y libcairo2 libpango-1.0-0 libgdk-pixbuf-2.0-0 libffi-dev shared-mime-info fonts-liberation fonts-dejavu-core fonts-lato poppler-utils
+          python -m pip install --upgrade pip
+          python -m pip install weasyprint pytest
+
+      - name: Run WP32 regression tests
+        run: |
+          set -euo pipefail
+          python -m pytest -q tests/test_etf_eu_cockpit_front_page.py
+
+      - name: Record protected input hashes
+        run: |
+          set -euo pipefail
+          sha256sum output/etf_eu_portfolio_state.json output/etf_eu_trade_ledger.csv output/etf_eu_recommendation_scorecard.csv output/runtime/etf_eu_client_grade_report_state_20260717_141500.json output/fresh_generation/weekly_etf_eu_review_nl_260717_06.html output/fresh_generation/weekly_etf_eu_review_260717_06.html > /tmp/wp32-protected.sha256
+
+      - name: Render disabled controls
+        run: |
+          set -euo pipefail
+          mkdir -p output/cockpit_preview/disabled output/cockpit_preview/enabled output/cockpit_preview/email output/cockpit_preview/review_pages/nl output/cockpit_preview/review_pages/en
+          STATE=output/runtime/etf_eu_client_grade_report_state_20260717_141500.json
+          python -m runtime.additive_etf_eu_cockpit_front_page --state "$STATE" --classic-html output/fresh_generation/weekly_etf_eu_review_nl_260717_06.html --classic-pdf output/fresh_generation/weekly_etf_eu_review_nl_260717_06.pdf --output-html output/cockpit_preview/disabled/weekly_etf_eu_review_nl_260717_06.html --output-pdf output/cockpit_preview/disabled/weekly_etf_eu_review_nl_260717_06.pdf --language nl --feature disabled --render-mode browser
+          python -m runtime.additive_etf_eu_cockpit_front_page --state "$STATE" --classic-html output/fresh_generation/weekly_etf_eu_review_260717_06.html --classic-pdf output/fresh_generation/weekly_etf_eu_review_260717_06.pdf --output-html output/cockpit_preview/disabled/weekly_etf_eu_review_260717_06.html --output-pdf output/cockpit_preview/disabled/weekly_etf_eu_review_260717_06.pdf --language en --feature disabled --render-mode browser
+
+      - name: Render enabled browser and email previews
+        run: |
+          set -euo pipefail
+          STATE=output/runtime/etf_eu_client_grade_report_state_20260717_141500.json
+          python -m runtime.additive_etf_eu_cockpit_front_page --state "$STATE" --classic-html output/fresh_generation/weekly_etf_eu_review_nl_260717_06.html --output-html output/cockpit_preview/enabled/weekly_etf_eu_review_nl_260717_06_cockpit.html --output-pdf output/cockpit_preview/enabled/weekly_etf_eu_review_nl_260717_06_cockpit.pdf --language nl --feature enabled --render-mode browser
+          python -m runtime.additive_etf_eu_cockpit_front_page --state "$STATE" --classic-html output/fresh_generation/weekly_etf_eu_review_260717_06.html --output-html output/cockpit_preview/enabled/weekly_etf_eu_review_260717_06_cockpit.html --output-pdf output/cockpit_preview/enabled/weekly_etf_eu_review_260717_06_cockpit.pdf --language en --feature enabled --render-mode browser
+          python -m runtime.additive_etf_eu_cockpit_front_page --state "$STATE" --classic-html output/fresh_generation/weekly_etf_eu_review_nl_260717_06.html --output-html output/cockpit_preview/email/weekly_etf_eu_review_nl_260717_06_cockpit_email.html --language nl --feature enabled --render-mode email
+          python -m runtime.additive_etf_eu_cockpit_front_page --state "$STATE" --classic-html output/fresh_generation/weekly_etf_eu_review_260717_06.html --output-html output/cockpit_preview/email/weekly_etf_eu_review_260717_06_cockpit_email.html --language en --feature enabled --render-mode email
+
+      - name: Validate WP32 output contract
+        run: |
+          set -euo pipefail
+          python -m tools.validate_etf_eu_cockpit_front_page --state output/runtime/etf_eu_client_grade_report_state_20260717_141500.json --classic-nl-html output/fresh_generation/weekly_etf_eu_review_nl_260717_06.html --classic-nl-pdf output/fresh_generation/weekly_etf_eu_review_nl_260717_06.pdf --classic-en-html output/fresh_generation/weekly_etf_eu_review_260717_06.html --classic-en-pdf output/fresh_generation/weekly_etf_eu_review_260717_06.pdf --disabled-nl-html output/cockpit_preview/disabled/weekly_etf_eu_review_nl_260717_06.html --disabled-nl-pdf output/cockpit_preview/disabled/weekly_etf_eu_review_nl_260717_06.pdf --disabled-en-html output/cockpit_preview/disabled/weekly_etf_eu_review_260717_06.html --disabled-en-pdf output/cockpit_preview/disabled/weekly_etf_eu_review_260717_06.pdf --enabled-nl-html output/cockpit_preview/enabled/weekly_etf_eu_review_nl_260717_06_cockpit.html --enabled-nl-pdf output/cockpit_preview/enabled/weekly_etf_eu_review_nl_260717_06_cockpit.pdf --enabled-en-html output/cockpit_preview/enabled/weekly_etf_eu_review_260717_06_cockpit.html --enabled-en-pdf output/cockpit_preview/enabled/weekly_etf_eu_review_260717_06_cockpit.pdf --email-nl-html output/cockpit_preview/email/weekly_etf_eu_review_nl_260717_06_cockpit_email.html --email-en-html output/cockpit_preview/email/weekly_etf_eu_review_260717_06_cockpit_email.html --output output/cockpit_preview/etf_eu_cockpit_front_page_validation_20260719.json
+
+      - name: Render every enabled page at 200 dpi
+        run: |
+          set -euo pipefail
+          pdftoppm -png -r 200 output/cockpit_preview/enabled/weekly_etf_eu_review_nl_260717_06_cockpit.pdf output/cockpit_preview/review_pages/nl/page
+          pdftoppm -png -r 200 output/cockpit_preview/enabled/weekly_etf_eu_review_260717_06_cockpit.pdf output/cockpit_preview/review_pages/en/page
+          sha256sum -c /tmp/wp32-protected.sha256
+
+      - name: Write run receipt
+        run: |
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          payload = {
+              "schema_version": "etf_eu_wp32_validation_receipt_v1",
+              "artifact_type": "etf_eu_wp32_validation_receipt",
+              "github_run_id": os.environ.get("GITHUB_RUN_ID"),
+              "github_sha": os.environ.get("GITHUB_SHA"),
+              "validated_ref": "feature/etf-eu-wp32-additive-cockpit-preview",
+              "regression_tests_passed": True,
+              "machine_validation_passed": True,
+              "protected_inputs_unchanged": True,
+              "visual_review_pending": True,
+              "production_enablement": False
+          }
+          path = Path("output/cockpit_preview/etf_eu_wp32_validation_receipt_20260719.json")
+          path.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+          PY
+
+      - name: Upload review package
+        uses: actions/upload-artifact@v4
+        with:
+          name: etf-eu-wp32-cockpit-preview
+          retention-days: 14
+          if-no-files-found: error
+          path: output/cockpit_preview/
+
+      - name: Persist WP32 preview evidence to feature branch
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -f output/cockpit_preview
+          git commit -m "Persist ETF EU WP32 cockpit preview evidence [skip ci]"
+          git pull --rebase origin feature/etf-eu-wp32-additive-cockpit-preview
+          git push origin HEAD:feature/etf-eu-wp32-additive-cockpit-preview
