@@ -19,7 +19,7 @@ def sample_html() -> str:
 
 def _class_tag(text: str, class_name: str) -> str:
     match = re.search(
-        rf'<[^>]+class="[^"]*(?:^|\s){re.escape(class_name)}(?:\s|$)[^"]*"[^>]*>',
+        rf'<[^>]+class="[^"]*\b{re.escape(class_name)}\b[^"]*"[^>]*>',
         text,
         flags=re.IGNORECASE,
     )
