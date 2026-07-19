@@ -9,6 +9,7 @@ from typing import Any
 from weasyprint import HTML
 
 from runtime.additive_etf_eu_cockpit_front_page import FEATURE_FLAG, inject, parse_feature_value
+from runtime.inline_etf_eu_email_report_styles import MARKER_ATTRIBUTE, inline_email_report_styles
 
 
 @dataclass(frozen=True)
@@ -52,7 +53,7 @@ def apply_cockpit_to_package(
     english_browser_html: Path,
     feature_value: str | None = None,
 ) -> PackageCockpitResult:
-    """Apply one bilingual cockpit mutation without changing the attachment contract.
+    """Apply one atomic bilingual cockpit and full-report email mutation.
 
     The primary HTML files become the inline/table client versions used by the
     mail body and HTML attachments. PDFs are rendered from the richer browser
@@ -127,6 +128,11 @@ def apply_cockpit_to_package(
         )
 
     try:
+        nl_primary_html = inline_email_report_styles(email_nl.html)
+        en_primary_html = inline_email_report_styles(email_en.html)
+        marker = f'{MARKER_ATTRIBUTE}="true"'
+        if marker not in nl_primary_html or marker not in en_primary_html:
+            raise RuntimeError("full-report email inline marker missing")
         nl_pdf_bytes = _render_pdf_bytes(browser_nl.html, base_url=dutch_html.parent)
         en_pdf_bytes = _render_pdf_bytes(browser_en.html, base_url=english_html.parent)
         if not nl_pdf_bytes or not en_pdf_bytes:
@@ -136,7 +142,7 @@ def apply_cockpit_to_package(
             status="fallback",
             feature_value=feature,
             enabled=False,
-            diagnostic=f"pdf_render_failed:{type(exc).__name__}:{exc}",
+            diagnostic=f"client_render_failed:{type(exc).__name__}:{exc}",
             dutch_front_page_count=browser_nl.front_page_count,
             english_front_page_count=browser_en.front_page_count,
             dutch_summary_suppressed=True,
@@ -145,9 +151,9 @@ def apply_cockpit_to_package(
             english_browser_html=None,
         )
 
-    # Commit only after both languages and both render modes have succeeded.
-    _write_text_atomic(dutch_html, email_nl.html)
-    _write_text_atomic(english_html, email_en.html)
+    # Commit only after both languages, both render modes and full-body inlining succeed.
+    _write_text_atomic(dutch_html, nl_primary_html)
+    _write_text_atomic(english_html, en_primary_html)
     _write_atomic(dutch_pdf, nl_pdf_bytes)
     _write_atomic(english_pdf, en_pdf_bytes)
     _write_text_atomic(dutch_browser_html, browser_nl.html)
