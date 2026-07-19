@@ -1,0 +1,142 @@
+name: ETF EU - WP33 cockpit production enablement bridge
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/validate-etf-eu-wp33-cockpit-enablement-bridge.yml"
+      - "control/run_queue/etf_eu_wp33_cockpit_enablement_*.md"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  exact-current-replay:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out WP33 feature branch
+        uses: actions/checkout@v4
+        with:
+          ref: feature/etf-eu-wp33-cockpit-production-enablement
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install replay dependencies
+        run: |
+          set -euo pipefail
+          sudo apt-get update
+          sudo apt-get install -y libcairo2 libpango-1.0-0 libgdk-pixbuf-2.0-0 libffi-dev shared-mime-info fonts-liberation fonts-dejavu-core fonts-lato poppler-utils
+          python -m pip install --upgrade pip
+          python -m pip install weasyprint pytest
+
+      - name: Run cockpit production integration regressions
+        run: |
+          set -euo pipefail
+          python -m pytest -q \
+            tests/test_etf_eu_cockpit_front_page.py \
+            tests/test_etf_eu_cockpit_production_integration.py
+
+      - name: Run exact-current non-delivery replay
+        run: |
+          set -euo pipefail
+          rm -rf output/cockpit_enablement_preview
+          python -m tools.replay_etf_eu_cockpit_production_enablement \
+            --state output/runtime/etf_eu_client_grade_report_state_20260717_141500.json \
+            --classic-nl-html output/fresh_generation/weekly_etf_eu_review_nl_260717_06.html \
+            --classic-nl-pdf output/fresh_generation/weekly_etf_eu_review_nl_260717_06.pdf \
+            --classic-en-html output/fresh_generation/weekly_etf_eu_review_260717_06.html \
+            --classic-en-pdf output/fresh_generation/weekly_etf_eu_review_260717_06.pdf \
+            --protected output/etf_eu_portfolio_state.json \
+            --protected output/etf_eu_trade_ledger.csv \
+            --protected output/etf_eu_recommendation_scorecard.csv \
+            --protected output/runtime/etf_eu_client_grade_report_state_20260717_141500.json \
+            --protected output/pricing/ucits_close_price_validation_basket_results_20260717_141500.json \
+            --protected output/fresh_generation/weekly_etf_eu_review_nl_260717_06.html \
+            --protected output/fresh_generation/weekly_etf_eu_review_nl_260717_06.pdf \
+            --protected output/fresh_generation/weekly_etf_eu_review_260717_06.html \
+            --protected output/fresh_generation/weekly_etf_eu_review_260717_06.pdf \
+            --output-root output/cockpit_enablement_preview
+
+      - name: Validate exact-current cockpit output contract
+        run: |
+          set -euo pipefail
+          python -m tools.validate_etf_eu_cockpit_front_page \
+            --state output/runtime/etf_eu_client_grade_report_state_20260717_141500.json \
+            --classic-nl-html output/fresh_generation/weekly_etf_eu_review_nl_260717_06.html \
+            --classic-nl-pdf output/fresh_generation/weekly_etf_eu_review_nl_260717_06.pdf \
+            --classic-en-html output/fresh_generation/weekly_etf_eu_review_260717_06.html \
+            --classic-en-pdf output/fresh_generation/weekly_etf_eu_review_260717_06.pdf \
+            --disabled-nl-html output/cockpit_enablement_preview/disabled/weekly_etf_eu_review_nl_260717_06.html \
+            --disabled-nl-pdf output/cockpit_enablement_preview/disabled/weekly_etf_eu_review_nl_260717_06.pdf \
+            --disabled-en-html output/cockpit_enablement_preview/disabled/weekly_etf_eu_review_260717_06.html \
+            --disabled-en-pdf output/cockpit_enablement_preview/disabled/weekly_etf_eu_review_260717_06.pdf \
+            --enabled-nl-html output/cockpit_enablement_preview/enabled/weekly_etf_eu_review_nl_260717_06.html \
+            --enabled-nl-pdf output/cockpit_enablement_preview/enabled/weekly_etf_eu_review_nl_260717_06.pdf \
+            --enabled-en-html output/cockpit_enablement_preview/enabled/weekly_etf_eu_review_260717_06.html \
+            --enabled-en-pdf output/cockpit_enablement_preview/enabled/weekly_etf_eu_review_260717_06.pdf \
+            --email-nl-html output/cockpit_enablement_preview/enabled/weekly_etf_eu_review_nl_260717_06.html \
+            --email-en-html output/cockpit_enablement_preview/enabled/weekly_etf_eu_review_260717_06.html \
+            --output output/cockpit_enablement_preview/etf_eu_cockpit_front_page_validation_20260719.json
+
+      - name: Validate production enablement contract
+        run: |
+          set -euo pipefail
+          python -m tools.validate_etf_eu_cockpit_production_enablement \
+            --replay output/cockpit_enablement_preview/etf_eu_cockpit_production_enablement_replay_20260719.json \
+            --builder tools/build_etf_eu_routine_report_package_v2.py \
+            --workflow .github/workflows/run-weekly-etf-eu-routine-preview.yml \
+            --output output/cockpit_enablement_preview/etf_eu_cockpit_production_enablement_validation_20260719.json
+
+      - name: Render every enabled PDF page at 200 dpi
+        run: |
+          set -euo pipefail
+          mkdir -p output/cockpit_enablement_preview/review_pages/nl output/cockpit_enablement_preview/review_pages/en
+          pdftoppm -png -r 200 output/cockpit_enablement_preview/enabled/weekly_etf_eu_review_nl_260717_06.pdf output/cockpit_enablement_preview/review_pages/nl/page
+          pdftoppm -png -r 200 output/cockpit_enablement_preview/enabled/weekly_etf_eu_review_260717_06.pdf output/cockpit_enablement_preview/review_pages/en/page
+
+      - name: Write WP33 validation receipt
+        run: |
+          python - <<'PY'
+          import json, os, subprocess
+          from pathlib import Path
+          payload = {
+              "schema_version": "etf_eu_wp33_validation_receipt_v1",
+              "artifact_type": "etf_eu_wp33_validation_receipt",
+              "github_run_id": os.environ.get("GITHUB_RUN_ID"),
+              "validated_ref": "feature/etf-eu-wp33-cockpit-production-enablement",
+              "validated_sha": subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip(),
+              "exact_current_replay_passed": True,
+              "regression_tests_passed": True,
+              "machine_validation_passed": True,
+              "protected_inputs_unchanged": True,
+              "external_transport": False,
+              "visual_review_pending": True,
+              "production_enablement_decision_recorded": False
+          }
+          path = Path("output/cockpit_enablement_preview/etf_eu_wp33_validation_receipt_20260719.json")
+          path.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+          PY
+
+      - name: Upload complete WP33 review package
+        uses: actions/upload-artifact@v4
+        with:
+          name: etf-eu-wp33-cockpit-enablement
+          retention-days: 14
+          if-no-files-found: error
+          path: output/cockpit_enablement_preview/
+
+      - name: Persist WP33 replay evidence to feature branch
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -f output/cockpit_enablement_preview
+          git commit -m "Persist ETF EU WP33 cockpit enablement replay [skip ci]"
+          git pull --rebase origin feature/etf-eu-wp33-cockpit-production-enablement
+          git push origin HEAD:feature/etf-eu-wp33-cockpit-production-enablement
