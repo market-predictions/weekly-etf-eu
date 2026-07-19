@@ -7,7 +7,10 @@ import subprocess
 from pathlib import Path
 from typing import Any
 
+from bs4 import BeautifulSoup, Tag
+
 from runtime.additive_etf_eu_cockpit_front_page import SUPPRESSED_SUMMARY_CLASS
+from runtime.inline_etf_eu_email_report_styles import MARKER_ATTRIBUTE
 from runtime.render_etf_eu_cockpit_front_page import FRONT_PAGE_MARKER
 
 
@@ -32,6 +35,45 @@ def _front(html_text: str) -> str:
     start = html_text.rfind("<section", 0, marker)
     end = html_text.find("</section>", marker)
     return html_text[start : end + len("</section>")] if start >= 0 and end >= 0 else ""
+
+
+def _style_map(tag: Tag | None) -> dict[str, str]:
+    if tag is None:
+        return {}
+    result: dict[str, str] = {}
+    for item in str(tag.get("style") or "").split(";"):
+        if ":" not in item:
+            continue
+        key, value = item.split(":", 1)
+        if key.strip() and value.strip():
+            result[key.strip()] = value.strip()
+    return result
+
+
+def _head_css_removed_hierarchy(html_text: str) -> tuple[bool, list[str]]:
+    stripped = re.sub(r"<style\b[^>]*>.*?</style>", "", html_text, flags=re.IGNORECASE | re.DOTALL)
+    soup = BeautifulSoup(stripped, "html.parser")
+    missing: list[str] = []
+    requirements = {
+        ".etf-eu-cockpit-page": ("background", "font-family"),
+        ".hero": ("background", "padding"),
+        ".panel": ("background", "border", "padding"),
+        ".section-head": ("display", "border-bottom"),
+        ".badge": ("background", "border-radius"),
+        ".section-title": ("font-weight", "text-transform"),
+        "table": ("width", "border-collapse"),
+        "th": ("background", "border"),
+        "td": ("border", "padding"),
+    }
+    for selector, properties in requirements.items():
+        tag = soup.select_one(selector)
+        styles = _style_map(tag)
+        if tag is None or any(prop not in styles for prop in properties):
+            missing.append(selector)
+    suppressed = soup.select_one(f".{SUPPRESSED_SUMMARY_CLASS}")
+    if suppressed is None or "display:none!important" not in str(suppressed.get("style") or ""):
+        missing.append("inline investor-summary suppression")
+    return not missing, missing
 
 
 def validate(args: argparse.Namespace) -> dict[str, Any]:
@@ -60,8 +102,12 @@ def validate(args: argparse.Namespace) -> dict[str, Any]:
             blockers.append(f"enabled contract mismatch: {key}")
     if enabled.get("attachment_contract_file_count") != 4:
         blockers.append("attachment contract changed")
-    if enabled.get("primary_html_mode") != "email_safe_inline":
-        blockers.append("primary HTML is not email-safe inline")
+    if enabled.get("primary_html_mode") != "email_safe_inline_full_report":
+        blockers.append("primary HTML is not full-report email-safe inline")
+    if enabled.get("full_report_email_inline_styled_nl") is not True:
+        blockers.append("Dutch full-report email inlining not recorded")
+    if enabled.get("full_report_email_inline_styled_en") is not True:
+        blockers.append("English full-report email inlining not recorded")
     if enabled.get("pdf_source_mode") != "browser_svg":
         blockers.append("PDF source is not browser SVG mode")
 
@@ -76,6 +122,8 @@ def validate(args: argparse.Namespace) -> dict[str, Any]:
         if not path.exists():
             blockers.append(f"enabled output missing: {key}")
 
+    stripped_results: dict[str, dict[str, Any]] = {}
+    marker = f'{MARKER_ATTRIBUTE}="true"'
     for language, primary_key, browser_key, pdf_key, investor, analyst in (
         ("nl", "dutch_primary_html", "dutch_browser_html", "dutch_primary_pdf", "Beleggersrapport", "Analistenrapport"),
         ("en", "english_companion_html", "english_browser_html", "english_companion_pdf", "Investor report", "Analyst report"),
@@ -88,6 +136,8 @@ def validate(args: argparse.Namespace) -> dict[str, Any]:
         browser_front = _front(browser)
         if primary.count(FRONT_PAGE_MARKER) != 1 or browser.count(FRONT_PAGE_MARKER) != 1:
             blockers.append(f"{language}: front-page count mismatch")
+        if marker not in primary:
+            blockers.append(f"{language}: full-report email inline marker missing")
         if 'data-render-mode="email"' not in primary_front or "style=" not in primary_front:
             blockers.append(f"{language}: primary HTML is not inline email mode")
         if "<style" in primary_front.lower():
@@ -105,6 +155,13 @@ def validate(args: argparse.Namespace) -> dict[str, Any]:
             blockers.append(f"{language}: classic section body changed")
         if _pages(paths[pdf_key]) != (enabled.get("enabled_pages") or {}).get(language):
             blockers.append(f"{language}: replay PDF page count mismatch")
+        hierarchy_passed, hierarchy_missing = _head_css_removed_hierarchy(primary)
+        stripped_results[language] = {
+            "passed": hierarchy_passed,
+            "missing": hierarchy_missing,
+        }
+        if not hierarchy_passed:
+            blockers.append(f"{language}: head-CSS removal hierarchy failed: {','.join(hierarchy_missing)}")
 
     builder_text = Path(args.builder).read_text(encoding="utf-8")
     required_builder_tokens = [
@@ -112,6 +169,8 @@ def validate(args: argparse.Namespace) -> dict[str, Any]:
         "configured_feature_value",
         "cockpit_front_page_enabled",
         "cockpit_email_safe_surface_is_primary_html",
+        "cockpit_full_report_email_inline_styled",
+        "cockpit_email_inliner",
         "dutch_primary_browser_html",
         "english_companion_browser_html",
     ]
@@ -125,6 +184,8 @@ def validate(args: argparse.Namespace) -> dict[str, Any]:
         blockers.append("routine workflow does not explicitly enable the cockpit")
     if "Generate and Validate Preview (NO EMAIL)" not in workflow_text:
         blockers.append("routine workflow non-delivery boundary missing")
+    if "tests/test_etf_eu_email_report_inliner.py" not in workflow_text:
+        blockers.append("routine workflow does not run email-inliner regressions")
 
     payload = {
         "schema_version": "etf_eu_cockpit_production_enablement_validation_v1",
@@ -138,6 +199,9 @@ def validate(args: argparse.Namespace) -> dict[str, Any]:
         "enabled_page_delta_nl": enabled.get("page_delta_nl"),
         "enabled_page_delta_en": enabled.get("page_delta_en"),
         "attachment_contract_file_count": enabled.get("attachment_contract_file_count"),
+        "full_report_email_inline_styled_nl": enabled.get("full_report_email_inline_styled_nl") is True,
+        "full_report_email_inline_styled_en": enabled.get("full_report_email_inline_styled_en") is True,
+        "head_css_removal_hierarchy": stripped_results,
         "protected_inputs_unchanged": replay.get("protected_inputs_unchanged") is True,
         "production_workflow_feature_enabled": expected_line in workflow_text,
         "portfolio_mutation": False,
