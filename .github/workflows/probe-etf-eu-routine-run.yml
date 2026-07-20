@@ -16,7 +16,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       GH_TOKEN: ${{ github.token }}
-      TARGET_SHA: 4e10e7906b40320bf112426df6492d04fd3ab36b
+      TARGET_SHA: 52514a7ea069332e54b4248203d34f2d210ea369
       TARGET_WORKFLOW: run-weekly-etf-eu-routine-preview.yml
       TARGET_RUN_IDENTITY: 20260720_014500
     steps:
