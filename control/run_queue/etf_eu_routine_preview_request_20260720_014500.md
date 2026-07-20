@@ -6,3 +6,4 @@ report_suffix=260720
 previous_routine_manifest=output/run_manifests/etf_eu_routine_run_manifest_2026-07-17_20260717_141500.json
 previous_delivery_closeout_manifest=output/run_manifests/etf_eu_production_delivery_closeout_manifest_20260711_175327.json
 execution_mode=generate_validate_only
+request_revision=2
