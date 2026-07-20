@@ -2,7 +2,7 @@
   "artifact_type": "etf_eu_readiness_attempt",
   "close_outcome": "skipped",
   "diagnostic_log": "output/run_manifests/etf_eu_readiness_attempt_20260717_141500.log",
-  "helper_workflow_run_id": 29738234752,
+  "helper_workflow_run_id": 29739091105,
   "job_status": "success",
   "metadata_outcome": "success",
   "persist_outcome": "skipped",
