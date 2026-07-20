@@ -1,0 +1,161 @@
+{
+  "schema_version": "etf_eu_routine_run_probe_v1",
+  "artifact_type": "etf_eu_routine_run_probe",
+  "target_run_identity": "20260720_014500",
+  "target_head_sha": "4e10e7906b40320bf112426df6492d04fd3ab36b",
+  "workflow_file": "run-weekly-etf-eu-routine-preview.yml",
+  "run_id": 29709767052,
+  "status": "completed",
+  "conclusion": "failure",
+  "url": "https://github.com/market-predictions/weekly-etf-eu/actions/runs/29709767052",
+  "jobs": [
+    {
+      "completedAt": "2026-07-20T03:01:58Z",
+      "conclusion": "failure",
+      "databaseId": 88252003193,
+      "name": "generate-validate",
+      "startedAt": "2026-07-20T03:01:16Z",
+      "status": "completed",
+      "steps": [
+        {
+          "completedAt": "2026-07-20T03:01:19Z",
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "startedAt": "2026-07-20T03:01:17Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-07-20T03:01:21Z",
+          "conclusion": "success",
+          "name": "Check out repository",
+          "number": 2,
+          "startedAt": "2026-07-20T03:01:19Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-07-20T03:01:21Z",
+          "conclusion": "success",
+          "name": "Set up Python",
+          "number": 3,
+          "startedAt": "2026-07-20T03:01:21Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-07-20T03:01:55Z",
+          "conclusion": "success",
+          "name": "Install PDF and Python dependencies",
+          "number": 4,
+          "startedAt": "2026-07-20T03:01:21Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-07-20T03:01:55Z",
+          "conclusion": "failure",
+          "name": "Resolve broker-neutral non-delivery request",
+          "number": 5,
+          "startedAt": "2026-07-20T03:01:55Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-07-20T03:01:55Z",
+          "conclusion": "skipped",
+          "name": "Run focused funded-aware and visual-contract tests",
+          "number": 6,
+          "startedAt": "2026-07-20T03:01:55Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-07-20T03:01:55Z",
+          "conclusion": "skipped",
+          "name": "Build current UCITS pricing evidence",
+          "number": 7,
+          "startedAt": "2026-07-20T03:01:55Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-07-20T03:01:55Z",
+          "conclusion": "skipped",
+          "name": "Refresh macro context and valuation history",
+          "number": 8,
+          "startedAt": "2026-07-20T03:01:55Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-07-20T03:01:55Z",
+          "conclusion": "skipped",
+          "name": "Build funded-aware Dutch and English outputs",
+          "number": 9,
+          "startedAt": "2026-07-20T03:01:55Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-07-20T03:01:55Z",
+          "conclusion": "skipped",
+          "name": "Run strict machine validation",
+          "number": 10,
+          "startedAt": "2026-07-20T03:01:55Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-07-20T03:01:55Z",
+          "conclusion": "skipped",
+          "name": "Render every PDF page for review",
+          "number": 11,
+          "startedAt": "2026-07-20T03:01:55Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-07-20T03:01:55Z",
+          "conclusion": "skipped",
+          "name": "Write non-delivery preview manifest",
+          "number": 12,
+          "startedAt": "2026-07-20T03:01:55Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-07-20T03:01:55Z",
+          "conclusion": "skipped",
+          "name": "Upload complete preview review package",
+          "number": 13,
+          "startedAt": "2026-07-20T03:01:55Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-07-20T03:01:55Z",
+          "conclusion": "skipped",
+          "name": "Persist preview and review evidence",
+          "number": 14,
+          "startedAt": "2026-07-20T03:01:55Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-07-20T03:01:55Z",
+          "conclusion": "skipped",
+          "name": "Post Set up Python",
+          "number": 27,
+          "startedAt": "2026-07-20T03:01:55Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-07-20T03:01:55Z",
+          "conclusion": "success",
+          "name": "Post Check out repository",
+          "number": 28,
+          "startedAt": "2026-07-20T03:01:55Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-07-20T03:01:55Z",
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 29,
+          "startedAt": "2026-07-20T03:01:55Z",
+          "status": "completed"
+        }
+      ],
+      "url": "https://github.com/market-predictions/weekly-etf-eu/actions/runs/29709767052/job/88252003193"
+    }
+  ],
+  "external_transport": false
+}
