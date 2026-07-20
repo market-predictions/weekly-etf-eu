@@ -1,0 +1,59 @@
+name: ETF EU - Probe routine run status
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "control/run_queue/etf_eu_routine_run_probe_*.md"
+
+permissions:
+  actions: read
+  contents: write
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+      TARGET_SHA: 4e10e7906b40320bf112426df6492d04fd3ab36b
+      TARGET_WORKFLOW: run-weekly-etf-eu-routine-preview.yml
+      TARGET_RUN_IDENTITY: 20260720_014500
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Wait for target run and record result
+        run: |
+          set -euo pipefail
+          mkdir -p output/run_manifests
+          FOUND=""
+          for _ in $(seq 1 60); do
+            FOUND="$(gh run list --repo "$GITHUB_REPOSITORY" --workflow "$TARGET_WORKFLOW" --limit 30 --json databaseId,headSha,status,conclusion,event,createdAt,url | jq -c --arg sha "$TARGET_SHA" '[.[] | select(.headSha == $sha)] | first // empty')"
+            if [ -n "$FOUND" ] && [ "$(printf '%s' "$FOUND" | jq -r '.status')" = "completed" ]; then
+              break
+            fi
+            sleep 20
+          done
+          if [ -z "$FOUND" ]; then
+            FOUND='{"status":"not_found","conclusion":null,"databaseId":null,"url":null}'
+          fi
+          RUN_DB_ID="$(printf '%s' "$FOUND" | jq -r '.databaseId // empty')"
+          if [ -n "$RUN_DB_ID" ]; then
+            gh run view "$RUN_DB_ID" --repo "$GITHUB_REPOSITORY" --json jobs,status,conclusion,url > /tmp/run_detail.json
+          else
+            printf '%s\n' '{"jobs":[],"status":"not_found","conclusion":null,"url":null}' > /tmp/run_detail.json
+          fi
+          jq -n --argjson summary "$FOUND" --slurpfile detail /tmp/run_detail.json \
+            --arg identity "$TARGET_RUN_IDENTITY" --arg sha "$TARGET_SHA" --arg workflow "$TARGET_WORKFLOW" \
+            '{schema_version:"etf_eu_routine_run_probe_v1",artifact_type:"etf_eu_routine_run_probe",target_run_identity:$identity,target_head_sha:$sha,workflow_file:$workflow,run_id:$summary.databaseId,status:$summary.status,conclusion:$summary.conclusion,url:$summary.url,jobs:($detail[0].jobs // []),external_transport:false}' \
+            > "output/run_manifests/etf_eu_routine_run_probe_${TARGET_RUN_IDENTITY}.json"
+      - name: Persist run probe
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -f "output/run_manifests/etf_eu_routine_run_probe_${TARGET_RUN_IDENTITY}.json"
+          git commit -m "Persist ETF EU routine run probe ${TARGET_RUN_IDENTITY} [skip ci]"
+          git pull --rebase origin main
+          git push origin HEAD:main
