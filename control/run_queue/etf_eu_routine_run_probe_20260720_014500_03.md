@@ -1,3 +1,4 @@
 target_run_identity=20260720_014500
-probe_iteration=3
+probe_iteration=4
+target_head_sha=52514a7ea069332e54b4248203d34f2d210ea369
 external_transport=false
