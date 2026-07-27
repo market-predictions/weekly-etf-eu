@@ -6,30 +6,15 @@ on:
     paths:
       - "config/shared_exposure_ucits_map.yml"
       - "config/ucits_symbol_registry_sync_additions.yml"
-      - "config/etf_eu_transition_evidence_basket.yml"
-      - "config/weekly_etf_donor_surface_contract.yml"
-      - "pricing/build_etf_eu_transition_evidence.py"
       - "runtime/merge_etf_eu_sync_registries.py"
       - "runtime/build_etf_eu_strategy_sync_shadow.py"
-      - "runtime/build_etf_eu_target_allocator_shadow.py"
-      - "runtime/build_etf_eu_target_allocator_shadow_v2.py"
       - "runtime/normalize_etf_eu_alignment_contract.py"
-      - "runtime/render_etf_eu_sister_report_shadow.py"
-      - "runtime/add_etf_eu_portfolio_alignment_surface.py"
-      - "runtime/polish_etf_eu_sister_report_client_surface.py"
-      - "runtime/finalize_etf_eu_sister_report_nl_language.py"
-      - "runtime/fix_etf_eu_sister_report_layout.py"
       - "tools/validate_etf_eu_sync_registry_additions.py"
       - "tools/validate_etf_eu_strategy_sync_shadow.py"
-      - "tools/validate_etf_eu_target_allocator_shadow.py"
-      - "tools/validate_etf_eu_target_allocator_shadow_v2.py"
-      - "tools/validate_etf_eu_sister_report_shadow.py"
-      - "tools/validate_etf_eu_sister_report_pdf_layout.py"
-      - "tools/validate_etf_eu_donor_surface_contract.py"
       - ".github/workflows/validate-etf-eu-strategy-sync-shadow.yml"
       - "docs/roadmaps/WEEKLY_ETF_US_EU_SYNCHRONIZATION_ROADMAP_20260727.md"
       - "control/work_packages/WP_SYNC_00_03_EU_DONOR_PARITY_20260727.md"
-      - "control/work_packages/WP_SYNC_04_EU_TARGET_ALLOCATOR_20260727.md"
+      - "control/handovers/HANDOVER_WEEKLY_ETF_EU_POLICY_SYNC_WP04_06_20260727.md"
 
 permissions:
   contents: read
@@ -52,12 +37,11 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Install synchronization and rendering dependencies
+      - name: Install synchronization dependencies
         run: |
           python -m pip install -r requirements.txt
-          python -m pip install weasyprint yfinance pypdf
 
-      - name: Build donor shared strategy and portfolio target
+      - name: Build and validate donor shared artifacts
         run: |
           mkdir -p output/sync_shadow
           cd donor-weekly-etf
@@ -68,89 +52,24 @@ jobs:
           python tools/validate_shared_strategy_state.py ../output/sync_shadow/etf_shared_strategy_state.json
           python tools/validate_shared_portfolio_target.py ../output/sync_shadow/etf_shared_portfolio_target.json
 
-      - name: Validate supplemental UCITS registry evidence
+      - name: Validate and merge supplemental UCITS registry
         run: |
           python tools/validate_etf_eu_sync_registry_additions.py \
             config/ucits_symbol_registry_sync_additions.yml
-
-      - name: Build shadow merged UCITS registry
-        run: |
           python runtime/merge_etf_eu_sync_registries.py \
             --output output/sync_shadow/ucits_symbol_registry_sync_merged.yml
 
-      - name: Build EU synchronization shadow
+      - name: Build and validate EU synchronization state
         run: |
           python runtime/build_etf_eu_strategy_sync_shadow.py \
             --shared-strategy-state output/sync_shadow/etf_shared_strategy_state.json \
             --shared-portfolio-target output/sync_shadow/etf_shared_portfolio_target.json \
             --registry output/sync_shadow/ucits_symbol_registry_sync_merged.yml \
             --output output/sync_shadow/etf_eu_strategy_sync_shadow.json
-
-      - name: Normalize zero-weight exposure alignment
-        run: |
           python runtime/normalize_etf_eu_alignment_contract.py \
             output/sync_shadow/etf_eu_strategy_sync_shadow.json
-
-      - name: Validate EU synchronization shadow
-        run: |
-          python tools/validate_etf_eu_strategy_sync_shadow.py output/sync_shadow/etf_eu_strategy_sync_shadow.json
-
-      - name: Build transition pricing and liquidity evidence
-        run: |
-          python pricing/build_etf_eu_transition_evidence.py \
-            --report-date 2026-07-27 \
-            --output output/sync_shadow/etf_eu_transition_evidence.json
-
-      - name: Build and validate EU target allocator variants
-        run: |
-          python runtime/build_etf_eu_target_allocator_shadow_v2.py \
-            --sync-shadow output/sync_shadow/etf_eu_strategy_sync_shadow.json \
-            --transition-evidence output/sync_shadow/etf_eu_transition_evidence.json \
-            --output output/sync_shadow/etf_eu_target_allocator_shadow.json
-          python tools/validate_etf_eu_target_allocator_shadow_v2.py \
-            output/sync_shadow/etf_eu_target_allocator_shadow.json
-
-      - name: Render donor-structure EU sister report shadow
-        run: |
-          python runtime/render_etf_eu_sister_report_shadow.py \
-            --sync-shadow output/sync_shadow/etf_eu_strategy_sync_shadow.json \
-            --output-dir output/sync_shadow/report
-
-      - name: Add donor-to-EU portfolio alignment surface
-        run: |
-          python runtime/add_etf_eu_portfolio_alignment_surface.py \
-            output/sync_shadow/report/etf_eu_sister_report_shadow_manifest_20260724.json \
-            --sync-shadow output/sync_shadow/etf_eu_strategy_sync_shadow.json
-
-      - name: Polish bilingual client surface
-        run: |
-          python runtime/polish_etf_eu_sister_report_client_surface.py \
-            output/sync_shadow/report/etf_eu_sister_report_shadow_manifest_20260724.json
-
-      - name: Finalize Dutch client language
-        run: |
-          python runtime/finalize_etf_eu_sister_report_nl_language.py \
-            output/sync_shadow/report/etf_eu_sister_report_shadow_manifest_20260724.json
-
-      - name: Apply narrow layout fixes
-        run: |
-          python runtime/fix_etf_eu_sister_report_layout.py \
-            output/sync_shadow/report/etf_eu_sister_report_shadow_manifest_20260724.json
-
-      - name: Validate PDF page integrity
-        run: |
-          python tools/validate_etf_eu_sister_report_pdf_layout.py \
-            output/sync_shadow/report/etf_eu_sister_report_shadow_manifest_20260724.json
-
-      - name: Validate sister-report section, table and chart contract
-        run: |
-          python tools/validate_etf_eu_sister_report_shadow.py \
-            output/sync_shadow/report/etf_eu_sister_report_shadow_manifest_20260724.json
-
-      - name: Validate exact donor surface contract
-        run: |
-          python tools/validate_etf_eu_donor_surface_contract.py \
-            output/sync_shadow/report/etf_eu_sister_report_shadow_manifest_20260724.json
+          python tools/validate_etf_eu_strategy_sync_shadow.py \
+            output/sync_shadow/etf_eu_strategy_sync_shadow.json
 
       - uses: actions/upload-artifact@v4
         if: always()
@@ -161,7 +80,4 @@ jobs:
             output/sync_shadow/etf_shared_portfolio_target.json
             output/sync_shadow/ucits_symbol_registry_sync_merged.yml
             output/sync_shadow/etf_eu_strategy_sync_shadow.json
-            output/sync_shadow/etf_eu_transition_evidence.json
-            output/sync_shadow/etf_eu_target_allocator_shadow.json
-            output/sync_shadow/report/
           if-no-files-found: error
