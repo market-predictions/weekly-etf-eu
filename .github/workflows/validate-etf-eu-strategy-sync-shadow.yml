@@ -5,11 +5,13 @@ on:
   pull_request:
     paths:
       - "config/shared_exposure_ucits_map.yml"
+      - "config/weekly_etf_donor_surface_contract.yml"
       - "runtime/build_etf_eu_strategy_sync_shadow.py"
       - "runtime/render_etf_eu_sister_report_shadow.py"
       - "runtime/fix_etf_eu_sister_report_layout.py"
       - "tools/validate_etf_eu_strategy_sync_shadow.py"
       - "tools/validate_etf_eu_sister_report_shadow.py"
+      - "tools/validate_etf_eu_donor_surface_contract.py"
       - ".github/workflows/validate-etf-eu-strategy-sync-shadow.yml"
       - "docs/roadmaps/WEEKLY_ETF_US_EU_SYNCHRONIZATION_ROADMAP_20260727.md"
       - "control/work_packages/WP_SYNC_00_03_EU_DONOR_PARITY_20260727.md"
@@ -70,6 +72,11 @@ jobs:
       - name: Validate sister-report section, table and chart contract
         run: |
           python tools/validate_etf_eu_sister_report_shadow.py \
+            output/sync_shadow/report/etf_eu_sister_report_shadow_manifest_20260724.json
+
+      - name: Validate exact donor surface contract
+        run: |
+          python tools/validate_etf_eu_donor_surface_contract.py \
             output/sync_shadow/report/etf_eu_sister_report_shadow_manifest_20260724.json
 
       - uses: actions/upload-artifact@v4
