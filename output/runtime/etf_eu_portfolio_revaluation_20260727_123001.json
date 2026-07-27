@@ -1,0 +1,25 @@
+{
+  "artifact_type": "etf_eu_portfolio_revaluation",
+  "cash_eur": 60439.44,
+  "completed_close_gate_passed": true,
+  "generated_at_utc": "2026-07-27T12:33:18Z",
+  "invested_market_value_eur": 39317.32,
+  "nav_eur": 99756.76,
+  "portfolio_mutation": false,
+  "position_count": 3,
+  "price_dates": {
+    "EUNA": "2026-07-24",
+    "SXR8": "2026-07-24",
+    "VWCE": "2026-07-24"
+  },
+  "quantity_mutation": false,
+  "real_broker_execution": false,
+  "report_date": "2026-07-27",
+  "run_id": "20260727_123001",
+  "schema_version": "etf_eu_portfolio_revaluation_v1",
+  "tickers": [
+    "VWCE",
+    "EUNA",
+    "SXR8"
+  ]
+}
