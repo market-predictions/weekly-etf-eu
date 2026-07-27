@@ -39,7 +39,7 @@ INTERNAL_CLIENT_TOKENS = re.compile(
     r"ai_compute_infrastructure|non_us_developed_equities|cyber_security|"
     r"broad_commodities|grid_power|biotech_innovation|healthcare_quality|"
     r"uranium_nuclear|power_utilities_capex|aggregate_bonds|core_us_equity|"
-    r"global_equity_core)\b"
+    r"global_equity_core|defense_resilience|agri_food_security)\b"
 )
 FORBIDDEN_DUTCH_PHRASES = [
     "VWCE is incumbent",
@@ -48,6 +48,26 @@ FORBIDDEN_DUTCH_PHRASES = [
     "promoted exposures are not yet implemented",
     "Promoted exposures pending implementation",
     "Shadow only",
+    "Do not rotate aggressively",
+    "No material regime change",
+    "identify and verify",
+    "determine whether an eligible",
+    "current positions require re-underwriting",
+    "promoted exposures are not represented",
+    "Cybersecurity resilience",
+    "AI compute infrastructure",
+    "Grid buildout / electrification",
+    "Healthcare quality and defensive growth",
+    "Defense innovation / sovereign resilience",
+    "Food security / agriculture inputs",
+    "Broad commodity inflation hedge",
+    "Biotech innovation / therapeutic platforms",
+    "Agricultural commodities",
+    "Non-U.S. developed market diversification",
+    "Water infrastructure / treatment",
+    "Financial infrastructure and market plumbing",
+    "Europe defense and security rearmament",
+    "iShares Kernpositie",
 ]
 
 
@@ -90,6 +110,16 @@ def validate(manifest: dict[str, Any]) -> list[str]:
     for key in ("portfolio_mutation", "recommendation_change", "valuation_change"):
         if client_polish.get(key) is not False:
             blockers.append(f"client-surface polish {key} must be false")
+    dutch_finalization = manifest.get("dutch_language_finalization") if isinstance(manifest.get("dutch_language_finalization"), dict) else {}
+    if dutch_finalization.get("applied") is not True:
+        blockers.append("Dutch language finalization was not applied")
+    if dutch_finalization.get("official_product_names_preserved") is not True:
+        blockers.append("official product-name preservation was not asserted")
+    if dutch_finalization.get("canonical_section_16_ids_preserved") is not True:
+        blockers.append("Dutch finalization did not preserve canonical Section 16 IDs")
+    for key in ("portfolio_mutation", "recommendation_change", "valuation_change"):
+        if dutch_finalization.get(key) is not False:
+            blockers.append(f"Dutch finalization {key} must be false")
 
     languages = manifest.get("languages") if isinstance(manifest.get("languages"), dict) else {}
     if set(languages) != {"nl", "en"}:
@@ -124,6 +154,8 @@ def validate(manifest: dict[str, Any]) -> list[str]:
             blockers.append(f"{language} portfolio alignment surface marker is missing")
         if files.get("client_surface_polish") != "bilingual_exposure_reason_and_phrase_normalization":
             blockers.append(f"{language} client-surface polish marker is missing")
+        if language == "nl" and files.get("dutch_language_finalization") != "exact_phrase_and_cell_contract_v1":
+            blockers.append("Dutch exact-match finalization marker is missing")
         if 'class="wide-table alignment-table"' not in text:
             blockers.append(f"{language} donor-to-EU allocation table is missing")
         if 'class="wide-table final-alignment-table"' not in text:
@@ -133,8 +165,8 @@ def validate(manifest: dict[str, Any]) -> list[str]:
             blockers.append(f"{language} client surface leaks internal tokens: {', '.join(leaked_tokens)}")
         if language == "nl":
             for phrase in FORBIDDEN_DUTCH_PHRASES:
-                if phrase in client_text:
-                    blockers.append(f"Dutch client surface contains untranslated phrase: {phrase}")
+                if phrase.lower() in client_text.lower():
+                    blockers.append(f"Dutch client surface contains untranslated/corrupted phrase: {phrase}")
         sections = {number for number in REQUIRED_SECTIONS if f'id="section-{number}"' in text}
         section_sets[language] = sections
         missing = [number for number in REQUIRED_SECTIONS if number not in sections]
