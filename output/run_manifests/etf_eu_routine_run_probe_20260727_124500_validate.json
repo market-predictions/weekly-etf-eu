@@ -1,0 +1,155 @@
+{
+  "schema_version": "etf_eu_routine_run_probe_v2",
+  "artifact_type": "etf_eu_routine_run_probe",
+  "target_run_identity": "20260727_124500_validate",
+  "target_head_sha": "d671ae32d0994a2bde739067e4de98fc4feba9cb",
+  "workflow_file": "send-weekly-etf-eu-current-package.yml",
+  "run_id": 30267196849,
+  "status": "completed",
+  "conclusion": "success",
+  "url": "https://github.com/market-predictions/weekly-etf-eu/actions/runs/30267196849",
+  "jobs": [
+    {
+      "completedAt": "2026-07-27T12:45:08Z",
+      "conclusion": "success",
+      "databaseId": 89980617112,
+      "name": "current-package-delivery",
+      "startedAt": "2026-07-27T12:44:59Z",
+      "status": "completed",
+      "steps": [
+        {
+          "completedAt": "2026-07-27T12:45:01Z",
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "startedAt": "2026-07-27T12:45:00Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-07-27T12:45:03Z",
+          "conclusion": "success",
+          "name": "Check out repository",
+          "number": 2,
+          "startedAt": "2026-07-27T12:45:01Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-07-27T12:45:03Z",
+          "conclusion": "success",
+          "name": "Set up Python",
+          "number": 3,
+          "startedAt": "2026-07-27T12:45:03Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-07-27T12:45:03Z",
+          "conclusion": "success",
+          "name": "Resolve current-package queue and mode",
+          "number": 4,
+          "startedAt": "2026-07-27T12:45:03Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-07-27T12:45:03Z",
+          "conclusion": "success",
+          "name": "Validate current-package queue and immutable lock",
+          "number": 5,
+          "startedAt": "2026-07-27T12:45:03Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-07-27T12:45:03Z",
+          "conclusion": "skipped",
+          "name": "Block duplicate successful delivery",
+          "number": 6,
+          "startedAt": "2026-07-27T12:45:03Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-07-27T12:45:03Z",
+          "conclusion": "success",
+          "name": "Validate current-package workflow wiring artifact",
+          "number": 7,
+          "startedAt": "2026-07-27T12:45:03Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-07-27T12:45:04Z",
+          "conclusion": "success",
+          "name": "Validate current-package transport adapter",
+          "number": 8,
+          "startedAt": "2026-07-27T12:45:03Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-07-27T12:45:04Z",
+          "conclusion": "success",
+          "name": "Current-package validate-only boundary",
+          "number": 9,
+          "startedAt": "2026-07-27T12:45:04Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-07-27T12:45:04Z",
+          "conclusion": "skipped",
+          "name": "Current-package dry-run transport evidence",
+          "number": 10,
+          "startedAt": "2026-07-27T12:45:04Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-07-27T12:45:04Z",
+          "conclusion": "skipped",
+          "name": "Guarded current-package send transport",
+          "number": 11,
+          "startedAt": "2026-07-27T12:45:04Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-07-27T12:45:04Z",
+          "conclusion": "skipped",
+          "name": "Update routine manifest after successful transport",
+          "number": 12,
+          "startedAt": "2026-07-27T12:45:04Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-07-27T12:45:04Z",
+          "conclusion": "skipped",
+          "name": "Commit current-package transport evidence",
+          "number": 13,
+          "startedAt": "2026-07-27T12:45:04Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-07-27T12:45:04Z",
+          "conclusion": "success",
+          "name": "Post Set up Python",
+          "number": 25,
+          "startedAt": "2026-07-27T12:45:04Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-07-27T12:45:04Z",
+          "conclusion": "success",
+          "name": "Post Check out repository",
+          "number": 26,
+          "startedAt": "2026-07-27T12:45:04Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-07-27T12:45:04Z",
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 27,
+          "startedAt": "2026-07-27T12:45:04Z",
+          "status": "completed"
+        }
+      ],
+      "url": "https://github.com/market-predictions/weekly-etf-eu/actions/runs/30267196849/job/89980617112"
+    }
+  ],
+  "probe_error": "",
+  "diagnostic_log": "output/run_manifests/etf_eu_routine_run_probe_20260727_124500_validate.log",
+  "external_transport": false
+}
