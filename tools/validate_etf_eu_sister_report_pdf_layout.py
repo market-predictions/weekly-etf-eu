@@ -9,7 +9,8 @@ from pypdf import PdfReader
 
 
 MIN_PAGE_TEXT_CHARS = 80
-MAX_EXPECTED_PAGES = 8
+BASE_MAX_EXPECTED_PAGES = 8
+ALLOCATOR_MAX_EXPECTED_PAGES = 9
 
 
 def _load(path: Path) -> dict[str, Any]:
@@ -19,10 +20,24 @@ def _load(path: Path) -> dict[str, Any]:
     return payload
 
 
+def _maximum_expected_pages(manifest: dict[str, Any]) -> int:
+    surface = manifest.get("target_allocator_surface") if isinstance(manifest.get("target_allocator_surface"), dict) else {}
+    if (
+        surface.get("applied") is True
+        and surface.get("preferred_variant") == "staged_cash_first_50pct"
+        and surface.get("portfolio_mutation") is False
+        and surface.get("funding_authority") is False
+        and surface.get("execution_authority") is False
+    ):
+        return ALLOCATOR_MAX_EXPECTED_PAGES
+    return BASE_MAX_EXPECTED_PAGES
+
+
 def validate(manifest: dict[str, Any]) -> list[str]:
     blockers: list[str] = []
     languages = manifest.get("languages") if isinstance(manifest.get("languages"), dict) else {}
     page_counts: dict[str, int] = {}
+    max_expected_pages = _maximum_expected_pages(manifest)
 
     for language in ("nl", "en"):
         files = languages.get(language) if isinstance(languages.get(language), dict) else {}
@@ -32,9 +47,9 @@ def validate(manifest: dict[str, Any]) -> list[str]:
             continue
         reader = PdfReader(str(pdf_path))
         page_counts[language] = len(reader.pages)
-        if len(reader.pages) > MAX_EXPECTED_PAGES:
+        if len(reader.pages) > max_expected_pages:
             blockers.append(
-                f"{language} PDF has {len(reader.pages)} pages; expected at most {MAX_EXPECTED_PAGES} after blank-page removal"
+                f"{language} PDF has {len(reader.pages)} pages; expected at most {max_expected_pages} for this report surface"
             )
         for index, page in enumerate(reader.pages, start=1):
             text = " ".join((page.extract_text() or "").split())
@@ -69,7 +84,7 @@ def main() -> None:
         "blockers": blockers,
         "page_counts": page_counts,
         "minimum_page_text_characters": MIN_PAGE_TEXT_CHARS,
-        "maximum_expected_pages": MAX_EXPECTED_PAGES,
+        "maximum_expected_pages": _maximum_expected_pages(manifest),
     }, indent=2))
     if blockers:
         raise SystemExit(1)
