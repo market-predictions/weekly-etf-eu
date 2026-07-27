@@ -12,7 +12,7 @@ rules:
   unresolved_capacity_policy: retain_as_cash
   mapping_does_not_authorize_allocation: true
 
-# Current funded EU positions that are not necessarily promoted donor opportunity lanes.
+# Current funded EU positions that are not necessarily donor target exposures.
 # They remain incumbents and must be re-underwritten; this table is not strategy authority.
 legacy_position_exposures:
   VWCE: global_equity_core
@@ -78,6 +78,24 @@ exposures:
     unresolved_reason_code: ucits_identity_unverified
     mapping_note: VWCE is global equity and must not be counted as an exact developed-ex-US implementation
     research_required: identify and verify a pure developed-markets-ex-US UCITS implementation
+
+  uranium_nuclear:
+    portfolio_role: Uranium and nuclear fuel-cycle satellite
+    candidates: []
+    unresolved_reason_code: ucits_identity_unverified
+    research_required: identify and verify a suitable UCITS uranium or nuclear implementation
+
+  biotech_innovation:
+    portfolio_role: Biotech innovation satellite
+    candidates: []
+    unresolved_reason_code: ucits_identity_unverified
+    research_required: identify and verify a suitable UCITS biotech implementation
+
+  power_utilities_capex:
+    portfolio_role: Defensive utilities and power-infrastructure satellite
+    candidates: []
+    unresolved_reason_code: ucits_identity_unverified
+    research_required: identify and verify a suitable UCITS utilities or power-infrastructure implementation
 
   global_equity_core:
     portfolio_role: Global core equity
