@@ -30,6 +30,10 @@ def num(value: Any, default: float = 0.0) -> float:
         return default
 
 
+def text(value: Any) -> str | None:
+    return None if value is None else str(value)
+
+
 def utc_now() -> str:
     return datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
 
@@ -180,7 +184,7 @@ def build(portfolio: dict[str, Any], evidence: dict[str, Any]) -> dict[str, Any]
         "artifact_type": "etf_eu_incumbent_overlap_and_disposition_review",
         "generated_at_utc": utc_now(),
         "source_evidence": "config/etf_eu_incumbent_overlap_evidence_20260724.yml",
-        "portfolio_report_date": portfolio.get("last_valuation_report_date"),
+        "portfolio_report_date": text(portfolio.get("last_valuation_report_date")),
         "methodology": {
             "pairwise_overlap": "sum_of_minimum_documented_holding_weights",
             "portfolio_embedded_exposure": "current_portfolio_weight_times_pairwise_overlap_lower_bound",
@@ -192,7 +196,7 @@ def build(portfolio: dict[str, Any], evidence: dict[str, Any]) -> dict[str, Any]
                 "documented_holding_count": len(holdings_index(fund)),
                 "reported_holding_count": fund.get("holding_count"),
                 "documented_coverage_pct": documented_coverage(fund),
-                "holdings_as_of": fund.get("holdings_as_of"),
+                "holdings_as_of": text(fund.get("holdings_as_of")),
             }
             for ticker, fund in funds.items()
         },
