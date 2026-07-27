@@ -2,159 +2,79 @@
   "schema_version": "etf_eu_routine_run_probe_v1",
   "artifact_type": "etf_eu_routine_run_probe",
   "target_run_identity": "20260727_114700",
-  "target_head_sha": "0014f9becc8237618edf879c75bc34f9ba370043",
+  "target_head_sha": "27e7d6a4c51b87593f500a006abc48a1773eb867",
   "workflow_file": "run-weekly-etf-eu-routine-preview-recovery.yml",
-  "run_id": 30263932141,
-  "status": "completed",
-  "conclusion": "failure",
-  "url": "https://github.com/market-predictions/weekly-etf-eu/actions/runs/30263932141",
+  "run_id": 30264696324,
+  "status": "in_progress",
+  "conclusion": "",
+  "url": "https://github.com/market-predictions/weekly-etf-eu/actions/runs/30264696324",
   "jobs": [
     {
-      "completedAt": "2026-07-27T12:01:15Z",
-      "conclusion": "failure",
-      "databaseId": 89970052405,
+      "completedAt": "0001-01-01T00:00:00Z",
+      "conclusion": "",
+      "databaseId": 89972483097,
       "name": "generate-validate-persist",
-      "startedAt": "2026-07-27T11:57:37Z",
-      "status": "completed",
+      "startedAt": "2026-07-27T12:08:42Z",
+      "status": "in_progress",
       "steps": [
         {
-          "completedAt": "2026-07-27T11:57:39Z",
-          "conclusion": "success",
-          "name": "Set up job",
-          "number": 1,
-          "startedAt": "2026-07-27T11:57:38Z",
-          "status": "completed"
-        },
-        {
-          "completedAt": "2026-07-27T11:57:41Z",
+          "completedAt": "2026-07-27T12:08:46Z",
           "conclusion": "success",
           "name": "Check out repository",
           "number": 2,
-          "startedAt": "2026-07-27T11:57:39Z",
+          "startedAt": "2026-07-27T12:08:44Z",
           "status": "completed"
         },
         {
-          "completedAt": "2026-07-27T11:57:41Z",
+          "completedAt": "2026-07-27T12:08:46Z",
           "conclusion": "success",
           "name": "Set up Python",
           "number": 3,
-          "startedAt": "2026-07-27T11:57:41Z",
+          "startedAt": "2026-07-27T12:08:46Z",
           "status": "completed"
         },
         {
-          "completedAt": "2026-07-27T11:58:07Z",
+          "completedAt": "2026-07-27T12:09:12Z",
           "conclusion": "success",
           "name": "Install dependencies",
           "number": 4,
-          "startedAt": "2026-07-27T11:57:41Z",
+          "startedAt": "2026-07-27T12:08:46Z",
           "status": "completed"
         },
         {
-          "completedAt": "2026-07-27T11:58:07Z",
+          "completedAt": "2026-07-27T12:09:12Z",
           "conclusion": "success",
           "name": "Resolve recovery request",
           "number": 5,
-          "startedAt": "2026-07-27T11:58:07Z",
+          "startedAt": "2026-07-27T12:09:12Z",
           "status": "completed"
         },
         {
-          "completedAt": "2026-07-27T11:58:08Z",
+          "completedAt": "2026-07-27T12:09:14Z",
           "conclusion": "success",
           "name": "Run regression tests",
           "number": 6,
-          "startedAt": "2026-07-27T11:58:07Z",
+          "startedAt": "2026-07-27T12:09:12Z",
           "status": "completed"
         },
         {
-          "completedAt": "2026-07-27T12:00:25Z",
-          "conclusion": "success",
+          "completedAt": "0001-01-01T00:00:00Z",
+          "conclusion": "",
           "name": "Build pricing evidence",
           "number": 7,
-          "startedAt": "2026-07-27T11:58:08Z",
-          "status": "completed"
+          "startedAt": "2026-07-27T12:09:14Z",
+          "status": "in_progress"
         },
         {
-          "completedAt": "2026-07-27T12:00:25Z",
-          "conclusion": "success",
-          "name": "Refresh macro and valuation history",
-          "number": 8,
-          "startedAt": "2026-07-27T12:00:25Z",
-          "status": "completed"
-        },
-        {
-          "completedAt": "2026-07-27T12:00:36Z",
-          "conclusion": "success",
-          "name": "Build report package",
-          "number": 9,
-          "startedAt": "2026-07-27T12:00:25Z",
-          "status": "completed"
-        },
-        {
-          "completedAt": "2026-07-27T12:00:37Z",
-          "conclusion": "success",
-          "name": "Run machine validation",
-          "number": 10,
-          "startedAt": "2026-07-27T12:00:36Z",
-          "status": "completed"
-        },
-        {
-          "completedAt": "2026-07-27T12:00:41Z",
-          "conclusion": "success",
-          "name": "Render all review pages",
-          "number": 11,
-          "startedAt": "2026-07-27T12:00:37Z",
-          "status": "completed"
-        },
-        {
-          "completedAt": "2026-07-27T12:00:41Z",
-          "conclusion": "success",
-          "name": "Write preview manifest",
-          "number": 12,
-          "startedAt": "2026-07-27T12:00:41Z",
-          "status": "completed"
-        },
-        {
-          "completedAt": "2026-07-27T12:01:12Z",
-          "conclusion": "failure",
-          "name": "Persist all required evidence with retry",
-          "number": 13,
-          "startedAt": "2026-07-27T12:00:41Z",
-          "status": "completed"
-        },
-        {
-          "completedAt": "2026-07-27T12:01:12Z",
-          "conclusion": "skipped",
-          "name": "Upload complete review package",
-          "number": 14,
-          "startedAt": "2026-07-27T12:01:12Z",
-          "status": "completed"
-        },
-        {
-          "completedAt": "2026-07-27T12:01:12Z",
-          "conclusion": "skipped",
+          "completedAt": "0001-01-01T00:00:00Z",
+          "conclusion": "",
           "name": "Post Set up Python",
           "number": 27,
-          "startedAt": "2026-07-27T12:01:12Z",
-          "status": "completed"
-        },
-        {
-          "completedAt": "2026-07-27T12:01:12Z",
-          "conclusion": "success",
-          "name": "Post Check out repository",
-          "number": 28,
-          "startedAt": "2026-07-27T12:01:12Z",
-          "status": "completed"
-        },
-        {
-          "completedAt": "2026-07-27T12:01:12Z",
-          "conclusion": "success",
-          "name": "Complete job",
-          "number": 29,
-          "startedAt": "2026-07-27T12:01:12Z",
-          "status": "completed"
+          "startedAt": "0001-01-01T00:00:00Z",
+          "status": "pending"
         }
       ],
-      "url": "https://github.com/market-predictions/weekly-etf-eu/actions/runs/30263932141/job/89970052405"
+      "url": "https://github.com/market-predictions/weekly-etf-eu/actions/runs/30264696324/job/89972483097"
     }
   ],
   "probe_error": "",
