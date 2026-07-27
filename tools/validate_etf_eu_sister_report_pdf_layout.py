@@ -10,7 +10,8 @@ from pypdf import PdfReader
 
 MIN_PAGE_TEXT_CHARS = 80
 BASE_MAX_EXPECTED_PAGES = 8
-ALLOCATOR_MAX_EXPECTED_PAGES = 9
+ALLOCATOR_V2_MAX_EXPECTED_PAGES = 9
+POLICY_ALLOCATOR_V3_MAX_EXPECTED_PAGES = 10
 
 
 def _load(path: Path) -> dict[str, Any]:
@@ -22,14 +23,16 @@ def _load(path: Path) -> dict[str, Any]:
 
 def _maximum_expected_pages(manifest: dict[str, Any]) -> int:
     surface = manifest.get("target_allocator_surface") if isinstance(manifest.get("target_allocator_surface"), dict) else {}
-    if (
+    boundaries = (
         surface.get("applied") is True
-        and surface.get("preferred_variant") == "staged_cash_first_50pct"
         and surface.get("portfolio_mutation") is False
         and surface.get("funding_authority") is False
         and surface.get("execution_authority") is False
-    ):
-        return ALLOCATOR_MAX_EXPECTED_PAGES
+    )
+    if boundaries and surface.get("preferred_variant") == "staged_policy_driven_v1" and surface.get("policy_driven") is True:
+        return POLICY_ALLOCATOR_V3_MAX_EXPECTED_PAGES
+    if boundaries and surface.get("preferred_variant") == "staged_cash_first_50pct":
+        return ALLOCATOR_V2_MAX_EXPECTED_PAGES
     return BASE_MAX_EXPECTED_PAGES
 
 
