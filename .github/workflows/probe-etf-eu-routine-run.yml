@@ -29,37 +29,34 @@ jobs:
           mkdir -p output/run_manifests
           FOUND=""
           PROBE_ERROR=""
-          for _ in $(seq 1 3); do
-            RAW="$(gh run list --repo "$GITHUB_REPOSITORY" --workflow "$TARGET_WORKFLOW" --limit 30 --json databaseId,headSha,status,conclusion,event,createdAt,url 2>/tmp/probe_error.log)" || true
-            if [ -s /tmp/probe_error.log ]; then
-              PROBE_ERROR="$(tr '\n' ' ' < /tmp/probe_error.log | head -c 1000)"
-              break
-            fi
-            FOUND="$(printf '%s' "$RAW" | jq -c --arg sha "$TARGET_SHA" '[.[] | select(.headSha == $sha)] | first // empty')"
-            if [ -n "$FOUND" ] && [ "$(printf '%s' "$FOUND" | jq -r '.status')" = "completed" ]; then
-              break
-            fi
-            sleep 20
-          done
+          RAW="$(gh run list --repo "$GITHUB_REPOSITORY" --workflow "$TARGET_WORKFLOW" --limit 30 --json databaseId,headSha,status,conclusion,event,createdAt,url 2>/tmp/probe_error.log)" || true
+          if [ -s /tmp/probe_error.log ]; then
+            PROBE_ERROR="$(tr '\n' ' ' < /tmp/probe_error.log | head -c 1000)"
+          fi
+          FOUND="$(printf '%s' "$RAW" | jq -c --arg sha "$TARGET_SHA" '[.[] | select(.headSha == $sha)] | first // empty')"
           if [ -z "$FOUND" ]; then
             FOUND='{"status":"not_found","conclusion":null,"databaseId":null,"url":null}'
           fi
           RUN_DB_ID="$(printf '%s' "$FOUND" | jq -r '.databaseId // empty')"
+          DIAGNOSTIC="output/run_manifests/etf_eu_routine_run_probe_${TARGET_RUN_IDENTITY}.log"
           if [ -n "$RUN_DB_ID" ]; then
             gh run view "$RUN_DB_ID" --repo "$GITHUB_REPOSITORY" --json jobs,status,conclusion,url > /tmp/run_detail.json 2>/tmp/view_error.log || printf '%s\n' '{"jobs":[],"status":"view_failed","conclusion":null,"url":null}' > /tmp/run_detail.json
+            gh run view "$RUN_DB_ID" --repo "$GITHUB_REPOSITORY" --log-failed > /tmp/failed.log 2>&1 || true
+            tail -n 240 /tmp/failed.log > "$DIAGNOSTIC"
           else
             printf '%s\n' '{"jobs":[],"status":"not_found","conclusion":null,"url":null}' > /tmp/run_detail.json
+            printf '%s\n' 'TARGET_RUN_NOT_FOUND' > "$DIAGNOSTIC"
           fi
           jq -n --argjson summary "$FOUND" --slurpfile detail /tmp/run_detail.json \
-            --arg identity "$TARGET_RUN_IDENTITY" --arg sha "$TARGET_SHA" --arg workflow "$TARGET_WORKFLOW" --arg probe_error "$PROBE_ERROR" \
-            '{schema_version:"etf_eu_routine_run_probe_v1",artifact_type:"etf_eu_routine_run_probe",target_run_identity:$identity,target_head_sha:$sha,workflow_file:$workflow,run_id:$summary.databaseId,status:$summary.status,conclusion:$summary.conclusion,url:$summary.url,jobs:($detail[0].jobs // []),probe_error:$probe_error,external_transport:false}' \
+            --arg identity "$TARGET_RUN_IDENTITY" --arg sha "$TARGET_SHA" --arg workflow "$TARGET_WORKFLOW" --arg probe_error "$PROBE_ERROR" --arg diagnostic "$DIAGNOSTIC" \
+            '{schema_version:"etf_eu_routine_run_probe_v1",artifact_type:"etf_eu_routine_run_probe",target_run_identity:$identity,target_head_sha:$sha,workflow_file:$workflow,run_id:$summary.databaseId,status:$summary.status,conclusion:$summary.conclusion,url:$summary.url,jobs:($detail[0].jobs // []),probe_error:$probe_error,diagnostic_log:$diagnostic,external_transport:false}' \
             > "output/run_manifests/etf_eu_routine_run_probe_${TARGET_RUN_IDENTITY}.json"
       - name: Persist run probe
         run: |
           set -euo pipefail
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -f "output/run_manifests/etf_eu_routine_run_probe_${TARGET_RUN_IDENTITY}.json"
-          git commit -m "Persist ETF EU routine run probe ${TARGET_RUN_IDENTITY} [skip ci]"
+          git add -f "output/run_manifests/etf_eu_routine_run_probe_${TARGET_RUN_IDENTITY}.json" "output/run_manifests/etf_eu_routine_run_probe_${TARGET_RUN_IDENTITY}.log"
+          git commit -m "Persist ETF EU routine run probe ${TARGET_RUN_IDENTITY} diagnostics [skip ci]"
           git pull --rebase origin main
           git push origin HEAD:main
