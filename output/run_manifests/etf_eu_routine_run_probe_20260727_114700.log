@@ -1,0 +1,98 @@
+generate-validate-persist	Persist all required evidence with retry	﻿2026-07-27T12:00:41.7432598Z ##[group]Run set -euo pipefail
+generate-validate-persist	Persist all required evidence with retry	2026-07-27T12:00:41.7432963Z ^[[36;1mset -euo pipefail^[[0m
+generate-validate-persist	Persist all required evidence with retry	2026-07-27T12:00:41.7433242Z ^[[36;1mgit config user.name "github-actions[bot]"^[[0m
+generate-validate-persist	Persist all required evidence with retry	2026-07-27T12:00:41.7433686Z ^[[36;1mgit config user.email "41898282+github-actions[bot]@users.noreply.github.com"^[[0m
+generate-validate-persist	Persist all required evidence with retry	2026-07-27T12:00:41.7434368Z ^[[36;1mREQUIRED=(^[[0m
+generate-validate-persist	Persist all required evidence with retry	2026-07-27T12:00:41.7434755Z ^[[36;1m  "output/pricing/ucits_close_price_validation_basket_results_${ETF_EU_RUN_ID}.json"^[[0m
+generate-validate-persist	Persist all required evidence with retry	2026-07-27T12:00:41.7435205Z ^[[36;1m  "$ETF_EU_MACRO_ARTIFACT"^[[0m
+generate-validate-persist	Persist all required evidence with retry	2026-07-27T12:00:41.7435465Z ^[[36;1m  "output/macro/latest.json"^[[0m
+generate-validate-persist	Persist all required evidence with retry	2026-07-27T12:00:41.7435745Z ^[[36;1m  "output/etf_eu_valuation_history.csv"^[[0m
+generate-validate-persist	Persist all required evidence with retry	2026-07-27T12:00:41.7436147Z ^[[36;1m  "output/runtime/etf_eu_client_grade_report_state_${ETF_EU_RUN_ID}.json"^[[0m
+generate-validate-persist	Persist all required evidence with retry	2026-07-27T12:00:41.7436665Z ^[[36;1m  "output/fresh_generation/weekly_etf_eu_review_nl_${ETF_EU_REPORT_SUFFIX}.md"^[[0m
+generate-validate-persist	Persist all required evidence with retry	2026-07-27T12:00:41.7437199Z ^[[36;1m  "output/fresh_generation/weekly_etf_eu_review_${ETF_EU_REPORT_SUFFIX}.md"^[[0m
+generate-validate-persist	Persist all required evidence with retry	2026-07-27T12:00:41.7437756Z ^[[36;1m  "output/fresh_generation/weekly_etf_eu_review_nl_${ETF_EU_REPORT_SUFFIX}.html"^[[0m
+generate-validate-persist	Persist all required evidence with retry	2026-07-27T12:00:41.7438293Z ^[[36;1m  "output/fresh_generation/weekly_etf_eu_review_${ETF_EU_REPORT_SUFFIX}.html"^[[0m
+generate-validate-persist	Persist all required evidence with retry	2026-07-27T12:00:41.7438839Z ^[[36;1m  "output/fresh_generation/weekly_etf_eu_review_nl_${ETF_EU_REPORT_SUFFIX}.pdf"^[[0m
+generate-validate-persist	Persist all required evidence with retry	2026-07-27T12:00:41.7439380Z ^[[36;1m  "output/fresh_generation/weekly_etf_eu_review_${ETF_EU_REPORT_SUFFIX}.pdf"^[[0m
+generate-validate-persist	Persist all required evidence with retry	2026-07-27T12:00:41.7439952Z ^[[36;1m  "output/fresh_generation/etf_eu_fresh_generation_package_manifest_${ETF_EU_RUN_ID}.json"^[[0m
+generate-validate-persist	Persist all required evidence with retry	2026-07-27T12:00:41.7440556Z ^[[36;1m  "output/fresh_generation/etf_eu_ready_for_controlled_delivery_${ETF_EU_RUN_ID}.json"^[[0m
+generate-validate-persist	Persist all required evidence with retry	2026-07-27T12:00:41.7441103Z ^[[36;1m  "output/quality/etf_eu_client_grade_v2_validation_${ETF_EU_RUN_ID}.json"^[[0m
+generate-validate-persist	Persist all required evidence with retry	2026-07-27T12:00:41.7441602Z ^[[36;1m  "output/quality/etf_eu_routine_pdf_client_grade_${ETF_EU_RUN_ID}_nl.json"^[[0m
+generate-validate-persist	Persist all required evidence with retry	2026-07-27T12:00:41.7442096Z ^[[36;1m  "output/quality/etf_eu_routine_pdf_client_grade_${ETF_EU_RUN_ID}_en.json"^[[0m
+generate-validate-persist	Persist all required evidence with retry	2026-07-27T12:00:41.7442589Z ^[[36;1m  "output/quality/etf_eu_routine_pdf_client_grade_${ETF_EU_RUN_ID}.json"^[[0m
+generate-validate-persist	Persist all required evidence with retry	2026-07-27T12:00:41.7443016Z ^[[36;1m  "output/quality/review_pages/${ETF_EU_RUN_ID}"^[[0m
+generate-validate-persist	Persist all required evidence with retry	2026-07-27T12:00:41.7443508Z ^[[36;1m  "output/run_manifests/etf_eu_routine_run_manifest_${ETF_EU_REPORT_DATE}_${ETF_EU_RUN_ID}.json"^[[0m
+generate-validate-persist	Persist all required evidence with retry	2026-07-27T12:00:41.7444516Z ^[[36;1m  "output/run_manifests/etf_eu_routine_preview_manifest_${ETF_EU_RUN_ID}.json"^[[0m
+generate-validate-persist	Persist all required evidence with retry	2026-07-27T12:00:41.7444919Z ^[[36;1m)^[[0m
+generate-validate-persist	Persist all required evidence with retry	2026-07-27T12:00:41.7445411Z ^[[36;1mfor path in "${REQUIRED[@]}"; do test -e "$path" || { echo "REQUIRED_PERSIST_PATH_MISSING:$path"; exit 1; }; git add -f -- "$path"; done^[[0m
+generate-validate-persist	Persist all required evidence with retry	2026-07-27T12:00:41.7446106Z ^[[36;1mgit commit -m "Persist ETF EU recovery preview ${ETF_EU_RUN_ID} [skip ci]"^[[0m
+generate-validate-persist	Persist all required evidence with retry	2026-07-27T12:00:41.7446517Z ^[[36;1mfor attempt in 1 2 3; do^[[0m
+generate-validate-persist	Persist all required evidence with retry	2026-07-27T12:00:41.7446874Z ^[[36;1m  git pull --rebase origin main && git push origin HEAD:main && exit 0^[[0m
+generate-validate-persist	Persist all required evidence with retry	2026-07-27T12:00:41.7447259Z ^[[36;1m  git rebase --abort || true^[[0m
+generate-validate-persist	Persist all required evidence with retry	2026-07-27T12:00:41.7447520Z ^[[36;1m  sleep $((attempt*5))^[[0m
+generate-validate-persist	Persist all required evidence with retry	2026-07-27T12:00:41.7447749Z ^[[36;1mdone^[[0m
+generate-validate-persist	Persist all required evidence with retry	2026-07-27T12:00:41.7447927Z ^[[36;1mexit 1^[[0m
+generate-validate-persist	Persist all required evidence with retry	2026-07-27T12:00:41.7491909Z shell: /usr/bin/bash -e {0}
+generate-validate-persist	Persist all required evidence with retry	2026-07-27T12:00:41.7492158Z env:
+generate-validate-persist	Persist all required evidence with retry	2026-07-27T12:00:41.7492420Z   pythonLocation: /opt/hostedtoolcache/Python/3.11.15/x64
+generate-validate-persist	Persist all required evidence with retry	2026-07-27T12:00:41.7492866Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.11.15/x64/lib/pkgconfig
+generate-validate-persist	Persist all required evidence with retry	2026-07-27T12:00:41.7493285Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.15/x64
+generate-validate-persist	Persist all required evidence with retry	2026-07-27T12:00:41.7493652Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.15/x64
+generate-validate-persist	Persist all required evidence with retry	2026-07-27T12:00:41.7494255Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.15/x64
+generate-validate-persist	Persist all required evidence with retry	2026-07-27T12:00:41.7494629Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.11.15/x64/lib
+generate-validate-persist	Persist all required evidence with retry	2026-07-27T12:00:41.7495139Z   ETF_EU_RUN_ID: 20260727_114700
+generate-validate-persist	Persist all required evidence with retry	2026-07-27T12:00:41.7495375Z   ETF_EU_REPORT_DATE: 2026-07-27
+generate-validate-persist	Persist all required evidence with retry	2026-07-27T12:00:41.7495603Z   ETF_EU_REPORT_SUFFIX: 260727_01
+generate-validate-persist	Persist all required evidence with retry	2026-07-27T12:00:41.7496417Z   ETF_EU_PREVIOUS_ROUTINE_MANIFEST: output/run_manifests/etf_eu_routine_run_manifest_2026-07-17_20260717_141500.json
+generate-validate-persist	Persist all required evidence with retry	2026-07-27T12:00:41.7497139Z   ETF_EU_PREVIOUS_CLOSEOUT: output/run_manifests/etf_eu_production_delivery_closeout_manifest_20260711_175327.json
+generate-validate-persist	Persist all required evidence with retry	2026-07-27T12:00:41.7497756Z   ETF_EU_MACRO_ARTIFACT: output/macro/etf_eu_macro_policy_pack_20260727_114700.json
+generate-validate-persist	Persist all required evidence with retry	2026-07-27T12:00:41.7498134Z ##[endgroup]
+generate-validate-persist	Persist all required evidence with retry	2026-07-27T12:00:42.1792659Z [main 7f0494c] Persist ETF EU recovery preview 20260727_114700 [skip ci]
+generate-validate-persist	Persist all required evidence with retry	2026-07-27T12:00:42.1793696Z  39 files changed, 2640 insertions(+), 28 deletions(-)
+generate-validate-persist	Persist all required evidence with retry	2026-07-27T12:00:42.1795027Z  create mode 100644 output/fresh_generation/etf_eu_fresh_generation_package_manifest_20260727_114700.json
+generate-validate-persist	Persist all required evidence with retry	2026-07-27T12:00:42.1796308Z  create mode 100644 output/fresh_generation/etf_eu_ready_for_controlled_delivery_20260727_114700.json
+generate-validate-persist	Persist all required evidence with retry	2026-07-27T12:00:42.1797442Z  create mode 100644 output/fresh_generation/weekly_etf_eu_review_260727_01.html
+generate-validate-persist	Persist all required evidence with retry	2026-07-27T12:00:42.1798353Z  create mode 100644 output/fresh_generation/weekly_etf_eu_review_260727_01.md
+generate-validate-persist	Persist all required evidence with retry	2026-07-27T12:00:42.1799250Z  create mode 100644 output/fresh_generation/weekly_etf_eu_review_260727_01.pdf
+generate-validate-persist	Persist all required evidence with retry	2026-07-27T12:00:42.1799844Z  create mode 100644 output/fresh_generation/weekly_etf_eu_review_nl_260727_01.html
+generate-validate-persist	Persist all required evidence with retry	2026-07-27T12:00:42.1800385Z  create mode 100644 output/fresh_generation/weekly_etf_eu_review_nl_260727_01.md
+generate-validate-persist	Persist all required evidence with retry	2026-07-27T12:00:42.1800903Z  create mode 100644 output/fresh_generation/weekly_etf_eu_review_nl_260727_01.pdf
+generate-validate-persist	Persist all required evidence with retry	2026-07-27T12:00:42.1801498Z  create mode 100644 output/macro/etf_eu_macro_policy_pack_20260727_114700.json
+generate-validate-persist	Persist all required evidence with retry	2026-07-27T12:00:42.1802525Z  create mode 100644 output/pricing/ucits_close_price_validation_basket_results_20260727_114700.json
+generate-validate-persist	Persist all required evidence with retry	2026-07-27T12:00:42.1803631Z  create mode 100644 output/quality/etf_eu_client_grade_v2_validation_20260727_114700.json
+generate-validate-persist	Persist all required evidence with retry	2026-07-27T12:00:42.1804652Z  create mode 100644 output/quality/etf_eu_routine_pdf_client_grade_20260727_114700.json
+generate-validate-persist	Persist all required evidence with retry	2026-07-27T12:00:42.1805215Z  create mode 100644 output/quality/etf_eu_routine_pdf_client_grade_20260727_114700_en.json
+generate-validate-persist	Persist all required evidence with retry	2026-07-27T12:00:42.1806238Z  create mode 100644 output/quality/etf_eu_routine_pdf_client_grade_20260727_114700_nl.json
+generate-validate-persist	Persist all required evidence with retry	2026-07-27T12:00:42.1806783Z  create mode 100644 output/quality/review_pages/20260727_114700/en/all/page-1.png
+generate-validate-persist	Persist all required evidence with retry	2026-07-27T12:00:42.1807280Z  create mode 100644 output/quality/review_pages/20260727_114700/en/all/page-2.png
+generate-validate-persist	Persist all required evidence with retry	2026-07-27T12:00:42.1808130Z  create mode 100644 output/quality/review_pages/20260727_114700/en/all/page-3.png
+generate-validate-persist	Persist all required evidence with retry	2026-07-27T12:00:42.1809038Z  create mode 100644 output/quality/review_pages/20260727_114700/en/all/page-4.png
+generate-validate-persist	Persist all required evidence with retry	2026-07-27T12:00:42.1809955Z  create mode 100644 output/quality/review_pages/20260727_114700/en/all/page-5.png
+generate-validate-persist	Persist all required evidence with retry	2026-07-27T12:00:42.1810859Z  create mode 100644 output/quality/review_pages/20260727_114700/en/all/page-6.png
+generate-validate-persist	Persist all required evidence with retry	2026-07-27T12:00:42.1811810Z  create mode 100644 output/quality/review_pages/20260727_114700/en/first_001.png
+generate-validate-persist	Persist all required evidence with retry	2026-07-27T12:00:42.1812707Z  create mode 100644 output/quality/review_pages/20260727_114700/en/index.json
+generate-validate-persist	Persist all required evidence with retry	2026-07-27T12:00:42.1813577Z  create mode 100644 output/quality/review_pages/20260727_114700/en/last_006.png
+generate-validate-persist	Persist all required evidence with retry	2026-07-27T12:00:42.1814971Z  create mode 100644 output/quality/review_pages/20260727_114700/en/middle_003.png
+generate-validate-persist	Persist all required evidence with retry	2026-07-27T12:00:42.1815896Z  create mode 100644 output/quality/review_pages/20260727_114700/nl/all/page-1.png
+generate-validate-persist	Persist all required evidence with retry	2026-07-27T12:00:42.1816790Z  create mode 100644 output/quality/review_pages/20260727_114700/nl/all/page-2.png
+generate-validate-persist	Persist all required evidence with retry	2026-07-27T12:00:42.1817694Z  create mode 100644 output/quality/review_pages/20260727_114700/nl/all/page-3.png
+generate-validate-persist	Persist all required evidence with retry	2026-07-27T12:00:42.1818617Z  create mode 100644 output/quality/review_pages/20260727_114700/nl/all/page-4.png
+generate-validate-persist	Persist all required evidence with retry	2026-07-27T12:00:42.1819574Z  create mode 100644 output/quality/review_pages/20260727_114700/nl/all/page-5.png
+generate-validate-persist	Persist all required evidence with retry	2026-07-27T12:00:42.1820836Z  create mode 100644 output/quality/review_pages/20260727_114700/nl/all/page-6.png
+generate-validate-persist	Persist all required evidence with retry	2026-07-27T12:00:42.1821951Z  create mode 100644 output/quality/review_pages/20260727_114700/nl/first_001.png
+generate-validate-persist	Persist all required evidence with retry	2026-07-27T12:00:42.1822848Z  create mode 100644 output/quality/review_pages/20260727_114700/nl/index.json
+generate-validate-persist	Persist all required evidence with retry	2026-07-27T12:00:42.1823740Z  create mode 100644 output/quality/review_pages/20260727_114700/nl/last_006.png
+generate-validate-persist	Persist all required evidence with retry	2026-07-27T12:00:42.1824878Z  create mode 100644 output/quality/review_pages/20260727_114700/nl/middle_003.png
+generate-validate-persist	Persist all required evidence with retry	2026-07-27T12:00:42.1825877Z  create mode 100644 output/run_manifests/etf_eu_routine_preview_manifest_20260727_114700.json
+generate-validate-persist	Persist all required evidence with retry	2026-07-27T12:00:42.1826981Z  create mode 100644 output/run_manifests/etf_eu_routine_run_manifest_2026-07-27_20260727_114700.json
+generate-validate-persist	Persist all required evidence with retry	2026-07-27T12:00:42.1828050Z  create mode 100644 output/runtime/etf_eu_client_grade_report_state_20260727_114700.json
+generate-validate-persist	Persist all required evidence with retry	2026-07-27T12:00:42.1862770Z error: cannot pull with rebase: You have unstaged changes.
+generate-validate-persist	Persist all required evidence with retry	2026-07-27T12:00:42.1866520Z error: Please commit or stash them.
+generate-validate-persist	Persist all required evidence with retry	2026-07-27T12:00:42.1884263Z fatal: no rebase in progress
+generate-validate-persist	Persist all required evidence with retry	2026-07-27T12:00:47.1957473Z error: cannot pull with rebase: You have unstaged changes.
+generate-validate-persist	Persist all required evidence with retry	2026-07-27T12:00:47.1960117Z error: Please commit or stash them.
+generate-validate-persist	Persist all required evidence with retry	2026-07-27T12:00:47.1976256Z fatal: no rebase in progress
+generate-validate-persist	Persist all required evidence with retry	2026-07-27T12:00:57.2043227Z error: cannot pull with rebase: You have unstaged changes.
+generate-validate-persist	Persist all required evidence with retry	2026-07-27T12:00:57.2046559Z error: Please commit or stash them.
+generate-validate-persist	Persist all required evidence with retry	2026-07-27T12:00:57.2063689Z fatal: no rebase in progress
+generate-validate-persist	Persist all required evidence with retry	2026-07-27T12:01:12.2097264Z ##[error]Process completed with exit code 1.

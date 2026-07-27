@@ -158,5 +158,6 @@
     }
   ],
   "probe_error": "",
+  "diagnostic_log": "output/run_manifests/etf_eu_routine_run_probe_20260727_114700.log",
   "external_transport": false
 }
