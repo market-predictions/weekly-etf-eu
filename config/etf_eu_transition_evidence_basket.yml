@@ -9,7 +9,7 @@ lines:
     exchange: Xetra
     venue_code: XETR
     currency: EUR
-    provider_symbol_yahoo: LOCK.DE
+    provider_symbol_yahoo: L0CK.DE
     isin: IE00BG0J4C88
     candidate_role: donor_target
   - exposure_id: ai_compute_infrastructure
