@@ -8,12 +8,14 @@ on:
       - "runtime/add_etf_eu_incumbent_overlap_surface.py"
       - "runtime/reconcile_etf_eu_report_with_policy_allocator.py"
       - "runtime/finalize_etf_eu_policy_reconciliation_surface.py"
+      - "runtime/compact_etf_eu_policy_transition_surface.py"
       - "runtime/build_etf_eu_incumbent_overlap_review.py"
       - "runtime/build_etf_eu_target_allocator_shadow_v3.py"
       - "tools/validate_etf_eu_target_allocator_report_surface_v2.py"
       - "tools/validate_etf_eu_incumbent_overlap_review.py"
       - "tools/validate_etf_eu_incumbent_overlap_surface.py"
-      - "tools/validate_etf_eu_policy_report_reconciliation.py"
+      - "tools/validate_etf_eu_policy_report_reconciliation_v3.py"
+      - "tools/validate_etf_eu_policy_transition_compaction.py"
       - "tools/validate_etf_eu_target_allocator_shadow_v3.py"
       - "tools/run_etf_eu_allocator_report_validation_bundle.py"
       - "tools/validate_etf_eu_sister_report_pdf_layout.py"
@@ -126,6 +128,8 @@ jobs:
             --allocator output/sync_shadow/etf_eu_target_allocator_shadow.json \
             --sync-shadow output/sync_shadow/etf_eu_strategy_sync_shadow.json
           python runtime/finalize_etf_eu_policy_reconciliation_surface.py \
+            output/sync_shadow/report/etf_eu_sister_report_shadow_manifest_20260724.json
+          python runtime/compact_etf_eu_policy_transition_surface.py \
             output/sync_shadow/report/etf_eu_sister_report_shadow_manifest_20260724.json
           python runtime/fix_etf_eu_sister_report_layout.py \
             output/sync_shadow/report/etf_eu_sister_report_shadow_manifest_20260724.json
