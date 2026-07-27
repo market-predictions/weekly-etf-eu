@@ -13,6 +13,8 @@ REPLACEMENTS = {
     },
     "en": {
         "No technical blocker; official activation is pending": "No suitable UCITS equivalent verified",
+        "Schaduwdoel ": "Shadow target ",
+        " aandelen": " shares",
     },
 }
 
