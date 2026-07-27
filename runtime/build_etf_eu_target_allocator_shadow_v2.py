@@ -1,8 +1,13 @@
 from __future__ import annotations
 
 import argparse
+import json
+import sys
 from pathlib import Path
 from typing import Any
+
+if __package__ in (None, ""):
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from runtime import build_etf_eu_target_allocator_shadow as allocator
 
@@ -57,7 +62,7 @@ def main() -> None:
         "minimum_median_daily_traded_value_eur_20d": MIN_MEDIAN_DAILY_TRADED_VALUE_EUR,
         "product_structure_review_blocks_allocation": True,
     }
-    args.output.write_text(__import__("json").dumps(payload, indent=2) + "\n", encoding="utf-8")
+    args.output.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
     print(args.output)
 
 
