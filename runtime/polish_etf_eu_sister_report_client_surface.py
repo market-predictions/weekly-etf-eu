@@ -39,6 +39,14 @@ EXPOSURE_LABELS = {
         "nl": "Healthcarekwaliteit",
         "en": "Healthcare quality",
     },
+    "defense_resilience": {
+        "nl": "Defensie-innovatie en strategische weerbaarheid",
+        "en": "Defense innovation and sovereign resilience",
+    },
+    "agri_food_security": {
+        "nl": "Voedselzekerheid en landbouwinputs",
+        "en": "Food security and agriculture inputs",
+    },
     "uranium_nuclear": {
         "nl": "Uranium en nucleaire brandstofcyclus",
         "en": "Uranium and nuclear fuel cycle",
