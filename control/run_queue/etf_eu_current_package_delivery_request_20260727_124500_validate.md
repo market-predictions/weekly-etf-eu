@@ -1,0 +1,3 @@
+delivery_mode=validate_only
+queue_path=control/prepared_delivery/etf_eu_current_package_delivery_request_20260727_123001.md
+send_confirmation=not_confirmed
