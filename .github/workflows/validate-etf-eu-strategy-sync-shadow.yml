@@ -12,6 +12,7 @@ on:
       - "runtime/merge_etf_eu_sync_registries.py"
       - "runtime/build_etf_eu_strategy_sync_shadow.py"
       - "runtime/build_etf_eu_target_allocator_shadow.py"
+      - "runtime/build_etf_eu_target_allocator_shadow_v2.py"
       - "runtime/normalize_etf_eu_alignment_contract.py"
       - "runtime/render_etf_eu_sister_report_shadow.py"
       - "runtime/add_etf_eu_portfolio_alignment_surface.py"
@@ -21,6 +22,7 @@ on:
       - "tools/validate_etf_eu_sync_registry_additions.py"
       - "tools/validate_etf_eu_strategy_sync_shadow.py"
       - "tools/validate_etf_eu_target_allocator_shadow.py"
+      - "tools/validate_etf_eu_target_allocator_shadow_v2.py"
       - "tools/validate_etf_eu_sister_report_shadow.py"
       - "tools/validate_etf_eu_sister_report_pdf_layout.py"
       - "tools/validate_etf_eu_donor_surface_contract.py"
@@ -101,11 +103,11 @@ jobs:
 
       - name: Build and validate EU target allocator variants
         run: |
-          python runtime/build_etf_eu_target_allocator_shadow.py \
+          python runtime/build_etf_eu_target_allocator_shadow_v2.py \
             --sync-shadow output/sync_shadow/etf_eu_strategy_sync_shadow.json \
             --transition-evidence output/sync_shadow/etf_eu_transition_evidence.json \
             --output output/sync_shadow/etf_eu_target_allocator_shadow.json
-          python tools/validate_etf_eu_target_allocator_shadow.py \
+          python tools/validate_etf_eu_target_allocator_shadow_v2.py \
             output/sync_shadow/etf_eu_target_allocator_shadow.json
 
       - name: Render donor-structure EU sister report shadow
