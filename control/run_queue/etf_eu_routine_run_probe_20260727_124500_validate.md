@@ -1,0 +1,4 @@
+target_run_identity=20260727_124500_validate
+target_head_sha=d671ae32d0994a2bde739067e4de98fc4feba9cb
+target_workflow=send-weekly-etf-eu-current-package.yml
+external_transport=false
