@@ -141,9 +141,16 @@ jobs:
           )
           for path in "${REQUIRED[@]}"; do test -e "$path" || { echo "REQUIRED_PERSIST_PATH_MISSING:$path"; exit 1; }; git add -f -- "$path"; done
           git commit -m "Persist ETF EU recovery preview ${ETF_EU_RUN_ID} [skip ci]"
+          echo "ETF_EU_POST_COMMIT_WORKTREE_STATUS_BEGIN"
+          git status --short
+          echo "ETF_EU_POST_COMMIT_WORKTREE_STATUS_END"
+          git reset --hard HEAD
+          git clean -fd
           for attempt in 1 2 3; do
             git pull --rebase origin main && git push origin HEAD:main && exit 0
             git rebase --abort || true
+            git reset --hard HEAD
+            git clean -fd
             sleep $((attempt*5))
           done
           exit 1
