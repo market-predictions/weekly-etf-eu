@@ -1,0 +1,3 @@
+target_run_identity=20260727_114700
+target_head_sha=17fe8b42c7832b621625fb742b92f3f4462ff488
+external_transport=false
