@@ -42,16 +42,22 @@ jobs:
           python -m pip install -r requirements.txt
           python -m pip install weasyprint
 
-      - name: Build donor shared strategy state
+      - name: Build donor shared strategy and portfolio target
         run: |
           mkdir -p output/sync_shadow
           cd donor-weekly-etf
           python runtime/build_shared_strategy_state.py --output ../output/sync_shadow/etf_shared_strategy_state.json
+          python runtime/build_shared_portfolio_target.py \
+            --shared-strategy-state ../output/sync_shadow/etf_shared_strategy_state.json \
+            --output ../output/sync_shadow/etf_shared_portfolio_target.json
+          python tools/validate_shared_strategy_state.py ../output/sync_shadow/etf_shared_strategy_state.json
+          python tools/validate_shared_portfolio_target.py ../output/sync_shadow/etf_shared_portfolio_target.json
 
       - name: Build EU synchronization shadow
         run: |
           python runtime/build_etf_eu_strategy_sync_shadow.py \
             --shared-strategy-state output/sync_shadow/etf_shared_strategy_state.json \
+            --shared-portfolio-target output/sync_shadow/etf_shared_portfolio_target.json \
             --output output/sync_shadow/etf_eu_strategy_sync_shadow.json
 
       - name: Validate EU synchronization shadow
@@ -84,6 +90,7 @@ jobs:
           name: etf-eu-strategy-sync-shadow
           path: |
             output/sync_shadow/etf_shared_strategy_state.json
+            output/sync_shadow/etf_shared_portfolio_target.json
             output/sync_shadow/etf_eu_strategy_sync_shadow.json
             output/sync_shadow/report/
           if-no-files-found: error
