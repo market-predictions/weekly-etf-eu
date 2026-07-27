@@ -5,13 +5,19 @@ on:
   pull_request:
     paths:
       - "runtime/add_etf_eu_target_allocator_surface.py"
-      - "tools/validate_etf_eu_target_allocator_report_surface.py"
+      - "runtime/build_etf_eu_incumbent_overlap_review.py"
+      - "runtime/build_etf_eu_target_allocator_shadow_v3.py"
+      - "tools/validate_etf_eu_target_allocator_report_surface_v2.py"
+      - "tools/validate_etf_eu_incumbent_overlap_review.py"
+      - "tools/validate_etf_eu_target_allocator_shadow_v3.py"
       - "tools/run_etf_eu_allocator_report_validation_bundle.py"
       - "tools/validate_etf_eu_sister_report_pdf_layout.py"
       - ".github/workflows/validate-etf-eu-allocator-report-shadow.yml"
       - "runtime/build_etf_eu_target_allocator_shadow_v2.py"
       - "pricing/apply_etf_eu_transition_evidence_cache.py"
       - "config/etf_eu_transition_evidence_cache_20260724.yml"
+      - "config/etf_eu_incumbent_overlap_evidence_20260724.yml"
+      - "config/etf_eu_transition_policy_v1.yml"
 
 permissions:
   contents: read
@@ -61,7 +67,7 @@ jobs:
           python runtime/normalize_etf_eu_alignment_contract.py output/sync_shadow/etf_eu_strategy_sync_shadow.json
           python tools/validate_etf_eu_strategy_sync_shadow.py output/sync_shadow/etf_eu_strategy_sync_shadow.json
 
-      - name: Build and validate allocator
+      - name: Build transition evidence and v2 comparison allocator
         run: |
           python pricing/build_etf_eu_transition_evidence.py \
             --report-date 2026-07-27 \
@@ -72,8 +78,24 @@ jobs:
           python runtime/build_etf_eu_target_allocator_shadow_v2.py \
             --sync-shadow output/sync_shadow/etf_eu_strategy_sync_shadow.json \
             --transition-evidence output/sync_shadow/etf_eu_transition_evidence.json \
-            --output output/sync_shadow/etf_eu_target_allocator_shadow.json
+            --output output/sync_shadow/etf_eu_target_allocator_shadow_v2.json
           python tools/validate_etf_eu_target_allocator_shadow_v2.py \
+            output/sync_shadow/etf_eu_target_allocator_shadow_v2.json
+
+      - name: Build overlap review and policy-driven allocator
+        run: |
+          python runtime/build_etf_eu_incumbent_overlap_review.py \
+            --output output/sync_shadow/etf_eu_incumbent_overlap_review.json
+          python tools/validate_etf_eu_incumbent_overlap_review.py \
+            output/sync_shadow/etf_eu_incumbent_overlap_review.json
+          python runtime/build_etf_eu_target_allocator_shadow_v3.py \
+            --base-allocator output/sync_shadow/etf_eu_target_allocator_shadow_v2.json \
+            --sync-shadow output/sync_shadow/etf_eu_strategy_sync_shadow.json \
+            --transition-evidence output/sync_shadow/etf_eu_transition_evidence.json \
+            --overlap-review output/sync_shadow/etf_eu_incumbent_overlap_review.json \
+            --policy config/etf_eu_transition_policy_v1.yml \
+            --output output/sync_shadow/etf_eu_target_allocator_shadow.json
+          python tools/validate_etf_eu_target_allocator_shadow_v3.py \
             output/sync_shadow/etf_eu_target_allocator_shadow.json
 
       - name: Render synchronized sister report
@@ -106,6 +128,8 @@ jobs:
           name: etf-eu-allocator-report-shadow
           path: |
             output/sync_shadow/etf_eu_transition_evidence.json
+            output/sync_shadow/etf_eu_target_allocator_shadow_v2.json
+            output/sync_shadow/etf_eu_incumbent_overlap_review.json
             output/sync_shadow/etf_eu_target_allocator_shadow.json
             output/sync_shadow/report/
           if-no-files-found: error
