@@ -7,6 +7,7 @@ on:
       - "config/shared_exposure_ucits_map.yml"
       - "config/weekly_etf_donor_surface_contract.yml"
       - "runtime/build_etf_eu_strategy_sync_shadow.py"
+      - "runtime/normalize_etf_eu_alignment_contract.py"
       - "runtime/render_etf_eu_sister_report_shadow.py"
       - "runtime/add_etf_eu_portfolio_alignment_surface.py"
       - "runtime/fix_etf_eu_sister_report_layout.py"
@@ -60,6 +61,11 @@ jobs:
             --shared-strategy-state output/sync_shadow/etf_shared_strategy_state.json \
             --shared-portfolio-target output/sync_shadow/etf_shared_portfolio_target.json \
             --output output/sync_shadow/etf_eu_strategy_sync_shadow.json
+
+      - name: Normalize zero-weight exposure alignment
+        run: |
+          python runtime/normalize_etf_eu_alignment_contract.py \
+            output/sync_shadow/etf_eu_strategy_sync_shadow.json
 
       - name: Validate EU synchronization shadow
         run: |
