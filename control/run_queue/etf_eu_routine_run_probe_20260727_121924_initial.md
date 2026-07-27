@@ -1,0 +1,4 @@
+target_run_identity=20260727_121924
+target_head_sha=f1f36fb349df4c9b6dd4d4055275efeac8c2d54b
+target_workflow=run-weekly-etf-eu-routine-preview-recovery.yml
+external_transport=false
