@@ -12,6 +12,7 @@ MIN_PAGE_TEXT_CHARS = 80
 BASE_MAX_EXPECTED_PAGES = 8
 ALLOCATOR_V2_MAX_EXPECTED_PAGES = 9
 POLICY_ALLOCATOR_V3_MAX_EXPECTED_PAGES = 10
+POLICY_OPERATIONAL_APPENDIX_MAX_EXPECTED_PAGES = 11
 
 
 def _load(path: Path) -> dict[str, Any]:
@@ -29,8 +30,17 @@ def _maximum_expected_pages(manifest: dict[str, Any]) -> int:
         and surface.get("funding_authority") is False
         and surface.get("execution_authority") is False
     )
+    pagination = manifest.get("policy_report_pagination") if isinstance(manifest.get("policy_report_pagination"), dict) else {}
+    pagination_boundaries = (
+        pagination.get("applied") is True
+        and pagination.get("page_break_before_section") == "15"
+        and set(pagination.get("appendix_sections") or []) == {"15", "16"}
+        and pagination.get("portfolio_mutation") is False
+        and pagination.get("funding_authority") is False
+        and pagination.get("execution_authority") is False
+    )
     if boundaries and surface.get("preferred_variant") == "staged_policy_driven_v1" and surface.get("policy_driven") is True:
-        return POLICY_ALLOCATOR_V3_MAX_EXPECTED_PAGES
+        return POLICY_OPERATIONAL_APPENDIX_MAX_EXPECTED_PAGES if pagination_boundaries else POLICY_ALLOCATOR_V3_MAX_EXPECTED_PAGES
     if boundaries and surface.get("preferred_variant") == "staged_cash_first_50pct":
         return ALLOCATOR_V2_MAX_EXPECTED_PAGES
     return BASE_MAX_EXPECTED_PAGES
@@ -65,6 +75,11 @@ def validate(manifest: dict[str, Any]) -> list[str]:
         blockers.append(
             f"bilingual PDF page counts differ: nl={page_counts['nl']} en={page_counts['en']}"
         )
+    if max_expected_pages == POLICY_OPERATIONAL_APPENDIX_MAX_EXPECTED_PAGES and set(page_counts) == {"nl", "en"}:
+        if page_counts["nl"] != 11 or page_counts["en"] != 11:
+            blockers.append(
+                f"validated operational appendix contract requires 11 pages in both languages: nl={page_counts['nl']} en={page_counts['en']}"
+            )
 
     return blockers
 
