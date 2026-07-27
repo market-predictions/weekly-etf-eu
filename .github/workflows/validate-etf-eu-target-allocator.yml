@@ -1,0 +1,100 @@
+name: Validate ETF EU target allocator shadow
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - "config/etf_eu_allocator_policy.yml"
+      - "config/shared_exposure_ucits_map.yml"
+      - "config/ucits_symbol_registry_sync_additions.yml"
+      - "pricing/build_etf_eu_allocator_market_evidence.py"
+      - "runtime/build_etf_eu_target_allocator.py"
+      - "runtime/merge_etf_eu_sync_registries.py"
+      - "tools/validate_etf_eu_sync_registry_additions.py"
+      - "tools/validate_etf_eu_allocator_market_evidence.py"
+      - "tools/validate_etf_eu_target_allocator.py"
+      - ".github/workflows/validate-etf-eu-target-allocator.yml"
+      - "control/work_packages/WP_SYNC_04_EU_TARGET_ALLOCATOR_20260727.md"
+
+permissions:
+  contents: read
+
+jobs:
+  allocator-shadow:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout Weekly ETF EU allocator branch
+        uses: actions/checkout@v4
+
+      - name: Checkout donor Weekly ETF shared-state branch
+        uses: actions/checkout@v4
+        with:
+          repository: market-predictions/weekly-etf
+          ref: sync/shared-strategy-state
+          path: donor-weekly-etf
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements.txt
+          python -m pip install yfinance pyyaml
+
+      - name: Build and validate donor strategy and portfolio target
+        run: |
+          mkdir -p output/allocator_shadow
+          cd donor-weekly-etf
+          python runtime/build_shared_strategy_state.py \
+            --output ../output/allocator_shadow/etf_shared_strategy_state.json
+          python runtime/build_shared_portfolio_target.py \
+            --shared-strategy-state ../output/allocator_shadow/etf_shared_strategy_state.json \
+            --output ../output/allocator_shadow/etf_shared_portfolio_target.json
+          python tools/validate_shared_strategy_state.py \
+            ../output/allocator_shadow/etf_shared_strategy_state.json
+          python tools/validate_shared_portfolio_target.py \
+            ../output/allocator_shadow/etf_shared_portfolio_target.json
+
+      - name: Validate and merge allocator UCITS registry
+        run: |
+          python tools/validate_etf_eu_sync_registry_additions.py \
+            config/ucits_symbol_registry_sync_additions.yml
+          python runtime/merge_etf_eu_sync_registries.py \
+            --output output/allocator_shadow/ucits_symbol_registry_allocator_merged.yml
+
+      - name: Build completed-close liquidity and spread evidence
+        run: |
+          python pricing/build_etf_eu_allocator_market_evidence.py \
+            --shared-portfolio-target output/allocator_shadow/etf_shared_portfolio_target.json \
+            --registry output/allocator_shadow/ucits_symbol_registry_allocator_merged.yml \
+            --report-date 2026-07-27 \
+            --output output/allocator_shadow/etf_eu_allocator_market_evidence_20260727.json
+
+      - name: Validate allocator market evidence
+        run: |
+          python tools/validate_etf_eu_allocator_market_evidence.py \
+            output/allocator_shadow/etf_eu_allocator_market_evidence_20260727.json
+
+      - name: Build strict efficient and staged allocator variants
+        run: |
+          python runtime/build_etf_eu_target_allocator.py \
+            --shared-portfolio-target output/allocator_shadow/etf_shared_portfolio_target.json \
+            --market-evidence output/allocator_shadow/etf_eu_allocator_market_evidence_20260727.json \
+            --output output/allocator_shadow/etf_eu_target_allocator_shadow_20260727.json
+
+      - name: Validate allocator variants
+        run: |
+          python tools/validate_etf_eu_target_allocator.py \
+            output/allocator_shadow/etf_eu_target_allocator_shadow_20260727.json
+
+      - name: Upload allocator diagnostics and results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: etf-eu-target-allocator-shadow
+          path: |
+            output/allocator_shadow/
+          if-no-files-found: error
