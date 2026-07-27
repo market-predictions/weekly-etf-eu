@@ -27,7 +27,8 @@ EXPOSURE_LABELS = {
 VARIANT_LABELS = {
     "strict_mapped_replication": {"nl": "Strikte gemapte replicatie", "en": "Strict mapped replication"},
     "efficient_max_eight_positions": {"nl": "Efficiënte portefeuille, maximaal 8 posities", "en": "Efficient portfolio, maximum 8 positions"},
-    "staged_cash_first_50pct": {"nl": "Gefaseerde cash-first migratie (50%)", "en": "Staged cash-first migration (50%)"},
+    "staged_cash_first_50pct": {"nl": "Gefaseerde cash-first migratie (vaste 50%)", "en": "Staged cash-first migration (fixed 50%)"},
+    "staged_policy_driven_v1": {"nl": "Beleidsgestuurde cash-first migratie", "en": "Policy-driven cash-first migration"},
 }
 
 BLOCKER_LABELS = {
@@ -38,6 +39,9 @@ BLOCKER_LABELS = {
     "trading_line_unverified": {"nl": "handelslijn niet geverifieerd", "en": "trading line unverified"},
     "no_ucits_equivalent": {"nl": "geen geschikt UCITS-equivalent", "en": "no suitable UCITS equivalent"},
     "product_type_blocked": {"nl": "producttype geblokkeerd", "en": "product type blocked"},
+    "position_limit": {"nl": "positielimiet bereikt", "en": "position limit reached"},
+    "stage_turnover_or_cash_budget": {"nl": "omzet- of cashbudget bereikt", "en": "turnover or cash budget reached"},
+    "minimum_trade_size": {"nl": "onder minimale transactiegrootte", "en": "below minimum trade size"},
 }
 
 
@@ -68,6 +72,35 @@ def table(headers: list[str], rows: list[list[str]], css_class: str = "data-tabl
     )
 
 
+def policy_summary(allocator: dict[str, Any], preferred: dict[str, Any], language: str) -> str:
+    policy_contract = allocator.get("policy_contract") if isinstance(allocator.get("policy_contract"), dict) else {}
+    stage = policy_contract.get("stage_1") if isinstance(policy_contract.get("stage_1"), dict) else {}
+    overlap = allocator.get("incumbent_overlap_review") if isinstance(allocator.get("incumbent_overlap_review"), dict) else {}
+    embedded = overlap.get("embedded_exposure_lower_bounds") if isinstance(overlap.get("embedded_exposure_lower_bounds"), dict) else {}
+    rows = [
+        ["Omzetplafond" if language == "nl" else "Turnover ceiling", pct(stage.get("maximum_gross_turnover_pct_nav"), language)],
+        ["Minimale cash" if language == "nl" else "Minimum cash", pct(stage.get("minimum_post_stage_cash_pct_nav"), language)],
+        ["Max. nieuwe ETF" if language == "nl" else "Maximum new ETF", pct(stage.get("maximum_new_direct_position_pct_nav"), language)],
+        ["Effectieve halfgeleiderlimiet" if language == "nl" else "Effective semiconductor cap", pct((stage.get("effective_theme_caps_pct_nav") or {}).get("ai_compute_infrastructure"), language)],
+        ["Ingebedde halfgeleiders, ondergrens" if language == "nl" else "Embedded semiconductors, lower bound", pct(embedded.get("semiconductor_pct_nav"), language)],
+    ]
+    summary = preferred.get("summary") if isinstance(preferred.get("summary"), dict) else {}
+    intro = (
+        "De voorkeursvariant gebruikt geen vaste tranche. De ordergrootte volgt uit omzet-, cash-, positie-, liquiditeits- en effectieve exposurelimieten."
+        if language == "nl" else
+        "The preferred variant uses no fixed tranche. Order sizing follows turnover, cash, position, liquidity and effective-exposure controls."
+    )
+    outcome = (
+        f"Uitkomst: {pct(summary.get('gross_turnover_pct_nav'), language)} omzet en {pct(summary.get('projected_cash_weight_pct'), language)} resterende cash."
+        if language == "nl" else
+        f"Outcome: {pct(summary.get('gross_turnover_pct_nav'), language)} turnover and {pct(summary.get('projected_cash_weight_pct'), language)} remaining cash."
+    )
+    return (
+        '<div class="alignment-summary"><strong>' + e(intro) + "</strong><br>" + e(outcome) + "</div>"
+        + table(["Controle" if language == "nl" else "Control", "Limiet / meting" if language == "nl" else "Limit / measure"], rows, "data-table allocator-policy-table")
+    )
+
+
 def variant_surface(allocator: dict[str, Any], language: str) -> str:
     preferred_id = str(allocator.get("preferred_shadow_variant") or "")
     variants = [row for row in (allocator.get("variants") or []) if isinstance(row, dict)]
@@ -95,13 +128,14 @@ def variant_surface(allocator: dict[str, Any], language: str) -> str:
             '<span class="status status-neutral">Alternatief</span>' if language == "nl" else '<span class="status status-neutral">Alternative</span>',
         ])
     intro = (
-        "De allocator vergelijkt drie schaduwvarianten. Geen van deze varianten heeft uitvoerings- of financieringsbevoegdheid."
+        f"De allocator vergelijkt {len(variants)} schaduwvarianten. Geen variant heeft uitvoerings- of financieringsbevoegdheid."
         if language == "nl" else
-        "The allocator compares three shadow variants. None has execution or funding authority."
+        f"The allocator compares {len(variants)} shadow variants. No variant has execution or funding authority."
     )
     result = '<div class="alignment-summary"><strong>' + e(intro) + "</strong></div>" + table(headers, rows, "wide-table allocator-variant-table")
     if not preferred:
         return result
+    result += policy_summary(allocator, preferred, language)
 
     intent_headers = (
         ["Bron", "Bestemming", "Delta bron %", "Delta bestemming %", "Geschatte waarde EUR", "Intentiestatus", "Toelichting"]
@@ -120,13 +154,17 @@ def variant_surface(allocator: dict[str, Any], language: str) -> str:
         fund_name = str(candidate.get("fund_name") or "")
         selected = row.get("selected") is True
         destination_delta = float(row.get("variant_target_weight_pct") or 0.0)
-        status = "Fase-1 schaduwintentie" if language == "nl" else "Stage-1 shadow intent"
-        explanation = (
-            f"Koop {order.get('target_shares')} hele aandelen {ticker}. {fund_name}" if language == "nl" else
-            f"Buy {order.get('target_shares')} whole shares of {ticker}. {fund_name}"
-        ) if selected else (
-            "; ".join(blockers) if blockers else ("Uitgesteld" if language == "nl" else "Deferred")
-        )
+        status = "Beleidsgestuurde fase-1 schaduwintentie" if language == "nl" else "Policy-driven stage-1 shadow intent"
+        if selected:
+            effective = row.get("effective_post_stage_exposure_lower_bound_pct_nav")
+            cap = row.get("effective_theme_cap_pct_nav")
+            explanation = (
+                f"Koop {order.get('target_shares')} hele aandelen {ticker}. Effectieve exposure-ondergrens {pct(effective, language)} versus limiet {pct(cap, language)}. {fund_name}"
+                if language == "nl" else
+                f"Buy {order.get('target_shares')} whole shares of {ticker}. Effective exposure lower bound {pct(effective, language)} versus cap {pct(cap, language)}. {fund_name}"
+            )
+        else:
+            explanation = "; ".join(blockers) if blockers else ("Uitgesteld" if language == "nl" else "Deferred")
         intent_rows.append([
             e("Cash"),
             e(ticker if selected else EXPOSURE_LABELS.get(exposure_id, {}).get(language, exposure_id)),
@@ -136,9 +174,7 @@ def variant_surface(allocator: dict[str, Any], language: str) -> str:
             e(status if selected else ("Geblokkeerd / uitgesteld" if language == "nl" else "Blocked / deferred")),
             e(explanation),
         ])
-    result += (
-        '<h3>Voorgestelde fase-1 allocatie</h3>' if language == "nl" else '<h3>Proposed stage-1 allocation</h3>'
-    )
+    result += ('<h3>Voorgestelde beleidsgestuurde fase-1 allocatie</h3>' if language == "nl" else '<h3>Proposed policy-driven stage-1 allocation</h3>')
     result += table(intent_headers, intent_rows, "wide-table allocator-order-table")
 
     legacy_headers = (
@@ -149,17 +185,15 @@ def variant_surface(allocator: dict[str, Any], language: str) -> str:
     for row in preferred.get("legacy_rows") or []:
         if not isinstance(row, dict):
             continue
-        role = "Tijdelijk behouden" if language == "nl" else "Temporarily retained"
+        role = "Behouden in fase 1; herbeoordeling vóór fase 2" if language == "nl" else "Retained in stage 1; re-underwrite before stage 2"
         legacy_rows.append([e(row.get("ticker")), e(row.get("target_shares")), e(row.get("side")), e(role)])
-    result += (
-        '<h3>Behandeling huidige posities</h3>' if language == "nl" else '<h3>Treatment of current positions</h3>'
-    )
+    result += ('<h3>Behandeling huidige posities</h3>' if language == "nl" else '<h3>Treatment of current positions</h3>')
     result += table(legacy_headers, legacy_rows, "data-table allocator-legacy-table")
     summary = preferred.get("summary") if isinstance(preferred.get("summary"), dict) else {}
     note = (
-        f"Fase 1 koopt voor {money(summary.get('gross_buy_value_eur'), language)}, houdt de drie bestaande posities aan en eindigt met {money(summary.get('projected_cash_eur'), language)} cash. Geschatte transactiekosten: {money(summary.get('estimated_transaction_cost_eur'), language)}."
+        f"Fase 1 koopt voor {money(summary.get('gross_buy_value_eur'), language)}, verkoopt geen bestaande positie en eindigt met {money(summary.get('projected_cash_eur'), language)} cash. Geschatte transactiekosten: {money(summary.get('estimated_transaction_cost_eur'), language)}."
         if language == "nl" else
-        f"Stage 1 buys {money(summary.get('gross_buy_value_eur'), language)}, retains the three current positions and ends with {money(summary.get('projected_cash_eur'), language)} cash. Estimated transaction costs: {money(summary.get('estimated_transaction_cost_eur'), language)}."
+        f"Stage 1 buys {money(summary.get('gross_buy_value_eur'), language)}, sells no current position and ends with {money(summary.get('projected_cash_eur'), language)} cash. Estimated transaction costs: {money(summary.get('estimated_transaction_cost_eur'), language)}."
     )
     result += '<div class="alignment-summary">' + e(note) + "</div>"
     return result
@@ -168,7 +202,7 @@ def variant_surface(allocator: dict[str, Any], language: str) -> str:
 def apply(manifest_path: Path, allocator_path: Path) -> None:
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
     allocator = json.loads(allocator_path.read_text(encoding="utf-8"))
-    if allocator.get("schema_version") != "etf_eu_target_allocator_shadow_v2":
+    if allocator.get("schema_version") != "etf_eu_target_allocator_shadow_v3":
         raise RuntimeError("Unsupported allocator artifact")
     for language, files in (manifest.get("languages") or {}).items():
         if language not in {"nl", "en"} or not isinstance(files, dict):
@@ -190,11 +224,13 @@ def apply(manifest_path: Path, allocator_path: Path) -> None:
             raise RuntimeError(f"Could not replace Section 14 for {language}")
         html_path.write_text(updated, encoding="utf-8")
         HTML(string=updated, base_url=str(html_path.parent.resolve())).write_pdf(pdf_path)
-        files["target_allocator_surface"] = "wp_sync_04_variant_and_stage_orders_v1"
+        files["target_allocator_surface"] = "wp_sync_04_policy_driven_variant_and_stage_orders_v2"
     manifest["target_allocator_surface"] = {
         "applied": True,
         "source_allocator": str(allocator_path),
         "preferred_variant": allocator.get("preferred_shadow_variant"),
+        "policy_driven": True,
+        "overlap_review_applied": True,
         "portfolio_mutation": False,
         "funding_authority": False,
         "execution_authority": False,
