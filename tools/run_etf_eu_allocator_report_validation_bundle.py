@@ -33,13 +33,14 @@ def main() -> None:
     validators = [
         "tools/validate_etf_eu_target_allocator_report_surface_v2.py",
         "tools/validate_etf_eu_incumbent_overlap_surface.py",
+        "tools/validate_etf_eu_policy_report_reconciliation.py",
         "tools/validate_etf_eu_sister_report_pdf_layout.py",
         "tools/validate_etf_eu_sister_report_shadow.py",
         "tools/validate_etf_eu_donor_surface_contract.py",
     ]
     results = [run_validator([sys.executable, validator, str(args.manifest)]) for validator in validators]
     payload = {
-        "schema_version": "etf_eu_allocator_report_validation_bundle_v3",
+        "schema_version": "etf_eu_allocator_report_validation_bundle_v4",
         "artifact_type": "etf_eu_allocator_report_validation_bundle",
         "generated_at_utc": utc_now(),
         "manifest": str(args.manifest),
