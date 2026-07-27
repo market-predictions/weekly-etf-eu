@@ -5,7 +5,9 @@ on:
   pull_request:
     paths:
       - "config/shared_exposure_ucits_map.yml"
+      - "config/ucits_symbol_registry_sync_additions.yml"
       - "config/weekly_etf_donor_surface_contract.yml"
+      - "runtime/merge_etf_eu_sync_registries.py"
       - "runtime/build_etf_eu_strategy_sync_shadow.py"
       - "runtime/normalize_etf_eu_alignment_contract.py"
       - "runtime/render_etf_eu_sister_report_shadow.py"
@@ -57,11 +59,17 @@ jobs:
           python tools/validate_shared_strategy_state.py ../output/sync_shadow/etf_shared_strategy_state.json
           python tools/validate_shared_portfolio_target.py ../output/sync_shadow/etf_shared_portfolio_target.json
 
+      - name: Build shadow merged UCITS registry
+        run: |
+          python runtime/merge_etf_eu_sync_registries.py \
+            --output output/sync_shadow/ucits_symbol_registry_sync_merged.yml
+
       - name: Build EU synchronization shadow
         run: |
           python runtime/build_etf_eu_strategy_sync_shadow.py \
             --shared-strategy-state output/sync_shadow/etf_shared_strategy_state.json \
             --shared-portfolio-target output/sync_shadow/etf_shared_portfolio_target.json \
+            --registry output/sync_shadow/ucits_symbol_registry_sync_merged.yml \
             --output output/sync_shadow/etf_eu_strategy_sync_shadow.json
 
       - name: Normalize zero-weight exposure alignment
@@ -116,6 +124,7 @@ jobs:
           path: |
             output/sync_shadow/etf_shared_strategy_state.json
             output/sync_shadow/etf_shared_portfolio_target.json
+            output/sync_shadow/ucits_symbol_registry_sync_merged.yml
             output/sync_shadow/etf_eu_strategy_sync_shadow.json
             output/sync_shadow/report/
           if-no-files-found: error
