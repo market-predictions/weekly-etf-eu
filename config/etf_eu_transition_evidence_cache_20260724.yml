@@ -5,6 +5,11 @@ source_quality: cached_prior_successful_non_authoritative_connectivity_only
 funding_authority: false
 valuation_grade: false
 rows:
+  cyber_security:
+    provider_symbol_yahoo: L0CK.DE
+    close_date: 2026-07-24
+    close_price: 10.21399975
+    median_daily_traded_value_eur_20d: 1091676.59
   ai_compute_infrastructure:
     provider_symbol_yahoo: VVSM.DE
     close_date: 2026-07-24
