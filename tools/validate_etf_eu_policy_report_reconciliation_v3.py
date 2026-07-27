@@ -4,8 +4,12 @@ import argparse
 import html
 import json
 import re
+import sys
 from pathlib import Path
 from typing import Any
+
+if __package__ in (None, ""):
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from tools import validate_etf_eu_policy_report_reconciliation_v2 as base
 
