@@ -1,0 +1,133 @@
+schema_version: ucits_symbol_registry_sync_additions_v1
+status: shadow_only
+consumer_repository: market-predictions/weekly-etf-eu
+research_date: 2026-07-27
+rules:
+  production_registry_overwrite: false
+  mapping_does_not_authorize_allocation: true
+  official_issuer_identity_required: true
+  exact_trading_line_required: true
+  priips_kid_required_for_funding: true
+
+funds:
+  - registry_id: cybersecurity_ishares_digital_security
+    fund_name: iShares Digital Security UCITS ETF USD (Acc)
+    provider: iShares / BlackRock
+    isin: IE00BG0J4C88
+    instrument_type: UCITS ETF
+    domicile: Ireland
+    replication_method: physical_optimised
+    ucits_status: confirmed
+    priips_kid_status: available
+    ter_pct: 0.40
+    distribution_policy: accumulating
+    us_research_proxy: CIBR
+    mapping_role: cybersecurity resilience
+    evidence:
+      issuer_product_page: official_iShares_product_297843
+      exchange_reference: official_iShares_listings_and_Deutsche_Boerse
+      identity_status: verified_official_issuer
+      line_status: verified_official_issuer_and_exchange
+      kid_note: issuer states investment decisions rely on the Key Information Document available through the issuer literature surface
+    trading_lines:
+      - exchange: Xetra
+        venue_code: XETR
+        exchange_ticker: LOCK
+        trading_currency: EUR
+        line_verification_status: verified_ucits_trading_line_official_issuer_and_exchange
+        issuer_bloomberg_ticker: L0CK GY
+        issuer_ric: L0CK.DE
+        primary_line: true
+      - exchange: Euronext Amsterdam
+        venue_code: XAMS
+        exchange_ticker: LOCK
+        trading_currency: EUR
+        line_verification_status: verified_ucits_trading_line_official_issuer
+        issuer_ric: LOCK.AS
+        primary_line: false
+
+  - registry_id: semiconductor_vaneck_smh_ucits
+    fund_name: VanEck Semiconductor UCITS ETF
+    provider: VanEck
+    isin: IE00BMC38736
+    instrument_type: UCITS ETF
+    domicile: Ireland
+    replication_method: physical_replication
+    ucits_status: confirmed
+    priips_kid_status: available
+    ter_pct: 0.35
+    distribution_policy: accumulating
+    us_research_proxy: SMH
+    mapping_role: semiconductor compute
+    evidence:
+      issuer_product_page: official_VanEck_semiconductor_UCITS
+      exchange_reference: official_VanEck_listing_and_Deutsche_Boerse
+      identity_status: verified_official_issuer
+      line_status: verified_official_issuer_and_exchange
+    trading_lines:
+      - exchange: Xetra
+        venue_code: XETR
+        exchange_ticker: VVSM
+        trading_currency: EUR
+        line_verification_status: verified_ucits_trading_line_official_issuer_and_exchange
+        primary_line: true
+      - exchange: London Stock Exchange
+        venue_code: XLON
+        exchange_ticker: SMH
+        trading_currency: USD
+        line_verification_status: verified_ucits_trading_line_official_issuer
+        primary_line: false
+
+  - registry_id: developed_ex_us_ishares_msci_world_ex_usa
+    fund_name: iShares MSCI World ex-USA UCITS ETF USD (Acc)
+    provider: iShares / BlackRock
+    isin: IE000R4ZNTN3
+    instrument_type: UCITS ETF
+    domicile: Ireland
+    replication_method: physical_replication
+    ucits_status: confirmed
+    priips_kid_status: unverified
+    ter_pct: 0.15
+    distribution_policy: accumulating
+    us_research_proxy: IEFA
+    mapping_role: developed markets outside the United States
+    evidence:
+      issuer_product_page: official_iShares_product_340748
+      exchange_reference: Deutsche_Boerse_Xetra_product_page
+      identity_status: verified_official_issuer_and_exchange
+      line_status: verified_official_exchange
+      blocker_note: PRIIPs KID availability must be confirmed before funding status can advance
+    trading_lines:
+      - exchange: Xetra
+        venue_code: XETR
+        exchange_ticker: IXUA
+        trading_currency: EUR
+        line_verification_status: verified_ucits_trading_line_official_exchange
+        primary_line: true
+
+  - registry_id: broad_commodities_wisdomtree_pcom
+    fund_name: WisdomTree Broad Commodities UCITS ETF
+    provider: WisdomTree
+    isin: IE00BKY4W127
+    instrument_type: UCITS ETF
+    domicile: Ireland
+    replication_method: synthetic_unfunded_swaps
+    ucits_status: confirmed
+    priips_kid_status: available
+    ter_pct: 0.19
+    distribution_policy: accumulating
+    us_research_proxy: GSG
+    mapping_role: broad commodity and inflation-sensitive ballast
+    evidence:
+      issuer_product_page: official_WisdomTree_PCOM_factsheet
+      exchange_reference: official_WisdomTree_Xetra_listing_and_Deutsche_Boerse
+      identity_status: verified_official_issuer
+      line_status: verified_official_issuer_and_exchange
+      structure_note: UCITS ETF using unfunded swaps; counterparty and collateral risks require implementation review
+    trading_lines:
+      - exchange: Xetra
+        venue_code: XETR
+        exchange_ticker: PCOM
+        trading_currency: EUR
+        line_verification_status: verified_ucits_trading_line_official_issuer_and_exchange
+        primary_line: true
