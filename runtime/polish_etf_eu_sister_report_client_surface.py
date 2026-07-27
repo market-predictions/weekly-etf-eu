@@ -59,7 +59,6 @@ EXPOSURE_LABELS = {
         "nl": "Wereldwijde aandelenkern",
         "en": "Global equity core",
     },
-    "cash": {"nl": "Cash", "en": "Cash"},
 }
 
 REASON_LABELS = {
@@ -178,13 +177,14 @@ def _polish_client_sections(text: str, language: str) -> str:
 
     for raw, labels in EXPOSURE_LABELS.items():
         client = _replace_visible_token(client, raw, labels[language])
+    # `cash` is a normal prose word and a section-title word. Localize only the
+    # exact machine exposure cell, never every occurrence in the document.
+    client = client.replace("<td>cash</td>", "<td>Cash</td>")
     for raw, labels in REASON_LABELS.items():
         client = _replace_visible_token(client, raw, labels[language])
     for raw, replacement in PHRASE_LABELS[language].items():
         client = _replace_visible_token(client, raw, replacement)
 
-    # Convert comma-separated reason labels into readable conjunctions without
-    # touching canonical machine IDs retained in Section 16.
     if language == "nl":
         client = client.replace(
             "cashreserve, bestaande portefeuille moet gecontroleerd worden omgebouwd",
