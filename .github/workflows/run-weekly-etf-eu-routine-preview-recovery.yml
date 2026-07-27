@@ -29,7 +29,7 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y libcairo2 libpango-1.0-0 libgdk-pixbuf-2.0-0 libffi-dev shared-mime-info fonts-liberation fonts-dejavu-core fonts-lato poppler-utils
           python -m pip install --upgrade pip
-          python -m pip install pyyaml yfinance mistune weasyprint pytest
+          python -m pip install pyyaml yfinance mistune weasyprint pytest pandas
 
       - name: Resolve recovery request
         run: |
@@ -62,21 +62,25 @@ jobs:
           cat env.out >> "$GITHUB_ENV"
 
       - name: Run regression tests
-        run: python -m pytest -q tests/test_etf_eu_cap01.py tests/test_etf_eu_final_visual_polish.py
+        run: python -m pytest -q tests/test_etf_eu_cap01.py tests/test_etf_eu_final_visual_polish.py tests/test_etf_eu_completed_close_revaluation.py
 
-      - name: Build pricing evidence
+      - name: Build completed-close pricing evidence
         run: |
           set -euo pipefail
-          python pricing/build_ucits_close_price_validation_basket_results.py --run-id "$ETF_EU_RUN_ID" --pause-seconds 15 --rate-limit-cooldown-seconds 600 --max-attempts 2 --rate-limit-mode stop
+          python pricing/build_ucits_completed_close_validation_basket_results.py --run-id "$ETF_EU_RUN_ID" --report-date "$ETF_EU_REPORT_DATE" --pause-seconds 15 --rate-limit-cooldown-seconds 600 --max-attempts 2 --rate-limit-mode stop
           python tools/validate_ucits_close_price_validation_basket_results.py --artifact "output/pricing/ucits_close_price_validation_basket_results_${ETF_EU_RUN_ID}.json"
 
-      - name: Refresh macro and valuation history
+      - name: Revalue portfolio and refresh macro and valuation history
         run: |
           set -euo pipefail
+          PRICING_ARTIFACT="output/pricing/ucits_close_price_validation_basket_results_${ETF_EU_RUN_ID}.json"
           MACRO_ARTIFACT="output/macro/etf_eu_macro_policy_pack_${ETF_EU_RUN_ID}.json"
+          REVALUATION_EVIDENCE="output/runtime/etf_eu_portfolio_revaluation_${ETF_EU_RUN_ID}.json"
           python -m runtime.adapt_weekly_etf_macro_for_eu --source-url "https://raw.githubusercontent.com/market-predictions/weekly-etf/main/output/macro/latest.json" --report-date "$ETF_EU_REPORT_DATE" --run-id "$ETF_EU_RUN_ID" --output "$MACRO_ARTIFACT" --latest-output output/macro/latest.json
-          python tools/update_etf_eu_valuation_history.py --portfolio-state output/etf_eu_portfolio_state.json --history output/etf_eu_valuation_history.csv --report-date "$ETF_EU_REPORT_DATE" --source-report "routine-client-grade-v2-${ETF_EU_RUN_ID}" --comment "Three-position funded-aware non-delivery recovery preview" --output output/etf_eu_valuation_history.csv
+          python tools/revalue_etf_eu_portfolio_state.py --portfolio-state output/etf_eu_portfolio_state.json --pricing-artifact "$PRICING_ARTIFACT" --run-id "$ETF_EU_RUN_ID" --report-date "$ETF_EU_REPORT_DATE" --output output/etf_eu_portfolio_state.json --evidence-output "$REVALUATION_EVIDENCE"
+          python tools/update_etf_eu_valuation_history.py --portfolio-state output/etf_eu_portfolio_state.json --history output/etf_eu_valuation_history.csv --report-date "$ETF_EU_REPORT_DATE" --source-report "routine-client-grade-v2-${ETF_EU_RUN_ID}" --comment "Three-position funded-aware non-delivery preview" --output output/etf_eu_valuation_history.csv
           echo "ETF_EU_MACRO_ARTIFACT=$MACRO_ARTIFACT" >> "$GITHUB_ENV"
+          echo "ETF_EU_REVALUATION_EVIDENCE=$REVALUATION_EVIDENCE" >> "$GITHUB_ENV"
 
       - name: Build report package
         run: |
@@ -120,7 +124,9 @@ jobs:
           REQUIRED=(
             "output/pricing/ucits_close_price_validation_basket_results_${ETF_EU_RUN_ID}.json"
             "$ETF_EU_MACRO_ARTIFACT"
+            "$ETF_EU_REVALUATION_EVIDENCE"
             "output/macro/latest.json"
+            "output/etf_eu_portfolio_state.json"
             "output/etf_eu_valuation_history.csv"
             "output/runtime/etf_eu_client_grade_report_state_${ETF_EU_RUN_ID}.json"
             "output/fresh_generation/weekly_etf_eu_review_nl_${ETF_EU_REPORT_SUFFIX}.md"
