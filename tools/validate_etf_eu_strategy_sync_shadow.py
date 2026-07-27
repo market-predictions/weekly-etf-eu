@@ -86,7 +86,9 @@ def validate(payload: dict[str, Any]) -> list[str]:
         exposure_id = str(row.get("exposure_id") or "")
         if not exposure_id:
             blockers.append("portfolio alignment row has no exposure_id")
-        if float(row.get("donor_target_weight_pct") or 0) > 0 and exposure_id != "cash":
+        donor_target = float(row.get("donor_target_weight_pct") or 0)
+        eu_current = float(row.get("eu_current_weight_pct") or 0)
+        if donor_target > 0 and exposure_id != "cash":
             donor_alignment_ids.add(exposure_id)
         eu_alignment_tickers.update(str(ticker) for ticker in (row.get("eu_current_tickers") or []) if ticker and ticker != "CASH")
         if row.get("portfolio_mutation") is not False or row.get("allocation_authority") is not False:
@@ -95,6 +97,8 @@ def validate(payload: dict[str, Any]) -> list[str]:
         invalid = sorted(set(reasons) - allowed)
         if invalid:
             blockers.append(f"portfolio alignment {exposure_id} has invalid reason codes: {', '.join(invalid)}")
+        if donor_target > 0 and eu_current <= 0 and row.get("alignment_status") == "aligned_within_one_percentage_point":
+            blockers.append(f"absent donor exposure {exposure_id} cannot be marked aligned")
         if row.get("alignment_status") != "aligned_within_one_percentage_point" and not reasons:
             blockers.append(f"portfolio alignment {exposure_id} has unexplained divergence")
 
