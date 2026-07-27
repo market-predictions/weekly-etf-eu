@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 import argparse
+import html
 import json
+import re
 from pathlib import Path
 from typing import Any
 
@@ -31,6 +33,22 @@ REQUIRED_TABLE_TERMS = {
         "Exact donor-exposure coverage",
     ],
 }
+INTERNAL_CLIENT_TOKENS = re.compile(
+    r"\b(?:trading_line_unverified|ucits_identity_unverified|product_type_blocked|"
+    r"existing_position_transition|pricing_missing_or_stale|shadow_candidate|"
+    r"ai_compute_infrastructure|non_us_developed_equities|cyber_security|"
+    r"broad_commodities|grid_power|biotech_innovation|healthcare_quality|"
+    r"uranium_nuclear|power_utilities_capex|aggregate_bonds|core_us_equity|"
+    r"global_equity_core)\b"
+)
+FORBIDDEN_DUTCH_PHRASES = [
+    "VWCE is incumbent",
+    "SXR8 is incumbent",
+    "EUNA remains separate",
+    "promoted exposures are not yet implemented",
+    "Promoted exposures pending implementation",
+    "Shadow only",
+]
 
 
 def _load(path: Path) -> dict[str, Any]:
@@ -38,6 +56,13 @@ def _load(path: Path) -> dict[str, Any]:
     if not isinstance(payload, dict):
         raise RuntimeError("Manifest must be a JSON object")
     return payload
+
+
+def _client_surface(text: str) -> str:
+    marker = '<section id="section-16"'
+    if marker not in text:
+        return text
+    return text.split(marker, 1)[0]
 
 
 def validate(manifest: dict[str, Any]) -> list[str]:
@@ -57,6 +82,14 @@ def validate(manifest: dict[str, Any]) -> list[str]:
         blockers.append("portfolio alignment surface mutation boundary is missing")
     if alignment_surface.get("recommendation_authority") is not False:
         blockers.append("portfolio alignment surface must not have recommendation authority")
+    client_polish = manifest.get("client_surface_polish") if isinstance(manifest.get("client_surface_polish"), dict) else {}
+    if client_polish.get("applied") is not True:
+        blockers.append("client-surface polish was not applied")
+    if client_polish.get("canonical_section_16_ids_preserved") is not True:
+        blockers.append("canonical Section 16 identifier boundary is missing")
+    for key in ("portfolio_mutation", "recommendation_change", "valuation_change"):
+        if client_polish.get(key) is not False:
+            blockers.append(f"client-surface polish {key} must be false")
 
     languages = manifest.get("languages") if isinstance(manifest.get("languages"), dict) else {}
     if set(languages) != {"nl", "en"}:
@@ -78,6 +111,7 @@ def validate(manifest: dict[str, Any]) -> list[str]:
             continue
         text = html_path.read_text(encoding="utf-8")
         lowered = text.lower()
+        client_text = html.unescape(_client_surface(text))
         if "data:image/png;base64," not in lowered:
             blockers.append(f"{language} HTML has no embedded PNG chart")
         if "<svg" in lowered:
@@ -88,10 +122,19 @@ def validate(manifest: dict[str, Any]) -> list[str]:
             blockers.append(f"{language} image mode is not embedded_data_uri_png")
         if files.get("portfolio_alignment_surface") != "donor_target_vs_eu_actual":
             blockers.append(f"{language} portfolio alignment surface marker is missing")
+        if files.get("client_surface_polish") != "bilingual_exposure_reason_and_phrase_normalization":
+            blockers.append(f"{language} client-surface polish marker is missing")
         if 'class="wide-table alignment-table"' not in text:
             blockers.append(f"{language} donor-to-EU allocation table is missing")
         if 'class="wide-table final-alignment-table"' not in text:
             blockers.append(f"{language} final action table is not driven by portfolio alignment")
+        leaked_tokens = sorted(set(INTERNAL_CLIENT_TOKENS.findall(client_text)))
+        if leaked_tokens:
+            blockers.append(f"{language} client surface leaks internal tokens: {', '.join(leaked_tokens)}")
+        if language == "nl":
+            for phrase in FORBIDDEN_DUTCH_PHRASES:
+                if phrase in client_text:
+                    blockers.append(f"Dutch client surface contains untranslated phrase: {phrase}")
         sections = {number for number in REQUIRED_SECTIONS if f'id="section-{number}"' in text}
         section_sets[language] = sections
         missing = [number for number in REQUIRED_SECTIONS if number not in sections]
