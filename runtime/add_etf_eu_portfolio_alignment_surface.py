@@ -10,7 +10,7 @@ from typing import Any
 from weasyprint import HTML
 
 
-SECTION_RE = re.compile(r'(<section id="section-(?P<id>8|13)"\b[^>]*>)(?P<body>.*?)(</section>)', re.DOTALL)
+SECTION_RE = re.compile(r'(<section id="section-(?P<id>8|13)"[^>]*>)(?P<body>.*?)(</section>)', re.DOTALL)
 
 
 def e(value: Any) -> str:
@@ -110,10 +110,7 @@ def allocation_surface(sync: dict[str, Any], language: str) -> str:
             status_label(row.get("alignment_status"), language),
             e(", ".join(row.get("divergence_reason_codes") or []) or "—"),
         ])
-    return (
-        '<div class="alignment-summary">' + intro + "</div>"
-        + table(headers, rows, "wide-table alignment-table")
-    )
+    return '<div class="alignment-summary">' + intro + "</div>" + table(headers, rows, "wide-table alignment-table")
 
 
 def final_action_surface(sync: dict[str, Any], language: str) -> str:
