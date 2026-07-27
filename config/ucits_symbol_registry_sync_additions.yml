@@ -1,4 +1,4 @@
-schema_version: ucits_symbol_registry_sync_additions_v1
+schema_version: ucits_symbol_registry_sync_additions_v2
 status: shadow_only
 consumer_repository: market-predictions/weekly-etf-eu
 research_date: 2026-07-27
@@ -24,16 +24,17 @@ funds:
     us_research_proxy: CIBR
     mapping_role: cybersecurity resilience
     evidence:
-      issuer_product_page: official_iShares_product_297843
-      exchange_reference: official_iShares_listings_and_Deutsche_Boerse
+      issuer_product_page: https://www.ishares.com/uk/individual/en/products/297843/ishares-digital-security-ucits-etf
+      exchange_reference: https://live.deutsche-boerse.com/en/etf/ishares-digital-security-ucits-etf-usd-acc
       identity_status: verified_official_issuer
       line_status: verified_official_issuer_and_exchange
-      kid_note: issuer states investment decisions rely on the Key Information Document available through the issuer literature surface
+      kid_note: issuer literature surface provides the Key Information Document
     trading_lines:
       - exchange: Xetra
         venue_code: XETR
         exchange_ticker: LOCK
         trading_currency: EUR
+        provider_symbols_yahoo: [LOCK.DE, L0CK.DE]
         line_verification_status: verified_ucits_trading_line_official_issuer_and_exchange
         issuer_bloomberg_ticker: L0CK GY
         issuer_ric: L0CK.DE
@@ -42,6 +43,7 @@ funds:
         venue_code: XAMS
         exchange_ticker: LOCK
         trading_currency: EUR
+        provider_symbols_yahoo: [LOCK.AS]
         line_verification_status: verified_ucits_trading_line_official_issuer
         issuer_ric: LOCK.AS
         primary_line: false
@@ -60,8 +62,8 @@ funds:
     us_research_proxy: SMH
     mapping_role: semiconductor compute
     evidence:
-      issuer_product_page: official_VanEck_semiconductor_UCITS
-      exchange_reference: official_VanEck_listing_and_Deutsche_Boerse
+      issuer_product_page: https://www.vaneck.com/nl/en/investments/semiconductor-etf/
+      exchange_reference: https://live.deutsche-boerse.com/en/etf/vaneck-semiconductor-ucits-etf
       identity_status: verified_official_issuer
       line_status: verified_official_issuer_and_exchange
     trading_lines:
@@ -69,12 +71,14 @@ funds:
         venue_code: XETR
         exchange_ticker: VVSM
         trading_currency: EUR
+        provider_symbols_yahoo: [VVSM.DE]
         line_verification_status: verified_ucits_trading_line_official_issuer_and_exchange
         primary_line: true
       - exchange: London Stock Exchange
         venue_code: XLON
         exchange_ticker: SMH
         trading_currency: USD
+        provider_symbols_yahoo: [SMH.L]
         line_verification_status: verified_ucits_trading_line_official_issuer
         primary_line: false
 
@@ -86,23 +90,26 @@ funds:
     domicile: Ireland
     replication_method: physical_replication
     ucits_status: confirmed
-    priips_kid_status: unverified
+    priips_kid_status: available
     ter_pct: 0.15
     distribution_policy: accumulating
     us_research_proxy: IEFA
     mapping_role: developed markets outside the United States
     evidence:
-      issuer_product_page: official_iShares_product_340748
-      exchange_reference: Deutsche_Boerse_Xetra_product_page
+      issuer_product_page: https://www.ishares.com/nl/particuliere-belegger/nl/producten/340748/
+      exchange_reference: https://live.deutsche-boerse.com/en/etf/ishares-msci-world-ex-usa-ucits-etf-usd-acc
       identity_status: verified_official_issuer_and_exchange
-      line_status: verified_official_exchange
-      blocker_note: PRIIPs KID availability must be confirmed before funding status can advance
+      line_status: verified_official_issuer_and_exchange
+      kid_note: issuer product literature surface provides KIID/KID documents and the product is registered in the Netherlands and Germany
     trading_lines:
       - exchange: Xetra
         venue_code: XETR
         exchange_ticker: IXUA
         trading_currency: EUR
-        line_verification_status: verified_ucits_trading_line_official_exchange
+        provider_symbols_yahoo: [IXUA.DE, XUSE.DE]
+        line_verification_status: verified_ucits_trading_line_official_issuer_and_exchange
+        issuer_bloomberg_ticker: IXUA GY
+        issuer_ric: XUSE.DE
         primary_line: true
 
   - registry_id: broad_commodities_wisdomtree_pcom
@@ -119,8 +126,8 @@ funds:
     us_research_proxy: GSG
     mapping_role: broad commodity and inflation-sensitive ballast
     evidence:
-      issuer_product_page: official_WisdomTree_PCOM_factsheet
-      exchange_reference: official_WisdomTree_Xetra_listing_and_Deutsche_Boerse
+      issuer_product_page: https://www.wisdomtree.eu/en-gb/etfs/commodities/wisdomtree-broad-commodities-ucits-etf
+      exchange_reference: https://live.deutsche-boerse.com/en/etf/wisdomtree-broad-commodities-ucits-etf
       identity_status: verified_official_issuer
       line_status: verified_official_issuer_and_exchange
       structure_note: UCITS ETF using unfunded swaps; counterparty and collateral risks require implementation review
@@ -129,5 +136,143 @@ funds:
         venue_code: XETR
         exchange_ticker: PCOM
         trading_currency: EUR
+        provider_symbols_yahoo: [PCOM.DE]
+        line_verification_status: verified_ucits_trading_line_official_issuer_and_exchange
+        primary_line: true
+
+  - registry_id: infrastructure_ishares_global_infr
+    fund_name: iShares Global Infrastructure UCITS ETF USD (Dist)
+    provider: iShares / BlackRock
+    isin: IE00B1FZS467
+    instrument_type: UCITS ETF
+    domicile: Ireland
+    replication_method: physical_replication
+    ucits_status: confirmed
+    priips_kid_status: available
+    ter_pct: 0.65
+    distribution_policy: distributing_quarterly
+    us_research_proxy: PAVE
+    mapping_role: global infrastructure and utility-linked capex proxy
+    exposure_purity: broad_infrastructure_not_pure_grid
+    evidence:
+      issuer_product_page: https://www.ishares.com/nl/particuliere-belegger/nl/producten/251809/ishares-global-infrastructure-ucits-etf
+      exchange_reference: https://live.deutsche-boerse.com/en/etf/ishares-global-infrastructure-ucits-etf-usd-dist
+      identity_status: verified_official_issuer_and_exchange
+      line_status: verified_official_issuer_and_exchange
+      combination_note: broad infrastructure exposure can absorb the small utilities sleeve only in the efficient implementation; it is not an exact PAVE or GRID clone
+    trading_lines:
+      - exchange: Xetra
+        venue_code: XETR
+        exchange_ticker: IQQI
+        trading_currency: EUR
+        provider_symbols_yahoo: [IQQI.DE]
+        line_verification_status: verified_ucits_trading_line_official_issuer_and_exchange
+        primary_line: true
+
+  - registry_id: healthcare_ishares_sp500_sector
+    fund_name: iShares S&P 500 Health Care Sector UCITS ETF USD (Acc)
+    provider: iShares / BlackRock
+    isin: IE00B43HR379
+    instrument_type: UCITS ETF
+    domicile: Ireland
+    replication_method: physical_replication
+    ucits_status: confirmed
+    priips_kid_status: available
+    ter_pct: 0.15
+    distribution_policy: accumulating
+    us_research_proxy: XLV
+    mapping_role: healthcare quality and defensive growth
+    evidence:
+      issuer_product_page: https://www.ishares.com/uk/individual/en/products/280507/ishares-sp-500-health-care-sector-ucits-etf
+      exchange_reference: https://live.deutsche-boerse.com/en/etf/ishares-s-p-500-health-care-sector-ucits-etf-usd-acc
+      identity_status: verified_official_issuer_and_exchange
+      line_status: verified_official_issuer_and_exchange
+    trading_lines:
+      - exchange: Xetra
+        venue_code: XETR
+        exchange_ticker: QDVG
+        trading_currency: EUR
+        provider_symbols_yahoo: [QDVG.DE]
+        line_verification_status: verified_ucits_trading_line_official_issuer_and_exchange
+        primary_line: true
+
+  - registry_id: biotech_ishares_nasdaq_us
+    fund_name: iShares Nasdaq US Biotechnology UCITS ETF
+    provider: iShares / BlackRock
+    isin: IE00BYXG2H39
+    instrument_type: UCITS ETF
+    domicile: Ireland
+    replication_method: physical_replication
+    ucits_status: confirmed
+    priips_kid_status: available
+    ter_pct: 0.35
+    distribution_policy: accumulating
+    us_research_proxy: XBI
+    mapping_role: biotechnology innovation
+    evidence:
+      issuer_product_page: https://www.ishares.com/nl/particuliere-belegger/nl/producten/291450/ishares-nasdaq-us-biotechnology-ucits-etf
+      exchange_reference: https://live.deutsche-boerse.com/en/etf/ishares-nasdaq-us-biotechnology-ucits-etf
+      identity_status: verified_official_issuer_and_exchange
+      line_status: verified_official_issuer_and_exchange
+    trading_lines:
+      - exchange: Xetra
+        venue_code: XETR
+        exchange_ticker: 2B70
+        trading_currency: EUR
+        provider_symbols_yahoo: [2B70.DE]
+        line_verification_status: verified_ucits_trading_line_official_issuer_and_exchange
+        primary_line: true
+
+  - registry_id: uranium_vaneck_nuclear_technologies
+    fund_name: VanEck Uranium and Nuclear Technologies UCITS ETF
+    provider: VanEck
+    isin: IE000M7V94E1
+    instrument_type: UCITS ETF
+    domicile: Ireland
+    replication_method: physical_replication
+    ucits_status: confirmed
+    priips_kid_status: available
+    ter_pct: 0.55
+    distribution_policy: accumulating
+    us_research_proxy: URNM
+    mapping_role: uranium and nuclear fuel cycle
+    evidence:
+      issuer_product_page: https://www.vaneck.com/nl/en/investments/nuclear-etf
+      exchange_reference: https://live.deutsche-boerse.com/en/etf/vaneck-uranium-and-nuclear-technologies-ucits-etf
+      identity_status: verified_official_issuer_and_exchange
+      line_status: verified_official_issuer_and_exchange
+    trading_lines:
+      - exchange: Xetra
+        venue_code: XETR
+        exchange_ticker: NUKL
+        trading_currency: EUR
+        provider_symbols_yahoo: [NUKL.DE]
+        line_verification_status: verified_ucits_trading_line_official_issuer_and_exchange
+        primary_line: true
+
+  - registry_id: utilities_ishares_sp500_sector
+    fund_name: iShares S&P 500 Utilities Sector UCITS ETF
+    provider: iShares / BlackRock
+    isin: IE00B4KBBD01
+    instrument_type: UCITS ETF
+    domicile: Ireland
+    replication_method: physical_replication
+    ucits_status: confirmed
+    priips_kid_status: available
+    ter_pct: 0.15
+    distribution_policy: accumulating
+    us_research_proxy: XLU
+    mapping_role: defensive utilities and power infrastructure
+    evidence:
+      issuer_product_page: https://www.ishares.com/nl/particuliere-belegger/nl/producten/287115/
+      exchange_reference: https://live.deutsche-boerse.com/en/etf/ishares-s-p-500-utilities-sector-ucits-etf
+      identity_status: verified_official_issuer_and_exchange
+      line_status: verified_official_issuer_and_exchange
+    trading_lines:
+      - exchange: Xetra
+        venue_code: XETR
+        exchange_ticker: 2B7A
+        trading_currency: EUR
+        provider_symbols_yahoo: [2B7A.DE]
         line_verification_status: verified_ucits_trading_line_official_issuer_and_exchange
         primary_line: true
