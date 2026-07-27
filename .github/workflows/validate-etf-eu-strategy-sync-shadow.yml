@@ -55,7 +55,7 @@ jobs:
       - name: Install synchronization and rendering dependencies
         run: |
           python -m pip install -r requirements.txt
-          python -m pip install weasyprint yfinance
+          python -m pip install weasyprint yfinance pypdf
 
       - name: Build donor shared strategy and portfolio target
         run: |
