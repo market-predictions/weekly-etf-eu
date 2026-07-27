@@ -12,6 +12,13 @@ rules:
   unresolved_capacity_policy: retain_as_cash
   mapping_does_not_authorize_allocation: true
 
+# Current funded EU positions that are not necessarily promoted donor opportunity lanes.
+# They remain incumbents and must be re-underwritten; this table is not strategy authority.
+legacy_position_exposures:
+  VWCE: global_equity_core
+  EUNA: aggregate_bonds
+  SXR8: core_us_equity
+
 exposures:
   ai_compute_infrastructure:
     portfolio_role: AI compute and semiconductor satellite
@@ -65,15 +72,7 @@ exposures:
     unresolved_reason_code: product_type_blocked
     research_required: determine whether an eligible UCITS fund exists or an ETC policy decision is required
 
-  global_equity:
-    portfolio_role: Global core equity
-    candidates:
-      - registry_id: global_core_vanguard_ftse_all_world_acc
-        preferred: true
-        us_references: [VT]
-    unresolved_reason_code: pricing_missing_or_stale
-
-  developed_ex_us:
+  non_us_developed_equities:
     portfolio_role: Developed markets outside the United States
     candidates:
       - registry_id: global_core_vanguard_ftse_all_world_acc
@@ -81,6 +80,14 @@ exposures:
         us_references: [IEFA, EFA]
     unresolved_reason_code: ucits_identity_unverified
     mapping_note: global core is not a pure developed-ex-US substitute and must not be treated as exact
+
+  global_equity_core:
+    portfolio_role: Global core equity
+    candidates:
+      - registry_id: global_core_vanguard_ftse_all_world_acc
+        preferred: true
+        us_references: [VT]
+    unresolved_reason_code: pricing_missing_or_stale
 
   core_us_equity:
     portfolio_role: Core United States equity
