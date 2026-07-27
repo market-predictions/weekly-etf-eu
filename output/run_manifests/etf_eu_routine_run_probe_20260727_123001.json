@@ -1,0 +1,59 @@
+{
+  "schema_version": "etf_eu_routine_run_probe_v2",
+  "artifact_type": "etf_eu_routine_run_probe",
+  "target_run_identity": "20260727_123001",
+  "target_head_sha": "2bfc0c4e9e241da248c2738586dad57b3413c357",
+  "workflow_file": "run-weekly-etf-eu-routine-preview-recovery.yml",
+  "run_id": 30266172706,
+  "status": "in_progress",
+  "conclusion": "",
+  "url": "https://github.com/market-predictions/weekly-etf-eu/actions/runs/30266172706",
+  "jobs": [
+    {
+      "completedAt": "0001-01-01T00:00:00Z",
+      "conclusion": "",
+      "databaseId": 89977261618,
+      "name": "generate-validate-persist",
+      "startedAt": "2026-07-27T12:30:21Z",
+      "status": "in_progress",
+      "steps": [
+        {
+          "completedAt": "2026-07-27T12:30:26Z",
+          "conclusion": "success",
+          "name": "Check out repository",
+          "number": 2,
+          "startedAt": "2026-07-27T12:30:24Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-07-27T12:30:26Z",
+          "conclusion": "success",
+          "name": "Set up Python",
+          "number": 3,
+          "startedAt": "2026-07-27T12:30:26Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "0001-01-01T00:00:00Z",
+          "conclusion": "",
+          "name": "Install dependencies",
+          "number": 4,
+          "startedAt": "2026-07-27T12:30:26Z",
+          "status": "in_progress"
+        },
+        {
+          "completedAt": "0001-01-01T00:00:00Z",
+          "conclusion": "",
+          "name": "Post Set up Python",
+          "number": 27,
+          "startedAt": "0001-01-01T00:00:00Z",
+          "status": "pending"
+        }
+      ],
+      "url": "https://github.com/market-predictions/weekly-etf-eu/actions/runs/30266172706/job/89977261618"
+    }
+  ],
+  "probe_error": "",
+  "diagnostic_log": "output/run_manifests/etf_eu_routine_run_probe_20260727_123001.log",
+  "external_transport": false
+}
