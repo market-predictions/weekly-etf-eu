@@ -1,4 +1,4 @@
-schema_version: shared_exposure_ucits_map_v1
+schema_version: shared_exposure_ucits_map_v2
 status: shadow_only
 canonical_identity: shared_exposure_id_to_registry_id
 strategy_source: market-predictions/weekly-etf
@@ -12,8 +12,6 @@ rules:
   unresolved_capacity_policy: retain_as_cash
   mapping_does_not_authorize_allocation: true
 
-# Current funded EU positions that are not necessarily donor target exposures.
-# They remain incumbents and must be re-underwritten; this table is not strategy authority.
 legacy_position_exposures:
   VWCE: global_equity_core
   EUNA: aggregate_bonds
@@ -26,7 +24,7 @@ exposures:
       - registry_id: semiconductor_vaneck_smh_ucits
         preferred: true
         us_references: [SMH, SOXX]
-    unresolved_reason_code: trading_line_unverified
+    unresolved_reason_code: pricing_missing_or_stale
 
   grid_power:
     portfolio_role: Grid, infrastructure and electrification satellite
@@ -34,7 +32,8 @@ exposures:
       - registry_id: infrastructure_ishares_global_infr
         preferred: true
         us_references: [PAVE, GRID]
-    unresolved_reason_code: ucits_identity_unverified
+    unresolved_reason_code: pricing_missing_or_stale
+    mapping_note: broad infrastructure implementation; exposure purity must be disclosed
 
   cyber_security:
     portfolio_role: Cybersecurity resilience satellite
@@ -46,9 +45,11 @@ exposures:
 
   healthcare_quality:
     portfolio_role: Healthcare quality and defensive growth satellite
-    candidates: []
-    unresolved_reason_code: ucits_identity_unverified
-    research_required: identify and verify a broad, liquid UCITS healthcare implementation
+    candidates:
+      - registry_id: healthcare_ishares_sp500_sector
+        preferred: true
+        us_references: [XLV]
+    unresolved_reason_code: pricing_missing_or_stale
 
   defense_resilience:
     portfolio_role: Defense and sovereign resilience satellite
@@ -83,26 +84,32 @@ exposures:
       - registry_id: developed_ex_us_ishares_msci_world_ex_usa
         preferred: true
         us_references: [IEFA, EFA]
-    unresolved_reason_code: kid_missing
+    unresolved_reason_code: pricing_missing_or_stale
     mapping_note: VWCE is global equity and must not be counted as an exact developed-ex-US implementation
 
   uranium_nuclear:
     portfolio_role: Uranium and nuclear fuel-cycle satellite
-    candidates: []
-    unresolved_reason_code: ucits_identity_unverified
-    research_required: identify and verify a suitable UCITS uranium or nuclear implementation
+    candidates:
+      - registry_id: uranium_vaneck_nuclear_technologies
+        preferred: true
+        us_references: [URNM]
+    unresolved_reason_code: pricing_missing_or_stale
 
   biotech_innovation:
     portfolio_role: Biotech innovation satellite
-    candidates: []
-    unresolved_reason_code: ucits_identity_unverified
-    research_required: identify and verify a suitable UCITS biotech implementation
+    candidates:
+      - registry_id: biotech_ishares_nasdaq_us
+        preferred: true
+        us_references: [XBI]
+    unresolved_reason_code: pricing_missing_or_stale
 
   power_utilities_capex:
     portfolio_role: Defensive utilities and power-infrastructure satellite
-    candidates: []
-    unresolved_reason_code: ucits_identity_unverified
-    research_required: identify and verify a suitable UCITS utilities or power-infrastructure implementation
+    candidates:
+      - registry_id: utilities_ishares_sp500_sector
+        preferred: true
+        us_references: [XLU]
+    unresolved_reason_code: pricing_missing_or_stale
 
   global_equity_core:
     portfolio_role: Global core equity
