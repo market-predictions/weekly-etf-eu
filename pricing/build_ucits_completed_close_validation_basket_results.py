@@ -2,10 +2,14 @@ from __future__ import annotations
 
 import argparse
 import json
+import sys
 import time
 from datetime import date
 from pathlib import Path
 from typing import Any
+
+if __package__ in (None, ""):
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from pricing.build_ucits_close_price_validation_basket_results import (
     MIN_PAUSE_SECONDS,
