@@ -19,7 +19,7 @@ def load(path: Path) -> dict[str, Any]:
 
 def validate(payload: dict[str, Any]) -> list[str]:
     blockers: list[str] = []
-    if payload.get("schema_version") != "ucits_symbol_registry_sync_additions_v1":
+    if payload.get("schema_version") not in {"ucits_symbol_registry_sync_additions_v1", "ucits_symbol_registry_sync_additions_v2"}:
         blockers.append("unexpected schema_version")
     if payload.get("status") != "shadow_only":
         blockers.append("supplemental registry must remain shadow_only")
@@ -32,6 +32,8 @@ def validate(payload: dict[str, Any]) -> list[str]:
         blockers.append("official issuer identity rule is missing")
     if rules.get("exact_trading_line_required") is not True:
         blockers.append("exact trading-line rule is missing")
+    if rules.get("priips_kid_required_for_funding") is not True:
+        blockers.append("PRIIPs KID funding rule is missing")
 
     funds = [row for row in (payload.get("funds") or []) if isinstance(row, dict)]
     if not funds:
@@ -41,6 +43,11 @@ def validate(payload: dict[str, Any]) -> list[str]:
     duplicates = sorted({value for value in ids if value and ids.count(value) > 1})
     if duplicates:
         blockers.append("duplicate registry IDs: " + ", ".join(duplicates))
+
+    isins = [str(row.get("isin") or "").upper() for row in funds]
+    duplicate_isins = sorted({value for value in isins if value and isins.count(value) > 1})
+    if duplicate_isins:
+        blockers.append("duplicate supplemental ISINs: " + ", ".join(duplicate_isins))
 
     for fund in funds:
         registry_id = str(fund.get("registry_id") or "")
@@ -56,13 +63,21 @@ def validate(payload: dict[str, Any]) -> list[str]:
             blockers.append(f"{registry_id}: UCITS status is not confirmed")
         if fund.get("priips_kid_status") not in {"available", "unverified"}:
             blockers.append(f"{registry_id}: invalid PRIIPs KID status")
+        if not fund.get("fund_name") or not fund.get("provider"):
+            blockers.append(f"{registry_id}: fund identity fields are incomplete")
+        if not fund.get("replication_method"):
+            blockers.append(f"{registry_id}: replication method is missing")
         evidence = fund.get("evidence") if isinstance(fund.get("evidence"), dict) else {}
-        if not evidence.get("issuer_product_page"):
-            blockers.append(f"{registry_id}: issuer product-page evidence missing")
-        if not evidence.get("exchange_reference"):
-            blockers.append(f"{registry_id}: exchange reference missing")
+        issuer_url = str(evidence.get("issuer_product_page") or "")
+        exchange_url = str(evidence.get("exchange_reference") or "")
+        if not issuer_url.startswith("https://"):
+            blockers.append(f"{registry_id}: issuer product-page evidence missing or not URL")
+        if not exchange_url.startswith("https://"):
+            blockers.append(f"{registry_id}: exchange reference missing or not URL")
         if "verified" not in str(evidence.get("identity_status") or ""):
             blockers.append(f"{registry_id}: identity evidence is not verified")
+        if "verified" not in str(evidence.get("line_status") or ""):
+            blockers.append(f"{registry_id}: line evidence is not verified")
 
         lines = [line for line in (fund.get("trading_lines") or []) if isinstance(line, dict)]
         if not lines:
@@ -76,6 +91,8 @@ def validate(payload: dict[str, Any]) -> list[str]:
                 blockers.append(f"{registry_id}: incomplete trading line")
             if not str(line.get("line_verification_status") or "").startswith("verified_ucits_trading_line"):
                 blockers.append(f"{registry_id}: trading line is not verified")
+            if str(line.get("trading_currency") or "").upper() == "EUR" and not line.get("provider_symbols_yahoo"):
+                blockers.append(f"{registry_id}: EUR line lacks provider symbol candidates for market-evidence testing")
 
     return blockers
 
