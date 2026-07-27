@@ -58,7 +58,7 @@ def apply(evidence_path: Path, cache_path: Path) -> None:
         "applied": fallback_count > 0,
         "fallback_row_count": fallback_count,
         "cache_path": str(cache_path),
-        "cache_observation_date": cache.get("observation_date"),
+        "cache_observation_date": str(cache.get("observation_date") or ""),
         "valuation_grade": False,
         "funding_authority": False,
     }
