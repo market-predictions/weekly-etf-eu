@@ -1,0 +1,114 @@
+name: Validate ETF EU allocator report shadow
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - "runtime/add_etf_eu_target_allocator_surface.py"
+      - "tools/validate_etf_eu_target_allocator_report_surface.py"
+      - ".github/workflows/validate-etf-eu-allocator-report-shadow.yml"
+      - "runtime/build_etf_eu_target_allocator_shadow_v2.py"
+      - "pricing/apply_etf_eu_transition_evidence_cache.py"
+      - "config/etf_eu_transition_evidence_cache_20260724.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  allocator-report-shadow:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Weekly ETF EU
+        uses: actions/checkout@v4
+
+      - name: Checkout donor Weekly ETF branch
+        uses: actions/checkout@v4
+        with:
+          repository: market-predictions/weekly-etf
+          ref: sync/shared-strategy-state
+          path: donor-weekly-etf
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install -r requirements.txt
+          python -m pip install weasyprint yfinance
+
+      - name: Build donor and synchronization artifacts
+        run: |
+          mkdir -p output/sync_shadow
+          cd donor-weekly-etf
+          python runtime/build_shared_strategy_state.py --output ../output/sync_shadow/etf_shared_strategy_state.json
+          python runtime/build_shared_portfolio_target.py \
+            --shared-strategy-state ../output/sync_shadow/etf_shared_strategy_state.json \
+            --output ../output/sync_shadow/etf_shared_portfolio_target.json
+          python tools/validate_shared_strategy_state.py ../output/sync_shadow/etf_shared_strategy_state.json
+          python tools/validate_shared_portfolio_target.py ../output/sync_shadow/etf_shared_portfolio_target.json
+          cd ..
+          python tools/validate_etf_eu_sync_registry_additions.py config/ucits_symbol_registry_sync_additions.yml
+          python runtime/merge_etf_eu_sync_registries.py \
+            --output output/sync_shadow/ucits_symbol_registry_sync_merged.yml
+          python runtime/build_etf_eu_strategy_sync_shadow.py \
+            --shared-strategy-state output/sync_shadow/etf_shared_strategy_state.json \
+            --shared-portfolio-target output/sync_shadow/etf_shared_portfolio_target.json \
+            --registry output/sync_shadow/ucits_symbol_registry_sync_merged.yml \
+            --output output/sync_shadow/etf_eu_strategy_sync_shadow.json
+          python runtime/normalize_etf_eu_alignment_contract.py output/sync_shadow/etf_eu_strategy_sync_shadow.json
+          python tools/validate_etf_eu_strategy_sync_shadow.py output/sync_shadow/etf_eu_strategy_sync_shadow.json
+
+      - name: Build and validate allocator
+        run: |
+          python pricing/build_etf_eu_transition_evidence.py \
+            --report-date 2026-07-27 \
+            --output output/sync_shadow/etf_eu_transition_evidence.json
+          python pricing/apply_etf_eu_transition_evidence_cache.py \
+            output/sync_shadow/etf_eu_transition_evidence.json \
+            --cache config/etf_eu_transition_evidence_cache_20260724.yml
+          python runtime/build_etf_eu_target_allocator_shadow_v2.py \
+            --sync-shadow output/sync_shadow/etf_eu_strategy_sync_shadow.json \
+            --transition-evidence output/sync_shadow/etf_eu_transition_evidence.json \
+            --output output/sync_shadow/etf_eu_target_allocator_shadow.json
+          python tools/validate_etf_eu_target_allocator_shadow_v2.py \
+            output/sync_shadow/etf_eu_target_allocator_shadow.json
+
+      - name: Render synchronized sister report
+        run: |
+          python runtime/render_etf_eu_sister_report_shadow.py \
+            --sync-shadow output/sync_shadow/etf_eu_strategy_sync_shadow.json \
+            --output-dir output/sync_shadow/report
+          python runtime/add_etf_eu_portfolio_alignment_surface.py \
+            output/sync_shadow/report/etf_eu_sister_report_shadow_manifest_20260724.json \
+            --sync-shadow output/sync_shadow/etf_eu_strategy_sync_shadow.json
+          python runtime/add_etf_eu_target_allocator_surface.py \
+            output/sync_shadow/report/etf_eu_sister_report_shadow_manifest_20260724.json \
+            --allocator output/sync_shadow/etf_eu_target_allocator_shadow.json
+          python runtime/polish_etf_eu_sister_report_client_surface.py \
+            output/sync_shadow/report/etf_eu_sister_report_shadow_manifest_20260724.json
+          python runtime/finalize_etf_eu_sister_report_nl_language.py \
+            output/sync_shadow/report/etf_eu_sister_report_shadow_manifest_20260724.json
+          python runtime/fix_etf_eu_sister_report_layout.py \
+            output/sync_shadow/report/etf_eu_sister_report_shadow_manifest_20260724.json
+
+      - name: Validate allocator report
+        run: |
+          python tools/validate_etf_eu_target_allocator_report_surface.py \
+            output/sync_shadow/report/etf_eu_sister_report_shadow_manifest_20260724.json
+          python tools/validate_etf_eu_sister_report_pdf_layout.py \
+            output/sync_shadow/report/etf_eu_sister_report_shadow_manifest_20260724.json
+          python tools/validate_etf_eu_sister_report_shadow.py \
+            output/sync_shadow/report/etf_eu_sister_report_shadow_manifest_20260724.json
+          python tools/validate_etf_eu_donor_surface_contract.py \
+            output/sync_shadow/report/etf_eu_sister_report_shadow_manifest_20260724.json
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: etf-eu-allocator-report-shadow
+          path: |
+            output/sync_shadow/etf_eu_transition_evidence.json
+            output/sync_shadow/etf_eu_target_allocator_shadow.json
+            output/sync_shadow/report/
+          if-no-files-found: error
