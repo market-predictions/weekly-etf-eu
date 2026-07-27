@@ -8,6 +8,7 @@ on:
       - "config/weekly_etf_donor_surface_contract.yml"
       - "runtime/build_etf_eu_strategy_sync_shadow.py"
       - "runtime/render_etf_eu_sister_report_shadow.py"
+      - "runtime/add_etf_eu_portfolio_alignment_surface.py"
       - "runtime/fix_etf_eu_sister_report_layout.py"
       - "tools/validate_etf_eu_strategy_sync_shadow.py"
       - "tools/validate_etf_eu_sister_report_shadow.py"
@@ -69,6 +70,12 @@ jobs:
           python runtime/render_etf_eu_sister_report_shadow.py \
             --sync-shadow output/sync_shadow/etf_eu_strategy_sync_shadow.json \
             --output-dir output/sync_shadow/report
+
+      - name: Add donor-to-EU portfolio alignment surface
+        run: |
+          python runtime/add_etf_eu_portfolio_alignment_surface.py \
+            output/sync_shadow/report/etf_eu_sister_report_shadow_manifest_20260724.json \
+            --sync-shadow output/sync_shadow/etf_eu_strategy_sync_shadow.json
 
       - name: Apply narrow layout fixes
         run: |
