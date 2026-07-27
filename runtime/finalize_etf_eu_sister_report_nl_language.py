@@ -121,11 +121,14 @@ def finalize(text: str) -> str:
         raise RuntimeError("Could not locate Section 16 boundary")
     client, continuity = text.split(SECTION_16_MARKER, 1)
 
-    for raw, replacement in OFFICIAL_NAME_REPAIRS.items():
+    for raw, replacement in sorted(OFFICIAL_NAME_REPAIRS.items(), key=lambda item: len(item[0]), reverse=True):
         client = _replace_phrase(client, raw, replacement)
-    for raw, replacement in EXACT_PHRASES.items():
+    # Replace longer sentences before short tokens that may be embedded in them.
+    # This prevents a short translation such as `Risk-on growth` from breaking
+    # the exact match for the complete regime-change sentence.
+    for raw, replacement in sorted(EXACT_PHRASES.items(), key=lambda item: len(item[0]), reverse=True):
         client = _replace_phrase(client, raw, replacement)
-    for raw, replacement in EXACT_CELL_LABELS.items():
+    for raw, replacement in sorted(EXACT_CELL_LABELS.items(), key=lambda item: len(item[0]), reverse=True):
         client = _replace_exact_cell(client, raw, replacement)
 
     visible = html.unescape(client)
