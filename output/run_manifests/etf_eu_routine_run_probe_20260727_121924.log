@@ -1,0 +1,23 @@
+generate-validate-persist	Build completed-close pricing evidence	﻿2026-07-27T12:20:19.0360794Z ##[group]Run set -euo pipefail
+generate-validate-persist	Build completed-close pricing evidence	2026-07-27T12:20:19.0361161Z ^[[36;1mset -euo pipefail^[[0m
+generate-validate-persist	Build completed-close pricing evidence	2026-07-27T12:20:19.0362086Z ^[[36;1mpython pricing/build_ucits_completed_close_validation_basket_results.py --run-id "$ETF_EU_RUN_ID" --report-date "$ETF_EU_REPORT_DATE" --pause-seconds 15 --rate-limit-cooldown-seconds 600 --max-attempts 2 --rate-limit-mode stop^[[0m
+generate-validate-persist	Build completed-close pricing evidence	2026-07-27T12:20:19.0363495Z ^[[36;1mpython tools/validate_ucits_close_price_validation_basket_results.py --artifact "output/pricing/ucits_close_price_validation_basket_results_${ETF_EU_RUN_ID}.json"^[[0m
+generate-validate-persist	Build completed-close pricing evidence	2026-07-27T12:20:19.0408250Z shell: /usr/bin/bash -e {0}
+generate-validate-persist	Build completed-close pricing evidence	2026-07-27T12:20:19.0408503Z env:
+generate-validate-persist	Build completed-close pricing evidence	2026-07-27T12:20:19.0408769Z   pythonLocation: /opt/hostedtoolcache/Python/3.11.15/x64
+generate-validate-persist	Build completed-close pricing evidence	2026-07-27T12:20:19.0409216Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.11.15/x64/lib/pkgconfig
+generate-validate-persist	Build completed-close pricing evidence	2026-07-27T12:20:19.0409671Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.15/x64
+generate-validate-persist	Build completed-close pricing evidence	2026-07-27T12:20:19.0410065Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.15/x64
+generate-validate-persist	Build completed-close pricing evidence	2026-07-27T12:20:19.0410792Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.15/x64
+generate-validate-persist	Build completed-close pricing evidence	2026-07-27T12:20:19.0411181Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.11.15/x64/lib
+generate-validate-persist	Build completed-close pricing evidence	2026-07-27T12:20:19.0411517Z   ETF_EU_RUN_ID: 20260727_121924
+generate-validate-persist	Build completed-close pricing evidence	2026-07-27T12:20:19.0411764Z   ETF_EU_REPORT_DATE: 2026-07-27
+generate-validate-persist	Build completed-close pricing evidence	2026-07-27T12:20:19.0412003Z   ETF_EU_REPORT_SUFFIX: 260727_02
+generate-validate-persist	Build completed-close pricing evidence	2026-07-27T12:20:19.0412491Z   ETF_EU_PREVIOUS_ROUTINE_MANIFEST: output/run_manifests/etf_eu_routine_run_manifest_2026-07-17_20260717_141500.json
+generate-validate-persist	Build completed-close pricing evidence	2026-07-27T12:20:19.0413224Z   ETF_EU_PREVIOUS_CLOSEOUT: output/run_manifests/etf_eu_production_delivery_closeout_manifest_20260711_175327.json
+generate-validate-persist	Build completed-close pricing evidence	2026-07-27T12:20:19.0413729Z ##[endgroup]
+generate-validate-persist	Build completed-close pricing evidence	2026-07-27T12:20:19.0758412Z Traceback (most recent call last):
+generate-validate-persist	Build completed-close pricing evidence	2026-07-27T12:20:19.0766497Z   File "/home/runner/work/weekly-etf-eu/weekly-etf-eu/pricing/build_ucits_completed_close_validation_basket_results.py", line 10, in <module>
+generate-validate-persist	Build completed-close pricing evidence	2026-07-27T12:20:19.0767549Z     from pricing.build_ucits_close_price_validation_basket_results import (
+generate-validate-persist	Build completed-close pricing evidence	2026-07-27T12:20:19.0768114Z ModuleNotFoundError: No module named 'pricing'
+generate-validate-persist	Build completed-close pricing evidence	2026-07-27T12:20:19.0813935Z ##[error]Process completed with exit code 1.

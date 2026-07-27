@@ -1,0 +1,163 @@
+{
+  "schema_version": "etf_eu_routine_run_probe_v2",
+  "artifact_type": "etf_eu_routine_run_probe",
+  "target_run_identity": "20260727_121924",
+  "target_head_sha": "f1f36fb349df4c9b6dd4d4055275efeac8c2d54b",
+  "workflow_file": "run-weekly-etf-eu-routine-preview-recovery.yml",
+  "run_id": 30265458251,
+  "status": "completed",
+  "conclusion": "failure",
+  "url": "https://github.com/market-predictions/weekly-etf-eu/actions/runs/30265458251",
+  "jobs": [
+    {
+      "completedAt": "2026-07-27T12:20:21Z",
+      "conclusion": "failure",
+      "databaseId": 89974945377,
+      "name": "generate-validate-persist",
+      "startedAt": "2026-07-27T12:19:50Z",
+      "status": "completed",
+      "steps": [
+        {
+          "completedAt": "2026-07-27T12:19:52Z",
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "startedAt": "2026-07-27T12:19:51Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-07-27T12:19:54Z",
+          "conclusion": "success",
+          "name": "Check out repository",
+          "number": 2,
+          "startedAt": "2026-07-27T12:19:52Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-07-27T12:19:54Z",
+          "conclusion": "success",
+          "name": "Set up Python",
+          "number": 3,
+          "startedAt": "2026-07-27T12:19:54Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-07-27T12:20:17Z",
+          "conclusion": "success",
+          "name": "Install dependencies",
+          "number": 4,
+          "startedAt": "2026-07-27T12:19:54Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-07-27T12:20:17Z",
+          "conclusion": "success",
+          "name": "Resolve recovery request",
+          "number": 5,
+          "startedAt": "2026-07-27T12:20:17Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-07-27T12:20:19Z",
+          "conclusion": "success",
+          "name": "Run regression tests",
+          "number": 6,
+          "startedAt": "2026-07-27T12:20:17Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-07-27T12:20:19Z",
+          "conclusion": "failure",
+          "name": "Build completed-close pricing evidence",
+          "number": 7,
+          "startedAt": "2026-07-27T12:20:19Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-07-27T12:20:19Z",
+          "conclusion": "skipped",
+          "name": "Revalue portfolio and refresh macro and valuation history",
+          "number": 8,
+          "startedAt": "2026-07-27T12:20:19Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-07-27T12:20:19Z",
+          "conclusion": "skipped",
+          "name": "Build report package",
+          "number": 9,
+          "startedAt": "2026-07-27T12:20:19Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-07-27T12:20:19Z",
+          "conclusion": "skipped",
+          "name": "Run machine validation",
+          "number": 10,
+          "startedAt": "2026-07-27T12:20:19Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-07-27T12:20:19Z",
+          "conclusion": "skipped",
+          "name": "Render all review pages",
+          "number": 11,
+          "startedAt": "2026-07-27T12:20:19Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-07-27T12:20:19Z",
+          "conclusion": "skipped",
+          "name": "Write preview manifest",
+          "number": 12,
+          "startedAt": "2026-07-27T12:20:19Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-07-27T12:20:19Z",
+          "conclusion": "skipped",
+          "name": "Persist all required evidence with retry",
+          "number": 13,
+          "startedAt": "2026-07-27T12:20:19Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-07-27T12:20:19Z",
+          "conclusion": "skipped",
+          "name": "Upload complete review package",
+          "number": 14,
+          "startedAt": "2026-07-27T12:20:19Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-07-27T12:20:19Z",
+          "conclusion": "skipped",
+          "name": "Post Set up Python",
+          "number": 27,
+          "startedAt": "2026-07-27T12:20:19Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-07-27T12:20:19Z",
+          "conclusion": "success",
+          "name": "Post Check out repository",
+          "number": 28,
+          "startedAt": "2026-07-27T12:20:19Z",
+          "status": "completed"
+        },
+        {
+          "completedAt": "2026-07-27T12:20:19Z",
+          "conclusion": "success",
+          "name": "Complete job",
+          "number": 29,
+          "startedAt": "2026-07-27T12:20:19Z",
+          "status": "completed"
+        }
+      ],
+      "url": "https://github.com/market-predictions/weekly-etf-eu/actions/runs/30265458251/job/89974945377"
+    }
+  ],
+  "probe_error": "",
+  "diagnostic_log": "output/run_manifests/etf_eu_routine_run_probe_20260727_121924.log",
+  "external_transport": false
+}
