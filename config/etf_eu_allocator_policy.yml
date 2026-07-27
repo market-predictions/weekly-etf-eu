@@ -1,0 +1,59 @@
+schema_version: etf_eu_allocator_policy_v1
+status: shadow_only
+base_currency: EUR
+portfolio:
+  maximum_final_positions: 8
+  minimum_efficient_standalone_weight_pct: 1.0
+  maximum_single_exposure_weight_pct: 30.0
+  final_cash_policy: donor_target
+  staged_minimum_cash_weight_pct: 10.0
+  whole_shares_only: true
+  unresolved_capacity_to_cash: true
+  broad_incumbents_are_not_exact_exposure_substitutes: true
+
+efficient_variant:
+  combine_exposures:
+    - destination_exposure_id: grid_power
+      source_exposure_ids: [grid_power, power_utilities_capex]
+      rationale: selected broad-infrastructure UCITS product contains utility-linked regulated infrastructure; standalone donor utilities weight is below the 1% efficient-position floor
+      disclosure_required: true
+
+staged_variant:
+  initial_new_position_fraction_of_donor_target: 0.50
+  stage_a_new_exposure_ids:
+    - ai_compute_infrastructure
+    - non_us_developed_equities
+    - cyber_security
+    - broad_commodities
+    - grid_power
+  retain_current_positions_stage_a: [VWCE, EUNA, SXR8]
+  stage_a_sales_authorized: false
+  stage_b_target_variant: efficient_eight_position
+
+liquidity:
+  lookback_sessions: 20
+  thresholds_eur_per_day:
+    above_10_pct: 250000
+    from_3_to_10_pct: 100000
+    below_3_pct: 50000
+  maximum_quote_spread_bps: 60.0
+  missing_spread_review_required: true
+
+cost_scenarios:
+  missing_spread_proxy_bps: 30.0
+  commission_slippage_bps:
+    low: 5.0
+    base: 10.0
+    stress: 20.0
+
+risk:
+  volatility_lookback_sessions: 60
+  drawdown_lookback_sessions: 60
+  high_volatility_warning_annualized_pct: 35.0
+  high_drawdown_warning_pct: -20.0
+
+authority:
+  portfolio_mutation: false
+  funding_authority: false
+  execution_authority: false
+  production_delivery_authority: false
