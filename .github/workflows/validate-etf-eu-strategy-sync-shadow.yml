@@ -18,6 +18,7 @@ on:
       - "tools/validate_etf_eu_sync_registry_additions.py"
       - "tools/validate_etf_eu_strategy_sync_shadow.py"
       - "tools/validate_etf_eu_sister_report_shadow.py"
+      - "tools/validate_etf_eu_sister_report_pdf_layout.py"
       - "tools/validate_etf_eu_donor_surface_contract.py"
       - ".github/workflows/validate-etf-eu-strategy-sync-shadow.yml"
       - "docs/roadmaps/WEEKLY_ETF_US_EU_SYNCHRONIZATION_ROADMAP_20260727.md"
@@ -112,6 +113,11 @@ jobs:
       - name: Apply narrow layout fixes
         run: |
           python runtime/fix_etf_eu_sister_report_layout.py \
+            output/sync_shadow/report/etf_eu_sister_report_shadow_manifest_20260724.json
+
+      - name: Validate PDF page integrity
+        run: |
+          python tools/validate_etf_eu_sister_report_pdf_layout.py \
             output/sync_shadow/report/etf_eu_sister_report_shadow_manifest_20260724.json
 
       - name: Validate sister-report section, table and chart contract
