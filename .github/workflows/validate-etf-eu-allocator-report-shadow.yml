@@ -6,6 +6,8 @@ on:
     paths:
       - "runtime/add_etf_eu_target_allocator_surface.py"
       - "tools/validate_etf_eu_target_allocator_report_surface.py"
+      - "tools/run_etf_eu_allocator_report_validation_bundle.py"
+      - "tools/validate_etf_eu_sister_report_pdf_layout.py"
       - ".github/workflows/validate-etf-eu-allocator-report-shadow.yml"
       - "runtime/build_etf_eu_target_allocator_shadow_v2.py"
       - "pricing/apply_etf_eu_transition_evidence_cache.py"
@@ -94,14 +96,9 @@ jobs:
 
       - name: Validate allocator report
         run: |
-          python tools/validate_etf_eu_target_allocator_report_surface.py \
-            output/sync_shadow/report/etf_eu_sister_report_shadow_manifest_20260724.json
-          python tools/validate_etf_eu_sister_report_pdf_layout.py \
-            output/sync_shadow/report/etf_eu_sister_report_shadow_manifest_20260724.json
-          python tools/validate_etf_eu_sister_report_shadow.py \
-            output/sync_shadow/report/etf_eu_sister_report_shadow_manifest_20260724.json
-          python tools/validate_etf_eu_donor_surface_contract.py \
-            output/sync_shadow/report/etf_eu_sister_report_shadow_manifest_20260724.json
+          python tools/run_etf_eu_allocator_report_validation_bundle.py \
+            output/sync_shadow/report/etf_eu_sister_report_shadow_manifest_20260724.json \
+            --output output/sync_shadow/report/etf_eu_allocator_report_validation_bundle.json
 
       - uses: actions/upload-artifact@v4
         if: always()
