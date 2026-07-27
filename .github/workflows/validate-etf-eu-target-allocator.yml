@@ -8,6 +8,7 @@ on:
       - "config/shared_exposure_ucits_map.yml"
       - "config/ucits_symbol_registry_sync_additions.yml"
       - "pricing/build_etf_eu_allocator_market_evidence.py"
+      - "pricing/build_etf_eu_allocator_market_evidence_v2.py"
       - "runtime/build_etf_eu_target_allocator.py"
       - "runtime/merge_etf_eu_sync_registries.py"
       - "tools/validate_etf_eu_sync_registry_additions.py"
@@ -22,7 +23,7 @@ permissions:
 jobs:
   allocator-shadow:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 35
     steps:
       - name: Checkout Weekly ETF EU allocator branch
         uses: actions/checkout@v4
@@ -42,7 +43,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           python -m pip install -r requirements.txt
-          python -m pip install yfinance pyyaml
+          python -m pip install requests pyyaml
 
       - name: Build and validate donor strategy and portfolio target
         run: |
@@ -65,9 +66,9 @@ jobs:
           python runtime/merge_etf_eu_sync_registries.py \
             --output output/allocator_shadow/ucits_symbol_registry_allocator_merged.yml
 
-      - name: Build completed-close liquidity and spread evidence
+      - name: Build multi-source completed-close liquidity and spread evidence
         run: |
-          python pricing/build_etf_eu_allocator_market_evidence.py \
+          python pricing/build_etf_eu_allocator_market_evidence_v2.py \
             --shared-portfolio-target output/allocator_shadow/etf_shared_portfolio_target.json \
             --registry output/allocator_shadow/ucits_symbol_registry_allocator_merged.yml \
             --report-date 2026-07-27 \
