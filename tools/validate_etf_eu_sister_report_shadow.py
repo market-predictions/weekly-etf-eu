@@ -17,6 +17,7 @@ REQUIRED_TABLE_TERMS = {
         "Review huidige posities",
         "Definitieve actietabel",
         "Huidige posities en cash",
+        "Exacte donor-exposuredekking",
     ],
     "en": [
         "Portfolio actions",
@@ -27,6 +28,7 @@ REQUIRED_TABLE_TERMS = {
         "Current-position review",
         "Final action table",
         "Current positions and cash",
+        "Exact donor-exposure coverage",
     ],
 }
 
@@ -46,6 +48,15 @@ def validate(manifest: dict[str, Any]) -> list[str]:
         blockers.append("portfolio_mutation must be false")
     if manifest.get("production_delivery_authority") is not False:
         blockers.append("production_delivery_authority must be false")
+    alignment_surface = manifest.get("portfolio_alignment_surface") if isinstance(manifest.get("portfolio_alignment_surface"), dict) else {}
+    if alignment_surface.get("applied") is not True:
+        blockers.append("portfolio alignment surface was not applied")
+    if int(alignment_surface.get("row_count") or 0) <= 0:
+        blockers.append("portfolio alignment surface has no rows")
+    if alignment_surface.get("portfolio_mutation") is not False:
+        blockers.append("portfolio alignment surface mutation boundary is missing")
+    if alignment_surface.get("recommendation_authority") is not False:
+        blockers.append("portfolio alignment surface must not have recommendation authority")
 
     languages = manifest.get("languages") if isinstance(manifest.get("languages"), dict) else {}
     if set(languages) != {"nl", "en"}:
@@ -75,6 +86,12 @@ def validate(manifest: dict[str, Any]) -> list[str]:
             blockers.append(f"{language} standalone HTML incorrectly depends on CID")
         if files.get("html_image_mode") != "embedded_data_uri_png":
             blockers.append(f"{language} image mode is not embedded_data_uri_png")
+        if files.get("portfolio_alignment_surface") != "donor_target_vs_eu_actual":
+            blockers.append(f"{language} portfolio alignment surface marker is missing")
+        if 'class="wide-table alignment-table"' not in text:
+            blockers.append(f"{language} donor-to-EU allocation table is missing")
+        if 'class="wide-table final-alignment-table"' not in text:
+            blockers.append(f"{language} final action table is not driven by portfolio alignment")
         sections = {number for number in REQUIRED_SECTIONS if f'id="section-{number}"' in text}
         section_sets[language] = sections
         missing = [number for number in REQUIRED_SECTIONS if number not in sections]
@@ -83,8 +100,8 @@ def validate(manifest: dict[str, Any]) -> list[str]:
         for term in REQUIRED_TABLE_TERMS[language]:
             if term not in text:
                 blockers.append(f"{language} missing donor surface term: {term}")
-        if text.count("<table") < 15:
-            blockers.append(f"{language} report has too few tables")
+        if text.count("<table") < 16:
+            blockers.append(f"{language} report has too few tables after alignment integration")
         if "Schaduwoutput" not in text and "Shadow output" not in text:
             blockers.append(f"{language} shadow authority notice is missing")
 
@@ -107,6 +124,7 @@ def main() -> None:
         "blockers": blockers,
         "required_section_count": len(REQUIRED_SECTIONS),
         "language_count": len(manifest.get("languages") or {}),
+        "portfolio_alignment_row_count": int((manifest.get("portfolio_alignment_surface") or {}).get("row_count") or 0),
     }
     print(json.dumps(result, indent=2))
     if blockers:
