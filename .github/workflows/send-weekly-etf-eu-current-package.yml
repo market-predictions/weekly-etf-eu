@@ -56,10 +56,16 @@ jobs:
           QUEUE_PATH="${{ github.event.inputs.queue_path || '' }}"
           CONFIRMATION="${{ github.event.inputs.send_confirmation || 'not_confirmed' }}"
           if [ "${{ github.event_name }}" != "workflow_dispatch" ]; then
-            QUEUE_PATH="$(git diff-tree --no-commit-id --name-only -r HEAD | grep '^control/run_queue/etf_eu_current_package_delivery_request_.*\.md$' | head -1 || true)"
-            if [ -n "$QUEUE_PATH" ]; then
-              MODE="$(awk -F= '$1 == "delivery_mode" {print $2}' "$QUEUE_PATH" | tail -1)"
-              CONFIRMATION="$(awk -F= '$1 == "send_confirmation" {print $2}' "$QUEUE_PATH" | tail -1)"
+            TRIGGER_PATH="$(git diff-tree --no-commit-id --name-only -r HEAD | grep '^control/run_queue/etf_eu_current_package_delivery_request_.*\.md$' | head -1 || true)"
+            if [ -n "$TRIGGER_PATH" ]; then
+              MODE="$(awk -F= '$1 == "delivery_mode" {print $2}' "$TRIGGER_PATH" | tail -1)"
+              CONFIRMATION="$(awk -F= '$1 == "send_confirmation" {print $2}' "$TRIGGER_PATH" | tail -1)"
+              REQUESTED_QUEUE="$(awk -F= '$1 == "queue_path" {print $2}' "$TRIGGER_PATH" | tail -1)"
+              if [ -n "$REQUESTED_QUEUE" ]; then
+                QUEUE_PATH="$REQUESTED_QUEUE"
+              else
+                QUEUE_PATH="$TRIGGER_PATH"
+              fi
             fi
           fi
           MODE="$(printf '%s' "$MODE" | tr -d '\r' | sed -e 's/^[[:space:]]*delivery_mode=//' -e 's/[[:space:]]*$//')"
@@ -217,5 +223,7 @@ jobs:
             exit 1
           fi
           git commit -m "Persist ETF EU current-package transport evidence [skip ci]"
+          git reset --hard HEAD
+          git clean -fd
           git pull --rebase origin main
           git push origin HEAD:main
