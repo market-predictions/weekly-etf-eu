@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 import json
+from datetime import date
 from pathlib import Path
 from typing import Any
 
@@ -31,7 +32,7 @@ def validate(path: Path) -> dict[str, Any]:
     assert data['production_delivery_authority'] is False
     throttle = data.get('throttle_policy') or {}
     assert throttle['source'] == 'yahoo_yfinance'
-    assert throttle['official_published_limit_found'] is False
+    assert throttle.get('official_published_limit_found', False) is False
     assert throttle['requests_are_serialized'] is True
     assert float(throttle['pause_seconds_between_symbols']) >= 10.0
     assert throttle.get('rate_limit_mode') in {'stop', 'sleep'}
@@ -46,6 +47,9 @@ def validate(path: Path) -> dict[str, Any]:
     assert data['currency_count'] == len(currencies)
     assert data['venue_count'] >= 3
     assert data['currency_count'] >= 2
+
+    completed_close_mode = data.get('close_selection_policy') == 'latest_daily_bar_strictly_before_report_date'
+    report_date = date.fromisoformat(data['report_date']) if completed_close_mode else None
     priced = 0
     failed = 0
     for row in rows:
@@ -65,12 +69,19 @@ def validate(path: Path) -> dict[str, Any]:
             assert row['close_price'] is not None
             assert float(row['close_price']) > 0
             assert row['close_date']
+            if completed_close_mode:
+                assert row.get('completed_close') is True
+                assert date.fromisoformat(row['close_date']) < report_date
+                assert row.get('close_selection_policy') == data['close_selection_policy']
             priced += 1
         if row['pricing_status'] == 'fetch_failed':
             failed += 1
     assert data['priced_line_count'] == priced
     assert data['failed_line_count'] == failed
     assert data['min_threshold_met'] is True
+    if completed_close_mode:
+        assert data.get('completed_close_gate_passed') is True
+        assert priced > 0
     return {
         'status': 'valid',
         'artifact': str(path),
@@ -80,6 +91,8 @@ def validate(path: Path) -> dict[str, Any]:
         'currency_count': len(currencies),
         'valuation_grade': False,
         'funding_authority': False,
+        'completed_close_gate_passed': data.get('completed_close_gate_passed'),
+        'close_selection_policy': data.get('close_selection_policy'),
         'throttle_policy': throttle,
         'batch_stopped_for_rate_limit': data.get('batch_stopped_for_rate_limit', False),
     }
