@@ -7,6 +7,7 @@ on:
       - "config/shared_exposure_ucits_map.yml"
       - "runtime/build_etf_eu_strategy_sync_shadow.py"
       - "runtime/render_etf_eu_sister_report_shadow.py"
+      - "runtime/fix_etf_eu_sister_report_layout.py"
       - "tools/validate_etf_eu_strategy_sync_shadow.py"
       - "tools/validate_etf_eu_sister_report_shadow.py"
       - ".github/workflows/validate-etf-eu-strategy-sync-shadow.yml"
@@ -60,6 +61,11 @@ jobs:
           python runtime/render_etf_eu_sister_report_shadow.py \
             --sync-shadow output/sync_shadow/etf_eu_strategy_sync_shadow.json \
             --output-dir output/sync_shadow/report
+
+      - name: Apply narrow layout fixes
+        run: |
+          python runtime/fix_etf_eu_sister_report_layout.py \
+            output/sync_shadow/report/etf_eu_sister_report_shadow_manifest_20260724.json
 
       - name: Validate sister-report section, table and chart contract
         run: |
