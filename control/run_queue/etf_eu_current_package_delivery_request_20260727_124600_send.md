@@ -1,0 +1,3 @@
+delivery_mode=send
+queue_path=control/prepared_delivery/etf_eu_current_package_delivery_request_20260727_123001.md
+send_confirmation=confirm_guarded_send
