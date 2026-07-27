@@ -137,10 +137,6 @@ PHRASE_LABELS = {
         "line pending": "handelslijn in afwachting",
         "Existing position transition": "Gecontroleerde overgang van bestaande positie",
         "Review incumbent": "Bestaande positie herbeoordelen",
-        "Hold": "Aanhouden",
-        "Core": "Kernpositie",
-        "Stabilizer": "Stabilisator",
-        "Core satellite": "Kernsatelliet",
         "Review role and contribution": "Rol en bijdrage opnieuw beoordelen",
         "Opportunity cost": "Opportuniteitskosten beoordelen",
         "Sustaining aggregate bonds": "Stabiliserende wereldwijde obligaties",
@@ -148,12 +144,10 @@ PHRASE_LABELS = {
         "U.S. equity overweight": "Amerikaanse aandelenoverweging",
         "No authorized changes": "Geen geautoriseerde wijzigingen",
         "No intent": "Geen intentie",
-        "n/a": "n.v.t.",
     },
     "en": {
         "line pending": "trading line pending",
         "shadow_candidate": "shadow candidate",
-        "n/a": "not available",
     },
 }
 
@@ -182,7 +176,10 @@ def _polish_client_sections(text: str, language: str) -> str:
     client = client.replace("<td>cash</td>", "<td>Cash</td>")
     for raw, labels in REASON_LABELS.items():
         client = _replace_visible_token(client, raw, labels[language])
-    for raw, replacement in PHRASE_LABELS[language].items():
+    # Keep this layer limited to specific phrases. Generic labels such as Core,
+    # Hold, Stabilizer and n/a are handled later as exact table-cell values so
+    # official product names and prose cannot be corrupted.
+    for raw, replacement in sorted(PHRASE_LABELS[language].items(), key=lambda item: len(item[0]), reverse=True):
         client = _replace_visible_token(client, raw, replacement)
 
     if language == "nl":
