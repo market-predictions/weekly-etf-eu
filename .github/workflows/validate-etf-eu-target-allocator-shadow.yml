@@ -8,6 +8,8 @@ on:
       - "config/ucits_symbol_registry_sync_additions.yml"
       - "config/etf_eu_transition_evidence_basket.yml"
       - "config/etf_eu_transition_evidence_cache_20260724.yml"
+      - "config/etf_eu_incumbent_overlap_evidence_20260724.yml"
+      - "config/etf_eu_transition_policy_v1.yml"
       - "pricing/build_etf_eu_transition_evidence.py"
       - "pricing/apply_etf_eu_transition_evidence_cache.py"
       - "runtime/merge_etf_eu_sync_registries.py"
@@ -15,10 +17,14 @@ on:
       - "runtime/normalize_etf_eu_alignment_contract.py"
       - "runtime/build_etf_eu_target_allocator_shadow.py"
       - "runtime/build_etf_eu_target_allocator_shadow_v2.py"
+      - "runtime/build_etf_eu_incumbent_overlap_review.py"
+      - "runtime/build_etf_eu_target_allocator_shadow_v3.py"
       - "tools/validate_etf_eu_sync_registry_additions.py"
       - "tools/validate_etf_eu_strategy_sync_shadow.py"
       - "tools/validate_etf_eu_target_allocator_shadow.py"
       - "tools/validate_etf_eu_target_allocator_shadow_v2.py"
+      - "tools/validate_etf_eu_incumbent_overlap_review.py"
+      - "tools/validate_etf_eu_target_allocator_shadow_v3.py"
       - ".github/workflows/validate-etf-eu-target-allocator-shadow.yml"
       - "control/work_packages/WP_SYNC_04_EU_TARGET_ALLOCATOR_20260727.md"
 
@@ -81,13 +87,32 @@ jobs:
             output/sync_shadow/etf_eu_transition_evidence.json \
             --cache config/etf_eu_transition_evidence_cache_20260724.yml
 
-      - name: Build and validate allocator variants
+      - name: Build and validate v2 comparison allocator
         run: |
           python runtime/build_etf_eu_target_allocator_shadow_v2.py \
             --sync-shadow output/sync_shadow/etf_eu_strategy_sync_shadow.json \
             --transition-evidence output/sync_shadow/etf_eu_transition_evidence.json \
-            --output output/sync_shadow/etf_eu_target_allocator_shadow.json
+            --output output/sync_shadow/etf_eu_target_allocator_shadow_v2.json
           python tools/validate_etf_eu_target_allocator_shadow_v2.py \
+            output/sync_shadow/etf_eu_target_allocator_shadow_v2.json
+
+      - name: Build and validate incumbent overlap review
+        run: |
+          python runtime/build_etf_eu_incumbent_overlap_review.py \
+            --output output/sync_shadow/etf_eu_incumbent_overlap_review.json
+          python tools/validate_etf_eu_incumbent_overlap_review.py \
+            output/sync_shadow/etf_eu_incumbent_overlap_review.json
+
+      - name: Build and validate policy-driven v3 allocator
+        run: |
+          python runtime/build_etf_eu_target_allocator_shadow_v3.py \
+            --base-allocator output/sync_shadow/etf_eu_target_allocator_shadow_v2.json \
+            --sync-shadow output/sync_shadow/etf_eu_strategy_sync_shadow.json \
+            --transition-evidence output/sync_shadow/etf_eu_transition_evidence.json \
+            --overlap-review output/sync_shadow/etf_eu_incumbent_overlap_review.json \
+            --policy config/etf_eu_transition_policy_v1.yml \
+            --output output/sync_shadow/etf_eu_target_allocator_shadow.json
+          python tools/validate_etf_eu_target_allocator_shadow_v3.py \
             output/sync_shadow/etf_eu_target_allocator_shadow.json
 
       - uses: actions/upload-artifact@v4
@@ -100,5 +125,7 @@ jobs:
             output/sync_shadow/ucits_symbol_registry_sync_merged.yml
             output/sync_shadow/etf_eu_strategy_sync_shadow.json
             output/sync_shadow/etf_eu_transition_evidence.json
+            output/sync_shadow/etf_eu_target_allocator_shadow_v2.json
+            output/sync_shadow/etf_eu_incumbent_overlap_review.json
             output/sync_shadow/etf_eu_target_allocator_shadow.json
           if-no-files-found: error
