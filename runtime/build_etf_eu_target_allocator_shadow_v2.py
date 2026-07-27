@@ -27,7 +27,8 @@ def eligible_target(row: dict[str, Any], evidence: dict[str, Any]) -> tuple[bool
             blockers.append("kid_missing")
         if not allocator.candidate_line(row):
             blockers.append("trading_line_unverified")
-    if evidence.get("status") != "priced_non_authoritative" or evidence.get("completed_close") is not True:
+    status = str(evidence.get("status") or "")
+    if not status.startswith("priced_") or evidence.get("completed_close") is not True:
         blockers.append("pricing_missing_or_stale")
     if allocator.num(evidence.get("close_price")) <= 0:
         blockers.append("pricing_missing_or_stale")
@@ -61,6 +62,8 @@ def main() -> None:
         "stale_sync_reason_codes_are_not_inherited": True,
         "minimum_median_daily_traded_value_eur_20d": MIN_MEDIAN_DAILY_TRADED_VALUE_EUR,
         "product_structure_review_blocks_allocation": True,
+        "dated_non_authoritative_cache_may_satisfy_shadow_pricing_gate": True,
+        "cached_evidence_does_not_create_funding_authority": True,
     }
     args.output.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
     print(args.output)
