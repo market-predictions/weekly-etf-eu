@@ -15,6 +15,7 @@ on:
       - "runtime/polish_etf_eu_sister_report_client_surface.py"
       - "runtime/finalize_etf_eu_sister_report_nl_language.py"
       - "runtime/fix_etf_eu_sister_report_layout.py"
+      - "tools/validate_etf_eu_sync_registry_additions.py"
       - "tools/validate_etf_eu_strategy_sync_shadow.py"
       - "tools/validate_etf_eu_sister_report_shadow.py"
       - "tools/validate_etf_eu_donor_surface_contract.py"
@@ -58,6 +59,11 @@ jobs:
             --output ../output/sync_shadow/etf_shared_portfolio_target.json
           python tools/validate_shared_strategy_state.py ../output/sync_shadow/etf_shared_strategy_state.json
           python tools/validate_shared_portfolio_target.py ../output/sync_shadow/etf_shared_portfolio_target.json
+
+      - name: Validate supplemental UCITS registry evidence
+        run: |
+          python tools/validate_etf_eu_sync_registry_additions.py \
+            config/ucits_symbol_registry_sync_additions.yml
 
       - name: Build shadow merged UCITS registry
         run: |
