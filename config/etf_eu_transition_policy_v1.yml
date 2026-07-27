@@ -1,0 +1,41 @@
+schema_version: etf_eu_transition_policy_v1
+status: shadow_only
+portfolio_mutation: false
+funding_authority: false
+execution_authority: false
+stage_1:
+  allocation_method: donor_weight_priority_subject_to_portfolio_controls
+  retain_all_incumbents: true
+  incumbent_sales_allowed: false
+  maximum_positions: 8
+  maximum_gross_turnover_pct_nav: 25.0
+  minimum_post_stage_cash_pct_nav: 35.0
+  maximum_new_direct_position_pct_nav: 15.0
+  minimum_new_trade_pct_nav: 2.0
+  transaction_cost_bps: 10.0
+  minimum_median_daily_traded_value_eur_20d: 500000.0
+  maximum_price_age_calendar_days: 7
+  whole_shares_only: true
+  priority_order: donor_target_weight_descending
+  effective_theme_caps_pct_nav:
+    ai_compute_infrastructure: 18.0
+    cyber_security: 15.0
+  embedded_exposure_policy:
+    ai_compute_infrastructure: subtract_measured_incumbent_lower_bound_from_effective_cap
+    cyber_security: subtract_measured_incumbent_lower_bound_from_effective_cap_with_incomplete_coverage_warning
+stage_2_entry_conditions:
+  - developed_ex_us_candidate_has_verified_kid_and_current_price_liquidity_evidence
+  - at_least_one_additional_donor_sleeve_has_verified_ucits_implementation
+  - incumbent_overlap_review_remains_valid_or_is_refreshed
+  - stage_1_positions_pass_fresh_cash_reunderwriting
+  - resulting_plan_respects_turnover_cash_position_and_concentration_controls
+stage_2_source_priority:
+  - available_cash
+  - SXR8_overlap_reduction_after_ex_us_core_is_fundable
+  - VWCE_core_cap_review
+  - EUNA_only_after_explicit_risk_budget_decision
+hard_boundaries:
+  non_authoritative_prices_cannot_create_funding_authority: true
+  cached_connectivity_evidence_must_remain_non_authoritative: true
+  unresolved_or_blocked_exposures_receive_zero_shares: true
+  report_text_cannot_create_trade_intents: true
