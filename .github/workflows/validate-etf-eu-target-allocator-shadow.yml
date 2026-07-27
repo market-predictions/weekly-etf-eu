@@ -1,0 +1,104 @@
+name: Validate ETF EU target allocator shadow
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - "config/shared_exposure_ucits_map.yml"
+      - "config/ucits_symbol_registry_sync_additions.yml"
+      - "config/etf_eu_transition_evidence_basket.yml"
+      - "config/etf_eu_transition_evidence_cache_20260724.yml"
+      - "pricing/build_etf_eu_transition_evidence.py"
+      - "pricing/apply_etf_eu_transition_evidence_cache.py"
+      - "runtime/merge_etf_eu_sync_registries.py"
+      - "runtime/build_etf_eu_strategy_sync_shadow.py"
+      - "runtime/normalize_etf_eu_alignment_contract.py"
+      - "runtime/build_etf_eu_target_allocator_shadow.py"
+      - "runtime/build_etf_eu_target_allocator_shadow_v2.py"
+      - "tools/validate_etf_eu_sync_registry_additions.py"
+      - "tools/validate_etf_eu_strategy_sync_shadow.py"
+      - "tools/validate_etf_eu_target_allocator_shadow.py"
+      - "tools/validate_etf_eu_target_allocator_shadow_v2.py"
+      - ".github/workflows/validate-etf-eu-target-allocator-shadow.yml"
+      - "control/work_packages/WP_SYNC_04_EU_TARGET_ALLOCATOR_20260727.md"
+
+permissions:
+  contents: read
+
+jobs:
+  target-allocator-shadow:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Weekly ETF EU
+        uses: actions/checkout@v4
+
+      - name: Checkout donor Weekly ETF branch
+        uses: actions/checkout@v4
+        with:
+          repository: market-predictions/weekly-etf
+          ref: sync/shared-strategy-state
+          path: donor-weekly-etf
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install -r requirements.txt
+          python -m pip install yfinance
+
+      - name: Build donor artifacts
+        run: |
+          mkdir -p output/sync_shadow
+          cd donor-weekly-etf
+          python runtime/build_shared_strategy_state.py --output ../output/sync_shadow/etf_shared_strategy_state.json
+          python runtime/build_shared_portfolio_target.py \
+            --shared-strategy-state ../output/sync_shadow/etf_shared_strategy_state.json \
+            --output ../output/sync_shadow/etf_shared_portfolio_target.json
+          python tools/validate_shared_strategy_state.py ../output/sync_shadow/etf_shared_strategy_state.json
+          python tools/validate_shared_portfolio_target.py ../output/sync_shadow/etf_shared_portfolio_target.json
+
+      - name: Build and validate EU synchronization inputs
+        run: |
+          python tools/validate_etf_eu_sync_registry_additions.py config/ucits_symbol_registry_sync_additions.yml
+          python runtime/merge_etf_eu_sync_registries.py \
+            --output output/sync_shadow/ucits_symbol_registry_sync_merged.yml
+          python runtime/build_etf_eu_strategy_sync_shadow.py \
+            --shared-strategy-state output/sync_shadow/etf_shared_strategy_state.json \
+            --shared-portfolio-target output/sync_shadow/etf_shared_portfolio_target.json \
+            --registry output/sync_shadow/ucits_symbol_registry_sync_merged.yml \
+            --output output/sync_shadow/etf_eu_strategy_sync_shadow.json
+          python runtime/normalize_etf_eu_alignment_contract.py output/sync_shadow/etf_eu_strategy_sync_shadow.json
+          python tools/validate_etf_eu_strategy_sync_shadow.py output/sync_shadow/etf_eu_strategy_sync_shadow.json
+
+      - name: Build live transition evidence and apply dated fallback
+        run: |
+          python pricing/build_etf_eu_transition_evidence.py \
+            --report-date 2026-07-27 \
+            --output output/sync_shadow/etf_eu_transition_evidence.json
+          python pricing/apply_etf_eu_transition_evidence_cache.py \
+            output/sync_shadow/etf_eu_transition_evidence.json \
+            --cache config/etf_eu_transition_evidence_cache_20260724.yml
+
+      - name: Build and validate allocator variants
+        run: |
+          python runtime/build_etf_eu_target_allocator_shadow_v2.py \
+            --sync-shadow output/sync_shadow/etf_eu_strategy_sync_shadow.json \
+            --transition-evidence output/sync_shadow/etf_eu_transition_evidence.json \
+            --output output/sync_shadow/etf_eu_target_allocator_shadow.json
+          python tools/validate_etf_eu_target_allocator_shadow_v2.py \
+            output/sync_shadow/etf_eu_target_allocator_shadow.json
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: etf-eu-target-allocator-shadow
+          path: |
+            output/sync_shadow/etf_shared_strategy_state.json
+            output/sync_shadow/etf_shared_portfolio_target.json
+            output/sync_shadow/ucits_symbol_registry_sync_merged.yml
+            output/sync_shadow/etf_eu_strategy_sync_shadow.json
+            output/sync_shadow/etf_eu_transition_evidence.json
+            output/sync_shadow/etf_eu_target_allocator_shadow.json
+          if-no-files-found: error
