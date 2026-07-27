@@ -6,7 +6,9 @@ on:
     paths:
       - "config/shared_exposure_ucits_map.yml"
       - "runtime/build_etf_eu_strategy_sync_shadow.py"
+      - "runtime/render_etf_eu_sister_report_shadow.py"
       - "tools/validate_etf_eu_strategy_sync_shadow.py"
+      - "tools/validate_etf_eu_sister_report_shadow.py"
       - ".github/workflows/validate-etf-eu-strategy-sync-shadow.yml"
       - "docs/roadmaps/WEEKLY_ETF_US_EU_SYNCHRONIZATION_ROADMAP_20260727.md"
       - "control/work_packages/WP_SYNC_00_03_EU_DONOR_PARITY_20260727.md"
@@ -32,8 +34,10 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Install synchronization dependencies
-        run: python -m pip install PyYAML==6.0.2
+      - name: Install synchronization and rendering dependencies
+        run: |
+          python -m pip install -r requirements.txt
+          python -m pip install weasyprint
 
       - name: Build donor shared strategy state
         run: |
@@ -51,10 +55,22 @@ jobs:
         run: |
           python tools/validate_etf_eu_strategy_sync_shadow.py output/sync_shadow/etf_eu_strategy_sync_shadow.json
 
+      - name: Render donor-structure EU sister report shadow
+        run: |
+          python runtime/render_etf_eu_sister_report_shadow.py \
+            --sync-shadow output/sync_shadow/etf_eu_strategy_sync_shadow.json \
+            --output-dir output/sync_shadow/report
+
+      - name: Validate sister-report section, table and chart contract
+        run: |
+          python tools/validate_etf_eu_sister_report_shadow.py \
+            output/sync_shadow/report/etf_eu_sister_report_shadow_manifest_20260724.json
+
       - uses: actions/upload-artifact@v4
         with:
           name: etf-eu-strategy-sync-shadow
           path: |
             output/sync_shadow/etf_shared_strategy_state.json
             output/sync_shadow/etf_eu_strategy_sync_shadow.json
+            output/sync_shadow/report/
           if-no-files-found: error
