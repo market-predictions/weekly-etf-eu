@@ -11,6 +11,7 @@ on:
       - "pricing/build_etf_eu_allocator_market_evidence_v2.py"
       - "pricing/build_etf_eu_allocator_market_evidence_v3.py"
       - "pricing/run_etf_eu_allocator_market_evidence.py"
+      - "pricing/probe_etf_eu_allocator_sources.py"
       - "runtime/build_etf_eu_target_allocator.py"
       - "runtime/merge_etf_eu_sync_registries.py"
       - "tools/validate_etf_eu_sync_registry_additions.py"
@@ -67,6 +68,12 @@ jobs:
             config/ucits_symbol_registry_sync_additions.yml
           python runtime/merge_etf_eu_sync_registries.py \
             --output output/allocator_shadow/ucits_symbol_registry_allocator_merged.yml
+
+      - name: Probe market-data transports
+        continue-on-error: true
+        run: |
+          python pricing/probe_etf_eu_allocator_sources.py \
+            --output output/allocator_shadow/etf_eu_allocator_source_probe.json
 
       - name: Build bounded multi-source completed-close and liquidity evidence
         run: |
