@@ -51,9 +51,10 @@ def money(value: Any, language: str) -> str:
     return raw.replace(",", "X").replace(".", ",").replace("X", ".") if language == "nl" else raw
 
 
-def pct(value: Any, language: str) -> str:
+def pct(value: Any, language: str, signed: bool = False) -> str:
     number = float(value or 0.0)
-    raw = f"{number:,.2f}%"
+    prefix = "+" if signed and number > 0 else ""
+    raw = f"{prefix}{number:,.2f}%"
     return raw.replace(",", "X").replace(".", ",").replace("X", ".") if language == "nl" else raw
 
 
@@ -102,12 +103,12 @@ def variant_surface(allocator: dict[str, Any], language: str) -> str:
     if not preferred:
         return result
 
-    order_headers = (
-        ["Exposure", "Instrument", "Doelgewicht", "Doelaandelen", "Transactie", "Brutowaarde", "Status / blokkade"]
+    intent_headers = (
+        ["Bron", "Bestemming", "Delta bron %", "Delta bestemming %", "Geschatte waarde EUR", "Intentiestatus", "Toelichting"]
         if language == "nl" else
-        ["Exposure", "Instrument", "Target weight", "Target shares", "Trade", "Gross value", "Status / blocker"]
+        ["Source", "Destination", "Source delta %", "Destination delta %", "Estimated value EUR", "Intent status", "Explanation"]
     )
-    order_rows: list[list[str]] = []
+    intent_rows: list[list[str]] = []
     for row in preferred.get("allocation_rows") or []:
         if not isinstance(row, dict):
             continue
@@ -115,25 +116,30 @@ def variant_surface(allocator: dict[str, Any], language: str) -> str:
         candidate = row.get("candidate") if isinstance(row.get("candidate"), dict) else {}
         order = row.get("order") if isinstance(row.get("order"), dict) else {}
         blockers = [BLOCKER_LABELS.get(str(code), {}).get(language, str(code)) for code in (row.get("blockers") or [])]
-        instrument = " — ".join(part for part in [str(candidate.get("ticker") or ""), str(candidate.get("fund_name") or "")] if part) or "—"
-        status = (
-            ("Opnemen in fase 1" if language == "nl" else "Include in stage 1")
-            if row.get("selected") is True else
-            ("; ".join(blockers) if blockers else ("Uitgesteld" if language == "nl" else "Deferred"))
+        ticker = str(candidate.get("ticker") or "—")
+        fund_name = str(candidate.get("fund_name") or "")
+        selected = row.get("selected") is True
+        destination_delta = float(row.get("variant_target_weight_pct") or 0.0)
+        status = "Fase-1 schaduwintentie" if language == "nl" else "Stage-1 shadow intent"
+        explanation = (
+            f"Koop {order.get('target_shares')} hele aandelen {ticker}. {fund_name}" if language == "nl" else
+            f"Buy {order.get('target_shares')} whole shares of {ticker}. {fund_name}"
+        ) if selected else (
+            "; ".join(blockers) if blockers else ("Uitgesteld" if language == "nl" else "Deferred")
         )
-        order_rows.append([
-            e(EXPOSURE_LABELS.get(exposure_id, {}).get(language, exposure_id)),
-            e(instrument),
-            e(pct(row.get("variant_target_weight_pct"), language)),
-            e(order.get("target_shares")),
-            e(order.get("side")),
+        intent_rows.append([
+            e("Cash"),
+            e(ticker if selected else EXPOSURE_LABELS.get(exposure_id, {}).get(language, exposure_id)),
+            e(pct(-destination_delta, language, signed=True) if selected else pct(0, language)),
+            e(pct(destination_delta, language, signed=True) if selected else pct(0, language)),
             e(money(order.get("gross_trade_value_eur"), language)),
-            e(status),
+            e(status if selected else ("Geblokkeerd / uitgesteld" if language == "nl" else "Blocked / deferred")),
+            e(explanation),
         ])
     result += (
         '<h3>Voorgestelde fase-1 allocatie</h3>' if language == "nl" else '<h3>Proposed stage-1 allocation</h3>'
     )
-    result += table(order_headers, order_rows, "wide-table allocator-order-table")
+    result += table(intent_headers, intent_rows, "wide-table allocator-order-table")
 
     legacy_headers = (
         ["Bestaande positie", "Doelaandelen", "Actie", "Rol in overgang"]
@@ -171,12 +177,14 @@ def apply(manifest_path: Path, allocator_path: Path) -> None:
         pdf_path = Path(str(files.get("pdf") or ""))
         text = html_path.read_text(encoding="utf-8")
         surface = variant_surface(allocator, language)
+
         def replace(match: re.Match[str]) -> str:
             body = match.group(2)
             header_end = body.find("</div>")
             if header_end < 0:
                 raise RuntimeError("Section 14 header boundary not found")
             return match.group(1) + body[:header_end + 6] + surface + match.group(3)
+
         updated, count = SECTION_RE.subn(replace, text, count=1)
         if count != 1:
             raise RuntimeError(f"Could not replace Section 14 for {language}")
