@@ -6,9 +6,12 @@ on:
     paths:
       - "config/shared_exposure_ucits_map.yml"
       - "config/ucits_symbol_registry_sync_additions.yml"
+      - "config/etf_eu_transition_evidence_basket.yml"
       - "config/weekly_etf_donor_surface_contract.yml"
+      - "pricing/build_etf_eu_transition_evidence.py"
       - "runtime/merge_etf_eu_sync_registries.py"
       - "runtime/build_etf_eu_strategy_sync_shadow.py"
+      - "runtime/build_etf_eu_target_allocator_shadow.py"
       - "runtime/normalize_etf_eu_alignment_contract.py"
       - "runtime/render_etf_eu_sister_report_shadow.py"
       - "runtime/add_etf_eu_portfolio_alignment_surface.py"
@@ -17,12 +20,14 @@ on:
       - "runtime/fix_etf_eu_sister_report_layout.py"
       - "tools/validate_etf_eu_sync_registry_additions.py"
       - "tools/validate_etf_eu_strategy_sync_shadow.py"
+      - "tools/validate_etf_eu_target_allocator_shadow.py"
       - "tools/validate_etf_eu_sister_report_shadow.py"
       - "tools/validate_etf_eu_sister_report_pdf_layout.py"
       - "tools/validate_etf_eu_donor_surface_contract.py"
       - ".github/workflows/validate-etf-eu-strategy-sync-shadow.yml"
       - "docs/roadmaps/WEEKLY_ETF_US_EU_SYNCHRONIZATION_ROADMAP_20260727.md"
       - "control/work_packages/WP_SYNC_00_03_EU_DONOR_PARITY_20260727.md"
+      - "control/work_packages/WP_SYNC_04_EU_TARGET_ALLOCATOR_20260727.md"
 
 permissions:
   contents: read
@@ -48,7 +53,7 @@ jobs:
       - name: Install synchronization and rendering dependencies
         run: |
           python -m pip install -r requirements.txt
-          python -m pip install weasyprint
+          python -m pip install weasyprint yfinance
 
       - name: Build donor shared strategy and portfolio target
         run: |
@@ -87,6 +92,21 @@ jobs:
       - name: Validate EU synchronization shadow
         run: |
           python tools/validate_etf_eu_strategy_sync_shadow.py output/sync_shadow/etf_eu_strategy_sync_shadow.json
+
+      - name: Build transition pricing and liquidity evidence
+        run: |
+          python pricing/build_etf_eu_transition_evidence.py \
+            --report-date 2026-07-27 \
+            --output output/sync_shadow/etf_eu_transition_evidence.json
+
+      - name: Build and validate EU target allocator variants
+        run: |
+          python runtime/build_etf_eu_target_allocator_shadow.py \
+            --sync-shadow output/sync_shadow/etf_eu_strategy_sync_shadow.json \
+            --transition-evidence output/sync_shadow/etf_eu_transition_evidence.json \
+            --output output/sync_shadow/etf_eu_target_allocator_shadow.json
+          python tools/validate_etf_eu_target_allocator_shadow.py \
+            output/sync_shadow/etf_eu_target_allocator_shadow.json
 
       - name: Render donor-structure EU sister report shadow
         run: |
@@ -139,5 +159,7 @@ jobs:
             output/sync_shadow/etf_shared_portfolio_target.json
             output/sync_shadow/ucits_symbol_registry_sync_merged.yml
             output/sync_shadow/etf_eu_strategy_sync_shadow.json
+            output/sync_shadow/etf_eu_transition_evidence.json
+            output/sync_shadow/etf_eu_target_allocator_shadow.json
             output/sync_shadow/report/
           if-no-files-found: error
