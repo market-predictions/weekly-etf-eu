@@ -10,6 +10,7 @@ on:
       - "runtime/normalize_etf_eu_alignment_contract.py"
       - "runtime/render_etf_eu_sister_report_shadow.py"
       - "runtime/add_etf_eu_portfolio_alignment_surface.py"
+      - "runtime/polish_etf_eu_sister_report_client_surface.py"
       - "runtime/fix_etf_eu_sister_report_layout.py"
       - "tools/validate_etf_eu_strategy_sync_shadow.py"
       - "tools/validate_etf_eu_sister_report_shadow.py"
@@ -82,6 +83,11 @@ jobs:
           python runtime/add_etf_eu_portfolio_alignment_surface.py \
             output/sync_shadow/report/etf_eu_sister_report_shadow_manifest_20260724.json \
             --sync-shadow output/sync_shadow/etf_eu_strategy_sync_shadow.json
+
+      - name: Polish bilingual client surface
+        run: |
+          python runtime/polish_etf_eu_sister_report_client_surface.py \
+            output/sync_shadow/report/etf_eu_sister_report_shadow_manifest_20260724.json
 
       - name: Apply narrow layout fixes
         run: |
