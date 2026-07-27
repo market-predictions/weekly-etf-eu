@@ -10,6 +10,7 @@ on:
       - "pricing/build_etf_eu_allocator_market_evidence.py"
       - "pricing/build_etf_eu_allocator_market_evidence_v2.py"
       - "pricing/build_etf_eu_allocator_market_evidence_v3.py"
+      - "pricing/run_etf_eu_allocator_market_evidence.py"
       - "runtime/build_etf_eu_target_allocator.py"
       - "runtime/merge_etf_eu_sync_registries.py"
       - "tools/validate_etf_eu_sync_registry_additions.py"
@@ -69,7 +70,7 @@ jobs:
 
       - name: Build bounded multi-source completed-close and liquidity evidence
         run: |
-          python pricing/build_etf_eu_allocator_market_evidence_v3.py \
+          python pricing/run_etf_eu_allocator_market_evidence.py \
             --shared-portfolio-target output/allocator_shadow/etf_shared_portfolio_target.json \
             --registry output/allocator_shadow/ucits_symbol_registry_allocator_merged.yml \
             --report-date 2026-07-27 \
