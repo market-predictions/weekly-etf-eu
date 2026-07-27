@@ -1,0 +1,32 @@
+name: Capture Börse Frankfurt SSR state
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - "pricing/capture_boerse_frankfurt_ssr.py"
+      - ".github/workflows/capture-boerse-frankfurt-ssr.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  capture:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: python -m pip install requests
+      - name: Capture full server-rendered pages and embedded state
+        run: |
+          python pricing/capture_boerse_frankfurt_ssr.py \
+            --output-dir output/allocator_shadow/boerse_frankfurt_ssr
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: boerse-frankfurt-ssr-capture
+          path: output/allocator_shadow/boerse_frankfurt_ssr/
+          if-no-files-found: error
