@@ -1,0 +1,60 @@
+schema_version: etf_eu_euna_risk_budget_policy_v1
+status: shadow_only
+review_date: 2026-07-28
+instrument:
+  ticker: EUNA
+  isin: IE00BDBRDM35
+  role: eur_hedged_global_aggregate_bond_carry_diversifier
+  prohibited_role_label: reliable_equity_crisis_hedge
+official_fund_characteristics:
+  source: https://www.ishares.com/uk/individual/en/products/291770/ishares-global-aggregate-bond-ucits-etf-eur-hedged-%28acc
+  facts_as_of: 2026-07-24
+  share_class_currency: EUR
+  ucits: true
+  total_expense_ratio_pct: 0.10
+  effective_duration_years: 6.05
+  weighted_average_ytm_pct: 4.04
+  standard_deviation_3y_pct: 4.04
+  holding_count: 19979
+stage_1_policy:
+  decision: retain_capped_no_add
+  minimum_role_weight_pct_nav: 5.0
+  maximum_role_weight_pct_nav: 8.0
+  absolute_maximum_weight_pct_nav: 10.0
+  allow_addition_from_cash: false
+  allow_sale_for_stage_1: false
+  current_position_may_be_held: true
+  reason: preserve a modest deployed defensive carry sleeve without treating it as a crisis hedge or consuming additional cash
+stage_2_policy:
+  primary_funding_source: excess_cash_above_stage_2_floor
+  secondary_funding_source: overlap_reduction_from_us_large_cap_core
+  euna_funding_priority: third
+  euna_may_fund_stage_2_only_if:
+    - current_weight_exceeds_maximum_role_weight
+    - defensive_reserve_exceeds_stage_2_policy_cap
+    - explicit_risk_budget_reunderwriting_fails
+  no_automatic_sale: true
+counterfactuals:
+  - policy_retained
+  - euna_to_cash
+  - euna_to_risky_pro_rata
+  - euna_doubled_from_cash
+interpretation_rules:
+  crisis_hedge_pass_requires:
+    maximum_correlation_with_risky_sleeve: 0.0
+    minimum_positive_share_on_risky_down_days_pct: 55.0
+  low_volatility_diversifier_pass_requires:
+    maximum_annualized_volatility_pct: 6.0
+    minimum_volatility_reduction_vs_risky_reallocation_pct_points: 0.5
+  retain_capped_no_add_requires:
+    current_weight_within_role_band: true
+    crisis_hedge_not_required: true
+    low_volatility_diversifier_pass: true
+    cash_weight_above_addition_threshold: true
+  cash_weight_addition_threshold_pct: 25.0
+authority:
+  portfolio_mutation: false
+  funding_authority: false
+  execution_authority: false
+  production_delivery_authority: false
+  activation_authority: false
