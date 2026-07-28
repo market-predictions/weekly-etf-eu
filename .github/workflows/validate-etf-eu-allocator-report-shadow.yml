@@ -4,6 +4,7 @@ on:
   workflow_dispatch:
   pull_request:
     paths:
+      - "config/weekly_etf_donor_contract_pin.json"
       - "runtime/add_etf_eu_target_allocator_surface.py"
       - "runtime/add_etf_eu_incumbent_overlap_surface.py"
       - "runtime/reconcile_etf_eu_report_with_policy_allocator.py"
@@ -19,6 +20,7 @@ on:
       - "tools/validate_etf_eu_policy_transition_compaction.py"
       - "tools/validate_etf_eu_policy_report_pagination.py"
       - "tools/validate_etf_eu_target_allocator_shadow_v3.py"
+      - "tools/validate_weekly_etf_donor_contract_pin.py"
       - "tools/run_etf_eu_allocator_report_validation_bundle.py"
       - "tools/validate_etf_eu_sister_report_pdf_layout.py"
       - ".github/workflows/validate-etf-eu-allocator-report-shadow.yml"
@@ -38,11 +40,16 @@ jobs:
       - name: Checkout Weekly ETF EU
         uses: actions/checkout@v4
 
-      - name: Checkout donor Weekly ETF branch
+      - name: Validate immutable donor contract pin
+        run: |
+          python tools/validate_weekly_etf_donor_contract_pin.py \
+            config/weekly_etf_donor_contract_pin.json
+
+      - name: Checkout donor Weekly ETF contract v1.0.0
         uses: actions/checkout@v4
         with:
           repository: market-predictions/weekly-etf
-          ref: sync/shared-strategy-state
+          ref: 455201b4736dda41df07644d78b6797282a29fc7
           path: donor-weekly-etf
 
       - uses: actions/setup-python@v5
@@ -149,6 +156,7 @@ jobs:
         with:
           name: etf-eu-allocator-report-shadow
           path: |
+            config/weekly_etf_donor_contract_pin.json
             output/sync_shadow/etf_eu_transition_evidence.json
             output/sync_shadow/etf_eu_target_allocator_shadow_v2.json
             output/sync_shadow/etf_eu_incumbent_overlap_review.json
