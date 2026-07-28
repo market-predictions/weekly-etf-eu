@@ -8,6 +8,7 @@ rules:
   require_isin_for_funding: true
   require_verified_trading_line_for_funding: true
   require_priips_kid_for_funding: true
+  require_exact_kid_artifact_for_cutover: true
   require_ucits_etf_under_current_policy: true
   unresolved_capacity_policy: retain_as_cash
   mapping_does_not_authorize_allocation: true
@@ -26,15 +27,14 @@ exposures:
       - registry_id: semiconductor_vaneck_smh_ucits
         preferred: true
         us_references: [SMH, SOXX]
-    unresolved_reason_code: trading_line_unverified
+    unresolved_reason_code: pricing_missing_or_stale
 
   grid_power:
     portfolio_role: Grid, infrastructure and electrification satellite
-    candidates:
-      - registry_id: infrastructure_ishares_global_infr
-        preferred: true
-        us_references: [PAVE, GRID]
+    candidates: []
     unresolved_reason_code: ucits_identity_unverified
+    research_required: capture the exact official ISIN and verified European trading line for First Trust Nasdaq Clean Edge Smart Grid Infrastructure UCITS ETF before mapping
+    mapping_note: official product existence is confirmed, but product identity and exact line evidence are incomplete
 
   cyber_security:
     portfolio_role: Cybersecurity resilience satellite
@@ -46,27 +46,37 @@ exposures:
 
   healthcare_quality:
     portfolio_role: Healthcare quality and defensive growth satellite
-    candidates: []
-    unresolved_reason_code: ucits_identity_unverified
-    research_required: identify and verify a broad, liquid UCITS healthcare implementation
+    candidates:
+      - registry_id: healthcare_ishares_msci_world_advanced
+        preferred: true
+        us_references: [XLV, VHT]
+    unresolved_reason_code: pricing_missing_or_stale
+    mapping_note: broad developed-market healthcare implementation; exact KID artifact and cutover market evidence remain required
 
   defense_resilience:
     portfolio_role: Defense and sovereign resilience satellite
-    candidates: []
-    unresolved_reason_code: ucits_identity_unverified
-    research_required: identify and verify a suitable UCITS defense implementation
+    candidates:
+      - registry_id: defense_vaneck_dfen
+        preferred: true
+        us_references: [ITA, XAR]
+    unresolved_reason_code: pricing_missing_or_stale
+    mapping_note: global defense technology and service exposure, including cybersecurity; not a Europe-only implementation
 
   europe_defense_industry:
     portfolio_role: European defense and security satellite
     candidates: []
     unresolved_reason_code: ucits_identity_unverified
     research_required: identify and verify a Europe-focused UCITS defense implementation
+    mapping_note: DFEN is global and must not be treated as an exact Europe-only defense implementation
 
   agri_food_security:
     portfolio_role: Food security and agriculture-input satellite
-    candidates: []
-    unresolved_reason_code: ucits_identity_unverified
-    research_required: identify and verify a suitable UCITS agriculture-equity implementation
+    candidates:
+      - registry_id: agriculture_ishares_agribusiness
+        preferred: true
+        us_references: [MOO]
+    unresolved_reason_code: pricing_missing_or_stale
+    mapping_note: producer-focused agribusiness implementation; exact KID artifact and cutover market evidence remain required
 
   broad_commodities:
     portfolio_role: Broad commodity and inflation-sensitive ballast
@@ -83,26 +93,33 @@ exposures:
       - registry_id: developed_ex_us_ishares_msci_world_ex_usa
         preferred: true
         us_references: [IEFA, EFA]
-    unresolved_reason_code: kid_missing
-    mapping_note: VWCE is global equity and must not be counted as an exact developed-ex-US implementation
+    unresolved_reason_code: pricing_missing_or_stale
+    mapping_note: VWCE is global equity and must not be counted as an exact developed-ex-US implementation; IXUA issuer KID availability is confirmed but the exact accepted KID artifact remains a cutover blocker
 
   uranium_nuclear:
     portfolio_role: Uranium and nuclear fuel-cycle satellite
-    candidates: []
-    unresolved_reason_code: ucits_identity_unverified
-    research_required: identify and verify a suitable UCITS uranium or nuclear implementation
+    candidates:
+      - registry_id: uranium_nuclear_vaneck_nukl
+        preferred: true
+        us_references: [URA, URNM]
+    unresolved_reason_code: pricing_missing_or_stale
+    mapping_note: direct uranium-mining and nuclear-energy-infrastructure implementation with exact KID artifact captured
 
   biotech_innovation:
     portfolio_role: Biotech innovation satellite
-    candidates: []
-    unresolved_reason_code: ucits_identity_unverified
-    research_required: identify and verify a suitable UCITS biotech implementation
+    candidates:
+      - registry_id: biotech_ishares_nasdaq_us_biotechnology
+        preferred: true
+        us_references: [IBB, XBI]
+    unresolved_reason_code: pricing_missing_or_stale
+    mapping_note: direct Nasdaq biotechnology implementation; exact KID artifact and cutover market evidence remain required
 
   power_utilities_capex:
     portfolio_role: Defensive utilities and power-infrastructure satellite
     candidates: []
     unresolved_reason_code: ucits_identity_unverified
-    research_required: identify and verify a suitable UCITS utilities or power-infrastructure implementation
+    research_required: complete exposure-purity review of State Street SPDR MSCI World Utilities UCITS ETF before canonical mapping
+    mapping_note: WUTI is an officially verified broad utilities candidate, but broad utilities exposure is not automatically equivalent to power-capex exposure
 
   global_equity_core:
     portfolio_role: Global core equity
