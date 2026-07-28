@@ -3,6 +3,13 @@ status: shadow_only
 portfolio_mutation: false
 funding_authority: false
 execution_authority: false
+comparison_variants:
+  frozen_candidate_exposures:
+    - ai_compute_infrastructure
+    - cyber_security
+  registry_expansion_must_not_change_comparison_compositions: true
+  strict_mapped_replication_scope: full_donor_weights_within_frozen_candidate_exposures
+  staged_cash_first_50pct_scope: half_donor_weights_within_frozen_candidate_exposures
 stage_1:
   allocation_method: donor_weight_priority_within_explicit_stage_1_candidate_set_subject_to_portfolio_controls
   candidate_exposures:
@@ -43,4 +50,5 @@ hard_boundaries:
   cached_connectivity_evidence_must_remain_non_authoritative: true
   unresolved_or_blocked_exposures_receive_zero_shares: true
   newly_mapped_exposures_cannot_enter_stage_1_without_policy_change: true
+  registry_expansion_cannot_rewrite_historical_comparators: true
   report_text_cannot_create_trade_intents: true
