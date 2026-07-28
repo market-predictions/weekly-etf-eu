@@ -6,11 +6,13 @@ on:
     paths:
       - "config/shared_exposure_ucits_map.yml"
       - "config/ucits_symbol_registry_sync_additions.yml"
+      - "config/etf_eu_prioritized_ucits_mapping_evidence_20260728.yml"
       - "config/weekly_etf_donor_contract_pin.json"
       - "runtime/merge_etf_eu_sync_registries.py"
       - "runtime/build_etf_eu_strategy_sync_shadow.py"
       - "runtime/normalize_etf_eu_alignment_contract.py"
       - "tools/validate_etf_eu_sync_registry_additions.py"
+      - "tools/validate_etf_eu_prioritized_ucits_mapping_evidence.py"
       - "tools/validate_etf_eu_strategy_sync_shadow.py"
       - "tools/validate_weekly_etf_donor_contract_pin.py"
       - ".github/workflows/validate-etf-eu-strategy-sync-shadow.yml"
@@ -63,6 +65,8 @@ jobs:
         run: |
           python tools/validate_etf_eu_sync_registry_additions.py \
             config/ucits_symbol_registry_sync_additions.yml
+          python tools/validate_etf_eu_prioritized_ucits_mapping_evidence.py \
+            config/etf_eu_prioritized_ucits_mapping_evidence_20260728.yml
           python runtime/merge_etf_eu_sync_registries.py \
             --output output/sync_shadow/ucits_symbol_registry_sync_merged.yml
 
@@ -84,6 +88,7 @@ jobs:
           name: etf-eu-strategy-sync-shadow
           path: |
             config/weekly_etf_donor_contract_pin.json
+            config/etf_eu_prioritized_ucits_mapping_evidence_20260728.yml
             output/sync_shadow/etf_shared_strategy_state.json
             output/sync_shadow/etf_shared_portfolio_target.json
             output/sync_shadow/ucits_symbol_registry_sync_merged.yml
