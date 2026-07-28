@@ -10,6 +10,8 @@ import yaml
 
 
 ISIN_RE = re.compile(r"^[A-Z]{2}[A-Z0-9]{10}$")
+KID_AVAILABILITY = {"available", "unverified"}
+KID_ARTIFACT_STATUS = {"captured", "available_not_captured", "unverified"}
 
 
 def load(path: Path) -> dict[str, Any]:
@@ -32,6 +34,8 @@ def validate(payload: dict[str, Any]) -> list[str]:
         blockers.append("official issuer identity rule is missing")
     if rules.get("exact_trading_line_required") is not True:
         blockers.append("exact trading-line rule is missing")
+    if rules.get("exact_kid_artifact_required_for_cutover") is not True:
+        blockers.append("exact KID artifact cutover rule is missing")
 
     funds = [row for row in (payload.get("funds") or []) if isinstance(row, dict)]
     if not funds:
@@ -41,6 +45,10 @@ def validate(payload: dict[str, Any]) -> list[str]:
     duplicates = sorted({value for value in ids if value and ids.count(value) > 1})
     if duplicates:
         blockers.append("duplicate registry IDs: " + ", ".join(duplicates))
+    isins = [str(row.get("isin") or "").upper() for row in funds]
+    duplicate_isins = sorted({value for value in isins if value and isins.count(value) > 1})
+    if duplicate_isins:
+        blockers.append("duplicate ISINs: " + ", ".join(duplicate_isins))
 
     for fund in funds:
         registry_id = str(fund.get("registry_id") or "")
@@ -54,8 +62,18 @@ def validate(payload: dict[str, Any]) -> list[str]:
             blockers.append(f"{registry_id}: only UCITS ETF is accepted in this supplemental layer")
         if fund.get("ucits_status") != "confirmed":
             blockers.append(f"{registry_id}: UCITS status is not confirmed")
-        if fund.get("priips_kid_status") not in {"available", "unverified"}:
-            blockers.append(f"{registry_id}: invalid PRIIPs KID status")
+        if fund.get("priips_kid_status") not in KID_AVAILABILITY:
+            blockers.append(f"{registry_id}: invalid PRIIPs KID availability status")
+        artifact_status = fund.get("kid_artifact_status")
+        if artifact_status not in KID_ARTIFACT_STATUS:
+            blockers.append(f"{registry_id}: invalid KID artifact status")
+        if artifact_status == "captured" and not fund.get("kid_artifact_url"):
+            blockers.append(f"{registry_id}: captured KID artifact URL missing")
+        if artifact_status == "captured" and not fund.get("kid_document_date"):
+            blockers.append(f"{registry_id}: captured KID document date missing")
+        if artifact_status == "available_not_captured" and fund.get("priips_kid_status") != "available":
+            blockers.append(f"{registry_id}: KID cannot be available-not-captured when availability is unverified")
+
         evidence = fund.get("evidence") if isinstance(fund.get("evidence"), dict) else {}
         if not evidence.get("issuer_product_page"):
             blockers.append(f"{registry_id}: issuer product-page evidence missing")
@@ -92,6 +110,10 @@ def main() -> None:
         "valid": not blockers,
         "blockers": blockers,
         "fund_count": len(payload.get("funds") or []),
+        "captured_kid_count": sum(
+            1 for row in (payload.get("funds") or [])
+            if isinstance(row, dict) and row.get("kid_artifact_status") == "captured"
+        ),
     }, indent=2))
     if blockers:
         raise SystemExit(1)
