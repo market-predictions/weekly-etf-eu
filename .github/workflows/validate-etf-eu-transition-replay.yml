@@ -19,6 +19,7 @@ on:
       - "runtime/build_etf_eu_stage_2_readiness.py"
       - "runtime/build_etf_eu_incumbent_overlap_review.py"
       - "runtime/build_etf_eu_target_allocator_shadow_v3.py"
+      - "runtime/build_etf_eu_target_allocator_shadow_v3_policy_gate.py"
       - "tools/validate_etf_eu_transition_replay.py"
       - "tools/validate_etf_eu_euna_risk_budget_review.py"
       - "tools/validate_etf_eu_stage_2_readiness.py"
@@ -96,7 +97,7 @@ jobs:
             --output output/sync_shadow/etf_eu_incumbent_overlap_review.json
           python tools/validate_etf_eu_incumbent_overlap_review.py \
             output/sync_shadow/etf_eu_incumbent_overlap_review.json
-          python runtime/build_etf_eu_target_allocator_shadow_v3.py \
+          python runtime/build_etf_eu_target_allocator_shadow_v3_policy_gate.py \
             --base-allocator output/sync_shadow/etf_eu_target_allocator_shadow_v2.json \
             --sync-shadow output/sync_shadow/etf_eu_strategy_sync_shadow.json \
             --transition-evidence output/sync_shadow/etf_eu_transition_evidence.json \
