@@ -6,11 +6,13 @@ on:
     paths:
       - "config/shared_exposure_ucits_map.yml"
       - "config/ucits_symbol_registry_sync_additions.yml"
+      - "config/weekly_etf_donor_contract_pin.json"
       - "runtime/merge_etf_eu_sync_registries.py"
       - "runtime/build_etf_eu_strategy_sync_shadow.py"
       - "runtime/normalize_etf_eu_alignment_contract.py"
       - "tools/validate_etf_eu_sync_registry_additions.py"
       - "tools/validate_etf_eu_strategy_sync_shadow.py"
+      - "tools/validate_weekly_etf_donor_contract_pin.py"
       - ".github/workflows/validate-etf-eu-strategy-sync-shadow.yml"
       - "docs/roadmaps/WEEKLY_ETF_US_EU_SYNCHRONIZATION_ROADMAP_20260727.md"
       - "control/work_packages/WP_SYNC_00_03_EU_DONOR_PARITY_20260727.md"
@@ -26,11 +28,16 @@ jobs:
       - name: Checkout Weekly ETF EU
         uses: actions/checkout@v4
 
-      - name: Checkout donor Weekly ETF branch
+      - name: Validate immutable donor contract pin
+        run: |
+          python tools/validate_weekly_etf_donor_contract_pin.py \
+            config/weekly_etf_donor_contract_pin.json
+
+      - name: Checkout donor Weekly ETF contract v1.0.0
         uses: actions/checkout@v4
         with:
           repository: market-predictions/weekly-etf
-          ref: sync/shared-strategy-state
+          ref: 455201b4736dda41df07644d78b6797282a29fc7
           path: donor-weekly-etf
 
       - uses: actions/setup-python@v5
@@ -76,6 +83,7 @@ jobs:
         with:
           name: etf-eu-strategy-sync-shadow
           path: |
+            config/weekly_etf_donor_contract_pin.json
             output/sync_shadow/etf_shared_strategy_state.json
             output/sync_shadow/etf_shared_portfolio_target.json
             output/sync_shadow/ucits_symbol_registry_sync_merged.yml
