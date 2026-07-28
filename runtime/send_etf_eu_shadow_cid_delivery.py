@@ -77,14 +77,19 @@ def recipients() -> tuple[str, list[str]]:
 
 def attach_file(root: MIMEMultipart, path: Path, subtype: str) -> dict[str, Any]:
     payload = path.read_bytes()
-    part = MIMEApplication(payload, _subtype=subtype)
+    if subtype == "html":
+        part = MIMEText(payload.decode("utf-8"), "html", "utf-8")
+        content_type = "text/html"
+    else:
+        part = MIMEApplication(payload, _subtype=subtype)
+        content_type = f"application/{subtype}"
     part.add_header("Content-Disposition", "attachment", filename=path.name)
     root.attach(part)
     return {
         "filename": path.name,
         "size_bytes": len(payload),
         "sha256": hashlib.sha256(payload).hexdigest(),
-        "content_type": f"application/{subtype}",
+        "content_type": content_type,
     }
 
 
@@ -127,7 +132,8 @@ def build_message(paths: dict[str, Path], run_id: str) -> tuple[MIMEMultipart, d
     test_banner = (
         '<div style="border:2px solid #a05a00;background:#fff4df;padding:12px;margin:0 0 16px 0;">'
         '<strong>SHADOW DELIVERY TEST — NO PORTFOLIO CHANGE</strong><br>'
-        'MIME/CID rendering test only. No model-portfolio, ledger or production-delivery change.'</n        '</div>'
+        'MIME/CID rendering test only. No model-portfolio, ledger or production-delivery change.'
+        '</div>'
     )
     alternative.attach(MIMEText(plain, "plain", "utf-8"))
     alternative.attach(MIMEText(test_banner + html_body, "html", "utf-8"))
