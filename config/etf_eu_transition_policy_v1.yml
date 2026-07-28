@@ -4,7 +4,11 @@ portfolio_mutation: false
 funding_authority: false
 execution_authority: false
 stage_1:
-  allocation_method: donor_weight_priority_subject_to_portfolio_controls
+  allocation_method: donor_weight_priority_within_explicit_stage_1_candidate_set_subject_to_portfolio_controls
+  candidate_exposures:
+    - ai_compute_infrastructure
+    - cyber_security
+  registry_expansion_must_not_reopen_stage_1_selection: true
   retain_all_incumbents: true
   incumbent_sales_allowed: false
   maximum_positions: 8
@@ -16,7 +20,7 @@ stage_1:
   minimum_median_daily_traded_value_eur_20d: 500000.0
   maximum_price_age_calendar_days: 7
   whole_shares_only: true
-  priority_order: donor_target_weight_descending
+  priority_order: donor_target_weight_descending_within_candidate_exposures
   effective_theme_caps_pct_nav:
     ai_compute_infrastructure: 18.0
     cyber_security: 15.0
@@ -38,4 +42,5 @@ hard_boundaries:
   non_authoritative_prices_cannot_create_funding_authority: true
   cached_connectivity_evidence_must_remain_non_authoritative: true
   unresolved_or_blocked_exposures_receive_zero_shares: true
+  newly_mapped_exposures_cannot_enter_stage_1_without_policy_change: true
   report_text_cannot_create_trade_intents: true
