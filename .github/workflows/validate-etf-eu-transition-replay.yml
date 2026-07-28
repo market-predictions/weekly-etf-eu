@@ -16,6 +16,7 @@ on:
       - "pricing/build_etf_eu_transition_replay_panel.py"
       - "runtime/build_etf_eu_transition_replay.py"
       - "runtime/build_etf_eu_euna_risk_budget_review.py"
+      - "runtime/build_etf_eu_euna_risk_budget_review_jsonsafe.py"
       - "runtime/build_etf_eu_stage_2_readiness.py"
       - "runtime/build_etf_eu_incumbent_overlap_review.py"
       - "runtime/build_etf_eu_target_allocator_shadow_v3.py"
@@ -121,7 +122,7 @@ jobs:
 
       - name: Build and validate EUNA risk-budget review
         run: |
-          python runtime/build_etf_eu_euna_risk_budget_review.py \
+          python runtime/build_etf_eu_euna_risk_budget_review_jsonsafe.py \
             --panel output/sync_shadow/etf_eu_transition_replay_panel.json \
             --allocator output/sync_shadow/etf_eu_target_allocator_shadow.json \
             --policy config/etf_eu_euna_risk_budget_policy_v1.yml \
