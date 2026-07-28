@@ -1,6 +1,6 @@
 schema_version: etf_eu_euna_risk_budget_policy_v1
 status: shadow_only
-review_date: 2026-07-28
+review_date: "2026-07-28"
 instrument:
   ticker: EUNA
   isin: IE00BDBRDM35
@@ -8,7 +8,7 @@ instrument:
   prohibited_role_label: reliable_equity_crisis_hedge
 official_fund_characteristics:
   source: https://www.ishares.com/uk/individual/en/products/291770/ishares-global-aggregate-bond-ucits-etf-eur-hedged-%28acc
-  facts_as_of: 2026-07-24
+  facts_as_of: "2026-07-24"
   share_class_currency: EUR
   ucits: true
   total_expense_ratio_pct: 0.10
