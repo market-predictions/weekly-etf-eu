@@ -94,7 +94,7 @@ def validate(payload: dict[str, Any]) -> list[str]:
         blockers.append("VVSM exact KID evidence should pass")
     if vvsm_document.get("exact_kid_artifact_captured") is not True:
         blockers.append("VVSM exact KID artifact is not recorded")
-    if vvsm_document.get("kid_document_date") != "2026-03-27":
+    if str(vvsm_document.get("kid_document_date")) != "2026-03-27":
         blockers.append("VVSM KID date mismatch")
 
     for ticker in ("LOCK", "IXUA"):
