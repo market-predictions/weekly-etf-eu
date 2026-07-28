@@ -1,0 +1,175 @@
+schema_version: etf_eu_prioritized_ucits_mapping_evidence_v1
+artifact_type: etf_eu_prioritized_ucits_mapping_evidence
+review_date: "2026-07-28"
+status: shadow_only
+strategy_source: weekly_etf_shared_contract_v1_0_0
+production_registry_overwrite: false
+mapping_authority: false
+allocation_authority: false
+portfolio_mutation: false
+funding_authority: false
+execution_authority: false
+production_delivery_authority: false
+
+rows:
+  - priority: 1
+    exposure_id: non_us_developed_equities
+    donor_target_weight_pct: 24.66
+    candidate_registry_id: developed_ex_us_ishares_msci_world_ex_usa
+    ticker: IXUA
+    isin: IE000R4ZNTN3
+    exposure_fit: exact
+    official_identity_status: pass
+    exact_trading_line_status: pass
+    priips_kid_availability_status: pass
+    exact_kid_artifact_status: incomplete
+    canonical_mapping_status: mapped
+    cutover_status: blocked
+    blocker_codes:
+      - exact_kid_artifact_not_captured
+      - accepted_xetra_valuation_not_captured
+      - accepted_xetra_spread_and_size_not_captured
+    correction:
+      previous_status: kid_missing
+      current_status: issuer_kid_available_exact_artifact_not_captured
+
+  - priority: 2
+    exposure_id: grid_power
+    donor_target_weight_pct: 5.06
+    candidate_registry_id: null
+    researched_candidate: First Trust Nasdaq Clean Edge Smart Grid Infrastructure UCITS ETF
+    exposure_fit: likely_direct_pending_identity_completion
+    official_product_existence_status: pass
+    official_identity_status: incomplete
+    exact_trading_line_status: incomplete
+    priips_kid_availability_status: not_assessed
+    exact_kid_artifact_status: not_assessed
+    canonical_mapping_status: unmapped
+    cutover_status: blocked
+    blocker_codes:
+      - exact_official_isin_not_captured
+      - exact_european_trading_line_not_captured
+
+  - priority: 3
+    exposure_id: biotech_innovation
+    donor_target_weight_pct: 4.94
+    candidate_registry_id: biotech_ishares_nasdaq_us_biotechnology
+    ticker: 2B70
+    isin: IE00BYXG2H39
+    exposure_fit: direct
+    official_identity_status: pass
+    exact_trading_line_status: pass
+    priips_kid_availability_status: pass
+    exact_kid_artifact_status: incomplete
+    canonical_mapping_status: mapped
+    cutover_status: blocked
+    blocker_codes:
+      - exact_kid_artifact_not_captured
+      - accepted_market_evidence_not_captured
+
+  - priority: 4
+    exposure_id: healthcare_quality
+    donor_target_weight_pct: 4.93
+    candidate_registry_id: healthcare_ishares_msci_world_advanced
+    ticker: CBUF
+    isin: IE00BJ5JNZ06
+    exposure_fit: direct_broad_sector
+    official_identity_status: pass
+    exact_trading_line_status: pass
+    priips_kid_availability_status: pass
+    exact_kid_artifact_status: incomplete
+    canonical_mapping_status: mapped
+    cutover_status: blocked
+    blocker_codes:
+      - exact_kid_artifact_not_captured
+      - accepted_market_evidence_not_captured
+
+  - priority: 5
+    exposure_id: uranium_nuclear
+    donor_target_weight_pct: 1.95
+    candidate_registry_id: uranium_nuclear_vaneck_nukl
+    ticker: NUKL
+    isin: IE000M7V94E1
+    exposure_fit: direct
+    official_identity_status: pass
+    exact_trading_line_status: pass
+    priips_kid_availability_status: pass
+    exact_kid_artifact_status: pass
+    canonical_mapping_status: mapped
+    cutover_status: blocked
+    blocker_codes:
+      - accepted_market_evidence_not_captured
+
+  - priority: 6
+    exposure_id: power_utilities_capex
+    donor_target_weight_pct: 0.53
+    candidate_registry_id: utilities_state_street_msci_world
+    ticker: WUTI
+    isin: IE00BYTRRH56
+    exposure_fit: adjacent_broad_utilities_proxy
+    official_identity_status: pass
+    exact_trading_line_status: pass
+    priips_kid_availability_status: pass
+    exact_kid_artifact_status: incomplete
+    canonical_mapping_status: research_candidate_not_mapped
+    cutover_status: blocked
+    blocker_codes:
+      - exposure_purity_review_required
+      - exact_kid_artifact_not_captured
+      - accepted_market_evidence_not_captured
+
+  - priority: 7
+    exposure_id: defense_resilience
+    donor_target_weight_pct: 0.0
+    promoted_opportunity: true
+    candidate_registry_id: defense_vaneck_dfen
+    ticker: DFEN
+    isin: IE000YYE6WK5
+    exposure_fit: direct_global_defense
+    official_identity_status: pass
+    exact_trading_line_status: pass
+    priips_kid_availability_status: pass
+    exact_kid_artifact_status: pass
+    canonical_mapping_status: mapped
+    cutover_status: watch_only_no_donor_target
+    blocker_codes:
+      - accepted_market_evidence_not_captured
+      - no_current_donor_portfolio_target
+    boundary: must_not_be_reused_as_exact_europe_only_defense_mapping
+
+  - priority: 8
+    exposure_id: agri_food_security
+    donor_target_weight_pct: 0.0
+    promoted_opportunity: true
+    candidate_registry_id: agriculture_ishares_agribusiness
+    ticker: ISAE
+    isin: IE00B6R52143
+    exposure_fit: direct_producer_focused
+    official_identity_status: pass
+    exact_trading_line_status: pass
+    priips_kid_availability_status: pass
+    exact_kid_artifact_status: incomplete
+    canonical_mapping_status: mapped
+    cutover_status: watch_only_no_donor_target
+    blocker_codes:
+      - exact_kid_artifact_not_captured
+      - accepted_market_evidence_not_captured
+      - no_current_donor_portfolio_target
+
+summary:
+  reviewed_exposure_count: 8
+  canonical_mapped_count: 6
+  research_candidate_not_mapped_count: 1
+  unmapped_count: 1
+  exact_kid_artifact_pass_count: 2
+  cutover_ready_count: 0
+  donor_target_weight_newly_mapped_pct: 11.82
+  donor_target_weight_still_unmapped_pct: 5.59
+  largest_remaining_unmapped_target:
+    exposure_id: grid_power
+    donor_target_weight_pct: 5.06
+  next_actions:
+    - capture exact GRID official ISIN and European trading line
+    - capture exact IXUA KID artifact and accepted Xetra market evidence
+    - capture exact KID artifacts for 2B70, CBUF, WUTI and ISAE
+    - complete WUTI exposure-purity review before canonical mapping
