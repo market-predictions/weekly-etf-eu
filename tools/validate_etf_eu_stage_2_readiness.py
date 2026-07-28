@@ -15,6 +15,7 @@ REQUIRED_BLOCKERS = {
     "destination_valuation_grade_not_pass",
     "destination_tradability_grade_not_pass",
     "destination_not_activation_ready",
+    "donor_add_direction_not_confirmed",
     "separate_stage_2_activation_authorization_missing",
 }
 
@@ -102,7 +103,7 @@ def validate(payload: dict[str, Any]) -> list[str]:
         "destination_valuation_pass": False,
         "destination_tradability_pass": False,
         "destination_activation_ready": False,
-        "donor_add_direction_pass": True,
+        "donor_add_direction_pass": False,
         "euna_risk_budget_pass": True,
         "separate_activation_authorization_pass": False,
     }
