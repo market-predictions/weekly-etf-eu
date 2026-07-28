@@ -20,6 +20,7 @@ on:
       - "runtime/build_etf_eu_target_allocator_shadow_v2.py"
       - "runtime/build_etf_eu_incumbent_overlap_review.py"
       - "runtime/build_etf_eu_target_allocator_shadow_v3.py"
+      - "runtime/build_etf_eu_target_allocator_shadow_v3_policy_gate.py"
       - "tools/validate_etf_eu_sync_registry_additions.py"
       - "tools/validate_etf_eu_strategy_sync_shadow.py"
       - "tools/validate_etf_eu_target_allocator_shadow.py"
@@ -112,7 +113,7 @@ jobs:
 
       - name: Build and validate policy-driven v3 allocator
         run: |
-          python runtime/build_etf_eu_target_allocator_shadow_v3.py \
+          python runtime/build_etf_eu_target_allocator_shadow_v3_policy_gate.py \
             --base-allocator output/sync_shadow/etf_eu_target_allocator_shadow_v2.json \
             --sync-shadow output/sync_shadow/etf_eu_strategy_sync_shadow.json \
             --transition-evidence output/sync_shadow/etf_eu_transition_evidence.json \
