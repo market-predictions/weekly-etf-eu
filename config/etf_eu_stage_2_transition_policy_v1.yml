@@ -1,7 +1,7 @@
 schema_version: etf_eu_stage_2_transition_policy_v1
 status: shadow_only
 contract: control/ETF_EU_STAGE_2_TRANSITION_AND_ROLLBACK_CONTRACT_V1.md
-review_date: 2026-07-28
+review_date: 2026-07-29
 
 destination:
   exposure_id: non_us_developed_equities
@@ -54,7 +54,10 @@ entry_gates:
   destination_valuation_grade_required: pass
   destination_tradability_grade_required: pass
   destination_activation_ready_required: true
-  donor_add_direction_required: true
+  donor_target_presence_required: true
+  donor_fresh_add_direction_required: true
+  eu_strategic_migration_override_requires_separate_decision: true
+  donor_hold_or_monitor_is_not_add_authority: true
   euna_risk_budget_review_required: true
   separate_activation_authorization_required: true
 
