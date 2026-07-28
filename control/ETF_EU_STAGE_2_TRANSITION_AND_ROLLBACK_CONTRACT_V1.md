@@ -11,10 +11,12 @@ Stage 2 is not a generic continuation of Stage 1. It is a controlled attempt to 
 
 The initial Stage-2 destination is the developed-ex-U.S. equity sleeve because:
 
-- it is the largest unresolved donor target;
+- it is the largest unresolved donor portfolio target;
 - an exact UCITS candidate has been identified;
 - VWCE is not an exact developed-ex-U.S. implementation;
 - SXR8 is the first incumbent identified for overlap reduction.
+
+A donor target weight and a donor fresh-add direction are separate authorities. The current donor state contains a 24.66% developed-ex-U.S. target through an existing donor holding, but the current shared desired direction is `hold_or_monitor`. That target may support capacity analysis and migration research; it does not by itself authorize establishing IXUA in the EU portfolio.
 
 ## 2. Entry gates
 
@@ -25,13 +27,16 @@ A Stage-2 readiness artifact may become `ready_for_separate_activation_review` o
 3. the exact post-Stage-1 portfolio state is available;
 4. the intended IXUA line has identity, document, valuation and tradability grades of `pass`;
 5. the IXUA evidence has not expired;
-6. the donor still assigns an add direction to developed-ex-U.S. equity;
-7. the destination remains within position and concentration caps;
-8. the EUNA risk-budget review is valid;
-9. no pricing, spread, KID, venue or authority blocker remains;
-10. a separate activation authorization is supplied.
+6. the donor portfolio target for developed-ex-U.S. equity remains present;
+7. either the donor generates a genuine fresh `add_candidate` direction, or a separate EU strategic-migration decision explicitly authorizes establishing the exposure despite a donor `hold_or_monitor` state;
+8. the destination remains within position and concentration caps;
+9. the EUNA risk-budget review is valid;
+10. no pricing, spread, KID, venue or authority blocker remains;
+11. a separate Stage-2 activation authorization is supplied.
 
-A shadow allocator or old connectivity close does not satisfy these gates.
+A donor `hold`, `hold_or_monitor`, unchanged target weight, shadow allocator, or old connectivity close does not satisfy fresh-add authority.
+
+No EU strategic-migration override exists in the current shadow package. Therefore `donor_add_direction_not_confirmed` is an expected and required current blocker.
 
 ## 3. Stage-2 sizing policy
 
@@ -92,10 +97,12 @@ There is no automatic EUNA sale.
 If any entry gate fails, the Stage-2 artifact must:
 
 - set readiness to `blocked`;
-- list every blocker;
+- list every blocker, including the missing donor fresh-add signal when applicable;
 - produce no executable trade intents;
 - preserve source-order calculations only as non-authoritative capacity analysis;
 - retain all portfolio, funding, execution and delivery authority flags as false.
+
+A blocked artifact is a successful control result when it truthfully identifies missing authority or evidence.
 
 ## 6. Rollback
 
@@ -116,6 +123,7 @@ A rollback decision may select the last accepted official state as the new targe
 This contract:
 
 - does not activate Stage 1 or Stage 2;
+- does not convert a donor hold into an EU add instruction;
 - does not recommend or execute a transaction;
 - does not mutate official portfolio state;
 - does not write a trade ledger;
