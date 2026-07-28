@@ -1,0 +1,44 @@
+name: Validate ETF EU cutover product evidence
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - "control/ETF_EU_CUTOVER_EVIDENCE_CONTRACT_V1.md"
+      - "config/etf_eu_cutover_product_evidence_20260728.yml"
+      - "tools/validate_etf_eu_cutover_product_evidence.py"
+      - ".github/workflows/validate-etf-eu-cutover-product-evidence.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  cutover-product-evidence:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install -r requirements.txt
+
+      - name: Validate cutover product evidence
+        run: |
+          mkdir -p output/cutover
+          python tools/validate_etf_eu_cutover_product_evidence.py \
+            config/etf_eu_cutover_product_evidence_20260728.yml \
+            | tee output/cutover/etf_eu_cutover_product_evidence_validation.json
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: etf-eu-cutover-product-evidence
+          path: |
+            control/ETF_EU_CUTOVER_EVIDENCE_CONTRACT_V1.md
+            config/etf_eu_cutover_product_evidence_20260728.yml
+            output/cutover/etf_eu_cutover_product_evidence_validation.json
+          if-no-files-found: error
