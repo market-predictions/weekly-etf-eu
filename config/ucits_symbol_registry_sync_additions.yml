@@ -1,13 +1,14 @@
 schema_version: ucits_symbol_registry_sync_additions_v1
 status: shadow_only
 consumer_repository: market-predictions/weekly-etf-eu
-research_date: 2026-07-27
+research_date: "2026-07-28"
 rules:
   production_registry_overwrite: false
   mapping_does_not_authorize_allocation: true
   official_issuer_identity_required: true
   exact_trading_line_required: true
   priips_kid_required_for_funding: true
+  exact_kid_artifact_required_for_cutover: true
 
 funds:
   - registry_id: cybersecurity_ishares_digital_security
@@ -19,16 +20,17 @@ funds:
     replication_method: physical_optimised
     ucits_status: confirmed
     priips_kid_status: available
+    kid_artifact_status: available_not_captured
     ter_pct: 0.40
     distribution_policy: accumulating
     us_research_proxy: CIBR
     mapping_role: cybersecurity resilience
     evidence:
-      issuer_product_page: official_iShares_product_297843
+      issuer_product_page: https://www.ishares.com/uk/individual/en/products/297843/ishares-digital-security-ucits-etf
       exchange_reference: official_iShares_listings_and_Deutsche_Boerse
       identity_status: verified_official_issuer
       line_status: verified_official_issuer_and_exchange
-      kid_note: issuer states investment decisions rely on the Key Information Document available through the issuer literature surface
+      kid_note: issuer confirms PRIIPs literature availability; exact KID artifact is not yet captured for cutover
     trading_lines:
       - exchange: Xetra
         venue_code: XETR
@@ -55,12 +57,15 @@ funds:
     replication_method: physical_replication
     ucits_status: confirmed
     priips_kid_status: available
+    kid_artifact_status: captured
+    kid_artifact_url: https://www.vaneck.com/globalassets/home/ucits/documents/kids/KID_VanEck-Semiconductor-UCITS-ETF_nl-NL.pdf
+    kid_document_date: "2026-03-27"
     ter_pct: 0.35
     distribution_policy: accumulating
     us_research_proxy: SMH
     mapping_role: semiconductor compute
     evidence:
-      issuer_product_page: official_VanEck_semiconductor_UCITS
+      issuer_product_page: https://www.vaneck.com/nl/en/investments/exchange-traded-funds/equity/uctsmh-vaneck-semiconductor-ucits-etf
       exchange_reference: official_VanEck_listing_and_Deutsche_Boerse
       identity_status: verified_official_issuer
       line_status: verified_official_issuer_and_exchange
@@ -86,23 +91,27 @@ funds:
     domicile: Ireland
     replication_method: physical_replication
     ucits_status: confirmed
-    priips_kid_status: unverified
+    priips_kid_status: available
+    kid_artifact_status: available_not_captured
     ter_pct: 0.15
     distribution_policy: accumulating
     us_research_proxy: IEFA
     mapping_role: developed markets outside the United States
     evidence:
-      issuer_product_page: official_iShares_product_340748
-      exchange_reference: Deutsche_Boerse_Xetra_product_page
+      issuer_product_page: https://www.ishares.com/uk/individual/en/products/340748/ishares-msci-world-ex-usa-ucits-etf
+      exchange_reference: https://www.boerse-frankfurt.de/etf/ishares-msci-world-ex-usa-ucits-etf-usd-acc?currency=EUR
       identity_status: verified_official_issuer_and_exchange
       line_status: verified_official_exchange
-      blocker_note: PRIIPs KID availability must be confirmed before funding status can advance
+      blocker_note: issuer confirms PRIIPs literature availability, but the exact accepted KID artifact is not yet captured
     trading_lines:
       - exchange: Xetra
         venue_code: XETR
         exchange_ticker: IXUA
         trading_currency: EUR
-        line_verification_status: verified_ucits_trading_line_official_exchange
+        line_verification_status: verified_ucits_trading_line_official_issuer_and_exchange
+        issuer_bloomberg_ticker: IXUA GY
+        issuer_ric: XUSE.DE
+        wkn: A40X3Z
         primary_line: true
 
   - registry_id: broad_commodities_wisdomtree_pcom
@@ -114,6 +123,7 @@ funds:
     replication_method: synthetic_unfunded_swaps
     ucits_status: confirmed
     priips_kid_status: available
+    kid_artifact_status: available_not_captured
     ter_pct: 0.19
     distribution_policy: accumulating
     us_research_proxy: GSG
@@ -131,3 +141,198 @@ funds:
         trading_currency: EUR
         line_verification_status: verified_ucits_trading_line_official_issuer_and_exchange
         primary_line: true
+
+  - registry_id: biotech_ishares_nasdaq_us_biotechnology
+    fund_name: iShares Nasdaq US Biotechnology UCITS ETF USD (Acc)
+    provider: iShares / BlackRock
+    isin: IE00BYXG2H39
+    instrument_type: UCITS ETF
+    domicile: Ireland
+    replication_method: physical_replication
+    ucits_status: confirmed
+    priips_kid_status: available
+    kid_artifact_status: available_not_captured
+    ter_pct: 0.35
+    distribution_policy: accumulating
+    us_research_proxy: IBB
+    mapping_role: biotechnology innovation
+    evidence:
+      issuer_product_page: official_iShares_Nasdaq_US_Biotechnology_UCITS_ETF
+      exchange_reference: official_iShares_Xetra_listing_2B70
+      identity_status: verified_official_issuer
+      line_status: verified_official_issuer
+      exposure_note: tracks the NASDAQ Biotechnology NET index
+    trading_lines:
+      - exchange: Xetra
+        venue_code: XETR
+        exchange_ticker: 2B70
+        trading_currency: EUR
+        line_verification_status: verified_ucits_trading_line_official_issuer
+        issuer_bloomberg_ticker: 2B70 GY
+        issuer_ric: BTEC.DE
+        primary_line: true
+
+  - registry_id: healthcare_ishares_msci_world_advanced
+    fund_name: iShares MSCI World Health Care Sector Advanced UCITS ETF USD (Dist)
+    provider: iShares / BlackRock
+    isin: IE00BJ5JNZ06
+    instrument_type: UCITS ETF
+    domicile: Ireland
+    replication_method: physical_replication
+    ucits_status: confirmed
+    priips_kid_status: available
+    kid_artifact_status: available_not_captured
+    ter_pct: 0.18
+    distribution_policy: distributing
+    us_research_proxy: XLV
+    mapping_role: global healthcare quality and defensive growth
+    evidence:
+      issuer_product_page: official_iShares_MSCI_World_Health_Care_Sector_Advanced_UCITS_ETF
+      exchange_reference: official_iShares_Xetra_listing_CBUF
+      identity_status: verified_official_issuer
+      line_status: verified_official_issuer
+      exposure_note: tracks the MSCI World Health Care Advanced Select 20/35 Capped index
+    trading_lines:
+      - exchange: Xetra
+        venue_code: XETR
+        exchange_ticker: CBUF
+        trading_currency: EUR
+        line_verification_status: verified_ucits_trading_line_official_issuer
+        issuer_bloomberg_ticker: CBUF GY
+        issuer_ric: WHCS.DE
+        primary_line: true
+
+  - registry_id: uranium_nuclear_vaneck_nukl
+    fund_name: VanEck Uranium and Nuclear Technologies UCITS ETF
+    provider: VanEck
+    isin: IE000M7V94E1
+    instrument_type: UCITS ETF
+    domicile: Ireland
+    replication_method: physical_full_replication
+    ucits_status: confirmed
+    priips_kid_status: available
+    kid_artifact_status: captured
+    kid_artifact_url: https://www.vaneck.com/globalassets/home/ucits/documents/kiids/kid_vaneck-uranium-and-nuclear-technologies-ucits-etf_en-uk.pdf
+    kid_document_date: "2026-03-27"
+    ter_pct: 0.55
+    distribution_policy: accumulating
+    us_research_proxy: URA
+    mapping_role: uranium and nuclear energy infrastructure
+    evidence:
+      issuer_product_page: https://www.vaneck.com/nl/nl/investments/nuclear-etf/overzicht/
+      exchange_reference: official_VanEck_Deutsche_Boerse_listing_NUKL
+      identity_status: verified_official_issuer
+      line_status: verified_official_issuer
+      exposure_note: tracks uranium mining and nuclear energy infrastructure companies
+    trading_lines:
+      - exchange: Xetra
+        venue_code: XETR
+        exchange_ticker: NUKL
+        trading_currency: EUR
+        line_verification_status: verified_ucits_trading_line_official_issuer
+        issuer_bloomberg_ticker: NUKL GY
+        issuer_ric: NUKL.DE
+        primary_line: true
+
+  - registry_id: utilities_state_street_msci_world
+    fund_name: State Street SPDR MSCI World Utilities UCITS ETF
+    provider: State Street Global Advisors
+    isin: IE00BYTRRH56
+    instrument_type: UCITS ETF
+    domicile: Ireland
+    replication_method: physical_replication
+    ucits_status: confirmed
+    priips_kid_status: available
+    kid_artifact_status: available_not_captured
+    ter_pct: 0.30
+    distribution_policy: accumulating
+    us_research_proxy: XLU
+    mapping_role: global utilities and power infrastructure proxy
+    evidence:
+      issuer_product_page: official_State_Street_SPDR_MSCI_World_Utilities_UCITS_ETF
+      exchange_reference: official_State_Street_Euronext_Amsterdam_listing_WUTI
+      identity_status: verified_official_issuer
+      line_status: verified_official_issuer
+      exposure_note: broad utilities proxy; power-capex purity requires separate review
+    trading_lines:
+      - exchange: Euronext Amsterdam
+        venue_code: XAMS
+        exchange_ticker: WUTI
+        trading_currency: EUR
+        line_verification_status: verified_ucits_trading_line_official_issuer
+        issuer_bloomberg_ticker: WUTI NA
+        issuer_ric: WUTI.AS
+        primary_line: true
+      - exchange: Borsa Italiana
+        venue_code: XMIL
+        exchange_ticker: WUTI
+        trading_currency: EUR
+        line_verification_status: verified_ucits_trading_line_official_issuer
+        primary_line: false
+
+  - registry_id: defense_vaneck_dfen
+    fund_name: VanEck Defense UCITS ETF
+    provider: VanEck
+    isin: IE000YYE6WK5
+    instrument_type: UCITS ETF
+    domicile: Ireland
+    replication_method: physical_full_replication
+    ucits_status: confirmed
+    priips_kid_status: available
+    kid_artifact_status: captured
+    kid_artifact_url: https://www.vaneck.com/globalassets/home/ucits/documents/kids/kid_vaneck-defense-ucits-etf_nl-nl.pdf
+    kid_document_date: "2026-03-27"
+    ter_pct: 0.55
+    distribution_policy: accumulating
+    us_research_proxy: ITA
+    mapping_role: defense technology and sovereign resilience
+    evidence:
+      issuer_product_page: official_VanEck_Defense_UCITS_ETF
+      exchange_reference: official_VanEck_Deutsche_Boerse_listing_DFEN
+      identity_status: verified_official_issuer
+      line_status: verified_official_issuer
+      exposure_note: global defense technologies, services and cybersecurity exposure; not a Europe-only defense implementation
+    trading_lines:
+      - exchange: Xetra
+        venue_code: XETR
+        exchange_ticker: DFEN
+        trading_currency: EUR
+        line_verification_status: verified_ucits_trading_line_official_issuer
+        issuer_bloomberg_ticker: DFEN GY
+        issuer_ric: DFEN.DE
+        primary_line: true
+
+  - registry_id: agriculture_ishares_agribusiness
+    fund_name: iShares Agribusiness UCITS ETF USD (Acc)
+    provider: iShares / BlackRock
+    isin: IE00B6R52143
+    instrument_type: UCITS ETF
+    domicile: Ireland
+    replication_method: physical_replication
+    ucits_status: confirmed
+    priips_kid_status: available
+    kid_artifact_status: available_not_captured
+    ter_pct: 0.55
+    distribution_policy: accumulating
+    us_research_proxy: MOO
+    mapping_role: agribusiness and food-security producers
+    evidence:
+      issuer_product_page: official_iShares_Agribusiness_UCITS_ETF
+      exchange_reference: official_iShares_Euronext_Amsterdam_listing_ISAE
+      identity_status: verified_official_issuer
+      line_status: verified_official_issuer
+      exposure_note: tracks the S&P Commodity Producers Agribusiness index
+    trading_lines:
+      - exchange: Euronext Amsterdam
+        venue_code: XAMS
+        exchange_ticker: ISAE
+        trading_currency: EUR
+        line_verification_status: verified_ucits_trading_line_official_issuer
+        issuer_ric: ISAE.AS
+        primary_line: true
+      - exchange: Borsa Italiana
+        venue_code: XMIL
+        exchange_ticker: ISAG
+        trading_currency: EUR
+        line_verification_status: verified_ucits_trading_line_official_issuer
+        primary_line: false
