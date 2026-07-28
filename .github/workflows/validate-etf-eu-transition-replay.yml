@@ -8,15 +8,20 @@ on:
       - "config/etf_eu_transition_replay_universe.yml"
       - "config/etf_eu_transition_policy_v1.yml"
       - "config/etf_eu_euna_risk_budget_policy_v1.yml"
+      - "config/etf_eu_stage_2_transition_policy_v1.yml"
+      - "config/etf_eu_cutover_product_evidence_20260728.yml"
       - "config/etf_eu_incumbent_overlap_evidence_20260724.yml"
       - "config/etf_eu_transition_evidence_cache_20260724.yml"
+      - "control/ETF_EU_STAGE_2_TRANSITION_AND_ROLLBACK_CONTRACT_V1.md"
       - "pricing/build_etf_eu_transition_replay_panel.py"
       - "runtime/build_etf_eu_transition_replay.py"
       - "runtime/build_etf_eu_euna_risk_budget_review.py"
+      - "runtime/build_etf_eu_stage_2_readiness.py"
       - "runtime/build_etf_eu_incumbent_overlap_review.py"
       - "runtime/build_etf_eu_target_allocator_shadow_v3.py"
       - "tools/validate_etf_eu_transition_replay.py"
       - "tools/validate_etf_eu_euna_risk_budget_review.py"
+      - "tools/validate_etf_eu_stage_2_readiness.py"
       - "tools/validate_weekly_etf_donor_contract_pin.py"
       - ".github/workflows/validate-etf-eu-transition-replay.yml"
 
@@ -123,6 +128,19 @@ jobs:
           python tools/validate_etf_eu_euna_risk_budget_review.py \
             output/sync_shadow/etf_eu_euna_risk_budget_review.json
 
+      - name: Build and validate blocked Stage-2 readiness
+        run: |
+          python runtime/build_etf_eu_stage_2_readiness.py \
+            --allocator output/sync_shadow/etf_eu_target_allocator_shadow.json \
+            --sync-shadow output/sync_shadow/etf_eu_strategy_sync_shadow.json \
+            --product-evidence config/etf_eu_cutover_product_evidence_20260728.yml \
+            --euna-review output/sync_shadow/etf_eu_euna_risk_budget_review.json \
+            --donor-pin config/weekly_etf_donor_contract_pin.json \
+            --policy config/etf_eu_stage_2_transition_policy_v1.yml \
+            --output output/sync_shadow/etf_eu_stage_2_readiness.json
+          python tools/validate_etf_eu_stage_2_readiness.py \
+            output/sync_shadow/etf_eu_stage_2_readiness.json
+
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -130,9 +148,13 @@ jobs:
           path: |
             config/weekly_etf_donor_contract_pin.json
             config/etf_eu_euna_risk_budget_policy_v1.yml
+            config/etf_eu_stage_2_transition_policy_v1.yml
+            config/etf_eu_cutover_product_evidence_20260728.yml
+            control/ETF_EU_STAGE_2_TRANSITION_AND_ROLLBACK_CONTRACT_V1.md
             output/sync_shadow/etf_eu_target_allocator_shadow.json
             output/sync_shadow/etf_eu_incumbent_overlap_review.json
             output/sync_shadow/etf_eu_transition_replay_panel.json
             output/sync_shadow/etf_eu_transition_replay.json
             output/sync_shadow/etf_eu_euna_risk_budget_review.json
+            output/sync_shadow/etf_eu_stage_2_readiness.json
           if-no-files-found: error
