@@ -6,6 +6,10 @@ from pathlib import Path
 from typing import Any
 
 
+STAGE_1_CANDIDATES = {"ai_compute_infrastructure", "cyber_security"}
+ALLOWLIST_BLOCKER = "stage_1_candidate_not_allowlisted"
+
+
 def load(path: Path) -> dict[str, Any]:
     payload = json.loads(path.read_text(encoding="utf-8"))
     if not isinstance(payload, dict):
@@ -46,6 +50,10 @@ def validate(payload: dict[str, Any]) -> list[str]:
     for key, expected in expected_limits.items():
         if abs(num(stage.get(key)) - expected) > 0.0001:
             blockers.append(f"unexpected policy limit {key}")
+    if set(stage.get("candidate_exposures") or []) != STAGE_1_CANDIDATES:
+        blockers.append("Stage-1 candidate exposure allowlist mismatch")
+    if stage.get("registry_expansion_must_not_reopen_stage_1_selection") is not True:
+        blockers.append("registry-expansion Stage-1 boundary missing")
 
     variants = {str(row.get("variant_id")): row for row in payload.get("variants") or [] if isinstance(row, dict)}
     required_variants = {"strict_mapped_replication", "efficient_max_eight_positions", "staged_cash_first_50pct", "staged_policy_driven_v1"}
@@ -79,11 +87,13 @@ def validate(payload: dict[str, Any]) -> list[str]:
         blockers.append("stage one may not sell incumbents")
 
     rows = {str(row.get("exposure_id")): row for row in preferred.get("allocation_rows") or [] if isinstance(row, dict)}
-    for exposure_id in ("ai_compute_infrastructure", "cyber_security"):
+    for exposure_id in STAGE_1_CANDIDATES:
         row = rows.get(exposure_id)
         if not row or row.get("selected") is not True:
             blockers.append(f"eligible stage-one exposure not selected: {exposure_id}")
             continue
+        if ALLOWLIST_BLOCKER in (row.get("blockers") or []):
+            blockers.append(f"allowlisted exposure received allowlist blocker: {exposure_id}")
         shares = num((row.get("order") or {}).get("target_shares"))
         if shares <= 0 or abs(shares - round(shares)) > 0.000001:
             blockers.append(f"whole-share order missing: {exposure_id}")
@@ -95,13 +105,25 @@ def validate(payload: dict[str, Any]) -> list[str]:
     if num(ai.get("embedded_incumbent_exposure_lower_bound_pct_nav")) <= 0:
         blockers.append("embedded incumbent semiconductor exposure was not applied")
 
-    for row in preferred.get("allocation_rows") or []:
-        if not isinstance(row, dict):
-            continue
+    for exposure_id, row in rows.items():
+        if exposure_id not in STAGE_1_CANDIDATES:
+            if row.get("selected") is True:
+                blockers.append(f"non-allowlisted exposure selected in Stage 1: {exposure_id}")
+            if num((row.get("order") or {}).get("target_shares")) > 0:
+                blockers.append(f"non-allowlisted exposure received shares: {exposure_id}")
+            if ALLOWLIST_BLOCKER not in (row.get("blockers") or []):
+                blockers.append(f"non-allowlisted exposure missing policy blocker: {exposure_id}")
         if row.get("selected") is not True and num((row.get("order") or {}).get("target_shares")) > 0:
-            blockers.append(f"unselected exposure received shares: {row.get('exposure_id')}")
+            blockers.append(f"unselected exposure received shares: {exposure_id}")
         if row.get("eligible") is not True and num((row.get("order") or {}).get("target_shares")) > 0:
-            blockers.append(f"ineligible exposure received shares: {row.get('exposure_id')}")
+            blockers.append(f"ineligible exposure received shares: {exposure_id}")
+
+    ixua = rows.get("non_us_developed_equities") or {}
+    if ixua.get("selected") is True or num((ixua.get("order") or {}).get("target_shares")) > 0:
+        blockers.append("IXUA entered Stage 1 after registry expansion")
+    if ALLOWLIST_BLOCKER not in (ixua.get("blockers") or []):
+        blockers.append("IXUA Stage-1 policy blocker missing")
+
     legacy = [row for row in preferred.get("legacy_rows") or [] if isinstance(row, dict)]
     if {str(row.get("ticker")) for row in legacy} != {"VWCE", "EUNA", "SXR8"}:
         blockers.append("legacy position set changed")
