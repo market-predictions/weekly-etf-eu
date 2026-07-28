@@ -4,6 +4,7 @@ on:
   workflow_dispatch:
   pull_request:
     paths:
+      - "config/weekly_etf_donor_contract_pin.json"
       - "config/etf_eu_transition_replay_universe.yml"
       - "config/etf_eu_transition_policy_v1.yml"
       - "config/etf_eu_incumbent_overlap_evidence_20260724.yml"
@@ -13,6 +14,7 @@ on:
       - "runtime/build_etf_eu_incumbent_overlap_review.py"
       - "runtime/build_etf_eu_target_allocator_shadow_v3.py"
       - "tools/validate_etf_eu_transition_replay.py"
+      - "tools/validate_weekly_etf_donor_contract_pin.py"
       - ".github/workflows/validate-etf-eu-transition-replay.yml"
 
 permissions:
@@ -25,11 +27,16 @@ jobs:
       - name: Checkout Weekly ETF EU
         uses: actions/checkout@v4
 
-      - name: Checkout donor Weekly ETF branch
+      - name: Validate immutable donor contract pin
+        run: |
+          python tools/validate_weekly_etf_donor_contract_pin.py \
+            config/weekly_etf_donor_contract_pin.json
+
+      - name: Checkout donor Weekly ETF contract v1.0.0
         uses: actions/checkout@v4
         with:
           repository: market-predictions/weekly-etf
-          ref: sync/shared-strategy-state
+          ref: 455201b4736dda41df07644d78b6797282a29fc7
           path: donor-weekly-etf
 
       - uses: actions/setup-python@v5
@@ -108,6 +115,7 @@ jobs:
         with:
           name: etf-eu-transition-composition-replay
           path: |
+            config/weekly_etf_donor_contract_pin.json
             output/sync_shadow/etf_eu_target_allocator_shadow.json
             output/sync_shadow/etf_eu_incumbent_overlap_review.json
             output/sync_shadow/etf_eu_transition_replay_panel.json
