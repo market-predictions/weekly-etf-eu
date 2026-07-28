@@ -7,13 +7,16 @@ on:
       - "config/weekly_etf_donor_contract_pin.json"
       - "config/etf_eu_transition_replay_universe.yml"
       - "config/etf_eu_transition_policy_v1.yml"
+      - "config/etf_eu_euna_risk_budget_policy_v1.yml"
       - "config/etf_eu_incumbent_overlap_evidence_20260724.yml"
       - "config/etf_eu_transition_evidence_cache_20260724.yml"
       - "pricing/build_etf_eu_transition_replay_panel.py"
       - "runtime/build_etf_eu_transition_replay.py"
+      - "runtime/build_etf_eu_euna_risk_budget_review.py"
       - "runtime/build_etf_eu_incumbent_overlap_review.py"
       - "runtime/build_etf_eu_target_allocator_shadow_v3.py"
       - "tools/validate_etf_eu_transition_replay.py"
+      - "tools/validate_etf_eu_euna_risk_budget_review.py"
       - "tools/validate_weekly_etf_donor_contract_pin.py"
       - ".github/workflows/validate-etf-eu-transition-replay.yml"
 
@@ -46,7 +49,7 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install -r requirements.txt
-          python -m pip install yfinance pandas
+          python -m pip install yfinance pandas numpy
 
       - name: Build donor and synchronization artifacts
         run: |
@@ -110,14 +113,26 @@ jobs:
           python tools/validate_etf_eu_transition_replay.py \
             output/sync_shadow/etf_eu_transition_replay.json
 
+      - name: Build and validate EUNA risk-budget review
+        run: |
+          python runtime/build_etf_eu_euna_risk_budget_review.py \
+            --panel output/sync_shadow/etf_eu_transition_replay_panel.json \
+            --allocator output/sync_shadow/etf_eu_target_allocator_shadow.json \
+            --policy config/etf_eu_euna_risk_budget_policy_v1.yml \
+            --output output/sync_shadow/etf_eu_euna_risk_budget_review.json
+          python tools/validate_etf_eu_euna_risk_budget_review.py \
+            output/sync_shadow/etf_eu_euna_risk_budget_review.json
+
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: etf-eu-transition-composition-replay
           path: |
             config/weekly_etf_donor_contract_pin.json
+            config/etf_eu_euna_risk_budget_policy_v1.yml
             output/sync_shadow/etf_eu_target_allocator_shadow.json
             output/sync_shadow/etf_eu_incumbent_overlap_review.json
             output/sync_shadow/etf_eu_transition_replay_panel.json
             output/sync_shadow/etf_eu_transition_replay.json
+            output/sync_shadow/etf_eu_euna_risk_budget_review.json
           if-no-files-found: error
