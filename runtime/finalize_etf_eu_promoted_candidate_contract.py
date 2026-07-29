@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import sys
 from pathlib import Path
 from typing import Any
@@ -22,7 +23,6 @@ from runtime.reconcile_etf_eu_report_with_policy_allocator import (  # noqa: E40
     pct,
     preferred_variant,
     promoted_rows,
-    replace_section,
     table,
 )
 from runtime.reconcile_etf_eu_promoted_candidate_visibility import (  # noqa: E402
@@ -30,6 +30,25 @@ from runtime.reconcile_etf_eu_promoted_candidate_visibility import (  # noqa: E4
     stage_state,
     target_index,
 )
+
+
+def replace_any_section(text: str, section_id: str, content: str) -> str:
+    pattern = re.compile(
+        fr'(<section id="section-{re.escape(section_id)}"[^>]*>)(.*?)(</section>)',
+        re.DOTALL,
+    )
+
+    def replace(match: re.Match[str]) -> str:
+        body = match.group(2)
+        header = re.match(r'(\s*<div class="section-head">.*?</div>)', body, re.DOTALL)
+        if not header:
+            raise RuntimeError(f"Section {section_id} header boundary not found")
+        return match.group(1) + header.group(1) + content + match.group(3)
+
+    updated, count = pattern.subn(replace, text, count=1)
+    if count != 1:
+        raise RuntimeError(f"Could not finalize section {section_id}")
+    return updated
 
 
 def section_9(sync: dict[str, Any], preferred: dict[str, Any], language: str) -> str:
@@ -147,8 +166,8 @@ def apply(manifest_path: Path, allocator_path: Path, sync_path: Path) -> None:
         html_path = Path(str(files.get("html") or ""))
         pdf_path = Path(str(files.get("pdf") or ""))
         text = html_path.read_text(encoding="utf-8")
-        text = replace_section(text, "9", section_9(sync, preferred, language))
-        text = replace_section(text, "13", section_13(sync, preferred, allocator, language))
+        text = replace_any_section(text, "9", section_9(sync, preferred, language))
+        text = replace_any_section(text, "13", section_13(sync, preferred, allocator, language))
         html_path.write_text(text, encoding="utf-8")
         HTML(string=text, base_url=str(html_path.parent.resolve())).write_pdf(pdf_path)
         files["promoted_candidate_contract"] = "all_promoted_rows_plus_donor_final_action_headers_v1"
