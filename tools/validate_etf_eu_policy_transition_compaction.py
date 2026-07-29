@@ -24,6 +24,10 @@ def validate(manifest: dict[str, Any]) -> list[str]:
             blockers.append(f"policy transition compaction {key} must be false")
     if set(compaction.get("deferred_exposures_remain_in_sections") or []) != {"11", "13"}:
         blockers.append("deferred exposure evidence lineage is incomplete")
+    if set(compaction.get("incumbent_evidence_remains_in_sections") or []) != {"10", "13", "15"}:
+        blockers.append("incumbent evidence lineage is incomplete")
+    removed_legacy = compaction.get("duplicate_incumbent_block_removed_by_language") if isinstance(compaction.get("duplicate_incumbent_block_removed_by_language"), dict) else {}
+
     for language, files in (manifest.get("languages") or {}).items():
         if language not in {"nl", "en"} or not isinstance(files, dict):
             continue
@@ -31,8 +35,10 @@ def validate(manifest: dict[str, Any]) -> list[str]:
         if not path.is_file():
             blockers.append(f"missing {language} HTML")
             continue
-        if files.get("policy_transition_compaction") != "actionable_intents_only_v1":
+        if files.get("policy_transition_compaction") != "actionable_intents_without_duplicate_incumbents_v2":
             blockers.append(f"{language} compaction file marker missing")
+        if removed_legacy.get(language) is not True:
+            blockers.append(f"{language} duplicate incumbent block removal not recorded")
         text = path.read_text(encoding="utf-8")
         section = re.search(r'<section id="section-14"[^>]*>(.*?)</section>', text, re.DOTALL)
         body = section.group(1) if section else ""
@@ -40,7 +46,7 @@ def validate(manifest: dict[str, Any]) -> list[str]:
         rows = re.findall(r'<tr>.*?</tr>', table.group(1), re.DOTALL) if table else []
         if len(rows) != 2:
             blockers.append(f"{language} Section 14 must contain exactly two actionable intent rows")
-        if not all("VVSM" in body and "LOCK" in body for _ in [0]):
+        if "VVSM" not in body or "LOCK" not in body:
             blockers.append(f"{language} actionable intent tickers missing")
         for stale in ("Blocked / deferred", "Geblokkeerd / uitgesteld"):
             if stale in body:
@@ -48,6 +54,11 @@ def validate(manifest: dict[str, Any]) -> list[str]:
         note = "remain fully documented in Sections 11 and 13" if language == "en" else "blijven volledig onderbouwd in secties 11 en 13"
         if note not in body:
             blockers.append(f"{language} deferred-evidence note missing")
+        if "allocator-legacy-table" in body:
+            blockers.append(f"{language} Section 14 still duplicates the incumbent holdings table")
+        incumbent_note = "Current positions remain unchanged; see Sections 10, 13 and 15." if language == "en" else "Bestaande posities blijven ongewijzigd; zie secties 10, 13 en 15."
+        if incumbent_note not in body:
+            blockers.append(f"{language} incumbent evidence reference missing")
     return blockers
 
 
