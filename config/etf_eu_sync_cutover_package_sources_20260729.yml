@@ -1,0 +1,50 @@
+schema_version: etf_eu_sync_cutover_package_sources_v1
+status: shadow_only
+package_id: ETF-EU-SYNC-CUTOVER-READINESS-20260729
+created_date: 2026-07-29
+
+donor_contract:
+  release_id: weekly_etf_shared_contract_v1_0_0
+  repository: market-predictions/weekly-etf
+  commit_sha: 455201b4736dda41df07644d78b6797282a29fc7
+
+validated_eu_design:
+  repository: market-predictions/weekly-etf-eu
+  branch: sync/donor-report-parity
+  source_commit_sha: d33169fa513e22ac9197efe4fab9857ebaa6f85f
+
+source_artifacts:
+  allocator_report:
+    workflow_run_id: 30410361517
+    workflow_name: Validate ETF EU allocator report shadow
+    artifact_name: etf-eu-allocator-report-shadow
+    artifact_id: 8708156245
+    artifact_digest: sha256:4ae7cdfb0335587a6eb564434b40ef914775913c76dd3a9bc7b2b21799875b36
+  replay_and_stage_2:
+    workflow_run_id: 30410361535
+    workflow_name: Validate ETF EU transition composition replay
+    artifact_name: etf-eu-transition-composition-replay
+    artifact_id: 8708143505
+    artifact_digest: sha256:4ae31bafd076e49b9a67c20e35425603ef0aac4ec2b89bdcb22d50bfd6437598
+  shadow_cid_delivery:
+    workflow_run_id: 30410951339
+    workflow_name: Send ETF EU shadow CID delivery test
+    artifact_name: etf-eu-shadow-cid-delivery-wp_sync_08_cid_20260729_002500
+    artifact_id: 8708340165
+    artifact_digest: sha256:65410e095372a95cab77adbddc727fdd7c28ae49d548db6fc8b3729a78d203c6
+
+repository_inputs:
+  official_portfolio_state: output/etf_eu_portfolio_state.json
+  official_trade_ledger: output/etf_eu_trade_ledger.csv
+  donor_pin: config/weekly_etf_donor_contract_pin.json
+  product_evidence: config/etf_eu_cutover_product_evidence_20260728.yml
+  stage_2_policy: config/etf_eu_stage_2_transition_policy_v1.yml
+  mailbox_receipt: control/evidence/etf_eu_shadow_cid_mailbox_receipt_wp_sync_08_cid_20260729_002500.json
+
+activation_boundary:
+  activation_ready: false
+  authorization_present: false
+  executable_trade_intents_allowed: false
+  official_portfolio_mutation_allowed: false
+  official_ledger_write_allowed: false
+  production_delivery_authority: false
