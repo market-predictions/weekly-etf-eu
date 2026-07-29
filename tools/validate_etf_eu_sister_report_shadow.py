@@ -85,6 +85,16 @@ def _client_surface(text: str) -> str:
     return text.split(marker, 1)[0]
 
 
+def _visible_client_text(text: str) -> str:
+    without_markup = re.sub(r"<[^>]+>", " ", _client_surface(text))
+    return html.unescape(without_markup)
+
+
+def _has_css_class(text: str, tag: str, css_class: str) -> bool:
+    pattern = re.compile(fr'<{re.escape(tag)}\b[^>]*\bclass="([^"]*)"', re.IGNORECASE)
+    return any(css_class in match.group(1).split() for match in pattern.finditer(text))
+
+
 def validate(manifest: dict[str, Any]) -> list[str]:
     blockers: list[str] = []
     if manifest.get("artifact_type") != "etf_eu_sister_report_shadow_manifest":
@@ -121,6 +131,17 @@ def validate(manifest: dict[str, Any]) -> list[str]:
         if dutch_finalization.get(key) is not False:
             blockers.append(f"Dutch finalization {key} must be false")
 
+    output_contract = manifest.get("report_output_contract_finalization") if isinstance(manifest.get("report_output_contract_finalization"), dict) else {}
+    if output_contract.get("applied") is not True:
+        blockers.append("report output-contract finalization was not applied")
+    if output_contract.get("donor_table_headers_preserved") is not True:
+        blockers.append("donor table-header preservation was not asserted")
+    if output_contract.get("visible_internal_blocker_codes_removed") is not True:
+        blockers.append("visible internal blocker-code cleanup was not asserted")
+    for key in ("portfolio_mutation", "funding_authority", "execution_authority"):
+        if output_contract.get(key) is not False:
+            blockers.append(f"report output-contract finalization {key} must be false")
+
     languages = manifest.get("languages") if isinstance(manifest.get("languages"), dict) else {}
     if set(languages) != {"nl", "en"}:
         blockers.append("both Dutch and English outputs are required")
@@ -141,7 +162,7 @@ def validate(manifest: dict[str, Any]) -> list[str]:
             continue
         text = html_path.read_text(encoding="utf-8")
         lowered = text.lower()
-        client_text = html.unescape(_client_surface(text))
+        client_text = _visible_client_text(text)
         if "data:image/png;base64," not in lowered:
             blockers.append(f"{language} HTML has no embedded PNG chart")
         if "<svg" in lowered:
@@ -156,13 +177,15 @@ def validate(manifest: dict[str, Any]) -> list[str]:
             blockers.append(f"{language} client-surface polish marker is missing")
         if language == "nl" and files.get("dutch_language_finalization") != "exact_phrase_and_cell_contract_v1":
             blockers.append("Dutch exact-match finalization marker is missing")
-        if 'class="wide-table alignment-table"' not in text:
+        if files.get("report_output_contract_finalization") != "donor_headers_visible_labels_and_alignment_class_v1":
+            blockers.append(f"{language} report output-contract marker is missing")
+        if not _has_css_class(text, "table", "alignment-table"):
             blockers.append(f"{language} donor-to-EU allocation table is missing")
-        if 'class="wide-table final-alignment-table"' not in text:
+        if not _has_css_class(text, "table", "final-alignment-table"):
             blockers.append(f"{language} final action table is not driven by portfolio alignment")
         leaked_tokens = sorted(set(INTERNAL_CLIENT_TOKENS.findall(client_text)))
         if leaked_tokens:
-            blockers.append(f"{language} client surface leaks internal tokens: {', '.join(leaked_tokens)}")
+            blockers.append(f"{language} client surface leaks visible internal tokens: {', '.join(leaked_tokens)}")
         if language == "nl":
             for phrase in FORBIDDEN_DUTCH_PHRASES:
                 if phrase.lower() in client_text.lower():
