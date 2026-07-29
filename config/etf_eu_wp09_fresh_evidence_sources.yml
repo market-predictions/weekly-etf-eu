@@ -1,0 +1,53 @@
+schema_version: etf_eu_wp09_fresh_evidence_sources_v1
+report_date: '2026-07-30'
+latest_completed_session_date: '2026-07-29'
+source_policy:
+  cached_connectivity_may_authorize: false
+  search_snippets_may_authorize: false
+  issuer_product_page_roles:
+    - product_identity
+    - listing_identity
+  exact_kid_roles:
+    - official_issuer_pdf
+  exact_xetra_market_roles:
+    - official_exchange_completed_close
+    - official_exchange_timestamped_bid_ask_size
+  regulated_exchange_archive_role: independent_document_crosscheck
+  fail_closed: true
+candidates:
+  - exposure_id: ai_compute_infrastructure
+    symbol: VVSM
+    isin: IE00BMC38736
+    fund_name: VanEck Semiconductor UCITS ETF
+    exchange: Xetra
+    mic: XETR
+    currency: EUR
+    wkn: A2QC5J
+    issuer_product_url: https://www.vaneck.com/nl/nl/investments/semiconductor-etf/
+    official_kid_url: https://www.vaneck.com/globalassets/home/ucits/documents/kids/KID_VanEck-Semiconductor-UCITS-ETF_nl-NL.pdf
+    expected_kid_date: '2026-03-27'
+    boerse_frankfurt_slug: vaneck-semiconductor-ucits-etf-usd-acc
+    boerse_frankfurt_page_url: https://live.deutsche-boerse.com/en/etf/vaneck-semiconductor-ucits-etf-usd-acc/price-history/historical-prices-and-volumes
+  - exposure_id: cyber_security
+    symbol: LOCK
+    isin: IE00BG0J4C88
+    fund_name: iShares Digital Security UCITS ETF
+    exchange: Xetra
+    mic: XETR
+    currency: EUR
+    wkn: A2JMGE
+    issuer_product_url: https://www.ishares.com/nl/particuliere-belegger/nl/producten/297843/ishares-digital-security-ucits-etf?siteEntryPassthrough=true&switchLocale=y
+    official_kid_url: https://www.ishares.com/nl/particuliere-belegger/nl/literature/kiid/eu-priips-ishares-digital-security-ucits-etf-ie00bg0j4c88-nl.pdf?siteEntryPassthrough=true&switchLocale=y
+    regulated_exchange_kid_url: https://www.borsaitaliana.it/CAETF/2026-41017-KID-c1fe859f-8db4-42e8-b035-e3397827a1fa.pdf
+    expected_kid_date: '2026-04-09'
+    boerse_frankfurt_slug: ishares-digital-security-ucits-etf-usd-acc
+    boerse_frankfurt_page_url: https://live.deutsche-boerse.com/en/etf/ishares-digital-security-ucits-etf-usd-acc/price-history/historical-prices-and-volumes
+external_reference_evidence:
+  boerse_frankfurt_history_probe_run: 30295755925
+  boerse_frankfurt_history_probe_artifact_id: 8664548810
+  boerse_frankfurt_history_probe_digest: sha256:acf1e08d842279762f3d83791269ea3839af12afb8c725d891638b6725fc7e5e
+  observed_result: all tested signed official API variants returned HTTP 403
+  boerse_frankfurt_ssr_capture_run: 30295756152
+  boerse_frankfurt_ssr_capture_artifact_id: 8664551213
+  boerse_frankfurt_ssr_capture_digest: sha256:3d457c7df36df1087b1f04b9587bcbae265c314827116338984185aefef12d12
+  observed_result_ssr: exact Xetra identity is server-rendered but historical prices and bid-ask data are not embedded
