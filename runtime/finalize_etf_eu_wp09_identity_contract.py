@@ -37,6 +37,7 @@ def finalize(evidence_path: Path, sources_path: Path) -> None:
         identity = candidate.get("identity") if isinstance(candidate.get("identity"), dict) else {}
         exchange = identity.get("official_exchange") if isinstance(identity.get("official_exchange"), dict) else {}
         issuer = identity.get("issuer_product") if isinstance(identity.get("issuer_product"), dict) else {}
+        kid = candidate.get("kid") if isinstance(candidate.get("kid"), dict) else {}
         raw_path = Path(str(exchange.get("raw_path") or ""))
         text = raw_path.read_text(encoding="utf-8", errors="replace") if raw_path.is_file() else ""
         exchange_symbol = str(config.get("exchange_symbol") or symbol)
@@ -55,9 +56,13 @@ def finalize(evidence_path: Path, sources_path: Path) -> None:
             "pass": all(checks.values()),
             "authority_rule": "official_deutsche_boerse_ssr_exact_isin_wkn_exchange_symbol_xetra_eur",
         })
-        issuer_pass = issuer.get("pass") is True
-        identity["pass"] = issuer_pass and exchange["pass"]
-        identity["authority_rule"] = "official_issuer_exact_product_identity_plus_official_deutsche_boerse_exact_xetra_line"
+        issuer_product_pass = issuer.get("pass") is True
+        issuer_kid_pass = kid.get("pass") is True
+        identity["issuer_product_identity_pass"] = issuer_product_pass
+        identity["issuer_kid_identity_pass"] = issuer_kid_pass
+        identity["issuer_identity_pass"] = issuer_product_pass or issuer_kid_pass
+        identity["pass"] = identity["issuer_identity_pass"] and exchange["pass"]
+        identity["authority_rule"] = "official_issuer_product_page_or_exact_kid_plus_official_deutsche_boerse_exact_xetra_line"
         blockers = [item for item in (candidate.get("blockers") or []) if item != "exact_line_identity_not_pass"]
         if not identity["pass"]:
             blockers.insert(0, "exact_line_identity_not_pass")
@@ -76,6 +81,7 @@ def finalize(evidence_path: Path, sources_path: Path) -> None:
         "applied": True,
         "source_registry": str(sources_path),
         "exact_exchange_symbol_distinguished_from_portfolio_label": True,
+        "exact_issuer_kid_allowed_as_product_identity_authority": True,
         "portfolio_mutation": False,
         "ledger_write": False,
         "funding_authority": False,
