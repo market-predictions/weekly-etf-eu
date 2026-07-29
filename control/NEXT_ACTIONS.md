@@ -3,147 +3,134 @@
 ## Current priority
 
 ```text
-ETF-EU-WP33_COCKPIT_FRONT_PAGE_PRODUCTION_ENABLEMENT
+REVIEW_WP_SYNC_00_08_DRAFT_PR_WITHOUT_ACTIVATION
 ```
 
-## Current authoritative baseline
+PR #66 now contains a complete read-only synchronization architecture through cutover readiness. The next decision is whether to merge the shadow architecture into `main`. That decision must remain separate from portfolio activation and production-report replacement.
+
+## Authoritative official baseline
 
 ```text
 portfolio_position_count=3
 cash_eur=60439.44
-invested_market_value_eur=39577.16
-nav_eur=100016.60
-latest_report_run_id=20260717_141500
-latest_transport_run_id=20260717_170931
-transport_success=true
-send_executed=true
-resend_allowed=false
+invested_market_value_eur=39317.32
+nav_eur=99756.76
+portfolio_mutation_performed=false
+ledger_write_performed=false
 ```
 
-| Ticker | Role | Shares | Value | Weight | Current action |
+| Ticker | Role | Shares | Value | Weight | Official action |
 |---|---|---:|---:|---:|---|
-| VWCE | Global core | 151 | €24,963.32 | 24.959177% | Hold after first tranche |
-| EUNA | Aggregate-bond stabiliser | 1,526 | €7,497.24 | 7.495996% | Hold after first tranche |
-| SXR8 | U.S. equity overweight | 10 | €7,116.60 | 7.115419% | Hold; no second tranche |
+| VWCE | Global core | 151 | €24,806.28 | 24.866766% | Hold |
+| EUNA | Low-volatility carry diversifier | 1,526 | €7,465.04 | 7.483242% | Hold; no add or sale |
+| SXR8 | U.S. equity overweight | 10 | €7,046.00 | 7.063180% | Hold; no second tranche |
 
-No automatic add, reduction, exit, later tranche or satellite activation is authorised.
+No automatic add, reduction, exit, later tranche or satellite activation is authorized.
 
-## Completed WP32 preview capability
+## Completed WP-SYNC-00/08 capability
 
-```text
-pull_request=61
-merge_commit=348c324d911b142f0871e9a67f875b76b3450447
-final_validation_run=29667194382
-status=merged_validated_preview_only
-production_enablement=false
-```
+The draft PR now delivers:
 
-WP32 proved:
+1. immutable donor shared strategy and portfolio-target contracts;
+2. EU exposure-to-UCITS mapping with explicit evidence grades;
+3. policy-driven Stage-1 shadow allocation;
+4. incumbent overlap and EUNA risk-budget reviews;
+5. non-optimizing composition replay;
+6. explicit Stage-2 capacity and authority state machine;
+7. donor-target versus donor-fresh-add distinction;
+8. executive Dutch/English report parity;
+9. Gmail-compatible multipart/related CID delivery;
+10. Sent and Inbox receipt verification with privacy-minimal evidence;
+11. a valid blocked activation package with state-oriented rollback.
 
-```text
-cockpit_front_page_count_NL=1
-cockpit_front_page_count_EN=1
-classic_pdf_pages=6
-cockpit_pdf_pages=7
-page_delta=1
-classic_sections_preserved=15
-email_safe_surface_passed=true
-primary_visual_review_passed=true
-secondary_adversarial_review_passed=true
-protected_inputs_unchanged=true
-blockers=0
-```
-
-The selected document hierarchy is:
+Key evidence:
 
 ```text
-EU/UCITS cockpit front page
-→ investor report
-→ analyst report
+donor_release=weekly_etf_shared_contract_v1_0_0
+donor_commit=455201b4736dda41df07644d78b6797282a29fc7
+validated_eu_design_commit=d33169fa513e22ac9197efe4fab9857ebaa6f85f
+report_workflow_run=30410361517
+replay_stage_2_workflow_run=30410361535
+shadow_cid_delivery_run=30410951339
+blocked_activation_package_run=30411531406
 ```
 
-## WP33 exact-current production-enablement package
+## Review-before-merge sequence
 
-Create and claim:
+Before PR #66 leaves draft status:
+
+1. Review the architecture as four separate layers:
+   - decision framework;
+   - input/state contract;
+   - output contract;
+   - operational runbook.
+2. Confirm that the donor contract is consumed only through immutable release `v1.0.0`.
+3. Confirm that the official portfolio and ledger hashes remain unchanged.
+4. Review the Stage-1 policy limits and the two-sleeve allowlist.
+5. Review the EUNA classification and Stage-2 source order.
+6. Confirm that donor `hold_or_monitor` cannot become EU add authority.
+7. Review the 11-page NL/EN report and CID email surface.
+8. Review the 27 blockers in the activation package.
+9. Prefer a squash merge because the PR contains a long development history.
+10. Keep activation and production enablement out of the merge decision.
+
+## After architecture merge: WP-SYNC-09
+
+Only after the shadow architecture is accepted on `main`, create a separate work package:
 
 ```text
-ETF-EU-WP33_COCKPIT_FRONT_PAGE_PRODUCTION_ENABLEMENT
+ETF-EU-WP-SYNC-09_FRESH_CUTOVER_EVIDENCE_AND_ACTIVATION_DECISION
 ```
 
-### Required implementation boundary
+Required evidence work:
 
-WP33 may change only the report output and operational integration layers. It must not change:
+1. Capture accepted current EUR Xetra-line valuation for VVSM and LOCK.
+2. Capture timestamped Xetra bid, ask and quote size for both intended Stage-1 lines.
+3. Capture and review the exact LOCK KID/PRIIPs artifact.
+4. Refresh product evidence within the governed age limit.
+5. Re-underwrite VVSM and LOCK using the latest donor strategy state.
+6. Rebuild the allocator from fresh evidence rather than the dated connectivity cache.
+7. Decide explicitly whether Stage 1 should be authorized.
+8. If authorization is withheld, preserve the three-position portfolio and cash unchanged.
+9. If authorization is granted later, create a new package with exact official-state mutation, ledger, rollback and receipt contracts.
+
+## Stage-2 boundary
+
+Stage 2 remains blocked even after Stage-1 evidence is complete unless:
+
+- Stage 1 is separately authorized and applied;
+- an official post-Stage-1 state and receipt exist;
+- IXUA document, valuation and tradability grades pass;
+- the donor emits a genuine fresh add direction, or a separate EU strategic-migration decision explicitly overrides the donor hold;
+- a separate Stage-2 activation authorization exists.
+
+Current Stage-2 capacity analysis is not an instruction:
 
 ```text
-portfolio state
-trade ledger
-recommendation scorecard
-pricing authority
-macro authority
-allocation authority
-real broker execution
-current accepted 2026-07-17 package
+maximum_ixua_tranche_pct_nav=15.00
+cash_source_pct_nav=10.569579
+sxr8_source_pct_nav=4.430421
+euna_source_pct_nav=0.00
+executable_trade_intents=[]
 ```
 
-### Required sequence
+## Delivery boundary
 
-1. Re-read the donor production enablement decision and current EU package builder.
-2. Create an exact-current, non-delivery replay using the latest valid EU normalized state.
-3. Integrate the additive cockpit through the existing package-build path rather than duplicating report logic.
-4. Keep the EU feature flag explicit:
+The CID transport path is technically validated in Gmail, but it remains shadow-only. A later production-delivery change must:
 
-   ```text
-   MRKT_RPRTS_ETF_EU_COCKPIT_FRONT_PAGE=disabled|enabled
-   ```
+- reuse the validated multipart/related structure;
+- retain four report attachments;
+- preserve privacy-minimal receipt evidence;
+- pass an independent production package and authorization gate;
+- never treat SMTP success alone as an inbox receipt.
 
-5. Prove disabled mode reproduces the current two-part report.
-6. Prove enabled mode adds exactly one page before the investor and analyst reports.
-7. Prove render failure and invalid feature values fall back to the current report.
-8. Prove the email-safe surface remains readable without head-level CSS.
-9. Re-run the full client-grade machine gate and complete NL/EN page review.
-10. Require a separate secondary adversarial review.
-11. Verify protected input hashes before and after the replay.
-12. Record a separate production-enablement decision only when every gate passes.
+## Prohibited next actions
 
-### WP33 acceptance contract
+Do not:
 
-```text
-exact_current_state_used=true
-non_delivery_replay=true
-disabled_classic_contract_passed=true
-enabled_page_delta=1
-cockpit_investor_analyst_order_passed=true
-classic_sections_preserved=15
-email_safe_surface_passed=true
-protected_inputs_unchanged=true
-primary_review_passed=true
-secondary_review_passed=true
-blockers=[]
-```
-
-## WP31 governance closeout boundary
-
-The 2026-07-17 transport result and delivery evidence are committed. An independent connected-mailbox match was observed with all four expected file roles, but connector privacy controls prevented persistence of mailbox-derived receipt metadata.
-
-```text
-transport_success=true
-send_executed=true
-independent_mailbox_match_observed=true
-formal_receipt_artifact_persisted=false
-production_delivery_cycle_closed_in_repo=false
-resend_allowed=false
-```
-
-Do not combine WP31 persistence work with WP33. Do not resend the accepted package.
-
-## After WP33
-
-When WP33 passes, update:
-
-```text
-control/CURRENT_STATE.md
-control/NEXT_ACTIONS.md
-control/DECISION_LOG.md
-```
-
-Then decide whether the next routine Weekly ETF EU generation should use the enabled cockpit. A real future report run and any later delivery remain separately governed.
+- mutate `output/etf_eu_portfolio_state.json`;
+- append to `output/etf_eu_trade_ledger.csv`;
+- activate VVSM, LOCK or IXUA;
+- replace the routine production report with the shadow report;
+- send the shadow report again;
+- infer authorization from PR merge, report text, historical replay or successful email delivery.
