@@ -5,9 +5,14 @@ on:
   pull_request:
     paths:
       - "config/weekly_etf_donor_contract_pin.json"
+      - "config/shared_exposure_ucits_map.yml"
+      - "config/ucits_symbol_registry_sync_additions.yml"
+      - "config/ucits_symbol_registry_sync_additions_wp09.yml"
+      - "runtime/merge_etf_eu_sync_registries.py"
       - "runtime/add_etf_eu_target_allocator_surface.py"
       - "runtime/add_etf_eu_incumbent_overlap_surface.py"
       - "runtime/reconcile_etf_eu_report_with_policy_allocator.py"
+      - "runtime/reconcile_etf_eu_promoted_candidate_visibility.py"
       - "runtime/finalize_etf_eu_policy_reconciliation_surface.py"
       - "runtime/compact_etf_eu_policy_transition_surface.py"
       - "runtime/finalize_etf_eu_policy_report_pagination.py"
@@ -18,6 +23,7 @@ on:
       - "tools/validate_etf_eu_incumbent_overlap_review.py"
       - "tools/validate_etf_eu_incumbent_overlap_surface.py"
       - "tools/validate_etf_eu_policy_report_reconciliation_v3.py"
+      - "tools/validate_etf_eu_promoted_candidate_visibility.py"
       - "tools/validate_etf_eu_policy_transition_compaction.py"
       - "tools/validate_etf_eu_policy_report_pagination.py"
       - "tools/validate_etf_eu_target_allocator_shadow_v3.py"
@@ -74,6 +80,7 @@ jobs:
           python tools/validate_shared_portfolio_target.py ../output/sync_shadow/etf_shared_portfolio_target.json
           cd ..
           python tools/validate_etf_eu_sync_registry_additions.py config/ucits_symbol_registry_sync_additions.yml
+          python tools/validate_etf_eu_sync_registry_additions.py config/ucits_symbol_registry_sync_additions_wp09.yml
           python runtime/merge_etf_eu_sync_registries.py \
             --output output/sync_shadow/ucits_symbol_registry_sync_merged.yml
           python runtime/build_etf_eu_strategy_sync_shadow.py \
@@ -137,6 +144,10 @@ jobs:
             output/sync_shadow/report/etf_eu_sister_report_shadow_manifest_20260724.json \
             --allocator output/sync_shadow/etf_eu_target_allocator_shadow.json \
             --sync-shadow output/sync_shadow/etf_eu_strategy_sync_shadow.json
+          python runtime/reconcile_etf_eu_promoted_candidate_visibility.py \
+            output/sync_shadow/report/etf_eu_sister_report_shadow_manifest_20260724.json \
+            --allocator output/sync_shadow/etf_eu_target_allocator_shadow.json \
+            --sync-shadow output/sync_shadow/etf_eu_strategy_sync_shadow.json
           python runtime/finalize_etf_eu_policy_reconciliation_surface.py \
             output/sync_shadow/report/etf_eu_sister_report_shadow_manifest_20260724.json
           python runtime/compact_etf_eu_policy_transition_surface.py \
@@ -162,5 +173,7 @@ jobs:
             output/sync_shadow/etf_eu_target_allocator_shadow_v2.json
             output/sync_shadow/etf_eu_incumbent_overlap_review.json
             output/sync_shadow/etf_eu_target_allocator_shadow.json
+            output/sync_shadow/etf_eu_strategy_sync_shadow.json
+            output/sync_shadow/ucits_symbol_registry_sync_merged.yml
             output/sync_shadow/report/
           if-no-files-found: error
