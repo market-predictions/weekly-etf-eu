@@ -6,7 +6,7 @@
 REVIEW_WP_SYNC_00_08_DRAFT_PR_WITHOUT_ACTIVATION
 ```
 
-PR #66 now contains a complete read-only synchronization architecture through cutover readiness. The next decision is whether to merge the shadow architecture into `main`. That decision must remain separate from portfolio activation and production-report replacement.
+PR #66 now contains a complete read-only synchronization architecture through cutover readiness, including a repaired and fully validated Dutch/English output contract. The next decision is whether to merge the shadow architecture into `main`. That decision must remain separate from portfolio activation and production-report replacement.
 
 ## Authoritative official baseline
 
@@ -39,20 +39,29 @@ The draft PR now delivers:
 6. explicit Stage-2 capacity and authority state machine;
 7. donor-target versus donor-fresh-add distinction;
 8. executive Dutch/English report parity;
-9. Gmail-compatible multipart/related CID delivery;
-10. Sent and Inbox receipt verification with privacy-minimal evidence;
-11. a valid blocked activation package with state-oriented rollback.
+9. late-stage output-contract finalization after allocator and localization overlays;
+10. matching 11-page NL/EN PDFs with no blank pages, clipping or orphaned rows;
+11. Gmail-compatible multipart/related CID delivery;
+12. Sent and Inbox receipt verification with privacy-minimal evidence;
+13. a valid blocked activation package with state-oriented rollback.
 
 Key evidence:
 
 ```text
 donor_release=weekly_etf_shared_contract_v1_0_0
 donor_commit=455201b4736dda41df07644d78b6797282a29fc7
-validated_eu_design_commit=d33169fa513e22ac9197efe4fab9857ebaa6f85f
-report_workflow_run=30410361517
-replay_stage_2_workflow_run=30410361535
-shadow_cid_delivery_run=30410951339
-blocked_activation_package_run=30411531406
+validated_code_head=034b5f93056d36dfc7a6048b43b650ff434c0516
+report_workflow_run=30499071087
+report_artifact_id=8742768136
+report_artifact_digest=sha256:f6cad390bc41502f40b7d38cd14f83f34734c63f3e65cb15093ef3474a3f16d2
+strategy_sync_run=30499071074
+cutover_product_evidence_run=30499071060
+target_allocator_run=30499071076
+replay_stage_2_run=30499071107
+shadow_cid_transport_run=30499071090
+shadow_cid_live_validation_run=30499071109
+blocked_activation_package_run=30499071071
+all_current_workflows_green=true
 ```
 
 ## Review-before-merge sequence
@@ -69,10 +78,11 @@ Before PR #66 leaves draft status:
 4. Review the Stage-1 policy limits and the two-sleeve allowlist.
 5. Review the EUNA classification and Stage-2 source order.
 6. Confirm that donor `hold_or_monitor` cannot become EU add authority.
-7. Review the 11-page NL/EN report and CID email surface.
+7. Review the validated 11-page NL/EN report and CID email surface.
 8. Review the 27 blockers in the activation package.
-9. Prefer a squash merge because the PR contains a long development history.
-10. Keep activation and production enablement out of the merge decision.
+9. Confirm that the output-contract repair changes presentation and validation only, not allocation or authority.
+10. Prefer a squash merge because the PR contains a long development history.
+11. Keep activation and production enablement out of the merge decision.
 
 ## After architecture merge: WP-SYNC-09
 
@@ -133,4 +143,4 @@ Do not:
 - activate VVSM, LOCK or IXUA;
 - replace the routine production report with the shadow report;
 - send the shadow report again;
-- infer authorization from PR merge, report text, historical replay or successful email delivery.
+- infer authorization from PR merge, report text, historical replay, green CI or successful email delivery.
