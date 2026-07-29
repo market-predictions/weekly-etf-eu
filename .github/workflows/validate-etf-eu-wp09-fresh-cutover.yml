@@ -1,0 +1,117 @@
+name: Validate ETF EU WP09 fresh cutover evidence
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - "config/etf_eu_wp09_fresh_evidence_sources.yml"
+      - "runtime/build_etf_eu_wp09_fresh_evidence.py"
+      - "runtime/build_etf_eu_wp09_activation_decision.py"
+      - "tools/validate_etf_eu_wp09_fresh_evidence.py"
+      - "tools/validate_etf_eu_wp09_activation_decision.py"
+      - "tools/validate_etf_eu_wp09_cutover_manifest.py"
+      - "control/work_packages/WP_SYNC_09_FRESH_CUTOVER_EVIDENCE_AND_ACTIVATION_DECISION_20260730.md"
+      - ".github/workflows/validate-etf-eu-wp09-fresh-cutover.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  wp09-fresh-cutover:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      WP09_RUN_ID: ${{ github.run_id }}_${{ github.run_attempt }}
+      DONOR_EVIDENCE_COMMIT: 52f13e190a9f6b0045df175973fdf8d0f6f5f30d
+
+    steps:
+      - name: Checkout Weekly ETF EU
+        uses: actions/checkout@v4
+
+      - name: Checkout current donor evidence snapshot
+        uses: actions/checkout@v4
+        with:
+          repository: market-predictions/weekly-etf
+          ref: 52f13e190a9f6b0045df175973fdf8d0f6f5f30d
+          path: donor-weekly-etf
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install bounded evidence dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install requests pyyaml pypdf
+
+      - name: Record protected state before capture
+        run: |
+          set -euo pipefail
+          mkdir -p output/cutover
+          sha256sum output/etf_eu_portfolio_state.json > output/cutover/protected_state_before.txt
+          sha256sum output/etf_eu_trade_ledger.csv >> output/cutover/protected_state_before.txt
+
+      - name: Capture and normalize fresh product evidence
+        run: |
+          set -euo pipefail
+          python runtime/build_etf_eu_wp09_fresh_evidence.py \
+            --sources config/etf_eu_wp09_fresh_evidence_sources.yml \
+            --donor-scorecard donor-weekly-etf/output/etf_recommendation_scorecard.csv \
+            --donor-commit "$DONOR_EVIDENCE_COMMIT" \
+            --portfolio output/etf_eu_portfolio_state.json \
+            --ledger output/etf_eu_trade_ledger.csv \
+            --run-id "$WP09_RUN_ID" \
+            --output "output/cutover/etf_eu_wp09_fresh_product_evidence_${WP09_RUN_ID}.json"
+
+      - name: Validate fresh evidence contract
+        run: |
+          set -euo pipefail
+          python tools/validate_etf_eu_wp09_fresh_evidence.py \
+            "output/cutover/etf_eu_wp09_fresh_product_evidence_${WP09_RUN_ID}.json" \
+            | tee "output/cutover/etf_eu_wp09_fresh_product_evidence_validation_${WP09_RUN_ID}.json"
+
+      - name: Build fail-closed Stage-1 activation decision
+        run: |
+          set -euo pipefail
+          python runtime/build_etf_eu_wp09_activation_decision.py \
+            --evidence "output/cutover/etf_eu_wp09_fresh_product_evidence_${WP09_RUN_ID}.json" \
+            --output "output/cutover/etf_eu_wp09_stage_1_activation_decision_${WP09_RUN_ID}.json" \
+            --manifest "output/cutover/etf_eu_wp09_cutover_readiness_manifest_${WP09_RUN_ID}.json"
+
+      - name: Validate decision and manifest
+        run: |
+          set -euo pipefail
+          python tools/validate_etf_eu_wp09_activation_decision.py \
+            "output/cutover/etf_eu_wp09_stage_1_activation_decision_${WP09_RUN_ID}.json" \
+            | tee "output/cutover/etf_eu_wp09_stage_1_activation_decision_validation_${WP09_RUN_ID}.json"
+          python tools/validate_etf_eu_wp09_cutover_manifest.py \
+            "output/cutover/etf_eu_wp09_cutover_readiness_manifest_${WP09_RUN_ID}.json" \
+            | tee "output/cutover/etf_eu_wp09_cutover_readiness_manifest_validation_${WP09_RUN_ID}.json"
+
+      - name: Prove protected state remained unchanged
+        run: |
+          set -euo pipefail
+          sha256sum output/etf_eu_portfolio_state.json > output/cutover/protected_state_after.txt
+          sha256sum output/etf_eu_trade_ledger.csv >> output/cutover/protected_state_after.txt
+          diff -u output/cutover/protected_state_before.txt output/cutover/protected_state_after.txt
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          run_id = os.environ["WP09_RUN_ID"]
+          decision = json.loads(Path(f"output/cutover/etf_eu_wp09_stage_1_activation_decision_{run_id}.json").read_text())
+          if decision["stage_1_activation_authorized"] is not False:
+              raise SystemExit("WP09_STAGE_1_AUTHORITY_ESCALATION")
+          if decision["executable_trade_intents"] != []:
+              raise SystemExit("WP09_EXECUTABLE_INTENTS_PRESENT")
+          print(f"WP09_DECISION_OK | decision={decision['decision']} | blockers={len(decision['blockers'])}")
+          PY
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: etf-eu-wp09-fresh-cutover-${{ env.WP09_RUN_ID }}
+          path: output/cutover/
+          if-no-files-found: error
+          retention-days: 90
