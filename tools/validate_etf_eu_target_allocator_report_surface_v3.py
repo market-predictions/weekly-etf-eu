@@ -37,6 +37,8 @@ REMOVED_BY_COMPACTION = {
     'en allocator table missing: class="data-table allocator-legacy-table"',
 }
 
+EXPECTED_LAYOUT_SCOPE = "wide_table_wrapping_row_integrity_chart_performance_compaction_and_analyst_page_break"
+
 
 def load(path: Path) -> dict[str, Any]:
     payload = json.loads(path.read_text(encoding="utf-8"))
@@ -54,6 +56,16 @@ def validate(manifest: dict[str, Any]) -> list[str]:
     if compaction.get("incumbent_evidence_remains_in_sections") != ["10", "13", "15"]:
         blockers.append("compacted incumbent evidence lineage is incomplete")
     removed = compaction.get("duplicate_incumbent_block_removed_by_language") if isinstance(compaction.get("duplicate_incumbent_block_removed_by_language"), dict) else {}
+
+    layout = manifest.get("layout_fix") if isinstance(manifest.get("layout_fix"), dict) else {}
+    if layout.get("applied") is not True:
+        blockers.append("layout fix marker missing")
+    if layout.get("scope") != EXPECTED_LAYOUT_SCOPE:
+        blockers.append("chart and performance compaction layout contract missing")
+    for key in ("portfolio_mutation", "recommendation_change", "valuation_change"):
+        if layout.get(key) is not False:
+            blockers.append(f"layout fix {key} must be false")
+
     for language in ("nl", "en"):
         if removed.get(language) is not True:
             blockers.append(f"{language} duplicate incumbent block was not explicitly compacted")
