@@ -1,0 +1,159 @@
+schema_version: etf_eu_cutover_product_evidence_v1
+artifact_type: etf_eu_cutover_product_evidence_review
+review_date: 2026-07-28
+status: cutover_evidence_incomplete
+contract: control/ETF_EU_CUTOVER_EVIDENCE_CONTRACT_V1.md
+source_policy: official_issuer_and_exchange_sources_only_for_identity_documents_and_acceptance
+activation_authority: false
+portfolio_mutation: false
+funding_authority: false
+execution_authority: false
+production_delivery_authority: false
+
+candidates:
+  - exposure_id: ai_compute_infrastructure
+    ticker: VVSM
+    isin: IE00BMC38736
+    exchange: Xetra
+    currency: EUR
+    candidate_status: cutover_evidence_incomplete
+    identity_grade:
+      status: pass
+      exact_line_confirmed: true
+      sources:
+        - source_type: issuer_product_page
+          url: https://www.vaneck.com/nl/en/investments/exchange-traded-funds/equity/uctsmh-vaneck-semiconductor-ucits-etf
+          evidence: VanEck Semiconductor UCITS ETF and matching ISIN
+    document_grade:
+      status: pass
+      ucits_confirmed: true
+      exact_kid_artifact_captured: true
+      kid_language: nl-NL
+      kid_document_date: 2026-03-27
+      kid_url: https://www.vaneck.com/globalassets/home/ucits/documents/kids/KID_VanEck-Semiconductor-UCITS-ETF_nl-NL.pdf
+      evidence: issuer-hosted KID matches ISIN and identifies the product as a passively managed UCITS ETF
+    valuation_grade:
+      status: partial
+      fund_nav_grade: stale_or_not_current_enough_for_cutover
+      exact_eur_line_valuation_grade: fail
+      connectivity_close_available: true
+      connectivity_close_date: 2026-07-24
+      connectivity_source_authoritative_for_activation: false
+      blocker: accepted_current_xetra_line_valuation_not_captured
+    tradability_grade:
+      status: fail
+      recent_traded_value_connectivity_available: true
+      accepted_bid_ask_snapshot_captured: false
+      accepted_quote_size_captured: false
+      blocker: timestamped_xetra_bid_ask_and_size_not_captured
+    activation_ready: false
+
+  - exposure_id: cyber_security
+    ticker: LOCK
+    isin: IE00BG0J4C88
+    exchange: Xetra
+    currency: EUR
+    candidate_status: cutover_evidence_incomplete
+    identity_grade:
+      status: pass
+      exact_line_confirmed: true
+      xetra_bloomberg_ticker: L0CK GY
+      xetra_ric: L0CK.DE
+      sources:
+        - source_type: issuer_product_page
+          url: https://www.ishares.com/uk/individual/en/products/297843/ishares-digital-security-ucits-etf
+          evidence: matching ISIN, UCITS product and Xetra EUR listing
+    document_grade:
+      status: partial
+      ucits_confirmed: true
+      product_structure: physical
+      methodology: optimised
+      exact_kid_artifact_captured: false
+      issuer_confirms_priips_kid_availability: true
+      blocker: exact_kid_artifact_not_captured
+    valuation_grade:
+      status: partial
+      fund_nav_grade: pass
+      official_nav_currency: USD
+      official_nav: 11.58
+      official_nav_date: 2026-07-24
+      exact_eur_line_valuation_grade: fail
+      connectivity_close_available: true
+      connectivity_close_date: 2026-07-24
+      connectivity_source_authoritative_for_activation: false
+      blocker: accepted_current_xetra_line_valuation_not_captured
+    tradability_grade:
+      status: fail
+      recent_traded_value_connectivity_available: true
+      accepted_bid_ask_snapshot_captured: false
+      accepted_quote_size_captured: false
+      blocker: timestamped_xetra_bid_ask_and_size_not_captured
+    activation_ready: false
+
+  - exposure_id: non_us_developed_equities
+    ticker: IXUA
+    isin: IE000R4ZNTN3
+    exchange: Xetra
+    currency: EUR
+    candidate_status: cutover_evidence_incomplete
+    identity_grade:
+      status: pass
+      exact_line_confirmed: true
+      xetra_bloomberg_ticker: IXUA GY
+      xetra_ric: XUSE.DE
+      wkn: A40X3Z
+      sources:
+        - source_type: issuer_product_page
+          url: https://www.ishares.com/uk/individual/en/products/340748/ishares-msci-world-ex-usa-ucits-etf
+          evidence: matching ISIN, Xetra EUR listing and exact trading identifiers
+        - source_type: official_exchange_page
+          url: https://www.boerse-frankfurt.de/etf/ishares-msci-world-ex-usa-ucits-etf-usd-acc?currency=EUR
+          evidence: matching ISIN, WKN, IXUA symbol and EUR trading currency
+    document_grade:
+      status: partial
+      ucits_confirmed: true
+      product_structure: physical
+      methodology: replicated
+      exact_kid_artifact_captured: false
+      issuer_confirms_priips_kid_availability: true
+      previous_blocker_reclassification:
+        from: kid_missing
+        to: exact_kid_artifact_not_captured
+      blocker: exact_kid_artifact_not_captured
+    valuation_grade:
+      status: partial
+      fund_nav_grade: pass
+      official_nav_currency: USD
+      official_nav: 7.02
+      official_nav_date: 2026-07-24
+      exact_eur_line_valuation_grade: fail
+      connectivity_close_available: true
+      connectivity_close_date: 2026-07-24
+      connectivity_source_authoritative_for_activation: false
+      blocker: accepted_current_xetra_line_valuation_not_captured
+    tradability_grade:
+      status: fail
+      official_exchange_realtime_bid_ask_mechanism_confirmed: true
+      realtime_access_requires_authenticated_session: true
+      accepted_bid_ask_snapshot_captured: false
+      accepted_quote_size_captured: false
+      blocker: timestamped_xetra_bid_ask_and_size_not_captured
+    activation_ready: false
+
+summary:
+  candidate_count: 3
+  identity_pass_count: 3
+  document_pass_count: 1
+  fund_nav_pass_count: 2
+  exact_eur_line_valuation_pass_count: 0
+  tradability_pass_count: 0
+  activation_ready_count: 0
+  resolved_misclassification:
+    ticker: IXUA
+    old_status: kid_missing
+    new_status: exact_kid_artifact_not_captured
+  next_required_capture:
+    - exact LOCK KID or PRIIPs artifact
+    - exact IXUA KID or PRIIPs artifact
+    - accepted completed EUR Xetra line valuation for VVSM and LOCK before activation
+    - accepted timestamped Xetra bid, ask and quote size for each intended activation line

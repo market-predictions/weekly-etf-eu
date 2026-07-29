@@ -1,0 +1,4 @@
+source_run_id=30410361517
+expected_source_head_sha=d33169fa513e22ac9197efe4fab9857ebaa6f85f
+shadow_run_id=wp_sync_08_cid_20260729_002500
+send_confirmation=confirm_shadow_cid_send

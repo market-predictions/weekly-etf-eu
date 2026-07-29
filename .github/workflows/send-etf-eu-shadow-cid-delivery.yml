@@ -1,0 +1,200 @@
+name: Send ETF EU shadow CID delivery test
+
+on:
+  workflow_dispatch:
+    inputs:
+      source_run_id:
+        description: "Successful allocator-report workflow run ID"
+        required: true
+      expected_source_head_sha:
+        description: "Exact source report head SHA"
+        required: true
+      shadow_run_id:
+        description: "Unique shadow delivery run ID"
+        required: true
+      send_confirmation:
+        description: "Guarded shadow self-delivery boundary"
+        required: true
+        default: "not_confirmed"
+        type: choice
+        options:
+          - not_confirmed
+          - confirm_shadow_cid_send
+  push:
+    branches:
+      - sync/donor-report-parity
+    paths:
+      - "control/run_queue/etf_eu_shadow_cid_delivery_request_*.md"
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  shadow-cid-delivery:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Weekly ETF EU shadow branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Resolve guarded shadow request
+        env:
+          DISPATCH_SOURCE_RUN_ID: ${{ github.event.inputs.source_run_id || '' }}
+          DISPATCH_EXPECTED_SOURCE_HEAD_SHA: ${{ github.event.inputs.expected_source_head_sha || '' }}
+          DISPATCH_SHADOW_RUN_ID: ${{ github.event.inputs.shadow_run_id || '' }}
+          DISPATCH_SEND_CONFIRMATION: ${{ github.event.inputs.send_confirmation || 'not_confirmed' }}
+        run: |
+          set -euo pipefail
+          REQUEST_PATH=""
+          SOURCE_RUN_ID="$DISPATCH_SOURCE_RUN_ID"
+          EXPECTED_SOURCE_HEAD_SHA="$DISPATCH_EXPECTED_SOURCE_HEAD_SHA"
+          SHADOW_RUN_ID="$DISPATCH_SHADOW_RUN_ID"
+          SEND_CONFIRMATION="$DISPATCH_SEND_CONFIRMATION"
+          if [ "${{ github.event_name }}" != "workflow_dispatch" ]; then
+            REQUEST_PATH="$(find control/run_queue -maxdepth 1 -type f -name 'etf_eu_shadow_cid_delivery_request_*.md' | sort | tail -1)"
+            if [ -z "$REQUEST_PATH" ] || [ ! -f "$REQUEST_PATH" ]; then
+              echo "ETF_EU_SHADOW_CID_REQUEST_MISSING" >&2
+              exit 1
+            fi
+            REQUEST_COMMIT_SHA="$(git log -1 --format=%H -- "$REQUEST_PATH")"
+            if [ "$REQUEST_COMMIT_SHA" != "$GITHUB_SHA" ]; then
+              echo "ETF_EU_SHADOW_CID_REQUEST_NOT_CREATED_BY_TRIGGER_COMMIT | request_commit=$REQUEST_COMMIT_SHA | trigger=$GITHUB_SHA" >&2
+              exit 1
+            fi
+            SOURCE_RUN_ID="$(awk -F= '$1 == "source_run_id" {print $2}' "$REQUEST_PATH" | tail -1)"
+            EXPECTED_SOURCE_HEAD_SHA="$(awk -F= '$1 == "expected_source_head_sha" {print $2}' "$REQUEST_PATH" | tail -1)"
+            SHADOW_RUN_ID="$(awk -F= '$1 == "shadow_run_id" {print $2}' "$REQUEST_PATH" | tail -1)"
+            SEND_CONFIRMATION="$(awk -F= '$1 == "send_confirmation" {print $2}' "$REQUEST_PATH" | tail -1)"
+          fi
+          for name in SOURCE_RUN_ID EXPECTED_SOURCE_HEAD_SHA SHADOW_RUN_ID SEND_CONFIRMATION; do
+            value="${!name}"
+            value="$(printf '%s' "$value" | tr -d '\r' | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')"
+            printf -v "$name" '%s' "$value"
+          done
+          if ! printf '%s' "$SOURCE_RUN_ID" | grep -Eq '^[0-9]+$'; then
+            echo "ETF_EU_SHADOW_CID_SOURCE_RUN_INVALID" >&2
+            exit 1
+          fi
+          if ! printf '%s' "$EXPECTED_SOURCE_HEAD_SHA" | grep -Eq '^[0-9a-f]{40}$'; then
+            echo "ETF_EU_SHADOW_CID_SOURCE_SHA_INVALID" >&2
+            exit 1
+          fi
+          if ! printf '%s' "$SHADOW_RUN_ID" | grep -Eq '^[A-Za-z0-9_-]{8,80}$'; then
+            echo "ETF_EU_SHADOW_CID_RUN_ID_INVALID" >&2
+            exit 1
+          fi
+          if [ "$SEND_CONFIRMATION" != "confirm_shadow_cid_send" ]; then
+            echo "ETF_EU_SHADOW_CID_SEND_CONFIRMATION_MISSING" >&2
+            exit 1
+          fi
+          echo "SOURCE_RUN_ID=$SOURCE_RUN_ID" >> "$GITHUB_ENV"
+          echo "EXPECTED_SOURCE_HEAD_SHA=$EXPECTED_SOURCE_HEAD_SHA" >> "$GITHUB_ENV"
+          echo "SHADOW_RUN_ID=$SHADOW_RUN_ID" >> "$GITHUB_ENV"
+          echo "SHADOW_REQUEST_PATH=$REQUEST_PATH" >> "$GITHUB_ENV"
+          echo "ETF_EU_SHADOW_CID_REQUEST_OK | source_run=$SOURCE_RUN_ID | source_sha=$EXPECTED_SOURCE_HEAD_SHA | shadow_run=$SHADOW_RUN_ID"
+
+      - name: Validate source report workflow and download artifact
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          mkdir -p output/shadow_cid/source
+          RUN_JSON="$(gh api "repos/${GITHUB_REPOSITORY}/actions/runs/${SOURCE_RUN_ID}")"
+          SOURCE_NAME="$(printf '%s' "$RUN_JSON" | jq -r '.name')"
+          SOURCE_STATUS="$(printf '%s' "$RUN_JSON" | jq -r '.status')"
+          SOURCE_CONCLUSION="$(printf '%s' "$RUN_JSON" | jq -r '.conclusion')"
+          SOURCE_HEAD_SHA="$(printf '%s' "$RUN_JSON" | jq -r '.head_sha')"
+          SOURCE_HEAD_BRANCH="$(printf '%s' "$RUN_JSON" | jq -r '.head_branch')"
+          if [ "$SOURCE_NAME" != "Validate ETF EU allocator report shadow" ]; then
+            echo "ETF_EU_SHADOW_CID_WRONG_SOURCE_WORKFLOW | name=$SOURCE_NAME" >&2
+            exit 1
+          fi
+          if [ "$SOURCE_STATUS" != "completed" ] || [ "$SOURCE_CONCLUSION" != "success" ]; then
+            echo "ETF_EU_SHADOW_CID_SOURCE_NOT_GREEN | status=$SOURCE_STATUS | conclusion=$SOURCE_CONCLUSION" >&2
+            exit 1
+          fi
+          if [ "$SOURCE_HEAD_SHA" != "$EXPECTED_SOURCE_HEAD_SHA" ]; then
+            echo "ETF_EU_SHADOW_CID_SOURCE_SHA_MISMATCH | actual=$SOURCE_HEAD_SHA | expected=$EXPECTED_SOURCE_HEAD_SHA" >&2
+            exit 1
+          fi
+          if [ "$SOURCE_HEAD_BRANCH" != "sync/donor-report-parity" ]; then
+            echo "ETF_EU_SHADOW_CID_SOURCE_BRANCH_MISMATCH | branch=$SOURCE_HEAD_BRANCH" >&2
+            exit 1
+          fi
+          gh run download "$SOURCE_RUN_ID" \
+            --repo "$GITHUB_REPOSITORY" \
+            --name etf-eu-allocator-report-shadow \
+            --dir output/shadow_cid/source
+          test -n "$(find output/shadow_cid/source -type f -name 'weekly_etf_eu_sister_shadow_nl_*.html' -print -quit)"
+          test -n "$(find output/shadow_cid/source -type f -name 'weekly_etf_eu_sister_shadow_en_*.html' -print -quit)"
+          test -n "$(find output/shadow_cid/source -type f -name 'weekly_etf_eu_sister_shadow_nl_*.pdf' -print -quit)"
+          test -n "$(find output/shadow_cid/source -type f -name 'weekly_etf_eu_sister_shadow_en_*.pdf' -print -quit)"
+          echo "SOURCE_WORKFLOW_NAME=$SOURCE_NAME" >> "$GITHUB_ENV"
+          echo "SOURCE_WORKFLOW_HEAD_SHA=$SOURCE_HEAD_SHA" >> "$GITHUB_ENV"
+
+      - name: Send self-addressed shadow CID message
+        env:
+          MRKT_RPRTS_SMTP_HOST: ${{ secrets.MRKT_RPRTS_SMTP_HOST }}
+          MRKT_RPRTS_SMTP_PORT: ${{ secrets.MRKT_RPRTS_SMTP_PORT }}
+          MRKT_RPRTS_SMTP_USER: ${{ secrets.MRKT_RPRTS_SMTP_USER }}
+          MRKT_RPRTS_SMTP_PASS: ${{ secrets.MRKT_RPRTS_SMTP_PASS }}
+          MRKT_RPRTS_MAIL_FROM: ${{ secrets.MRKT_RPRTS_MAIL_FROM }}
+          MRKT_RPRTS_MAIL_TO: ${{ secrets.MRKT_RPRTS_MAIL_TO }}
+          MRKT_RPRTS_MAIL_TO_NL: ${{ secrets.MRKT_RPRTS_MAIL_TO_NL }}
+        run: |
+          set -euo pipefail
+          mkdir -p output/shadow_cid/evidence
+          python runtime/send_etf_eu_shadow_cid_delivery.py \
+            --source-dir output/shadow_cid/source \
+            --mode send \
+            --run-id "$SHADOW_RUN_ID" \
+            --output "output/shadow_cid/evidence/etf_eu_shadow_cid_transport_${SHADOW_RUN_ID}.json"
+          python tools/validate_etf_eu_shadow_cid_transport.py \
+            "output/shadow_cid/evidence/etf_eu_shadow_cid_transport_${SHADOW_RUN_ID}.json" \
+            --require-send \
+            | tee "output/shadow_cid/evidence/etf_eu_shadow_cid_transport_validation_${SHADOW_RUN_ID}.json"
+
+      - name: Record source lineage without recipient plaintext
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          path = Path(f"output/shadow_cid/evidence/etf_eu_shadow_cid_source_lineage_{os.environ['SHADOW_RUN_ID']}.json")
+          payload = {
+              "schema_version": "etf_eu_shadow_cid_source_lineage_v1",
+              "artifact_type": "etf_eu_shadow_cid_source_lineage",
+              "shadow_run_id": os.environ["SHADOW_RUN_ID"],
+              "source_workflow_run_id": int(os.environ["SOURCE_RUN_ID"]),
+              "source_workflow_name": os.environ["SOURCE_WORKFLOW_NAME"],
+              "source_head_sha": os.environ["SOURCE_WORKFLOW_HEAD_SHA"],
+              "source_artifact_name": "etf-eu-allocator-report-shadow",
+              "request_path": os.environ.get("SHADOW_REQUEST_PATH") or None,
+              "recipient_plaintext_stored": False,
+              "raw_mime_stored": False,
+              "portfolio_mutation": False,
+              "ledger_write": False,
+              "funding_authority": False,
+              "execution_authority": False,
+              "activation_authority": False,
+              "production_delivery_authority": False,
+          }
+          path.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
+          PY
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: etf-eu-shadow-cid-delivery-${{ env.SHADOW_RUN_ID }}
+          path: output/shadow_cid/evidence/
+          if-no-files-found: error
+          retention-days: 30

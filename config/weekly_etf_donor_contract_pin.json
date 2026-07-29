@@ -1,0 +1,32 @@
+{
+  "schema_version": "etf_eu_donor_contract_pin_v1",
+  "contract_release_id": "weekly_etf_shared_contract_v1_0_0",
+  "semantic_version": "1.0.0",
+  "donor_repository": "market-predictions/weekly-etf",
+  "donor_commit_sha": "455201b4736dda41df07644d78b6797282a29fc7",
+  "donor_promotion_pull_request": 113,
+  "donor_release_manifest_path": "control/releases/ETF_SHARED_CONTRACT_RELEASE_1_0_0.json",
+  "consumer_repository": "market-predictions/weekly-etf-eu",
+  "consumer_pull_request": 66,
+  "consumer_branch": "sync/donor-report-parity",
+  "mutable_donor_branch_allowed": false,
+  "required_strategy_schema": "etf_shared_strategy_state_v1",
+  "required_portfolio_schema": "etf_shared_portfolio_target_v1",
+  "workflow_paths": [
+    ".github/workflows/validate-etf-eu-strategy-sync-shadow.yml",
+    ".github/workflows/validate-etf-eu-target-allocator-shadow.yml",
+    ".github/workflows/validate-etf-eu-transition-replay.yml",
+    ".github/workflows/validate-etf-eu-allocator-report-shadow.yml"
+  ],
+  "authority": {
+    "portfolio_mutation": false,
+    "funding_authority": false,
+    "execution_authority": false,
+    "production_delivery_authority": false
+  },
+  "rollback": {
+    "last_accepted_donor_commit_sha": "455201b4736dda41df07644d78b6797282a29fc7",
+    "automatic_portfolio_mutation": false,
+    "automatic_trade_reversal": false
+  }
+}

@@ -1,0 +1,63 @@
+{
+  "schema_version": "etf_eu_shadow_cid_mailbox_receipt_v1",
+  "artifact_type": "etf_eu_shadow_cid_mailbox_receipt",
+  "shadow_run_id": "wp_sync_08_cid_20260729_002500",
+  "observed_at_utc": "2026-07-29T00:22:40Z",
+  "source_delivery_workflow_run_id": 30410951339,
+  "source_report_workflow_run_id": 30410361517,
+  "source_report_head_sha": "d33169fa513e22ac9197efe4fab9857ebaa6f85f",
+  "subject": "SHADOW DELIVERY TEST — NO PORTFOLIO CHANGE | Weekly ETF EU | 2026-07-24 | wp_sync_08_cid_20260729_002500",
+  "subject_sha256": "ced9a1487c99edf4327ba79b1098dfea8c4de4fec88d9d0b1df17f99736df1e7",
+  "gmail_message_id_sha256": "5a925ab62fb9d09c748e01825170f0375070c2214df846af5a1088fdd88eac4d",
+  "transport_message_id_sha256": "d702368e94128ef0448a226e88b62ab91798c035f9595e04ea39ee8feb03d23b",
+  "sent_match_observed": true,
+  "inbox_match_observed": true,
+  "same_message_observed_in_sent_and_inbox": true,
+  "attachment_count": 4,
+  "attachments": [
+    {
+      "filename": "weekly_etf_eu_sister_shadow_nl_20260724.pdf",
+      "mime_type": "application/pdf",
+      "size_bytes": 142103,
+      "sha256": "16e62d7cec7a352d3bdae65589e4014f80517f08d3d574ee70a6e8913f3e4d10"
+    },
+    {
+      "filename": "weekly_etf_eu_sister_shadow_en_20260724.pdf",
+      "mime_type": "application/pdf",
+      "size_bytes": 138959,
+      "sha256": "9ef6b3d0e66628e0c6d6089153ad4eeb39b9f8215d94c1228a89a81516a7d85f"
+    },
+    {
+      "filename": "weekly_etf_eu_sister_shadow_nl_20260724.html",
+      "mime_type": "text/html",
+      "size_bytes": 115823,
+      "sha256": "4415340d643e0a8a9fc149b0e714ccbe5784db77bdcd26930c52363e42dc5b33"
+    },
+    {
+      "filename": "weekly_etf_eu_sister_shadow_en_20260724.html",
+      "mime_type": "text/html",
+      "size_bytes": 112733,
+      "sha256": "899f87f7317ddc5ac22f0e510e14f14588081a0acfba8173b0ffcb80309f7ca6"
+    }
+  ],
+  "inline_image_count": 1,
+  "inline_image": {
+    "filename": "weekly_etf_eu_portfolio_curve.png",
+    "mime_type": "image/png",
+    "size_bytes": 57780,
+    "sha256": "aa4ae5bef0db3bc133f28ab16d6f5b98caa944263b986245476554966c861963",
+    "content_id": "weekly-etf-eu-chart-wp_sync_08_cid_20260729_002500@weekly-etf-eu.local",
+    "content_location": "weekly_etf_eu_portfolio_curve.png"
+  },
+  "cid_reference_count_expected": 1,
+  "mailbox_html_rendering_observed": true,
+  "recipient_plaintext_stored": false,
+  "raw_mime_stored": false,
+  "receipt_evidence_scope": "connected_mailbox_metadata_and_mime_part_inventory_only",
+  "portfolio_mutation": false,
+  "ledger_write": false,
+  "funding_authority": false,
+  "execution_authority": false,
+  "activation_authority": false,
+  "production_delivery_authority": false
+}

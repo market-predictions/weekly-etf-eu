@@ -1,0 +1,129 @@
+schema_version: weekly_etf_donor_surface_contract_v1
+status: shadow_required
+source_repository: market-predictions/weekly-etf
+source_report_reference: output/weekly_analysis_pro_nl_260724_02.md
+purpose: enforce sister-report section and table parity without copying US instruments
+
+required_sections:
+  - id: "1"
+    nl: Kernsamenvatting
+    en: Executive summary
+    required_surface: narrative_summary
+  - id: "2"
+    nl: Portefeuille-acties
+    en: Portfolio actions
+    required_surface: action_table
+  - id: "2A"
+    nl: Besliscockpit
+    en: Decision cockpit
+    required_surface: cockpit_cards
+  - id: "3"
+    nl: Regime-dashboard
+    en: Regime dashboard
+    required_surface: regime_table
+  - id: "4"
+    nl: Structurele kansenradar
+    en: Structural opportunity radar
+    required_surface: opportunity_table
+  - id: "4A"
+    nl: Vermijdings- en shortkansenradar
+    en: Avoidance and short-opportunity radar
+    required_surface: avoidance_table
+  - id: "5"
+    nl: Belangrijkste risico’s / invalidaties
+    en: Key risks / invalidations
+    required_surface: risk_table
+  - id: "6"
+    nl: Conclusie
+    en: Bottom line
+    required_surface: conclusion_summary
+  - id: "7"
+    nl: Portefeuillecurve en portefeuilleontwikkeling
+    en: Portfolio curve and development
+    required_surface: png_chart_and_history_table
+  - id: "7A"
+    nl: Rendement huidige ETF-posities
+    en: Current ETF position performance
+    required_surface: position_performance_table
+  - id: "8"
+    nl: Allocatiekaart
+    en: Allocation map
+    required_surface: allocation_table
+  - id: "9"
+    nl: Tweede-orde-effectenkaart
+    en: Second-order effects map
+    required_surface: second_order_table
+  - id: "10"
+    nl: Review huidige posities
+    en: Current-position review
+    required_surface: incumbent_review_table
+  - id: "11"
+    nl: Beste nieuwe kansen en vervangingsanalyse
+    en: Best new opportunities and replacement analysis
+    required_surface: replacement_table
+  - id: "12"
+    nl: Rotatieplan portefeuille
+    en: Portfolio rotation plan
+    required_surface: rotation_table
+  - id: "13"
+    nl: Definitieve actietabel
+    en: Final action table
+    required_surface: final_action_table
+  - id: "14"
+    nl: Voorgestelde positiewijzigingen / rotatie-intenties
+    en: Proposed position changes / rotation intents
+    required_surface: transition_intent_table
+  - id: "15"
+    nl: Huidige posities en cash
+    en: Current positions and cash
+    required_surface: holdings_and_cash_table
+  - id: "16"
+    nl: Input voor de volgende run
+    en: Input for the next run
+    required_surface: canonical_continuity_block
+
+required_table_headers:
+  nl:
+    action_table: [Exposure, Actie, UCITS-implementatie, Huidig gewicht, Afwijkingsreden]
+    regime_table: [Onderdeel, Lezing, Implicatie]
+    opportunity_table: [Rang, Thema, UCITS-kandidaat, Donorscore, Implementatiestatus, Benodigde actie, Blokkade]
+    avoidance_table: [Exposure, Donorhouding, Reden, Wat moet veranderen]
+    risk_table: [Risico, Invalidatie / oplossing]
+    history_table: [Datum, Portefeuillewaarde, Cash, Belegd, Toelichting]
+    position_performance_table: [Portefeuillesegment, Beleggingsthese, ETF, Gewicht %, 1w rendement, 1m rendement, 3m rendement, Sinds instap, P/L EUR, Bijdrage %]
+    allocation_table: [Segment, Positionering, Toelichting]
+    second_order_table: [Drijver, Eerste-orde-effect, Tweede-orde-effect, Waarschijnlijke winnaars, ETF EU-implicatie, Timing, Vertrouwen]
+    incumbent_review_table: [Ticker, Actie, Score/tier, Nieuw-kapitaaltoets, Rol, Volgende toets]
+    replacement_table: [Gedeelde kans, UCITS-alternatief, Status, Prijs-/productbasis, Beslisimplicatie]
+    rotation_table: [Sluiten, Verlagen, Aanhouden, Toevoegen / bestemming, Vervangen, Status]
+    final_action_table: [Ticker/exposure, ETF, Huidig gewicht, Doelgewicht, Delta gewicht, Actie, Kapitaalbestemming, Score, Toelichting, Override-status]
+    transition_intent_table: [Bron, Bestemming, Delta bron %, Delta bestemming %, Geschatte waarde EUR, Intentiestatus, Toelichting]
+    holdings_table: [Ticker, Aantal aandelen, Prijs lokaal, Valuta, Marktwaarde lokaal, Marktwaarde EUR, Gewicht %, ISIN]
+  en:
+    action_table: [Exposure, Action, UCITS implementation, Current weight, Divergence reason]
+    regime_table: [Component, Reading, Implication]
+    opportunity_table: [Rank, Theme, UCITS candidate, Donor score, Implementation status, Required action, Blocker]
+    avoidance_table: [Exposure, Donor posture, Reason, What must change]
+    risk_table: [Risk, Invalidation / resolution]
+    history_table: [Date, Portfolio value, Cash, Invested, Comment]
+    position_performance_table: [Portfolio segment, Investment thesis, ETF, Weight %, 1w return, 1m return, 3m return, Since entry, P/L EUR, Contribution %]
+    allocation_table: [Segment, Positioning, Explanation]
+    second_order_table: [Driver, First-order effect, Second-order effect, Likely winners, ETF EU implication, Timing, Confidence]
+    incumbent_review_table: [Ticker, Action, Score/tier, Fresh-cash test, Role, Next test]
+    replacement_table: [Shared opportunity, UCITS alternative, Status, Pricing/product basis, Decision implication]
+    rotation_table: [Close, Reduce, Hold, Add / destination, Replace, Status]
+    final_action_table: [Ticker/exposure, ETF, Current weight, Target weight, Weight delta, Action, Capital destination, Score, Explanation, Override status]
+    transition_intent_table: [Source, Destination, Source delta %, Destination delta %, Estimated value EUR, Intent status, Explanation]
+    holdings_table: [Ticker, Shares, Local price, Currency, Local market value, Market value EUR, Weight %, ISIN]
+
+visual_contract:
+  executive_hero: required
+  summary_cards: required
+  numbered_section_badges: required
+  investor_to_analyst_page_break: required
+  functional_status_badges: required
+  standalone_html_chart_mode: embedded_data_uri_png
+  future_email_chart_mode: mime_cid_png
+  inline_svg_in_email: forbidden
+  bilingual_same_state: required
+  minimum_table_count: 15

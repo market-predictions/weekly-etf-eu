@@ -1,0 +1,68 @@
+schema_version: etf_eu_transition_evidence_basket_v1
+status: shadow_only
+report_currency: EUR
+source_policy: yahoo_yfinance_connectivity_non_authoritative
+lines:
+  - exposure_id: cyber_security
+    registry_id: cybersecurity_ishares_digital_security
+    ticker: LOCK
+    exchange: Xetra
+    venue_code: XETR
+    currency: EUR
+    provider_symbol_yahoo: L0CK.DE
+    isin: IE00BG0J4C88
+    candidate_role: donor_target
+  - exposure_id: ai_compute_infrastructure
+    registry_id: semiconductor_vaneck_smh_ucits
+    ticker: VVSM
+    exchange: Xetra
+    venue_code: XETR
+    currency: EUR
+    provider_symbol_yahoo: VVSM.DE
+    isin: IE00BMC38736
+    candidate_role: donor_target
+  - exposure_id: non_us_developed_equities
+    registry_id: developed_ex_us_ishares_msci_world_ex_usa
+    ticker: IXUA
+    exchange: Xetra
+    venue_code: XETR
+    currency: EUR
+    provider_symbol_yahoo: IXUA.DE
+    isin: IE000R4ZNTN3
+    candidate_role: donor_target_kid_blocked
+  - exposure_id: broad_commodities
+    registry_id: broad_commodities_wisdomtree_pcom
+    ticker: PCOM
+    exchange: Xetra
+    venue_code: XETR
+    currency: EUR
+    provider_symbol_yahoo: PCOM.DE
+    isin: IE00BKY4W127
+    candidate_role: donor_target_structure_review
+  - exposure_id: global_equity_core
+    registry_id: global_core_vanguard_ftse_all_world_acc
+    ticker: VWCE
+    exchange: Xetra
+    venue_code: XETR
+    currency: EUR
+    provider_symbol_yahoo: VWCE.DE
+    isin: IE00BK5BQT80
+    candidate_role: incumbent
+  - exposure_id: aggregate_bonds
+    registry_id: aggregate_bonds_ishares_global_aggregate_eur_hedged_acc
+    ticker: EUNA
+    exchange: Xetra
+    venue_code: XETR
+    currency: EUR
+    provider_symbol_yahoo: EUNA.DE
+    isin: IE00BDBRDM35
+    candidate_role: incumbent
+  - exposure_id: core_us_equity
+    registry_id: core_us_equity_cspx
+    ticker: SXR8
+    exchange: Xetra
+    venue_code: XETR
+    currency: EUR
+    provider_symbol_yahoo: SXR8.DE
+    isin: IE00B5BMR087
+    candidate_role: incumbent

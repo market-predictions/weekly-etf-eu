@@ -1,0 +1,78 @@
+schema_version: etf_eu_stage_2_transition_policy_v1
+status: shadow_only
+contract: control/ETF_EU_STAGE_2_TRANSITION_AND_ROLLBACK_CONTRACT_V1.md
+review_date: 2026-07-29
+
+destination:
+  exposure_id: non_us_developed_equities
+  ticker: IXUA
+  isin: IE000R4ZNTN3
+  exchange: Xetra
+  currency: EUR
+  maximum_destination_weight_pct_nav: 15.0
+  maximum_new_destinations_per_run: 1
+
+limits:
+  protected_cash_floor_pct_nav: 25.0
+  maximum_stage_2_gross_turnover_pct_nav: 15.0
+  maximum_sxr8_reduction_pct_nav_per_run: 5.0
+  minimum_trade_size_pct_nav: 2.0
+  maximum_total_positions: 8
+  estimated_transaction_cost_bps_each_trade: 10.0
+  evidence_maximum_age_calendar_days: 2
+
+funding_sources:
+  - priority: 1
+    source_id: excess_cash_above_floor
+    enabled: true
+  - priority: 2
+    source_id: sxr8_overlap_reduction
+    ticker: SXR8
+    enabled: true
+    maximum_reduction_pct_nav_per_run: 5.0
+    requires:
+      - vwce_remains_funded
+      - destination_cutover_evidence_complete
+      - overlap_review_identifies_sxr8_as_first_reduction_candidate
+  - priority: 3
+    source_id: euna_risk_budget_release
+    ticker: EUNA
+    enabled_by_default: false
+    requires_any:
+      - current_weight_exceeds_maximum_role_weight
+      - defensive_reserve_exceeds_later_policy_cap
+      - low_volatility_diversifier_classification_fails
+    automatic_sale: false
+
+entry_gates:
+  immutable_donor_pin_required: true
+  stage_1_authorized_and_applied_required: true
+  stage_1_receipt_confirmed_required: true
+  official_post_stage_1_state_required: true
+  destination_identity_grade_required: pass
+  destination_document_grade_required: pass
+  destination_valuation_grade_required: pass
+  destination_tradability_grade_required: pass
+  destination_activation_ready_required: true
+  donor_target_presence_required: true
+  donor_fresh_add_direction_required: true
+  eu_strategic_migration_override_requires_separate_decision: true
+  donor_hold_or_monitor_is_not_add_authority: true
+  euna_risk_budget_review_required: true
+  separate_activation_authorization_required: true
+
+rollback:
+  method: state_oriented_separate_authorization
+  preserve_pre_stage_1_official_state: true
+  preserve_post_stage_1_official_state: true
+  automatic_reverse_orders: false
+  infer_orders_from_report_text: false
+  automatic_ledger_rewrite: false
+  immutable_donor_and_eu_refs_required: true
+
+authority:
+  portfolio_mutation: false
+  funding_authority: false
+  execution_authority: false
+  activation_authority: false
+  production_delivery_authority: false

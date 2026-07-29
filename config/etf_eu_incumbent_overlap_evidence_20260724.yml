@@ -1,0 +1,100 @@
+schema_version: etf_eu_incumbent_overlap_evidence_v1
+status: shadow_only
+as_of_policy: latest_official_issuer_observation_available_by_2026-07-27
+portfolio_mutation: false
+funding_authority: false
+execution_authority: false
+methodology:
+  overlap_metric: sum_of_minimum_documented_holding_weights
+  interpretation: lower_bound_only
+  zero_overlap_rule: zero_measured_overlap_is_not_zero_actual_overlap_when_documented_coverage_is_incomplete
+  portfolio_embedded_exposure: current_portfolio_weight_times_documented_thematic_overlap_pct
+funds:
+  VWCE:
+    role: global_equity_core_incumbent
+    isin: IE00BK5BQT80
+    holdings_as_of: 2026-06-30
+    holding_count: 3782
+    country_exposure:
+      US: 61.70
+    source:
+      provider: Vanguard
+      source_type: official_issuer_product_page
+      reference: https://www.vanguard.co.uk/professional/product/etf/equity/9679/ftse-all-world-ucits
+    documented_holdings:
+      - {ticker: NVDA, name: NVIDIA Corp, weight_pct: 4.45028}
+      - {ticker: AAPL, name: Apple Inc, weight_pct: 3.98235}
+      - {ticker: MSFT, name: Microsoft Corp, weight_pct: 2.63978}
+      - {ticker: AMZN, name: Amazon.com Inc, weight_pct: 2.19854}
+      - {ticker: GOOGL, name: Alphabet Inc Class A, weight_pct: 1.99310}
+      - {ticker: TSM, name: Taiwan Semiconductor Manufacturing Co Ltd, weight_pct: 1.75122}
+      - {ticker: AVGO, name: Broadcom Inc, weight_pct: 1.67120}
+      - {ticker: GOOG, name: Alphabet Inc Class C, weight_pct: 1.59602}
+      - {ticker: MU, name: Micron Technology Inc, weight_pct: 1.23916}
+      - {ticker: META, name: Meta Platforms Inc, weight_pct: 1.17756}
+  SXR8:
+    role: us_large_cap_core_incumbent
+    isin: IE00B5BMR087
+    holdings_as_of: 2026-07-17
+    holding_count: 504
+    source:
+      provider: iShares
+      source_type: official_issuer_holdings_surface
+      reference: https://www.ishares.com/uk/professional/en/products/253743/ishares-core-s-p-500-ucits-etf
+    documented_holdings:
+      - {ticker: NVDA, name: NVIDIA Corp, weight_pct: 7.65}
+      - {ticker: AAPL, name: Apple Inc, weight_pct: 7.64}
+      - {ticker: MSFT, name: Microsoft Corp, weight_pct: 4.56}
+      - {ticker: AMZN, name: Amazon.com Inc, weight_pct: 3.77}
+      - {ticker: GOOGL, name: Alphabet Inc Class A, weight_pct: 3.17}
+      - {ticker: AVGO, name: Broadcom Inc, weight_pct: 2.73}
+      - {ticker: GOOG, name: Alphabet Inc Class C, weight_pct: 2.55}
+      - {ticker: META, name: Meta Platforms Inc, weight_pct: 2.21}
+      - {ticker: TSLA, name: Tesla Inc, weight_pct: 1.67}
+      - {ticker: MU, name: Micron Technology Inc, weight_pct: 1.49}
+  EUNA:
+    role: aggregate_bond_stabiliser_incumbent
+    isin: IE00BDBRDM35
+    holdings_as_of: 2026-07-20
+    holding_count: 19976
+    source:
+      provider: iShares
+      source_type: official_issuer_product_page
+      reference: https://www.ishares.com/uk/individual/en/products/291770/fund
+    portfolio_characteristics:
+      effective_duration_years: 6.07
+      three_year_standard_deviation_pct: 4.04
+      weighted_average_ytm_pct: 3.97
+    documented_holdings: []
+  VVSM:
+    role: semiconductor_target_candidate
+    isin: IE00BMC38736
+    holdings_as_of: 2026-07-27
+    source:
+      provider: VanEck
+      source_type: official_issuer_top_holdings_surface
+      reference: https://www.vaneck.com/nl/en/semiconductor-etf
+    documented_holdings:
+      - {ticker: MU, name: Micron Technology Inc, weight_pct: 10.97}
+      - {ticker: AMD, name: Advanced Micro Devices Inc, weight_pct: 10.88}
+      - {ticker: TSM, name: Taiwan Semiconductor Manufacturing Co Ltd, weight_pct: 9.90}
+      - {ticker: ASML, name: ASML Holding NV, weight_pct: 9.67}
+      - {ticker: AVGO, name: Broadcom Inc, weight_pct: 8.60}
+      - {ticker: NVDA, name: NVIDIA Corp, weight_pct: 8.46}
+      - {ticker: INTC, name: Intel Corp, weight_pct: 7.79}
+      - {ticker: AMAT, name: Applied Materials Inc, weight_pct: 6.61}
+      - {ticker: LRCX, name: Lam Research Corp, weight_pct: 6.09}
+      - {ticker: KLAC, name: KLA Corp, weight_pct: 4.09}
+  LOCK:
+    role: cybersecurity_target_candidate
+    isin: IE00BG0J4C88
+    holdings_as_of: 2026-07-17
+    holding_count: 116
+    source:
+      provider: iShares
+      source_type: official_issuer_partial_holdings_surface
+      reference: https://www.ishares.com/uk/individual/en/products/297843/ishares-digital-security-ucits-etf
+    documented_holdings:
+      - {ticker: PANW, name: Palo Alto Networks Inc, weight_pct: 3.12}
+      - {ticker: CRWD, name: CrowdStrike Holdings Inc Class A, weight_pct: 2.86}
+      - {ticker: OKTA, name: Okta Inc Class A, weight_pct: 2.82}

@@ -1,0 +1,20 @@
+schema_version: etf_eu_transition_replay_universe_v1
+status: shadow_only
+base_currency: EUR
+source_policy: yahoo_yfinance_adjusted_close_connectivity_non_authoritative
+report_date: 2026-07-27
+minimum_common_trading_days: 60
+maximum_common_trading_days: 252
+cash_daily_return_assumption: 0.0
+symbols:
+  VWCE: VWCE.DE
+  EUNA: EUNA.DE
+  SXR8: SXR8.DE
+  VVSM: VVSM.DE
+  LOCK: L0CK.DE
+boundaries:
+  valuation_grade: false
+  funding_authority: false
+  portfolio_mutation: false
+  execution_authority: false
+  optimization_authority: false

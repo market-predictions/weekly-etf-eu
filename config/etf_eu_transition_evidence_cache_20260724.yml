@@ -1,0 +1,42 @@
+schema_version: etf_eu_transition_evidence_cache_v1
+status: shadow_only
+observation_date: 2026-07-24
+source_quality: cached_prior_successful_non_authoritative_connectivity_only
+funding_authority: false
+valuation_grade: false
+rows:
+  cyber_security:
+    provider_symbol_yahoo: L0CK.DE
+    close_date: 2026-07-24
+    close_price: 10.21399975
+    median_daily_traded_value_eur_20d: 1091676.59
+  ai_compute_infrastructure:
+    provider_symbol_yahoo: VVSM.DE
+    close_date: 2026-07-24
+    close_price: 94.66999817
+    median_daily_traded_value_eur_20d: 33124142.91
+  non_us_developed_equities:
+    provider_symbol_yahoo: IXUA.DE
+    close_date: 2026-07-24
+    close_price: 6.18900013
+    median_daily_traded_value_eur_20d: 1610754.57
+  broad_commodities:
+    provider_symbol_yahoo: PCOM.DE
+    close_date: 2026-07-24
+    close_price: 14.20800018
+    median_daily_traded_value_eur_20d: 80386.02
+  global_equity_core:
+    provider_symbol_yahoo: VWCE.DE
+    close_date: 2026-07-24
+    close_price: 164.27999878
+    median_daily_traded_value_eur_20d: 37324260.16
+  aggregate_bonds:
+    provider_symbol_yahoo: EUNA.DE
+    close_date: 2026-07-24
+    close_price: 4.89190006
+    median_daily_traded_value_eur_20d: 1309711.48
+  core_us_equity:
+    provider_symbol_yahoo: SXR8.DE
+    close_date: 2026-07-24
+    close_price: 704.59997559
+    median_daily_traded_value_eur_20d: 18679583.56

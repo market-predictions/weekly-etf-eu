@@ -1,0 +1,164 @@
+schema_version: shared_exposure_ucits_map_v1
+status: shadow_only
+canonical_identity: shared_exposure_id_to_registry_id
+strategy_source: market-predictions/weekly-etf
+consumer_repository: market-predictions/weekly-etf-eu
+
+rules:
+  require_isin_for_funding: true
+  require_verified_trading_line_for_funding: true
+  require_priips_kid_for_funding: true
+  require_exact_kid_artifact_for_cutover: true
+  require_ucits_etf_under_current_policy: true
+  unresolved_capacity_policy: retain_as_cash
+  mapping_does_not_authorize_allocation: true
+
+# Current funded EU positions that are not necessarily donor target exposures.
+# They remain incumbents and must be re-underwritten; this table is not strategy authority.
+legacy_position_exposures:
+  VWCE: global_equity_core
+  EUNA: aggregate_bonds
+  SXR8: core_us_equity
+
+exposures:
+  ai_compute_infrastructure:
+    portfolio_role: AI compute and semiconductor satellite
+    candidates:
+      - registry_id: semiconductor_vaneck_smh_ucits
+        preferred: true
+        us_references: [SMH, SOXX]
+    unresolved_reason_code: pricing_missing_or_stale
+
+  grid_power:
+    portfolio_role: Grid, infrastructure and electrification satellite
+    candidates:
+      - registry_id: grid_first_trust_nasdaq_clean_edge
+        preferred: true
+        us_references: [GRID, PAVE]
+      - registry_id: grid_xtrackers_electrification_smart_grid
+        preferred: false
+        us_references: [GRID]
+    unresolved_reason_code: pricing_missing_or_stale
+    mapping_note: GRID is the preferred established smart-grid infrastructure implementation; WIRE is a lower-cost newer electrification and smart-grid challenger. Exact KID artifacts, current valuation and tradability evidence remain required before cutover.
+
+  cyber_security:
+    portfolio_role: Cybersecurity resilience satellite
+    candidates:
+      - registry_id: cybersecurity_ishares_digital_security
+        preferred: true
+        us_references: [CIBR, BUG]
+    unresolved_reason_code: pricing_missing_or_stale
+
+  healthcare_quality:
+    portfolio_role: Healthcare quality and defensive growth satellite
+    candidates:
+      - registry_id: healthcare_ishares_msci_world_advanced
+        preferred: true
+        us_references: [XLV, VHT]
+    unresolved_reason_code: pricing_missing_or_stale
+    mapping_note: broad developed-market healthcare implementation; exact KID artifact and cutover market evidence remain required
+
+  defense_resilience:
+    portfolio_role: Defense and sovereign resilience satellite
+    candidates:
+      - registry_id: defense_vaneck_dfen
+        preferred: true
+        us_references: [ITA, XAR]
+    unresolved_reason_code: pricing_missing_or_stale
+    mapping_note: global defense technology and service exposure, including cybersecurity; not a Europe-only implementation
+
+  europe_defense_industry:
+    portfolio_role: European defense and security satellite
+    candidates: []
+    unresolved_reason_code: ucits_identity_unverified
+    research_required: identify and verify a Europe-focused UCITS defense implementation
+    mapping_note: DFEN is global and must not be treated as an exact Europe-only defense implementation
+
+  agri_food_security:
+    portfolio_role: Food security and agriculture-input satellite
+    candidates:
+      - registry_id: agriculture_ishares_agribusiness
+        preferred: true
+        us_references: [MOO]
+    unresolved_reason_code: pricing_missing_or_stale
+    mapping_note: producer-focused agribusiness implementation; exact KID artifact and cutover market evidence remain required
+
+  broad_commodities:
+    portfolio_role: Broad commodity and inflation-sensitive ballast
+    candidates:
+      - registry_id: broad_commodities_wisdomtree_pcom
+        preferred: true
+        us_references: [GSG]
+    unresolved_reason_code: pricing_missing_or_stale
+    mapping_note: synthetic UCITS implementation requires counterparty, collateral and portfolio-role review
+
+  non_us_developed_equities:
+    portfolio_role: Developed markets outside the United States
+    candidates:
+      - registry_id: developed_ex_us_ishares_msci_world_ex_usa
+        preferred: true
+        us_references: [IEFA, EFA]
+    unresolved_reason_code: pricing_missing_or_stale
+    mapping_note: VWCE is global equity and must not be counted as an exact developed-ex-US implementation; IXUA issuer KID availability is confirmed but the exact accepted KID artifact remains a cutover blocker
+
+  uranium_nuclear:
+    portfolio_role: Uranium and nuclear fuel-cycle satellite
+    candidates:
+      - registry_id: uranium_nuclear_vaneck_nukl
+        preferred: true
+        us_references: [URA, URNM]
+    unresolved_reason_code: pricing_missing_or_stale
+    mapping_note: direct uranium-mining and nuclear-energy-infrastructure implementation with exact KID artifact captured
+
+  biotech_innovation:
+    portfolio_role: Biotech innovation satellite
+    candidates:
+      - registry_id: biotech_ishares_nasdaq_us_biotechnology
+        preferred: true
+        us_references: [IBB, XBI]
+    unresolved_reason_code: pricing_missing_or_stale
+    mapping_note: direct Nasdaq biotechnology implementation; exact KID artifact and cutover market evidence remain required
+
+  power_utilities_capex:
+    portfolio_role: Defensive utilities and power-infrastructure satellite
+    candidates:
+      - registry_id: power_infrastructure_vaneck_electrification
+        preferred: true
+        us_references: [XLU, PAVE]
+      - registry_id: utilities_state_street_msci_world
+        preferred: false
+        us_references: [XLU]
+    unresolved_reason_code: pricing_missing_or_stale
+    mapping_note: P1KA is the preferred direct electrification and power-infrastructure candidate; WUTI remains a broader utilities fallback. Both require current valuation, liquidity and overlap review before any allocation.
+
+  global_equity_core:
+    portfolio_role: Global core equity
+    candidates:
+      - registry_id: global_core_vanguard_ftse_all_world_acc
+        preferred: true
+        us_references: [VT]
+    unresolved_reason_code: pricing_missing_or_stale
+
+  core_us_equity:
+    portfolio_role: Core United States equity
+    candidates:
+      - registry_id: core_us_equity_cspx
+        preferred: true
+        us_references: [SPY]
+    unresolved_reason_code: pricing_missing_or_stale
+
+  aggregate_bonds:
+    portfolio_role: Stabilising global aggregate bonds
+    candidates:
+      - registry_id: aggregate_bonds_ishares_global_aggregate_eur_hedged_acc
+        preferred: true
+        us_references: [AGG]
+    unresolved_reason_code: pricing_missing_or_stale
+
+  gold_policy:
+    portfolio_role: Gold and hard-asset hedge
+    candidates:
+      - registry_id: gold_ishares_physical_gold_etc
+        preferred: true
+        us_references: [GLD]
+    unresolved_reason_code: product_type_blocked

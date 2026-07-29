@@ -1,0 +1,127 @@
+name: Validate ETF EU shadow CID live delivery
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - ".github/workflows/validate-etf-eu-shadow-cid-live-delivery.yml"
+      - "control/run_queue/etf_eu_shadow_cid_delivery_request_*.md"
+      - "runtime/send_etf_eu_shadow_cid_delivery.py"
+      - "tools/validate_etf_eu_shadow_cid_transport.py"
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  verify-live-shadow-delivery:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout shadow branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Resolve exact queue commit and delivery run
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          REQUEST_PATH="$(find control/run_queue -maxdepth 1 -type f -name 'etf_eu_shadow_cid_delivery_request_*.md' | sort | tail -1)"
+          test -n "$REQUEST_PATH"
+          QUEUE_COMMIT_SHA="$(git log -1 --format=%H -- "$REQUEST_PATH")"
+          SHADOW_RUN_ID="$(awk -F= '$1 == "shadow_run_id" {print $2}' "$REQUEST_PATH" | tail -1 | tr -d '\r' | xargs)"
+          SEND_CONFIRMATION="$(awk -F= '$1 == "send_confirmation" {print $2}' "$REQUEST_PATH" | tail -1 | tr -d '\r' | xargs)"
+          test "$SEND_CONFIRMATION" = "confirm_shadow_cid_send"
+          RUNS_JSON="$(gh api "repos/${GITHUB_REPOSITORY}/actions/workflows/send-etf-eu-shadow-cid-delivery.yml/runs?branch=sync/donor-report-parity&event=push&per_page=30")"
+          DELIVERY_RUN="$(printf '%s' "$RUNS_JSON" | jq -c --arg sha "$QUEUE_COMMIT_SHA" '.workflow_runs[] | select(.head_sha == $sha)' | head -1)"
+          if [ -z "$DELIVERY_RUN" ]; then
+            echo "ETF_EU_SHADOW_CID_LIVE_RUN_NOT_FOUND | queue_commit=$QUEUE_COMMIT_SHA" >&2
+            exit 1
+          fi
+          DELIVERY_RUN_ID="$(printf '%s' "$DELIVERY_RUN" | jq -r '.id')"
+          DELIVERY_STATUS="$(printf '%s' "$DELIVERY_RUN" | jq -r '.status')"
+          DELIVERY_CONCLUSION="$(printf '%s' "$DELIVERY_RUN" | jq -r '.conclusion')"
+          echo "REQUEST_PATH=$REQUEST_PATH" >> "$GITHUB_ENV"
+          echo "QUEUE_COMMIT_SHA=$QUEUE_COMMIT_SHA" >> "$GITHUB_ENV"
+          echo "SHADOW_RUN_ID=$SHADOW_RUN_ID" >> "$GITHUB_ENV"
+          echo "DELIVERY_RUN_ID=$DELIVERY_RUN_ID" >> "$GITHUB_ENV"
+          echo "DELIVERY_STATUS=$DELIVERY_STATUS" >> "$GITHUB_ENV"
+          echo "DELIVERY_CONCLUSION=$DELIVERY_CONCLUSION" >> "$GITHUB_ENV"
+          echo "ETF_EU_SHADOW_CID_LIVE_RUN | run=$DELIVERY_RUN_ID | status=$DELIVERY_STATUS | conclusion=$DELIVERY_CONCLUSION"
+          if [ "$DELIVERY_STATUS" != "completed" ]; then
+            echo "ETF_EU_SHADOW_CID_LIVE_RUN_NOT_COMPLETED" >&2
+            exit 1
+          fi
+          if [ "$DELIVERY_CONCLUSION" != "success" ]; then
+            gh run view "$DELIVERY_RUN_ID" --repo "$GITHUB_REPOSITORY" --log-failed || true
+            echo "ETF_EU_SHADOW_CID_LIVE_RUN_FAILED | run=$DELIVERY_RUN_ID | conclusion=$DELIVERY_CONCLUSION" >&2
+            exit 1
+          fi
+
+      - name: Download and validate SMTP transport evidence
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          mkdir -p output/shadow_cid/live_verification/source
+          gh run download "$DELIVERY_RUN_ID" \
+            --repo "$GITHUB_REPOSITORY" \
+            --name "etf-eu-shadow-cid-delivery-${SHADOW_RUN_ID}" \
+            --dir output/shadow_cid/live_verification/source
+          TRANSPORT="$(find output/shadow_cid/live_verification/source -type f -name "etf_eu_shadow_cid_transport_${SHADOW_RUN_ID}.json" -print -quit)"
+          test -n "$TRANSPORT"
+          python tools/validate_etf_eu_shadow_cid_transport.py "$TRANSPORT" --require-send \
+            | tee output/shadow_cid/live_verification/transport_validation.json
+
+      - name: Write redacted live-delivery verification
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          source = next(Path("output/shadow_cid/live_verification/source").rglob(f"etf_eu_shadow_cid_transport_{os.environ['SHADOW_RUN_ID']}.json"))
+          transport = json.loads(source.read_text(encoding="utf-8"))
+          payload = {
+              "schema_version": "etf_eu_shadow_cid_live_delivery_verification_v1",
+              "artifact_type": "etf_eu_shadow_cid_live_delivery_verification",
+              "shadow_run_id": os.environ["SHADOW_RUN_ID"],
+              "queue_request_path": os.environ["REQUEST_PATH"],
+              "queue_commit_sha": os.environ["QUEUE_COMMIT_SHA"],
+              "delivery_workflow_run_id": int(os.environ["DELIVERY_RUN_ID"]),
+              "delivery_status": os.environ["DELIVERY_STATUS"],
+              "delivery_conclusion": os.environ["DELIVERY_CONCLUSION"],
+              "smtp_transport_success": transport.get("smtp_transport_success"),
+              "message_id": transport.get("message_id"),
+              "subject": transport.get("subject"),
+              "attachment_count": (transport.get("mime_structure") or {}).get("attachment_count"),
+              "cid_reference_count": (transport.get("html_checks") or {}).get("cid_reference_count"),
+              "receipt_confirmed": False,
+              "recipient_plaintext_stored": False,
+              "raw_mime_stored": False,
+              "portfolio_mutation": False,
+              "ledger_write": False,
+              "funding_authority": False,
+              "execution_authority": False,
+              "activation_authority": False,
+              "production_delivery_authority": False,
+          }
+          path = Path("output/shadow_cid/live_verification/etf_eu_shadow_cid_live_delivery_verification.json")
+          path.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
+          print(path)
+          PY
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: etf-eu-shadow-cid-live-delivery-verification
+          path: output/shadow_cid/live_verification/
+          if-no-files-found: error
+          retention-days: 30
