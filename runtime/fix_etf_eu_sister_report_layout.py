@@ -15,6 +15,15 @@ th, td { overflow-wrap: anywhere; word-break: normal; hyphens: auto; }
 tr { break-inside: avoid; page-break-inside: avoid; }
 .status { white-space: normal; line-height: 1.15; }
 .wide-table { font-size: 6.45pt; }
+/* Keep the simple four-point portfolio curve and three-row performance ledger
+   together without removing evidence or shrinking the full report globally. */
+#section-7 .equity-chart { max-height: 250px; margin-top: 3px; margin-bottom: 6px; }
+#section-7 table { font-size: 6.65pt; }
+#section-7 th, #section-7 td { padding: 4px 4px; line-height: 1.22; }
+#section-7A { padding-top: 9px; padding-bottom: 9px; }
+#section-7A .section-head { margin-bottom: 5px; }
+#section-7A table { font-size: 5.85pt; }
+#section-7A th, #section-7A td { padding: 2.5px 3px; line-height: 1.15; }
 /* The renderer's zero-height divider produced an empty physical page. Hide the
    marker and place the page break on the first analyst section itself. */
 .analyst-divider { display: none !important; break-before: auto !important; page-break-before: auto !important; }
@@ -57,11 +66,11 @@ def fix_layout(manifest_path: Path) -> None:
             html_path.write_text(text, encoding="utf-8")
         HTML(string=text, base_url=str(html_path.parent.resolve())).write_pdf(pdf_path)
         files["layout_fix_applied"] = True
-        files["layout_fix_scope"] = "wide_table_wrapping_row_integrity_and_analyst_page_break"
+        files["layout_fix_scope"] = "wide_table_wrapping_row_integrity_chart_performance_compaction_and_analyst_page_break"
 
     manifest["layout_fix"] = {
         "applied": True,
-        "scope": "wide_table_wrapping_row_integrity_and_analyst_page_break",
+        "scope": "wide_table_wrapping_row_integrity_chart_performance_compaction_and_analyst_page_break",
         "portfolio_mutation": False,
         "recommendation_change": False,
         "valuation_change": False,
