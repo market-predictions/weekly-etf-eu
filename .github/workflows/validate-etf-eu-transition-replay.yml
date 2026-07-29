@@ -18,6 +18,7 @@ on:
       - "runtime/build_etf_eu_euna_risk_budget_review.py"
       - "runtime/build_etf_eu_euna_risk_budget_review_jsonsafe.py"
       - "runtime/build_etf_eu_stage_2_readiness.py"
+      - "runtime/build_etf_eu_stage_2_readiness_v2.py"
       - "runtime/build_etf_eu_incumbent_overlap_review.py"
       - "runtime/build_etf_eu_target_allocator_shadow_v3.py"
       - "runtime/build_etf_eu_target_allocator_shadow_v3_policy_gate.py"
@@ -132,7 +133,7 @@ jobs:
 
       - name: Build and validate blocked Stage-2 readiness
         run: |
-          python runtime/build_etf_eu_stage_2_readiness.py \
+          python runtime/build_etf_eu_stage_2_readiness_v2.py \
             --allocator output/sync_shadow/etf_eu_target_allocator_shadow.json \
             --sync-shadow output/sync_shadow/etf_eu_strategy_sync_shadow.json \
             --product-evidence config/etf_eu_cutover_product_evidence_20260728.yml \
