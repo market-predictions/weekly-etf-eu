@@ -1,0 +1,101 @@
+schema_version: ucits_symbol_registry_sync_additions_v1
+status: shadow_only
+consumer_repository: market-predictions/weekly-etf-eu
+research_date: "2026-07-29"
+rules:
+  production_registry_overwrite: false
+  mapping_does_not_authorize_allocation: true
+  official_issuer_identity_required: true
+  exact_trading_line_required: true
+  priips_kid_required_for_funding: true
+  exact_kid_artifact_required_for_cutover: true
+
+funds:
+  - registry_id: grid_first_trust_nasdaq_clean_edge
+    fund_name: First Trust Nasdaq Clean Edge Smart Grid Infrastructure UCITS ETF Acc
+    provider: First Trust Global Portfolios
+    isin: IE000J80JTL1
+    instrument_type: UCITS ETF
+    domicile: Ireland
+    replication_method: physical_full_replication
+    ucits_status: confirmed
+    priips_kid_status: available
+    kid_artifact_status: available_not_captured
+    ter_pct: 0.63
+    distribution_policy: accumulating
+    us_research_proxy: GRID
+    mapping_role: smart grid and electric infrastructure
+    evidence:
+      issuer_product_page: https://www.ftglobalportfolios.com/de/retail/Products/Nasdaq-Clean-Edge-Smart-Grid-Infrastructure/
+      exchange_reference: https://live.deutsche-boerse.com/en/etf/first-trust-nasdaq-clean-edge-smart-grid-infrastructure-ucits-etf?currency=EUR
+      identity_status: verified_official_issuer_and_exchange
+      line_status: verified_official_exchange
+      exposure_note: tracks companies active in smart-grid and electric-infrastructure development; exact KID artifact and current market evidence remain required
+    trading_lines:
+      - exchange: Xetra
+        venue_code: XETR
+        exchange_ticker: GRID
+        trading_currency: EUR
+        line_verification_status: verified_ucits_trading_line_official_exchange
+        issuer_bloomberg_ticker: GRID GY
+        wkn: A3DGK5
+        primary_line: true
+
+  - registry_id: grid_xtrackers_electrification_smart_grid
+    fund_name: Xtrackers Electrification Technologies & Smart Grid UCITS ETF 1C
+    provider: DWS / Xtrackers
+    isin: IE000O7Q2E56
+    instrument_type: UCITS ETF
+    domicile: Ireland
+    replication_method: physical_full_replication
+    ucits_status: confirmed
+    priips_kid_status: available
+    kid_artifact_status: available_not_captured
+    ter_pct: 0.35
+    distribution_policy: accumulating
+    us_research_proxy: GRID
+    mapping_role: global electrification technologies and smart-grid infrastructure
+    evidence:
+      issuer_product_page: https://etf.dws.com/en-gb/about-us/press-releases/dws-expands-its-xtrackers-lineup-and-launches-a-ucits-etf-focused-on-electrification-and-smart-grid-technologies/
+      exchange_reference: https://www.cashmarket.deutsche-boerse.com/cash-en/Stay-Informed/newsroom/press-releases/New-ETF-and-ETP-Listings-on-April-22-2026-on-Deutsche-B-rse-5095710
+      identity_status: verified_official_issuer_and_exchange
+      line_status: verified_official_issuer_and_exchange
+      exposure_note: targets power generation, storage, transmission and smart-grid technologies; newer and smaller than the preferred GRID implementation
+    trading_lines:
+      - exchange: Xetra
+        venue_code: XETR
+        exchange_ticker: WIRE
+        trading_currency: EUR
+        line_verification_status: verified_ucits_trading_line_official_issuer_and_exchange
+        issuer_bloomberg_ticker: WIRE GY
+        issuer_ric: WIRED.DE
+        primary_line: true
+
+  - registry_id: power_infrastructure_vaneck_electrification
+    fund_name: VanEck Electrification and Power Infrastructure UCITS ETF
+    provider: VanEck
+    isin: IE000YYVSM16
+    instrument_type: UCITS ETF
+    domicile: Ireland
+    replication_method: physical_full_replication
+    ucits_status: confirmed
+    priips_kid_status: available
+    kid_artifact_status: available_not_captured
+    ter_pct: 0.55
+    distribution_policy: accumulating
+    us_research_proxy: XLU
+    mapping_role: electrification and power-infrastructure capex
+    evidence:
+      issuer_product_page: https://www.vaneck.com/nl/nl/investments/electrification-and-power-infrastructure-etf/index
+      exchange_reference: https://live.deutsche-boerse.com/etf/vaneck-electrification-and-power-infrastructure-ucits-etf?currency=EUR
+      identity_status: verified_official_issuer_and_exchange
+      line_status: verified_official_issuer_and_exchange
+      exposure_note: targets grid modernization, electricity transmission, storage, industrial electrification and electric utilities; exact KID artifact and current liquidity evidence remain required
+    trading_lines:
+      - exchange: Xetra
+        venue_code: XETR
+        exchange_ticker: P1KA
+        trading_currency: EUR
+        line_verification_status: verified_ucits_trading_line_official_issuer_and_exchange
+        wkn: A42AR1
+        primary_line: true
