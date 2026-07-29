@@ -16,6 +16,7 @@ on:
       - "runtime/finalize_etf_eu_promoted_candidate_contract.py"
       - "runtime/finalize_etf_eu_policy_reconciliation_surface.py"
       - "runtime/compact_etf_eu_policy_transition_surface.py"
+      - "runtime/fix_etf_eu_sister_report_layout.py"
       - "runtime/finalize_etf_eu_policy_report_pagination.py"
       - "runtime/finalize_etf_eu_report_output_contract.py"
       - "runtime/build_etf_eu_incumbent_overlap_review.py"
