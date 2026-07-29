@@ -12,12 +12,30 @@ if __package__ in (None, ""):
 from tools import validate_etf_eu_target_allocator_report_surface_v2 as base
 
 
-COMPACT_NL_TERMS = (
-    "Beleidsgestuurd",
-    "Voorgestelde fase-1 allocatie",
-    "Huidige posities",
-    "Halfgeleiderlimiet",
-)
+COMPACT_TERMS = {
+    "nl": (
+        "Beleidsgestuurd",
+        "Voorgestelde fase-1 allocatie",
+        "Bestaande posities blijven ongewijzigd",
+        "Halfgeleiderlimiet",
+    ),
+    "en": (
+        "Policy-driven cash-first migration",
+        "Proposed policy-driven stage-1 allocation",
+        "Current positions remain unchanged",
+        "Effective semiconductor cap",
+    ),
+}
+
+REMOVED_BY_COMPACTION = {
+    "nl allocator surface missing: Beleidsgestuurde cash-first migratie",
+    "nl allocator surface missing: Voorgestelde beleidsgestuurde fase-1 allocatie",
+    "nl allocator surface missing: Behandeling huidige posities",
+    "nl allocator surface missing: Effectieve halfgeleiderlimiet",
+    "en allocator surface missing: Treatment of current positions",
+    'nl allocator table missing: class="data-table allocator-legacy-table"',
+    'en allocator table missing: class="data-table allocator-legacy-table"',
+}
 
 
 def load(path: Path) -> dict[str, Any]:
@@ -28,23 +46,26 @@ def load(path: Path) -> dict[str, Any]:
 
 
 def validate(manifest: dict[str, Any]) -> list[str]:
-    original = base.validate(manifest)
-    compact_blocker_fragments = (
-        "nl allocator surface missing: Beleidsgestuurde cash-first migratie",
-        "nl allocator surface missing: Voorgestelde beleidsgestuurde fase-1 allocatie",
-        "nl allocator surface missing: Behandeling huidige posities",
-        "nl allocator surface missing: Effectieve halfgeleiderlimiet",
-    )
-    blockers = [blocker for blocker in original if blocker not in compact_blocker_fragments]
-    files = (manifest.get("languages") or {}).get("nl") if isinstance((manifest.get("languages") or {}).get("nl"), dict) else {}
-    path = Path(str(files.get("html") or ""))
-    if not path.is_file():
-        blockers.append("missing Dutch HTML for compact allocator validation")
-    else:
+    blockers = [blocker for blocker in base.validate(manifest) if blocker not in REMOVED_BY_COMPACTION]
+
+    compaction = manifest.get("policy_transition_compaction") if isinstance(manifest.get("policy_transition_compaction"), dict) else {}
+    if compaction.get("applied") is not True:
+        blockers.append("policy transition compaction marker missing")
+    if compaction.get("incumbent_evidence_remains_in_sections") != ["10", "13", "15"]:
+        blockers.append("compacted incumbent evidence lineage is incomplete")
+    removed = compaction.get("duplicate_incumbent_block_removed_by_language") if isinstance(compaction.get("duplicate_incumbent_block_removed_by_language"), dict) else {}
+    for language in ("nl", "en"):
+        if removed.get(language) is not True:
+            blockers.append(f"{language} duplicate incumbent block was not explicitly compacted")
+        files = (manifest.get("languages") or {}).get(language) if isinstance((manifest.get("languages") or {}).get(language), dict) else {}
+        path = Path(str(files.get("html") or ""))
+        if not path.is_file():
+            blockers.append(f"missing {language} HTML for compact allocator validation")
+            continue
         text = path.read_text(encoding="utf-8")
-        for term in COMPACT_NL_TERMS:
+        for term in COMPACT_TERMS[language]:
             if term not in text:
-                blockers.append(f"Dutch compact allocator surface missing: {term}")
+                blockers.append(f"{language} compact allocator surface missing: {term}")
     return blockers
 
 
