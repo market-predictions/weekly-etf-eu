@@ -7,11 +7,33 @@ from typing import Any
 import yaml
 
 
+DEFAULT_ADDITIONS = (
+    Path("config/ucits_symbol_registry_sync_additions.yml"),
+    Path("config/ucits_symbol_registry_sync_additions_wp09.yml"),
+)
+
+
 def load_yaml(path: Path) -> dict[str, Any]:
     if not path.is_file():
         raise RuntimeError(f"Registry file is missing: {path}")
     payload = yaml.safe_load(path.read_text(encoding="utf-8"))
     return payload if isinstance(payload, dict) else {}
+
+
+def combine_additions(payloads: list[dict[str, Any]]) -> dict[str, Any]:
+    funds: list[dict[str, Any]] = []
+    schema_versions: list[str] = []
+    for payload in payloads:
+        schema_version = str(payload.get("schema_version") or "").strip()
+        if schema_version:
+            schema_versions.append(schema_version)
+        funds.extend(row for row in (payload.get("funds") or []) if isinstance(row, dict))
+    return {
+        "schema_version": "+".join(schema_versions),
+        "status": "shadow_only",
+        "funds": funds,
+        "supplemental_registry_schema_versions": schema_versions,
+    }
 
 
 def merge(base: dict[str, Any], additions: dict[str, Any]) -> dict[str, Any]:
@@ -42,6 +64,7 @@ def merge(base: dict[str, Any], additions: dict[str, Any]) -> dict[str, Any]:
         "status": "shadow_only",
         "base_registry_schema_version": base.get("schema_version"),
         "supplemental_registry_schema_version": additions.get("schema_version"),
+        "supplemental_registry_schema_versions": additions.get("supplemental_registry_schema_versions") or [],
         "production_registry_overwrite": False,
         "funds": [by_id[registry_id] for registry_id in order],
         "merge_evidence": {
@@ -59,11 +82,14 @@ def merge(base: dict[str, Any], additions: dict[str, Any]) -> dict[str, Any]:
 def main() -> None:
     parser = argparse.ArgumentParser(description="Merge production and shadow UCITS registries without mutating the base registry")
     parser.add_argument("--base", type=Path, default=Path("config/ucits_symbol_registry.yml"))
-    parser.add_argument("--additions", type=Path, default=Path("config/ucits_symbol_registry_sync_additions.yml"))
+    parser.add_argument("--additions", type=Path, action="append", default=None)
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
 
-    result = merge(load_yaml(args.base), load_yaml(args.additions))
+    addition_paths = args.additions or list(DEFAULT_ADDITIONS)
+    combined = combine_additions([load_yaml(path) for path in addition_paths])
+    result = merge(load_yaml(args.base), combined)
+    result["merge_evidence"]["supplemental_registry_paths"] = [str(path) for path in addition_paths]
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(yaml.safe_dump(result, sort_keys=False, allow_unicode=True), encoding="utf-8")
     print(args.output)
