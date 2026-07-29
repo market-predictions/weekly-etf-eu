@@ -17,13 +17,13 @@ tr { break-inside: avoid; page-break-inside: avoid; }
 .wide-table { font-size: 6.45pt; }
 /* Keep the simple four-point portfolio curve and three-row performance ledger
    together without removing evidence or shrinking the full report globally. */
-#section-7 .equity-chart { max-height: 250px; margin-top: 3px; margin-bottom: 6px; }
+#section-7 .equity-chart { max-height: 180px; margin-top: 3px; margin-bottom: 5px; }
 #section-7 table { font-size: 6.65pt; }
 #section-7 th, #section-7 td { padding: 4px 4px; line-height: 1.22; }
-#section-7A { padding-top: 9px; padding-bottom: 9px; }
-#section-7A .section-head { margin-bottom: 5px; }
-#section-7A table { font-size: 5.85pt; }
-#section-7A th, #section-7A td { padding: 2.5px 3px; line-height: 1.15; }
+#section-7A { padding-top: 8px; padding-bottom: 8px; }
+#section-7A .section-head { margin-bottom: 4px; }
+#section-7A table { font-size: 5.75pt; }
+#section-7A th, #section-7A td { padding: 2px 3px; line-height: 1.12; }
 /* The renderer's zero-height divider produced an empty physical page. Hide the
    marker and place the page break on the first analyst section itself. */
 .analyst-divider { display: none !important; break-before: auto !important; page-break-before: auto !important; }
