@@ -31,10 +31,15 @@ exposures:
 
   grid_power:
     portfolio_role: Grid, infrastructure and electrification satellite
-    candidates: []
-    unresolved_reason_code: ucits_identity_unverified
-    research_required: capture the exact official ISIN and verified European trading line for First Trust Nasdaq Clean Edge Smart Grid Infrastructure UCITS ETF before mapping
-    mapping_note: official product existence is confirmed, but product identity and exact line evidence are incomplete
+    candidates:
+      - registry_id: grid_first_trust_nasdaq_clean_edge
+        preferred: true
+        us_references: [GRID, PAVE]
+      - registry_id: grid_xtrackers_electrification_smart_grid
+        preferred: false
+        us_references: [GRID]
+    unresolved_reason_code: pricing_missing_or_stale
+    mapping_note: GRID is the preferred established smart-grid infrastructure implementation; WIRE is a lower-cost newer electrification and smart-grid challenger. Exact KID artifacts, current valuation and tradability evidence remain required before cutover.
 
   cyber_security:
     portfolio_role: Cybersecurity resilience satellite
@@ -116,10 +121,15 @@ exposures:
 
   power_utilities_capex:
     portfolio_role: Defensive utilities and power-infrastructure satellite
-    candidates: []
-    unresolved_reason_code: ucits_identity_unverified
-    research_required: complete exposure-purity review of State Street SPDR MSCI World Utilities UCITS ETF before canonical mapping
-    mapping_note: WUTI is an officially verified broad utilities candidate, but broad utilities exposure is not automatically equivalent to power-capex exposure
+    candidates:
+      - registry_id: power_infrastructure_vaneck_electrification
+        preferred: true
+        us_references: [XLU, PAVE]
+      - registry_id: utilities_state_street_msci_world
+        preferred: false
+        us_references: [XLU]
+    unresolved_reason_code: pricing_missing_or_stale
+    mapping_note: P1KA is the preferred direct electrification and power-infrastructure candidate; WUTI remains a broader utilities fallback. Both require current valuation, liquidity and overlap review before any allocation.
 
   global_equity_core:
     portfolio_role: Global core equity
