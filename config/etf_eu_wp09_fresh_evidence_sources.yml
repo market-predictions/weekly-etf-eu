@@ -17,6 +17,7 @@ source_policy:
 candidates:
   - exposure_id: ai_compute_infrastructure
     symbol: VVSM
+    exchange_symbol: VVSM
     isin: IE00BMC38736
     fund_name: VanEck Semiconductor UCITS ETF
     exchange: Xetra
@@ -30,6 +31,7 @@ candidates:
     boerse_frankfurt_page_url: https://live.deutsche-boerse.com/en/etf/vaneck-semiconductor-ucits-etf-usd-acc/price-history/historical-prices-and-volumes
   - exposure_id: cyber_security
     symbol: LOCK
+    exchange_symbol: L0CK
     isin: IE00BG0J4C88
     fund_name: iShares Digital Security UCITS ETF
     exchange: Xetra
@@ -40,8 +42,8 @@ candidates:
     official_kid_url: https://www.ishares.com/nl/particuliere-belegger/nl/literature/kiid/eu-priips-ishares-digital-security-ucits-etf-ie00bg0j4c88-nl.pdf?siteEntryPassthrough=true&switchLocale=y
     regulated_exchange_kid_url: https://www.borsaitaliana.it/CAETF/2026-41017-KID-c1fe859f-8db4-42e8-b035-e3397827a1fa.pdf
     expected_kid_date: '2026-04-09'
-    boerse_frankfurt_slug: ishares-digital-security-ucits-etf-usd-acc
-    boerse_frankfurt_page_url: https://live.deutsche-boerse.com/en/etf/ishares-digital-security-ucits-etf-usd-acc/price-history/historical-prices-and-volumes
+    boerse_frankfurt_slug: ishares-digital-security-ucits-etf
+    boerse_frankfurt_page_url: https://live.deutsche-boerse.com/en/etf/ishares-digital-security-ucits-etf?currency=EUR
 external_reference_evidence:
   boerse_frankfurt_history_probe_run: 30295755925
   boerse_frankfurt_history_probe_artifact_id: 8664548810
