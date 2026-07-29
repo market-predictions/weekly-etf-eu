@@ -3,12 +3,13 @@
 ## Snapshot
 
 ```text
-date=2026-07-29
+date=2026-07-30
 repository=market-predictions/weekly-etf-eu
 working_branch=sync/donor-report-parity
 pull_request=66
 operating_mode=routine_production_plus_non_authoritative_sync_cutover_shadow
 selected_next_action=REVIEW_WP_SYNC_00_08_DRAFT_PR_WITHOUT_ACTIVATION
+validated_code_head=034b5f93056d36dfc7a6048b43b650ff434c0516
 ```
 
 The routine production system remains available. The synchronization work in PR #66 is an isolated shadow architecture and has not replaced the official portfolio, trade ledger, production report or routine delivery workflow.
@@ -124,20 +125,70 @@ donor_add_direction_not_confirmed=true
 
 Additional blockers include missing official Stage-1 state and receipt, incomplete IXUA document/valuation/tradability evidence and absent Stage-2 authorization. No executable Stage-2 intents exist.
 
-## Executive sister report
+## Executive sister report output contract
 
-The synchronized Dutch and English shadow reports preserve the donor section/table contract and render as matching 11-page executive reports.
+The synchronized Dutch and English shadow reports now preserve the donor section and table-header contract after all allocator, localization and pagination overlays.
 
-Validated source:
+The repaired final output layer provides:
 
 ```text
-workflow_run_id=30410361517
-source_head_sha=d33169fa513e22ac9197efe4fab9857ebaa6f85f
-artifact_id=8708156245
-artifact_digest=sha256:4ae7cdfb0335587a6eb564434b40ef914775913c76dd3a9bc7b2b21799875b36
+visible_internal_tokens_removed=true
+compact_transition_surface_preserved=true
+final_action_alignment_source_preserved=true
+donor_header_contract_preserved=true
+nl_page_count=11
+en_page_count=11
+blank_pages=0
+orphaned_rows=0
+portfolio_mutation=false
+funding_authority=false
+execution_authority=false
+```
+
+Validated report evidence:
+
+```text
+workflow_run_id=30499071087
+validated_code_head=034b5f93056d36dfc7a6048b43b650ff434c0516
+artifact_id=8742768136
+artifact_digest=sha256:f6cad390bc41502f40b7d38cd14f83f34734c63f3e65cb15093ef3474a3f16d2
+validation_bundle_valid=true
+machine_blockers=[]
+visual_review_passed=true
+```
+
+All report validators passed:
+
+```text
+allocator_surface=true
+incumbent_overlap_surface=true
+policy_reconciliation=true
+promoted_candidate_visibility=true
+transition_compaction=true
+pagination_contract=true
+pdf_layout=true
+sister_report_contract=true
+donor_surface_contract=true
 ```
 
 The shadow report is not the official production report.
+
+## Current PR workflow matrix
+
+All workflows associated with validated code head `034b5f93056d36dfc7a6048b43b650ff434c0516` are green:
+
+```text
+strategy_synchronization=30499071074 success
+cutover_product_evidence=30499071060 success
+target_allocator=30499071076 success
+transition_composition_replay=30499071107 success
+allocator_report=30499071087 success
+shadow_cid_transport=30499071090 success
+shadow_cid_live_delivery_validation=30499071109 success
+blocked_activation_package=30499071071 success
+```
+
+A green workflow matrix validates architecture and shadow artifacts. It does not authorize portfolio activation or production replacement.
 
 ## CID delivery validation
 
