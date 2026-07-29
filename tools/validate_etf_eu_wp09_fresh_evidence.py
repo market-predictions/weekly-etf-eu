@@ -26,6 +26,8 @@ def validate(payload: dict[str, Any]) -> list[str]:
         blockers.append("identity authority finalization missing")
     if identity_finalization.get("exact_exchange_symbol_distinguished_from_portfolio_label") is not True:
         blockers.append("exchange-symbol identity distinction missing")
+    if identity_finalization.get("exact_issuer_kid_allowed_as_product_identity_authority") is not True:
+        blockers.append("exact issuer KID identity authority missing")
     for key in ("portfolio_mutation", "ledger_write", "funding_authority", "execution_authority"):
         if identity_finalization.get(key) is not False:
             blockers.append(f"identity finalization {key} must be false")
@@ -45,7 +47,9 @@ def validate(payload: dict[str, Any]) -> list[str]:
         exchange = identity.get("official_exchange") if isinstance(identity.get("official_exchange"), dict) else {}
         if identity.get("pass") is not True:
             blockers.append(f"{symbol}: exact identity did not pass")
-        if identity.get("authority_rule") != "official_issuer_exact_product_identity_plus_official_deutsche_boerse_exact_xetra_line":
+        if identity.get("issuer_identity_pass") is not True:
+            blockers.append(f"{symbol}: exact issuer product/KID identity did not pass")
+        if identity.get("authority_rule") != "official_issuer_product_page_or_exact_kid_plus_official_deutsche_boerse_exact_xetra_line":
             blockers.append(f"{symbol}: exact identity authority rule missing")
         for check in ("http_200", "isin_match", "wkn_match", "exchange_symbol_match", "xetra_or_mic_match", "eur_match", "pass"):
             if exchange.get(check) is not True:
