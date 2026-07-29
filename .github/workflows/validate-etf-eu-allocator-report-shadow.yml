@@ -17,6 +17,7 @@ on:
       - "runtime/finalize_etf_eu_policy_reconciliation_surface.py"
       - "runtime/compact_etf_eu_policy_transition_surface.py"
       - "runtime/finalize_etf_eu_policy_report_pagination.py"
+      - "runtime/finalize_etf_eu_report_output_contract.py"
       - "runtime/build_etf_eu_incumbent_overlap_review.py"
       - "runtime/build_etf_eu_target_allocator_shadow_v3.py"
       - "runtime/build_etf_eu_target_allocator_shadow_v3_policy_gate.py"
@@ -31,6 +32,8 @@ on:
       - "tools/validate_weekly_etf_donor_contract_pin.py"
       - "tools/run_etf_eu_allocator_report_validation_bundle.py"
       - "tools/validate_etf_eu_sister_report_pdf_layout.py"
+      - "tools/validate_etf_eu_sister_report_shadow.py"
+      - "tools/validate_etf_eu_donor_surface_contract.py"
       - ".github/workflows/validate-etf-eu-allocator-report-shadow.yml"
       - "runtime/build_etf_eu_target_allocator_shadow_v2.py"
       - "pricing/apply_etf_eu_transition_evidence_cache.py"
@@ -161,6 +164,10 @@ jobs:
             output/sync_shadow/report/etf_eu_sister_report_shadow_manifest_20260724.json
           python runtime/finalize_etf_eu_policy_report_pagination.py \
             output/sync_shadow/report/etf_eu_sister_report_shadow_manifest_20260724.json
+          python runtime/finalize_etf_eu_report_output_contract.py \
+            output/sync_shadow/report/etf_eu_sister_report_shadow_manifest_20260724.json \
+            --allocator output/sync_shadow/etf_eu_target_allocator_shadow.json \
+            --sync-shadow output/sync_shadow/etf_eu_strategy_sync_shadow.json
 
       - name: Validate allocator report
         run: |
