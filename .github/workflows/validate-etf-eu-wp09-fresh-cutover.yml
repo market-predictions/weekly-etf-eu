@@ -6,6 +6,7 @@ on:
     paths:
       - "config/etf_eu_wp09_fresh_evidence_sources.yml"
       - "runtime/build_etf_eu_wp09_fresh_evidence.py"
+      - "runtime/finalize_etf_eu_wp09_identity_contract.py"
       - "runtime/build_etf_eu_wp09_activation_decision.py"
       - "tools/validate_etf_eu_wp09_fresh_evidence.py"
       - "tools/validate_etf_eu_wp09_activation_decision.py"
@@ -62,6 +63,9 @@ jobs:
             --ledger output/etf_eu_trade_ledger.csv \
             --run-id "$WP09_RUN_ID" \
             --output "output/cutover/etf_eu_wp09_fresh_product_evidence_${WP09_RUN_ID}.json"
+          python runtime/finalize_etf_eu_wp09_identity_contract.py \
+            "output/cutover/etf_eu_wp09_fresh_product_evidence_${WP09_RUN_ID}.json" \
+            --sources config/etf_eu_wp09_fresh_evidence_sources.yml
 
       - name: Validate fresh evidence contract
         run: |
