@@ -21,6 +21,15 @@ def validate(payload: dict[str, Any]) -> list[str]:
         blockers.append("fresh capture not attempted")
     if payload.get("cached_connectivity_promoted") is not False:
         blockers.append("cached connectivity was promoted")
+    identity_finalization = payload.get("identity_contract_finalization") if isinstance(payload.get("identity_contract_finalization"), dict) else {}
+    if identity_finalization.get("applied") is not True:
+        blockers.append("identity authority finalization missing")
+    if identity_finalization.get("exact_exchange_symbol_distinguished_from_portfolio_label") is not True:
+        blockers.append("exchange-symbol identity distinction missing")
+    for key in ("portfolio_mutation", "ledger_write", "funding_authority", "execution_authority"):
+        if identity_finalization.get(key) is not False:
+            blockers.append(f"identity finalization {key} must be false")
+
     rows = payload.get("candidates") if isinstance(payload.get("candidates"), list) else []
     if {row.get("symbol") for row in rows if isinstance(row, dict)} != {"VVSM", "LOCK"}:
         blockers.append("candidate set must be exactly VVSM and LOCK")
@@ -33,8 +42,14 @@ def validate(payload: dict[str, Any]) -> list[str]:
         kid = row.get("kid") if isinstance(row.get("kid"), dict) else {}
         market = row.get("market_evidence") if isinstance(row.get("market_evidence"), dict) else {}
         liquidity = row.get("liquidity") if isinstance(row.get("liquidity"), dict) else {}
+        exchange = identity.get("official_exchange") if isinstance(identity.get("official_exchange"), dict) else {}
         if identity.get("pass") is not True:
             blockers.append(f"{symbol}: exact identity did not pass")
+        if identity.get("authority_rule") != "official_issuer_exact_product_identity_plus_official_deutsche_boerse_exact_xetra_line":
+            blockers.append(f"{symbol}: exact identity authority rule missing")
+        for check in ("http_200", "isin_match", "wkn_match", "exchange_symbol_match", "xetra_or_mic_match", "eur_match", "pass"):
+            if exchange.get(check) is not True:
+                blockers.append(f"{symbol}: official exchange identity check failed: {check}")
         if kid.get("pass") is not True:
             blockers.append(f"{symbol}: exact KID did not pass")
         if market.get("accepted_completed_close") is None and "accepted_current_xetra_eur_completed_close_not_captured" not in (row.get("blockers") or []):
@@ -45,6 +60,7 @@ def validate(payload: dict[str, Any]) -> list[str]:
             blockers.append(f"{symbol}: failed liquidity lacks blocker")
         if row.get("activation_evidence_pass") is True and row.get("blockers"):
             blockers.append(f"{symbol}: activation pass conflicts with blockers")
+
     donor = payload.get("donor_reunderwriting") if isinstance(payload.get("donor_reunderwriting"), dict) else {}
     if donor.get("both_exposures_present") is not True:
         blockers.append("donor re-underwriting does not contain both exposures")
