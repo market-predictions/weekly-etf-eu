@@ -5,14 +5,14 @@
 ```text
 date=2026-07-30
 repository=market-predictions/weekly-etf-eu
-working_branch=sync/donor-report-parity
-pull_request=66
-operating_mode=routine_production_plus_non_authoritative_sync_cutover_shadow
-selected_next_action=REVIEW_WP_SYNC_00_08_DRAFT_PR_WITHOUT_ACTIVATION
-validated_code_head=034b5f93056d36dfc7a6048b43b650ff434c0516
+working_branch=sync/wp09-fresh-cutover-evidence
+pull_request=68
+operating_mode=routine_production_plus_merged_sync_architecture_plus_fail_closed_cutover_evidence
+selected_next_action=PRESERVE_OFFICIAL_PORTFOLIO_UNTIL_ACCEPTED_XETRA_MARKET_EVIDENCE_AND_DONOR_FRESH_ADD_EXIST
+wp09_status=completed_blocked_not_activation_ready
 ```
 
-The routine production system remains available. The synchronization work in PR #66 is an isolated shadow architecture and has not replaced the official portfolio, trade ledger, production report or routine delivery workflow.
+The read-only synchronization architecture from PR #66 is merged into `main`. WP-SYNC-09 has now completed a fresh product, market and donor-authority review for the two frozen Stage-1 candidates. The evidence capability is valid, but Stage 1 remains blocked.
 
 ## Official EU model portfolio
 
@@ -37,207 +37,139 @@ real_broker_execution=false
 | Position | ISIN | Shares | Model price | Market value | Weight | Official action |
 |---|---|---:|---:|---:|---:|---|
 | VWCE | IE00BK5BQT80 | 151 | €164.28 | €24,806.28 | 24.866766% | Hold |
-| EUNA | IE00BDBRDM35 | 1,526 | €4.8919 | €7,465.04 | 7.483242% | Hold |
+| EUNA | IE00BDBRDM35 | 1,526 | €4.8919 | €7,465.04 | 7.483242% | Hold; no add or sale |
 | SXR8 | IE00B5BMR087 | 10 | €704.60 | €7,046.00 | 7.063180% | Hold; no second tranche |
 
-Official state and ledger preservation evidence:
+Protected-state evidence:
 
 ```text
 portfolio_state_sha256=6642334558818e630f0b22a2500ef44b2489ff237aacca638e81f184c165aa6f
 trade_ledger_sha256=718f0681fe0d1162f9a91c34aa90489eb8566aecb06c12a1a2d9ad251be3e87c
-trade_ledger_record_count=4
+before_after_hashes_equal=true
 portfolio_mutation_performed=false
 ledger_write_performed=false
 ```
 
-## Shared donor contract
+## Merged synchronization architecture
 
-The donor shared-state contract is merged and immutable:
+PR #66 was squash-merged into `main` as shadow architecture only:
 
 ```text
-contract_release_id=weekly_etf_shared_contract_v1_0_0
-donor_repository=market-predictions/weekly-etf
-donor_commit_sha=455201b4736dda41df07644d78b6797282a29fc7
-mutable_donor_branch_allowed=false
+merge_commit=e5cbc1b22b0100ac794927748e5d395e453db4e1
+stage_1_activation_authorized=false
+stage_2_activation_authorized=false
+production_report_replacement=false
+production_delivery_authority=false
 ```
 
-All EU synchronization, allocator, replay and report workflows consume this exact commit.
+The merged capability includes immutable donor consumption, ISIN-first UCITS mapping, policy allocation, incumbent and EUNA review, Stage-2 authority controls, validated bilingual sister-report rendering, CID shadow delivery and blocked cutover packaging.
 
-## Validated Stage-1 shadow
+## WP-SYNC-09 exact product evidence
 
-The preferred policy-constrained simulation remains:
+The fresh capture covered exactly two frozen Stage-1 candidates:
 
-| Component | Shadow result |
-|---|---:|
-| VVSM | 156 simulated shares; 14.804530% |
-| LOCK | 995 simulated shares; 10.187710% |
-| VWCE | Retain 151 shares |
-| EUNA | Retain 1,526 shares |
-| SXR8 | Retain 10 shares |
-| Gross turnover | €24,931.45; 24.992241% NAV |
-| Estimated friction | €24.93 |
-| Projected cash | €35,483.06; 35.569579% NAV |
-| Resulting position count | 5 |
+| Portfolio label | Xetra symbol | ISIN | WKN | Exact identity | Exact current issuer KID |
+|---|---|---|---|---|---|
+| VVSM | VVSM | IE00BMC38736 | A2QC5J | Pass | Pass — 2026-03-27 |
+| LOCK | L0CK | IE00BG0J4C88 | A2JMGE | Pass | Pass — 2026-04-09 |
 
-This is a shadow target only:
+Identity authority requires an exact official issuer product page or exact official issuer KID plus an exact Deutsche Börse line matching ISIN, WKN, exchange symbol, Xetra and EUR. The portfolio label `LOCK` is explicitly distinguished from the exchange symbol `L0CK`.
+
+## WP-SYNC-09 market evidence
+
+Requested latest completed session:
 
 ```text
+2026-07-29
+```
+
+For both candidates:
+
+```text
+official_completed_close_endpoint=HTTP_200_EMPTY_JSON_OBJECT
+official_history_crosscheck=HTTP_200_EMPTY_JSON_OBJECT
+official_timestamped_quote_endpoint=TIMEOUT
+accepted_20_session_liquidity_measurement=false
+cached_2026_07_24_connectivity_promoted=false
+```
+
+Evidence summary:
+
+```text
+candidate_count=2
+identity_pass_count=2
+kid_pass_count=2
+accepted_close_pass_count=0
+timestamped_quote_pass_count=0
+liquidity_pass_count=0
+activation_evidence_pass_count=0
+```
+
+## Current donor re-underwriting
+
+```text
+donor_repository=market-predictions/weekly-etf
+donor_evidence_commit=52f13e190a9f6b0045df175973fdf8d0f6f5f30d
+donor_report_date=2026-07-29
+```
+
+- SMH remains `hold_with_override`, smaller / under review.
+- CIBR remains `hold`, hold / monitor.
+- Both donor exposures are present.
+- No genuine fresh-add direction exists.
+
+## WP-SYNC-09 activation decision
+
+```text
+decision=blocked
+status=blocked_not_activation_ready
+decision_blocker_count=7
 stage_1_activation_authorized=false
 official_state_applied=false
-execution_receipt_exists=false
 executable_trade_intents=[]
 ```
 
-Registry expansion cannot silently reopen Stage-1 selection. The Stage-1 candidate set is explicitly limited to AI compute/semiconductors and cybersecurity until its policy is deliberately versioned.
-
-## EUNA risk-budget decision
-
-The accepted shadow classification is:
+Exact blockers:
 
 ```text
-role=low_volatility_carry_diversifier_not_reliable_equity_hedge
-stage_1_action=hold_current_position_no_add_no_sale
-stage_2_automatic_sale=false
-stage_2_funding_priority=third
+LOCK:accepted_current_eur_completed_close
+LOCK:accepted_liquidity_measurement
+LOCK:timestamped_bid_ask_quote_size
+VVSM:accepted_current_eur_completed_close
+VVSM:accepted_liquidity_measurement
+VVSM:timestamped_bid_ask_quote_size
+donor_fresh_add_direction_absent
 ```
 
-EUNA is not available as a Stage-2 funding source under the current review.
-
-## Stage-2 readiness
-
-The initial capacity-analysis destination is IXUA / developed markets outside the United States.
+## WP-SYNC-09 validation evidence
 
 ```text
-donor_target_weight_pct_nav=24.66
-stage_2_maximum_weight_pct_nav=15.00
-cash_source_capacity_pct_nav=10.569579
-sxr8_source_use_pct_nav=4.430421
-projected_cash_floor_pct_nav=25.00
-euna_source_use_pct_nav=0.00
+workflow_run_id=30501245612
+job_id=90741172521
+validated_head_sha=da90b3f89db1337c267390cc43f84f5e65d1a043
+workflow_conclusion=success
+artifact_id=8743584959
+artifact_digest=sha256:48ec8c7fcdddcf016378ba19dc0398dadd4432404ea240618d054117fa09e2fc
+fresh_evidence_sha256=6c0b21034bdefce2e402741a747126fa1c5bacf7b424e6e3b26e3548d17db62d
+activation_decision_sha256=50b4c3008f9c5678b0a98756b6e7c5ec11a17fbe9fdeb5cb4b854b935519937e
+cutover_manifest_sha256=e8d907c5310ceda5f709672220c6390a7ffd3d73de5a8b466253430cc2bd9c1d
+fresh_evidence_validation=true
+activation_decision_validation=true
+cutover_manifest_validation=true
+protected_state_comparison=true
 ```
 
-Stage 2 is correctly blocked. A donor target and a fresh donor add signal are separate authorities. The current donor direction is `hold_or_monitor`, so:
+Evidence receipt:
 
 ```text
-donor_add_direction_pass=false
-donor_add_direction_not_confirmed=true
+control/evidence/etf_eu_wp09_fresh_cutover_evidence_30501245612_1.json
 ```
-
-Additional blockers include missing official Stage-1 state and receipt, incomplete IXUA document/valuation/tradability evidence and absent Stage-2 authorization. No executable Stage-2 intents exist.
-
-## Executive sister report output contract
-
-The synchronized Dutch and English shadow reports now preserve the donor section and table-header contract after all allocator, localization and pagination overlays.
-
-The repaired final output layer provides:
-
-```text
-visible_internal_tokens_removed=true
-compact_transition_surface_preserved=true
-final_action_alignment_source_preserved=true
-donor_header_contract_preserved=true
-nl_page_count=11
-en_page_count=11
-blank_pages=0
-orphaned_rows=0
-portfolio_mutation=false
-funding_authority=false
-execution_authority=false
-```
-
-Validated report evidence:
-
-```text
-workflow_run_id=30499071087
-validated_code_head=034b5f93056d36dfc7a6048b43b650ff434c0516
-artifact_id=8742768136
-artifact_digest=sha256:f6cad390bc41502f40b7d38cd14f83f34734c63f3e65cb15093ef3474a3f16d2
-validation_bundle_valid=true
-machine_blockers=[]
-visual_review_passed=true
-```
-
-All report validators passed:
-
-```text
-allocator_surface=true
-incumbent_overlap_surface=true
-policy_reconciliation=true
-promoted_candidate_visibility=true
-transition_compaction=true
-pagination_contract=true
-pdf_layout=true
-sister_report_contract=true
-donor_surface_contract=true
-```
-
-The shadow report is not the official production report.
-
-## Current PR workflow matrix
-
-All workflows associated with validated code head `034b5f93056d36dfc7a6048b43b650ff434c0516` are green:
-
-```text
-strategy_synchronization=30499071074 success
-cutover_product_evidence=30499071060 success
-target_allocator=30499071076 success
-transition_composition_replay=30499071107 success
-allocator_report=30499071087 success
-shadow_cid_transport=30499071090 success
-shadow_cid_live_delivery_validation=30499071109 success
-blocked_activation_package=30499071071 success
-```
-
-A green workflow matrix validates architecture and shadow artifacts. It does not authorize portfolio activation or production replacement.
-
-## CID delivery validation
-
-A self-addressed shadow delivery test completed successfully:
-
-```text
-shadow_run_id=wp_sync_08_cid_20260729_002500
-delivery_workflow_run_id=30410951339
-smtp_transport_success=true
-sent_match_observed=true
-inbox_match_observed=true
-attachment_count=4
-inline_image_count=1
-cid_reference_count=1
-```
-
-The Gmail message preserves the four expected HTML/PDF attachments and the inline 57,780-byte PNG chart with a matching Content-ID.
-
-Privacy-minimal receipt evidence:
-
-```text
-control/evidence/etf_eu_shadow_cid_mailbox_receipt_wp_sync_08_cid_20260729_002500.json
-```
-
-This is shadow transport evidence only; it is not a production report-delivery receipt.
-
-## Blocked activation package
-
-The cutover-readiness package is complete and valid:
-
-```text
-package_id=ETF-EU-SYNC-CUTOVER-READINESS-20260729
-workflow_run_id=30411531406
-artifact_id=8708563958
-artifact_digest=sha256:cb3880c366a18b066ca8895dbd5da9c213ca580da2121376f59f556b0a4b0ed4
-status=blocked_not_activation_ready
-activation_ready=false
-package_blocker_count=27
-executable_trade_intents=[]
-```
-
-The package binds the immutable donor contract, validated EU design, official pre-cutover state hashes, Stage-1 simulation, Stage-2 blocked readiness, product-evidence gaps, redacted Gmail receipt and state-oriented rollback boundary.
 
 ## Authority boundaries
 
 ```text
 model_portfolio_only=true
 real_broker_execution=false
-valuation_grade_for_new_lines=false
 funding_authority=false
 portfolio_mutation=false
 ledger_write=false
@@ -246,4 +178,4 @@ activation_authority=false
 production_delivery_authority=false
 ```
 
-PR #66 must remain a draft until its architecture and evidence package are reviewed. Merging the shadow architecture, activating Stage 1 and replacing the production report are three separate decisions.
+WP-SYNC-09 is complete. The implementation is not blocked; activation is blocked by external exact-market-data availability and absent donor fresh-add authority. Preserve the official three-position portfolio until both dependency classes change.
