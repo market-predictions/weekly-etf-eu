@@ -5,14 +5,15 @@
 ```text
 date=2026-07-30
 repository=market-predictions/weekly-etf-eu
-working_branch=sync/wp09-fresh-cutover-evidence
-pull_request=68
+working_branch=main
+completed_pull_request=68
+wp09_merge_commit=4337ad80eff02f320b0c7fd16798013029c9ad58
 operating_mode=routine_production_plus_merged_sync_architecture_plus_fail_closed_cutover_evidence
 selected_next_action=PRESERVE_OFFICIAL_PORTFOLIO_UNTIL_ACCEPTED_XETRA_MARKET_EVIDENCE_AND_DONOR_FRESH_ADD_EXIST
-wp09_status=completed_blocked_not_activation_ready
+wp09_status=completed_merged_blocked_not_activation_ready
 ```
 
-The read-only synchronization architecture from PR #66 is merged into `main`. WP-SYNC-09 has now completed a fresh product, market and donor-authority review for the two frozen Stage-1 candidates. The evidence capability is valid, but Stage 1 remains blocked.
+The read-only synchronization architecture and WP-SYNC-09 fail-closed cutover-evidence capability are merged into `main`. Stage 1 remains blocked. No production report, portfolio state, trade ledger or delivery authority was changed.
 
 ## Official EU model portfolio
 
@@ -50,30 +51,27 @@ portfolio_mutation_performed=false
 ledger_write_performed=false
 ```
 
-## Merged synchronization architecture
-
-PR #66 was squash-merged into `main` as shadow architecture only:
+## Merged synchronization capability
 
 ```text
-merge_commit=e5cbc1b22b0100ac794927748e5d395e453db4e1
+architecture_merge_commit=e5cbc1b22b0100ac794927748e5d395e453db4e1
+wp09_merge_commit=4337ad80eff02f320b0c7fd16798013029c9ad58
 stage_1_activation_authorized=false
 stage_2_activation_authorized=false
 production_report_replacement=false
 production_delivery_authority=false
 ```
 
-The merged capability includes immutable donor consumption, ISIN-first UCITS mapping, policy allocation, incumbent and EUNA review, Stage-2 authority controls, validated bilingual sister-report rendering, CID shadow delivery and blocked cutover packaging.
+The merged capability includes immutable donor consumption, ISIN-first UCITS mapping, policy allocation, incumbent and EUNA review, Stage-2 authority controls, validated bilingual sister-report rendering, shadow CID validation, blocked cutover packaging and reusable fresh-evidence decision machinery.
 
 ## WP-SYNC-09 exact product evidence
-
-The fresh capture covered exactly two frozen Stage-1 candidates:
 
 | Portfolio label | Xetra symbol | ISIN | WKN | Exact identity | Exact current issuer KID |
 |---|---|---|---|---|---|
 | VVSM | VVSM | IE00BMC38736 | A2QC5J | Pass | Pass — 2026-03-27 |
 | LOCK | L0CK | IE00BG0J4C88 | A2JMGE | Pass | Pass — 2026-04-09 |
 
-Identity authority requires an exact official issuer product page or exact official issuer KID plus an exact Deutsche Börse line matching ISIN, WKN, exchange symbol, Xetra and EUR. The portfolio label `LOCK` is explicitly distinguished from the exchange symbol `L0CK`.
+Identity authority requires an exact official issuer product page or exact official issuer KID plus an exact Deutsche Börse line matching ISIN, WKN, exchange symbol, Xetra and EUR. The portfolio label `LOCK` is explicitly distinguished from exchange symbol `L0CK`.
 
 ## WP-SYNC-09 market evidence
 
@@ -141,28 +139,42 @@ VVSM:timestamped_bid_ask_quote_size
 donor_fresh_add_direction_absent
 ```
 
-## WP-SYNC-09 validation evidence
+## Validation and closeout evidence
+
+Primary decision evidence:
 
 ```text
 workflow_run_id=30501245612
 job_id=90741172521
 validated_head_sha=da90b3f89db1337c267390cc43f84f5e65d1a043
-workflow_conclusion=success
 artifact_id=8743584959
 artifact_digest=sha256:48ec8c7fcdddcf016378ba19dc0398dadd4432404ea240618d054117fa09e2fc
 fresh_evidence_sha256=6c0b21034bdefce2e402741a747126fa1c5bacf7b424e6e3b26e3548d17db62d
 activation_decision_sha256=50b4c3008f9c5678b0a98756b6e7c5ec11a17fbe9fdeb5cb4b854b935519937e
 cutover_manifest_sha256=e8d907c5310ceda5f709672220c6390a7ffd3d73de5a8b466253430cc2bd9c1d
+```
+
+Exact final-branch closeout validation:
+
+```text
+validated_head_sha=9055c6c990aecf717720fef5bda8b57edcb715f1
+workflow_run_id=30501745076
+job_id=90742696871
+workflow_conclusion=success
+artifact_id=8743758316
+artifact_digest=sha256:36c2945602ec790dc37f0b6951a5fb24a5500fcd5bacfed0e3827d3d89e41abc
 fresh_evidence_validation=true
 activation_decision_validation=true
 cutover_manifest_validation=true
 protected_state_comparison=true
 ```
 
-Evidence receipt:
+Closeout records:
 
 ```text
 control/evidence/etf_eu_wp09_fresh_cutover_evidence_30501245612_1.json
+control/decisions/ETF_EU_WP09_STAGE_1_ACTIVATION_BLOCKED_DECISION_20260730.md
+control/handovers/HANDOVER_WEEKLY_ETF_EU_WP09_FRESH_CUTOVER_BLOCKED_20260730.md
 ```
 
 ## Authority boundaries
@@ -178,4 +190,4 @@ activation_authority=false
 production_delivery_authority=false
 ```
 
-WP-SYNC-09 is complete. The implementation is not blocked; activation is blocked by external exact-market-data availability and absent donor fresh-add authority. Preserve the official three-position portfolio until both dependency classes change.
+Development is complete up to the external evidence boundary. Preserve the official three-position portfolio. Reopen activation work only when an accepted exact Xetra source supplies completed close, timestamped bid/ask/size and liquidity evidence for both candidates and the donor simultaneously emits a genuine fresh-add direction.
