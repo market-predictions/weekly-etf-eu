@@ -1,0 +1,109 @@
+{
+  "schema_version": "etf_eu_wp09_fresh_cutover_evidence_receipt_v1",
+  "artifact_type": "etf_eu_wp09_fresh_cutover_evidence_receipt",
+  "recorded_at_utc": "2026-07-30T00:00:38Z",
+  "repository": "market-predictions/weekly-etf-eu",
+  "pull_request": 68,
+  "branch": "sync/wp09-fresh-cutover-evidence",
+  "validated_head_sha": "da90b3f89db1337c267390cc43f84f5e65d1a043",
+  "workflow": {
+    "name": "Validate ETF EU WP09 fresh cutover evidence",
+    "run_id": 30501245612,
+    "run_attempt": 1,
+    "job_id": 90741172521,
+    "conclusion": "success"
+  },
+  "artifact": {
+    "artifact_id": 8743584959,
+    "name": "etf-eu-wp09-fresh-cutover-30501245612_1",
+    "digest": "sha256:48ec8c7fcdddcf016378ba19dc0398dadd4432404ea240618d054117fa09e2fc",
+    "retention_days": 90,
+    "raw_source_documents_committed_to_github": false
+  },
+  "content_digests": {
+    "fresh_evidence_sha256": "6c0b21034bdefce2e402741a747126fa1c5bacf7b424e6e3b26e3548d17db62d",
+    "activation_decision_sha256": "50b4c3008f9c5678b0a98756b6e7c5ec11a17fbe9fdeb5cb4b854b935519937e",
+    "cutover_manifest_sha256": "e8d907c5310ceda5f709672220c6390a7ffd3d73de5a8b466253430cc2bd9c1d"
+  },
+  "evidence_summary": {
+    "candidate_count": 2,
+    "identity_pass_count": 2,
+    "kid_pass_count": 2,
+    "accepted_close_pass_count": 0,
+    "timestamped_quote_pass_count": 0,
+    "liquidity_pass_count": 0,
+    "activation_evidence_pass_count": 0
+  },
+  "candidate_identity": [
+    {
+      "portfolio_label": "VVSM",
+      "exchange_symbol": "VVSM",
+      "isin": "IE00BMC38736",
+      "wkn": "A2QC5J",
+      "exchange": "Xetra",
+      "currency": "EUR",
+      "exact_identity_pass": true,
+      "exact_current_issuer_kid_pass": true,
+      "kid_date": "2026-03-27"
+    },
+    {
+      "portfolio_label": "LOCK",
+      "exchange_symbol": "L0CK",
+      "isin": "IE00BG0J4C88",
+      "wkn": "A2JMGE",
+      "exchange": "Xetra",
+      "currency": "EUR",
+      "exact_identity_pass": true,
+      "exact_current_issuer_kid_pass": true,
+      "kid_date": "2026-04-09"
+    }
+  ],
+  "market_evidence_result": {
+    "latest_completed_session_requested": "2026-07-29",
+    "official_completed_close_api_result": "HTTP 200 with empty JSON object for both candidates",
+    "official_history_crosscheck_result": "HTTP 200 with empty JSON object for both candidates",
+    "official_timestamped_quote_result": "request timeout for both candidates",
+    "accepted_20_session_liquidity_measurement_present": false,
+    "cached_2026_07_24_connectivity_promoted": false
+  },
+  "donor_reunderwriting": {
+    "repository": "market-predictions/weekly-etf",
+    "evidence_commit": "52f13e190a9f6b0045df175973fdf8d0f6f5f30d",
+    "report_date": "2026-07-29",
+    "smh_status": "hold_with_override; smaller / under review; no fresh-add authority",
+    "cibr_status": "hold; hold / monitor; no fresh-add authority",
+    "both_exposures_present": true,
+    "fresh_add_direction_present": false
+  },
+  "decision": {
+    "value": "blocked",
+    "status": "blocked_not_activation_ready",
+    "decision_blocker_count": 7,
+    "stage_1_activation_authorized": false,
+    "official_state_applied": false,
+    "executable_trade_intents": []
+  },
+  "decision_blockers": [
+    "LOCK:accepted_current_eur_completed_close",
+    "LOCK:accepted_liquidity_measurement",
+    "LOCK:timestamped_bid_ask_quote_size",
+    "VVSM:accepted_current_eur_completed_close",
+    "VVSM:accepted_liquidity_measurement",
+    "VVSM:timestamped_bid_ask_quote_size",
+    "donor_fresh_add_direction_absent"
+  ],
+  "protected_state": {
+    "portfolio_state_sha256_before": "6642334558818e630f0b22a2500ef44b2489ff237aacca638e81f184c165aa6f",
+    "portfolio_state_sha256_after": "6642334558818e630f0b22a2500ef44b2489ff237aacca638e81f184c165aa6f",
+    "trade_ledger_sha256_before": "718f0681fe0d1162f9a91c34aa90489eb8566aecb06c12a1a2d9ad251be3e87c",
+    "trade_ledger_sha256_after": "718f0681fe0d1162f9a91c34aa90489eb8566aecb06c12a1a2d9ad251be3e87c",
+    "portfolio_mutation": false,
+    "ledger_write": false
+  },
+  "authority": {
+    "funding_authority": false,
+    "execution_authority": false,
+    "activation_authority": false,
+    "production_delivery_authority": false
+  }
+}
