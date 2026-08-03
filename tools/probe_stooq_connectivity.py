@@ -12,7 +12,11 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from pricing.ucits_close_price_multi_source_v2 import STOOQ_API_KEY_ENV, try_stooq_close_detailed
+from pricing.ucits_close_price_multi_source_v2 import (
+    STOOQ_API_KEY_ENV,
+    STOOQ_URLS,
+    try_stooq_close_detailed,
+)
 
 
 DEFAULT_SYMBOLS = (
@@ -24,13 +28,15 @@ DEFAULT_SYMBOLS = (
 )
 
 
-def probe(symbol: str, report_date: date) -> dict[str, Any]:
+def probe(symbol: str, endpoint: str, report_date: date) -> dict[str, Any]:
     result = try_stooq_close_detailed(
         {"provider_symbol_stooq": symbol, "instrument_type": "UCITS ETF"},
         report_date,
+        endpoint=endpoint,
     )
     return {
         "symbol": symbol.lower(),
+        "endpoint": endpoint,
         "pricing_status": result["pricing_status"],
         "close_date": result["close_date"],
         "close_price": result["close_price"],
@@ -46,15 +52,14 @@ def probe(symbol: str, report_date: date) -> dict[str, Any]:
 
 
 def determine(rows: list[dict[str, Any]], key_present: bool) -> str:
-    control = rows[0]
-    classification = control["response_classification"]
-    if classification == "api_key_required" and not key_present:
+    controls = [row for row in rows if row["label"] == "positive_control_us_equity"]
+    if any(row["response_classification"] == "valid_completed_close" for row in controls):
+        return "api_key_present_and_accepted_by_positive_control" if key_present else "api_key_not_required_for_current_runner"
+    if all(row["response_classification"] == "browser_verification_challenge" for row in controls):
+        return "github_actions_blocked_by_stooq_browser_verification"
+    if any(row["response_classification"] == "api_key_required" for row in controls) and not key_present:
         return "api_key_required_confirmed_by_positive_control"
-    if classification == "valid_completed_close" and not key_present:
-        return "api_key_not_required_for_current_runner"
-    if classification == "valid_completed_close" and key_present:
-        return "api_key_present_and_accepted_by_positive_control"
-    if classification == "daily_limit_exceeded":
+    if any(row["response_classification"] == "daily_limit_exceeded" for row in controls):
         return "stooq_daily_limit_exceeded"
     if key_present:
         return "api_key_present_but_positive_control_not_validated"
@@ -70,13 +75,14 @@ def main() -> None:
     report_date = date.fromisoformat(args.report_date)
     key_present = bool(os.environ.get(STOOQ_API_KEY_ENV, "").strip())
     rows = []
-    for label, symbol in DEFAULT_SYMBOLS:
-        row = probe(symbol, report_date)
-        row["label"] = label
-        rows.append(row)
+    for endpoint in STOOQ_URLS:
+        for label, symbol in DEFAULT_SYMBOLS:
+            row = probe(symbol, endpoint, report_date)
+            row["label"] = label
+            rows.append(row)
 
     payload = {
-        "schema_version": "stooq_connectivity_probe_v1",
+        "schema_version": "stooq_connectivity_probe_v2",
         "report_date": report_date.isoformat(),
         "api_key_environment_variable": STOOQ_API_KEY_ENV,
         "api_key_present": key_present,
