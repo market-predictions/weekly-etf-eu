@@ -1,44 +1,76 @@
 from __future__ import annotations
 
 import argparse
+import json
 import os
 import sys
+from datetime import date
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from pricing.ucits_close_price_multi_source_v2 import build_results
+from pricing.ucits_price_provider_engine import (
+    build_legacy_validation_artifact,
+    build_provider_qualification,
+)
 
 
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--basket", default="config/ucits_close_price_validation_basket.yml")
+    parser.add_argument("--provider-registry", default="config/ucits_price_provider_registry.yml")
     parser.add_argument("--run-id", required=True)
     parser.add_argument("--report-date")
     parser.add_argument("--output-dir", default="output/pricing")
-    parser.add_argument("--pause-seconds", type=float, default=15.0)
+    parser.add_argument("--providers", default="")
+    parser.add_argument("--verify-identity", action="store_true")
+    parser.add_argument("--pause-seconds", type=float, default=1.0)
+    parser.add_argument("--max-close-age-days", type=int, default=7)
+    parser.add_argument("--agreement-tolerance-pct", type=float, default=1.0)
+    parser.add_argument("--require-funded-consensus", action="store_true")
+    # Retained compatibility arguments; provider-specific throttling now lives in adapters.
     parser.add_argument("--rate-limit-cooldown-seconds", type=float, default=600.0)
-    parser.add_argument("--max-attempts", type=int, default=2)
+    parser.add_argument("--max-attempts", type=int, default=1)
     parser.add_argument("--rate-limit-mode", choices=("stop", "sleep"), default="stop")
     args = parser.parse_args()
 
-    report_date = args.report_date or os.environ.get("REPORT_DATE")
-    yahoo_rate_limit_mode = args.rate_limit_mode
-    if os.environ.get("WP11_RUN_ID"):
-        yahoo_rate_limit_mode = "sleep"
+    report_date = date.fromisoformat(args.report_date or os.environ.get("REPORT_DATE") or date.today().isoformat())
+    providers = [item.strip() for item in args.providers.split(",") if item.strip()] or None
+    output_dir = Path(args.output_dir)
+    qualification_path = output_dir / f"ucits_price_provider_qualification_{args.run_id}.json"
+    legacy_path = output_dir / f"ucits_close_price_validation_basket_results_{args.run_id}.json"
 
-    build_results(
-        basket_path=Path(args.basket),
-        run_id=args.run_id,
-        output_dir=Path(args.output_dir),
+    build_provider_qualification(
+        registry_path=Path(args.provider_registry),
         report_date=report_date,
+        output_path=qualification_path,
+        providers=providers,
+        verify_identity=args.verify_identity,
         pause_seconds=args.pause_seconds,
-        rate_limit_cooldown_seconds=args.rate_limit_cooldown_seconds,
-        max_attempts=args.max_attempts,
-        yahoo_rate_limit_mode=yahoo_rate_limit_mode,
+        max_close_age_days=args.max_close_age_days,
+        agreement_tolerance_pct=args.agreement_tolerance_pct,
     )
+    build_legacy_validation_artifact(
+        qualification_path=qualification_path,
+        output_path=legacy_path,
+        source_basket=args.basket,
+        run_id=args.run_id,
+    )
+
+    qualification = json.loads(qualification_path.read_text(encoding="utf-8"))
+    print(
+        "UCITS_CLOSE_PRICE_VALIDATION_BASKET_RESULTS_OK"
+        f" | path={legacy_path}"
+        f" | qualification={qualification_path}"
+        f" | report_date={report_date}"
+        f" | funded_consensus={qualification['funded_consensus_count']}/{qualification['funded_line_count']}"
+        f" | gate={qualification['report_pricing_gate_passed']}"
+    )
+    require_consensus = args.require_funded_consensus or bool(os.environ.get("WP11_RUN_ID"))
+    if require_consensus and not qualification.get("report_pricing_gate_passed"):
+        raise SystemExit("Funded-position provider consensus gate failed; report generation is blocked.")
 
 
 if __name__ == "__main__":
