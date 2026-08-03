@@ -81,7 +81,9 @@ The existing routine valuation contract receives a compatibility artifact only a
 7. Require at least one exact-line metadata anchor inside each funded consensus.
 8. Block routine report generation unless all funded lines pass both gates.
 9. Persist the qualification artifact and compatibility pricing artifact.
-10. Preserve official portfolio and ledger state.
+10. Reconcile all run-scoped valuation and client-performance fields to the accepted closes.
+11. Render and inspect every PDF page.
+12. Preserve official portfolio and ledger state.
 
 ## Provider call-budget design
 
@@ -101,7 +103,8 @@ A provider quota response echoed the Alpha Vantage API key in its message body d
 - strips common credential fields from identity evidence;
 - tests redaction deterministically;
 - purged fourteen pre-redaction GitHub Actions artifacts;
-- requires rotation of the Alpha Vantage key before future live use.
+- removed the one-shot elevated purge workflow;
+- disables Alpha Vantage live use until explicit key rotation is recorded.
 
 The accepted 2026-07-31 funded-price evidence is separately persisted in:
 
@@ -111,9 +114,9 @@ config/etf_eu_provider_close_cache_20260731.json
 
 It is development-only and automatically ignored for any other report date.
 
-## Current validated pricing result
+## Validated pricing result
 
-The development engine has produced same-date Alpha Vantage and direct Yahoo Chart consensus for all three funded positions on 2026-07-31:
+The development engine produced same-date Alpha Vantage and direct Yahoo Chart consensus for all three funded positions on 2026-07-31:
 
 | Position | Alpha Vantage | Yahoo Chart | Consensus | Spread |
 |---|---:|---:|---:|---:|
@@ -130,12 +133,20 @@ ledger_write=false
 delivery_authority=false
 ```
 
+The run-scoped valuation and visible section 7A performance table now reconcile to the same fresh state:
+
+| Position | Weight | Since entry | P/L EUR | Run contribution |
+|---|---:|---:|---:|---:|
+| VWCE | 24.741634% | -1.427532% | -€356.36 | -€199.32 |
+| EUNA | 7.487637% | -0.671686% | -€50.36 | -€18.16 |
+| SXR8 | 7.000505% | -1.938029% | -€137.60 | -€83.60 |
+
 Leeway, EODHD and Marketstack adapters are implemented but remain `not_configured` until their repository secrets are added.
 
 ## Acceptance criteria
 
 - Adapter unit tests pass.
-- Cache, redaction, consensus and identity-anchor tests pass.
+- Cache, redaction, consensus, identity-anchor, valuation-overlay and bilingual client-surface tests pass.
 - Qualification workflow produces exactly 12 lines and 3 funded lines.
 - No secret appears in logs or artifacts.
 - Yahoo Chart is tested independently of yfinance.
@@ -143,15 +154,46 @@ Leeway, EODHD and Marketstack adapters are implemented but remain `not_configure
 - Funded consensus requires at least two providers on the same date within 1.0% spread.
 - Funded consensus requires at least one matching symbol/venue/currency metadata anchor.
 - Existing report workflow is blocked when funded consensus is absent.
+- Visible report valuation, P/L, weights and contribution values match the reconciled state.
+- Both PDFs render to 11 pages, with 22 pages reviewed and zero low-content pages.
+- Official portfolio and ledger hashes remain unchanged.
 - No portfolio mutation, ledger write, delivery or recipient action occurs.
 
-## Current status
+## Closure evidence
 
 ```text
-status=IMPLEMENTED_AND_PRICING_VALIDATED
+head_sha=7cedf0d0fb02511fddabe6bceea7bbb7348b437e
+pricing_test_workflow_run=30840780653
+routine_preview_workflow_run=30840780941
+routine_preview_job=91777003039
+routine_artifact_id=8866759217
+routine_artifact_sha256=0ffab963030401e227136b802c56f0f823da18838972a35f10660349e0a6d1fc
+full_report_preview=PASS
+rendered_pages=22
+low_content_pages=0
+protected_state_unchanged=true
+report_delivery=false
+```
+
+Full evidence:
+
+```text
+control/evidence/etf_eu_wp11a_multi_provider_pricing_evidence_20260803.md
+```
+
+## Final status
+
+```text
+status=CLOSED_VALIDATED
+closed_at=2026-08-03T20:23:15+02:00
 pricing_stage=PASS
+client_pricing_consistency=PASS
 macro_adapter=PASS
-macro_validator=IMPLEMENTED_PENDING_FULL_PREVIEW_RERUN
-full_report_preview=IN_PROGRESS
+macro_validator=PASS
+full_report_preview=PASS
+visual_review=PASS_ALL_22_PAGES
+protected_state=UNCHANGED
 commercial_licensing_review=DEFERRED_BY_USER
+pr_merge=NOT_AUTHORIZED
+report_delivery=NOT_AUTHORIZED
 ```
