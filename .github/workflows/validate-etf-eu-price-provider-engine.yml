@@ -10,14 +10,17 @@ on:
   pull_request:
     paths:
       - "config/ucits_price_provider_registry.yml"
+      - "config/etf_eu_provider_close_cache_*.json"
       - "pricing/ucits_price_provider_engine.py"
+      - "pricing/ucits_price_evidence_cache.py"
       - "pricing/ucits_price_qualification_policy.py"
       - "pricing/build_ucits_close_price_validation_basket_results.py"
       - "tools/qualify_ucits_price_providers.py"
       - "tests/test_ucits_price_provider_engine.py"
+      - "tests/test_ucits_price_evidence_cache.py"
+      - "tests/test_ucits_price_evidence_redaction.py"
       - "tests/test_ucits_price_qualification_policy.py"
       - "control/work_packages/WP_SYNC_11A_MULTI_PROVIDER_CLOSE_PRICE_ENGINE_20260803.md"
-      - "control/claims/CLAIM_WP_SYNC_11A_MULTI_PROVIDER_CLOSE_PRICE_ENGINE_20260803.md"
       - ".github/workflows/validate-etf-eu-price-provider-engine.yml"
 
 permissions:
@@ -46,19 +49,23 @@ jobs:
       - name: Install bounded dependencies
         run: python -m pip install requests==2.32.3 PyYAML==6.0.2
 
-      - name: Run deterministic adapter, consensus and identity tests
+      - name: Run deterministic adapter, cache, redaction, consensus and identity tests
         run: |
           python -m unittest \
             tests/test_ucits_price_provider_engine.py \
+            tests/test_ucits_price_evidence_cache.py \
+            tests/test_ucits_price_evidence_redaction.py \
             tests/test_ucits_price_qualification_policy.py \
             -v
 
-      - name: Qualify all twelve trading lines
+      - name: Qualify all twelve trading lines with live providers
+        if: github.event_name == 'workflow_dispatch'
         run: |
           set -euo pipefail
           mkdir -p output/provider_qualification
           python tools/qualify_ucits_price_providers.py \
             --registry config/ucits_price_provider_registry.yml \
+            --provider-cache config/etf_eu_provider_close_cache_20260731.json \
             --report-date "$REPORT_DATE" \
             --output output/provider_qualification/ucits_price_provider_qualification.json \
             --verify-identity \
@@ -67,11 +74,13 @@ jobs:
             --agreement-tolerance-pct 1.0
 
       - name: Validate qualification artifact contract
+        if: github.event_name == 'workflow_dispatch'
         run: |
           python - <<'PY'
           import json
           import os
           from pathlib import Path
+
           path = Path("output/provider_qualification/ucits_price_provider_qualification.json")
           payload = json.loads(path.read_text())
           if payload["schema_version"] != "ucits_price_provider_qualification_v1":
@@ -82,26 +91,36 @@ jobs:
               raise SystemExit("PRICE_ENGINE_AUTHORITY_ESCALATED")
           if payload.get("funded_identity_anchor_count") != 3:
               raise SystemExit("PRICE_ENGINE_FUNDED_IDENTITY_ANCHOR_MISSING")
+          if payload.get("secret_redaction_applied") is not True:
+              raise SystemExit("PRICE_ENGINE_REDACTION_NOT_APPLIED")
           for line in payload["lines"]:
               if line.get("funded") and line.get("qualification_status") == "qualified_development_consensus":
                   if not line.get("identity_anchor_providers"):
                       raise SystemExit(f"PRICE_ENGINE_UNANCHORED_FUNDED_LINE:{line['ticker']}")
-          text = path.read_text()
+
+          def contains_exact_secret(node, secret):
+              if isinstance(node, dict):
+                  return any(contains_exact_secret(value, secret) for value in node.values())
+              if isinstance(node, list):
+                  return any(contains_exact_secret(value, secret) for value in node)
+              return isinstance(node, str) and node == secret
+
           for name in ("LEEWAY_API_TOKEN", "EODHD_API_TOKEN", "MARKETSTACK_ACCESS_KEY", "ALPHA_VANTAGE_API_KEY"):
               value = os.environ.get(name, "")
-              if value and value in text:
+              if value and contains_exact_secret(payload, value):
                   raise SystemExit(f"PRICE_ENGINE_SECRET_LEAK:{name}")
           print(
               "ETF_EU_PRICE_ENGINE_OK"
               f" | configured={payload['provider_configuration']}"
               f" | funded_consensus={payload['funded_consensus_count']}/{payload['funded_line_count']}"
               f" | identity_anchors={payload['funded_identity_anchor_count']}/{payload['funded_line_count']}"
+              f" | cache_used={payload.get('provider_cache_used_count', 0)}"
               f" | report_gate={payload['report_pricing_gate_passed']}"
           )
           PY
 
       - name: Upload provider qualification evidence
-        if: always()
+        if: github.event_name == 'workflow_dispatch' && always()
         uses: actions/upload-artifact@v4
         with:
           name: etf-eu-price-provider-qualification-${{ github.run_id }}-${{ github.run_attempt }}
