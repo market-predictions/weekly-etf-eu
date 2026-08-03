@@ -35,7 +35,7 @@ def apply(state_path: Path, allocator_path: Path) -> None:
     variant = preferred_variant(allocator)
     selected = selected_rows(variant)
     if not {"ai_compute_infrastructure", "cyber_security"}.issubset(selected):
-        raise RuntimeError("Expected VVSM and cyber-security Stage-1 rows to be selected and eligible")
+        raise RuntimeError("Expected VVSM and cybersecurity Stage-1 rows to be selected and eligible")
 
     remaining_blockers: list[str] = []
     proposals: list[dict[str, Any]] = []
@@ -85,7 +85,11 @@ def apply(state_path: Path, allocator_path: Path) -> None:
             {
                 "analytical_allocator_weight_pct": allocation.get("variant_target_weight_pct"),
                 "actionable_target_weight_pct": 0.0,
-                "client_action": "shadow_buy_proposal_blocked_pending_authority",
+                # Preserve the canonical client-action contract used by the
+                # production-convergence validator. The richer proposal state
+                # is carried in a separate non-authorizing field.
+                "client_action": "blocked_monitor",
+                "expanded_client_action": "shadow_buy_proposal_blocked_pending_authority",
                 "current_completed_close_pass": True,
                 "accepted_liquidity_measurement_pass": True,
                 "timestamped_bid_ask_quote_size_pass": False,
@@ -107,7 +111,10 @@ def apply(state_path: Path, allocator_path: Path) -> None:
     stage.update(
         {
             "value": "blocked",
-            "status": "blocked_pending_quote_donor_and_explicit_activation_authority",
+            # Preserve the canonical state status while exposing the more
+            # precise current blocker classification separately.
+            "status": "blocked_not_activation_ready",
+            "expanded_status": "blocked_pending_quote_donor_and_explicit_activation_authority",
             "blockers": sorted(set(remaining_blockers)),
             "blocker_count": len(set(remaining_blockers)),
             "stage_1_activation_authorized": False,
