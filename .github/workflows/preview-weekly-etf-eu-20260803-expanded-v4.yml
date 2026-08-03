@@ -5,8 +5,8 @@ on:
   pull_request:
     paths:
       - ".github/workflows/preview-weekly-etf-eu-20260803-expanded-v4.yml"
-      - "tools/run_etf_eu_aug3_expanded_report_v4.py"
-      - "runtime/add_etf_eu_expanded_allocation_monitor_v2.py"
+      - "tools/run_etf_eu_aug3_expanded_report_v5.py"
+      - "runtime/add_etf_eu_expanded_allocation_monitor_v3.py"
       - "runtime/reconcile_etf_eu_stage1_current_evidence.py"
       - "pricing/build_current_session_close_results_v2.py"
       - "pricing/yahoo_regular_market_fallback.py"
@@ -20,7 +20,7 @@ jobs:
     timeout-minutes: 35
     env:
       REPORT_DATE: "2026-08-03"
-      REPORT_SUFFIX: "260803_03"
+      REPORT_SUFFIX: "260803_04"
       DONOR_COMMIT: "272ce2a997ae21c30290807199f243f491df3c46"
       RUN_ID: "20260803_${{ github.run_id }}_${{ github.run_attempt }}"
       SOURCE_SHA: "${{ github.event.pull_request.head.sha || github.sha }}"
@@ -50,7 +50,7 @@ jobs:
       - name: Build and validate final expanded report
         run: |
           set -euo pipefail
-          python tools/run_etf_eu_aug3_expanded_report_v4.py \
+          python tools/run_etf_eu_aug3_expanded_report_v5.py \
             --donor-dir donor-weekly-etf \
             --report-date "$REPORT_DATE" \
             --report-suffix "$REPORT_SUFFIX" \
@@ -64,7 +64,7 @@ jobs:
           name: etf-eu-expanded-report-final-${{ env.RUN_ID }}
           path: |
             output/routine_preview/
-            output/fresh_generation/weekly_etf_eu_review*260803_03*
+            output/fresh_generation/weekly_etf_eu_review*260803_04*
             output/run_manifests/etf_eu_routine_run_manifest_2026-08-03_${{ env.RUN_ID }}.json
             output/pricing/ucits_close_price_validation_basket_results_${{ env.RUN_ID }}.json
             output/pricing/ucits_price_provider_qualification_${{ env.RUN_ID }}.json
