@@ -1,0 +1,39 @@
+name: Probe Boerse Frankfurt ETF closes
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - routine/20260803-expanded-funded-report
+    paths:
+      - "tools/probe_boerse_frankfurt_connectivity.py"
+      - ".github/workflows/probe-boerse-frankfurt-connectivity.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  probe-official-exchange:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install bounded dependency
+        run: python -m pip install requests==2.32.3
+      - name: Probe exact ISIN and MIC lines
+        run: |
+          set -euo pipefail
+          mkdir -p output/provider_qualification
+          python tools/probe_boerse_frankfurt_connectivity.py \
+            --report-date 2026-08-03 \
+            --output output/provider_qualification/boerse_frankfurt_probe_${GITHUB_RUN_ID}_${GITHUB_RUN_ATTEMPT}.json
+      - name: Upload probe evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: boerse-frankfurt-probe-${{ github.run_id }}-${{ github.run_attempt }}
+          path: output/provider_qualification/*.json
+          if-no-files-found: error
+          retention-days: 30
