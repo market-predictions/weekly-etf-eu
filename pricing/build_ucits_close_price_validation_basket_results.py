@@ -11,6 +11,7 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
+from pricing.provider_secret_safety import enforce_provider_secret_safety
 from pricing.ucits_price_evidence_cache import apply_provider_evidence_cache
 from pricing.ucits_price_provider_engine import (
     build_legacy_validation_artifact,
@@ -39,6 +40,7 @@ def main() -> None:
     parser.add_argument("--rate-limit-mode", choices=("stop", "sleep"), default="stop")
     args = parser.parse_args()
 
+    secret_safety = enforce_provider_secret_safety()
     report_date = date.fromisoformat(args.report_date or os.environ.get("REPORT_DATE") or date.today().isoformat())
     providers = [item.strip() for item in args.providers.split(",") if item.strip()] or None
     output_dir = Path(args.output_dir)
@@ -58,6 +60,8 @@ def main() -> None:
     cache_path = Path(args.provider_cache) if args.provider_cache else None
     apply_provider_evidence_cache(qualification_path, cache_path)
     qualification = apply_identity_anchor_policy(qualification_path)
+    qualification["provider_secret_safety"] = secret_safety
+    qualification_path.write_text(json.dumps(qualification, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     build_legacy_validation_artifact(
         qualification_path=qualification_path,
         output_path=legacy_path,
@@ -73,6 +77,7 @@ def main() -> None:
         f" | funded_consensus={qualification['funded_consensus_count']}/{qualification['funded_line_count']}"
         f" | identity_anchors={qualification['funded_identity_anchor_count']}/{qualification['funded_line_count']}"
         f" | cache_used={qualification.get('provider_cache_used_count', 0)}"
+        f" | alpha_live={secret_safety['alpha_vantage_live_enabled']}"
         f" | gate={qualification['report_pricing_gate_passed']}"
     )
     require_consensus = args.require_funded_consensus or bool(os.environ.get("WP11_RUN_ID"))
