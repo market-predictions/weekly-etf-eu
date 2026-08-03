@@ -6,6 +6,10 @@ on:
     branches:
       - routine/20260803-expanded-funded-report
     paths:
+      - "tools/probe_boerse-frankfurt-connectivity.py"
+      - ".github/workflows/probe-boerse-frankfurt-connectivity.yml"
+  pull_request:
+    paths:
       - "tools/probe_boerse_frankfurt_connectivity.py"
       - ".github/workflows/probe-boerse-frankfurt-connectivity.yml"
 
