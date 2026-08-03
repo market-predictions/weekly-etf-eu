@@ -2,11 +2,12 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import subprocess
 import sys
 from pathlib import Path
 
-from bs4 import BeautifulSoup, Tag
+from bs4 import BeautifulSoup, NavigableString, Tag
 from weasyprint import HTML
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -34,8 +35,30 @@ def compact_status(text: str, language: str) -> str:
     return result
 
 
+def correct_client_wording(soup: BeautifulSoup, language: str) -> None:
+    stale_regime = (
+        "The regime changed versus the prior review from Risk-on groei to Policy transition / mixed regime; market breadth is improving and cross-asset confirmation is mixed."
+        if language == "nl"
+        else "The regime changed versus the prior review from Risk-on growth to Policy transition / mixed regime; market breadth is improving and cross-asset confirmation is mixed."
+    )
+    current_regime = (
+        "Het regime-label is historische strategiecontext uit de donorbeoordeling van 29 juli. Fed- en ECB-besluiten zijn actueel geverifieerd; er is geen nieuwe EU-regimeberekening uitgevoerd."
+        if language == "nl"
+        else "The regime label is historical strategy context from the 29 July donor review. Fed and ECB decisions are current; no new EU regime calculation was performed."
+    )
+    for node in list(soup.find_all(string=True)):
+        if not isinstance(node, NavigableString):
+            continue
+        original = str(node)
+        updated = original.replace(stale_regime, current_regime)
+        updated = re.sub(r"\bLOCK\b", "L0CK", updated)
+        if updated != original:
+            node.replace_with(updated)
+
+
 def compact_opportunity_table(html_path: Path, pdf_path: Path, language: str) -> None:
     soup = BeautifulSoup(html_path.read_text(encoding="utf-8"), "html.parser")
+    correct_client_wording(soup, language)
     table = soup.find("table", class_="promoted-mapping-table")
     if not isinstance(table, Tag):
         raise RuntimeError(f"Promoted mapping table missing: {html_path}")
@@ -111,11 +134,13 @@ def main() -> None:
     for language in ("nl", "en"):
         record = manifest.get("languages", {}).get(language, {})
         compact_opportunity_table(Path(record["html"]), Path(record["pdf"]), language)
-        record["promoted_close_table_layout"] = "combined_compact_v1"
+        record["promoted_close_table_layout"] = "combined_compact_v2"
     manifest["promoted_close_table_layout"] = {
         "applied": True,
-        "format": "combined_compact_v1",
+        "format": "combined_compact_v2",
         "promoted_rows_preserved": 6,
+        "exact_l0ck_ticker_visible": True,
+        "historical_regime_context_labelled": True,
         "portfolio_mutation": False,
         "activation_authority": False,
     }
@@ -123,7 +148,7 @@ def main() -> None:
         json.dumps(manifest, indent=2, ensure_ascii=False) + "\n",
         encoding="utf-8",
     )
-    print("ETF_EU_PROMOTED_CLOSE_TABLE_COMPACT_OK | promoted_rows=6 | columns_combined=true")
+    print("ETF_EU_PROMOTED_CLOSE_TABLE_COMPACT_OK | promoted_rows=6 | wording_reconciled=true")
 
 
 if __name__ == "__main__":
