@@ -47,7 +47,13 @@ def resolve_pdf_files(manifest: dict[str, Any]) -> dict[str, Path]:
     return resolved
 
 
-def render_pdf(pdf_path: Path, output_dir: Path, language: str, dpi: int) -> dict[str, Any]:
+def render_pdf(
+    pdf_path: Path,
+    output_dir: Path,
+    language: str,
+    dpi: int,
+    min_text_characters_per_page: int,
+) -> dict[str, Any]:
     renderer = shutil.which("pdftoppm")
     if renderer is None:
         raise RuntimeError("pdftoppm is required to render PDF review pages")
@@ -56,6 +62,21 @@ def render_pdf(pdf_path: Path, output_dir: Path, language: str, dpi: int) -> dic
     expected_pages = len(reader.pages)
     if expected_pages <= 0:
         raise RuntimeError(f"PDF contains no pages: {pdf_path}")
+
+    extracted_text_counts = []
+    for page in reader.pages:
+        normalized = " ".join((page.extract_text() or "").split())
+        extracted_text_counts.append(len(normalized))
+    low_content_pages = [
+        index
+        for index, count in enumerate(extracted_text_counts, start=1)
+        if count < min_text_characters_per_page
+    ]
+    if low_content_pages:
+        raise RuntimeError(
+            f"Low-content PDF page detected for {language}: pages={low_content_pages} "
+            f"threshold={min_text_characters_per_page} counts={extracted_text_counts}"
+        )
 
     language_dir = output_dir / language
     language_dir.mkdir(parents=True, exist_ok=True)
@@ -83,6 +104,7 @@ def render_pdf(pdf_path: Path, output_dir: Path, language: str, dpi: int) -> dic
                 "path": str(page_path),
                 "sha256": sha256_file(page_path),
                 "size_bytes": page_path.stat().st_size,
+                "extracted_text_character_count": extracted_text_counts[index - 1],
             }
         )
     return {
@@ -90,17 +112,28 @@ def render_pdf(pdf_path: Path, output_dir: Path, language: str, dpi: int) -> dic
         "source_pdf": str(pdf_path),
         "source_pdf_sha256": sha256_file(pdf_path),
         "page_count": expected_pages,
+        "minimum_text_characters_per_page": min_text_characters_per_page,
+        "minimum_observed_text_characters": min(extracted_text_counts),
+        "low_content_page_count": 0,
         "dpi": dpi,
         "renderer": "pdftoppm",
         "pages": pages,
     }
 
 
-def build_review(manifest_path: Path, output_dir: Path, dpi: int) -> Path:
+def build_review(
+    manifest_path: Path,
+    output_dir: Path,
+    dpi: int,
+    min_text_characters_per_page: int,
+) -> Path:
     manifest = load_manifest(manifest_path)
     pdfs = resolve_pdf_files(manifest)
     output_dir.mkdir(parents=True, exist_ok=True)
-    rendered = [render_pdf(path, output_dir, language, dpi) for language, path in pdfs.items()]
+    rendered = [
+        render_pdf(path, output_dir, language, dpi, min_text_characters_per_page)
+        for language, path in pdfs.items()
+    ]
     payload = {
         "schema_version": "etf_eu_routine_pdf_review_pages_v1",
         "artifact_type": "etf_eu_routine_pdf_review_pages",
@@ -110,6 +143,7 @@ def build_review(manifest_path: Path, output_dir: Path, dpi: int) -> Path:
         "report_date": manifest.get("report_date"),
         "language_count": len(rendered),
         "total_page_count": sum(item["page_count"] for item in rendered),
+        "low_content_page_count": sum(item["low_content_page_count"] for item in rendered),
         "renderings": rendered,
         "visual_review_status": "rendered_pending_human_review",
         "portfolio_mutation": False,
@@ -122,6 +156,7 @@ def build_review(manifest_path: Path, output_dir: Path, dpi: int) -> Path:
         f" | manifest={review_path}"
         f" | languages={payload['language_count']}"
         f" | pages={payload['total_page_count']}"
+        f" | low_content_pages={payload['low_content_page_count']}"
     )
     return review_path
 
@@ -131,10 +166,18 @@ def main() -> None:
     parser.add_argument("--manifest", type=Path, required=True)
     parser.add_argument("--output-dir", type=Path, required=True)
     parser.add_argument("--dpi", type=int, default=144)
+    parser.add_argument("--min-text-characters-per-page", type=int, default=400)
     args = parser.parse_args()
     if args.dpi < 72 or args.dpi > 300:
         raise SystemExit("--dpi must be between 72 and 300")
-    build_review(args.manifest, args.output_dir, args.dpi)
+    if args.min_text_characters_per_page < 0:
+        raise SystemExit("--min-text-characters-per-page must be non-negative")
+    build_review(
+        args.manifest,
+        args.output_dir,
+        args.dpi,
+        args.min_text_characters_per_page,
+    )
 
 
 if __name__ == "__main__":
