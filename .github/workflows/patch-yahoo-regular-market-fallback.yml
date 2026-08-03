@@ -1,0 +1,57 @@
+name: Integrate Yahoo regular-market fallback
+
+on:
+  push:
+    branches:
+      - routine/20260803-expanded-funded-report
+    paths:
+      - ".github/workflows/patch-yahoo-regular-market-fallback.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  integrate-fallback:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: routine/20260803-expanded-funded-report
+      - name: Patch current-session builder
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          path = Path('pricing/build_current_session_close_results.py')
+          text = path.read_text(encoding='utf-8')
+          old = '''    close_date, close_price = max(accepted, key=lambda item: item[0])
+    returned_currency = str(meta.get("currency") or "").upper() or None
+'''
+          new = '''    close_date, close_price = max(accepted, key=lambda item: item[0])
+    if close_date < report_date:
+        from pricing.yahoo_regular_market_fallback import report_date_regular_market_close
+
+        metadata_fallback = report_date_regular_market_close(
+            meta,
+            report_date=report_date,
+            observed_at_utc=now_utc(),
+        )
+        if metadata_fallback is not None:
+            close_date = report_date
+            close_price = float(metadata_fallback["close_price"])
+            result["retrieval_mode"] = "live_regular_market_metadata_fallback"
+            result["regular_market_metadata_fallback"] = metadata_fallback
+    returned_currency = str(meta.get("currency") or "").upper() or None
+'''
+          if text.count(old) != 1:
+              raise SystemExit(f'Expected one Yahoo close-selection block, found {text.count(old)}')
+          path.write_text(text.replace(old, new), encoding='utf-8')
+          print(f'PATCHED {path}')
+          PY
+      - name: Commit integration
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add pricing/build_current_session_close_results.py
+          git commit -m "Use Yahoo regular-market metadata when daily bar lags"
+          git push origin HEAD:routine/20260803-expanded-funded-report
