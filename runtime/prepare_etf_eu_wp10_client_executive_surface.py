@@ -52,6 +52,13 @@ def pct(value: Any, lang: str) -> str:
     return text.replace(".", ",") if lang == "nl" else text
 
 
+def regime_value(strategy: dict[str, Any]) -> str:
+    value = strategy.get("regime")
+    if isinstance(value, dict):
+        return str(value.get("current") or value.get("label") or "—")
+    return str(value or "—")
+
+
 def action(row: dict[str, Any], lang: str) -> tuple[str, str]:
     exposure = str(row.get("exposure_id") or "")
     target = float(row.get("donor_target_weight_pct") or 0)
@@ -85,9 +92,10 @@ def build_summary(soup: BeautifulSoup, state: dict[str, Any], lang: str) -> None
         str(row.get("exchange_symbol")): row.get("currently_promoted") is True
         for row in state.get("stage_1_review_candidates") or []
     }
+    regime = regime_value(strategy)
     lines = (
         [
-            f"Primair regime: {strategy.get('regime') or '—'}",
+            f"Primair regime: {regime}",
             "Actuele kansenset: 6 donor-exposures en 6 exacte UCITS-koppelingen.",
             f"Officiële modelportefeuille: 3 posities en {euro(portfolio.get('cash_eur'), lang)} cash.",
             f"Reviewcontinuïteit: VVSM actueel gepromoveerd = {'ja' if promotion.get('VVSM') else 'nee'}; L0CK = {'ja' if promotion.get('L0CK') else 'nee'}.",
@@ -95,7 +103,7 @@ def build_summary(soup: BeautifulSoup, state: dict[str, Any], lang: str) -> None
         ]
         if lang == "nl"
         else [
-            f"Primary regime: {strategy.get('regime') or '—'}",
+            f"Primary regime: {regime}",
             "Current opportunity set: 6 donor exposures and 6 exact UCITS mappings.",
             f"Official model portfolio: 3 positions and {euro(portfolio.get('cash_eur'), lang)} cash.",
             f"Review continuity: VVSM currently promoted = {'yes' if promotion.get('VVSM') else 'no'}; L0CK = {'yes' if promotion.get('L0CK') else 'no'}.",
@@ -203,6 +211,55 @@ def normalize_history(soup: BeautifulSoup, lang: str) -> None:
             node.replace_with(updated)
 
 
+def normalize_final_action_official_rows(soup: BeautifulSoup, state: dict[str, Any], lang: str) -> None:
+    section = sec(soup, "section-13")
+    portfolio = state["official_portfolio"]
+    nav = float(portfolio.get("nav_eur") or 0)
+    cash = float(portfolio.get("cash_eur") or 0)
+    cash_weight = 100.0 * cash / nav if nav else 0.0
+    for row in section.select("tbody tr"):
+        cells = [cell for cell in row.find_all("td", recursive=False) if isinstance(cell, Tag)]
+        if len(cells) < 10:
+            continue
+        key = cells[0].get_text(" ", strip=True).upper()
+        if key == "CASH":
+            cells[2].string = pct(cash_weight, lang)
+            cells[3].string = pct(cash_weight, lang)
+            cells[4].string = pct(0, lang)
+            cells[5].string = "Cashreserve aanhouden" if lang == "nl" else "Hold cash reserve"
+            cells[6].string = "Geen allocatie" if lang == "nl" else "No allocation"
+            cells[8].string = (
+                "Geen nieuwe allocatie slaagt voor alle actuele poorten; cash blijft ongewijzigd."
+                if lang == "nl"
+                else "No new allocation passes all current gates; cash remains unchanged."
+            )
+            cells[9].string = "Geen wijziging" if lang == "nl" else "No change"
+        elif key in {"VWCE", "EUNA", "SXR8"}:
+            cells[3].string = cells[2].get_text(" ", strip=True)
+            cells[4].string = pct(0, lang)
+            cells[5].string = "Huidige positie aanhouden" if lang == "nl" else "Hold current position"
+            cells[6].string = "Geen wijziging" if lang == "nl" else "No change"
+            cells[8].string = (
+                "Officiële positie blijft ongewijzigd in de actuele beoordeling."
+                if lang == "nl"
+                else "Official position remains unchanged in the current review."
+            )
+            cells[9].string = "Geen wijziging" if lang == "nl" else "No change"
+
+
+def normalize_footer(soup: BeautifulSoup, lang: str) -> None:
+    replacement = "Weekly ETF EU · clientrapport" if lang == "nl" else "Weekly ETF EU · client report"
+    for style in soup.find_all("style"):
+        text = style.string if style.string is not None else style.get_text()
+        if not text:
+            continue
+        updated = text.replace("Weekly ETF EU · synchronized shadow", replacement)
+        updated = updated.replace("Weekly ETF EU · gesynchroniseerd schaduw", replacement)
+        if updated != text:
+            style.clear()
+            style.append(updated)
+
+
 def build_next_inputs(soup: BeautifulSoup, lang: str) -> None:
     section = sec(soup, "section-16")
     reset(section)
@@ -246,14 +303,17 @@ def apply(manifest_path: Path, state_path: Path) -> None:
         build_cockpit(soup, state, lang)
         build_bottom_line(soup, lang)
         normalize_history(soup, lang)
+        normalize_final_action_official_rows(soup, state, lang)
+        normalize_footer(soup, lang)
         build_next_inputs(soup, lang)
         output = str(soup)
         html_path.write_text(output, encoding="utf-8")
         HTML(string=output, base_url=str(html_path.parent.resolve())).write_pdf(str(pdf_path))
-        record["wp10_client_executive_surface"] = "state_driven_v1"
+        record["wp10_client_executive_surface"] = "state_driven_v2_visual_review"
     manifest["wp10_client_executive_surface"] = {
         "applied": True,
-        "sections": ["1", "2", "2A", "6", "7", "16"],
+        "sections": ["1", "2", "2A", "6", "7", "13", "16"],
+        "footer": "client_safe",
         "official_state_changed": False,
         "delivery_performed": False,
     }
