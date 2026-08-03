@@ -66,17 +66,48 @@ def build(portfolio: dict[str, Any], pricing: dict[str, Any], portfolio_path: Pa
         close_date = str(price_row.get("close_date") or "")
         if close_date:
             close_dates.add(close_date)
+
+        prior_price = float(official.get("current_price_local") or official.get("current_price") or 0)
+        prior_market_value = float(official.get("market_value_eur") or official.get("market_value_local") or 0)
+        prior_weight = float(official.get("current_weight_pct") or official.get("weight_pct") or 0)
+        avg_entry = float(official.get("avg_entry_local") or 0)
+        cost_basis = round(shares * avg_entry, 2) if avg_entry > 0 else None
+        unrealized_pnl = round(market_value - cost_basis, 2) if cost_basis is not None else None
+        unrealized_pnl_pct = round(((price / avg_entry) - 1.0) * 100.0, 6) if avg_entry > 0 else None
+        run_contribution = round(market_value - prior_market_value, 2)
+
         valued_positions.append(
             {
                 **official,
                 "ticker": symbol,
                 "shares": shares,
+                "prior_valuation_report_date": official.get("last_valuation_report_date"),
+                "prior_valuation_run_id": official.get("last_valuation_run_id"),
+                "prior_price_local": prior_price,
+                "prior_market_value_local": prior_market_value,
+                "prior_market_value_eur": prior_market_value,
+                "prior_weight_pct": prior_weight,
+                "previous_price_local": prior_price,
+                "previous_market_value_local": prior_market_value,
+                "previous_market_value_eur": prior_market_value,
+                "previous_weight_pct": prior_weight,
                 "model_price": official.get("model_price") or official.get("current_price") or official.get("price"),
                 "current_price": price,
+                "current_price_local": price,
                 "current_price_eur": price,
                 "pricing_currency": "EUR",
+                "price_date": close_date,
                 "pricing_close_date": close_date,
+                "pricing_completed_close": bool(close_date),
+                "market_value_local": market_value,
                 "market_value_eur": market_value,
+                "cost_basis_eur": cost_basis,
+                "unrealized_pnl_eur": unrealized_pnl,
+                "unrealized_pnl_pct": unrealized_pnl_pct,
+                "portfolio_contribution_eur": run_contribution,
+                "last_valuation_report_date": report_date,
+                "last_valuation_run_id": run_id,
+                "review_run_id": run_id,
                 "pricing_status": price_row.get("pricing_status"),
                 "pricing_source": price_row.get("source_name"),
                 "pricing_source_quality": price_row.get("source_quality_status"),
@@ -90,7 +121,11 @@ def build(portfolio: dict[str, Any], pricing: dict[str, Any], portfolio_path: Pa
     cash = float(portfolio.get("cash_eur") or 0)
     nav = round(cash + invested, 2)
     for row in valued_positions:
-        row["weight_pct"] = round(float(row["market_value_eur"]) / nav * 100.0, 6) if nav else 0.0
+        weight = round(float(row["market_value_eur"]) / nav * 100.0, 6) if nav else 0.0
+        contribution_pct = round(float(row["portfolio_contribution_eur"]) / nav * 100.0, 6) if nav else 0.0
+        row["weight_pct"] = weight
+        row["current_weight_pct"] = weight
+        row["portfolio_contribution_pct_nav"] = contribution_pct
     starting = float(portfolio.get("starting_capital_eur") or 0)
     since_inception = round(((nav / starting) - 1.0) * 100.0, 6) if starting else 0.0
 
