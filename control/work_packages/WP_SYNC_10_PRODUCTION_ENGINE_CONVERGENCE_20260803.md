@@ -1,44 +1,33 @@
 # WP-SYNC-10 — Production engine convergence and premium client-report promotion
 
 **Date opened:** 2026-08-03  
+**Date completed:** 2026-08-03  
 **Repository:** `market-predictions/weekly-etf-eu`  
 **Branch:** `sync/wp10-production-engine-convergence`  
-**Status:** claimed and in progress  
+**Pull request:** #69  
+**Status:** completed; machine-green; visual review passed; ready for architecture merge  
 **Claimed by:** ChatGPT autonomous development session
 
-## Current issue
+## Current issue resolved
 
-The repository currently contains two mature but separate report paths:
+The repository contained two mature but separate report paths:
 
-1. the routine client-grade v2 production renderer; and
-2. the merged donor-synchronization / policy-allocator sister-report engine.
+1. a premium routine EU report whose content layer still relied on hardcoded candidate copy and replacement tables; and
+2. a state-driven synchronized sister report that retained development terminology and analytical allocation scenarios.
 
-The routine renderer has a premium visual surface, but its content layer still contains hardcoded lane definitions, incumbent names, candidate labels and large string-replacement tables. It can therefore drift from the merged donor, UCITS mapping, allocator and evidence contracts.
+WP-SYNC-10 creates a single production-candidate path that preserves the premium bilingual report surface while deriving position, opportunity, mapping, blocker and action content from the synchronized Weekly ETF donor engine and official EU state.
 
-The synchronized sister report is state-driven and contract-validated, but remains labelled and operated as shadow output and is not the routine production renderer.
-
-## Objective
-
-Create one production-candidate report path that:
-
-- uses the merged Weekly ETF donor synchronization engine;
-- uses the official EU portfolio and valuation history as state authority;
-- uses ISIN-first UCITS mappings and exact trading-line identifiers;
-- uses allocator and evidence results for all position, candidate, blocker and action surfaces;
-- preserves the premium Dutch-primary / English-companion look and feel;
-- renders every funded position and every promoted candidate consistently;
-- keeps blocked target capacity in cash;
-- creates no portfolio, ledger, execution or delivery authority.
-
-## Four-layer scope
+## Four-layer result
 
 ### 1. Decision framework
 
-- Separate current holdings, feasible shadow targets, blocked target capacity and future candidates.
-- Show all official funded positions exactly once.
-- Show all promoted donor exposures and their current EU implementation status.
-- Never convert donor target presence, report prose, or a shadow target into add authority.
-- Preserve the WP-SYNC-09 blocked Stage-1 decision until evidence and donor authority change.
+- Official funded positions are VWCE, EUNA and SXR8.
+- Current promoted donor exposures are six and are all mapped.
+- Frozen Stage-1 review continuity remains VVSM and L0CK.
+- VVSM is not currently promoted.
+- L0CK is currently promoted but not deployable.
+- Actionable target for both frozen review candidates is zero.
+- Blocked capacity remains cash.
 
 ### 2. Input/state contract
 
@@ -46,108 +35,37 @@ Authoritative inputs:
 
 ```text
 official_portfolio=output/etf_eu_portfolio_state.json
-official_valuation_history=output/etf_eu_valuation_history.csv
-shared_strategy_state=current pinned donor build
-shared_portfolio_target=current pinned donor build
-strategy_sync_shadow=run-scoped synchronized exposure state
-policy_allocator=run-scoped policy allocator output
-wp09_evidence=latest accepted fresh evidence receipt
-ucits_registry=merged ISIN-first synchronization registry
+official_trade_ledger=output/etf_eu_trade_ledger.csv
+donor_commit=52f13e190a9f6b0045df175973fdf8d0f6f5f30d
+donor_report_date=2026-07-29
+wp09_evidence=control/evidence/etf_eu_wp09_fresh_cutover_evidence_30501245612_1.json
 ```
 
-Rules:
+Current six-of-six mapping was completed by adding:
 
-- Portfolio quantities and cash come only from official EU state.
-- Donor state provides strategy context, not EU execution authority.
-- UCITS identity is ISIN plus exact trading line.
-- Portfolio label `LOCK` and Xetra symbol `L0CK` remain explicitly distinct.
-- Cached connectivity may be disclosed but may not be promoted to activation-grade evidence.
-- Previous report prose is not an input.
+```text
+water_infrastructure=XMLC / IE00BK5BC891
+water_utilities=IQQQ / IE00B1TXK627
+```
+
+Mappings do not authorize allocation.
 
 ### 3. Output contract
 
-Generate Dutch-primary and English-companion HTML/PDF reports from one normalized production-convergence state.
-
-Required surfaces:
-
-1. premium decision cockpit;
-2. official portfolio and cash;
-3. current regime and policy context;
-4. synchronized opportunity radar;
-5. risks and invalidations;
-6. portfolio development and contribution;
-7. allocation map;
-8. second-order effects;
-9. exact UCITS candidate and pricing/evidence table;
-10. verification funnel;
-11. current-position review;
-12. replacement and rotation analysis;
-13. final action table;
-14. proposed changes / explicit no-trade result;
-15. current positions and cash;
-16. next-run inputs and disclaimer.
-
-The client surface must not contain:
-
-- `shadow report`, `shadow output` or internal authority terminology;
-- raw exposure IDs or blocker enums;
-- stale hardcoded satellite labels;
-- U.S.-listed ETFs represented as EU investable instruments;
-- action claims inconsistent with the policy allocator;
-- portfolio mutation or delivery claims.
-
-### 4. Operational runbook
-
-- Build current donor and synchronized artifacts in an isolated workflow.
-- Build a production-convergence state adapter.
-- Render bilingual premium HTML/PDF outputs.
-- Run machine validation and full PDF layout validation.
-- Compare official portfolio and ledger hashes before and after.
-- Upload artifacts only.
-- Do not send email and do not mutate official state.
-
-## Upstream reuse decision
-
-Closest mature upstream concepts inspected in `market-predictions/weekly-etf`:
-
-- runtime-derived report state;
-- cockpit-first premium hierarchy;
-- action and portfolio surfaces derived from state rather than report prose;
-- equity history and contribution truth;
-- client-language leakage gates;
-- strict HTML/PDF output validation.
-
-Adaptation decision:
+Validated production candidate:
 
 ```text
-port state-driven cockpit and output-contract behavior
-retain EU synchronized sister-report section breadth
-replace U.S. instrument assumptions with ISIN-first UCITS authority
+nl_html=output/production_convergence/client_report/weekly_etf_eu_review_nl_260729_converged.html
+nl_pdf=output/production_convergence/client_report/weekly_etf_eu_review_nl_260729_converged.pdf
+en_html=output/production_convergence/client_report/weekly_etf_eu_review_260729_converged.html
+en_pdf=output/production_convergence/client_report/weekly_etf_eu_review_260729_converged.pdf
+nl_sections=19
+en_sections=19
+nl_pages=11
+en_pages=11
 ```
 
-## Initial implementation files
-
-Planned additions:
-
-```text
-runtime/build_etf_eu_production_convergence_state.py
-runtime/render_etf_eu_production_converged_report.py
-tools/validate_etf_eu_production_convergence_state.py
-tools/validate_etf_eu_production_converged_report.py
-.github/workflows/validate-etf-eu-production-convergence.yml
-```
-
-Planned integration changes:
-
-```text
-control/CURRENT_STATE.md
-control/NEXT_ACTIONS.md
-control/CHANGELOG.md
-```
-
-Legacy files remain available during validation. They are not deleted until the converged path proves complete parity.
-
-## Acceptance contract
+Client contract:
 
 ```text
 funded_position_count=3
@@ -157,33 +75,61 @@ mapped_promoted_exposure_count=6
 unmapped_promoted_exposure_count=0
 stage_1_decision=blocked
 stage_1_activation_authorized=false
-portfolio_mutation=false
-ledger_write=false
-execution_authority=false
-production_delivery_authority=false
-executable_trade_intents=[]
 client_shadow_language_absent=true
 raw_internal_tokens_absent=true
+stale_simulated_trade_content_absent=true
+cash_target_matches_official_state=true
 all_required_sections_present=true
-nl_pdf_valid=true
-en_pdf_valid=true
-protected_state_unchanged=true
 ```
 
-## Non-goals
+Full visual review covered all 22 pages and found no blank pages, clipping, overlap or orphaned rows.
 
-- no Stage-1 or Stage-2 activation;
-- no official portfolio or ledger mutation;
-- no broker execution;
-- no email delivery;
-- no weakening of current market-evidence or donor fresh-add gates;
-- no forced deployment of capital where evidence or authority is absent.
+### 4. Operational runbook
 
-## Initial next actions
+Workflow:
 
-1. Build the synchronized production-convergence state.
-2. Render Dutch and English production-candidate reports.
-3. Add strict state and client-surface validators.
-4. Run the isolated workflow and repair concrete defects.
-5. Perform complete visual review.
-6. If green, merge the reusable production-convergence capability and define the separate guarded promotion/delivery package.
+`.github/workflows/validate-etf-eu-production-convergence.yml`
+
+It rebuilds donor and EU synchronization state, allocator context, bilingual source output, convergence state and client HTML/PDF; then proves protected-state hashes are unchanged and uploads artifacts only.
+
+## Validation evidence
+
+```text
+validated_head_sha=0997545ad0cf670d805536414d05abde17ff89f2
+strategy_synchronization_run=30810262285 success
+target_allocator_run=30810262293 success
+allocator_report_run=30810262292 success
+production_convergence_run=30810262300 success
+job_id=91675081232
+artifact_id=8854509533
+artifact_digest=sha256:19a5bfcc2db4f813bebc3588946e4843c587ff17aa021d0150835bde58208d65
+visual_review_passed=true
+```
+
+Evidence receipt:
+
+`control/evidence/etf_eu_wp10_production_convergence_30810262300_1.json`
+
+Decision record:
+
+`control/decisions/ETF_EU_WP10_PRODUCTION_ENGINE_CONVERGENCE_DECISION_20260803.md`
+
+Handover:
+
+`control/handovers/HANDOVER_WEEKLY_ETF_EU_WP10_PRODUCTION_CONVERGENCE_20260803.md`
+
+## Authority boundary
+
+```text
+portfolio_mutation=false
+ledger_write=false
+funding_authority=false
+execution_authority=false
+activation_authority=false
+production_delivery_authority=false
+executable_trade_intents=[]
+```
+
+## Closure
+
+WP-SYNC-10 is complete. The reusable production-convergence capability is ready for squash merge. Routine production promotion and guarded delivery remain a separate WP-SYNC-11 decision.
