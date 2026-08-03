@@ -6,17 +6,19 @@
 repository=market-predictions/weekly-etf-eu
 pull_request=70
 branch=sync/wp11-routine-production-promotion
-validated_pricing_head=6d281593b80e8e44d21c994f869cab8c2e42a9e3
+validated_source_sha=0794ad5373c4073dfe3051d6675c0689739dcd4d
 report_date=2026-07-31
-routine_run_id=20260803_30842139405_1
-workflow_run_id=30842139405
-workflow_job_id=91781522951
-artifact_id=8867298602
-artifact_sha256=38522912996254d76b77b59b5e9fea43b6ea2b6ecf1d33ba70e5c3d36e30068d
+routine_run_id=20260803_30850723696_1
+workflow_run_id=30850723696
+workflow_job_id=91809807838
+artifact_id=8870570755
+artifact_sha256=c11dd7d464e706cf5ed4d6c4afcfeccd556a34a11108a9dfcc5a8a4f7c651602
 workflow_conclusion=success
 ```
 
-The deterministic pricing, evidence-cache, secret-redaction, identity-anchor, valuation-overlay and bilingual client-performance tests passed. Subsequent repository-hygiene commits removed a superseded duplicate provider implementation and aligned `CURRENT_STATE.md`, `NEXT_ACTIONS.md` and `DECISION_LOG.md`; they did not change the validated pricing runtime.
+The deterministic pricing, evidence-cache, secret-redaction, identity-anchor, valuation-overlay and bilingual client-performance tests passed. The exact cleaned PR head also passed allocator validation, exact package validation, all 22 rendered PDF pages and protected-state proof.
+
+Repository hygiene removed the superseded duplicate WP-SYNC-12 provider implementation and workflow. `CURRENT_STATE.md`, `NEXT_ACTIONS.md`, `DECISION_LOG.md` and the PR description are aligned with the canonical integrated engine.
 
 ## Decision framework
 
@@ -154,6 +156,18 @@ Visual review confirmed:
 - fresh P/L and contribution figures are visible in Dutch and English;
 - the report-date masthead and valuation-history notes are correct and localized;
 - no clipping or material layout break was observed across all 22 pages.
+
+## Exact-head workflow proof
+
+```text
+pricing_engine_workflow_run=30850723739 success
+stooq_diagnostic_workflow_run=30850723694 success
+allocator_report_workflow_run=30850723704 success
+routine_preview_workflow_run=30850723696 success
+routine_preview_job=91809807838
+routine_preview_artifact=8870570755
+routine_preview_artifact_sha256=c11dd7d464e706cf5ed4d6c4afcfeccd556a34a11108a9dfcc5a8a4f7c651602
+```
 
 ## Protected-state and authority proof
 
