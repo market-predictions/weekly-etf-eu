@@ -35,9 +35,9 @@ jobs:
 
 ### Decision
 
-Weekly ETF EU report generation must fail closed unless every funded position has a development-grade completed-close consensus consisting of at least two providers on the same close date and at least one exact-line metadata anchor.
+Weekly ETF EU report generation fails closed unless every funded position has two agreeing providers on the same completed-close date within 1.0% and at least one agreeing provider supplies matching exact-line symbol, venue and currency metadata.
 
-The development provider order is:
+### Stable architecture
 
 ```text
 Leeway
@@ -47,50 +47,23 @@ Leeway
 → direct Yahoo Chart
 ```
 
-A provider result is rejected when it is stale, non-positive, contradicts the required currency or venue, or substitutes a proxy trading line. The consensus price is the median of accepted same-date provider closes.
-
-### Stable input and output rules
-
 - Exact identity is controlled by ISIN, expected MIC, expected currency and provider-specific symbol in `config/ucits_price_provider_registry.yml`.
-- Funded consensus requires two same-date providers within 1.0% spread.
-- At least one agreeing provider must return matching symbol, venue and currency metadata.
-- Providers without returned metadata may corroborate a close but cannot establish trading-line identity.
-- Missing secrets are `not_configured`, not pricing failures.
-- Historical provider evidence may be cached only for the exact report date, basket ID, provider and provider symbol with immutable provenance.
-- The cache is ignored for any other report date.
-- Run-scoped valuation must reconcile every current price, market value, weight, price date, unrealized P/L and contribution field before client rendering.
-- The visible Dutch and English performance tables must be rebuilt from the reconciled state.
-
-### Security rule
-
-Provider response bodies must never be persisted because providers may echo credentials in error or quota messages. Store classifications only and strip secret-like fields from evidence.
-
-Alpha Vantage live use remains disabled until its repository secret is rotated and `config/alpha_vantage_key_rotation_confirmed.json` is explicitly committed.
-
-### Authority boundary
-
-```text
-development_pricing_model=true
-commercial_redistribution_authority=false
-funding_authority=false
-portfolio_mutation=false
-ledger_write=false
-execution_authority=false
-delivery_authority=false
-```
-
-Technical price agreement does not authorize a trade, mutate official state or authorize delivery.
+- Missing secrets are classified as `not_configured`, not missing prices.
+- Date-bound cached evidence is accepted only for the exact report date, basket ID, provider and provider symbol with immutable provenance.
+- Provider response bodies are not persisted because error messages may echo credentials.
+- Run-scoped valuation and both client-language performance tables must reconcile to the accepted consensus closes.
+- Technical pricing success grants no trade, portfolio mutation, delivery or commercial redistribution authority.
 
 ### Validated result
 
-For report date `2026-07-31`, VWCE, EUNA and SXR8 passed 3/3 funded consensus and 3/3 identity-anchor gates. The run-scoped NAV was `€99,455.68`; both 11-page reports passed full-page review; protected portfolio and ledger hashes remained unchanged.
+For report date `2026-07-31`, VWCE, EUNA and SXR8 passed 3/3 consensus and 3/3 identity-anchor gates. Run-scoped NAV was `€99,455.68`; both 11-page reports passed validation and 22-page visual review; protected portfolio and ledger hashes remained unchanged.
 
 Evidence:
 
 ```text
 control/evidence/etf_eu_wp11a_multi_provider_pricing_evidence_20260803.md
-workflow_run=30840780941
-artifact_id=8866759217
+workflow_run=30842139405
+artifact_id=8867298602
 ```
 '''
           path.write_text(text.rstrip() + entry + "\n", encoding="utf-8")
