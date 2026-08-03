@@ -16,6 +16,7 @@ STOOQ_URLS = (
     "https://stooq.com/q/d/l/",
     "https://stooq.pl/q/d/l/",
 )
+_STOOQ_CAPABILITY_CACHE: dict[bool, str] = {}
 
 
 def _base_result(symbol: str, *, api_key_supplied: bool, endpoint: str) -> dict[str, Any]:
@@ -174,6 +175,19 @@ def try_stooq_close_detailed(
 
 
 def try_stooq_close_best_effort(line: dict[str, Any], report_date: date) -> dict[str, Any]:
+    key_present = bool(os.environ.get(STOOQ_API_KEY_ENV, "").strip())
+    cached = _STOOQ_CAPABILITY_CACHE.get(key_present)
+    if cached == "browser_verification_challenge":
+        symbol = legacy.stooq_symbol(line)
+        result = _base_result(symbol, api_key_supplied=key_present, endpoint=STOOQ_URLS[0])
+        result["response_classification"] = "provider_blocked_by_browser_verification_cached"
+        result["blockers"] = ["stooq_browser_verification_challenge_all_endpoints"]
+        result["endpoint_attempts"] = [
+            {"endpoint": endpoint, "classification": "browser_verification_challenge"}
+            for endpoint in STOOQ_URLS
+        ]
+        return result
+
     attempts = [try_stooq_close_detailed(line, report_date, endpoint=endpoint) for endpoint in STOOQ_URLS]
     for result in attempts:
         if result["pricing_status"] == "priced_non_authoritative":
@@ -182,6 +196,10 @@ def try_stooq_close_best_effort(line: dict[str, Any], report_date: date) -> dict
                 for item in attempts
             ]
             return result
+
+    if all(item["response_classification"] == "browser_verification_challenge" for item in attempts):
+        _STOOQ_CAPABILITY_CACHE[key_present] = "browser_verification_challenge"
+
     selected = attempts[0]
     selected["blockers"] = sorted(
         {
