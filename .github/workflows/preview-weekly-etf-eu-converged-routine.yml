@@ -1,0 +1,307 @@
+name: Preview Weekly ETF EU converged routine package
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - "config/ucits_close_price_validation_basket.yml"
+      - "runtime/build_etf_eu_routine_valuation_overlay.py"
+      - "runtime/apply_etf_eu_routine_valuation_to_convergence_state.py"
+      - "runtime/update_etf_eu_valuation_history_from_overlay.py"
+      - "runtime/apply_etf_eu_routine_valuation_to_client_report.py"
+      - "tools/build_etf_eu_converged_routine_package.py"
+      - "tools/validate_etf_eu_converged_routine_manifest.py"
+      - "control/work_packages/WP_SYNC_11_ROUTINE_PRODUCTION_PROMOTION_AND_GUARDED_DELIVERY_20260803.md"
+      - "control/claims/CLAIM_WP_SYNC_11_ROUTINE_PRODUCTION_PROMOTION_20260803.md"
+      - ".github/workflows/preview-weekly-etf-eu-converged-routine.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  preview-converged-routine:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      REPORT_DATE: "2026-07-31"
+      REPORT_SUFFIX: "260731_01"
+      DONOR_COMMIT: "52f13e190a9f6b0045df175973fdf8d0f6f5f30d"
+      WP11_RUN_ID: "20260803_${{ github.run_id }}_${{ github.run_attempt }}"
+      SOURCE_SHA: "${{ github.event.pull_request.head.sha || github.sha }}"
+
+    steps:
+      - name: Checkout Weekly ETF EU
+        uses: actions/checkout@v4
+
+      - name: Checkout accepted Weekly ETF donor evidence
+        uses: actions/checkout@v4
+        with:
+          repository: market-predictions/weekly-etf
+          ref: ${{ env.DONOR_COMMIT }}
+          path: donor-weekly-etf
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install bounded production dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements.txt
+          python -m pip install yfinance weasyprint pypdf beautifulsoup4 pyyaml matplotlib
+
+      - name: Record protected official state
+        run: |
+          set -euo pipefail
+          mkdir -p output/routine_preview
+          sha256sum output/etf_eu_portfolio_state.json > output/routine_preview/protected_state_before.txt
+          sha256sum output/etf_eu_trade_ledger.csv >> output/routine_preview/protected_state_before.txt
+
+      - name: Build fresh pricing and valuation overlay
+        run: |
+          set -euo pipefail
+          python pricing/build_ucits_close_price_validation_basket_results.py \
+            --basket config/ucits_close_price_validation_basket.yml \
+            --run-id "$WP11_RUN_ID" \
+            --output-dir output/pricing \
+            --pause-seconds 10 \
+            --max-attempts 1 \
+            --rate-limit-mode stop
+          PRICING_ARTIFACT="output/pricing/ucits_close_price_validation_basket_results_${WP11_RUN_ID}.json"
+          test -f "$PRICING_ARTIFACT"
+          python runtime/build_etf_eu_routine_valuation_overlay.py \
+            --portfolio-state output/etf_eu_portfolio_state.json \
+            --trade-ledger output/etf_eu_trade_ledger.csv \
+            --pricing-artifact "$PRICING_ARTIFACT" \
+            --report-date "$REPORT_DATE" \
+            --run-id "$WP11_RUN_ID" \
+            --output "output/routine_preview/etf_eu_routine_valuation_overlay_${WP11_RUN_ID}.json"
+          VALUATION_OVERLAY="output/routine_preview/etf_eu_routine_valuation_overlay_${WP11_RUN_ID}.json"
+          python runtime/update_etf_eu_valuation_history_from_overlay.py \
+            --history output/etf_eu_valuation_history.csv \
+            --overlay "$VALUATION_OVERLAY" \
+            --source-report "weekly_etf_eu_review_nl_${REPORT_SUFFIX}.html"
+          echo "PRICING_ARTIFACT=$PRICING_ARTIFACT" >> "$GITHUB_ENV"
+          echo "VALUATION_OVERLAY=$VALUATION_OVERLAY" >> "$GITHUB_ENV"
+
+      - name: Adapt current donor macro policy for EU report
+        run: |
+          set -euo pipefail
+          python runtime/adapt_weekly_etf_macro_for_eu.py \
+            --source donor-weekly-etf/output/macro/latest.json \
+            --report-date "$REPORT_DATE" \
+            --output "output/macro/etf_eu_macro_policy_${WP11_RUN_ID}.json"
+          MACRO_ARTIFACT="output/macro/etf_eu_macro_policy_${WP11_RUN_ID}.json"
+          python tools/validate_etf_eu_macro_adapter.py "$MACRO_ARTIFACT"
+          echo "MACRO_ARTIFACT=$MACRO_ARTIFACT" >> "$GITHUB_ENV"
+
+      - name: Build current donor and EU synchronization state
+        run: |
+          set -euo pipefail
+          mkdir -p output/routine_preview/sync
+          cd donor-weekly-etf
+          python runtime/build_shared_strategy_state.py \
+            --output ../output/routine_preview/sync/etf_shared_strategy_state.json
+          python runtime/build_shared_portfolio_target.py \
+            --shared-strategy-state ../output/routine_preview/sync/etf_shared_strategy_state.json \
+            --output ../output/routine_preview/sync/etf_shared_portfolio_target.json
+          python tools/validate_shared_strategy_state.py \
+            ../output/routine_preview/sync/etf_shared_strategy_state.json
+          python tools/validate_shared_portfolio_target.py \
+            ../output/routine_preview/sync/etf_shared_portfolio_target.json
+          cd ..
+          python tools/validate_etf_eu_sync_registry_additions.py config/ucits_symbol_registry_sync_additions.yml
+          python tools/validate_etf_eu_sync_registry_additions.py config/ucits_symbol_registry_sync_additions_wp09.yml
+          python tools/validate_etf_eu_sync_registry_additions.py config/ucits_symbol_registry_sync_additions_wp10.yml
+          python runtime/merge_etf_eu_sync_registries.py \
+            --output output/routine_preview/sync/ucits_symbol_registry_sync_merged.yml
+          python runtime/build_etf_eu_strategy_sync_shadow.py \
+            --shared-strategy-state output/routine_preview/sync/etf_shared_strategy_state.json \
+            --shared-portfolio-target output/routine_preview/sync/etf_shared_portfolio_target.json \
+            --portfolio-state "$VALUATION_OVERLAY" \
+            --registry output/routine_preview/sync/ucits_symbol_registry_sync_merged.yml \
+            --output output/routine_preview/sync/etf_eu_strategy_sync_shadow.json
+          python runtime/normalize_etf_eu_alignment_contract.py \
+            output/routine_preview/sync/etf_eu_strategy_sync_shadow.json
+          python tools/validate_etf_eu_strategy_sync_shadow.py \
+            output/routine_preview/sync/etf_eu_strategy_sync_shadow.json
+
+      - name: Build current policy allocator context
+        run: |
+          set -euo pipefail
+          python pricing/build_etf_eu_transition_evidence.py \
+            --report-date "$REPORT_DATE" \
+            --output output/routine_preview/sync/etf_eu_transition_evidence.json
+          python pricing/apply_etf_eu_transition_evidence_cache.py \
+            output/routine_preview/sync/etf_eu_transition_evidence.json \
+            --cache config/etf_eu_transition_evidence_cache_20260724.yml
+          python runtime/build_etf_eu_target_allocator_shadow_v2.py \
+            --sync-shadow output/routine_preview/sync/etf_eu_strategy_sync_shadow.json \
+            --transition-evidence output/routine_preview/sync/etf_eu_transition_evidence.json \
+            --output output/routine_preview/sync/etf_eu_target_allocator_shadow_v2.json
+          python tools/validate_etf_eu_target_allocator_shadow_v2.py \
+            output/routine_preview/sync/etf_eu_target_allocator_shadow_v2.json
+          python runtime/build_etf_eu_incumbent_overlap_review.py \
+            --output output/routine_preview/sync/etf_eu_incumbent_overlap_review.json
+          python tools/validate_etf_eu_incumbent_overlap_review.py \
+            output/routine_preview/sync/etf_eu_incumbent_overlap_review.json
+          python runtime/build_etf_eu_target_allocator_shadow_v3_policy_gate.py \
+            --base-allocator output/routine_preview/sync/etf_eu_target_allocator_shadow_v2.json \
+            --sync-shadow output/routine_preview/sync/etf_eu_strategy_sync_shadow.json \
+            --transition-evidence output/routine_preview/sync/etf_eu_transition_evidence.json \
+            --overlap-review output/routine_preview/sync/etf_eu_incumbent_overlap_review.json \
+            --policy config/etf_eu_transition_policy_v1.yml \
+            --output output/routine_preview/sync/etf_eu_target_allocator_shadow.json
+          python tools/validate_etf_eu_target_allocator_shadow_v3.py \
+            output/routine_preview/sync/etf_eu_target_allocator_shadow.json
+
+      - name: Render finalized synchronized premium source report
+        run: |
+          set -euo pipefail
+          mkdir -p output/routine_preview/source_report
+          python runtime/render_etf_eu_sister_report_shadow.py \
+            --sync-shadow output/routine_preview/sync/etf_eu_strategy_sync_shadow.json \
+            --output-dir output/routine_preview/source_report
+          SOURCE_MANIFEST="$(find output/routine_preview/source_report -maxdepth 1 -name 'etf_eu_sister_report_shadow_manifest_*.json' -print -quit)"
+          test -n "$SOURCE_MANIFEST"
+          python runtime/add_etf_eu_portfolio_alignment_surface.py \
+            "$SOURCE_MANIFEST" \
+            --sync-shadow output/routine_preview/sync/etf_eu_strategy_sync_shadow.json
+          python runtime/add_etf_eu_target_allocator_surface.py \
+            "$SOURCE_MANIFEST" \
+            --allocator output/routine_preview/sync/etf_eu_target_allocator_shadow.json
+          python runtime/add_etf_eu_incumbent_overlap_surface.py \
+            "$SOURCE_MANIFEST" \
+            --review output/routine_preview/sync/etf_eu_incumbent_overlap_review.json
+          python runtime/polish_etf_eu_sister_report_client_surface.py "$SOURCE_MANIFEST"
+          python runtime/finalize_etf_eu_sister_report_nl_language.py "$SOURCE_MANIFEST"
+          python runtime/reconcile_etf_eu_report_with_policy_allocator.py \
+            "$SOURCE_MANIFEST" \
+            --allocator output/routine_preview/sync/etf_eu_target_allocator_shadow.json \
+            --sync-shadow output/routine_preview/sync/etf_eu_strategy_sync_shadow.json
+          python runtime/reconcile_etf_eu_promoted_candidate_visibility.py \
+            "$SOURCE_MANIFEST" \
+            --allocator output/routine_preview/sync/etf_eu_target_allocator_shadow.json \
+            --sync-shadow output/routine_preview/sync/etf_eu_strategy_sync_shadow.json
+          python runtime/finalize_etf_eu_promoted_candidate_contract.py \
+            "$SOURCE_MANIFEST" \
+            --allocator output/routine_preview/sync/etf_eu_target_allocator_shadow.json \
+            --sync-shadow output/routine_preview/sync/etf_eu_strategy_sync_shadow.json
+          python runtime/finalize_etf_eu_policy_reconciliation_surface.py "$SOURCE_MANIFEST"
+          python runtime/compact_etf_eu_policy_transition_surface.py "$SOURCE_MANIFEST"
+          python runtime/fix_etf_eu_sister_report_layout.py "$SOURCE_MANIFEST"
+          python runtime/finalize_etf_eu_policy_report_pagination.py "$SOURCE_MANIFEST"
+          python runtime/finalize_etf_eu_report_output_contract.py \
+            "$SOURCE_MANIFEST" \
+            --allocator output/routine_preview/sync/etf_eu_target_allocator_shadow.json \
+            --sync-shadow output/routine_preview/sync/etf_eu_strategy_sync_shadow.json
+          python runtime/finalize_etf_eu_wp10_source_language.py "$SOURCE_MANIFEST"
+          python runtime/fix_etf_eu_sister_report_layout.py "$SOURCE_MANIFEST"
+          python runtime/finalize_etf_eu_policy_report_pagination.py "$SOURCE_MANIFEST"
+          python tools/run_etf_eu_allocator_report_validation_bundle.py \
+            "$SOURCE_MANIFEST" \
+            --output output/routine_preview/source_report/source_report_validation_bundle.json
+          echo "SOURCE_MANIFEST=$SOURCE_MANIFEST" >> "$GITHUB_ENV"
+
+      - name: Build and validate fresh convergence state
+        run: |
+          set -euo pipefail
+          STATE_PATH="output/routine_preview/etf_eu_production_convergence_state_${WP11_RUN_ID}.json"
+          python runtime/build_etf_eu_production_convergence_state.py \
+            --sync-shadow output/routine_preview/sync/etf_eu_strategy_sync_shadow.json \
+            --allocator output/routine_preview/sync/etf_eu_target_allocator_shadow.json \
+            --wp09-receipt control/evidence/etf_eu_wp09_fresh_cutover_evidence_30501245612_1.json \
+            --portfolio-state output/etf_eu_portfolio_state.json \
+            --trade-ledger output/etf_eu_trade_ledger.csv \
+            --donor-commit "$DONOR_COMMIT" \
+            --run-id "$WP11_RUN_ID" \
+            --output "$STATE_PATH"
+          python runtime/apply_etf_eu_routine_valuation_to_convergence_state.py \
+            "$STATE_PATH" \
+            --overlay "$VALUATION_OVERLAY" \
+            --report-date "$REPORT_DATE"
+          python tools/validate_etf_eu_production_convergence_state.py "$STATE_PATH" \
+            | tee "output/routine_preview/etf_eu_production_convergence_state_validation_${WP11_RUN_ID}.json"
+          echo "STATE_PATH=$STATE_PATH" >> "$GITHUB_ENV"
+
+      - name: Build and validate client package
+        run: |
+          set -euo pipefail
+          python runtime/prepare_etf_eu_wp10_client_executive_surface.py \
+            "$SOURCE_MANIFEST" \
+            --state "$STATE_PATH"
+          python runtime/apply_etf_eu_routine_valuation_to_client_report.py \
+            "$SOURCE_MANIFEST" \
+            --state "$STATE_PATH"
+          python runtime/promote_etf_eu_sister_report_to_production_candidate.py \
+            "$SOURCE_MANIFEST" \
+            --state "$STATE_PATH" \
+            --output-dir output/routine_preview/client_report
+          CLIENT_MANIFEST="$(find output/routine_preview/client_report -maxdepth 1 -name 'etf_eu_production_converged_report_manifest_*.json' -print -quit)"
+          test -n "$CLIENT_MANIFEST"
+          python tools/validate_etf_eu_production_converged_report.py \
+            "$CLIENT_MANIFEST" \
+            --state "$STATE_PATH" \
+            --output "output/routine_preview/etf_eu_production_converged_report_validation_${WP11_RUN_ID}.json"
+          echo "CLIENT_MANIFEST=$CLIENT_MANIFEST" >> "$GITHUB_ENV"
+
+      - name: Build and validate exact routine package
+        run: |
+          set -euo pipefail
+          python tools/build_etf_eu_converged_routine_package.py \
+            --client-manifest "$CLIENT_MANIFEST" \
+            --state "$STATE_PATH" \
+            --pricing "$PRICING_ARTIFACT" \
+            --macro "$MACRO_ARTIFACT" \
+            --output-dir output/fresh_generation \
+            --manifest-dir output/run_manifests \
+            --run-id "$WP11_RUN_ID" \
+            --report-date "$REPORT_DATE" \
+            --suffix "$REPORT_SUFFIX" \
+            --source-sha "$SOURCE_SHA" \
+            --donor-commit "$DONOR_COMMIT"
+          ROUTINE_MANIFEST="output/run_manifests/etf_eu_routine_run_manifest_${REPORT_DATE}_${WP11_RUN_ID}.json"
+          python tools/validate_etf_eu_converged_routine_manifest.py \
+            "$ROUTINE_MANIFEST" \
+            --output "output/routine_preview/etf_eu_converged_routine_manifest_validation_${WP11_RUN_ID}.json"
+          echo "ROUTINE_MANIFEST=$ROUTINE_MANIFEST" >> "$GITHUB_ENV"
+
+      - name: Render all PDF pages for visual review
+        run: |
+          set -euo pipefail
+          python tools/render_etf_eu_routine_pdf_review_pages.py \
+            --manifest "$ROUTINE_MANIFEST" \
+            --output-dir "output/routine_preview/pdf_pages_${WP11_RUN_ID}"
+
+      - name: Prove protected state remained unchanged
+        run: |
+          set -euo pipefail
+          sha256sum output/etf_eu_portfolio_state.json > output/routine_preview/protected_state_after.txt
+          sha256sum output/etf_eu_trade_ledger.csv >> output/routine_preview/protected_state_after.txt
+          diff -u output/routine_preview/protected_state_before.txt output/routine_preview/protected_state_after.txt
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+          state = json.loads(Path(os.environ["STATE_PATH"]).read_text())
+          manifest = json.loads(Path(os.environ["ROUTINE_MANIFEST"]).read_text())
+          if state["stage_1_decision"]["executable_trade_intents"] != []:
+              raise SystemExit("WP11_EXECUTABLE_INTENTS_PRESENT")
+          if manifest["delivery_authority"] is not False:
+              raise SystemExit("WP11_PREVIEW_DELIVERY_AUTHORITY_ESCALATED")
+          print("WP11_PREVIEW_OK | exact_package=4 | protected_state_unchanged=true | delivery=false")
+          PY
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: etf-eu-converged-routine-preview-${{ env.WP11_RUN_ID }}
+          path: |
+            output/routine_preview/
+            output/fresh_generation/weekly_etf_eu_review*${{ env.REPORT_SUFFIX }}*
+            output/run_manifests/etf_eu_routine_run_manifest_${{ env.REPORT_DATE }}_${{ env.WP11_RUN_ID }}.json
+            output/pricing/ucits_close_price_validation_basket_results_${{ env.WP11_RUN_ID }}.json
+            output/macro/etf_eu_macro_policy_${{ env.WP11_RUN_ID }}.json
+            output/etf_eu_valuation_history.csv
+          if-no-files-found: error
+          retention-days: 90
