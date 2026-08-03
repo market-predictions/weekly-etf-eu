@@ -3,142 +3,138 @@
 ## Current priority
 
 ```text
-PRESERVE_OFFICIAL_PORTFOLIO_UNTIL_ACCEPTED_XETRA_MARKET_EVIDENCE_AND_DONOR_FRESH_ADD_EXIST
+MERGE_WP_SYNC_10_THEN_START_WP_SYNC_11_ROUTINE_PRODUCTION_PROMOTION
 ```
 
-The synchronization architecture is merged and WP-SYNC-09 is complete. Stage 1 is explicitly blocked, not pending an implementation fix. The official portfolio must remain unchanged until both activation-grade market evidence and current donor fresh-add authority exist.
+WP-SYNC-10 is complete, machine-green and visually approved. The next step is to merge the reusable production-convergence capability, then create a separate work package that promotes it into the routine production and delivery path.
 
 ## Authoritative official baseline
 
 ```text
 portfolio_position_count=3
 cash_eur=60439.44
+cash_weight_pct=60.59
 invested_market_value_eur=39317.32
 nav_eur=99756.76
-portfolio_mutation_performed=false
-ledger_write_performed=false
+portfolio_mutation=false
+ledger_write=false
 ```
 
-| Ticker | Role | Shares | Value | Weight | Official action |
-|---|---|---:|---:|---:|---|
-| VWCE | Global core | 151 | €24,806.28 | 24.866766% | Hold |
-| EUNA | Low-volatility carry diversifier | 1,526 | €7,465.04 | 7.483242% | Hold; no add or sale |
-| SXR8 | U.S. equity overweight | 10 | €7,046.00 | 7.063180% | Hold; no second tranche |
+| Ticker | Shares | Value | Weight | Current action |
+|---|---:|---:|---:|---|
+| VWCE | 151 | €24,806.28 | 24.866766% | Hold; no change |
+| EUNA | 1,526 | €7,465.04 | 7.483242% | Hold; no add or sale |
+| SXR8 | 10 | €7,046.00 | 7.063180% | Hold; no second tranche |
 
-No automatic add, reduction, exit, later tranche or satellite activation is authorized.
+No new allocation is currently actionable. Blocked capacity remains cash.
 
-## Completed architecture and WP-SYNC-09 capability
+## Completed WP-SYNC-10 capability
 
-The repository now contains:
+The repository branch now provides:
 
-1. immutable donor strategy and portfolio-target consumption;
-2. ISIN-first EU exposure mapping;
-3. policy-constrained Stage-1 and Stage-2 shadow allocation;
-4. incumbent overlap and EUNA risk-budget review;
-5. validated bilingual sister-report output contract;
-6. Gmail-compatible shadow CID delivery and receipt evidence;
-7. blocked cutover packaging;
-8. fresh exact identity and KID capture for VVSM and LOCK/L0CK;
-9. exact Deutsche Börse line validation by ISIN, WKN, symbol, Xetra and EUR;
-10. current donor re-underwriting;
-11. fail-closed market-evidence and activation-decision machinery;
-12. before/after official-state hash protection.
+1. current pinned Weekly ETF donor-state rebuilding;
+2. six-of-six exact UCITS mapping for the current promoted set;
+3. separate current-opportunity and frozen-review contracts;
+4. a normalized production-convergence state;
+5. state-driven Dutch-primary and English-companion executive surfaces;
+6. exact official-position and cash reconciliation;
+7. strict client-language and stale-simulation validators;
+8. 11-page NL and 11-page EN premium HTML/PDF output;
+9. complete 22-page visual review;
+10. before/after protected-state hash proof.
 
-WP-SYNC-09 evidence:
+Evidence:
 
 ```text
-workflow_run=30501245612
-artifact_id=8743584959
-artifact_digest=sha256:48ec8c7fcdddcf016378ba19dc0398dadd4432404ea240618d054117fa09e2fc
-identity_pass_count=2
-kid_pass_count=2
-accepted_close_pass_count=0
-timestamped_quote_pass_count=0
-liquidity_pass_count=0
-decision=blocked
-decision_blocker_count=7
+head_sha=0997545ad0cf670d805536414d05abde17ff89f2
+production_convergence_run=30810262300
+artifact_id=8854509533
+artifact_digest=sha256:19a5bfcc2db4f813bebc3588946e4843c587ff17aa021d0150835bde58208d65
+visual_review_passed=true
 ```
 
-## Conditions required before reopening Stage 1
+## Immediate merge sequence
 
-Do not reopen activation work unless both categories below have materially changed.
+1. Confirm PR #69 contains no official portfolio, ledger or production-send mutation.
+2. Confirm all current workflows for the exact PR head are green.
+3. Confirm no unresolved review threads.
+4. Mark the PR ready for review.
+5. Squash-merge the reusable capability.
+6. Correct `control/CURRENT_STATE.md` on `main` from branch context to post-merge context.
 
-### A. Accepted exact Xetra market evidence
+## WP-SYNC-11 — routine production promotion and guarded delivery
 
-For both VVSM and L0CK:
-
-- accepted current completed Xetra EUR close;
-- timestamped Xetra bid and ask;
-- timestamped quote size;
-- accepted 20-session liquidity measurement;
-- source lineage and evidence age within policy limits.
-
-A different-currency issuer NAV, daily OHLCV, a search snippet or the 2026-07-24 cache does not satisfy this category.
-
-### B. Current donor fresh-add authority
-
-The current donor scorecard must emit a genuine fresh-add direction for the relevant exposure. Target presence, current ownership, `hold`, `hold_with_override`, or `hold_or_monitor` are not add authority.
-
-Current donor evidence remains:
+After the WP-SYNC-10 merge, create and claim:
 
 ```text
-SMH=hold_with_override; smaller / under review
-CIBR=hold; hold / monitor
-fresh_add_direction_present=false
+ETF-EU-WP-SYNC-11_ROUTINE_PRODUCTION_PROMOTION_AND_GUARDED_DELIVERY
 ```
 
-## When a dependency changes
+### Decision framework
 
-Create a new dated evidence run rather than reusing WP-SYNC-09 artifacts. The new package must:
+- Generate a fresh dated Weekly ETF EU report from the converged engine.
+- Deploy positions only where all current evidence and authority gates pass.
+- Preserve current official positions and cash when a gate fails.
+- Keep portfolio mutation separate from report generation and delivery.
 
-1. pin the current donor evidence commit;
-2. capture exact current product and market evidence;
-3. compare official portfolio and ledger hashes before and after;
-4. rebuild the allocator only from accepted evidence;
-5. create a new explicit activation decision;
-6. preserve `executable_trade_intents=[]` until a separate authorization package is approved;
-7. keep any official state mutation, ledger write, rollback and execution receipt in a later separately authorized package.
+### Input/state contract
 
-## Stage-2 boundary
+- Resolve the latest accepted Weekly ETF donor commit and report date.
+- Use the current official EU portfolio and ledger.
+- Rebuild current six-of-six UCITS mapping and evidence state.
+- Use a fresh run ID, report suffix and immutable manifest lineage.
+- Do not reuse prior report prose as current truth.
 
-Stage 2 remains blocked unless:
+### Output contract
 
-- Stage 1 is separately authorized and applied;
-- an official post-Stage-1 state and receipt exist;
-- IXUA document, valuation and tradability grades pass;
-- the donor emits a genuine fresh add direction, or a separate EU strategic-migration decision explicitly overrides the donor hold;
-- a separate Stage-2 activation authorization exists.
-
-Current Stage-2 capacity analysis remains non-executable:
+Required fresh package:
 
 ```text
-maximum_ixua_tranche_pct_nav=15.00
-cash_source_pct_nav=10.569579
-sxr8_source_pct_nav=4.430421
-euna_source_pct_nav=0.00
+Dutch primary HTML/PDF
+English companion HTML/PDF
+production convergence state
+pricing and mapping evidence
+client report validation
+visual review evidence
+delivery manifest
+independent inbox receipt
+```
+
+The email body must preserve the premium cockpit and decision surfaces after receiving-client rendering. PDF and receiving-mail HTML must tell the same portfolio/action story.
+
+### Operational runbook
+
+1. integrate the converged path into the routine package builder;
+2. generate the fresh package without sending;
+3. run complete machine and visual validation;
+4. create a guarded current-package send authorization bound to exact files and source SHA;
+5. send only the authorized package;
+6. perform delayed independent Gmail receipt verification;
+7. persist a routine manifest and closeout;
+8. never infer receipt from SMTP success alone.
+
+## Activation boundary
+
+Stage-1 activation remains blocked:
+
+```text
+VVSM_currently_promoted=false
+L0CK_currently_promoted=true
+VVSM_actionable_target=0.00%
+L0CK_actionable_target=0.00%
+stage_1_activation_authorized=false
 executable_trade_intents=[]
 ```
 
-## Operational discipline
+Reopen allocation only when a new dated review establishes all required product, close, bid/ask, quote-size, liquidity and donor fresh-add gates.
 
-Do not schedule repeated blind high-frequency probes against the same official endpoints. The latest fresh run established stable external behavior:
-
-```text
-completed_close_endpoint=HTTP_200_EMPTY_JSON_OBJECT
-history_crosscheck=HTTP_200_EMPTY_JSON_OBJECT
-timestamped_quote_endpoint=TIMEOUT
-```
-
-A new run is warranted only after a source, endpoint, entitlement, donor action or policy authority changes.
-
-## Prohibited next actions
+## Prohibited shortcuts
 
 Do not:
 
-- mutate `output/etf_eu_portfolio_state.json`;
-- append to `output/etf_eu_trade_ledger.csv`;
-- activate VVSM, LOCK/L0CK or IXUA;
-- create executable trade intents;
-- replace the routine production report with a shadow report;
-- send a new shadow report;
-- infer authorization from a merged capability, green CI, exact KID, report text, historical target weight or successful email delivery.
+- mutate the official portfolio or ledger merely to make the report look more deployed;
+- show analytical allocator weights as current targets;
+- restore VVSM to the current opportunity set without current donor promotion;
+- treat mapping completeness as funding authority;
+- send the WP-SYNC-10 artifact as if it were a fresh routine package;
+- claim delivery without a delivery manifest and independent inbox receipt.

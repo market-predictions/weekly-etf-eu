@@ -83,6 +83,24 @@ exposures:
     unresolved_reason_code: pricing_missing_or_stale
     mapping_note: producer-focused agribusiness implementation; exact KID artifact and cutover market evidence remain required
 
+  water_infrastructure:
+    portfolio_role: Clean-water infrastructure and treatment satellite
+    candidates:
+      - registry_id: water_infrastructure_lg_clean_water
+        preferred: true
+        us_references: [PHO, PIO]
+    unresolved_reason_code: pricing_missing_or_stale
+    mapping_note: dedicated clean-water infrastructure, treatment-technology and equipment implementation; exact KID artifact and current market evidence remain required before allocation
+
+  water_utilities:
+    portfolio_role: Global water utilities and defensive infrastructure satellite
+    candidates:
+      - registry_id: water_utilities_ishares_global_water
+        preferred: true
+        us_references: [FIW, CGW]
+    unresolved_reason_code: pricing_missing_or_stale
+    mapping_note: broad global water implementation with utilities, infrastructure and equipment exposure; exact KID artifact and current market evidence remain required before allocation
+
   broad_commodities:
     portfolio_role: Broad commodity and inflation-sensitive ballast
     candidates:

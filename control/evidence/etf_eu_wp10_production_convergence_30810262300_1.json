@@ -1,0 +1,126 @@
+{
+  "schema_version": "etf_eu_wp10_production_convergence_evidence_v1",
+  "artifact_type": "etf_eu_wp10_production_convergence_evidence",
+  "recorded_at_europe_amsterdam": "2026-08-03T13:45:00+02:00",
+  "repository": "market-predictions/weekly-etf-eu",
+  "branch": "sync/wp10-production-engine-convergence",
+  "pull_request": 69,
+  "validated_head_sha": "0997545ad0cf670d805536414d05abde17ff89f2",
+  "donor_repository": "market-predictions/weekly-etf",
+  "donor_evidence_commit": "52f13e190a9f6b0045df175973fdf8d0f6f5f30d",
+  "donor_report_date": "2026-07-29",
+  "workflow": {
+    "run_id": 30810262300,
+    "job_id": 91675081232,
+    "conclusion": "success",
+    "artifact_id": 8854509533,
+    "artifact_digest": "sha256:19a5bfcc2db4f813bebc3588946e4843c587ff17aa021d0150835bde58208d65",
+    "artifact_size_bytes": 918918
+  },
+  "workflow_matrix": {
+    "strategy_synchronization_run": 30810262285,
+    "strategy_synchronization_conclusion": "success",
+    "target_allocator_run": 30810262293,
+    "target_allocator_conclusion": "success",
+    "allocator_report_run": 30810262292,
+    "allocator_report_conclusion": "success",
+    "production_convergence_run": 30810262300,
+    "production_convergence_conclusion": "success"
+  },
+  "state_validation": {
+    "valid": true,
+    "blockers": [],
+    "funded_tickers": ["EUNA", "SXR8", "VWCE"],
+    "funded_position_count": 3,
+    "promoted_exposure_count": 6,
+    "mapped_promoted_exposure_count": 6,
+    "unmapped_promoted_exposure_count": 0,
+    "stage_1_review_candidate_count": 2,
+    "stage_1_current_promotion": {
+      "VVSM": false,
+      "L0CK": true
+    },
+    "stage_1_decision": "blocked"
+  },
+  "client_report_validation": {
+    "valid": true,
+    "blockers": [],
+    "required_section_count": 19,
+    "languages": {
+      "nl": {
+        "html": "output/production_convergence/client_report/weekly_etf_eu_review_nl_260729_converged.html",
+        "pdf": "output/production_convergence/client_report/weekly_etf_eu_review_nl_260729_converged.pdf",
+        "page_count": 11,
+        "section_count": 19
+      },
+      "en": {
+        "html": "output/production_convergence/client_report/weekly_etf_eu_review_260729_converged.html",
+        "pdf": "output/production_convergence/client_report/weekly_etf_eu_review_260729_converged.pdf",
+        "page_count": 11,
+        "section_count": 19
+      }
+    },
+    "client_shadow_language_absent": true,
+    "raw_internal_tokens_absent": true,
+    "stale_simulated_trade_content_absent": true,
+    "exact_l0ck_identity_visible": true,
+    "actionable_stage_1_target_zero": true,
+    "cash_target_matches_official_state": true
+  },
+  "mapping_completion": {
+    "new_verified_non_authorizing_mappings": [
+      {
+        "exposure_id": "water_infrastructure",
+        "fund_name": "L&G Clean Water UCITS ETF USD Acc",
+        "isin": "IE00BK5BC891",
+        "xetra_symbol": "XMLC",
+        "wkn": "A2PM52"
+      },
+      {
+        "exposure_id": "water_utilities",
+        "fund_name": "iShares Global Water UCITS ETF USD (Dist)",
+        "isin": "IE00B1TXK627",
+        "xetra_symbol": "IQQQ",
+        "wkn": "A0MM0S"
+      }
+    ],
+    "mapping_authorizes_allocation": false
+  },
+  "visual_review": {
+    "performed": true,
+    "reviewed_page_count": 22,
+    "nl_page_count": 11,
+    "en_page_count": 11,
+    "blank_pages": 0,
+    "clipping": false,
+    "overlap": false,
+    "orphaned_rows": false,
+    "footer_client_safe": true,
+    "premium_layout_preserved": true,
+    "visual_review_passed": true,
+    "corrections_verified": [
+      "regime rendered as client label rather than metadata object",
+      "footer changed from development wording to client report wording",
+      "cash target reconciled to official 60.59 percent with zero delta",
+      "official positions show current weight as target and zero delta",
+      "VVSM not represented as currently promoted",
+      "L0CK represented as currently promoted but blocked",
+      "no executable trade intent appears"
+    ]
+  },
+  "protected_state": {
+    "portfolio_state_sha256": "6642334558818e630f0b22a2500ef44b2489ff237aacca638e81f184c165aa6f",
+    "trade_ledger_sha256": "718f0681fe0d1162f9a91c34aa90489eb8566aecb06c12a1a2d9ad251be3e87c",
+    "before_after_hashes_equal": true,
+    "portfolio_mutation": false,
+    "ledger_write": false
+  },
+  "authority": {
+    "funding_authority": false,
+    "execution_authority": false,
+    "activation_authority": false,
+    "production_delivery_authority": false,
+    "executable_trade_intents": []
+  },
+  "accepted_conclusion": "production_convergence_capability_valid_and_visual_review_passed_without_portfolio_or_delivery_authority"
+}

@@ -10,6 +10,7 @@ import yaml
 DEFAULT_ADDITIONS = (
     Path("config/ucits_symbol_registry_sync_additions.yml"),
     Path("config/ucits_symbol_registry_sync_additions_wp09.yml"),
+    Path("config/ucits_symbol_registry_sync_additions_wp10.yml"),
 )
 
 
