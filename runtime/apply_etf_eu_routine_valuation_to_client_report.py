@@ -51,6 +51,12 @@ def pct(value: Any, lang: str) -> str:
     return text.replace(".", ",") if lang == "nl" else text
 
 
+def signed_pct(value: Any, lang: str) -> str:
+    number = float(value or 0)
+    text = f"{number:+.2f}%" if number else "0.00%"
+    return text.replace(".", ",") if lang == "nl" else text
+
+
 def ticker(row: dict[str, Any]) -> str:
     return str(row.get("ticker") or row.get("exchange_ticker") or "").strip().upper()
 
@@ -82,6 +88,97 @@ def localize_latest_history_note(soup: BeautifulSoup, state: dict[str, Any], lan
         cells[-1].append(localized_note)
         return
     raise RuntimeError(f"Valuation-history row missing for report date {report_date} ({lang})")
+
+
+def build_current_performance(soup: BeautifulSoup, state: dict[str, Any], lang: str) -> None:
+    """Rebuild section 7A from the reconciled run-scoped valuation state.
+
+    The source report contains historical placeholder values. Those values may not
+    survive a fresh completed-close overlay. Segment and thesis labels are retained,
+    while every numeric position field is replaced from the current state.
+    """
+    section = sec(soup, "section-7A")
+    existing_labels: dict[str, tuple[str, str]] = {}
+    for row in section.find_all("tr"):
+        cells = row.find_all("td", recursive=False)
+        if len(cells) < 3:
+            continue
+        symbol = cells[2].get_text(" ", strip=True).upper()
+        if symbol:
+            existing_labels[symbol] = (
+                cells[0].get_text(" ", strip=True),
+                cells[1].get_text(" ", strip=True),
+            )
+
+    reset(section)
+    portfolio = state.get("official_portfolio") if isinstance(state.get("official_portfolio"), dict) else {}
+    positions = [row for row in portfolio.get("positions") or [] if isinstance(row, dict)]
+    headers = (
+        [
+            "Portefeuillesegment",
+            "Beleggingsthese",
+            "ETF",
+            "Gewicht %",
+            "1w rendement",
+            "1m rendement",
+            "3m rendement",
+            "Sinds instap",
+            "P/L EUR",
+            "Bijdrage %",
+        ]
+        if lang == "nl"
+        else [
+            "Portfolio segment",
+            "Investment thesis",
+            "ETF",
+            "Weight %",
+            "1w return",
+            "1m return",
+            "3m return",
+            "Since entry",
+            "P/L EUR",
+            "Contribution %",
+        ]
+    )
+    table = tag(soup, "table")
+    table["class"] = ["wide-table", "routine-current-performance-table"]
+    thead = tag(soup, "thead")
+    header_row = tag(soup, "tr")
+    for heading in headers:
+        header_row.append(tag(soup, "th", heading))
+    thead.append(header_row)
+    table.append(thead)
+
+    tbody = tag(soup, "tbody")
+    missing_labels: list[str] = []
+    for position in positions:
+        symbol = ticker(position)
+        labels = existing_labels.get(symbol)
+        if labels is None:
+            missing_labels.append(symbol)
+            labels = (symbol, str(position.get("fund_name") or position.get("name") or symbol))
+        unavailable = "n.v.t." if lang == "nl" else "n/a"
+        values = [
+            labels[0],
+            labels[1],
+            symbol,
+            pct(position.get("weight_pct"), lang),
+            unavailable,
+            unavailable,
+            unavailable,
+            signed_pct(position.get("unrealized_pnl_pct"), lang),
+            euro(position.get("unrealized_pnl_eur"), lang),
+            signed_pct(position.get("portfolio_contribution_pct_nav"), lang),
+        ]
+        row = tag(soup, "tr")
+        for value in values:
+            row.append(tag(soup, "td", value))
+        tbody.append(row)
+    table.append(tbody)
+    section.append(table)
+
+    if missing_labels:
+        raise RuntimeError(f"Performance-table source labels missing for: {', '.join(missing_labels)} ({lang})")
 
 
 def build_current_positions(soup: BeautifulSoup, state: dict[str, Any], lang: str) -> None:
@@ -171,18 +268,20 @@ def apply(manifest_path: Path, state_path: Path) -> None:
         soup = BeautifulSoup(html_path.read_text(encoding="utf-8"), "html.parser")
         reconcile_report_date(soup, state)
         localize_latest_history_note(soup, state, lang)
+        build_current_performance(soup, state, lang)
         build_current_positions(soup, state, lang)
         add_valuation_lineage(soup, state, lang)
         output = str(soup)
         html_path.write_text(output, encoding="utf-8")
         HTML(string=output, base_url=str(html_path.parent.resolve())).write_pdf(str(pdf_path))
-        record["wp11_routine_valuation_reconciliation"] = "fresh_eur_close_overlay_v2_report_date_and_localization"
+        record["wp11_routine_valuation_reconciliation"] = "fresh_eur_close_overlay_v3_report_date_localization_and_performance"
     manifest["wp11_routine_valuation_reconciliation"] = {
         "applied": True,
         "report_date": state.get("report_date"),
         "pricing_close_dates": state.get("official_portfolio", {}).get("pricing_close_dates"),
         "hero_report_date_reconciled": True,
         "valuation_history_note_localized": True,
+        "current_performance_table_reconciled": True,
         "portfolio_mutation": False,
         "ledger_write": False,
         "production_delivery_authority": False,
