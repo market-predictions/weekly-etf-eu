@@ -15,6 +15,7 @@ from pricing.ucits_price_provider_engine import (
     build_legacy_validation_artifact,
     build_provider_qualification,
 )
+from pricing.ucits_price_qualification_policy import apply_identity_anchor_policy
 
 
 def main() -> None:
@@ -52,6 +53,7 @@ def main() -> None:
         max_close_age_days=args.max_close_age_days,
         agreement_tolerance_pct=args.agreement_tolerance_pct,
     )
+    qualification = apply_identity_anchor_policy(qualification_path)
     build_legacy_validation_artifact(
         qualification_path=qualification_path,
         output_path=legacy_path,
@@ -59,18 +61,18 @@ def main() -> None:
         run_id=args.run_id,
     )
 
-    qualification = json.loads(qualification_path.read_text(encoding="utf-8"))
     print(
         "UCITS_CLOSE_PRICE_VALIDATION_BASKET_RESULTS_OK"
         f" | path={legacy_path}"
         f" | qualification={qualification_path}"
         f" | report_date={report_date}"
         f" | funded_consensus={qualification['funded_consensus_count']}/{qualification['funded_line_count']}"
+        f" | identity_anchors={qualification['funded_identity_anchor_count']}/{qualification['funded_line_count']}"
         f" | gate={qualification['report_pricing_gate_passed']}"
     )
     require_consensus = args.require_funded_consensus or bool(os.environ.get("WP11_RUN_ID"))
     if require_consensus and not qualification.get("report_pricing_gate_passed"):
-        raise SystemExit("Funded-position provider consensus gate failed; report generation is blocked.")
+        raise SystemExit("Funded-position provider consensus and identity-anchor gate failed; report generation is blocked.")
 
 
 if __name__ == "__main__":
