@@ -9,7 +9,7 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from pricing.ucits_close_price_multi_source import build_results
+from pricing.ucits_close_price_multi_source_v2 import build_results
 
 
 def main() -> None:
