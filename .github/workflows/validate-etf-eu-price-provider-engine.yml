@@ -1,0 +1,97 @@
+name: Validate ETF EU multi-provider close-price engine
+
+on:
+  workflow_dispatch:
+    inputs:
+      report_date:
+        description: Completed-close date to qualify
+        required: false
+        default: "2026-07-31"
+  pull_request:
+    paths:
+      - "config/ucits_price_provider_registry.yml"
+      - "pricing/ucits_price_provider_engine.py"
+      - "pricing/build_ucits_close_price_validation_basket_results.py"
+      - "tools/qualify_ucits_price_providers.py"
+      - "tests/test_ucits_price_provider_engine.py"
+      - "control/work_packages/WP_SYNC_11A_MULTI_PROVIDER_CLOSE_PRICE_ENGINE_20260803.md"
+      - "control/claims/CLAIM_WP_SYNC_11A_MULTI_PROVIDER_CLOSE_PRICE_ENGINE_20260803.md"
+      - ".github/workflows/validate-etf-eu-price-provider-engine.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  validate-price-engine:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      REPORT_DATE: ${{ inputs.report_date || '2026-07-31' }}
+      LEEWAY_API_TOKEN: ${{ secrets.LEEWAY_API_TOKEN }}
+      EODHD_API_TOKEN: ${{ secrets.EODHD_API_TOKEN }}
+      MARKETSTACK_ACCESS_KEY: ${{ secrets.MARKETSTACK_ACCESS_KEY }}
+      ALPHA_VANTAGE_API_KEY: ${{ secrets.ALPHA_VANTAGE_API_KEY }}
+
+    steps:
+      - name: Checkout Weekly ETF EU
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install bounded dependencies
+        run: python -m pip install requests==2.32.3 PyYAML==6.0.2
+
+      - name: Run deterministic adapter and consensus tests
+        run: python -m unittest tests/test_ucits_price_provider_engine.py -v
+
+      - name: Qualify all twelve trading lines
+        run: |
+          set -euo pipefail
+          mkdir -p output/provider_qualification
+          python tools/qualify_ucits_price_providers.py \
+            --registry config/ucits_price_provider_registry.yml \
+            --report-date "$REPORT_DATE" \
+            --output output/provider_qualification/ucits_price_provider_qualification.json \
+            --verify-identity \
+            --pause-seconds 1 \
+            --max-close-age-days 7 \
+            --agreement-tolerance-pct 1.0
+
+      - name: Validate qualification artifact contract
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+          path = Path("output/provider_qualification/ucits_price_provider_qualification.json")
+          payload = json.loads(path.read_text())
+          if payload["schema_version"] != "ucits_price_provider_qualification_v1":
+              raise SystemExit("PRICE_ENGINE_SCHEMA_MISMATCH")
+          if payload["line_count"] != 12 or payload["funded_line_count"] != 3:
+              raise SystemExit("PRICE_ENGINE_BASKET_SCOPE_MISMATCH")
+          if payload["production_or_redistribution_authority"] is not False:
+              raise SystemExit("PRICE_ENGINE_AUTHORITY_ESCALATED")
+          text = path.read_text()
+          for name in ("LEEWAY_API_TOKEN", "EODHD_API_TOKEN", "MARKETSTACK_ACCESS_KEY", "ALPHA_VANTAGE_API_KEY"):
+              value = os.environ.get(name, "")
+              if value and value in text:
+                  raise SystemExit(f"PRICE_ENGINE_SECRET_LEAK:{name}")
+          print(
+              "ETF_EU_PRICE_ENGINE_OK"
+              f" | configured={payload['provider_configuration']}"
+              f" | funded_consensus={payload['funded_consensus_count']}/{payload['funded_line_count']}"
+              f" | report_gate={payload['report_pricing_gate_passed']}"
+          )
+          PY
+
+      - name: Upload provider qualification evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: etf-eu-price-provider-qualification-${{ github.run_id }}-${{ github.run_attempt }}
+          path: output/provider_qualification/ucits_price_provider_qualification.json
+          if-no-files-found: error
+          retention-days: 90
