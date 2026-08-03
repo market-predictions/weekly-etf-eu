@@ -1,10 +1,14 @@
 from __future__ import annotations
 
 import json
+import os
 import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
+from pricing import provider_secret_safety
+from pricing.provider_secret_safety import enforce_provider_secret_safety
 from pricing.ucits_price_qualification_policy import apply_identity_anchor_policy
 
 
@@ -40,6 +44,28 @@ class ProviderEvidenceRedactionTests(unittest.TestCase):
         self.assertEqual(row["blockers"], ["provider_rate_or_quota_limit"])
         self.assertEqual(row["identity_evidence"], [{"symbol": "VWCE.DEX"}])
         self.assertTrue(result["secret_redaction_applied"])
+
+    def test_unrotated_alpha_secret_is_removed(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            marker = Path(tmp) / "missing-rotation-marker.json"
+            with patch.object(provider_secret_safety, "ALPHA_ROTATION_MARKER", marker):
+                with patch.dict(os.environ, {"ALPHA_VANTAGE_API_KEY": "old-key"}, clear=False):
+                    result = enforce_provider_secret_safety()
+                    self.assertNotIn("ALPHA_VANTAGE_API_KEY", os.environ)
+        self.assertTrue(result["alpha_vantage_secret_was_present"])
+        self.assertFalse(result["alpha_vantage_rotation_confirmed"])
+        self.assertFalse(result["alpha_vantage_live_enabled"])
+
+    def test_rotated_alpha_secret_remains_available(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            marker = Path(tmp) / "rotation-marker.json"
+            marker.write_text("{}", encoding="utf-8")
+            with patch.object(provider_secret_safety, "ALPHA_ROTATION_MARKER", marker):
+                with patch.dict(os.environ, {"ALPHA_VANTAGE_API_KEY": "rotated-key"}, clear=False):
+                    result = enforce_provider_secret_safety()
+                    self.assertEqual(os.environ.get("ALPHA_VANTAGE_API_KEY"), "rotated-key")
+        self.assertTrue(result["alpha_vantage_rotation_confirmed"])
+        self.assertTrue(result["alpha_vantage_live_enabled"])
 
 
 if __name__ == "__main__":
