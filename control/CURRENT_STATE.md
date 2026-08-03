@@ -7,14 +7,15 @@ date=2026-08-03
 repository=market-predictions/weekly-etf-eu
 working_branch=sync/wp11-routine-production-promotion
 pull_request=70
+validated_source_sha=0794ad5373c4073dfe3051d6675c0689739dcd4d
 operating_mode=routine_production_pricing_validated_no_send
 wp10_status=merged
 wp11_status=fresh_routine_preview_validated
 wp11a_status=closed_validated
-selected_next_action=VERIFY_CLEANED_PR70_AND_PREPARE_MERGE_REVIEW
+selected_next_action=REQUEST_MERGE_AUTHORITY_FOR_PR70
 ```
 
-WP-SYNC-11 has promoted the converged report engine into a fresh, no-send routine package. WP-SYNC-11A has resolved the funded-position pricing blocker with a deterministic multi-provider completed-close gate. The exact integrated routine preview is machine-green, visually reviewed and protected-state safe. No report was sent.
+WP-SYNC-11 has promoted the converged report engine into a fresh, no-send routine package. WP-SYNC-11A has resolved the funded-position pricing blocker with a deterministic multi-provider completed-close gate. The cleaned PR head passed the dedicated provider tests, allocator validation, full routine preview, all 22 rendered PDF pages and protected-state proof. No report was sent.
 
 ## Official protected EU model portfolio
 
@@ -40,7 +41,7 @@ The official state has not been overwritten. Fresh report valuation is a separat
 
 ```text
 report_date=2026-07-31
-routine_run_id=20260803_30842139405_1
+routine_run_id=20260803_30850723696_1
 pricing_gate_passed=true
 funded_consensus_count=3/3
 funded_identity_anchor_count=3/3
@@ -103,16 +104,20 @@ nl_html=output/fresh_generation/weekly_etf_eu_review_nl_260731_01.html
 nl_pdf=output/fresh_generation/weekly_etf_eu_review_nl_260731_01.pdf
 en_html=output/fresh_generation/weekly_etf_eu_review_260731_01.html
 en_pdf=output/fresh_generation/weekly_etf_eu_review_260731_01.pdf
-routine_manifest=output/run_manifests/etf_eu_routine_run_manifest_2026-07-31_20260803_30842139405_1.json
+routine_manifest=output/run_manifests/etf_eu_routine_run_manifest_2026-07-31_20260803_30850723696_1.json
 ```
 
-Validation result:
+Final exact-head validation:
 
 ```text
-workflow_run=30842139405
-workflow_job=91781522951
-artifact_id=8867298602
-artifact_sha256=38522912996254d76b77b59b5e9fea43b6ea2b6ecf1d33ba70e5c3d36e30068d
+source_sha=0794ad5373c4073dfe3051d6675c0689739dcd4d
+workflow_run=30850723696
+workflow_job=91809807838
+artifact_id=8870570755
+artifact_sha256=c11dd7d464e706cf5ed4d6c4afcfeccd556a34a11108a9dfcc5a8a4f7c651602
+pricing_engine_workflow_run=30850723739 success
+stooq_diagnostic_workflow_run=30850723694 success
+allocator_report_workflow_run=30850723704 success
 languages=nl,en
 sections_per_language=19
 pages_nl=11
@@ -137,8 +142,9 @@ activation_authority=false
 production_delivery_authority=false
 email_sent=false
 delivery_receipt_created=false
+merge_authority=false
 ```
 
 ## Current conclusion
 
-The development pricing model and its integration into the fresh routine report are working and validated. Pricing is no longer the current development blocker for the three funded positions. PR #70 remains draft and unmerged; report delivery remains separately unauthorized. Future report dates must obtain fresh same-date consensus and cannot reuse the July 31 cache.
+The development pricing model and its integration into the fresh routine report are working and validated on the cleaned PR head. Pricing is no longer the current development blocker for the three funded positions. PR #70 remains draft, open and mergeable with no review threads; merging requires explicit authority. Future report dates must obtain fresh same-date consensus and cannot reuse the July 31 cache.
