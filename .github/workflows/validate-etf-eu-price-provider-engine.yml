@@ -15,11 +15,13 @@ on:
       - "pricing/ucits_price_evidence_cache.py"
       - "pricing/ucits_price_qualification_policy.py"
       - "pricing/build_ucits_close_price_validation_basket_results.py"
+      - "runtime/build_etf_eu_routine_valuation_overlay.py"
       - "tools/qualify_ucits_price_providers.py"
       - "tests/test_ucits_price_provider_engine.py"
       - "tests/test_ucits_price_evidence_cache.py"
       - "tests/test_ucits_price_evidence_redaction.py"
       - "tests/test_ucits_price_qualification_policy.py"
+      - "tests/test_etf_eu_routine_valuation_overlay.py"
       - "control/work_packages/WP_SYNC_11A_MULTI_PROVIDER_CLOSE_PRICE_ENGINE_20260803.md"
       - ".github/workflows/validate-etf-eu-price-provider-engine.yml"
 
@@ -49,13 +51,14 @@ jobs:
       - name: Install bounded dependencies
         run: python -m pip install requests==2.32.3 PyYAML==6.0.2
 
-      - name: Run deterministic adapter, cache, redaction, consensus and identity tests
+      - name: Run deterministic adapter, cache, redaction, consensus, identity and valuation tests
         run: |
           python -m unittest \
             tests/test_ucits_price_provider_engine.py \
             tests/test_ucits_price_evidence_cache.py \
             tests/test_ucits_price_evidence_redaction.py \
             tests/test_ucits_price_qualification_policy.py \
+            tests/test_etf_eu_routine_valuation_overlay.py \
             -v
 
       - name: Qualify all twelve trading lines with live providers
