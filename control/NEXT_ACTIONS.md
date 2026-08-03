@@ -3,138 +3,117 @@
 ## Current priority
 
 ```text
-MERGE_WP_SYNC_10_THEN_START_WP_SYNC_11_ROUTINE_PRODUCTION_PROMOTION
+VERIFY_CLEANED_PR70_AND_PREPARE_MERGE_REVIEW
 ```
 
-WP-SYNC-10 is complete, machine-green and visually approved. The next step is to merge the reusable production-convergence capability, then create a separate work package that promotes it into the routine production and delivery path.
+The critical funded-position pricing blocker is resolved for the validated 2026-07-31 development run. The multi-provider engine is integrated into the routine preview, all three funded positions pass consensus and identity-anchor gates, the bilingual report package validates, and protected official state remains unchanged.
 
-## Authoritative official baseline
+## Validated baseline
 
 ```text
-portfolio_position_count=3
-cash_eur=60439.44
-cash_weight_pct=60.59
-invested_market_value_eur=39317.32
-nav_eur=99756.76
+branch=sync/wp11-routine-production-promotion
+pull_request=70
+report_date=2026-07-31
+run_id=20260803_30842139405_1
+funded_consensus=3/3
+funded_identity_anchors=3/3
+run_scoped_nav_eur=99455.68
+nl_pdf_pages=11
+en_pdf_pages=11
+visual_review_pages=22
+protected_state_unchanged=true
+report_delivery=false
+```
+
+Official state remains separately protected:
+
+```text
+official_nav_eur=99756.76
+official_cash_eur=60439.44
 portfolio_mutation=false
 ledger_write=false
 ```
 
-| Ticker | Shares | Value | Weight | Current action |
-|---|---:|---:|---:|---|
-| VWCE | 151 | €24,806.28 | 24.866766% | Hold; no change |
-| EUNA | 1,526 | €7,465.04 | 7.483242% | Hold; no add or sale |
-| SXR8 | 10 | €7,046.00 | 7.063180% | Hold; no second tranche |
+## Immediate repository sequence
 
-No new allocation is currently actionable. Blocked capacity remains cash.
+1. Confirm the cleaned PR #70 head has no duplicate pricing implementation.
+2. Confirm the exact-head pricing-engine and routine-preview workflows are green.
+3. Confirm no unresolved review threads or unrelated official-state mutations.
+4. Update the PR description with the validated pricing, valuation, report and authority evidence.
+5. Keep the PR draft until merge authority is explicitly granted.
+6. After merge, update `main` control files if the merge strategy changes any recorded SHA or path.
 
-## Completed WP-SYNC-10 capability
+## Future-date pricing requirement
 
-The repository branch now provides:
-
-1. current pinned Weekly ETF donor-state rebuilding;
-2. six-of-six exact UCITS mapping for the current promoted set;
-3. separate current-opportunity and frozen-review contracts;
-4. a normalized production-convergence state;
-5. state-driven Dutch-primary and English-companion executive surfaces;
-6. exact official-position and cash reconciliation;
-7. strict client-language and stale-simulation validators;
-8. 11-page NL and 11-page EN premium HTML/PDF output;
-9. complete 22-page visual review;
-10. before/after protected-state hash proof.
-
-Evidence:
+The accepted Alpha Vantage cache is valid only for report date `2026-07-31`. Every later report date must obtain fresh completed-close evidence and pass the same gate:
 
 ```text
-head_sha=0997545ad0cf670d805536414d05abde17ff89f2
-production_convergence_run=30810262300
-artifact_id=8854509533
-artifact_digest=sha256:19a5bfcc2db4f813bebc3588946e4843c587ff17aa021d0150835bde58208d65
-visual_review_passed=true
+two_same_date_providers=true
+max_spread_pct<=1.0
+exact_line_metadata_anchor>=1
+funded_lines_pass=3/3
 ```
 
-## Immediate merge sequence
+Before the next fresh-date report, establish at least one of these paths:
 
-1. Confirm PR #69 contains no official portfolio, ledger or production-send mutation.
-2. Confirm all current workflows for the exact PR head are green.
-3. Confirm no unresolved review threads.
-4. Mark the PR ready for review.
-5. Squash-merge the reusable capability.
-6. Correct `control/CURRENT_STATE.md` on `main` from branch context to post-merge context.
+1. rotate `ALPHA_VANTAGE_API_KEY`, then commit the explicit rotation-confirmation control file required by the secret-safety policy; or
+2. configure one or more additional development providers:
+   - `LEEWAY_API_TOKEN`
+   - `EODHD_API_TOKEN`
+   - `MARKETSTACK_ACCESS_KEY`
 
-## WP-SYNC-11 — routine production promotion and guarded delivery
+Do not weaken the consensus gate merely because only Yahoo Chart is available.
 
-After the WP-SYNC-10 merge, create and claim:
+## Remaining non-funded pricing gap
 
 ```text
-ETF-EU-WP-SYNC-11_ROUTINE_PRODUCTION_PROMOTION_AND_GUARDED_DELIVERY
+instrument=CBUF
+isin=IE00BJ5JNZ06
+venue=XETR
+currency=EUR
+status=unpriced_diagnostics_only
 ```
 
-### Decision framework
+Resolve CBUF only through an exact-line provider result. Do not substitute WHCS, another exchange line, issuer NAV or a proxy unless a separate explicit identity and valuation policy permits it. CBUF does not currently block funded NAV.
 
-- Generate a fresh dated Weekly ETF EU report from the converged engine.
-- Deploy positions only where all current evidence and authority gates pass.
-- Preserve current official positions and cash when a gate fails.
-- Keep portfolio mutation separate from report generation and delivery.
+## Routine report sequence after merge
 
-### Input/state contract
+1. Select a new report date and suffix.
+2. Resolve the latest accepted Weekly ETF donor commit.
+3. Run fresh multi-provider qualification.
+4. Fail closed unless all funded lines pass consensus and identity gates.
+5. Build the run-scoped valuation overlay without mutating official state.
+6. Generate Dutch-primary and English-companion HTML/PDF.
+7. Run machine validation and render every PDF page.
+8. Create the exact four-file routine manifest.
+9. Keep delivery disabled until a separately authorized guarded-send step.
+10. Claim delivery only after a real transport manifest and independent inbox receipt.
 
-- Resolve the latest accepted Weekly ETF donor commit and report date.
-- Use the current official EU portfolio and ledger.
-- Rebuild current six-of-six UCITS mapping and evidence state.
-- Use a fresh run ID, report suffix and immutable manifest lineage.
-- Do not reuse prior report prose as current truth.
+## Deferred matters
 
-### Output contract
+Commercial licensing and a permanent supported production market-data subscription were explicitly deferred for this development stage. They must be revisited before external commercial redistribution or production-grade provider promotion.
 
-Required fresh package:
+## Authority boundary
 
 ```text
-Dutch primary HTML/PDF
-English companion HTML/PDF
-production convergence state
-pricing and mapping evidence
-client report validation
-visual review evidence
-delivery manifest
-independent inbox receipt
+pricing_development_model=validated
+commercial_licensing_authority=false
+funding_authority=false
+portfolio_mutation=false
+ledger_write=false
+execution_authority=false
+delivery_authority=false
+merge_authority=false
 ```
-
-The email body must preserve the premium cockpit and decision surfaces after receiving-client rendering. PDF and receiving-mail HTML must tell the same portfolio/action story.
-
-### Operational runbook
-
-1. integrate the converged path into the routine package builder;
-2. generate the fresh package without sending;
-3. run complete machine and visual validation;
-4. create a guarded current-package send authorization bound to exact files and source SHA;
-5. send only the authorized package;
-6. perform delayed independent Gmail receipt verification;
-7. persist a routine manifest and closeout;
-8. never infer receipt from SMTP success alone.
-
-## Activation boundary
-
-Stage-1 activation remains blocked:
-
-```text
-VVSM_currently_promoted=false
-L0CK_currently_promoted=true
-VVSM_actionable_target=0.00%
-L0CK_actionable_target=0.00%
-stage_1_activation_authorized=false
-executable_trade_intents=[]
-```
-
-Reopen allocation only when a new dated review establishes all required product, close, bid/ask, quote-size, liquidity and donor fresh-add gates.
 
 ## Prohibited shortcuts
 
 Do not:
 
-- mutate the official portfolio or ledger merely to make the report look more deployed;
-- show analytical allocator weights as current targets;
-- restore VVSM to the current opportunity set without current donor promotion;
-- treat mapping completeness as funding authority;
-- send the WP-SYNC-10 artifact as if it were a fresh routine package;
-- claim delivery without a delivery manifest and independent inbox receipt.
+- reuse the July 31 provider cache for a later report date;
+- accept a single provider for funded valuation;
+- infer exact-line identity from ticker similarity;
+- average providers from different close dates;
+- overwrite official portfolio state with a report overlay;
+- send the validated preview without an exact guarded-send authorization;
+- claim receipt from SMTP success or artifact creation alone.
