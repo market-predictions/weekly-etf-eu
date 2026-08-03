@@ -2,10 +2,15 @@ from __future__ import annotations
 
 import argparse
 import json
+import sys
 from datetime import date
 from pathlib import Path
 
 import yaml
+
+ROOT = Path(__file__).resolve().parents[1]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
 
 from pricing.provider_close_price_engine import PROVIDERS, qualify_line, utc_now
 
@@ -25,12 +30,7 @@ def main() -> None:
     funded = [row for row in rows if row.get("basket_id") in funded_ids]
     provider_summary = {}
     for provider_id, _ in PROVIDERS:
-        attempts = [
-            attempt
-            for row in rows
-            for attempt in row["provider_attempts"]
-            if attempt["provider_id"] == provider_id
-        ]
+        attempts = [attempt for row in rows for attempt in row["provider_attempts"] if attempt["provider_id"] == provider_id]
         provider_summary[provider_id] = {
             "attempted": sum(1 for item in attempts if item["pricing_status"] != "provider_skipped"),
             "priced": sum(1 for item in attempts if item["pricing_status"] == "priced_non_authoritative"),
