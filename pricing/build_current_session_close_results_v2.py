@@ -10,11 +10,14 @@ from pricing import build_current_session_close_results as legacy
 from pricing.yahoo_regular_market_fallback import report_date_regular_market_close
 
 
+_original_fetch_yahoo = legacy.fetch_yahoo
+
+
 def fetch_yahoo_with_regular_market_fallback(
     line: dict[str, Any],
     report_date: date,
 ) -> dict[str, Any]:
-    result = legacy.fetch_yahoo(line, report_date)
+    result = _original_fetch_yahoo(line, report_date)
     if result.get("pricing_status") == "priced" and result.get("close_date") == report_date.isoformat():
         return result
 
