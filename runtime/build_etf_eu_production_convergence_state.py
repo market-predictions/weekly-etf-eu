@@ -8,7 +8,22 @@ from pathlib import Path
 from typing import Any
 
 
-STAGE_1_EXPOSURES = {"ai_compute_infrastructure", "cyber_security"}
+STAGE_1_META = {
+    "ai_compute_infrastructure": {
+        "portfolio_label": "VVSM",
+        "exchange_symbol": "VVSM",
+        "isin": "IE00BMC38736",
+        "fund_name": "VanEck Semiconductor UCITS ETF",
+        "donor_status_field": "smh_status",
+    },
+    "cyber_security": {
+        "portfolio_label": "LOCK",
+        "exchange_symbol": "L0CK",
+        "isin": "IE00BG0J4C88",
+        "fund_name": "iShares Digital Security UCITS ETF",
+        "donor_status_field": "cibr_status",
+    },
+}
 
 BLOCKER_LABELS = {
     "accepted_current_eur_completed_close": {
@@ -109,28 +124,23 @@ def wp09_identity_index(receipt: dict[str, Any]) -> dict[str, dict[str, Any]]:
 
 def blocker_text(code: str, language: str) -> str:
     normalized = code.split(":", 1)[-1]
-    return BLOCKER_LABELS.get(normalized, {"nl": normalized.replace("_", " "), "en": normalized.replace("_", " ")})[language]
+    fallback = normalized.replace("_", " ")
+    return BLOCKER_LABELS.get(normalized, {"nl": fallback, "en": fallback})[language]
 
 
-def exposure_blockers(
-    exposure_id: str,
-    allocator_row: dict[str, Any],
-    candidate_isin: str,
-    wp09: dict[str, Any],
-) -> list[str]:
-    blockers = [str(value) for value in allocator_row.get("blockers") or [] if str(value)]
-    if exposure_id in STAGE_1_EXPOSURES:
-        identity_by_isin = wp09_identity_index(wp09)
-        if candidate_isin and candidate_isin.upper() not in identity_by_isin:
-            blockers.append("exact_identity_not_in_wp09_receipt")
-        for raw in wp09.get("decision_blockers") or []:
-            text = str(raw)
-            if exposure_id == "ai_compute_infrastructure" and text.startswith("VVSM:"):
-                blockers.append(text)
-            elif exposure_id == "cyber_security" and text.startswith("LOCK:"):
-                blockers.append(text)
-        if wp09.get("donor_reunderwriting", {}).get("fresh_add_direction_present") is not True:
-            blockers.append("donor_fresh_add_direction_absent")
+def allocator_blockers(allocator_row: dict[str, Any]) -> list[str]:
+    return sorted({str(value) for value in allocator_row.get("blockers") or [] if str(value)})
+
+
+def stage_1_blockers(exposure_id: str, wp09: dict[str, Any]) -> list[str]:
+    prefix = "VVSM:" if exposure_id == "ai_compute_infrastructure" else "LOCK:"
+    blockers = [
+        str(value)
+        for value in wp09.get("decision_blockers") or []
+        if str(value).startswith(prefix)
+    ]
+    if wp09.get("donor_reunderwriting", {}).get("fresh_add_direction_present") is not True:
+        blockers.append("donor_fresh_add_direction_absent")
     return sorted(set(blockers))
 
 
@@ -169,6 +179,11 @@ def build(
     promoted = [row for row in sync.get("promoted_exposure_comparison") or [] if isinstance(row, dict)]
     if len(promoted) != 6:
         raise RuntimeError(f"Expected six promoted exposures, found {len(promoted)}")
+    promoted_by_exposure = {
+        str(row.get("exposure_id") or ""): row
+        for row in promoted
+        if row.get("exposure_id")
+    }
 
     exposure_rows: list[dict[str, Any]] = []
     mapped_count = 0
@@ -176,24 +191,22 @@ def build(
         exposure_id = str(source.get("exposure_id") or "")
         candidate = source.get("preferred_ucits_candidate") if isinstance(source.get("preferred_ucits_candidate"), dict) else None
         line = candidate_line(candidate)
-        candidate_isin = str((candidate or {}).get("isin") or "").upper()
-        exact = wp09_identity_index(wp09).get(candidate_isin, {})
         allocator_row = allocation_by_exposure.get(exposure_id, {})
         alignment = alignment_by_exposure.get(exposure_id, {})
         if candidate:
             mapped_count += 1
-        exchange_symbol = str(exact.get("exchange_symbol") or line.get("exchange_ticker") or "")
-        portfolio_label = str(exact.get("portfolio_label") or exchange_symbol)
-        blockers = exposure_blockers(exposure_id, allocator_row, candidate_isin, wp09)
+        candidate_isin = str((candidate or {}).get("isin") or "").upper()
+        exchange_symbol = str(line.get("exchange_ticker") or "")
         current_weight = number(source.get("current_eu_weight_pct"))
         shadow_target = number(allocator_row.get("variant_target_weight_pct"))
         donor_target = number(alignment.get("donor_target_weight_pct"))
+        blockers = allocator_blockers(allocator_row)
         if current_weight > 0:
             action = "hold_current_position"
-        elif exposure_id in STAGE_1_EXPOSURES:
-            action = "blocked_monitor"
+        elif exposure_id in STAGE_1_META:
+            action = "reviewed_separately_stage_1"
         else:
-            action = "monitor_not_stage_1"
+            action = "monitor_not_currently_actionable"
         exposure_rows.append(
             {
                 "exposure_id": exposure_id,
@@ -202,19 +215,57 @@ def build(
                 "shared_score": source.get("shared_score"),
                 "donor_target_weight_pct": round(donor_target, 6),
                 "current_eu_weight_pct": round(current_weight, 6),
-                "shadow_allocator_weight_pct": round(shadow_target, 6),
+                "analytical_allocator_weight_pct": round(shadow_target, 6),
                 "actionable_target_weight_pct": round(current_weight, 6),
                 "client_action": action,
-                "portfolio_label": portfolio_label,
+                "portfolio_label": exchange_symbol,
                 "exchange_symbol": exchange_symbol,
                 "fund_name": (candidate or {}).get("fund_name"),
                 "isin": candidate_isin,
-                "exchange": exact.get("exchange") or line.get("exchange"),
-                "currency": exact.get("currency") or line.get("trading_currency"),
-                "kid_date": exact.get("kid_date"),
-                "exact_identity_pass": exact.get("exact_identity_pass"),
-                "exact_current_issuer_kid_pass": exact.get("exact_current_issuer_kid_pass"),
+                "exchange": line.get("exchange"),
+                "currency": line.get("trading_currency"),
                 "implementation_status": source.get("implementation_status"),
+                "blockers": blockers,
+                "blockers_nl": [blocker_text(item, "nl") for item in blockers],
+                "blockers_en": [blocker_text(item, "en") for item in blockers],
+                "portfolio_mutation": False,
+                "allocation_authority": False,
+            }
+        )
+
+    identity_by_isin = wp09_identity_index(wp09)
+    donor_review = wp09.get("donor_reunderwriting") if isinstance(wp09.get("donor_reunderwriting"), dict) else {}
+    stage_1_rows: list[dict[str, Any]] = []
+    for exposure_id, meta in STAGE_1_META.items():
+        identity = identity_by_isin.get(str(meta["isin"]), {})
+        if not identity:
+            raise RuntimeError(f"WP-SYNC-09 identity missing for {meta['isin']}")
+        allocator_row = allocation_by_exposure.get(exposure_id, {})
+        alignment = alignment_by_exposure.get(exposure_id, {})
+        promoted_row = promoted_by_exposure.get(exposure_id)
+        blockers = stage_1_blockers(exposure_id, wp09)
+        stage_1_rows.append(
+            {
+                "exposure_id": exposure_id,
+                "portfolio_label": identity.get("portfolio_label") or meta["portfolio_label"],
+                "exchange_symbol": identity.get("exchange_symbol") or meta["exchange_symbol"],
+                "fund_name": meta["fund_name"],
+                "isin": identity.get("isin") or meta["isin"],
+                "wkn": identity.get("wkn"),
+                "exchange": identity.get("exchange"),
+                "currency": identity.get("currency"),
+                "kid_date": identity.get("kid_date"),
+                "exact_identity_pass": identity.get("exact_identity_pass"),
+                "exact_current_issuer_kid_pass": identity.get("exact_current_issuer_kid_pass"),
+                "currently_promoted": promoted_row is not None,
+                "current_promotion_rank": promoted_row.get("shared_rank") if isinstance(promoted_row, dict) else None,
+                "current_promotion_score": promoted_row.get("shared_score") if isinstance(promoted_row, dict) else None,
+                "donor_target_weight_pct": round(number(alignment.get("donor_target_weight_pct")), 6),
+                "analytical_allocator_weight_pct": round(number(allocator_row.get("variant_target_weight_pct")), 6),
+                "actionable_target_weight_pct": 0.0,
+                "donor_review_status": donor_review.get(str(meta["donor_status_field"])),
+                "donor_fresh_add_direction": False,
+                "client_action": "blocked_monitor",
                 "blockers": blockers,
                 "blockers_nl": [blocker_text(item, "nl") for item in blockers],
                 "blockers_en": [blocker_text(item, "en") for item in blockers],
@@ -236,7 +287,7 @@ def build(
     if ledger_sha != protected.get("trade_ledger_sha256_after"):
         raise RuntimeError("Official ledger hash differs from accepted WP-SYNC-09 boundary")
 
-    report_date = str(sync.get("shared_strategy", {}).get("report_date") or wp09.get("donor_reunderwriting", {}).get("report_date") or "")
+    report_date = str(sync.get("shared_strategy", {}).get("report_date") or donor_review.get("report_date") or "")
     if not report_date:
         raise RuntimeError("Report date is missing")
 
@@ -250,7 +301,7 @@ def build(
             "repository": "market-predictions/weekly-etf",
             "commit": donor_commit,
             "source_run_id": sync.get("shared_strategy", {}).get("source_run_id"),
-            "fresh_add_direction_present": wp09.get("donor_reunderwriting", {}).get("fresh_add_direction_present"),
+            "fresh_add_direction_present": donor_review.get("fresh_add_direction_present"),
         },
         "official_portfolio": {
             "starting_capital_eur": portfolio.get("starting_capital_eur"),
@@ -270,11 +321,12 @@ def build(
             "portfolio_alignment_summary": sync.get("portfolio_alignment_summary"),
         },
         "promoted_exposures": exposure_rows,
+        "stage_1_review_candidates": stage_1_rows,
         "allocator": {
             "preferred_variant": allocator.get("preferred_shadow_variant"),
-            "shadow_summary": variant.get("summary"),
+            "analytical_summary": variant.get("summary"),
             "policy_checks": variant.get("policy_checks"),
-            "shadow_only": True,
+            "non_actionable_context": True,
         },
         "stage_1_decision": {
             "value": wp09.get("decision", {}).get("value"),
@@ -291,7 +343,7 @@ def build(
             "premium_surface_required": True,
             "shadow_language_allowed": False,
             "raw_internal_tokens_allowed": False,
-            "show_shadow_allocator_as_non_actionable_context": True,
+            "show_allocator_as_non_actionable_context": True,
             "actionable_new_positions": [],
         },
         "authority": {
@@ -308,6 +360,7 @@ def build(
             "promoted_exposure_count": len(promoted),
             "mapped_promoted_exposure_count": mapped_count,
             "unmapped_promoted_exposure_count": len(promoted) - mapped_count,
+            "stage_1_review_candidate_count": len(stage_1_rows),
             "stage_1_blocked": wp09.get("decision", {}).get("value") == "blocked",
             "protected_state_unchanged": True,
         },
