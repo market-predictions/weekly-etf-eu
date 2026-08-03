@@ -204,7 +204,7 @@ def fetch_yahoo(line: dict[str, Any], report_date: date) -> dict[str, Any]:
         return result
     start = report_date - timedelta(days=10)
     period1 = int(datetime.combine(start, time.min, tzinfo=timezone.utc).timestamp())
-    period2 = int(datetime.combine(report_date + timedelta(days=1), time.min, tzinfo=timezone.utc).timestamp())
+    period2 = int(datetime.combine(report_date + timedelta(days=2), time.min, tzinfo=timezone.utc).timestamp())
     url = f"https://query1.finance.yahoo.com/v8/finance/chart/{quote(symbol)}"
     params = {"period1": period1, "period2": period2, "interval": "1d", "events": "history", "includeAdjustedClose": "true"}
     try:

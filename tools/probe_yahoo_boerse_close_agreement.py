@@ -118,7 +118,7 @@ def fetch_boerse(line: dict[str, str], report_date: date) -> dict[str, Any]:
 def fetch_yahoo(line: dict[str, str], report_date: date) -> dict[str, Any]:
     start = report_date - timedelta(days=10)
     period1 = int(datetime.combine(start, time.min, tzinfo=timezone.utc).timestamp())
-    period2 = int(datetime.combine(report_date + timedelta(days=1), time.min, tzinfo=timezone.utc).timestamp())
+    period2 = int(datetime.combine(report_date + timedelta(days=2), time.min, tzinfo=timezone.utc).timestamp())
     symbol = line["yahoo_symbol"]
     url = f"https://query1.finance.yahoo.com/v8/finance/chart/{quote(symbol)}"
     params = {
