@@ -10,6 +10,7 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from pricing.ucits_price_provider_engine import build_provider_qualification
+from pricing.ucits_price_qualification_policy import apply_identity_anchor_policy
 
 
 def main() -> None:
@@ -24,15 +25,23 @@ def main() -> None:
     parser.add_argument("--agreement-tolerance-pct", type=float, default=1.0)
     args = parser.parse_args()
     providers = [item.strip() for item in args.providers.split(",") if item.strip()] or None
+    output = Path(args.output)
     build_provider_qualification(
         registry_path=Path(args.registry),
         report_date=date.fromisoformat(args.report_date),
-        output_path=Path(args.output),
+        output_path=output,
         providers=providers,
         verify_identity=args.verify_identity,
         pause_seconds=args.pause_seconds,
         max_close_age_days=args.max_close_age_days,
         agreement_tolerance_pct=args.agreement_tolerance_pct,
+    )
+    payload = apply_identity_anchor_policy(output)
+    print(
+        "UCITS_PRICE_IDENTITY_POLICY_OK"
+        f" | funded_consensus={payload['funded_consensus_count']}/{payload['funded_line_count']}"
+        f" | identity_anchors={payload['funded_identity_anchor_count']}/{payload['funded_line_count']}"
+        f" | gate={payload['report_pricing_gate_passed']}"
     )
 
 
