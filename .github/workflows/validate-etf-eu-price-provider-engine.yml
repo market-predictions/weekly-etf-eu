@@ -11,9 +11,11 @@ on:
     paths:
       - "config/ucits_price_provider_registry.yml"
       - "pricing/ucits_price_provider_engine.py"
+      - "pricing/ucits_price_qualification_policy.py"
       - "pricing/build_ucits_close_price_validation_basket_results.py"
       - "tools/qualify_ucits_price_providers.py"
       - "tests/test_ucits_price_provider_engine.py"
+      - "tests/test_ucits_price_qualification_policy.py"
       - "control/work_packages/WP_SYNC_11A_MULTI_PROVIDER_CLOSE_PRICE_ENGINE_20260803.md"
       - "control/claims/CLAIM_WP_SYNC_11A_MULTI_PROVIDER_CLOSE_PRICE_ENGINE_20260803.md"
       - ".github/workflows/validate-etf-eu-price-provider-engine.yml"
@@ -44,8 +46,12 @@ jobs:
       - name: Install bounded dependencies
         run: python -m pip install requests==2.32.3 PyYAML==6.0.2
 
-      - name: Run deterministic adapter and consensus tests
-        run: python -m unittest tests/test_ucits_price_provider_engine.py -v
+      - name: Run deterministic adapter, consensus and identity tests
+        run: |
+          python -m unittest \
+            tests/test_ucits_price_provider_engine.py \
+            tests/test_ucits_price_qualification_policy.py \
+            -v
 
       - name: Qualify all twelve trading lines
         run: |
@@ -74,6 +80,12 @@ jobs:
               raise SystemExit("PRICE_ENGINE_BASKET_SCOPE_MISMATCH")
           if payload["production_or_redistribution_authority"] is not False:
               raise SystemExit("PRICE_ENGINE_AUTHORITY_ESCALATED")
+          if payload.get("funded_identity_anchor_count") != 3:
+              raise SystemExit("PRICE_ENGINE_FUNDED_IDENTITY_ANCHOR_MISSING")
+          for line in payload["lines"]:
+              if line.get("funded") and line.get("qualification_status") == "qualified_development_consensus":
+                  if not line.get("identity_anchor_providers"):
+                      raise SystemExit(f"PRICE_ENGINE_UNANCHORED_FUNDED_LINE:{line['ticker']}")
           text = path.read_text()
           for name in ("LEEWAY_API_TOKEN", "EODHD_API_TOKEN", "MARKETSTACK_ACCESS_KEY", "ALPHA_VANTAGE_API_KEY"):
               value = os.environ.get(name, "")
@@ -83,6 +95,7 @@ jobs:
               "ETF_EU_PRICE_ENGINE_OK"
               f" | configured={payload['provider_configuration']}"
               f" | funded_consensus={payload['funded_consensus_count']}/{payload['funded_line_count']}"
+              f" | identity_anchors={payload['funded_identity_anchor_count']}/{payload['funded_line_count']}"
               f" | report_gate={payload['report_pricing_gate_passed']}"
           )
           PY
