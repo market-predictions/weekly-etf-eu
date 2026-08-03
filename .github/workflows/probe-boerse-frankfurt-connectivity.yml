@@ -9,12 +9,16 @@ on:
       - "tools/probe_boerse_frankfurt_connectivity.py"
       - "tools/probe_boerse_frankfurt_price_information.py"
       - "tools/probe_yahoo_boerse_close_agreement.py"
+      - "pricing/build_current_session_close_results.py"
+      - "config/ucits_close_price_validation_basket.yml"
       - ".github/workflows/probe-boerse-frankfurt-connectivity.yml"
   pull_request:
     paths:
       - "tools/probe_boerse_frankfurt_connectivity.py"
       - "tools/probe_boerse_frankfurt_price_information.py"
       - "tools/probe_yahoo_boerse_close_agreement.py"
+      - "pricing/build_current_session_close_results.py"
+      - "config/ucits_close_price_validation_basket.yml"
       - ".github/workflows/probe-boerse-frankfurt-connectivity.yml"
 
 permissions:
@@ -23,18 +27,18 @@ permissions:
 jobs:
   probe-official-exchange:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-      - name: Install bounded dependency
-        run: python -m pip install requests==2.32.3
+      - name: Install bounded dependencies
+        run: python -m pip install requests==2.32.3 PyYAML==6.0.2
       - name: Probe official endpoint connectivity
         run: |
           set -euo pipefail
-          mkdir -p output/provider_qualification
+          mkdir -p output/provider_qualification output/pricing
           python tools/probe_boerse_frankfurt_connectivity.py \
             --report-date 2026-08-03 \
             --output output/provider_qualification/boerse_frankfurt_connectivity_${GITHUB_RUN_ID}_${GITHUB_RUN_ATTEMPT}.json
@@ -50,10 +54,21 @@ jobs:
           python tools/probe_yahoo_boerse_close_agreement.py \
             --report-date 2026-08-03 \
             --output output/provider_qualification/yahoo_boerse_close_agreement_${GITHUB_RUN_ID}_${GITHUB_RUN_ATTEMPT}.json
+      - name: Build fresh controlled-universe pricing artifacts
+        run: |
+          set -euo pipefail
+          python pricing/build_current_session_close_results.py \
+            --basket config/ucits_close_price_validation_basket.yml \
+            --report-date 2026-08-03 \
+            --run-id "20260803_${GITHUB_RUN_ID}_${GITHUB_RUN_ATTEMPT}" \
+            --output output/pricing/ucits_close_price_validation_basket_results_20260803_${GITHUB_RUN_ID}_${GITHUB_RUN_ATTEMPT}.json \
+            --qualification-output output/pricing/ucits_price_provider_qualification_20260803_${GITHUB_RUN_ID}_${GITHUB_RUN_ATTEMPT}.json
       - name: Upload probe evidence
         uses: actions/upload-artifact@v4
         with:
           name: boerse-frankfurt-probe-${{ github.run_id }}-${{ github.run_attempt }}
-          path: output/provider_qualification/*.json
+          path: |
+            output/provider_qualification/*.json
+            output/pricing/*.json
           if-no-files-found: error
           retention-days: 30
