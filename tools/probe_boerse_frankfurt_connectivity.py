@@ -11,7 +11,7 @@ from urllib.parse import urlencode
 import requests
 
 BASE_URL = "https://api.boerse-frankfurt.de"
-TRACE_SALT = "w4ivc1ATTGta6njAZzMbkL3kJwxMfEAKDa3MNr"
+TRACE_SALT = "w4icATTGtnjAQMbkL3kJwxLfEAKDa3VU"
 TIMEOUT_SECONDS = 30
 LINES = [
     {"ticker": "VWCE", "isin": "IE00BK5BQT80", "mic": "XETR", "currency": "EUR"},
@@ -27,16 +27,16 @@ def utc_now() -> datetime:
 
 
 def headers_for(url: str) -> dict[str, str]:
-    now = utc_now()
-    client_date = now.isoformat(timespec="milliseconds").replace("+00:00", "Z")
+    now_utc = utc_now()
+    client_date = now_utc.isoformat(timespec="milliseconds").replace("+00:00", "Z")
     trace_id = hashlib.md5((client_date + url + TRACE_SALT).encode("utf-8")).hexdigest()
-    security = hashlib.md5(now.strftime("%Y%m%d%H%M").encode("utf-8")).hexdigest()
+    now_local = datetime.now().astimezone()
+    security = hashlib.md5(now_local.strftime("%Y%m%d%H%M").encode("utf-8")).hexdigest()
     return {
         "Accept": "application/json, text/plain, */*",
         "Client-Date": client_date,
         "X-Client-TraceId": trace_id,
         "X-Security": security,
-        "Origin": "https://www.boerse-frankfurt.de",
         "Referer": "https://www.boerse-frankfurt.de/",
         "User-Agent": "Mozilla/5.0 Weekly-ETF-EU-Exchange-Probe/1.0",
     }
@@ -63,6 +63,7 @@ def get_json(path: str, params: dict[str, Any]) -> dict[str, Any]:
         payload = response.json()
     except ValueError:
         result["status"] = "non_json_response"
+        result["response_fingerprint"] = hashlib.sha256(response.content).hexdigest()
         return result
     result["status"] = "json_response" if response.status_code == 200 else "http_error"
     result["payload_type"] = type(payload).__name__
@@ -189,7 +190,7 @@ def main() -> None:
         )
 
     payload = {
-        "schema_version": "boerse_frankfurt_connectivity_probe_v1",
+        "schema_version": "boerse_frankfurt_connectivity_probe_v2",
         "generated_at_utc": utc_now().replace(microsecond=0).isoformat().replace("+00:00", "Z"),
         "report_date": report_date.isoformat(),
         "line_count": len(results),
