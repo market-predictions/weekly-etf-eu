@@ -6,11 +6,13 @@ on:
     branches:
       - routine/20260803-expanded-funded-report
     paths:
-      - "tools/probe_boerse-frankfurt-connectivity.py"
+      - "tools/probe_boerse_frankfurt_connectivity.py"
+      - "tools/probe_boerse_frankfurt_price_information.py"
       - ".github/workflows/probe-boerse-frankfurt-connectivity.yml"
   pull_request:
     paths:
       - "tools/probe_boerse_frankfurt_connectivity.py"
+      - "tools/probe_boerse_frankfurt_price_information.py"
       - ".github/workflows/probe-boerse-frankfurt-connectivity.yml"
 
 permissions:
@@ -27,13 +29,19 @@ jobs:
           python-version: "3.11"
       - name: Install bounded dependency
         run: python -m pip install requests==2.32.3
-      - name: Probe exact ISIN and MIC lines
+      - name: Probe official endpoint connectivity
         run: |
           set -euo pipefail
           mkdir -p output/provider_qualification
           python tools/probe_boerse_frankfurt_connectivity.py \
             --report-date 2026-08-03 \
-            --output output/provider_qualification/boerse_frankfurt_probe_${GITHUB_RUN_ID}_${GITHUB_RUN_ATTEMPT}.json
+            --output output/provider_qualification/boerse_frankfurt_connectivity_${GITHUB_RUN_ID}_${GITHUB_RUN_ATTEMPT}.json
+      - name: Probe exact post-close price information
+        run: |
+          set -euo pipefail
+          python tools/probe_boerse_frankfurt_price_information.py \
+            --report-date 2026-08-03 \
+            --output output/provider_qualification/boerse_frankfurt_price_information_${GITHUB_RUN_ID}_${GITHUB_RUN_ATTEMPT}.json
       - name: Upload probe evidence
         uses: actions/upload-artifact@v4
         with:
