@@ -5,6 +5,10 @@ on:
   pull_request:
     paths:
       - "config/ucits_close_price_validation_basket.yml"
+      - "config/ucits_price_provider_registry.yml"
+      - "pricing/ucits_price_provider_engine.py"
+      - "pricing/ucits_price_qualification_policy.py"
+      - "pricing/build_ucits_close_price_validation_basket_results.py"
       - "runtime/build_etf_eu_routine_valuation_overlay.py"
       - "runtime/apply_etf_eu_routine_valuation_to_convergence_state.py"
       - "runtime/update_etf_eu_valuation_history_from_overlay.py"
@@ -12,7 +16,9 @@ on:
       - "tools/build_etf_eu_converged_routine_package.py"
       - "tools/validate_etf_eu_converged_routine_manifest.py"
       - "control/work_packages/WP_SYNC_11_ROUTINE_PRODUCTION_PROMOTION_AND_GUARDED_DELIVERY_20260803.md"
+      - "control/work_packages/WP_SYNC_11A_MULTI_PROVIDER_CLOSE_PRICE_ENGINE_20260803.md"
       - "control/claims/CLAIM_WP_SYNC_11_ROUTINE_PRODUCTION_PROMOTION_20260803.md"
+      - "control/claims/CLAIM_WP_SYNC_11A_MULTI_PROVIDER_CLOSE_PRICE_ENGINE_20260803.md"
       - ".github/workflows/preview-weekly-etf-eu-converged-routine.yml"
 
 permissions:
@@ -28,6 +34,10 @@ jobs:
       DONOR_COMMIT: "52f13e190a9f6b0045df175973fdf8d0f6f5f30d"
       WP11_RUN_ID: "20260803_${{ github.run_id }}_${{ github.run_attempt }}"
       SOURCE_SHA: "${{ github.event.pull_request.head.sha || github.sha }}"
+      LEEWAY_API_TOKEN: ${{ secrets.LEEWAY_API_TOKEN }}
+      EODHD_API_TOKEN: ${{ secrets.EODHD_API_TOKEN }}
+      MARKETSTACK_ACCESS_KEY: ${{ secrets.MARKETSTACK_ACCESS_KEY }}
+      ALPHA_VANTAGE_API_KEY: ${{ secrets.ALPHA_VANTAGE_API_KEY }}
 
     steps:
       - name: Checkout Weekly ETF EU
@@ -62,13 +72,16 @@ jobs:
           set -euo pipefail
           python pricing/build_ucits_close_price_validation_basket_results.py \
             --basket config/ucits_close_price_validation_basket.yml \
+            --provider-registry config/ucits_price_provider_registry.yml \
             --run-id "$WP11_RUN_ID" \
             --output-dir output/pricing \
-            --pause-seconds 10 \
+            --pause-seconds 1 \
             --max-attempts 1 \
             --rate-limit-mode stop
           PRICING_ARTIFACT="output/pricing/ucits_close_price_validation_basket_results_${WP11_RUN_ID}.json"
+          PRICING_QUALIFICATION="output/pricing/ucits_price_provider_qualification_${WP11_RUN_ID}.json"
           test -f "$PRICING_ARTIFACT"
+          test -f "$PRICING_QUALIFICATION"
           python runtime/build_etf_eu_routine_valuation_overlay.py \
             --portfolio-state output/etf_eu_portfolio_state.json \
             --trade-ledger output/etf_eu_trade_ledger.csv \
@@ -82,6 +95,7 @@ jobs:
             --overlay "$VALUATION_OVERLAY" \
             --source-report "weekly_etf_eu_review_nl_${REPORT_SUFFIX}.html"
           echo "PRICING_ARTIFACT=$PRICING_ARTIFACT" >> "$GITHUB_ENV"
+          echo "PRICING_QUALIFICATION=$PRICING_QUALIFICATION" >> "$GITHUB_ENV"
           echo "VALUATION_OVERLAY=$VALUATION_OVERLAY" >> "$GITHUB_ENV"
 
       - name: Adapt current donor macro policy for EU report
@@ -301,6 +315,7 @@ jobs:
             output/fresh_generation/weekly_etf_eu_review*${{ env.REPORT_SUFFIX }}*
             output/run_manifests/etf_eu_routine_run_manifest_${{ env.REPORT_DATE }}_${{ env.WP11_RUN_ID }}.json
             output/pricing/ucits_close_price_validation_basket_results_${{ env.WP11_RUN_ID }}.json
+            output/pricing/ucits_price_provider_qualification_${{ env.WP11_RUN_ID }}.json
             output/macro/etf_eu_macro_policy_${{ env.WP11_RUN_ID }}.json
             output/etf_eu_valuation_history.csv
           if-no-files-found: error
