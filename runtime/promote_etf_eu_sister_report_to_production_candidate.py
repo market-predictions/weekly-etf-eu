@@ -31,22 +31,8 @@ def fmt_pct(value: Any, language: str) -> str:
     try:
         text = f"{float(value):.2f}%"
     except (TypeError, ValueError):
-        return "0,00%" if language == "nl" else "0.00%"
+        text = "0.00%"
     return text.replace(".", ",") if language == "nl" else text
-
-
-def joined(items: list[str]) -> str:
-    return "; ".join(value for value in items if value)
-
-
-def replace_text_nodes(soup: BeautifulSoup, replacements: dict[str, str]) -> None:
-    for node in list(soup.find_all(string=True)):
-        text = str(node)
-        updated = text
-        for old, new in replacements.items():
-            updated = updated.replace(old, new)
-        if updated != text:
-            node.replace_with(updated)
 
 
 def section(soup: BeautifulSoup, section_id: str) -> Tag:
@@ -71,74 +57,84 @@ def find_row_by_isin(report_section: Tag, isin: str) -> Tag | None:
     return None
 
 
+def new_tag(soup: BeautifulSoup, name: str, text: str | None = None) -> Tag:
+    tag = soup.new_tag(name)
+    if text is not None:
+        tag.string = text
+    return tag
+
+
+def blocker_text(review: dict[str, Any], language: str) -> str:
+    values = review.get("blockers_nl") if language == "nl" else review.get("blockers_en")
+    return "; ".join(str(value) for value in values or [] if str(value))
+
+
 def stage1_copy(review: dict[str, Any], language: str) -> dict[str, str]:
     donor_target = fmt_pct(review.get("donor_target_weight_pct"), language)
-    blockers = review.get("blockers_nl") if language == "nl" else review.get("blockers_en")
-    blocker_text = joined([str(value) for value in blockers or []])
+    blockers = blocker_text(review, language)
     symbol = str(review.get("exchange_symbol") or review.get("portfolio_label") or "")
     currently_promoted = review.get("currently_promoted") is True
     if language == "nl":
         promotion_status = (
             "Actueel gepromoveerd, maar niet inzetbaar"
-            if currently_promoted else
-            "Niet in de actuele gepromoveerde set; eerdere fase-1 review blijft open"
+            if currently_promoted
+            else "Niet in de actuele gepromoveerde set; eerdere fase-1 review blijft open"
         )
         return {
             "symbol": symbol,
+            "promotion": "Ja" if currently_promoted else "Nee",
             "status": promotion_status,
             "action": "Cash aanhouden en afhankelijkheden bewaken",
-            "basis": f"Exacte identiteit en KID zijn bevestigd. {promotion_status}. Activering blijft geblokkeerd: {blocker_text}.",
-            "explanation": f"Donordoel {donor_target}; uitvoerbaar doel 0,00%. {promotion_status}. {blocker_text}.",
+            "basis": f"Exacte identiteit en KID zijn bevestigd. {promotion_status}. Activering blijft geblokkeerd: {blockers}.",
+            "explanation": f"Donordoel {donor_target}; uitvoerbaar doel 0,00%. {promotion_status}. {blockers}.",
             "override": "Geblokkeerd · geen transactie",
-            "promotion": "Ja" if currently_promoted else "Nee",
             "donor_direction": "Geen nieuwe kooprichting",
         }
     promotion_status = (
         "Currently promoted, but not deployable"
-        if currently_promoted else
-        "Not in the current promoted set; the earlier Stage-1 review remains open"
+        if currently_promoted
+        else "Not in the current promoted set; the earlier Stage-1 review remains open"
     )
     return {
         "symbol": symbol,
+        "promotion": "Yes" if currently_promoted else "No",
         "status": promotion_status,
         "action": "Retain cash and monitor dependencies",
-        "basis": f"Exact identity and KID are confirmed. {promotion_status}. Activation remains blocked: {blocker_text}.",
-        "explanation": f"Donor target {donor_target}; actionable target 0.00%. {promotion_status}. {blocker_text}.",
+        "basis": f"Exact identity and KID are confirmed. {promotion_status}. Activation remains blocked: {blockers}.",
+        "explanation": f"Donor target {donor_target}; actionable target 0.00%. {promotion_status}. {blockers}.",
         "override": "Blocked · no trade",
-        "promotion": "Yes" if currently_promoted else "No",
         "donor_direction": "No fresh-add direction",
     }
 
 
-def update_section_4(soup: BeautifulSoup, state: dict[str, Any], language: str) -> None:
-    report_section = section(soup, "section-4")
-    index = stage_1_index(state)
-    for isin in STAGE_1_ISINS:
-        row = find_row_by_isin(report_section, isin)
+def update_current_opportunity_sections(soup: BeautifulSoup, state: dict[str, Any], language: str) -> None:
+    reviews = stage_1_index(state)
+    current_reviews = [row for row in reviews.values() if row.get("currently_promoted") is True]
+
+    radar = section(soup, "section-4")
+    for review in current_reviews:
+        isin = str(review["isin"])
+        row = find_row_by_isin(radar, isin)
         if row is None:
-            raise RuntimeError(f"Section 4 missing frozen Stage-1 review candidate {isin}")
+            raise RuntimeError(f"Section 4 missing currently promoted Stage-1 review candidate {isin}")
         cells = row_cells(row)
-        if len(cells) < 6:
+        if len(cells) < 7:
             raise RuntimeError("Section 4 table contract changed")
-        review = index[isin]
         copy = stage1_copy(review, language)
-        cells[1].string = f"{copy['symbol']} · {review.get('fund_name') or ''} · {isin}"
-        cells[3].string = copy["status"]
-        cells[4].string = copy["action"]
-        cells[5].string = copy["basis"]
+        cells[2].string = f"{copy['symbol']} · {review.get('fund_name') or ''} · {isin}"
+        cells[4].string = copy["status"]
+        cells[5].string = copy["action"]
+        cells[6].string = copy["basis"]
 
-
-def update_section_11(soup: BeautifulSoup, state: dict[str, Any], language: str) -> None:
-    report_section = section(soup, "section-11")
-    index = stage_1_index(state)
-    for isin in STAGE_1_ISINS:
-        row = find_row_by_isin(report_section, isin)
+    opportunities = section(soup, "section-11")
+    for review in current_reviews:
+        isin = str(review["isin"])
+        row = find_row_by_isin(opportunities, isin)
         if row is None:
-            raise RuntimeError(f"Section 11 missing frozen Stage-1 review candidate {isin}")
+            raise RuntimeError(f"Section 11 missing currently promoted Stage-1 review candidate {isin}")
         cells = row_cells(row)
         if len(cells) < 5:
             raise RuntimeError("Section 11 table contract changed")
-        review = index[isin]
         copy = stage1_copy(review, language)
         cells[1].string = f"{copy['symbol']} · {review.get('fund_name') or ''} · {isin}"
         cells[2].string = copy["status"]
@@ -156,8 +152,8 @@ def update_section_12(soup: BeautifulSoup, state: dict[str, Any], language: str)
         raise RuntimeError("Section 12 table contract changed")
     positions = state.get("official_portfolio", {}).get("positions") or []
     tickers = ", ".join(str(row.get("ticker") or row.get("exchange_ticker") or "") for row in positions)
-    if language == "nl":
-        values = [
+    values = (
+        [
             "Geen",
             "Geen",
             tickers,
@@ -165,8 +161,8 @@ def update_section_12(soup: BeautifulSoup, state: dict[str, Any], language: str)
             "Geen",
             "Huidige beslissing: geen transactie",
         ]
-    else:
-        values = [
+        if language == "nl"
+        else [
             "None",
             "None",
             tickers,
@@ -174,13 +170,14 @@ def update_section_12(soup: BeautifulSoup, state: dict[str, Any], language: str)
             "None",
             "Current decision: no trade",
         ]
+    )
     for cell, value in zip(cells[:6], values):
         cell.string = value
 
 
 def update_section_13(soup: BeautifulSoup, state: dict[str, Any], language: str) -> None:
     report_section = section(soup, "section-13")
-    index = stage_1_index(state)
+    reviews = stage_1_index(state)
     for isin in STAGE_1_ISINS:
         row = find_row_by_isin(report_section, isin)
         if row is None:
@@ -188,7 +185,7 @@ def update_section_13(soup: BeautifulSoup, state: dict[str, Any], language: str)
         cells = row_cells(row)
         if len(cells) < 10:
             raise RuntimeError("Section 13 table contract changed")
-        review = index[isin]
+        review = reviews[isin]
         copy = stage1_copy(review, language)
         cells[1].string = f"{copy['symbol']} · {review.get('fund_name') or ''} · {isin}"
         cells[3].string = fmt_pct(review.get("actionable_target_weight_pct"), language)
@@ -204,13 +201,6 @@ def update_section_13(soup: BeautifulSoup, state: dict[str, Any], language: str)
             cells[9].string = "Bewaken · geen transactie" if language == "nl" else "Monitor · no trade"
 
 
-def new_tag(soup: BeautifulSoup, name: str, text: str | None = None, **attrs: Any) -> Tag:
-    tag = soup.new_tag(name, **attrs)
-    if text is not None:
-        tag.string = text
-    return tag
-
-
 def replace_section_14(soup: BeautifulSoup, state: dict[str, Any], language: str) -> None:
     report_section = section(soup, "section-14")
     head = report_section.find(class_="section-head")
@@ -220,19 +210,22 @@ def replace_section_14(soup: BeautifulSoup, state: dict[str, Any], language: str
         if child is not head:
             child.extract()
 
-    note_text = (
-        "De allocator-scenario’s blijven analytische context. De actuele evidence- en donorpoorten blokkeren iedere nieuwe positie; de officiële portefeuille en cash blijven ongewijzigd."
-        if language == "nl" else
-        "Allocator scenarios remain analytical context. Current evidence and donor gates block every new position; the official portfolio and cash remain unchanged."
+    note = new_tag(
+        soup,
+        "div",
+        (
+            "De allocator-scenario’s blijven analytische context. De actuele evidence- en donorpoorten blokkeren iedere nieuwe positie; de officiële portefeuille en cash blijven ongewijzigd."
+            if language == "nl"
+            else "Allocator scenarios remain analytical context. Current evidence and donor gates block every new position; the official portfolio and cash remain unchanged."
+        ),
     )
-    note = new_tag(soup, "div", note_text)
     note["class"] = ["continuity-box", "production-no-trade"]
     report_section.append(note)
 
     headers = (
         ["Handelslijn", "Actueel gepromoveerd", "Identiteit / KID", "Marktbewijs", "Donorrichting", "Actuele beslissing"]
-        if language == "nl" else
-        ["Trading line", "Currently promoted", "Identity / KID", "Market evidence", "Donor direction", "Current decision"]
+        if language == "nl"
+        else ["Trading line", "Currently promoted", "Identity / KID", "Market evidence", "Donor direction", "Current decision"]
     )
     table = new_tag(soup, "table")
     table["class"] = ["data-table", "production-decision-table"]
@@ -242,10 +235,11 @@ def replace_section_14(soup: BeautifulSoup, state: dict[str, Any], language: str
         header_row.append(new_tag(soup, "th", value))
     thead.append(header_row)
     table.append(thead)
+
     tbody = new_tag(soup, "tbody")
-    index = stage_1_index(state)
+    reviews = stage_1_index(state)
     for isin in STAGE_1_ISINS:
-        review = index[isin]
+        review = reviews[isin]
         copy = stage1_copy(review, language)
         row = new_tag(soup, "tr")
         values = (
@@ -257,8 +251,8 @@ def replace_section_14(soup: BeautifulSoup, state: dict[str, Any], language: str
                 copy["donor_direction"],
                 "Geblokkeerd · cash aanhouden",
             ]
-            if language == "nl" else
-            [
+            if language == "nl"
+            else [
                 f"{copy['symbol']} · {isin}",
                 copy["promotion"],
                 "Passed",
@@ -273,13 +267,16 @@ def replace_section_14(soup: BeautifulSoup, state: dict[str, Any], language: str
     table.append(tbody)
     report_section.append(table)
 
-    footer_text = "Uitvoerbare handelsintenties: geen." if language == "nl" else "Executable trade intents: none."
-    footer = new_tag(soup, "div", footer_text)
+    footer = new_tag(
+        soup,
+        "div",
+        "Uitvoerbare handelsintenties: geen." if language == "nl" else "Executable trade intents: none.",
+    )
     footer["class"] = ["note-box"]
     report_section.append(footer)
 
 
-def update_hero_and_notice(soup: BeautifulSoup, state: dict[str, Any], language: str) -> None:
+def update_hero_and_notice(soup: BeautifulSoup, language: str) -> None:
     hero_type = soup.select_one(".hero-type")
     if not isinstance(hero_type, Tag):
         raise RuntimeError("Hero report type missing")
@@ -289,16 +286,16 @@ def update_hero_and_notice(soup: BeautifulSoup, state: dict[str, Any], language:
         raise RuntimeError("Client notice missing")
     notice.string = (
         "Dit rapport is informatief en educatief. De officiële modelportefeuille bevat drie posities; nieuwe inzet blijft geblokkeerd totdat actuele markt- en donorpoorten slagen."
-        if language == "nl" else
-        "This report is informational and educational. The official model portfolio contains three positions; new deployment remains blocked until current market and donor gates pass."
+        if language == "nl"
+        else "This report is informational and educational. The official model portfolio contains three positions; new deployment remains blocked until current market and donor gates pass."
     )
     banner = new_tag(
         soup,
         "div",
         (
             "Productiestatus: premium clientrapport · officiële portefeuille ongewijzigd · geen nieuwe transactie."
-            if language == "nl" else
-            "Production status: premium client report · official portfolio unchanged · no new trade."
+            if language == "nl"
+            else "Production status: premium client report · official portfolio unchanged · no new trade."
         ),
     )
     banner["class"] = ["continuity-box", "production-convergence-banner"]
@@ -306,43 +303,42 @@ def update_hero_and_notice(soup: BeautifulSoup, state: dict[str, Any], language:
 
 
 def normalize_visible_copy(soup: BeautifulSoup, language: str) -> None:
-    if language == "nl":
-        replacements = {
+    replacements = (
+        {
             "Gesynchroniseerd schaduwrapport": "Beleggersrapport",
             "Schaduw – geen uitvoering": "Geblokkeerd · geen transactie",
-            "schaduwpoort": "bewijsreview",
-            "Schaduwpoort": "Bewijsreview",
-            "schaduwplan": "analytisch scenario",
-            "Schaduwplan": "Analytisch scenario",
-            "schaduwintentie": "geblokkeerd scenario",
-            "schaduwvarianten": "analytische varianten",
-            "schaduwoutput": "analyse-output",
-            "Schaduwoutput": "Analyse-output",
+            "Schaduw": "Analytisch",
+            "schaduw": "analytisch",
             "LOCK/LOCK": "L0CK",
             "LOCK · iShares Digital Security": "L0CK · iShares Digital Security",
         }
-    else:
-        replacements = {
+        if language == "nl"
+        else {
             "Synchronized shadow report": "Investor report",
             "Shadow – no execution": "Blocked · no trade",
-            "shadow gate": "evidence review",
-            "Shadow gate": "Evidence review",
-            "shadow plan": "analytical scenario",
-            "Shadow plan": "Analytical scenario",
-            "shadow intent": "blocked scenario",
-            "shadow variants": "analytical variants",
-            "shadow output": "analysis output",
-            "Shadow output": "Analysis output",
+            "Shadow": "Analytical",
+            "shadow": "analytical",
             "LOCK/LOCK": "L0CK",
             "LOCK · iShares Digital Security": "L0CK · iShares Digital Security",
         }
-    replace_text_nodes(soup, replacements)
+    )
+    for node in list(soup.find_all(string=True)):
+        parent_name = getattr(node.parent, "name", "")
+        if parent_name in {"script", "style", "head"}:
+            continue
+        text = str(node)
+        updated = text
+        for old, new in replacements.items():
+            updated = updated.replace(old, new)
+        if updated != text:
+            node.replace_with(updated)
 
 
 def visible_text(soup: BeautifulSoup) -> str:
-    for tag in soup(["script", "style", "head"]):
+    clone = BeautifulSoup(str(soup), "html.parser")
+    for tag in clone(["script", "style", "head"]):
         tag.extract()
-    return " ".join(soup.get_text(" ", strip=True).split())
+    return " ".join(clone.get_text(" ", strip=True).split())
 
 
 def promote(source_manifest: Path, state_path: Path, output_dir: Path) -> Path:
@@ -382,18 +378,16 @@ def promote(source_manifest: Path, state_path: Path, output_dir: Path) -> Path:
         if not html_path.is_file():
             raise RuntimeError(f"Source HTML missing: {html_path}")
         soup = BeautifulSoup(html_path.read_text(encoding="utf-8"), "html.parser")
-        update_hero_and_notice(soup, state, language)
-        update_section_4(soup, state, language)
-        update_section_11(soup, state, language)
+        update_hero_and_notice(soup, language)
+        update_current_opportunity_sections(soup, state, language)
         update_section_12(soup, state, language)
         update_section_13(soup, state, language)
         replace_section_14(soup, state, language)
         normalize_visible_copy(soup, language)
 
-        check_soup = BeautifulSoup(str(soup), "html.parser")
-        text = visible_text(check_soup).casefold()
-        prohibited = ["schaduwrapport", "shadow report", "funding_authority", "execution_authority", "portfolio_mutation"]
-        leaked = [token_value for token_value in prohibited if token_value in text]
+        text = visible_text(soup).casefold()
+        prohibited = ["schaduw", "shadow", "funding_authority", "execution_authority", "portfolio_mutation"]
+        leaked = [value for value in prohibited if value in text]
         if leaked:
             raise RuntimeError(f"Visible internal/development language remains in {language}: {leaked}")
 
