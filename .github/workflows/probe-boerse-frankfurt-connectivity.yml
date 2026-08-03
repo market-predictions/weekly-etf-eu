@@ -8,11 +8,13 @@ on:
     paths:
       - "tools/probe_boerse_frankfurt_connectivity.py"
       - "tools/probe_boerse_frankfurt_price_information.py"
+      - "tools/probe_yahoo_boerse_close_agreement.py"
       - ".github/workflows/probe-boerse-frankfurt-connectivity.yml"
   pull_request:
     paths:
       - "tools/probe_boerse_frankfurt_connectivity.py"
       - "tools/probe_boerse_frankfurt_price_information.py"
+      - "tools/probe_yahoo_boerse_close_agreement.py"
       - ".github/workflows/probe-boerse-frankfurt-connectivity.yml"
 
 permissions:
@@ -42,6 +44,12 @@ jobs:
           python tools/probe_boerse_frankfurt_price_information.py \
             --report-date 2026-08-03 \
             --output output/provider_qualification/boerse_frankfurt_price_information_${GITHUB_RUN_ID}_${GITHUB_RUN_ATTEMPT}.json
+      - name: Compare Yahoo and official exchange closes
+        run: |
+          set -euo pipefail
+          python tools/probe_yahoo_boerse_close_agreement.py \
+            --report-date 2026-08-03 \
+            --output output/provider_qualification/yahoo_boerse_close_agreement_${GITHUB_RUN_ID}_${GITHUB_RUN_ATTEMPT}.json
       - name: Upload probe evidence
         uses: actions/upload-artifact@v4
         with:
