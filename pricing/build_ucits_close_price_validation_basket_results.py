@@ -11,6 +11,7 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
+from pricing.ucits_price_evidence_cache import apply_provider_evidence_cache
 from pricing.ucits_price_provider_engine import (
     build_legacy_validation_artifact,
     build_provider_qualification,
@@ -22,6 +23,7 @@ def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--basket", default="config/ucits_close_price_validation_basket.yml")
     parser.add_argument("--provider-registry", default="config/ucits_price_provider_registry.yml")
+    parser.add_argument("--provider-cache", default="config/etf_eu_provider_close_cache_20260731.json")
     parser.add_argument("--run-id", required=True)
     parser.add_argument("--report-date")
     parser.add_argument("--output-dir", default="output/pricing")
@@ -53,6 +55,8 @@ def main() -> None:
         max_close_age_days=args.max_close_age_days,
         agreement_tolerance_pct=args.agreement_tolerance_pct,
     )
+    cache_path = Path(args.provider_cache) if args.provider_cache else None
+    apply_provider_evidence_cache(qualification_path, cache_path)
     qualification = apply_identity_anchor_policy(qualification_path)
     build_legacy_validation_artifact(
         qualification_path=qualification_path,
@@ -68,6 +72,7 @@ def main() -> None:
         f" | report_date={report_date}"
         f" | funded_consensus={qualification['funded_consensus_count']}/{qualification['funded_line_count']}"
         f" | identity_anchors={qualification['funded_identity_anchor_count']}/{qualification['funded_line_count']}"
+        f" | cache_used={qualification.get('provider_cache_used_count', 0)}"
         f" | gate={qualification['report_pricing_gate_passed']}"
     )
     require_consensus = args.require_funded_consensus or bool(os.environ.get("WP11_RUN_ID"))
