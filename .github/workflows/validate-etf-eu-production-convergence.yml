@@ -7,9 +7,12 @@ on:
       - "config/shared_exposure_ucits_map.yml"
       - "config/ucits_symbol_registry_sync_additions.yml"
       - "config/ucits_symbol_registry_sync_additions_wp09.yml"
+      - "config/ucits_symbol_registry_sync_additions_wp10.yml"
       - "config/etf_eu_transition_evidence_cache_20260724.yml"
       - "config/etf_eu_incumbent_overlap_evidence_20260724.yml"
       - "config/etf_eu_transition_policy_v1.yml"
+      - "runtime/merge_etf_eu_sync_registries.py"
+      - "runtime/finalize_etf_eu_wp10_source_language.py"
       - "runtime/build_etf_eu_production_convergence_state.py"
       - "runtime/promote_etf_eu_sister_report_to_production_candidate.py"
       - "tools/validate_etf_eu_production_convergence_state.py"
@@ -78,6 +81,8 @@ jobs:
             config/ucits_symbol_registry_sync_additions.yml
           python tools/validate_etf_eu_sync_registry_additions.py \
             config/ucits_symbol_registry_sync_additions_wp09.yml
+          python tools/validate_etf_eu_sync_registry_additions.py \
+            config/ucits_symbol_registry_sync_additions_wp10.yml
           python runtime/merge_etf_eu_sync_registries.py \
             --output output/production_convergence/sync/ucits_symbol_registry_sync_merged.yml
           python runtime/build_etf_eu_strategy_sync_shadow.py \
@@ -160,6 +165,9 @@ jobs:
             "$SOURCE_MANIFEST" \
             --allocator output/production_convergence/sync/etf_eu_target_allocator_shadow.json \
             --sync-shadow output/production_convergence/sync/etf_eu_strategy_sync_shadow.json
+          python runtime/finalize_etf_eu_wp10_source_language.py "$SOURCE_MANIFEST"
+          python runtime/fix_etf_eu_sister_report_layout.py "$SOURCE_MANIFEST"
+          python runtime/finalize_etf_eu_policy_report_pagination.py "$SOURCE_MANIFEST"
           python tools/run_etf_eu_allocator_report_validation_bundle.py \
             "$SOURCE_MANIFEST" \
             --output output/production_convergence/source_report/source_report_validation_bundle.json
