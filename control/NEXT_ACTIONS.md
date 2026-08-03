@@ -3,24 +3,33 @@
 ## Current priority
 
 ```text
-VERIFY_CLEANED_PR70_AND_PREPARE_MERGE_REVIEW
+REQUEST_MERGE_AUTHORITY_FOR_PR70
 ```
 
-The critical funded-position pricing blocker is resolved for the validated 2026-07-31 development run. The multi-provider engine is integrated into the routine preview, all three funded positions pass consensus and identity-anchor gates, the bilingual report package validates, and protected official state remains unchanged.
+The critical funded-position pricing blocker is resolved. The cleaned PR #70 head passed every required current check: multi-provider pricing, Stooq diagnostics, allocator report validation, full bilingual routine preview, exact package manifest, all 22 PDF review pages and protected-state proof. There are no PR comments or review threads.
 
-## Validated baseline
+## Final validated baseline
 
 ```text
 branch=sync/wp11-routine-production-promotion
 pull_request=70
+validated_source_sha=0794ad5373c4073dfe3051d6675c0689739dcd4d
 report_date=2026-07-31
-run_id=20260803_30842139405_1
+run_id=20260803_30850723696_1
+routine_preview_run=30850723696 success
+routine_preview_job=91809807838
+artifact_id=8870570755
+artifact_sha256=c11dd7d464e706cf5ed4d6c4afcfeccd556a34a11108a9dfcc5a8a4f7c651602
+pricing_engine_run=30850723739 success
+stooq_diagnostic_run=30850723694 success
+allocator_report_run=30850723704 success
 funded_consensus=3/3
 funded_identity_anchors=3/3
 run_scoped_nav_eur=99455.68
 nl_pdf_pages=11
 en_pdf_pages=11
 visual_review_pages=22
+low_content_pages=0
 protected_state_unchanged=true
 report_delivery=false
 ```
@@ -34,14 +43,31 @@ portfolio_mutation=false
 ledger_write=false
 ```
 
-## Immediate repository sequence
+## Completed repository sequence
 
-1. Confirm the cleaned PR #70 head has no duplicate pricing implementation.
-2. Confirm the exact-head pricing-engine and routine-preview workflows are green.
-3. Confirm no unresolved review threads or unrelated official-state mutations.
-4. Update the PR description with the validated pricing, valuation, report and authority evidence.
-5. Keep the PR draft until merge authority is explicitly granted.
-6. After merge, update `main` control files if the merge strategy changes any recorded SHA or path.
+1. Removed the superseded duplicate WP-SYNC-12 provider implementation and workflow.
+2. Confirmed the canonical integrated pricing engine is `pricing/ucits_price_provider_engine.py`.
+3. Confirmed exact provider identity resides in `config/ucits_price_provider_registry.yml`.
+4. Confirmed the exact cleaned head is green.
+5. Confirmed no PR comments or unresolved review threads.
+6. Updated the PR description with pricing, valuation, report and authority evidence.
+7. Updated `control/CURRENT_STATE.md`.
+8. Updated this file.
+9. Recorded the stable pricing decision in `control/DECISION_LOG.md`.
+10. Refreshed the canonical WP-SYNC-11A evidence file.
+
+## Merge boundary
+
+PR #70 remains draft, open and mergeable. Do not mark ready or merge until explicit merge authority is provided.
+
+After authorization:
+
+1. mark PR #70 ready for review;
+2. verify the expected head SHA has not changed;
+3. squash-merge the PR;
+4. fetch `main` and verify the merge commit;
+5. correct any post-merge control references if necessary;
+6. do not send the July 31 preview as a new current report.
 
 ## Future-date pricing requirement
 
@@ -56,7 +82,7 @@ funded_lines_pass=3/3
 
 Before the next fresh-date report, establish at least one of these paths:
 
-1. rotate `ALPHA_VANTAGE_API_KEY`, then commit the explicit rotation-confirmation control file required by the secret-safety policy; or
+1. rotate `ALPHA_VANTAGE_API_KEY`, then commit the explicit rotation-confirmation control required by the secret-safety policy; or
 2. configure one or more additional development providers:
    - `LEEWAY_API_TOKEN`
    - `EODHD_API_TOKEN`
