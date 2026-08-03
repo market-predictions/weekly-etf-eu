@@ -1,61 +1,28 @@
 # UCITS close-price validation basket. No valuation, funding, mutation or delivery authority.
-schema_version: ucits_close_price_validation_basket_v2
+schema_version: ucits_close_price_validation_basket_v3
 basket_status: controlled_validation_universe
-last_reviewed: 2026-07-16
+last_reviewed: 2026-08-03
 authority: {portfolio_mutation: false, funding_authority: false, valuation_grade: false, production_delivery: false, us_etfs_allowed_as_investable_candidates: false}
 minimum_thresholds: {min_trading_lines: 8, min_venues: 3, min_currencies: 2, no_nan_in_client_surface: true, unresolved_prices_go_to_diagnostics_only: true}
 
 trading_lines:
-  - {basket_id: cspx_lse_usd, role: S&P 500 UCITS core beta, fund_name: iShares Core S&P 500 UCITS ETF USD Acc, isin: IE00B5BMR087, instrument_type: UCITS ETF, exchange: London Stock Exchange, venue_code: XLON, ticker: CSPX, provider_symbol_yahoo: CSPX.L, currency: USD, verification_status: verified_ucits_trading_line, pricing_status: pricing_observed_non_authoritative, valuation_grade: false, fundable: false}
-  - {basket_id: sxr8_xetra_eur, role: S&P 500 UCITS core beta, fund_name: iShares Core S&P 500 UCITS ETF USD Acc, isin: IE00B5BMR087, instrument_type: UCITS ETF, exchange: Xetra, venue_code: XETR, ticker: SXR8, provider_symbol_yahoo: SXR8.DE, currency: EUR, verification_status: verified_ucits_trading_line, pricing_status: pricing_observed_non_authoritative, valuation_grade: false, fundable: false}
-  - {basket_id: iwda_xams_eur, role: Developed world equity UCITS, fund_name: iShares Core MSCI World UCITS ETF USD Acc, isin: IE00B4L5Y983, instrument_type: UCITS ETF, exchange: Euronext Amsterdam, venue_code: XAMS, ticker: IWDA, provider_symbol_yahoo: IWDA.AS, currency: EUR, verification_status: candidate_requires_verification, pricing_status: pending_fetch_validation, valuation_grade: false, fundable: false}
-  - {basket_id: eunl_xetra_eur, role: Developed world equity UCITS, fund_name: iShares Core MSCI World UCITS ETF USD Acc, isin: IE00B4L5Y983, instrument_type: UCITS ETF, exchange: Xetra, venue_code: XETR, ticker: EUNL, provider_symbol_yahoo: EUNL.DE, currency: EUR, verification_status: candidate_requires_verification, pricing_status: pending_fetch_validation, valuation_grade: false, fundable: false}
-  - basket_id: vwce_xetra_eur
-    role: All-world equity UCITS
-    fund_name: Vanguard FTSE All-World UCITS ETF USD Acc
-    isin: IE00BK5BQT80
-    instrument_type: UCITS ETF
-    exchange: Xetra
-    venue_code: XETR
-    ticker: VWCE
-    bloomberg_ticker: VWCE GY
-    reuters_ric: VWCE.DE
-    provider_symbol_yahoo: VWCE.DE
-    currency: EUR
-    verification_status: verified_ucits_trading_line
-    pricing_status: pending_fresh_completed_close
-    valuation_grade: false
-    fundable: false
-    funding_blockers: [fresh_completed_xetra_close_required, separate_allocation_decision_required]
-  - {basket_id: emim_xams_eur, role: Emerging markets equity UCITS, fund_name: iShares Core MSCI EM IMI UCITS ETF USD Acc, isin: IE00BKM4GZ66, instrument_type: UCITS ETF, exchange: Euronext Amsterdam, venue_code: XAMS, ticker: EMIM, provider_symbol_yahoo: EMIM.AS, currency: EUR, verification_status: candidate_requires_verification, pricing_status: pending_fetch_validation, valuation_grade: false, fundable: false}
-  - {basket_id: cndx_lse_usd, role: Nasdaq 100 technology UCITS, fund_name: iShares NASDAQ 100 UCITS ETF USD Acc, isin: IE00B53SZB19, instrument_type: UCITS ETF, exchange: London Stock Exchange, venue_code: XLON, ticker: CNDX, provider_symbol_yahoo: CNDX.L, currency: USD, verification_status: candidate_requires_verification, pricing_status: pending_fetch_validation, valuation_grade: false, fundable: false}
-  - {basket_id: sxrv_xetra_eur, role: Nasdaq 100 technology UCITS, fund_name: iShares NASDAQ 100 UCITS ETF USD Acc, isin: IE00B53SZB19, instrument_type: UCITS ETF, exchange: Xetra, venue_code: XETR, ticker: SXRV, provider_symbol_yahoo: SXRV.DE, currency: EUR, verification_status: candidate_requires_verification, pricing_status: pending_fetch_validation, valuation_grade: false, fundable: false}
-  - {basket_id: smh_lse_usd, role: Semiconductor thematic UCITS, fund_name: VanEck Semiconductor UCITS ETF, isin: IE00BMC38736, instrument_type: UCITS ETF, exchange: London Stock Exchange, venue_code: XLON, ticker: SMH, provider_symbol_yahoo: SMH.L, currency: USD, verification_status: candidate_requires_verification, pricing_status: pending_fetch_validation, valuation_grade: false, fundable: false}
-  - basket_id: euna_xetra_eur
-    role: Aggregate bond UCITS
-    fund_name: iShares Core Global Aggregate Bond UCITS ETF EUR Hedged Acc
-    isin: IE00BDBRDM35
-    instrument_type: UCITS ETF
-    exchange: Xetra
-    venue_code: XETR
-    ticker: EUNA
-    issuer_exchange_ticker: AGGH
-    bloomberg_ticker: EUNA
-    reuters_ric: EUNA.DE
-    provider_symbol_yahoo: EUNA.DE
-    currency: EUR
-    verification_status: verified_ucits_trading_line
-    alias_reconciliation_status: completed_broker_neutral
-    pricing_status: pending_fresh_completed_close
-    valuation_grade: false
-    fundable: false
-    funding_blockers: [fresh_completed_xetra_close_required, separate_allocation_decision_required]
+  # Official funded EU model lines.
+  - {basket_id: vwce_xetra_eur, role: Official global-equity core position, fund_name: Vanguard FTSE All-World UCITS ETF USD Acc, isin: IE00BK5BQT80, instrument_type: UCITS ETF, exchange: Xetra, venue_code: XETR, ticker: VWCE, provider_symbol_yahoo: VWCE.DE, currency: EUR, verification_status: verified_ucits_trading_line, pricing_status: pending_fresh_completed_close, valuation_grade: false, fundable: false}
+  - {basket_id: euna_xetra_eur, role: Official aggregate-bond position, fund_name: iShares Core Global Aggregate Bond UCITS ETF EUR Hedged Acc, isin: IE00BDBRDM35, instrument_type: UCITS ETF, exchange: Xetra, venue_code: XETR, ticker: EUNA, provider_symbol_yahoo: EUNA.DE, currency: EUR, verification_status: verified_ucits_trading_line, pricing_status: pending_fresh_completed_close, valuation_grade: false, fundable: false}
+  - {basket_id: sxr8_xetra_eur, role: Official S&P 500 overweight position, fund_name: iShares Core S&P 500 UCITS ETF USD Acc, isin: IE00B5BMR087, instrument_type: UCITS ETF, exchange: Xetra, venue_code: XETR, ticker: SXR8, provider_symbol_yahoo: SXR8.DE, currency: EUR, verification_status: verified_ucits_trading_line, pricing_status: pending_fresh_completed_close, valuation_grade: false, fundable: false}
 
-removed_mappings:
-  - basket_id: aggh_lse_gbp
-    previous_claim: iShares Core Global Aggregate Bond UCITS ETF GBP Hedged Dist with ISIN IE00BDBRDM35
-    removal_status: removed_incorrect_share_class_identity
-    reason: IE00BDBRDM35 identifies the EUR Hedged Accumulating share class. The canonical repository Xetra line is EUNA; AGGH is retained only as issuer alias.
+  # Current promoted donor opportunities, exact preferred EU lines.
+  - {basket_id: l0ck_xetra_eur, role: Current cybersecurity opportunity, fund_name: iShares Digital Security UCITS ETF USD Acc, isin: IE00BG0J4C88, instrument_type: UCITS ETF, exchange: Xetra, venue_code: XETR, ticker: L0CK, provider_symbol_yahoo: L0CK.DE, currency: EUR, verification_status: verified_ucits_trading_line, pricing_status: pending_fresh_completed_close, valuation_grade: false, fundable: false}
+  - {basket_id: cbuff_xetra_eur, role: Current healthcare-quality opportunity, fund_name: iShares MSCI World Health Care Sector Advanced UCITS ETF USD Dist, isin: IE00BJ5JNZ06, instrument_type: UCITS ETF, exchange: Xetra, venue_code: XETR, ticker: CBUF, provider_symbol_yahoo: WHCS.DE, currency: EUR, verification_status: verified_ucits_trading_line, pricing_status: pending_fresh_completed_close, valuation_grade: false, fundable: false}
+  - {basket_id: isae_xams_eur, role: Current agriculture and food-security opportunity, fund_name: iShares Agribusiness UCITS ETF USD Acc, isin: IE00B6R52143, instrument_type: UCITS ETF, exchange: Euronext Amsterdam, venue_code: XAMS, ticker: ISAE, provider_symbol_yahoo: ISAE.AS, currency: EUR, verification_status: verified_ucits_trading_line, pricing_status: pending_fresh_completed_close, valuation_grade: false, fundable: false}
+  - {basket_id: xmlc_xetra_eur, role: Current clean-water infrastructure opportunity, fund_name: L&G Clean Water UCITS ETF USD Acc, isin: IE00BK5BC891, instrument_type: UCITS ETF, exchange: Xetra, venue_code: XETR, ticker: XMLC, provider_symbol_yahoo: XMLC.DE, currency: EUR, verification_status: verified_ucits_trading_line, pricing_status: pending_fresh_completed_close, valuation_grade: false, fundable: false}
+  - {basket_id: iqqq_xetra_eur, role: Current global-water utilities opportunity, fund_name: iShares Global Water UCITS ETF USD Dist, isin: IE00B1TXK627, instrument_type: UCITS ETF, exchange: Xetra, venue_code: XETR, ticker: IQQQ, provider_symbol_yahoo: IQQQ.DE, currency: EUR, verification_status: verified_ucits_trading_line, pricing_status: pending_fresh_completed_close, valuation_grade: false, fundable: false}
+  - {basket_id: dfen_xetra_eur, role: Current defense-resilience opportunity, fund_name: VanEck Defense UCITS ETF, isin: IE000YYE6WK5, instrument_type: UCITS ETF, exchange: Xetra, venue_code: XETR, ticker: DFEN, provider_symbol_yahoo: DFEN.DE, currency: EUR, verification_status: verified_ucits_trading_line, pricing_status: pending_fresh_completed_close, valuation_grade: false, fundable: false}
+
+  # Retained breadth and cross-venue diagnostics.
+  - {basket_id: cspx_lse_usd, role: S&P 500 UCITS cross-venue diagnostic, fund_name: iShares Core S&P 500 UCITS ETF USD Acc, isin: IE00B5BMR087, instrument_type: UCITS ETF, exchange: London Stock Exchange, venue_code: XLON, ticker: CSPX, provider_symbol_yahoo: CSPX.L, currency: USD, verification_status: verified_ucits_trading_line, pricing_status: pricing_observed_non_authoritative, valuation_grade: false, fundable: false}
+  - {basket_id: iwda_xams_eur, role: Developed-world equity diagnostic, fund_name: iShares Core MSCI World UCITS ETF USD Acc, isin: IE00B4L5Y983, instrument_type: UCITS ETF, exchange: Euronext Amsterdam, venue_code: XAMS, ticker: IWDA, provider_symbol_yahoo: IWDA.AS, currency: EUR, verification_status: candidate_requires_verification, pricing_status: pending_fetch_validation, valuation_grade: false, fundable: false}
+  - {basket_id: cndx_lse_usd, role: Nasdaq 100 cross-venue diagnostic, fund_name: iShares NASDAQ 100 UCITS ETF USD Acc, isin: IE00B53SZB19, instrument_type: UCITS ETF, exchange: London Stock Exchange, venue_code: XLON, ticker: CNDX, provider_symbol_yahoo: CNDX.L, currency: USD, verification_status: candidate_requires_verification, pricing_status: pending_fetch_validation, valuation_grade: false, fundable: false}
 
 excluded_or_policy_review:
   - {basket_id: sgln_gold_etc, role: Gold exposure, fund_name: iShares Physical Gold ETC, isin: TBD, instrument_type: ETC, exchange: London Stock Exchange, ticker: SGLN, provider_symbol_yahoo: SGLN.L, currency: USD, verification_status: policy_review_required_not_ucits, pricing_status: diagnostics_only, valuation_grade: false, fundable: false}
