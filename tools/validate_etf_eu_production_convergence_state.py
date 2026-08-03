@@ -8,8 +8,8 @@ from typing import Any
 
 EXPECTED_FUNDED = {"VWCE", "EUNA", "SXR8"}
 EXPECTED_STAGE_1 = {
-    "IE00BMC38736": "VVSM",
-    "IE00BG0J4C88": "L0CK",
+    "IE00BMC38736": {"symbol": "VVSM", "currently_promoted": False},
+    "IE00BG0J4C88": {"symbol": "L0CK", "currently_promoted": True},
 }
 
 
@@ -49,23 +49,32 @@ def validate(state: dict[str, Any]) -> list[str]:
     if strategy.get("unmapped_promoted_exposure_count") != 0:
         blockers.append("unmapped promoted exposure count must be zero")
 
-    rows = [row for row in state.get("promoted_exposures") or [] if isinstance(row, dict)]
-    if len(rows) != 6:
+    promoted_rows = [row for row in state.get("promoted_exposures") or [] if isinstance(row, dict)]
+    if len(promoted_rows) != 6:
         blockers.append("promoted exposure rows must contain six items")
-    exposure_ids = [str(row.get("exposure_id") or "") for row in rows]
+    exposure_ids = [str(row.get("exposure_id") or "") for row in promoted_rows]
     if len(set(exposure_ids)) != len(exposure_ids):
         blockers.append("promoted exposure IDs must be unique")
-    if any(not row.get("isin") for row in rows):
+    if any(not row.get("isin") for row in promoted_rows):
         blockers.append("every promoted exposure must contain a mapped ISIN")
+    if "ai_compute_infrastructure" in exposure_ids:
+        blockers.append("VVSM must not be represented as currently promoted in the 2026-07-29 donor set")
+    if "cyber_security" not in exposure_ids:
+        blockers.append("cybersecurity must remain in the current promoted set")
 
-    by_isin = {str(row.get("isin") or "").upper(): row for row in rows}
-    for isin, symbol in EXPECTED_STAGE_1.items():
+    stage_rows = [row for row in state.get("stage_1_review_candidates") or [] if isinstance(row, dict)]
+    if len(stage_rows) != 2:
+        blockers.append("frozen Stage-1 review must contain exactly two candidates")
+    by_isin = {str(row.get("isin") or "").upper(): row for row in stage_rows}
+    for isin, expected in EXPECTED_STAGE_1.items():
         row = by_isin.get(isin)
         if not row:
-            blockers.append(f"Stage-1 mapped exposure missing: {isin}")
+            blockers.append(f"Stage-1 review candidate missing: {isin}")
             continue
-        if str(row.get("exchange_symbol") or "").upper() != symbol:
+        if str(row.get("exchange_symbol") or "").upper() != expected["symbol"]:
             blockers.append(f"Stage-1 exchange symbol mismatch for {isin}")
+        if row.get("currently_promoted") is not expected["currently_promoted"]:
+            blockers.append(f"Stage-1 current-promotion status mismatch for {isin}")
         if row.get("exact_identity_pass") is not True:
             blockers.append(f"Stage-1 exact identity must pass for {isin}")
         if row.get("exact_current_issuer_kid_pass") is not True:
@@ -74,6 +83,8 @@ def validate(state: dict[str, Any]) -> list[str]:
             blockers.append(f"Stage-1 actionable target must be zero for {isin}")
         if row.get("client_action") != "blocked_monitor":
             blockers.append(f"Stage-1 client action must be blocked_monitor for {isin}")
+        if row.get("donor_fresh_add_direction") is not False:
+            blockers.append(f"Stage-1 donor fresh-add direction must be false for {isin}")
         if not row.get("blockers"):
             blockers.append(f"Stage-1 blockers missing for {isin}")
 
@@ -120,6 +131,8 @@ def validate(state: dict[str, Any]) -> list[str]:
         blockers.append("protected-state unchanged proof is missing")
     if validation.get("stage_1_blocked") is not True:
         blockers.append("state validation must confirm Stage 1 is blocked")
+    if validation.get("stage_1_review_candidate_count") != 2:
+        blockers.append("state validation Stage-1 review count must be two")
     return blockers
 
 
@@ -135,6 +148,12 @@ def main() -> None:
         "blockers": blockers,
         "funded_tickers": sorted({ticker(row) for row in state.get("official_portfolio", {}).get("positions") or [] if isinstance(row, dict)}),
         "promoted_exposure_count": len(state.get("promoted_exposures") or []),
+        "stage_1_review_candidate_count": len(state.get("stage_1_review_candidates") or []),
+        "stage_1_current_promotion": {
+            str(row.get("exchange_symbol") or ""): row.get("currently_promoted")
+            for row in state.get("stage_1_review_candidates") or []
+            if isinstance(row, dict)
+        },
         "stage_1_decision": state.get("stage_1_decision", {}).get("value"),
     }
     print(json.dumps(result, indent=2, ensure_ascii=False))
