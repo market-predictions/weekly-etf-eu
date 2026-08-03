@@ -9,6 +9,7 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
+from pricing.ucits_price_evidence_cache import apply_provider_evidence_cache
 from pricing.ucits_price_provider_engine import build_provider_qualification
 from pricing.ucits_price_qualification_policy import apply_identity_anchor_policy
 
@@ -16,6 +17,7 @@ from pricing.ucits_price_qualification_policy import apply_identity_anchor_polic
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--registry", default="config/ucits_price_provider_registry.yml")
+    parser.add_argument("--provider-cache", default="config/etf_eu_provider_close_cache_20260731.json")
     parser.add_argument("--report-date", required=True)
     parser.add_argument("--output", required=True)
     parser.add_argument("--providers", default="")
@@ -36,11 +38,14 @@ def main() -> None:
         max_close_age_days=args.max_close_age_days,
         agreement_tolerance_pct=args.agreement_tolerance_pct,
     )
+    cache_path = Path(args.provider_cache) if args.provider_cache else None
+    apply_provider_evidence_cache(output, cache_path)
     payload = apply_identity_anchor_policy(output)
     print(
         "UCITS_PRICE_IDENTITY_POLICY_OK"
         f" | funded_consensus={payload['funded_consensus_count']}/{payload['funded_line_count']}"
         f" | identity_anchors={payload['funded_identity_anchor_count']}/{payload['funded_line_count']}"
+        f" | cache_used={payload.get('provider_cache_used_count', 0)}"
         f" | gate={payload['report_pricing_gate_passed']}"
     )
 
