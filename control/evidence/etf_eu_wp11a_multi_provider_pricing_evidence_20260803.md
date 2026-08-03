@@ -6,22 +6,21 @@
 repository=market-predictions/weekly-etf-eu
 pull_request=70
 branch=sync/wp11-routine-production-promotion
-head_sha=7cedf0d0fb02511fddabe6bceea7bbb7348b437e
+validated_pricing_head=6d281593b80e8e44d21c994f869cab8c2e42a9e3
 report_date=2026-07-31
-routine_run_id=20260803_30840780941_1
-workflow_run_id=30840780941
-workflow_job_id=91777003039
-artifact_id=8866759217
-artifact_sha256=0ffab963030401e227136b802c56f0f823da18838972a35f10660349e0a6d1fc
-artifact_size_bytes=4975673
+routine_run_id=20260803_30842139405_1
+workflow_run_id=30842139405
+workflow_job_id=91781522951
+artifact_id=8867298602
+artifact_sha256=38522912996254d76b77b59b5e9fea43b6ea2b6ecf1d33ba70e5c3d36e30068d
 workflow_conclusion=success
 ```
 
-The deterministic pricing, evidence-cache, secret-redaction, identity-anchor, valuation-overlay and bilingual client-performance tests also passed on workflow run `30840780653`.
+The deterministic pricing, evidence-cache, secret-redaction, identity-anchor, valuation-overlay and bilingual client-performance tests passed. Subsequent repository-hygiene commits removed a superseded duplicate provider implementation and aligned `CURRENT_STATE.md`, `NEXT_ACTIONS.md` and `DECISION_LOG.md`; they did not change the validated pricing runtime.
 
 ## Decision framework
 
-The development pricing engine now uses this provider order:
+The development pricing engine uses this provider order:
 
 1. Leeway;
 2. EODHD;
@@ -75,7 +74,7 @@ report_pricing_gate_passed=true
 provider_cache_used_count=3
 ```
 
-Yahoo Chart returned the matching Xetra symbols, German venue metadata and EUR currency for each funded line. Alpha Vantage evidence is historical corroboration from the accepted July 31 qualification artifact and is not treated as an identity anchor.
+Yahoo Chart returned matching Xetra symbols, German venue metadata and EUR currency for each funded line. Alpha Vantage evidence is historical corroboration from the accepted July 31 qualification artifact and is not treated as an identity anchor.
 
 ## Run-scoped valuation
 
@@ -105,9 +104,10 @@ eodhd=adapter_implemented_secret_not_configured
 marketstack=adapter_implemented_secret_not_configured
 alpha_vantage=live_secret_disabled_pending_rotation
 yahoo_chart=live_and_configured_without_secret
+stooq=diagnostics_only_blocked_by_browser_verification
 ```
 
-For the non-funded research basket in the final run:
+For the non-funded research basket:
 
 - Yahoo Chart returned a usable single-source close for L0CK, ISAE, XMLC, IQQQ, DFEN, CSPX, IWDA and CNDX;
 - CBUF remained unpriced;
@@ -121,7 +121,7 @@ During early qualification, an Alpha Vantage quota message echoed the API key. T
 - provider failures are stored as classifications only;
 - secret-like fields are stripped from identity evidence;
 - deterministic redaction tests pass;
-- 14 pre-redaction GitHub Actions artifacts were purged;
+- pre-redaction GitHub Actions artifacts were purged;
 - the one-shot elevated artifact-purge workflow was removed;
 - live Alpha Vantage use is disabled unless `config/alpha_vantage_key_rotation_confirmed.json` exists.
 
@@ -169,7 +169,7 @@ execution_authority=false
 delivery_authority=false
 ```
 
-No report was sent and no delivery receipt or manifest was created.
+No report was sent and no delivery receipt or transport manifest was created.
 
 ## Final determination
 
@@ -179,7 +179,8 @@ funded_pricing_status=PASS_3_OF_3
 client_report_pricing_consistency=PASS
 full_routine_preview=PASS
 protected_state=UNCHANGED
-work_package=READY_TO_CLOSE
+work_package=CLOSED_VALIDATED
 pr_merge=NOT_AUTHORIZED
 report_delivery=NOT_AUTHORIZED
+future_date_consensus=REQUIRES_FRESH_SECOND_PROVIDER
 ```
