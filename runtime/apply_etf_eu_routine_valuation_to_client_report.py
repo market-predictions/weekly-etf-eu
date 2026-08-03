@@ -55,6 +55,35 @@ def ticker(row: dict[str, Any]) -> str:
     return str(row.get("ticker") or row.get("exchange_ticker") or "").strip().upper()
 
 
+def reconcile_report_date(soup: BeautifulSoup, state: dict[str, Any]) -> None:
+    report_date = str(state.get("report_date") or "").strip()
+    if not report_date:
+        raise RuntimeError("Routine state report date is missing")
+    hero_date = soup.find(class_="hero-date")
+    if not isinstance(hero_date, Tag):
+        raise RuntimeError("Report hero date is missing")
+    hero_date.clear()
+    hero_date.append(report_date)
+
+
+def localize_latest_history_note(soup: BeautifulSoup, state: dict[str, Any], lang: str) -> None:
+    report_date = str(state.get("report_date") or "").strip()
+    section = sec(soup, "section-7")
+    localized_note = (
+        "Verse rungebonden waardering op basis van voltooide EUR-slotkoersen; officiële stukken en cash ongewijzigd."
+        if lang == "nl"
+        else "Fresh run-scoped valuation from completed EUR closes; official share quantities and cash unchanged."
+    )
+    for row in section.find_all("tr"):
+        cells = row.find_all(["td", "th"], recursive=False)
+        if len(cells) < 2 or cells[0].get_text(" ", strip=True) != report_date:
+            continue
+        cells[-1].clear()
+        cells[-1].append(localized_note)
+        return
+    raise RuntimeError(f"Valuation-history row missing for report date {report_date} ({lang})")
+
+
 def build_current_positions(soup: BeautifulSoup, state: dict[str, Any], lang: str) -> None:
     section = sec(soup, "section-15")
     reset(section)
@@ -76,11 +105,7 @@ def build_current_positions(soup: BeautifulSoup, state: dict[str, Any], lang: st
     tbody = tag(soup, "tbody")
     for row in positions:
         symbol = ticker(row)
-        action = (
-            "Aanhouden; geen wijziging"
-            if lang == "nl"
-            else "Hold; no change"
-        )
+        action = "Aanhouden; geen wijziging" if lang == "nl" else "Hold; no change"
         values = [
             symbol,
             str(row.get("isin") or "—"),
@@ -144,16 +169,20 @@ def apply(manifest_path: Path, state_path: Path) -> None:
         html_path = Path(str(record.get("html") or ""))
         pdf_path = Path(str(record.get("pdf") or ""))
         soup = BeautifulSoup(html_path.read_text(encoding="utf-8"), "html.parser")
+        reconcile_report_date(soup, state)
+        localize_latest_history_note(soup, state, lang)
         build_current_positions(soup, state, lang)
         add_valuation_lineage(soup, state, lang)
         output = str(soup)
         html_path.write_text(output, encoding="utf-8")
         HTML(string=output, base_url=str(html_path.parent.resolve())).write_pdf(str(pdf_path))
-        record["wp11_routine_valuation_reconciliation"] = "fresh_eur_close_overlay_v1"
+        record["wp11_routine_valuation_reconciliation"] = "fresh_eur_close_overlay_v2_report_date_and_localization"
     manifest["wp11_routine_valuation_reconciliation"] = {
         "applied": True,
         "report_date": state.get("report_date"),
         "pricing_close_dates": state.get("official_portfolio", {}).get("pricing_close_dates"),
+        "hero_report_date_reconciled": True,
+        "valuation_history_note_localized": True,
         "portfolio_mutation": False,
         "ledger_write": False,
         "production_delivery_authority": False,
