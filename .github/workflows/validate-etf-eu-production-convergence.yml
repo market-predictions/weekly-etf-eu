@@ -14,6 +14,7 @@ on:
       - "runtime/merge_etf_eu_sync_registries.py"
       - "runtime/finalize_etf_eu_wp10_source_language.py"
       - "runtime/build_etf_eu_production_convergence_state.py"
+      - "runtime/prepare_etf_eu_wp10_client_executive_surface.py"
       - "runtime/promote_etf_eu_sister_report_to_production_candidate.py"
       - "tools/validate_etf_eu_production_convergence_state.py"
       - "tools/validate_etf_eu_production_converged_report.py"
@@ -192,6 +193,9 @@ jobs:
       - name: Promote synchronized source to client-facing production candidate
         run: |
           set -euo pipefail
+          python runtime/prepare_etf_eu_wp10_client_executive_surface.py \
+            "$SOURCE_MANIFEST" \
+            --state "$STATE_PATH"
           python runtime/promote_etf_eu_sister_report_to_production_candidate.py \
             "$SOURCE_MANIFEST" \
             --state "$STATE_PATH" \
