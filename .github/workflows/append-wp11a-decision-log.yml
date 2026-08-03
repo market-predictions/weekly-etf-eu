@@ -1,0 +1,110 @@
+name: Append WP11A decision log
+
+on:
+  push:
+    paths:
+      - ".github/workflows/append-wp11a-decision-log.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  append-decision:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+
+      - name: Append stable WP11A decision
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          path = Path("control/DECISION_LOG.md")
+          marker = "## 2026-08-03 — Development multi-provider completed-close consensus"
+          text = path.read_text(encoding="utf-8")
+          if marker in text:
+              print("WP11A_DECISION_ALREADY_PRESENT")
+              raise SystemExit(0)
+          entry = r'''
+
+---
+
+## 2026-08-03 — Development multi-provider completed-close consensus
+
+### Decision
+
+Weekly ETF EU report generation must fail closed unless every funded position has a development-grade completed-close consensus consisting of at least two providers on the same close date and at least one exact-line metadata anchor.
+
+The development provider order is:
+
+```text
+Leeway
+→ EODHD
+→ Marketstack
+→ Alpha Vantage
+→ direct Yahoo Chart
+```
+
+A provider result is rejected when it is stale, non-positive, contradicts the required currency or venue, or substitutes a proxy trading line. The consensus price is the median of accepted same-date provider closes.
+
+### Stable input and output rules
+
+- Exact identity is controlled by ISIN, expected MIC, expected currency and provider-specific symbol in `config/ucits_price_provider_registry.yml`.
+- Funded consensus requires two same-date providers within 1.0% spread.
+- At least one agreeing provider must return matching symbol, venue and currency metadata.
+- Providers without returned metadata may corroborate a close but cannot establish trading-line identity.
+- Missing secrets are `not_configured`, not pricing failures.
+- Historical provider evidence may be cached only for the exact report date, basket ID, provider and provider symbol with immutable provenance.
+- The cache is ignored for any other report date.
+- Run-scoped valuation must reconcile every current price, market value, weight, price date, unrealized P/L and contribution field before client rendering.
+- The visible Dutch and English performance tables must be rebuilt from the reconciled state.
+
+### Security rule
+
+Provider response bodies must never be persisted because providers may echo credentials in error or quota messages. Store classifications only and strip secret-like fields from evidence.
+
+Alpha Vantage live use remains disabled until its repository secret is rotated and `config/alpha_vantage_key_rotation_confirmed.json` is explicitly committed.
+
+### Authority boundary
+
+```text
+development_pricing_model=true
+commercial_redistribution_authority=false
+funding_authority=false
+portfolio_mutation=false
+ledger_write=false
+execution_authority=false
+delivery_authority=false
+```
+
+Technical price agreement does not authorize a trade, mutate official state or authorize delivery.
+
+### Validated result
+
+For report date `2026-07-31`, VWCE, EUNA and SXR8 passed 3/3 funded consensus and 3/3 identity-anchor gates. The run-scoped NAV was `€99,455.68`; both 11-page reports passed full-page review; protected portfolio and ledger hashes remained unchanged.
+
+Evidence:
+
+```text
+control/evidence/etf_eu_wp11a_multi_provider_pricing_evidence_20260803.md
+workflow_run=30840780941
+artifact_id=8866759217
+```
+'''
+          path.write_text(text.rstrip() + entry + "\n", encoding="utf-8")
+          print("WP11A_DECISION_APPENDED")
+          PY
+
+      - name: Commit decision log
+        run: |
+          if git diff --quiet -- control/DECISION_LOG.md; then
+            echo "NO_DECISION_LOG_CHANGE"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add control/DECISION_LOG.md
+          git commit -m "WP11A: record stable multi-provider pricing decision [skip ci]"
+          git push origin HEAD:${{ github.ref_name }}
