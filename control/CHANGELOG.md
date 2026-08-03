@@ -4,6 +4,133 @@ This file records integration-level changes made to the EU/UCITS ETF review repo
 
 ---
 
+## 2026-08-03 — Complete WP-SYNC-10 production engine convergence
+
+Status:
+
+```text
+WP-SYNC-10 production convergence = completed
+machine_validation = passed
+visual_review = passed
+routine_production_promotion = not yet enabled
+report_delivery = not performed
+```
+
+### Current issue resolved
+
+The premium routine EU report and the merged donor-synchronized report engine were separate paths. The legacy premium renderer could drift through hardcoded candidate copy and string replacements, while the synchronized report retained development terminology and analytical trade scenarios.
+
+### Implementation
+
+Added:
+
+```text
+runtime/build_etf_eu_production_convergence_state.py
+runtime/finalize_etf_eu_wp10_source_language.py
+runtime/prepare_etf_eu_wp10_client_executive_surface.py
+runtime/promote_etf_eu_sister_report_to_production_candidate.py
+tools/validate_etf_eu_production_convergence_state.py
+tools/validate_etf_eu_production_converged_report.py
+.github/workflows/validate-etf-eu-production-convergence.yml
+```
+
+Added exact, non-authorizing current water mappings:
+
+```text
+water_infrastructure=XMLC / IE00BK5BC891 / A2PM52
+water_utilities=IQQQ / IE00B1TXK627 / A0MM0S
+```
+
+Updated:
+
+```text
+config/shared_exposure_ucits_map.yml
+runtime/merge_etf_eu_sync_registries.py
+```
+
+### Stable state-model decision
+
+The report now separates:
+
+```text
+current_promoted_exposures=6
+mapped_promoted_exposures=6
+frozen_stage_1_review_candidates=2
+VVSM_currently_promoted=false
+L0CK_currently_promoted=true
+```
+
+VVSM remains visible only as earlier Stage-1 review continuity. L0CK remains currently promoted but blocked. Both have zero actionable target.
+
+### Client report result
+
+Generated and validated:
+
+```text
+output/production_convergence/client_report/weekly_etf_eu_review_nl_260729_converged.html
+output/production_convergence/client_report/weekly_etf_eu_review_nl_260729_converged.pdf
+output/production_convergence/client_report/weekly_etf_eu_review_260729_converged.html
+output/production_convergence/client_report/weekly_etf_eu_review_260729_converged.pdf
+```
+
+Contract:
+
+```text
+nl_sections=19
+en_sections=19
+nl_pages=11
+en_pages=11
+funded_positions=VWCE,EUNA,SXR8
+cash_weight_pct=60.59
+portfolio_delta=0
+client_development_language_absent=true
+stale_simulated_trade_content_absent=true
+```
+
+### Defects discovered and corrected
+
+- two current water exposures were unmapped;
+- Dutch water labels were introduced after the earlier localization pass;
+- VVSM was incorrectly assumed to remain currently promoted;
+- current opportunity and frozen Stage-1 review semantics were conflated;
+- client pages retained shadow/development wording and raw machine tokens;
+- regime metadata rendered as an object rather than a client label;
+- footers retained development wording;
+- cash displayed the analytical 35.57% scenario rather than official 60.59% cash;
+- official positions displayed analytical targets rather than no-change targets;
+- stale `VVSM/SMH` labeling remained visible.
+
+### Validation evidence
+
+```text
+validated_head_sha=0997545ad0cf670d805536414d05abde17ff89f2
+strategy_synchronization_run=30810262285 success
+target_allocator_run=30810262293 success
+allocator_report_run=30810262292 success
+production_convergence_run=30810262300 success
+job_id=91675081232
+artifact_id=8854509533
+artifact_digest=sha256:19a5bfcc2db4f813bebc3588946e4843c587ff17aa021d0150835bde58208d65
+```
+
+Full visual review covered 22 pages and found no blank pages, clipping, overlap or orphaned rows.
+
+### Authority boundary
+
+```text
+portfolio_mutation=false
+ledger_write=false
+funding_authority=false
+execution_authority=false
+activation_authority=false
+production_delivery_authority=false
+executable_trade_intents=[]
+```
+
+Next package: `ETF-EU-WP-SYNC-11_ROUTINE_PRODUCTION_PROMOTION_AND_GUARDED_DELIVERY`.
+
+---
+
 ## 2026-06-05 — Verify WP5 production Dutch-first report surface
 
 Status:
