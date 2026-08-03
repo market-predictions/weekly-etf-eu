@@ -47,6 +47,38 @@ def resolve_pdf_files(manifest: dict[str, Any]) -> dict[str, Path]:
     return resolved
 
 
+def _render_with_pdftoppm(pdf_path: Path, language_dir: Path, prefix: Path, dpi: int) -> list[Path] | None:
+    renderer = shutil.which("pdftoppm")
+    if renderer is None:
+        return None
+    subprocess.run(
+        [renderer, "-png", "-r", str(dpi), str(pdf_path), str(prefix)],
+        check=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        text=True,
+    )
+    return sorted(language_dir.glob(f"{prefix.name}-*.png"))
+
+
+def _render_with_pymupdf(pdf_path: Path, language_dir: Path, prefix: Path, dpi: int) -> list[Path]:
+    try:
+        import pymupdf
+    except ImportError as exc:
+        raise RuntimeError("Neither pdftoppm nor PyMuPDF is available for PDF page rendering") from exc
+
+    scale = dpi / 72.0
+    matrix = pymupdf.Matrix(scale, scale)
+    rendered: list[Path] = []
+    with pymupdf.open(pdf_path) as document:
+        for index, page in enumerate(document, start=1):
+            page_path = language_dir / f"{prefix.name}-{index:02d}.png"
+            pixmap = page.get_pixmap(matrix=matrix, alpha=False)
+            pixmap.save(page_path)
+            rendered.append(page_path)
+    return rendered
+
+
 def render_pdf(
     pdf_path: Path,
     output_dir: Path,
@@ -54,10 +86,6 @@ def render_pdf(
     dpi: int,
     min_text_characters_per_page: int,
 ) -> dict[str, Any]:
-    renderer = shutil.which("pdftoppm")
-    if renderer is None:
-        raise RuntimeError("pdftoppm is required to render PDF review pages")
-
     reader = PdfReader(str(pdf_path))
     expected_pages = len(reader.pages)
     if expected_pages <= 0:
@@ -81,15 +109,12 @@ def render_pdf(
     language_dir = output_dir / language
     language_dir.mkdir(parents=True, exist_ok=True)
     prefix = language_dir / f"weekly_etf_eu_review_{language}"
-    subprocess.run(
-        [renderer, "-png", "-r", str(dpi), str(pdf_path), str(prefix)],
-        check=True,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-        text=True,
-    )
+    rendered = _render_with_pdftoppm(pdf_path, language_dir, prefix, dpi)
+    renderer_name = "pdftoppm"
+    if rendered is None:
+        rendered = _render_with_pymupdf(pdf_path, language_dir, prefix, dpi)
+        renderer_name = "pymupdf"
 
-    rendered = sorted(language_dir.glob(f"{prefix.name}-*.png"))
     if len(rendered) != expected_pages:
         raise RuntimeError(
             f"Rendered page count mismatch for {language}: expected={expected_pages} actual={len(rendered)}"
@@ -116,7 +141,7 @@ def render_pdf(
         "minimum_observed_text_characters": min(extracted_text_counts),
         "low_content_page_count": 0,
         "dpi": dpi,
-        "renderer": "pdftoppm",
+        "renderer": renderer_name,
         "pages": pages,
     }
 
