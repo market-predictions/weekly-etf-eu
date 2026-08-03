@@ -12,10 +12,13 @@ from pricing import ucits_close_price_multi_source as legacy
 
 
 STOOQ_API_KEY_ENV = "STOOQ_API_KEY"
-STOOQ_URL = legacy.STOOQ_URL
+STOOQ_URLS = (
+    "https://stooq.com/q/d/l/",
+    "https://stooq.pl/q/d/l/",
+)
 
 
-def _base_result(symbol: str, *, api_key_supplied: bool) -> dict[str, Any]:
+def _base_result(symbol: str, *, api_key_supplied: bool, endpoint: str) -> dict[str, Any]:
     return {
         "pricing_status": "fetch_failed",
         "close_price": None,
@@ -23,6 +26,7 @@ def _base_result(symbol: str, *, api_key_supplied: bool) -> dict[str, Any]:
         "observed_at_utc": legacy.utc_now(),
         "blockers": [],
         "provider_symbol": symbol,
+        "endpoint": endpoint,
         "response_classification": "not_attempted",
         "api_key_supplied": api_key_supplied,
         "http_status": None,
@@ -36,11 +40,12 @@ def _base_result(symbol: str, *, api_key_supplied: bool) -> dict[str, Any]:
 def classify_stooq_response(
     *,
     symbol: str,
+    endpoint: str,
     response: requests.Response,
     report_date: date,
     api_key_supplied: bool,
 ) -> dict[str, Any]:
-    result = _base_result(symbol, api_key_supplied=api_key_supplied)
+    result = _base_result(symbol, api_key_supplied=api_key_supplied, endpoint=endpoint)
     result["http_status"] = response.status_code
     result["content_type"] = str(response.headers.get("content-type") or "").split(";", 1)[0].strip().lower()
     result["response_bytes"] = len(response.content or b"")
@@ -55,6 +60,10 @@ def classify_stooq_response(
     if not text:
         result["response_classification"] = "empty_response"
         result["blockers"] = ["stooq_empty_response"]
+        return result
+    if "requires javascript to verify your browser" in folded or "/__verify" in folded:
+        result["response_classification"] = "browser_verification_challenge"
+        result["blockers"] = ["stooq_browser_verification_challenge"]
         return result
     if "get your apikey" in folded or ("apikey" in folded and "captcha" in folded):
         result["response_classification"] = "api_key_required"
@@ -118,11 +127,12 @@ def try_stooq_close_detailed(
     report_date: date,
     *,
     api_key: str | None = None,
+    endpoint: str = STOOQ_URLS[0],
     session: requests.Session | None = None,
 ) -> dict[str, Any]:
     symbol = legacy.stooq_symbol(line)
     resolved_key = str(api_key if api_key is not None else os.environ.get(STOOQ_API_KEY_ENV, "")).strip()
-    result = _base_result(symbol, api_key_supplied=bool(resolved_key))
+    result = _base_result(symbol, api_key_supplied=bool(resolved_key), endpoint=endpoint)
     if not symbol:
         result["response_classification"] = "missing_symbol"
         result["blockers"] = ["missing_provider_symbol_stooq"]
@@ -141,11 +151,11 @@ def try_stooq_close_detailed(
     client = session or requests
     try:
         response = client.get(
-            STOOQ_URL,
+            endpoint,
             params=params,
             timeout=25,
             headers={
-                "User-Agent": "Mozilla/5.0 ETF-EU-Routine/1.1",
+                "User-Agent": "Mozilla/5.0 ETF-EU-Routine/1.2",
                 "Accept": "text/csv,text/plain,*/*",
             },
         )
@@ -156,17 +166,42 @@ def try_stooq_close_detailed(
 
     return classify_stooq_response(
         symbol=symbol,
+        endpoint=endpoint,
         response=response,
         report_date=report_date,
         api_key_supplied=bool(resolved_key),
     )
 
 
+def try_stooq_close_best_effort(line: dict[str, Any], report_date: date) -> dict[str, Any]:
+    attempts = [try_stooq_close_detailed(line, report_date, endpoint=endpoint) for endpoint in STOOQ_URLS]
+    for result in attempts:
+        if result["pricing_status"] == "priced_non_authoritative":
+            result["endpoint_attempts"] = [
+                {"endpoint": item["endpoint"], "classification": item["response_classification"]}
+                for item in attempts
+            ]
+            return result
+    selected = attempts[0]
+    selected["blockers"] = sorted(
+        {
+            f"{item['blockers'][0]}:{item['endpoint'].split('/')[2]}"
+            for item in attempts
+            if item.get("blockers")
+        }
+    )
+    selected["endpoint_attempts"] = [
+        {"endpoint": item["endpoint"], "classification": item["response_classification"]}
+        for item in attempts
+    ]
+    return selected
+
+
 def try_stooq_close_compat(
     line: dict[str, Any],
     report_date: date,
 ) -> tuple[str, float | None, str | None, str | None, list[str], str]:
-    result = try_stooq_close_detailed(line, report_date)
+    result = try_stooq_close_best_effort(line, report_date)
     return (
         str(result["pricing_status"]),
         result["close_price"],
