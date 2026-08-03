@@ -5,176 +5,146 @@
 ```text
 date=2026-08-03
 repository=market-predictions/weekly-etf-eu
-working_branch=sync/wp10-production-engine-convergence
-pull_request=69
-operating_mode=routine_production_plus_validated_production_convergence_candidate
-selected_next_action=MERGE_WP_SYNC_10_THEN_START_WP_SYNC_11_ROUTINE_PRODUCTION_PROMOTION
-wp10_status=completed_machine_green_visual_review_passed
+working_branch=sync/wp11-routine-production-promotion
+pull_request=70
+validated_source_sha=0794ad5373c4073dfe3051d6675c0689739dcd4d
+operating_mode=routine_production_pricing_validated_no_send
+wp10_status=merged
+wp11_status=fresh_routine_preview_validated
+wp11a_status=closed_validated
+selected_next_action=REQUEST_MERGE_AUTHORITY_FOR_PR70
 ```
 
-WP-SYNC-10 has converged the merged Weekly ETF synchronization engine with a premium client-facing EU report candidate. The capability is complete and ready for architecture merge. It has not replaced the routine production path and has not sent email.
+WP-SYNC-11 has promoted the converged report engine into a fresh, no-send routine package. WP-SYNC-11A has resolved the funded-position pricing blocker with a deterministic multi-provider completed-close gate. The cleaned PR head passed the dedicated provider tests, allocator validation, full routine preview, all 22 rendered PDF pages and protected-state proof. No report was sent.
 
-## Official EU model portfolio
+## Official protected EU model portfolio
 
-Authoritative sources:
+Authoritative state remains:
 
 ```text
 portfolio_state=output/etf_eu_portfolio_state.json
 trade_ledger=output/etf_eu_trade_ledger.csv
-```
-
-Current accepted state:
-
-```text
 starting_capital_eur=100000.00
-nav_eur=99756.76
-cash_eur=60439.44
-cash_weight_pct=60.59
-invested_market_value_eur=39317.32
+official_nav_eur=99756.76
+official_cash_eur=60439.44
+official_invested_market_value_eur=39317.32
 position_count=3
-model_portfolio_only=true
-real_broker_execution=false
-```
-
-| Position | ISIN | Shares | Market value | Weight | Current action |
-|---|---|---:|---:|---:|---|
-| VWCE | IE00BK5BQT80 | 151 | €24,806.28 | 24.866766% | Hold; no change |
-| EUNA | IE00BDBRDM35 | 1,526 | €7,465.04 | 7.483242% | Hold; no add or sale |
-| SXR8 | IE00B5BMR087 | 10 | €7,046.00 | 7.063180% | Hold; no second tranche |
-
-Protected-state evidence:
-
-```text
 portfolio_state_sha256=6642334558818e630f0b22a2500ef44b2489ff237aacca638e81f184c165aa6f
 trade_ledger_sha256=718f0681fe0d1162f9a91c34aa90489eb8566aecb06c12a1a2d9ad251be3e87c
-before_after_hashes_equal=true
 portfolio_mutation=false
 ledger_write=false
 ```
 
-## Current Weekly ETF donor state
+The official state has not been overwritten. Fresh report valuation is a separate run-scoped overlay.
+
+## Validated run-scoped valuation
 
 ```text
-donor_repository=market-predictions/weekly-etf
-donor_evidence_commit=52f13e190a9f6b0045df175973fdf8d0f6f5f30d
-donor_report_date=2026-07-29
-current_promoted_exposure_count=6
+report_date=2026-07-31
+routine_run_id=20260803_30850723696_1
+pricing_gate_passed=true
+funded_consensus_count=3/3
+funded_identity_anchor_count=3/3
+cash_eur=60439.44
+invested_market_value_eur=39016.24
+run_scoped_nav_eur=99455.68
+since_inception_return_pct=-0.544320
 ```
 
-Current promoted opportunities:
+| Position | Shares | Accepted close | Market value | Weight | Run contribution |
+|---|---:|---:|---:|---:|---:|
+| VWCE | 151 | €162.96000335 | €24,606.96 | 24.741634% | -€199.32 |
+| EUNA | 1,526 | €4.88000006 | €7,446.88 | 7.487637% | -€18.16 |
+| SXR8 | 10 | €696.23999512 | €6,962.40 | 7.000505% | -€83.60 |
 
-1. cybersecurity resilience;
-2. healthcare quality and defensive growth;
-3. agriculture and food security;
-4. water infrastructure and treatment;
-5. water utilities and defensive infrastructure;
-6. defense resilience.
+The run-scoped NAV reconciles exactly from cash plus the three freshly valued positions. Total contribution versus the previous official valuation is `-€301.08`.
 
-## Current UCITS mapping state
+## Pricing architecture
+
+Development provider order:
 
 ```text
-promoted_exposure_count=6
-mapped_promoted_exposure_count=6
-unmapped_promoted_exposure_count=0
+Leeway
+→ EODHD
+→ Marketstack
+→ Alpha Vantage
+→ direct Yahoo Chart
 ```
 
-WP-SYNC-10 added exact non-authorizing water mappings:
+Stable gate for every funded position:
 
-| Exposure | Fund | ISIN | Xetra symbol | WKN |
-|---|---|---|---|---|
-| Water infrastructure | L&G Clean Water UCITS ETF | IE00BK5BC891 | XMLC | A2PM52 |
-| Water utilities | iShares Global Water UCITS ETF | IE00B1TXK627 | IQQQ | A0MM0S |
+- two providers on the same completed-close date;
+- maximum spread of 1.0%;
+- at least one agreeing exact-line symbol/venue/currency metadata anchor;
+- positive finite close on or before the report date;
+- no proxy-line substitution;
+- no venue or currency contradiction.
 
-Mapping completion does not authorize allocation. Exact current document and market-evidence gates remain separate.
-
-## Frozen Stage-1 review continuity
-
-| Review candidate | Xetra symbol | ISIN | Currently promoted | Actionable target | Decision |
-|---|---|---|---|---:|---|
-| VVSM | VVSM | IE00BMC38736 | No | 0.00% | Blocked; monitor |
-| LOCK portfolio label | L0CK | IE00BG0J4C88 | Yes | 0.00% | Blocked; monitor |
+Current provider status:
 
 ```text
-stage_1_decision=blocked
-stage_1_activation_authorized=false
-official_state_applied=false
-executable_trade_intents=[]
+leeway=adapter_implemented_secret_not_configured
+eodhd=adapter_implemented_secret_not_configured
+marketstack=adapter_implemented_secret_not_configured
+alpha_vantage=live_use_disabled_pending_key_rotation; exact_date_cache_used
+yahoo_chart=live_unkeyed_identity_anchor
+stooq=diagnostics_only_blocked_by_browser_verification
 ```
 
-VVSM is retained only as prior Stage-1 review continuity; it is not a current promoted opportunity. L0CK remains currently promoted but cannot be deployed because current market-evidence and donor fresh-add gates do not pass.
+The accepted Alpha Vantage evidence cache is provenance-bound to `2026-07-31` and is ignored automatically for future report dates. It is not a standing source of current prices.
 
-## WP-SYNC-10 client-report result
+## Non-funded basket status
 
-Generated production candidate:
+Yahoo Chart supplied usable development closes for L0CK, ISAE, XMLC, IQQQ, DFEN, CSPX, IWDA and CNDX. CBUF remained unpriced. Because CBUF is not funded, it does not block NAV, but it remains diagnostics-only and cannot be promoted by price inference or proxy substitution.
+
+## Fresh report package
 
 ```text
-nl_html=output/production_convergence/client_report/weekly_etf_eu_review_nl_260729_converged.html
-nl_pdf=output/production_convergence/client_report/weekly_etf_eu_review_nl_260729_converged.pdf
-en_html=output/production_convergence/client_report/weekly_etf_eu_review_260729_converged.html
-en_pdf=output/production_convergence/client_report/weekly_etf_eu_review_260729_converged.pdf
+nl_html=output/fresh_generation/weekly_etf_eu_review_nl_260731_01.html
+nl_pdf=output/fresh_generation/weekly_etf_eu_review_nl_260731_01.pdf
+en_html=output/fresh_generation/weekly_etf_eu_review_260731_01.html
+en_pdf=output/fresh_generation/weekly_etf_eu_review_260731_01.pdf
+routine_manifest=output/run_manifests/etf_eu_routine_run_manifest_2026-07-31_20260803_30850723696_1.json
 ```
 
-Validated contract:
+Final exact-head validation:
 
 ```text
+source_sha=0794ad5373c4073dfe3051d6675c0689739dcd4d
+workflow_run=30850723696
+workflow_job=91809807838
+artifact_id=8870570755
+artifact_sha256=c11dd7d464e706cf5ed4d6c4afcfeccd556a34a11108a9dfcc5a8a4f7c651602
+pricing_engine_workflow_run=30850723739 success
+stooq_diagnostic_workflow_run=30850723694 success
+allocator_report_workflow_run=30850723704 success
 languages=nl,en
 sections_per_language=19
 pages_nl=11
 pages_en=11
-funded_position_count=3
-current_promoted_exposure_count=6
-mapped_promoted_exposure_count=6
-client_shadow_language_absent=true
-raw_internal_tokens_absent=true
-stale_simulated_trade_content_absent=true
-cash_target_matches_official_state=true
-all_required_sections_present=true
-```
-
-Visual review:
-
-```text
-reviewed_pages=22
-blank_pages=0
-clipping=false
-overlap=false
-orphaned_rows=false
-premium_layout_preserved=true
-visual_review_passed=true
-```
-
-## Validation evidence
-
-```text
-validated_head_sha=0997545ad0cf670d805536414d05abde17ff89f2
-strategy_synchronization_run=30810262285 success
-target_allocator_run=30810262293 success
-allocator_report_run=30810262292 success
-production_convergence_run=30810262300 success
-job_id=91675081232
-artifact_id=8854509533
-artifact_digest=sha256:19a5bfcc2db4f813bebc3588946e4843c587ff17aa021d0150835bde58208d65
-```
-
-Closeout records:
-
-```text
-control/evidence/etf_eu_wp10_production_convergence_30810262300_1.json
-control/decisions/ETF_EU_WP10_PRODUCTION_ENGINE_CONVERGENCE_DECISION_20260803.md
-control/handovers/HANDOVER_WEEKLY_ETF_EU_WP10_PRODUCTION_CONVERGENCE_20260803.md
+rendered_pages=22
+low_content_pages=0
+client_report_validation=true
+routine_manifest_validation=true
+protected_state_unchanged=true
 ```
 
 ## Authority boundaries
 
 ```text
+development_pricing_model=true
+commercial_redistribution_authority=false
 funding_authority=false
 portfolio_mutation=false
 ledger_write=false
 execution_authority=false
 activation_authority=false
 production_delivery_authority=false
+email_sent=false
+delivery_receipt_created=false
+merge_authority=false
 ```
 
 ## Current conclusion
 
-The premium production-convergence capability is complete. The next package is routine production promotion and guarded delivery. It must generate a fresh dated package, preserve the current no-change portfolio unless independent activation gates pass, and claim delivery only after a real transport manifest and independent inbox receipt.
+The development pricing model and its integration into the fresh routine report are working and validated on the cleaned PR head. Pricing is no longer the current development blocker for the three funded positions. PR #70 remains draft, open and mergeable with no review threads; merging requires explicit authority. Future report dates must obtain fresh same-date consensus and cannot reuse the July 31 cache.

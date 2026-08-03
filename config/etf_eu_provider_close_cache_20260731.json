@@ -1,0 +1,103 @@
+{
+  "schema_version": "ucits_provider_close_evidence_cache_v1",
+  "status": "accepted_historical_development_evidence",
+  "report_date": "2026-07-31",
+  "provenance": {
+    "workflow_run_id": 30835143213,
+    "workflow_job_id": 91758375128,
+    "artifact_id": 8864532871,
+    "artifact_sha256": "fdc273859071ba9345a5c7c626f0429ee3f8535544c79fe51894fe37635c7057",
+    "captured_at_utc": "2026-08-03T17:06:33Z"
+  },
+  "authority": {
+    "development_only": true,
+    "production_or_redistribution_authority": false,
+    "valid_only_for_exact_report_date": true
+  },
+  "entries": [
+    {
+      "basket_id": "vwce_xetra_eur",
+      "provider": "alpha_vantage",
+      "provider_symbol": "VWCE.DEX",
+      "report_date": "2026-07-31",
+      "close_date": "2026-07-31",
+      "close_price": 162.96,
+      "returned_symbol": null,
+      "returned_exchange": null,
+      "returned_mic": null,
+      "returned_currency": null,
+      "venue_match": null,
+      "currency_match": null
+    },
+    {
+      "basket_id": "vwce_xetra_eur",
+      "provider": "yahoo_chart",
+      "provider_symbol": "VWCE.DE",
+      "report_date": "2026-07-31",
+      "close_date": "2026-07-31",
+      "close_price": 162.96000671,
+      "returned_symbol": "VWCE.DE",
+      "returned_exchange": "GER",
+      "returned_mic": null,
+      "returned_currency": "EUR",
+      "venue_match": true,
+      "currency_match": true
+    },
+    {
+      "basket_id": "euna_xetra_eur",
+      "provider": "alpha_vantage",
+      "provider_symbol": "EUNA.DEX",
+      "report_date": "2026-07-31",
+      "close_date": "2026-07-31",
+      "close_price": 4.88,
+      "returned_symbol": null,
+      "returned_exchange": null,
+      "returned_mic": null,
+      "returned_currency": null,
+      "venue_match": null,
+      "currency_match": null
+    },
+    {
+      "basket_id": "euna_xetra_eur",
+      "provider": "yahoo_chart",
+      "provider_symbol": "EUNA.DE",
+      "report_date": "2026-07-31",
+      "close_date": "2026-07-31",
+      "close_price": 4.88000011,
+      "returned_symbol": "EUNA.DE",
+      "returned_exchange": "GER",
+      "returned_mic": null,
+      "returned_currency": "EUR",
+      "venue_match": true,
+      "currency_match": true
+    },
+    {
+      "basket_id": "sxr8_xetra_eur",
+      "provider": "alpha_vantage",
+      "provider_symbol": "SXR8.DEX",
+      "report_date": "2026-07-31",
+      "close_date": "2026-07-31",
+      "close_price": 696.24,
+      "returned_symbol": null,
+      "returned_exchange": null,
+      "returned_mic": null,
+      "returned_currency": null,
+      "venue_match": null,
+      "currency_match": null
+    },
+    {
+      "basket_id": "sxr8_xetra_eur",
+      "provider": "yahoo_chart",
+      "provider_symbol": "SXR8.DE",
+      "report_date": "2026-07-31",
+      "close_date": "2026-07-31",
+      "close_price": 696.23999023,
+      "returned_symbol": "SXR8.DE",
+      "returned_exchange": "GER",
+      "returned_mic": null,
+      "returned_currency": "EUR",
+      "venue_match": true,
+      "currency_match": true
+    }
+  ]
+}

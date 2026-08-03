@@ -17,13 +17,15 @@ tr { break-inside: avoid; page-break-inside: avoid; }
 .wide-table { font-size: 6.45pt; }
 /* Keep the simple four-point portfolio curve and three-row performance ledger
    together without removing evidence or shrinking the full report globally. */
-#section-7 .equity-chart { max-height: 180px; margin-top: 3px; margin-bottom: 5px; }
-#section-7 table { font-size: 6.65pt; }
-#section-7 th, #section-7 td { padding: 4px 4px; line-height: 1.22; }
-#section-7A { padding-top: 8px; padding-bottom: 8px; }
-#section-7A .section-head { margin-bottom: 4px; }
-#section-7A table { font-size: 5.75pt; }
-#section-7A th, #section-7A td { padding: 2px 3px; line-height: 1.12; }
+#section-7 { padding-top: 8px; padding-bottom: 8px; margin-bottom: 7px; }
+#section-7 .section-head { margin-bottom: 4px; }
+#section-7 .equity-chart { max-height: 140px; margin-top: 2px; margin-bottom: 3px; }
+#section-7 table { font-size: 6.1pt; margin-top: 3px; }
+#section-7 th, #section-7 td { padding: 2px 3px; line-height: 1.12; }
+#section-7A { padding: 6px 10px; margin-bottom: 8px; }
+#section-7A .section-head { margin-bottom: 2px; }
+#section-7A table { font-size: 5.35pt; margin-top: 3px; }
+#section-7A th, #section-7A td { padding: 1px 2px; line-height: 1.05; }
 /* The renderer's zero-height divider produced an empty physical page. Hide the
    marker and place the page break on the first analyst section itself. */
 .analyst-divider { display: none !important; break-before: auto !important; page-break-before: auto !important; }

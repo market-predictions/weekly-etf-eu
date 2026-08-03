@@ -4,6 +4,7 @@ import argparse
 import copy
 import hashlib
 import json
+import os
 import urllib.request
 from datetime import date, datetime, timezone
 from pathlib import Path
@@ -24,11 +25,17 @@ def _parse_date(value: Any) -> date | None:
         return None
 
 
-def _load_url(url: str) -> tuple[dict[str, Any], str]:
-    request = urllib.request.Request(url, headers={"User-Agent": "weekly-etf-eu-macro-adapter/1.0"})
-    with urllib.request.urlopen(request, timeout=30) as response:
-        raw = response.read()
-    return json.loads(raw.decode("utf-8")), hashlib.sha256(raw).hexdigest()
+def _load_source(source: str) -> tuple[dict[str, Any], str, str]:
+    source_path = Path(source)
+    if source_path.exists():
+        raw = source_path.read_bytes()
+        resolved_source = source_path.resolve().as_uri()
+    else:
+        request = urllib.request.Request(source, headers={"User-Agent": "weekly-etf-eu-macro-adapter/1.1"})
+        with urllib.request.urlopen(request, timeout=30) as response:
+            raw = response.read()
+        resolved_source = source
+    return json.loads(raw.decode("utf-8")), hashlib.sha256(raw).hexdigest(), resolved_source
 
 
 def adapt(donor: dict[str, Any], *, report_date: str, run_id: str, source_url: str, source_sha256: str) -> dict[str, Any]:
@@ -101,19 +108,24 @@ def adapt(donor: dict[str, Any], *, report_date: str, run_id: str, source_url: s
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Adapt the current Weekly ETF donor macro pack for EU/UCITS shadow reporting.")
-    parser.add_argument("--source-url", required=True)
+    source_group = parser.add_mutually_exclusive_group(required=True)
+    source_group.add_argument("--source-url")
+    source_group.add_argument("--source", help="Backward-compatible local file path or URL")
     parser.add_argument("--report-date", required=True)
-    parser.add_argument("--run-id", required=True)
+    parser.add_argument("--run-id", default=os.environ.get("WP11_RUN_ID"))
     parser.add_argument("--output", required=True)
     parser.add_argument("--latest-output")
     args = parser.parse_args()
 
-    donor, source_sha256 = _load_url(args.source_url)
+    if not args.run_id:
+        parser.error("--run-id is required when WP11_RUN_ID is not set")
+    source = args.source_url or args.source
+    donor, source_sha256, resolved_source = _load_source(source)
     payload = adapt(
         donor,
         report_date=args.report_date,
         run_id=args.run_id,
-        source_url=args.source_url,
+        source_url=resolved_source,
         source_sha256=source_sha256,
     )
     output = Path(args.output)
@@ -129,6 +141,7 @@ def main() -> None:
         "source_sha256": source_sha256,
         "source_report_date": donor.get("report_date"),
         "eu_report_date": args.report_date,
+        "run_id": args.run_id,
         "authority": "descriptive_only",
     }, indent=2, sort_keys=True))
 
