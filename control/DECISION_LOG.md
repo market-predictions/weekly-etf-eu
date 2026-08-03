@@ -513,3 +513,40 @@ routine_production_ready=true
 operating_mode=routine_production
 next_action=RUN_NEXT_ROUTINE_WEEKLY_ETF_EU_REPORT
 ```
+
+---
+
+## 2026-08-03 — Development multi-provider completed-close consensus
+
+### Decision
+
+Weekly ETF EU report generation fails closed unless every funded position has two agreeing providers on the same completed-close date within 1.0% and at least one agreeing provider supplies matching exact-line symbol, venue and currency metadata.
+
+### Stable architecture
+
+```text
+Leeway
+→ EODHD
+→ Marketstack
+→ Alpha Vantage
+→ direct Yahoo Chart
+```
+
+- Exact identity is controlled by ISIN, expected MIC, expected currency and provider-specific symbol in `config/ucits_price_provider_registry.yml`.
+- Missing secrets are classified as `not_configured`, not missing prices.
+- Date-bound cached evidence is accepted only for the exact report date, basket ID, provider and provider symbol with immutable provenance.
+- Provider response bodies are not persisted because error messages may echo credentials.
+- Run-scoped valuation and both client-language performance tables must reconcile to the accepted consensus closes.
+- Technical pricing success grants no trade, portfolio mutation, delivery or commercial redistribution authority.
+
+### Validated result
+
+For report date `2026-07-31`, VWCE, EUNA and SXR8 passed 3/3 consensus and 3/3 identity-anchor gates. Run-scoped NAV was `€99,455.68`; both 11-page reports passed validation and 22-page visual review; protected portfolio and ledger hashes remained unchanged.
+
+Evidence:
+
+```text
+control/evidence/etf_eu_wp11a_multi_provider_pricing_evidence_20260803.md
+workflow_run=30842139405
+artifact_id=8867298602
+```
