@@ -9,6 +9,30 @@ def _text(value: Any) -> str:
     return str(value or "").strip()
 
 
+def _sanitize_blocker(value: Any) -> str:
+    text = _text(value)
+    folded = text.casefold()
+    if text.startswith("provider_message:"):
+        if any(token in folded for token in ("rate limit", "spreading out", "quota", "standard api")):
+            return "provider_rate_or_quota_limit"
+        return "provider_error_message_redacted"
+    return text
+
+
+def _sanitize_provider_row(row: dict[str, Any]) -> None:
+    row["blockers"] = sorted({_sanitize_blocker(item) for item in (row.get("blockers") or []) if _sanitize_blocker(item)})
+    evidence = []
+    for source in row.get("identity_evidence", []) or []:
+        if not isinstance(source, dict):
+            continue
+        evidence.append({
+            key: value
+            for key, value in source.items()
+            if key.casefold() not in {"apikey", "api_key", "api_token", "access_key", "token", "secret"}
+        })
+    row["identity_evidence"] = evidence
+
+
 def _symbol_match(row: dict[str, Any]) -> bool | None:
     returned = _text(row.get("returned_symbol")).upper()
     requested = _text(row.get("provider_symbol")).upper()
@@ -27,7 +51,7 @@ def _is_identity_anchor(row: dict[str, Any]) -> bool:
 
 
 def apply_identity_anchor_policy(path: Path) -> dict[str, Any]:
-    """Require one exact-line metadata anchor inside every accepted price consensus.
+    """Sanitize provider evidence and require one exact-line metadata anchor.
 
     A provider with a successful close but no returned symbol, venue or currency can
     corroborate a close. It cannot independently establish trading-line identity.
@@ -41,6 +65,7 @@ def apply_identity_anchor_policy(path: Path) -> dict[str, Any]:
         for provider_row in line.get("provider_results", []) or []:
             if not isinstance(provider_row, dict):
                 continue
+            _sanitize_provider_row(provider_row)
             provider_row["symbol_match"] = _symbol_match(provider_row)
             provider_row["identity_anchor"] = _is_identity_anchor(provider_row)
             provider = _text(provider_row.get("provider"))
@@ -72,6 +97,8 @@ def apply_identity_anchor_policy(path: Path) -> dict[str, Any]:
     payload["report_pricing_gate_passed"] = bool(funded) and all(
         line.get("qualification_status") == "qualified_development_consensus" for line in funded
     )
+    payload["secret_redaction_applied"] = True
+    payload["provider_message_storage_policy"] = "classification_only_no_response_body"
     payload["identity_policy"] = {
         "same_date_provider_count_required": 2,
         "metadata_identity_anchor_required": 1,
