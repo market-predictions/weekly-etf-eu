@@ -21,12 +21,19 @@ def preferred_variant(allocator: dict[str, Any]) -> dict[str, Any]:
     raise RuntimeError(f"Preferred allocator variant not found: {variant_id}")
 
 
-def selected_rows(variant: dict[str, Any]) -> dict[str, dict[str, Any]]:
+def allocation_rows(variant: dict[str, Any]) -> dict[str, dict[str, Any]]:
     return {
         str(row.get("exposure_id")): row
         for row in variant.get("allocation_rows") or []
-        if isinstance(row, dict) and row.get("selected") is True and row.get("eligible") is True
+        if isinstance(row, dict) and row.get("exposure_id")
     }
+
+
+def num(value: Any, default: float = 0.0) -> float:
+    try:
+        return float(value)
+    except (TypeError, ValueError):
+        return default
 
 
 def normalize_ticker(value: Any) -> str:
@@ -48,13 +55,26 @@ def latest_quote_evidence() -> tuple[Path | None, dict[str, dict[str, Any]]]:
     return path, index
 
 
+def validate_allocator_state(rows: dict[str, dict[str, Any]]) -> None:
+    ai = rows.get("ai_compute_infrastructure") or {}
+    cyber = rows.get("cyber_security") or {}
+    if ai.get("eligible") is not True or ai.get("selected") is not True:
+        raise RuntimeError("VVSM must remain the selected eligible Stage-1 analytical candidate")
+    if cyber.get("eligible") is not True:
+        raise RuntimeError("Funded cybersecurity exposure must remain strategy-eligible")
+    if cyber.get("selected") is True:
+        raise RuntimeError("Funded cybersecurity exposure must not be selected as a new Stage-1 trade")
+    cyber_order = cyber.get("order") if isinstance(cyber.get("order"), dict) else {}
+    if num(cyber_order.get("share_delta")) != 0 or num(cyber_order.get("target_shares")) > 0:
+        raise RuntimeError("Funded cybersecurity exposure received a duplicate order")
+
+
 def apply(state_path: Path, allocator_path: Path) -> None:
     state = load_object(state_path)
     allocator = load_object(allocator_path)
     variant = preferred_variant(allocator)
-    selected = selected_rows(variant)
-    if not {"ai_compute_infrastructure", "cyber_security"}.issubset(selected):
-        raise RuntimeError("Expected VVSM and cybersecurity Stage-1 rows to be selected and eligible")
+    rows = allocation_rows(variant)
+    validate_allocator_state(rows)
 
     portfolio = state.get("official_portfolio") if isinstance(state.get("official_portfolio"), dict) else {}
     positions = [row for row in portfolio.get("positions") or [] if isinstance(row, dict)]
@@ -63,29 +83,45 @@ def apply(state_path: Path, allocator_path: Path) -> None:
         for row in positions
         if normalize_ticker(row.get("ticker") or row.get("exchange_ticker"))
     }
+    if set(funded_positions) != {"VWCE", "EUNA", "SXR8", "L0CK"}:
+        raise RuntimeError(f"Expected activated four-position model state; found {sorted(funded_positions)}")
+
     quote_path, quotes = latest_quote_evidence()
     activation = portfolio.get("last_model_capital_activation") or state.get("model_capital_activation") or {}
+    if not activation.get("activation_id"):
+        raise RuntimeError("L0CK activation provenance missing from convergence state")
 
     remaining_blockers: list[str] = []
     proposals: list[dict[str, Any]] = []
     activated_tickers: list[str] = []
     monitored_tickers: list[str] = []
+    selected_exposures: list[str] = []
+    eligible_exposures: list[str] = []
 
     for candidate in state.get("stage_1_review_candidates") or []:
         if not isinstance(candidate, dict):
             continue
         exposure_id = str(candidate.get("exposure_id") or "")
-        allocation = selected.get(exposure_id)
+        allocation = rows.get(exposure_id)
         if allocation is None:
-            continue
-        candidate_evidence = allocation.get("candidate") or {}
+            raise RuntimeError(f"Stage-1 allocator row missing: {exposure_id}")
+        if allocation.get("eligible") is True:
+            eligible_exposures.append(exposure_id)
+        if allocation.get("selected") is True:
+            selected_exposures.append(exposure_id)
+
+        candidate_evidence = allocation.get("candidate") if isinstance(allocation.get("candidate"), dict) else {}
         ticker = normalize_ticker(candidate_evidence.get("ticker") or candidate.get("exchange_symbol"))
-        order = allocation.get("order") or {}
+        order = allocation.get("order") if isinstance(allocation.get("order"), dict) else {}
         quote = quotes.get(ticker, {})
         funded = ticker in funded_positions
         quote_pass = quote.get("status") == "qualified_timestamped_exact_line_quote"
 
         if funded:
+            if ticker != "L0CK":
+                raise RuntimeError(f"Unexpected funded Stage-1 candidate: {ticker}")
+            if allocation.get("selected") is True or num(order.get("share_delta")) != 0:
+                raise RuntimeError("Funded L0CK must be an incumbent hold with zero share delta")
             position = funded_positions[ticker]
             activated_tickers.append(ticker)
             candidate.update(
@@ -112,6 +148,11 @@ def apply(state_path: Path, allocator_path: Path) -> None:
                 }
             )
             continue
+
+        if ticker != "VVSM":
+            raise RuntimeError(f"Unexpected unfunded Stage-1 candidate: {ticker}")
+        if allocation.get("selected") is not True or allocation.get("eligible") is not True:
+            raise RuntimeError("VVSM monitoring case must remain selected and eligible analytically")
 
         monitored_tickers.append(ticker)
         blockers: list[str] = []
@@ -171,20 +212,24 @@ def apply(state_path: Path, allocator_path: Path) -> None:
         )
         remaining_blockers.extend(blockers)
 
+    if set(activated_tickers) != {"L0CK"} or set(monitored_tickers) != {"VVSM"}:
+        raise RuntimeError(
+            f"Stage-1 reconciliation scope mismatch: activated={activated_tickers}, monitored={monitored_tickers}"
+        )
+
     stage = state.setdefault("stage_1_decision", {})
-    partial_activation = bool(activated_tickers)
     stage.update(
         {
-            "value": "partially_activated" if partial_activation else "blocked",
-            "status": "model_position_activated_remaining_candidate_monitored" if partial_activation else "blocked_not_activation_ready",
-            "expanded_status": "l0ck_funded_vvsm_monitored" if activated_tickers == ["L0CK"] else "remaining_candidates_monitored",
+            "value": "partially_activated",
+            "status": "model_position_activated_remaining_candidate_monitored",
+            "expanded_status": "l0ck_funded_vvsm_monitored",
             "blockers": sorted(set(remaining_blockers)),
             "blocker_count": len(set(remaining_blockers)),
-            "stage_1_activation_authorized": partial_activation,
-            "official_state_applied": partial_activation,
+            "stage_1_activation_authorized": True,
+            "official_state_applied": True,
             "executable_trade_intents": [],
-            "activated_tickers": sorted(activated_tickers),
-            "remaining_monitored_tickers": sorted(monitored_tickers),
+            "activated_tickers": ["L0CK"],
+            "remaining_monitored_tickers": ["VVSM"],
             "model_activation": activation,
             "remaining_monitor_proposals": proposals,
             "portfolio_mutation_this_report_run": False,
@@ -195,27 +240,26 @@ def apply(state_path: Path, allocator_path: Path) -> None:
         "applied": True,
         "allocator_path": str(allocator_path),
         "quote_evidence_path": str(quote_path) if quote_path else None,
-        "selected_exposures": sorted(selected),
-        "activated_tickers": sorted(activated_tickers),
-        "remaining_monitored_tickers": sorted(monitored_tickers),
+        "selected_exposures": sorted(selected_exposures),
+        "eligible_exposures": sorted(eligible_exposures),
+        "activated_tickers": ["L0CK"],
+        "remaining_monitored_tickers": ["VVSM"],
         "fresh_close_liquidity_and_quote_evidence_reconciled": True,
         "portfolio_mutation": False,
         "real_broker_execution": False,
     }
     state.setdefault("validation", {}).update(
         {
-            "stage_1_blocked": not partial_activation,
-            "stage_1_partial_activation": partial_activation,
-            "activated_stage_1_tickers": sorted(activated_tickers),
-            "remaining_monitored_stage_1_tickers": sorted(monitored_tickers),
+            "stage_1_blocked": False,
+            "stage_1_partial_activation": True,
+            "activated_stage_1_tickers": ["L0CK"],
+            "remaining_monitored_stage_1_tickers": ["VVSM"],
         }
     )
     state_path.write_text(json.dumps(state, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     print(
         "ETF_EU_STAGE1_CURRENT_EVIDENCE_RECONCILED"
-        f" | activated={','.join(sorted(activated_tickers)) or 'none'}"
-        f" | monitored={','.join(sorted(monitored_tickers)) or 'none'}"
-        f" | official_state_applied={str(partial_activation).lower()}"
+        " | activated=L0CK | monitored=VVSM | official_state_applied=true"
     )
 
 
