@@ -4,11 +4,12 @@ on:
   pull_request:
     paths:
       - ".github/workflows/activate-etf-eu-stage1-20260804.yml"
-      - "pricing/build_etf_eu_stage1_quote_evidence.py"
+      - "pricing/normalize_etf_eu_stage1_quote_probe.py"
       - "runtime/build_apply_etf_eu_stage1_activation.py"
 
 permissions:
   contents: write
+  actions: read
 
 jobs:
   activate-promoted-stage1:
@@ -22,6 +23,10 @@ jobs:
       SOURCE_SHA: "${{ github.event.pull_request.head.sha || github.sha }}"
       PYTHONPATH: "${{ github.workspace }}"
       ACTIVATION_CONFIRMATION: "CONFIRM_ETF_EU_MODEL_CAPITAL_ACTIVATION"
+      SOURCE_QUOTE_RUN: "30946125583"
+      SOURCE_QUOTE_ARTIFACT_ID: "8907144364"
+      SOURCE_QUOTE_ARTIFACT_SHA256: "2192d9acab37901101c466f3893a9ed917ad3925df9de485f5ca7bef66545e5b"
+      GH_TOKEN: "${{ github.token }}"
 
     steps:
       - name: Checkout activation branch
@@ -58,15 +63,24 @@ jobs:
             --source-sha "$SOURCE_SHA" \
             --donor-commit "$DONOR_COMMIT"
 
-      - name: Build exact Stage-1 quote evidence
+      - name: Import immutable intraday Stage-1 quote evidence
         run: |
           set -euo pipefail
-          mkdir -p output/activation
+          mkdir -p imported_quote output/activation
+          gh run download "$SOURCE_QUOTE_RUN" \
+            --name "etf-eu-stage1-quote-probe-${SOURCE_QUOTE_RUN}" \
+            --dir imported_quote
+          SOURCE_FILE="$(find imported_quote -type f -name 'etf_eu_stage1_quote_probe_*.json' -print -quit)"
+          test -n "$SOURCE_FILE"
           QUOTE="output/activation/etf_eu_stage1_quote_evidence_${RUN_ID}.json"
-          python pricing/build_etf_eu_stage1_quote_evidence.py \
+          python pricing/normalize_etf_eu_stage1_quote_probe.py \
+            --input "$SOURCE_FILE" \
+            --output "$QUOTE" \
             --report-date "$REPORT_DATE" \
             --run-id "$RUN_ID" \
-            --output "$QUOTE"
+            --source-workflow-run "$SOURCE_QUOTE_RUN" \
+            --source-artifact-id "$SOURCE_QUOTE_ARTIFACT_ID" \
+            --source-artifact-sha256 "$SOURCE_QUOTE_ARTIFACT_SHA256"
           echo "QUOTE_EVIDENCE=$QUOTE" >> "$GITHUB_ENV"
 
       - name: Apply currently promoted model allocation
