@@ -1,0 +1,138 @@
+name: Activate ETF EU Stage-1 model capital 2026-08-04
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/activate-etf-eu-stage1-20260804.yml"
+      - "pricing/build_etf_eu_stage1_quote_evidence.py"
+      - "runtime/build_apply_etf_eu_stage1_activation.py"
+
+permissions:
+  contents: write
+
+jobs:
+  activate-promoted-stage1:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    env:
+      REPORT_DATE: "2026-08-04"
+      REPORT_SUFFIX: "260804_activation_preview"
+      DONOR_COMMIT: "272ce2a997ae21c30290807199f243f491df3c46"
+      RUN_ID: "20260804_STAGE1_${{ github.run_id }}_${{ github.run_attempt }}"
+      SOURCE_SHA: "${{ github.event.pull_request.head.sha || github.sha }}"
+      PYTHONPATH: "${{ github.workspace }}"
+      ACTIVATION_CONFIRMATION: "CONFIRM_ETF_EU_MODEL_CAPITAL_ACTIVATION"
+
+    steps:
+      - name: Checkout activation branch
+        uses: actions/checkout@v4
+        with:
+          ref: routine/20260804-fresh-send
+          fetch-depth: 0
+
+      - name: Checkout Weekly ETF donor
+        uses: actions/checkout@v4
+        with:
+          repository: market-predictions/weekly-etf
+          ref: ${{ env.DONOR_COMMIT }}
+          path: donor-weekly-etf
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install bounded dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements.txt
+          python -m pip install yfinance weasyprint pypdf beautifulsoup4 pyyaml matplotlib requests
+
+      - name: Build current pre-activation decision state
+        run: |
+          set -euo pipefail
+          python tools/run_etf_eu_aug3_expanded_report_v6.py \
+            --donor-dir donor-weekly-etf \
+            --report-date "$REPORT_DATE" \
+            --report-suffix "$REPORT_SUFFIX" \
+            --run-id "$RUN_ID" \
+            --source-sha "$SOURCE_SHA" \
+            --donor-commit "$DONOR_COMMIT"
+
+      - name: Build exact Stage-1 quote evidence
+        run: |
+          set -euo pipefail
+          mkdir -p output/activation
+          QUOTE="output/activation/etf_eu_stage1_quote_evidence_${RUN_ID}.json"
+          python pricing/build_etf_eu_stage1_quote_evidence.py \
+            --report-date "$REPORT_DATE" \
+            --run-id "$RUN_ID" \
+            --output "$QUOTE"
+          echo "QUOTE_EVIDENCE=$QUOTE" >> "$GITHUB_ENV"
+
+      - name: Apply currently promoted model allocation
+        run: |
+          set -euo pipefail
+          STATE="output/routine_preview/etf_eu_production_convergence_state_${RUN_ID}.json"
+          ALLOCATOR="output/routine_preview/sync/etf_eu_target_allocator_shadow.json"
+          DECISION="output/activation/etf_eu_stage1_allocation_decision_${RUN_ID}.json"
+          VALIDATION="output/activation/etf_eu_stage1_allocation_validation_${RUN_ID}.json"
+          RESULT="output/activation/etf_eu_stage1_activation_result_${RUN_ID}.json"
+          EVIDENCE="output/activation/etf_eu_stage1_activation_evidence_${RUN_ID}.json"
+          python runtime/build_apply_etf_eu_stage1_activation.py \
+            --state "$STATE" \
+            --allocator "$ALLOCATOR" \
+            --quote-evidence "$QUOTE_EVIDENCE" \
+            --portfolio-state output/etf_eu_portfolio_state.json \
+            --trade-ledger output/etf_eu_trade_ledger.csv \
+            --run-id "$RUN_ID" \
+            --report-date "$REPORT_DATE" \
+            --confirmation "$ACTIVATION_CONFIRMATION" \
+            --decision-output "$DECISION" \
+            --validation-output "$VALIDATION" \
+            --result-output "$RESULT" \
+            --evidence-output "$EVIDENCE"
+          echo "ACTIVATION_EVIDENCE=$EVIDENCE" >> "$GITHUB_ENV"
+
+      - name: Validate post-activation model state
+        run: |
+          python - <<'PY'
+          import csv, json, os
+          from pathlib import Path
+          state=json.loads(Path('output/etf_eu_portfolio_state.json').read_text())
+          evidence=json.loads(Path(os.environ['ACTIVATION_EVIDENCE']).read_text())
+          tickers={str(row.get('exchange_ticker') or row.get('ticker')) for row in state.get('positions',[])}
+          expected={'VWCE','EUNA','SXR8','L0CK'}
+          if tickers != expected:
+              raise SystemExit(f'POST_ACTIVATION_TICKERS_MISMATCH:{sorted(tickers)}')
+          if evidence.get('activated_tickers') != ['L0CK']:
+              raise SystemExit(f'POST_ACTIVATION_SCOPE_MISMATCH:{evidence.get("activated_tickers")}')
+          if float(state.get('cash_eur') or 0) <= 0:
+              raise SystemExit('POST_ACTIVATION_CASH_INVALID')
+          with Path('output/etf_eu_trade_ledger.csv').open(newline='',encoding='utf-8') as handle:
+              rows=list(csv.DictReader(handle))
+          if not any(row.get('exchange_ticker')=='L0CK' and row.get('action')=='Buy' for row in rows):
+              raise SystemExit('POST_ACTIVATION_LEDGER_ROW_MISSING')
+          if state.get('real_broker_execution') is not False:
+              raise SystemExit('REAL_BROKER_EXECUTION_ESCALATED')
+          print(json.dumps({
+              'status':'validated',
+              'tickers':sorted(tickers),
+              'cash_eur':state.get('cash_eur'),
+              'nav_eur':state.get('nav_eur'),
+              'position_count':len(state.get('positions',[])),
+              'activated_tickers':evidence.get('activated_tickers'),
+              'skipped_tickers':evidence.get('skipped_tickers'),
+              'real_broker_execution':False,
+          },indent=2,sort_keys=True))
+          PY
+
+      - name: Persist model activation state and evidence
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add output/etf_eu_portfolio_state.json output/etf_eu_trade_ledger.csv
+          git add -f output/activation/*.json
+          git commit -m "Activate promoted L0CK model position [skip ci]"
+          git pull --rebase origin routine/20260804-fresh-send
+          git push origin HEAD:routine/20260804-fresh-send
