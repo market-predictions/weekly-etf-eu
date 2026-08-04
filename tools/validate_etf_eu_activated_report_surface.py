@@ -25,42 +25,40 @@ def validate_language(language: str, html_path: Path) -> list[str]:
     section = soup.find("section", id="section-14")
     if not isinstance(section, Tag):
         return [f"{language}: Section 14 missing"]
-    table = section.find("table", class_=lambda value: value and "target-allocation-table" in value)
-    if not isinstance(table, Tag):
-        blockers.append(f"{language}: activated Stage-1 table missing")
+
+    # Layout/finalization steps may rename or remove the historical table class.
+    # The compactor therefore emits an explicit semantic row marker, which is
+    # the stable source-stage contract for the remaining VVSM monitoring case.
+    rows = section.select('tr[data-activated-stage1-status="remaining-vvsm-monitor"]')
+    if len(rows) != 1:
+        blockers.append(f"{language}: expected one marked VVSM monitoring row; found {len(rows)}")
     else:
-        tbody = table.find("tbody")
-        rows = tbody.find_all("tr", recursive=False) if isinstance(tbody, Tag) else []
-        if len(rows) != 1:
-            blockers.append(f"{language}: expected one remaining VVSM monitoring row; found {len(rows)}")
-        elif rows:
-            row_text = rows[0].get_text(" ", strip=True)
-            row_lower = row_text.lower()
-            if "vvsm" not in row_lower:
-                blockers.append(f"{language}: remaining monitoring row is not VVSM")
-            if re.search(r"\bl0ck\b|\block\b", row_lower):
-                blockers.append(f"{language}: funded L0CK appears as a new Stage-1 intent")
-            if any(marker in row_lower for marker in ("koop", "buy", "purchase", "aankoop")):
-                blockers.append(f"{language}: VVSM row contains a buy instruction")
-            if "monitor" not in row_lower:
-                blockers.append(f"{language}: VVSM monitoring status missing")
-            if rows[0].get("data-activated-stage1-status") != "remaining-vvsm-monitor":
-                blockers.append(f"{language}: activated Stage-1 row marker missing")
+        row_text = rows[0].get_text(" ", strip=True)
+        row_lower = row_text.lower()
+        if "vvsm" not in row_lower:
+            blockers.append(f"{language}: remaining monitoring row is not VVSM")
+        if re.search(r"\bl0ck\b|\block\b", row_lower):
+            blockers.append(f"{language}: funded L0CK appears as a new Stage-1 intent")
+        if any(marker in row_lower for marker in ("koop", "buy", "purchase", "aankoop")):
+            blockers.append(f"{language}: VVSM row contains a buy instruction")
+        if "monitor" not in row_lower:
+            blockers.append(f"{language}: VVSM monitoring status missing")
 
     section_text = section.get_text(" ", strip=True).lower()
-    if "l0ck" not in section_text or "funded" not in section_text and "gefinancierd" not in section_text:
+    if "l0ck" not in section_text or ("funded" not in section_text and "gefinancierd" not in section_text):
         blockers.append(f"{language}: funded L0CK transition context missing")
     if "current positions remain unchanged" not in section_text and "bestaande posities blijven ongewijzigd" not in section_text:
         blockers.append(f"{language}: incumbent hold boundary missing")
 
+    # Source-stage validation proves instrument presence and transition semantics.
+    # The active-position status box and explicit no-broker statement are added
+    # later by add_etf_eu_activated_allocation_surface.py and are validated in the
+    # final converged-client package, not prematurely in this source bundle.
     required_funded = ("vwce", "euna", "sxr8", "l0ck")
     for ticker in required_funded:
         if ticker not in lowered:
-            blockers.append(f"{language}: funded ticker missing from report: {ticker.upper()}")
-    if "model position active" not in lowered and "modelpositie actief" not in lowered:
-        blockers.append(f"{language}: activated L0CK client status missing")
-    if "no real broker order" not in lowered and "geen echte brokerorder" not in lowered:
-        blockers.append(f"{language}: model-only broker boundary missing")
+            blockers.append(f"{language}: funded ticker missing from source report: {ticker.upper()}")
+
     if language == "nl":
         forbidden = (
             "promoted exposures are not represented",
@@ -101,8 +99,9 @@ def main() -> None:
             blockers.append(f"{language}: activated compaction file marker missing")
         blockers.extend(validate_language(language, html_path))
     result = {
-        "schema_version": "etf_eu_activated_report_surface_validation_v1",
+        "schema_version": "etf_eu_activated_report_surface_validation_v2",
         "artifact_type": "etf_eu_activated_report_surface_validation",
+        "validation_stage": "source_report_before_final_client_activation_surface",
         "valid": not blockers,
         "blockers": blockers,
         "funded_stage1_tickers": ["L0CK"],
