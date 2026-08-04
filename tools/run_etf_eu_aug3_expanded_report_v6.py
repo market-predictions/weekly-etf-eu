@@ -10,6 +10,7 @@ ROUTES = {
     "runtime/add_etf_eu_current_close_monitor.py": "runtime/add_etf_eu_activated_allocation_surface.py",
     "runtime/build_etf_eu_production_convergence_state.py": "runtime/build_etf_eu_production_convergence_state_v2.py",
     "runtime/apply_etf_eu_routine_valuation_to_client_report.py": "runtime/apply_etf_eu_routine_valuation_to_client_report_v2.py",
+    "runtime/finalize_etf_eu_sister_report_nl_language.py": "runtime/finalize_etf_eu_sister_report_nl_language_v2.py",
     "tools/validate_etf_eu_target_allocator_shadow_v3.py": "tools/validate_etf_eu_target_allocator_shadow_v3_activated.py",
 }
 
