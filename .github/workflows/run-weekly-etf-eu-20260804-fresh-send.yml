@@ -1,0 +1,92 @@
+name: Run Weekly ETF EU 2026-08-04 fresh send candidate
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/run-weekly-etf-eu-20260804-fresh-send.yml"
+      - "tools/run_etf_eu_aug3_expanded_report_v6.py"
+      - "pricing/build_current_session_close_results_v2.py"
+      - "runtime/reconcile_etf_eu_stage1_current_evidence.py"
+      - "runtime/add_etf_eu_expanded_allocation_monitor_v4.py"
+
+permissions:
+  contents: read
+
+jobs:
+  build-fresh-package:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    env:
+      REPORT_DATE: "2026-08-04"
+      REPORT_SUFFIX: "260804_01"
+      DONOR_COMMIT: "272ce2a997ae21c30290807199f243f491df3c46"
+      RUN_ID: "20260804_${{ github.run_id }}_${{ github.run_attempt }}"
+      SOURCE_SHA: "${{ github.event.pull_request.head.sha || github.sha }}"
+      PYTHONPATH: "${{ github.workspace }}"
+
+    steps:
+      - name: Checkout Weekly ETF EU
+        uses: actions/checkout@v4
+
+      - name: Checkout Weekly ETF donor
+        uses: actions/checkout@v4
+        with:
+          repository: market-predictions/weekly-etf
+          ref: ${{ env.DONOR_COMMIT }}
+          path: donor-weekly-etf
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install bounded production dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements.txt
+          python -m pip install yfinance weasyprint pypdf beautifulsoup4 pyyaml matplotlib requests
+
+      - name: Build and validate fresh expanded package
+        run: |
+          set -euo pipefail
+          python tools/run_etf_eu_aug3_expanded_report_v6.py \
+            --donor-dir donor-weekly-etf \
+            --report-date "$REPORT_DATE" \
+            --report-suffix "$REPORT_SUFFIX" \
+            --run-id "$RUN_ID" \
+            --source-sha "$SOURCE_SHA" \
+            --donor-commit "$DONOR_COMMIT"
+
+      - name: Print current allocation evidence
+        run: |
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          run_id = os.environ['RUN_ID']
+          state = json.loads(Path(f'output/routine_preview/etf_eu_production_convergence_state_{run_id}.json').read_text())
+          allocator = json.loads(Path('output/routine_preview/sync/etf_eu_target_allocator_shadow.json').read_text())
+          print(json.dumps({
+              'stage_1_decision': state.get('stage_1_decision'),
+              'stage_1_current_promotion': state.get('stage_1_current_promotion'),
+              'position_count': state.get('position_count'),
+              'cash_eur': state.get('cash_eur'),
+              'nav_eur': state.get('nav_eur'),
+              'preferred_variant': allocator.get('preferred_variant_id'),
+              'preferred_summary': next((row.get('summary') for row in allocator.get('variants', []) if row.get('variant_id') == allocator.get('preferred_variant_id')), None),
+          }, indent=2, sort_keys=True))
+          PY
+
+      - name: Upload fresh package evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: etf-eu-fresh-send-candidate-${{ env.RUN_ID }}
+          path: |
+            output/routine_preview/
+            output/fresh_generation/weekly_etf_eu_review*260804_01*
+            output/run_manifests/etf_eu_routine_run_manifest_2026-08-04_${{ env.RUN_ID }}.json
+            output/pricing/ucits_close_price_validation_basket_results_${{ env.RUN_ID }}.json
+            output/pricing/ucits_price_provider_qualification_${{ env.RUN_ID }}.json
+            output/macro/etf_eu_current_macro_source_${{ env.RUN_ID }}.json
+            output/macro/etf_eu_macro_policy_${{ env.RUN_ID }}.json
+            output/etf_eu_valuation_history.csv
+          if-no-files-found: error
+          retention-days: 90
