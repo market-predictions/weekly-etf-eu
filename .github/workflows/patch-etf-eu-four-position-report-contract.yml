@@ -19,6 +19,7 @@ jobs:
           fetch-depth: 0
       - name: Apply strict four-position contract patches
         run: |
+          # This workflow is intentionally one-shot and removes only obsolete three-position assumptions.
           python - <<'PY'
           from pathlib import Path
 
