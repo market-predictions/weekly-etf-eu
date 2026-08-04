@@ -55,7 +55,7 @@ jobs:
       - name: Build current pre-activation decision state
         run: |
           set -euo pipefail
-          python tools/run_etf_eu_aug3_expanded_report_v6.py \
+          python tools/run_etf_eu_aug3_expanded_report_v5.py \
             --donor-dir donor-weekly-etf \
             --report-date "$REPORT_DATE" \
             --report-suffix "$REPORT_SUFFIX" \
@@ -148,4 +148,8 @@ jobs:
           git add output/etf_eu_portfolio_state.json output/etf_eu_trade_ledger.csv
           git add -f output/activation/*.json
           git commit -m "Activate promoted L0CK model position [skip ci]"
+          git reset --hard HEAD
+          git clean -fdx
+          git fetch origin routine/20260804-fresh-send
+          git rebase origin/routine/20260804-fresh-send
           git push origin HEAD:routine/20260804-fresh-send
