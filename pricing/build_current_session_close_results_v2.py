@@ -1,6 +1,8 @@
 from __future__ import annotations
 
+import json
 from datetime import date, datetime, time, timedelta, timezone
+from pathlib import Path
 from typing import Any
 from urllib.parse import quote
 
@@ -11,7 +13,37 @@ from pricing.yahoo_regular_market_fallback import report_date_regular_market_clo
 
 
 _original_fetch_yahoo = legacy.fetch_yahoo
-ACTIVATED_FUNDED_TICKERS = {"VWCE", "EUNA", "SXR8", "L0CK"}
+CORE_FUNDED_TICKERS = {"VWCE", "EUNA", "SXR8"}
+ALLOWED_ACTIVATED_TICKERS = {"L0CK"}
+
+
+def normalize_ticker(value: Any) -> str:
+    ticker = str(value or "").strip().upper()
+    return "L0CK" if ticker == "LOCK" else ticker
+
+
+def funded_tickers_from_state(path: Path = Path("output/etf_eu_portfolio_state.json")) -> set[str]:
+    if not path.exists():
+        return set(CORE_FUNDED_TICKERS)
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    positions = payload.get("positions") if isinstance(payload, dict) else []
+    funded = {
+        normalize_ticker(row.get("ticker") or row.get("exchange_ticker"))
+        for row in positions or []
+        if isinstance(row, dict) and normalize_ticker(row.get("ticker") or row.get("exchange_ticker"))
+    }
+    if not CORE_FUNDED_TICKERS.issubset(funded):
+        raise RuntimeError(f"Core funded pricing scope is incomplete: {sorted(funded)}")
+    extras = funded - CORE_FUNDED_TICKERS
+    if not extras.issubset(ALLOWED_ACTIVATED_TICKERS):
+        raise RuntimeError(f"Unexpected activated funded pricing scope: {sorted(extras)}")
+    if extras:
+        if payload.get("model_portfolio_only") is not True or payload.get("real_broker_execution") is not False:
+            raise RuntimeError("Activated pricing scope lacks model-only authority boundary")
+        activation = payload.get("last_model_capital_activation") or {}
+        if not activation.get("activation_id"):
+            raise RuntimeError("Activated pricing scope lacks activation provenance")
+    return funded
 
 
 def fetch_yahoo_with_regular_market_fallback(
@@ -116,7 +148,7 @@ def fetch_yahoo_with_regular_market_fallback(
 
 def main() -> None:
     legacy.fetch_yahoo = fetch_yahoo_with_regular_market_fallback
-    legacy.FUNDED_TICKERS = set(ACTIVATED_FUNDED_TICKERS)
+    legacy.FUNDED_TICKERS = funded_tickers_from_state()
     legacy.main()
 
 
