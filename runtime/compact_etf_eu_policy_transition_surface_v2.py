@@ -6,6 +6,7 @@ import re
 from pathlib import Path
 from typing import Any
 
+from bs4 import BeautifulSoup
 from weasyprint import HTML
 
 from runtime import compact_etf_eu_policy_transition_surface as legacy
@@ -46,6 +47,55 @@ def validate_activated_portfolio(path: Path) -> dict[str, Any]:
     return portfolio
 
 
+def monitoring_only_row(row_html: str, language: str) -> str:
+    fragment = BeautifulSoup(row_html, "html.parser")
+    row = fragment.find("tr")
+    if row is None:
+        raise RuntimeError(f"Remaining Stage-1 row is malformed for {language}")
+    if "VVSM" not in row.get_text(" ", strip=True):
+        raise RuntimeError(f"Remaining Stage-1 row must be VVSM for {language}")
+    if re.search(r"\bL0CK\b|\bLOCK\b", row.get_text(" ", strip=True)):
+        raise RuntimeError(f"Funded L0CK must not remain a new Stage-1 intent for {language}")
+
+    action_markers = ("koop", "buy", "aankoop", "purchase")
+    selected_markers = ("selected", "geselecteerd", "stage-1")
+    action_replaced = False
+    status_replaced = False
+    for cell in row.find_all("td"):
+        text = cell.get_text(" ", strip=True)
+        lowered = text.lower()
+        if any(marker in lowered for marker in action_markers):
+            cell.clear()
+            cell.string = (
+                "VVSM blijft gemonitord; geen financierings- of uitvoeringsbevoegdheid."
+                if language == "nl"
+                else "VVSM remains monitored; no funding or execution authority."
+            )
+            action_replaced = True
+        elif any(marker in lowered for marker in selected_markers) and "vvsm" not in lowered:
+            cell.clear()
+            cell.string = "Monitoring" if language == "nl" else "Monitoring"
+            status_replaced = True
+
+    visible = row.get_text(" ", strip=True).lower()
+    if any(marker in visible for marker in action_markers):
+        raise RuntimeError(f"VVSM row still contains a buy instruction for {language}")
+    if "monitor" not in visible:
+        cells = row.find_all("td")
+        target = cells[-1] if cells else row
+        target.clear()
+        target.string = (
+            "Monitoring; geen financierings- of uitvoeringsbevoegdheid."
+            if language == "nl"
+            else "Monitoring; no funding or execution authority."
+        )
+        status_replaced = True
+    row["data-activated-stage1-status"] = "remaining-vvsm-monitor"
+    row["data-action-instruction-removed"] = str(action_replaced).lower()
+    row["data-status-reconciled"] = str(status_replaced).lower()
+    return str(row)
+
+
 def compact_activated_section(body: str, language: str) -> tuple[str, int, bool]:
     match = legacy.TABLE_RE.search(body)
     if not match:
@@ -56,11 +106,7 @@ def compact_activated_section(body: str, language: str) -> tuple[str, int, bool]
     removed = len(rows) - len(kept)
     if len(kept) != 1:
         raise RuntimeError(f"Expected one remaining unfunded Stage-1 row for {language}; found {len(kept)}")
-    remaining = kept[0]
-    if "VVSM" not in remaining:
-        raise RuntimeError(f"Remaining Stage-1 row must be VVSM for {language}")
-    if re.search(r"\bL0CK\b|\bLOCK\b", remaining):
-        raise RuntimeError(f"Funded L0CK must not remain a new Stage-1 intent for {language}")
+    remaining = monitoring_only_row(kept[0], language)
 
     rebuilt = match.group(1) + remaining + match.group(3)
     note = (
@@ -71,9 +117,9 @@ def compact_activated_section(body: str, language: str) -> tuple[str, int, bool]
     updated = body[: match.start()] + rebuilt + note + body[match.end() :]
 
     replacement = (
-        '<div class="alignment-summary">De huidige vier modelposities blijven in deze rapport-run ongewijzigd; zie secties 10, 13 en 15.</div>'
+        '<div class="alignment-summary">Bestaande posities blijven ongewijzigd in deze rapport-run; de vier actuele modelposities staan in secties 10, 13 en 15.</div>'
         if language == "nl"
-        else '<div class="alignment-summary">The current four model positions remain unchanged during this report run; see Sections 10, 13 and 15.</div>'
+        else '<div class="alignment-summary">Current positions remain unchanged during this report run; the four current model positions are shown in Sections 10, 13 and 15.</div>'
     )
     updated, legacy_count = legacy.LEGACY_BLOCK_RE.subn(replacement, updated, count=1)
     if legacy_count != 1:
@@ -84,8 +130,6 @@ def compact_activated_section(body: str, language: str) -> tuple[str, int, bool]
         {
             "Voorgestelde beleidsgestuurde fase-1 allocatie": "Resterende fase-1 monitoring",
             "Beleidsgestuurde fase-1 schaduwintentie": "Resterende fase-1 monitoring",
-            "Koop 156 hele aandelen VVSM. Effectieve exposure-ondergrens 17,91% versus limiet 18,00%. VanEck Semiconductor UCITS ETF": "VVSM blijft gemonitord; geen financierings- of uitvoeringsbevoegdheid.",
-            "156 VVSM; effectieve exposure 17,91% / limiet 18,00%.": "VVSM blijft gemonitord; geen financierings- of uitvoeringsbevoegdheid.",
         }
     )
     if language == "nl":
@@ -125,14 +169,15 @@ def main() -> None:
             raise RuntimeError(f"Could not compact activated Section 14 for {language}")
         html_path.write_text(updated, encoding="utf-8")
         HTML(string=updated, base_url=str(html_path.parent.resolve())).write_pdf(pdf_path)
-        files["policy_transition_compaction"] = "activated_l0ck_remaining_vvsm_monitor_v1"
+        files["policy_transition_compaction"] = "activated_l0ck_remaining_vvsm_monitor_v2"
 
     manifest["policy_transition_compaction"] = {
         "applied": True,
-        "mode": "activated_l0ck_remaining_vvsm_monitor",
+        "mode": "activated_l0ck_remaining_vvsm_monitor_v2",
         "funded_stage1_tickers": ["L0CK"],
         "remaining_monitored_tickers": ["VVSM"],
         "current_position_count": len(portfolio.get("positions") or []),
+        "remaining_actionable_row_count": 1,
         "removed_deferred_row_count_by_language": removed_by_language,
         "duplicate_incumbent_block_removed_by_language": duplicate_incumbent_block_removed,
         "incumbent_evidence_remains_in_sections": ["10", "13", "15"],
@@ -145,7 +190,7 @@ def main() -> None:
     args.manifest.write_text(json.dumps(manifest, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     print(
         "ETF_EU_ACTIVATED_POLICY_TRANSITION_COMPACT_OK"
-        " | funded=L0CK | monitored=VVSM | actionable_rows=1"
+        " | funded=L0CK | monitored=VVSM | actionable_rows=1 | buy_instruction=false"
         f" | manifest={args.manifest}"
     )
 
