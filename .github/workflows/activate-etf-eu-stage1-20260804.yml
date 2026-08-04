@@ -4,6 +4,7 @@ on:
   pull_request:
     paths:
       - ".github/workflows/activate-etf-eu-stage1-20260804.yml"
+      - "pricing/build_current_session_close_results_v2.py"
       - "pricing/normalize_etf_eu_stage1_quote_probe.py"
       - "runtime/build_apply_etf_eu_stage1_activation.py"
 
