@@ -1,8 +1,7 @@
 name: Inspect ETF EU activation and delivery assets
 
 on:
-  push:
-    branches: [main]
+  pull_request:
     paths:
       - ".github/workflows/inspect-etf-eu-activation-delivery-assets.yml"
 
