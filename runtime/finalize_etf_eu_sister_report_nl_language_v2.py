@@ -32,6 +32,14 @@ def sanitize_manifest(manifest_path: Path) -> None:
             r"promoted exposure is not represented(?: in the current portfolio)?",
             "de gepromoveerde blootstelling is niet als afzonderlijke portefeuillepositie opgenomen",
         ),
+        (
+            r"promoted exposures are not yet implemented",
+            "gepromoveerde blootstellingen zijn nog niet allemaal als afzonderlijke modelpositie opgenomen",
+        ),
+        (
+            r"promoted exposure is not yet implemented",
+            "de gepromoveerde blootstelling is nog niet als afzonderlijke modelpositie opgenomen",
+        ),
     )
     updated = text
     for pattern, replacement in replacements:
