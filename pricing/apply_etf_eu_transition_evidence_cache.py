@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 from datetime import date
 from pathlib import Path
 from typing import Any
@@ -71,6 +72,21 @@ def apply(evidence_path: Path, cache_path: Path) -> None:
         )
     )
     evidence_path.write_text(json.dumps(evidence, indent=2) + "\n", encoding="utf-8")
+
+    # A current routine run may already have produced stronger exact-line
+    # completed-close consensus. Apply it after the dated cache so the cache
+    # continues to supply the 20-day liquidity metric while current pricing
+    # replaces only stale price fields. Exact report-date, provider-agreement
+    # and identity checks remain enforced by the overlay implementation.
+    run_id = os.environ.get("WP11_RUN_ID", "").strip() or os.environ.get("RUN_ID", "").strip()
+    if run_id:
+        pricing = Path(f"output/pricing/ucits_close_price_validation_basket_results_{run_id}.json")
+        qualification = Path(f"output/pricing/ucits_price_provider_qualification_{run_id}.json")
+        if pricing.exists() and qualification.exists():
+            from pricing.apply_current_close_results_to_transition_evidence import apply as apply_current_close
+
+            apply_current_close(evidence_path, pricing, qualification)
+
     print(evidence_path)
 
 
