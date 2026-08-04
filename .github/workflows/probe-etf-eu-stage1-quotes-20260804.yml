@@ -33,7 +33,6 @@ jobs:
             {'ticker':'VVSM','isin':'IE00BMC38736','mic':'XETR','yahoo':'VVSM.DE'},
             {'ticker':'L0CK','isin':'IE00BG0J4C88','mic':'XETR','yahoo':'L0CK.DE'},
           ]
-          safe=('isin','mic','currency','bid','ask','bidSize','askSize','bidPrice','askPrice','bidVolume','askVolume','lastPrice','timestampLastPrice','tradingTimeStart','tradingTimeEnd','minimumTradableUnit')
           rows=[]
           for line in lines:
             params=urlencode({'isin':line['isin'],'mic':line['mic']})
@@ -46,7 +45,7 @@ jobs:
             try:
               r=requests.get(url,headers=headers,timeout=30)
               p=r.json()
-              exchange={'http_status':r.status_code,'data':{k:p.get(k) for k in safe if isinstance(p,dict) and k in p}}
+              exchange={'http_status':r.status_code,'payload':p if isinstance(p,dict) else {'payload_type':type(p).__name__}}
             except Exception as exc:
               exchange={'error_class':type(exc).__name__}
             qurl='https://query1.finance.yahoo.com/v7/finance/quote'
@@ -59,7 +58,7 @@ jobs:
             except Exception as exc:
               yahoo={'error_class':type(exc).__name__}
             rows.append({**line,'observed_at_utc':now.replace(microsecond=0).isoformat().replace('+00:00','Z'),'boerse_quote_box':exchange,'yahoo_quote':yahoo})
-          payload={'schema_version':'etf_eu_stage1_quote_probe_v1','report_date':'2026-08-04','rows':rows,'portfolio_mutation':False,'funding_authority':False,'execution_authority':False}
+          payload={'schema_version':'etf_eu_stage1_quote_probe_v2','report_date':'2026-08-04','rows':rows,'portfolio_mutation':False,'funding_authority':False,'execution_authority':False}
           path=Path(f'output/quotes/etf_eu_stage1_quote_probe_{__import__("os").environ["GITHUB_RUN_ID"]}.json')
           path.write_text(json.dumps(payload,indent=2,sort_keys=True)+'\n')
           print(json.dumps(payload,indent=2,sort_keys=True))
