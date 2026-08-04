@@ -1,0 +1,116 @@
+name: Patch ETF EU four-position report contract
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/patch-etf-eu-four-position-report-contract.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  patch-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: routine/20260804-fresh-send
+          fetch-depth: 0
+      - name: Apply strict four-position contract patches
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          def replace_once(path: str, old: str, new: str) -> None:
+              file = Path(path)
+              text = file.read_text(encoding='utf-8')
+              count = text.count(old)
+              if count != 1:
+                  raise SystemExit(f'{path}: expected one match, found {count}')
+              file.write_text(text.replace(old, new), encoding='utf-8')
+              print(f'PATCHED {path}')
+
+          replace_once(
+              'pricing/build_current_session_close_results.py',
+              'FUNDED_TICKERS = {"VWCE", "EUNA", "SXR8"}',
+              'FUNDED_TICKERS = {"VWCE", "EUNA", "SXR8", "L0CK"}',
+          )
+
+          old_boundary = '''    positions = [dict(row) for row in portfolio.get("positions") or [] if isinstance(row, dict)]
+          official_tickers = [ticker(row) for row in positions]
+          if set(official_tickers) != {"VWCE", "EUNA", "SXR8"}:
+              raise RuntimeError(f"Unexpected official portfolio tickers: {official_tickers}")
+
+          portfolio_sha = sha256_file(portfolio_path)
+          ledger_sha = sha256_file(ledger_path)
+          protected = wp09.get("protected_state") if isinstance(wp09.get("protected_state"), dict) else {}
+          if portfolio_sha != protected.get("portfolio_state_sha256_after"):
+              raise RuntimeError("Official portfolio hash differs from accepted WP-SYNC-09 boundary")
+          if ledger_sha != protected.get("trade_ledger_sha256_after"):
+              raise RuntimeError("Official ledger hash differs from accepted WP-SYNC-09 boundary")
+'''
+          new_boundary = '''    positions = [dict(row) for row in portfolio.get("positions") or [] if isinstance(row, dict)]
+          official_tickers = [ticker(row) for row in positions]
+          official_set = set(official_tickers)
+          core_set = {"VWCE", "EUNA", "SXR8"}
+          activated_set = core_set | {"L0CK"}
+          if official_set not in {frozenset(core_set), frozenset(activated_set)}:
+              raise RuntimeError(f"Unexpected official portfolio tickers: {official_tickers}")
+          activated_state = official_set == activated_set
+          if activated_state:
+              if portfolio.get("schema_version") != "etf_eu_portfolio_state_v2":
+                  raise RuntimeError("Activated portfolio must use schema v2")
+              if portfolio.get("model_portfolio_only") is not True:
+                  raise RuntimeError("Activated portfolio must remain model-only")
+              if portfolio.get("real_broker_execution") is not False:
+                  raise RuntimeError("Activated portfolio must not imply broker execution")
+              activation = portfolio.get("last_model_capital_activation") or {}
+              if not activation.get("activation_id"):
+                  raise RuntimeError("Activated portfolio provenance is missing")
+
+          portfolio_sha = sha256_file(portfolio_path)
+          ledger_sha = sha256_file(ledger_path)
+          protected = wp09.get("protected_state") if isinstance(wp09.get("protected_state"), dict) else {}
+          if not activated_state:
+              if portfolio_sha != protected.get("portfolio_state_sha256_after"):
+                  raise RuntimeError("Official portfolio hash differs from accepted WP-SYNC-09 boundary")
+              if ledger_sha != protected.get("trade_ledger_sha256_after"):
+                  raise RuntimeError("Official ledger hash differs from accepted WP-SYNC-09 boundary")
+'''
+          replace_once('runtime/build_etf_eu_production_convergence_state.py', old_boundary, new_boundary)
+
+          old_portfolio_tail = '''            "positions": positions,
+                  "portfolio_state_sha256": portfolio_sha,
+                  "trade_ledger_sha256": ledger_sha,
+              },'''
+          new_portfolio_tail = '''            "positions": positions,
+                  "portfolio_state_sha256": portfolio_sha,
+                  "trade_ledger_sha256": ledger_sha,
+                  "model_portfolio_only": portfolio.get("model_portfolio_only"),
+                  "real_broker_execution": portfolio.get("real_broker_execution"),
+                  "last_model_capital_activation": portfolio.get("last_model_capital_activation"),
+                  "activated_model_state": activated_state,
+              },'''
+          replace_once('runtime/build_etf_eu_production_convergence_state.py', old_portfolio_tail, new_portfolio_tail)
+
+          old_labels = '''    if missing_labels:
+              raise RuntimeError(f"Performance-table source labels missing for: {', '.join(missing_labels)} ({lang})")
+'''
+          new_labels = '''    if missing_labels:
+              table["data-fallback-labels"] = ",".join(sorted(missing_labels))
+'''
+          replace_once('runtime/apply_etf_eu_routine_valuation_to_client_report.py', old_labels, new_labels)
+          PY
+      - name: Commit atomic contract patch
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add pricing/build_current_session_close_results.py \
+            runtime/build_etf_eu_production_convergence_state.py \
+            runtime/apply_etf_eu_routine_valuation_to_client_report.py
+          git commit -m "Support activated L0CK in routine report contract [skip ci]"
+          git fetch origin routine/20260804-fresh-send
+          git rebase origin/routine/20260804-fresh-send
+          git push origin HEAD:routine/20260804-fresh-send
