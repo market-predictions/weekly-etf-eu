@@ -134,5 +134,4 @@ jobs:
           git add output/etf_eu_portfolio_state.json output/etf_eu_trade_ledger.csv
           git add -f output/activation/*.json
           git commit -m "Activate promoted L0CK model position [skip ci]"
-          git pull --rebase origin routine/20260804-fresh-send
           git push origin HEAD:routine/20260804-fresh-send
