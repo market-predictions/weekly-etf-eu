@@ -11,6 +11,7 @@ from pricing.yahoo_regular_market_fallback import report_date_regular_market_clo
 
 
 _original_fetch_yahoo = legacy.fetch_yahoo
+ACTIVATED_FUNDED_TICKERS = {"VWCE", "EUNA", "SXR8", "L0CK"}
 
 
 def fetch_yahoo_with_regular_market_fallback(
@@ -115,6 +116,7 @@ def fetch_yahoo_with_regular_market_fallback(
 
 def main() -> None:
     legacy.fetch_yahoo = fetch_yahoo_with_regular_market_fallback
+    legacy.FUNDED_TICKERS = set(ACTIVATED_FUNDED_TICKERS)
     legacy.main()
 
 
