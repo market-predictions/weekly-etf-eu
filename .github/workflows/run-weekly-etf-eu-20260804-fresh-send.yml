@@ -18,7 +18,7 @@ jobs:
     timeout-minutes: 35
     env:
       REPORT_DATE: "2026-08-04"
-      REPORT_SUFFIX: "260804_01"
+      REPORT_SUFFIX: "260804_02"
       DONOR_COMMIT: "272ce2a997ae21c30290807199f243f491df3c46"
       RUN_ID: "20260804_${{ github.run_id }}_${{ github.run_attempt }}"
       SOURCE_SHA: "${{ github.event.pull_request.head.sha || github.sha }}"
@@ -81,7 +81,7 @@ jobs:
           name: etf-eu-fresh-send-candidate-${{ env.RUN_ID }}
           path: |
             output/routine_preview/
-            output/fresh_generation/weekly_etf_eu_review*260804_01*
+            output/fresh_generation/weekly_etf_eu_review*260804_02*
             output/run_manifests/etf_eu_routine_run_manifest_2026-08-04_${{ env.RUN_ID }}.json
             output/pricing/ucits_close_price_validation_basket_results_${{ env.RUN_ID }}.json
             output/pricing/ucits_price_provider_qualification_${{ env.RUN_ID }}.json
