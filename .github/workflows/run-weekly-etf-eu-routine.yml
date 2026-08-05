@@ -246,6 +246,28 @@ jobs:
           python tools/validate_etf_eu_routine_delivery_queue.py \
             --queue "control/run_queue/etf_eu_routine_delivery_request_${ETF_EU_RUN_ID}.md"
 
+      - name: Build and validate independent governance release assurance
+        run: |
+          set -euo pipefail
+          ASSURANCE="output/quality/etf_eu_release_assurance_${ETF_EU_RUN_ID}.json"
+          python tools/build_etf_eu_release_assurance.py \
+            --run-id "$ETF_EU_RUN_ID" \
+            --report-date "$ETF_EU_REPORT_DATE" \
+            --report-suffix "$ETF_EU_REPORT_SUFFIX" \
+            --source-sha "$GITHUB_SHA" \
+            --package-manifest "output/fresh_generation/etf_eu_fresh_generation_package_manifest_${ETF_EU_RUN_ID}.json" \
+            --ready-artifact "output/fresh_generation/etf_eu_ready_for_controlled_delivery_${ETF_EU_RUN_ID}.json" \
+            --routine-manifest "output/run_manifests/etf_eu_routine_run_manifest_${ETF_EU_REPORT_DATE}_${ETF_EU_RUN_ID}.json" \
+            --visual-review "output/quality/etf_eu_routine_pdf_visual_review_${ETF_EU_RUN_ID}.json" \
+            --delivery-queue "control/run_queue/etf_eu_routine_delivery_request_${ETF_EU_RUN_ID}.md" \
+            --nl-html "output/fresh_generation/weekly_etf_eu_review_nl_${ETF_EU_REPORT_SUFFIX}.html" \
+            --nl-pdf "output/fresh_generation/weekly_etf_eu_review_nl_${ETF_EU_REPORT_SUFFIX}.pdf" \
+            --en-html "output/fresh_generation/weekly_etf_eu_review_${ETF_EU_REPORT_SUFFIX}.html" \
+            --en-pdf "output/fresh_generation/weekly_etf_eu_review_${ETF_EU_REPORT_SUFFIX}.pdf" \
+            --output "$ASSURANCE"
+          python tools/validate_etf_eu_release_assurance.py --evidence "$ASSURANCE"
+          echo "ETF_EU_RELEASE_ASSURANCE=$ASSURANCE" >> "$GITHUB_ENV"
+
       - name: Execute guarded current-run delivery
         env:
           MRKT_RPRTS_SMTP_HOST: ${{ secrets.MRKT_RPRTS_SMTP_HOST }}
@@ -306,6 +328,7 @@ jobs:
             "output/quality/etf_eu_routine_pdf_client_grade_${ETF_EU_RUN_ID}_en.json" \
             "output/quality/etf_eu_routine_pdf_client_grade_${ETF_EU_RUN_ID}.json" \
             "output/quality/etf_eu_routine_pdf_visual_review_${ETF_EU_RUN_ID}.json" \
+            "$ETF_EU_RELEASE_ASSURANCE" \
             "output/quality/review_pages/${ETF_EU_RUN_ID}" \
             "output/delivery_prep/etf_eu_guarded_fresh_package_delivery_prep_${ETF_EU_RUN_ID}.json" \
             "output/delivery_authorization/etf_eu_guarded_send_authorization_${ETF_EU_RUN_ID}.json" \
