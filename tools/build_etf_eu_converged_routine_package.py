@@ -40,6 +40,11 @@ def copy_file(source: Path, target: Path) -> dict[str, Any]:
     }
 
 
+def normalize_ticker(value: Any) -> str:
+    ticker = str(value or "").strip().upper()
+    return "L0CK" if ticker == "LOCK" else ticker
+
+
 def build(
     client_manifest_path: Path,
     state_path: Path,
@@ -63,8 +68,35 @@ def build(
         raise RuntimeError("Unexpected convergence state schema")
     if state.get("report_date") != report_date:
         raise RuntimeError("Convergence state report date differs from routine request")
-    if state.get("stage_1_decision", {}).get("executable_trade_intents") != []:
+
+    stage = state.get("stage_1_decision") if isinstance(state.get("stage_1_decision"), dict) else {}
+    executable_intents = stage.get("executable_trade_intents")
+    if executable_intents != []:
         raise RuntimeError("Convergence state contains executable trade intents")
+    activated_tickers = sorted(
+        {normalize_ticker(item) for item in stage.get("activated_tickers") or [] if normalize_ticker(item)}
+    )
+    monitored_tickers = sorted(
+        {
+            normalize_ticker(item)
+            for item in stage.get("remaining_monitored_tickers") or []
+            if normalize_ticker(item)
+        }
+    )
+    stage_value = str(stage.get("value") or "").strip()
+    activation_recorded = stage_value in {"partially_activated", "activated"} and bool(activated_tickers)
+
+    authority = state.get("authority") if isinstance(state.get("authority"), dict) else {}
+    for key in (
+        "portfolio_mutation",
+        "ledger_write",
+        "funding_authority",
+        "execution_authority",
+        "activation_authority",
+        "production_delivery_authority",
+    ):
+        if authority.get(key) is not False:
+            raise RuntimeError(f"Convergence state current authority must remain false: {key}")
 
     output_dir.mkdir(parents=True, exist_ok=True)
     languages = client.get("languages") if isinstance(client.get("languages"), dict) else {}
@@ -91,7 +123,7 @@ def build(
         "donor_commit_sha": donor_commit,
         "donor_report_date": state.get("donor", {}).get("report_date") or state.get("donor", {}).get("source_report_date"),
         "report_engine": "production_convergence_v1",
-        "client_renderer_mode": "synchronized_premium_production_candidate",
+        "client_renderer_mode": client.get("client_renderer_mode"),
         "report_section_count": 19,
         "languages": ["nl", "en"],
         "dutch_primary": True,
@@ -137,9 +169,12 @@ def build(
             "mapped_promoted_exposure_count": state.get("strategy", {}).get("mapped_promoted_exposure_count"),
             "unmapped_promoted_exposure_count": state.get("strategy", {}).get("unmapped_promoted_exposure_count"),
             "stage_1_review_candidate_count": len(state.get("stage_1_review_candidates") or []),
-            "stage_1_decision": state.get("stage_1_decision", {}).get("value"),
-            "stage_1_activation_authorized": state.get("stage_1_decision", {}).get("stage_1_activation_authorized"),
-            "executable_trade_intents": state.get("stage_1_decision", {}).get("executable_trade_intents"),
+            "stage_1_decision": stage_value,
+            "activated_tickers": activated_tickers,
+            "remaining_monitored_tickers": monitored_tickers,
+            "stage_1_activation_recorded": activation_recorded,
+            "current_activation_authority": authority.get("activation_authority"),
+            "executable_trade_intents": executable_intents,
         },
         "package_status": "generated_pending_machine_and_visual_review",
         "ready_for_controlled_delivery": False,
@@ -148,7 +183,10 @@ def build(
         "independent_receipt_confirmed": False,
         "portfolio_mutation": False,
         "ledger_write": False,
+        "funding_authority": False,
+        "activation_authority": False,
         "execution_authority": False,
+        "production_delivery_authority": False,
     }
     manifest_dir.mkdir(parents=True, exist_ok=True)
     manifest_path = manifest_dir / f"etf_eu_routine_run_manifest_{report_date}_{run_id}.json"

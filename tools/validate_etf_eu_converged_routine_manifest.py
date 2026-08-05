@@ -7,6 +7,17 @@ from pathlib import Path
 from typing import Any
 
 
+CURRENT_AUTHORITY_KEYS = (
+    "portfolio_mutation",
+    "ledger_write",
+    "funding_authority",
+    "activation_authority",
+    "execution_authority",
+    "production_delivery_authority",
+)
+ALLOWED_STAGE_VALUES = {"blocked", "partially_activated", "activated"}
+
+
 def load(path: Path) -> dict[str, Any]:
     payload = json.loads(path.read_text(encoding="utf-8"))
     if not isinstance(payload, dict):
@@ -22,7 +33,52 @@ def sha256_file(path: Path) -> str:
     return digest.hexdigest()
 
 
-def validate(manifest: dict[str, Any]) -> list[str]:
+def normalize_ticker(value: Any) -> str:
+    ticker = str(value or "").strip().upper()
+    return "L0CK" if ticker == "LOCK" else ticker
+
+
+def stage_contract(state: dict[str, Any]) -> dict[str, Any]:
+    stage = state.get("stage_1_decision") if isinstance(state.get("stage_1_decision"), dict) else {}
+    value = str(stage.get("value") or "").strip()
+    activated = sorted(
+        {normalize_ticker(item) for item in stage.get("activated_tickers") or [] if normalize_ticker(item)}
+    )
+    monitored = sorted(
+        {
+            normalize_ticker(item)
+            for item in stage.get("remaining_monitored_tickers") or []
+            if normalize_ticker(item)
+        }
+    )
+    return {
+        "value": value,
+        "activated_tickers": activated,
+        "remaining_monitored_tickers": monitored,
+        "activation_recorded": value in {"partially_activated", "activated"} and bool(activated),
+        "executable_trade_intents": stage.get("executable_trade_intents"),
+    }
+
+
+def official_positions(state: dict[str, Any]) -> list[dict[str, Any]]:
+    portfolio = state.get("official_portfolio") if isinstance(state.get("official_portfolio"), dict) else {}
+    positions = [row for row in portfolio.get("positions") or [] if isinstance(row, dict)]
+    if not positions:
+        raise RuntimeError("Convergence state has no official portfolio positions")
+    return positions
+
+
+def position_identities(rows: list[dict[str, Any]]) -> set[tuple[str, str]]:
+    return {
+        (
+            normalize_ticker(row.get("ticker") or row.get("exchange_ticker")),
+            str(row.get("isin") or row.get("instrument_isin") or "").strip().upper(),
+        )
+        for row in rows
+    }
+
+
+def validate(manifest: dict[str, Any], state: dict[str, Any], state_path: Path) -> list[str]:
     blockers: list[str] = []
     if manifest.get("schema_version") != "etf_eu_routine_run_manifest_v3_converged":
         blockers.append("unexpected manifest schema")
@@ -38,6 +94,10 @@ def validate(manifest: dict[str, Any]) -> list[str]:
         blockers.append("run identity is incomplete")
     if not manifest.get("source_commit_sha") or not manifest.get("donor_commit_sha"):
         blockers.append("source SHA or donor commit missing")
+    if state.get("run_id") and manifest.get("run_id") != state.get("run_id"):
+        blockers.append("manifest run id differs from convergence state")
+    if manifest.get("report_date") != state.get("report_date"):
+        blockers.append("manifest report date differs from convergence state")
 
     files = manifest.get("files") if isinstance(manifest.get("files"), dict) else {}
     if set(files) != {"nl_html", "nl_pdf", "en_html", "en_pdf"}:
@@ -71,38 +131,66 @@ def validate(manifest: dict[str, Any]) -> list[str]:
             continue
         if record.get("sha256") != sha256_file(path):
             blockers.append(f"state artifact hash mismatch: {role}")
+        if role == "production_convergence_state":
+            if path.resolve() != state_path.resolve():
+                blockers.append("manifest convergence-state path differs from validation input")
+            if record.get("sha256") != sha256_file(state_path):
+                blockers.append("manifest convergence-state hash differs from validation input")
 
-    portfolio = manifest.get("portfolio_snapshot") if isinstance(manifest.get("portfolio_snapshot"), dict) else {}
-    if portfolio.get("position_count") != 3:
-        blockers.append("portfolio position count must be three")
-    if float(portfolio.get("cash_eur") or 0) <= 0:
-        blockers.append("cash value missing")
-    if not portfolio.get("pricing_close_dates"):
+    state_positions = official_positions(state)
+    state_portfolio = state.get("official_portfolio") if isinstance(state.get("official_portfolio"), dict) else {}
+    manifest_portfolio = manifest.get("portfolio_snapshot") if isinstance(manifest.get("portfolio_snapshot"), dict) else {}
+    if manifest_portfolio.get("position_count") != len(state_positions):
+        blockers.append("portfolio position count differs from convergence state")
+    if position_identities([row for row in manifest_portfolio.get("positions") or [] if isinstance(row, dict)]) != position_identities(state_positions):
+        blockers.append("portfolio position identity roster differs from convergence state")
+    for field in ("nav_eur", "cash_eur", "invested_market_value_eur"):
+        if manifest_portfolio.get(field) != state_portfolio.get(field):
+            blockers.append(f"portfolio {field} differs from convergence state")
+    if float(manifest_portfolio.get("cash_eur") or 0) < 0:
+        blockers.append("cash value cannot be negative")
+    if not manifest_portfolio.get("pricing_close_dates"):
         blockers.append("pricing close dates missing")
-    if not portfolio.get("official_portfolio_state_sha256") or not portfolio.get("official_trade_ledger_sha256"):
+    if not manifest_portfolio.get("official_portfolio_state_sha256") or not manifest_portfolio.get("official_trade_ledger_sha256"):
         blockers.append("protected-state hashes missing")
 
     strategy = manifest.get("strategy_snapshot") if isinstance(manifest.get("strategy_snapshot"), dict) else {}
-    if strategy.get("current_promoted_exposure_count") != 6:
-        blockers.append("current promoted exposure count must be six")
-    if strategy.get("mapped_promoted_exposure_count") != 6:
-        blockers.append("mapped promoted exposure count must be six")
-    if strategy.get("unmapped_promoted_exposure_count") != 0:
-        blockers.append("unmapped promoted exposure count must be zero")
-    if strategy.get("stage_1_review_candidate_count") != 2:
-        blockers.append("Stage-1 review candidate count must be two")
-    if strategy.get("stage_1_decision") != "blocked":
-        blockers.append("Stage-1 decision must remain blocked")
-    if strategy.get("stage_1_activation_authorized") is not False:
-        blockers.append("Stage-1 activation authority must be false")
-    if strategy.get("executable_trade_intents") != []:
+    expected_stage = stage_contract(state)
+    if expected_stage["value"] not in ALLOWED_STAGE_VALUES:
+        blockers.append(f"unsupported convergence-state Stage-1 decision: {expected_stage['value'] or 'missing'}")
+    if strategy.get("current_promoted_exposure_count") != len(state.get("promoted_exposures") or []):
+        blockers.append("current promoted exposure count differs from convergence state")
+    state_strategy = state.get("strategy") if isinstance(state.get("strategy"), dict) else {}
+    for field in ("mapped_promoted_exposure_count", "unmapped_promoted_exposure_count"):
+        if strategy.get(field) != state_strategy.get(field):
+            blockers.append(f"strategy {field} differs from convergence state")
+    if strategy.get("stage_1_review_candidate_count") != len(state.get("stage_1_review_candidates") or []):
+        blockers.append("Stage-1 review candidate count differs from convergence state")
+    if strategy.get("stage_1_decision") != expected_stage["value"]:
+        blockers.append("Stage-1 decision differs from convergence state")
+    if sorted(strategy.get("activated_tickers") or []) != expected_stage["activated_tickers"]:
+        blockers.append("activated ticker roster differs from convergence state")
+    if sorted(strategy.get("remaining_monitored_tickers") or []) != expected_stage["remaining_monitored_tickers"]:
+        blockers.append("monitored ticker roster differs from convergence state")
+    if strategy.get("stage_1_activation_recorded") is not expected_stage["activation_recorded"]:
+        blockers.append("activation provenance differs from convergence state")
+    if strategy.get("current_activation_authority") is not False:
+        blockers.append("current Stage-1 activation authority must be false")
+    if strategy.get("executable_trade_intents") != [] or expected_stage["executable_trade_intents"] != []:
         blockers.append("executable trade intents must be empty")
+
+    state_authority = state.get("authority") if isinstance(state.get("authority"), dict) else {}
+    for key in CURRENT_AUTHORITY_KEYS:
+        if state_authority.get(key) is not False:
+            blockers.append(f"convergence-state current authority {key} must be false")
+        if manifest.get(key) is not False:
+            blockers.append(f"manifest current authority {key} must be false")
 
     if manifest.get("package_status") != "generated_pending_machine_and_visual_review":
         blockers.append("initial package status is unexpected")
     if manifest.get("ready_for_controlled_delivery") is not False:
         blockers.append("package cannot be delivery-ready before review")
-    for key in ("delivery_authority", "smtp_transport_success", "independent_receipt_confirmed", "portfolio_mutation", "ledger_write", "execution_authority"):
+    for key in ("delivery_authority", "smtp_transport_success", "independent_receipt_confirmed"):
         if manifest.get(key) is not False:
             blockers.append(f"manifest {key} must be false")
     return blockers
@@ -111,12 +199,15 @@ def validate(manifest: dict[str, Any]) -> list[str]:
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("manifest", type=Path)
+    parser.add_argument("--state", type=Path, required=True)
     parser.add_argument("--output", type=Path)
     args = parser.parse_args()
     manifest = load(args.manifest)
-    blockers = validate(manifest)
+    state = load(args.state)
+    blockers = validate(manifest, state, args.state)
+    stage = stage_contract(state)
     result = {
-        "artifact_type": "etf_eu_converged_routine_manifest_validation",
+        "artifact_type": "etf_eu_converged_routine_manifest_validation_v2",
         "valid": not blockers,
         "blockers": blockers,
         "run_id": manifest.get("run_id"),
@@ -124,6 +215,11 @@ def main() -> None:
         "report_suffix": manifest.get("report_suffix"),
         "attachment_count": len(manifest.get("files") or {}),
         "report_engine": manifest.get("report_engine"),
+        "position_count": len(official_positions(state)),
+        "stage_1_decision": stage["value"],
+        "activated_tickers": stage["activated_tickers"],
+        "remaining_monitored_tickers": stage["remaining_monitored_tickers"],
+        "current_activation_authority": False,
     }
     text = json.dumps(result, indent=2, ensure_ascii=False)
     print(text)
