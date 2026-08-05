@@ -8,9 +8,9 @@ from typing import Any
 from runtime import add_etf_eu_activated_allocation_surface as legacy
 
 # The source action table is synchronized here through the legacy v2 surface.
-# The final promoter must carry section-13 into the client candidate so the
-# compatibility renderer cannot reintroduce a blocked L0CK row.
-FINAL_PROMOTION_SECTION_SYNC_REQUIRED = "section-13"
+# The final promoter must carry and finalize section-13 so the compatibility
+# renderer cannot reintroduce blocked L0CK, unqualified VVSM, or shadow-gate text.
+FINAL_PROMOTION_SECTION_SYNC_REQUIRED = "section-13:activated-L0CK:blocked-VVSM:client-safe"
 
 
 def load_object(path: Path) -> dict[str, Any]:
