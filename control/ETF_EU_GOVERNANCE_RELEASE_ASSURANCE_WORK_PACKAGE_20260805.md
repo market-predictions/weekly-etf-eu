@@ -4,59 +4,66 @@
 work_package_id=ETF_EU_GOV_RA_20260805
 owner_role=implementation_operations
 review_role=governance_release_assurance
-status=IMPLEMENTED_ON_BRANCH_PENDING_CI
-branch=agent/governance-release-assurance
+status=MERGED_ACTIVE
+pull_request=73
+merge_commit=30ae248c9eb61045cec8e963ebb9ac84dbf1e476
+ci_run=31011973728
+ci_conclusion=success
+activated_at_utc=2026-08-05T13:48:42Z
 ```
 
 ## Objective
 
 Prevent Weekly ETF EU implementation work from certifying its own production readiness and give the user one coordinated project interface rather than two separately managed agents.
 
-## Scope
+## Scope delivered
 
 ### GOV-01 — Operating model
 
-- Define the two internal roles and their boundaries.
-- Define the coordinator as the single user interface.
-- Define permitted project status labels.
+- Defined the two internal roles and their boundaries.
+- Defined the coordinator as the single user interface.
+- Defined permitted project status labels.
 
 ### GOV-02 — Machine evidence
 
-- Build a run-scoped release-assurance evidence artifact.
-- Bind it to source SHA, run ID, report date and report suffix.
-- Hash all Dutch and English HTML/PDF artifacts.
+- Added a run-scoped release-assurance evidence builder.
+- Bound evidence to source SHA, run ID, report date and report suffix.
+- Added SHA-256 hashes for Dutch and English HTML/PDF artifacts.
 
 ### GOV-03 — Independent validation
 
-- Validate role separation.
-- Validate required control checks and artifact hashes.
-- Reject `FAIL`, blockers, incomplete identity or self-certification.
+- Added role-separation validation.
+- Added required control checks and artifact-hash validation.
+- Added fail-closed rejection of `FAIL`, blockers, incomplete identity and self-certification.
 
 ### GOV-04 — CI enforcement
 
-- Add a dedicated GitHub Actions governance workflow.
-- Run positive and negative contract tests.
-- Insert the governance gate before guarded send in the canonical routine workflow.
+- Added a dedicated GitHub Actions governance workflow.
+- Added positive and negative contract tests.
+- Inserted the governance gate immediately before guarded send in the canonical routine workflow.
+- Added pre-send artifact upload so governance evidence survives a later transport failure.
 
 ### GOV-05 — Administration
 
-- Register the governance contract in the system index.
-- Correct the repository README’s stale operating description.
-- Update next actions and changelog.
+- Registered the governance contract in the system index.
+- Corrected the repository README’s stale operating description.
+- Updated next actions and the governance changelog.
 
-## Acceptance criteria
+## Acceptance evidence
 
 - The user supplies one project instruction, not separate agent prompts.
 - The implementation role can only create a release candidate.
 - The governance role emits a separate machine-readable decision.
 - The canonical send path cannot execute unless governance validation returns `PASS`.
-- A deliberately failed fixture is rejected by CI.
-- No portfolio mutation or email delivery is performed by this work package.
+- The deliberately failing fixture was rejected by CI.
+- The valid fixture and Python compilation passed in CI run `31011973728`.
+- PR #73 was squash-merged into `main` as `30ae248c9eb61045cec8e963ebb9ac84dbf1e476`.
+- No portfolio mutation or email delivery was performed by this work package.
 
-## Out of scope
+## Next governed cycle
 
-- Repairing the stale four-position production validator in PR #72.
-- Sending the fresh Weekly ETF EU report.
-- Confirming inbox receipt.
-
-Those are subsequent implementation and governance cycles after this control layer is merged or rebased into the release branch.
+1. Rebase or port the governance controls into the fresh-report work from PR #72.
+2. Repair the stale portfolio-mode validator.
+3. Quarantine the legacy FX scheduler as a Weekly ETF EU entry point.
+4. Produce a new immutable release candidate.
+5. Require governance `PASS` before send and independent receipt evidence before `DELIVERY_CONFIRMED`.
