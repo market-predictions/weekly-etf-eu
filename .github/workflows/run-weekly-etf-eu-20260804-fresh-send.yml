@@ -12,6 +12,9 @@ on:
       - "runtime/apply_etf_eu_routine_valuation_to_client_report_v2.py"
       - "runtime/add_etf_eu_activated_allocation_surface.py"
       - "tools/validate_etf_eu_production_convergence_state.py"
+      - "tools/validate_etf_eu_production_converged_report.py"
+      - "tests/test_etf_eu_production_converged_report_contract.py"
+      - ".github/workflows/validate-etf-eu-production-contract.yml"
       - "output/etf_eu_portfolio_state.json"
       - "output/etf_eu_trade_ledger.csv"
 
