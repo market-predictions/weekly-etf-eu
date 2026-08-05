@@ -17,8 +17,9 @@ Read in this order:
 1. `control/SYSTEM_INDEX.md`
 2. `control/CURRENT_STATE.md`
 3. `control/NEXT_ACTIONS.md`
-4. `control/ETF_EU_TWO_ROLE_GOVERNANCE_MODEL_V1.md`
-5. the minimum relevant execution files
+4. `control/PROJECT_GOVERNANCE_BOOTSTRAP.md`
+5. `control/ETF_EU_TWO_ROLE_GOVERNANCE_MODEL_V1.md`
+6. the minimum relevant execution files
 
 ## Five-layer operating model
 
@@ -41,8 +42,9 @@ governance_release_assurance
 
 Role A builds or repairs a release candidate. Role B independently reconstructs and certifies or rejects it. Role A may not self-certify. Role B may not mutate the candidate it certifies.
 
-Authority files:
+Project authority files:
 
+- `control/PROJECT_GOVERNANCE_BOOTSTRAP.md`
 - `control/ETF_EU_TWO_ROLE_GOVERNANCE_MODEL_V1.md`
 - `control/ETF_EU_GOVERNANCE_RELEASE_ASSURANCE_WORK_PACKAGE_20260805.md`
 - `control/ETF_EU_GOVERNANCE_CHANGELOG.md`
@@ -56,6 +58,19 @@ Machine controls:
 The canonical routine workflow must run the governance gate immediately before guarded transport:
 
 - `.github/workflows/run-weekly-etf-eu-routine.yml`
+
+## Cross-project governance interim host
+
+Until `market-predictions/control-plane` is created, this repository temporarily hosts the shared governance standard and rollout register:
+
+- `control/CROSS_PROJECT_TWO_ROLE_GOVERNANCE_STANDARD_V1.md`
+- `control/CROSS_PROJECT_GOVERNANCE_ADOPTION_REGISTER.md`
+- `control/PROJECT_GOVERNANCE_BOOTSTRAP_TEMPLATE.md`
+- `control/PROJECT_PROMPT_GOVERNANCE_CLAUSE.md`
+- `control/CROSS_PROJECT_GOVERNANCE_ROLLOUT_WORK_PACKAGE_20260805.md`
+- `control/decisions/CROSS_PROJECT_GOVERNANCE_STANDARD_ADOPTION_DECISION_20260805.md`
+
+The shared standard defines cross-project role separation only. ETF EU instrument, state, report, recipient, delivery, and portfolio authority remains local to this repository.
 
 ## Canonical EU control files
 
@@ -104,6 +119,7 @@ Before creating or materially changing an EU workflow, runtime script, validator
 - Require independent receipt evidence before `DELIVERY_CONFIRMED`.
 - Treat missing or contradictory evidence as a blocker.
 - Do not treat legacy workflow presence as proof of production authority.
+- Do not require the user to coordinate implementation and assurance roles separately.
 
 ## Run verification discipline
 
