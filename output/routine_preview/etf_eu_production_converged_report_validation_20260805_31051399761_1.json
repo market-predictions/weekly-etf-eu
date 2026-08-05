@@ -1,0 +1,46 @@
+{
+  "artifact_type": "etf_eu_production_converged_report_validation_v2",
+  "valid": true,
+  "blockers": [],
+  "contract": {
+    "tickers": [
+      "EUNA",
+      "L0CK",
+      "SXR8",
+      "VWCE"
+    ],
+    "isins": [
+      "IE00B5BMR087",
+      "IE00BDBRDM35",
+      "IE00BG0J4C88",
+      "IE00BK5BQT80"
+    ],
+    "position_count": 4,
+    "stage_1_decision": "partially_activated",
+    "activated_tickers": [
+      "L0CK"
+    ],
+    "remaining_monitored_tickers": [
+      "VVSM"
+    ],
+    "client_renderer_mode": "activated_four_position_premium_production_candidate"
+  },
+  "languages": {
+    "nl": {
+      "html": "/home/runner/work/weekly-etf-eu/weekly-etf-eu/output/routine_preview/client_report/weekly_etf_eu_review_nl_260805_converged.html",
+      "pdf": "/home/runner/work/weekly-etf-eu/weekly-etf-eu/output/routine_preview/client_report/weekly_etf_eu_review_nl_260805_converged.pdf",
+      "page_count": 11,
+      "section_count": 19,
+      "visible_text_length": 24648,
+      "pdf_text_length": 25524
+    },
+    "en": {
+      "html": "/home/runner/work/weekly-etf-eu/weekly-etf-eu/output/routine_preview/client_report/weekly_etf_eu_review_260805_converged.html",
+      "pdf": "/home/runner/work/weekly-etf-eu/weekly-etf-eu/output/routine_preview/client_report/weekly_etf_eu_review_260805_converged.pdf",
+      "page_count": 11,
+      "section_count": 19,
+      "visible_text_length": 23850,
+      "pdf_text_length": 24712
+    }
+  }
+}

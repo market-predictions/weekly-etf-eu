@@ -1,0 +1,93 @@
+{
+  "activation_id": "ETF-EU-STAGE1-2026-08-04-20260804_STAGE1_30947965670_1",
+  "allocation_status": "ready_for_guarded_model_activation",
+  "artifact_type": "etf_eu_stage1_allocation_decision",
+  "authority": {
+    "decision_basis": "current donor promotion plus selected eligible EU allocator row plus exact-line quote and completed-close gates",
+    "model_portfolio_only": true,
+    "real_broker_execution": false,
+    "user_activation_request_recorded": true
+  },
+  "decisions": [
+    {
+      "action": "buy",
+      "close_date": "2026-08-04",
+      "close_price_eur": 10.954,
+      "conviction_tier": "Satellite",
+      "exchange_ticker": "L0CK",
+      "fund_name": "iShares Digital Security UCITS ETF USD (Acc)",
+      "instrument_metadata": {
+        "distribution_policy": "accumulating",
+        "domicile": "Ireland",
+        "portfolio_contribution_eur": 0.0,
+        "portfolio_contribution_pct_nav": 0.0,
+        "pricing_completed_close": true,
+        "pricing_source": "Deutsche Boerse exact-line ask quote with two-source completed-close qualification",
+        "pricing_source_quality": "development_exact_line_quote_and_completed_close_consensus",
+        "quote_ask_eur": 10.954,
+        "quote_ask_size": 2636,
+        "quote_bid_eur": 10.914,
+        "quote_bid_size": 2645,
+        "quote_evidence": "output/activation/etf_eu_stage1_quote_evidence_20260804_STAGE1_30947965670_1.json",
+        "quote_spread_pct_mid": 0.36583135,
+        "quote_timestamp_utc": "2026-08-04T19:48:58Z",
+        "unrealized_pnl_eur": 0.0,
+        "unrealized_pnl_pct": 0.0
+      },
+      "isin": "IE00BG0J4C88",
+      "model_execution_price_basis": "timestamped_exact_line_ask_quote_model_only_no_real_broker_order",
+      "phase_target_weight_pct": 10.15861,
+      "portfolio_role": "Cybersecurity satellite",
+      "pricing_status": "timestamped_exact_line_ask_quote_model_activation",
+      "primary_exchange": "Xetra",
+      "provider": "iShares / BlackRock",
+      "shares_delta": 934,
+      "strategic_target_weight_pct": 10.15861,
+      "verification_status": "verified_ucits_trading_line"
+    }
+  ],
+  "evaluated_candidates": [
+    {
+      "activation_eligible": false,
+      "ask_eur": 94.9,
+      "ask_size": 600,
+      "bid_eur": 94.14,
+      "bid_size": 600,
+      "blockers": [
+        "not_currently_promoted_by_donor"
+      ],
+      "currently_promoted": false,
+      "eligible": true,
+      "exposure_id": "ai_compute_infrastructure",
+      "isin": "IE00BMC38736",
+      "quote_timestamp_utc": "2026-08-04T19:48:50Z",
+      "selected": true,
+      "share_delta": 158,
+      "spread_pct_mid": 0.80406263,
+      "ticker": "VVSM"
+    },
+    {
+      "activation_eligible": true,
+      "ask_eur": 10.954,
+      "ask_size": 2636,
+      "bid_eur": 10.914,
+      "bid_size": 2645,
+      "blockers": [],
+      "currently_promoted": true,
+      "eligible": true,
+      "exposure_id": "cyber_security",
+      "isin": "IE00BG0J4C88",
+      "quote_timestamp_utc": "2026-08-04T19:48:58Z",
+      "selected": true,
+      "share_delta": 934,
+      "spread_pct_mid": 0.36583135,
+      "ticker": "L0CK"
+    }
+  ],
+  "quote_evidence": "output/activation/etf_eu_stage1_quote_evidence_20260804_STAGE1_30947965670_1.json",
+  "report_date": "2026-08-04",
+  "run_id": "20260804_STAGE1_30947965670_1",
+  "schema_version": "etf_eu_stage1_allocation_decision_v1",
+  "source_allocator": "output/routine_preview/sync/etf_eu_target_allocator_shadow.json",
+  "source_state": "output/routine_preview/etf_eu_production_convergence_state_20260804_STAGE1_30947965670_1.json"
+}

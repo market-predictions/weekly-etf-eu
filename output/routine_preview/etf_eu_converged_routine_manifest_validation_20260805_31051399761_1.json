@@ -1,0 +1,19 @@
+{
+  "artifact_type": "etf_eu_converged_routine_manifest_validation_v2",
+  "valid": true,
+  "blockers": [],
+  "run_id": "20260805_31051399761_1",
+  "report_date": "2026-08-05",
+  "report_suffix": "260805",
+  "attachment_count": 4,
+  "report_engine": "production_convergence_v1",
+  "position_count": 4,
+  "stage_1_decision": "partially_activated",
+  "activated_tickers": [
+    "L0CK"
+  ],
+  "remaining_monitored_tickers": [
+    "VVSM"
+  ],
+  "current_activation_authority": false
+}

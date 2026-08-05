@@ -1,0 +1,46 @@
+name: Validate ETF EU production report contract
+
+on:
+  pull_request:
+    paths:
+      - "tools/validate_etf_eu_production_converged_report.py"
+      - "tools/build_etf_eu_converged_routine_package.py"
+      - "tools/validate_etf_eu_converged_routine_manifest.py"
+      - "tools/run_etf_eu_aug3_expanded_report_v6.py"
+      - "tests/test_etf_eu_production_converged_report_contract.py"
+      - "tests/test_etf_eu_converged_routine_manifest_contract.py"
+      - ".github/workflows/validate-etf-eu-production-contract.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  production-contract:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install bounded validator dependencies
+        run: python -m pip install beautifulsoup4 pypdf
+
+      - name: Compile validators and package builder
+        run: |
+          python -m py_compile \
+            tools/validate_etf_eu_production_converged_report.py \
+            tools/build_etf_eu_converged_routine_package.py \
+            tools/validate_etf_eu_converged_routine_manifest.py \
+            tools/run_etf_eu_aug3_expanded_report_v6.py
+
+      - name: Run positive and planted-failure tests
+        run: |
+          python -m unittest \
+            tests.test_etf_eu_production_converged_report_contract \
+            tests.test_etf_eu_converged_routine_manifest_contract \
+            -v

@@ -1,0 +1,166 @@
+name: Run Weekly ETF EU fresh production package
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/run-weekly-etf-eu-20260804-fresh-send.yml"
+      - "tools/run_etf_eu_aug3_expanded_report_v6.py"
+      - "pricing/build_current_session_close_results_v2.py"
+      - "runtime/build_etf_eu_routine_valuation_overlay.py"
+      - "runtime/build_etf_eu_production_convergence_state_v2.py"
+      - "runtime/reconcile_etf_eu_stage1_current_evidence.py"
+      - "runtime/apply_etf_eu_routine_valuation_to_client_report_v2.py"
+      - "runtime/add_etf_eu_activated_allocation_surface.py"
+      - "tools/validate_etf_eu_production_convergence_state.py"
+      - "tools/validate_etf_eu_production_converged_report.py"
+      - "tests/test_etf_eu_production_converged_report_contract.py"
+      - ".github/workflows/validate-etf-eu-production-contract.yml"
+      - "output/etf_eu_portfolio_state.json"
+      - "output/etf_eu_trade_ledger.csv"
+  push:
+    branches:
+      - routine/20260804-fresh-send
+    paths:
+      - ".github/workflows/run-weekly-etf-eu-20260804-fresh-send.yml"
+      - "tools/validate_etf_eu_production_converged_report.py"
+      - "tests/test_etf_eu_production_converged_report_contract.py"
+
+permissions:
+  contents: write
+
+jobs:
+  build-fresh-package:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    env:
+      REPORT_DATE: "2026-08-05"
+      REPORT_SUFFIX: "260805"
+      DONOR_COMMIT: "272ce2a997ae21c30290807199f243f491df3c46"
+      RUN_ID: "20260805_${{ github.run_id }}_${{ github.run_attempt }}"
+      SOURCE_SHA: "${{ github.event.pull_request.head.sha || github.sha }}"
+      PYTHONPATH: "${{ github.workspace }}"
+
+    steps:
+      - name: Checkout candidate or production branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Checkout Weekly ETF donor
+        uses: actions/checkout@v4
+        with:
+          repository: market-predictions/weekly-etf
+          ref: ${{ env.DONOR_COMMIT }}
+          path: donor-weekly-etf
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install bounded production dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements.txt
+          python -m pip install yfinance weasyprint pypdf beautifulsoup4 pyyaml matplotlib requests
+
+      - name: Build and validate final four-position package
+        run: |
+          set -euo pipefail
+          python tools/run_etf_eu_aug3_expanded_report_v6.py \
+            --donor-dir donor-weekly-etf \
+            --report-date "$REPORT_DATE" \
+            --report-suffix "$REPORT_SUFFIX" \
+            --run-id "$RUN_ID" \
+            --source-sha "$SOURCE_SHA" \
+            --donor-commit "$DONOR_COMMIT"
+
+      - name: Validate current portfolio and report identity
+        run: |
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+
+          run_id = os.environ['RUN_ID']
+          report_date = os.environ['REPORT_DATE']
+          state_path = Path(f'output/routine_preview/etf_eu_production_convergence_state_{run_id}.json')
+          routine_path = Path(f'output/run_manifests/etf_eu_routine_run_manifest_{report_date}_{run_id}.json')
+          pricing_path = Path(f'output/pricing/ucits_price_provider_qualification_{run_id}.json')
+          state = json.loads(state_path.read_text())
+          routine = json.loads(routine_path.read_text())
+          pricing = json.loads(pricing_path.read_text())
+          portfolio = state['official_portfolio']
+          tickers = {str(row.get('ticker') or row.get('exchange_ticker')) for row in portfolio['positions']}
+          expected = {'VWCE','EUNA','SXR8','L0CK'}
+          if tickers != expected:
+              raise SystemExit(f'FINAL_FUNDED_TICKER_SET_MISMATCH:{sorted(tickers)}')
+          if portfolio.get('position_count') != 4:
+              raise SystemExit('FINAL_POSITION_COUNT_NOT_FOUR')
+          if pricing.get('funded_consensus_count') != 4 or pricing.get('funded_identity_anchor_count') != 4:
+              raise SystemExit('FINAL_FUNDED_PRICING_GATE_NOT_4_OF_4')
+          if pricing.get('report_pricing_gate_passed') is not True:
+              raise SystemExit('FINAL_REPORT_PRICING_GATE_FAILED')
+          stage = state.get('stage_1_decision') or {}
+          if set(stage.get('activated_tickers') or []) != {'L0CK'}:
+              raise SystemExit('FINAL_ACTIVATED_TICKER_SCOPE_MISMATCH')
+          if set(stage.get('remaining_monitored_tickers') or []) != {'VVSM'}:
+              raise SystemExit('FINAL_MONITORED_TICKER_SCOPE_MISMATCH')
+          if routine.get('report_suffix') != os.environ['REPORT_SUFFIX']:
+              raise SystemExit('FINAL_REPORT_SUFFIX_MISMATCH')
+          if routine.get('delivery_authority') is not False:
+              raise SystemExit('FINAL_REPORT_DELIVERY_AUTHORITY_ESCALATED')
+          print(json.dumps({
+              'status':'validated',
+              'run_id':run_id,
+              'report_date':report_date,
+              'report_suffix':routine.get('report_suffix'),
+              'funded_tickers':sorted(tickers),
+              'funded_consensus_count':pricing.get('funded_consensus_count'),
+              'position_count':portfolio.get('position_count'),
+              'nav_eur':portfolio.get('nav_eur'),
+              'cash_eur':portfolio.get('cash_eur'),
+              'activated_tickers':stage.get('activated_tickers'),
+              'remaining_monitored_tickers':stage.get('remaining_monitored_tickers'),
+              'real_broker_execution':portfolio.get('real_broker_execution'),
+          },indent=2,sort_keys=True))
+          PY
+
+      - name: Persist exact final package and evidence after merge
+        if: github.event_name == 'push'
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -f \
+            output/fresh_generation/weekly_etf_eu_review_nl_${REPORT_SUFFIX}.html \
+            output/fresh_generation/weekly_etf_eu_review_nl_${REPORT_SUFFIX}.pdf \
+            output/fresh_generation/weekly_etf_eu_review_${REPORT_SUFFIX}.html \
+            output/fresh_generation/weekly_etf_eu_review_${REPORT_SUFFIX}.pdf \
+            output/run_manifests/etf_eu_routine_run_manifest_${REPORT_DATE}_${RUN_ID}.json \
+            output/pricing/ucits_close_price_validation_basket_results_${RUN_ID}.json \
+            output/pricing/ucits_price_provider_qualification_${RUN_ID}.json \
+            output/macro/etf_eu_current_macro_source_${RUN_ID}.json \
+            output/macro/etf_eu_macro_policy_${RUN_ID}.json \
+            output/routine_preview/etf_eu_production_convergence_state_${RUN_ID}.json \
+            output/routine_preview/etf_eu_production_converged_report_validation_${RUN_ID}.json \
+            output/routine_preview/etf_eu_converged_routine_manifest_validation_${RUN_ID}.json \
+            output/routine_preview/etf_eu_aug3_expanded_report_run_summary_${RUN_ID}.json
+          git commit -m "Persist fresh Weekly ETF EU ${REPORT_SUFFIX} package [skip ci]"
+          git push origin HEAD:routine/20260804-fresh-send
+
+      - name: Upload final package evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: etf-eu-final-package-${{ env.RUN_ID }}
+          path: |
+            output/fresh_generation/weekly_etf_eu_review*${{ env.REPORT_SUFFIX }}*
+            output/run_manifests/etf_eu_routine_run_manifest_${{ env.REPORT_DATE }}_${{ env.RUN_ID }}.json
+            output/pricing/ucits_close_price_validation_basket_results_${{ env.RUN_ID }}.json
+            output/pricing/ucits_price_provider_qualification_${{ env.RUN_ID }}.json
+            output/macro/etf_eu_current_macro_source_${{ env.RUN_ID }}.json
+            output/macro/etf_eu_macro_policy_${{ env.RUN_ID }}.json
+            output/routine_preview/etf_eu_production_convergence_state_${{ env.RUN_ID }}.json
+            output/routine_preview/etf_eu_production_converged_report_validation_${{ env.RUN_ID }}.json
+            output/routine_preview/etf_eu_converged_routine_manifest_validation_${{ env.RUN_ID }}.json
+            output/routine_preview/pdf_pages_${{ env.RUN_ID }}/
+          if-no-files-found: error
+          retention-days: 90

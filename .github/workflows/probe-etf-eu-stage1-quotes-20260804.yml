@@ -1,0 +1,71 @@
+name: Probe ETF EU Stage-1 quotes 2026-08-04
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/probe-etf-eu-stage1-quotes-20260804.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  probe-quotes:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: python -m pip install requests==2.32.3
+      - name: Probe exact ISIN quote-box and Yahoo quote metadata
+        run: |
+          mkdir -p output/quotes
+          python - <<'PY'
+          import hashlib, json
+          from datetime import datetime, timezone
+          from pathlib import Path
+          from urllib.parse import urlencode
+          import requests
+
+          salt='w4icATTGtnjAQMbkL3kJwxLfEAKDa3VU'
+          lines=[
+            {'ticker':'VVSM','isin':'IE00BMC38736','mic':'XETR','yahoo':'VVSM.DE'},
+            {'ticker':'L0CK','isin':'IE00BG0J4C88','mic':'XETR','yahoo':'L0CK.DE'},
+          ]
+          rows=[]
+          for line in lines:
+            params=urlencode({'isin':line['isin'],'mic':line['mic']})
+            url=f'https://api.boerse-frankfurt.de/v1/data/quote_box/single?{params}'
+            now=datetime.now(timezone.utc)
+            client_date=now.isoformat(timespec='milliseconds').replace('+00:00','Z')
+            trace=hashlib.md5((client_date+url+salt).encode()).hexdigest()
+            security=hashlib.md5(datetime.now().astimezone().strftime('%Y%m%d%H%M').encode()).hexdigest()
+            headers={'Accept':'application/json, text/plain, */*','Client-Date':client_date,'X-Client-TraceId':trace,'X-Security':security,'Referer':'https://www.boerse-frankfurt.de/','User-Agent':'Mozilla/5.0 Weekly-ETF-EU-Quote-Probe/1.0'}
+            try:
+              r=requests.get(url,headers=headers,timeout=30)
+              p=r.json()
+              exchange={'http_status':r.status_code,'payload':p if isinstance(p,dict) else {'payload_type':type(p).__name__}}
+            except Exception as exc:
+              exchange={'error_class':type(exc).__name__}
+            qurl='https://query1.finance.yahoo.com/v7/finance/quote'
+            try:
+              qr=requests.get(qurl,params={'symbols':line['yahoo']},headers={'User-Agent':'Weekly-ETF-EU/1.0'},timeout=30)
+              qp=qr.json()
+              result=((qp.get('quoteResponse') or {}).get('result') or [{}])[0]
+              yahoo={k:result.get(k) for k in ('symbol','currency','exchange','marketState','regularMarketTime','regularMarketPrice','bid','ask','bidSize','askSize')}
+              yahoo['http_status']=qr.status_code
+            except Exception as exc:
+              yahoo={'error_class':type(exc).__name__}
+            rows.append({**line,'observed_at_utc':now.replace(microsecond=0).isoformat().replace('+00:00','Z'),'boerse_quote_box':exchange,'yahoo_quote':yahoo})
+          payload={'schema_version':'etf_eu_stage1_quote_probe_v2','report_date':'2026-08-04','rows':rows,'portfolio_mutation':False,'funding_authority':False,'execution_authority':False}
+          path=Path(f'output/quotes/etf_eu_stage1_quote_probe_{__import__("os").environ["GITHUB_RUN_ID"]}.json')
+          path.write_text(json.dumps(payload,indent=2,sort_keys=True)+'\n')
+          print(json.dumps(payload,indent=2,sort_keys=True))
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: etf-eu-stage1-quote-probe-${{ github.run_id }}
+          path: output/quotes/*.json
+          if-no-files-found: error
+          retention-days: 30
