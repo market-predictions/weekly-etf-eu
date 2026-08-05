@@ -1,69 +1,18 @@
-name: Diagnose Weekly ETF EU 2026-08-04 pricing
+name: Historical ETF EU 2026-08-04 pricing diagnostic (archived)
 
 on:
-  pull_request:
-    paths:
-      - ".github/workflows/diagnose-weekly-etf-eu-20260804-pricing.yml"
-      - "pricing/build_current_session_close_results.py"
-      - "pricing/build_current_session_close_results_v2.py"
-      - "pricing/yahoo_regular_market_fallback.py"
+  workflow_dispatch:
 
 permissions:
   contents: read
 
 jobs:
-  diagnose-pricing:
+  archived:
     runs-on: ubuntu-latest
-    timeout-minutes: 12
-    env:
-      PYTHONPATH: ${{ github.workspace }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
-      - run: python -m pip install requests==2.32.3 PyYAML==6.0.2
-      - name: Build pricing evidence without hiding rejected rows
-        id: pricing
-        continue-on-error: true
+      - name: Historical workflow notice
         run: |
-          mkdir -p output/pricing
-          python pricing/build_current_session_close_results_v2.py \
-            --basket config/ucits_close_price_validation_basket.yml \
-            --report-date 2026-08-04 \
-            --run-id "20260804_${GITHUB_RUN_ID}_${GITHUB_RUN_ATTEMPT}" \
-            --output output/pricing/aug4_results_${GITHUB_RUN_ID}_${GITHUB_RUN_ATTEMPT}.json \
-            --qualification-output output/pricing/aug4_qualification_${GITHUB_RUN_ID}_${GITHUB_RUN_ATTEMPT}.json
-      - name: Print funded and failed rows
-        if: always()
-        run: |
-          python - <<'PY'
-          import json
-          from pathlib import Path
-          qpaths=sorted(Path('output/pricing').glob('aug4_qualification_*.json'))
-          rpaths=sorted(Path('output/pricing').glob('aug4_results_*.json'))
-          if not qpaths:
-              print('QUALIFICATION_MISSING')
-              raise SystemExit(0)
-          q=json.loads(qpaths[0].read_text())
-          print(json.dumps({
-              'gate':q.get('report_pricing_gate_passed'),
-              'funded_consensus_count':q.get('funded_consensus_count'),
-              'funded_identity_anchor_count':q.get('funded_identity_anchor_count'),
-              'funded_lines':[row for row in q.get('lines',[]) if row.get('funded')],
-          },indent=2,sort_keys=True))
-          if rpaths:
-              r=json.loads(rpaths[0].read_text())
-              print(json.dumps({'failed_or_single_source':[row for row in r.get('rows',[]) if row.get('source_agreement_status')!='qualified_development_consensus']},indent=2,sort_keys=True))
-          PY
-      - name: Upload diagnostics
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: etf-eu-aug4-pricing-diagnostic-${{ github.run_id }}-${{ github.run_attempt }}
-          path: output/pricing/*.json
-          if-no-files-found: warn
-          retention-days: 30
-      - name: Preserve pricing failure
-        if: steps.pricing.outcome != 'success'
-        run: exit 1
+          echo "Archived one-off 2026-08-04 pricing diagnostic."
+          echo "It has no PR-gate, production, pricing, activation, or delivery authority."
+          echo "Use the governed fresh-package and canonical routine workflows."
+          echo "The original implementation remains available in Git history."
