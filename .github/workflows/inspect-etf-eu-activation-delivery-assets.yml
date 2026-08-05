@@ -1,27 +1,18 @@
-name: Inspect ETF EU activation and delivery assets
+name: Historical ETF EU activation asset inspection (archived)
 
 on:
-  pull_request:
-    paths:
-      - ".github/workflows/inspect-etf-eu-activation-delivery-assets.yml"
+  workflow_dispatch:
 
 permissions:
   contents: read
 
 jobs:
-  inspect:
+  archived:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
-      - name: Inventory activation and delivery files
+      - name: Historical workflow notice
         run: |
-          set -euo pipefail
-          echo '=== WORKFLOWS ==='
-          find .github/workflows -maxdepth 1 -type f -printf '%f\n' | sort
-          echo '=== ACTIVATION / MUTATION FILES ==='
-          find control config runtime tools pricing -type f | grep -Ei 'activat|allocat|portfolio|ledger|trade|mutat|capital' | sort || true
-          echo '=== DELIVERY / RECEIPT FILES ==='
-          find control config runtime tools delivery -type f 2>/dev/null | grep -Ei 'deliver|receipt|send|smtp|email|mail|transport|production.action' | sort || true
-          echo '=== AUTHORITY PHRASES ==='
-          grep -RInE 'AUTHORIZE|explicit model-capital|activation confirmation|guarded send|receipt_confirmed|production_action' control config runtime tools .github/workflows 2>/dev/null | head -n 500 || true
+          echo "Archived one-off activation and delivery-asset inspection."
+          echo "It has no current PR-gate, release, transport, or receipt authority."
+          echo "Use the canonical release-assurance and governed routine workflows."
+          echo "The original implementation remains available in Git history."
