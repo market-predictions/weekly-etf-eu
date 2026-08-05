@@ -1,4 +1,4 @@
-name: Run Weekly ETF EU 2026-08-04 final package
+name: Run Weekly ETF EU fresh production package
 
 on:
   pull_request:
@@ -17,6 +17,13 @@ on:
       - ".github/workflows/validate-etf-eu-production-contract.yml"
       - "output/etf_eu_portfolio_state.json"
       - "output/etf_eu_trade_ledger.csv"
+  push:
+    branches:
+      - routine/20260804-fresh-send
+    paths:
+      - ".github/workflows/run-weekly-etf-eu-20260804-fresh-send.yml"
+      - "tools/validate_etf_eu_production_converged_report.py"
+      - "tests/test_etf_eu_production_converged_report_contract.py"
 
 permissions:
   contents: write
@@ -26,18 +33,17 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 40
     env:
-      REPORT_DATE: "2026-08-04"
-      REPORT_SUFFIX: "260804_03"
+      REPORT_DATE: "2026-08-05"
+      REPORT_SUFFIX: "260805"
       DONOR_COMMIT: "272ce2a997ae21c30290807199f243f491df3c46"
-      RUN_ID: "20260804_${{ github.run_id }}_${{ github.run_attempt }}"
+      RUN_ID: "20260805_${{ github.run_id }}_${{ github.run_attempt }}"
       SOURCE_SHA: "${{ github.event.pull_request.head.sha || github.sha }}"
       PYTHONPATH: "${{ github.workspace }}"
 
     steps:
-      - name: Checkout Weekly ETF EU branch
+      - name: Checkout candidate or production branch
         uses: actions/checkout@v4
         with:
-          ref: routine/20260804-fresh-send
           fetch-depth: 0
 
       - name: Checkout Weekly ETF donor
@@ -75,8 +81,9 @@ jobs:
           from pathlib import Path
 
           run_id = os.environ['RUN_ID']
+          report_date = os.environ['REPORT_DATE']
           state_path = Path(f'output/routine_preview/etf_eu_production_convergence_state_{run_id}.json')
-          routine_path = Path(f'output/run_manifests/etf_eu_routine_run_manifest_2026-08-04_{run_id}.json')
+          routine_path = Path(f'output/run_manifests/etf_eu_routine_run_manifest_{report_date}_{run_id}.json')
           pricing_path = Path(f'output/pricing/ucits_price_provider_qualification_{run_id}.json')
           state = json.loads(state_path.read_text())
           routine = json.loads(routine_path.read_text())
@@ -104,6 +111,7 @@ jobs:
           print(json.dumps({
               'status':'validated',
               'run_id':run_id,
+              'report_date':report_date,
               'report_suffix':routine.get('report_suffix'),
               'funded_tickers':sorted(tickers),
               'funded_consensus_count':pricing.get('funded_consensus_count'),
@@ -116,7 +124,8 @@ jobs:
           },indent=2,sort_keys=True))
           PY
 
-      - name: Persist exact final package and evidence
+      - name: Persist exact final package and evidence after merge
+        if: github.event_name == 'push'
         run: |
           set -euo pipefail
           git config user.name "github-actions[bot]"
@@ -136,10 +145,6 @@ jobs:
             output/routine_preview/etf_eu_converged_routine_manifest_validation_${RUN_ID}.json \
             output/routine_preview/etf_eu_aug3_expanded_report_run_summary_${RUN_ID}.json
           git commit -m "Persist fresh Weekly ETF EU ${REPORT_SUFFIX} package [skip ci]"
-          git reset --hard HEAD
-          git clean -fdx
-          git fetch origin routine/20260804-fresh-send
-          git rebase origin/routine/20260804-fresh-send
           git push origin HEAD:routine/20260804-fresh-send
 
       - name: Upload final package evidence
@@ -147,8 +152,8 @@ jobs:
         with:
           name: etf-eu-final-package-${{ env.RUN_ID }}
           path: |
-            output/fresh_generation/weekly_etf_eu_review*260804_03*
-            output/run_manifests/etf_eu_routine_run_manifest_2026-08-04_${{ env.RUN_ID }}.json
+            output/fresh_generation/weekly_etf_eu_review*${{ env.REPORT_SUFFIX }}*
+            output/run_manifests/etf_eu_routine_run_manifest_${{ env.REPORT_DATE }}_${{ env.RUN_ID }}.json
             output/pricing/ucits_close_price_validation_basket_results_${{ env.RUN_ID }}.json
             output/pricing/ucits_price_provider_qualification_${{ env.RUN_ID }}.json
             output/macro/etf_eu_current_macro_source_${{ env.RUN_ID }}.json
