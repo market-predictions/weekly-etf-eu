@@ -3,16 +3,21 @@ from __future__ import annotations
 import argparse
 import copy
 import json
+import re
 import tempfile
 from pathlib import Path
 from typing import Any
 
-from bs4 import BeautifulSoup, Tag
+from bs4 import BeautifulSoup, NavigableString, Tag
 from weasyprint import HTML
 
 from runtime import promote_etf_eu_sister_report_to_production_candidate as legacy
 
 EXPECTED_FUNDED = {"VWCE", "EUNA", "SXR8", "L0CK"}
+STAGE1_ROWS = {
+    "L0CK": "IE00BG0J4C88",
+    "VVSM": "IE00BMC38736",
+}
 
 
 def load_object(path: Path) -> dict[str, Any]:
@@ -47,9 +52,9 @@ def validate_activated_state(state: dict[str, Any]) -> None:
     stage = state.get("stage_1_decision") if isinstance(state.get("stage_1_decision"), dict) else {}
     if stage.get("value") != "partially_activated":
         raise RuntimeError("Activated promoter requires partially_activated Stage-1 state")
-    if set(stage.get("activated_tickers") or []) != {"L0CK"}:
+    if {normalize_ticker(value) for value in stage.get("activated_tickers") or []} != {"L0CK"}:
         raise RuntimeError("Activated promoter requires L0CK activation scope")
-    if set(stage.get("remaining_monitored_tickers") or []) != {"VVSM"}:
+    if {normalize_ticker(value) for value in stage.get("remaining_monitored_tickers") or []} != {"VVSM"}:
         raise RuntimeError("Activated promoter requires VVSM monitoring scope")
     if stage.get("executable_trade_intents") != []:
         raise RuntimeError("Activated promoter requires empty executable trade intents")
@@ -64,6 +69,117 @@ def replace_section(target: BeautifulSoup, source: BeautifulSoup, section_id: st
     if not isinstance(replacement, Tag):
         raise RuntimeError(f"Activated promoter section clone failed: {section_id}")
     target_section.replace_with(replacement)
+
+
+def replace_row_text(row: Tag, replacements: tuple[tuple[str, str], ...]) -> None:
+    for node in list(row.find_all(string=True)):
+        if not isinstance(node, NavigableString):
+            continue
+        original = str(node)
+        updated = original
+        for pattern, replacement in replacements:
+            updated = re.sub(pattern, replacement, updated, flags=re.IGNORECASE)
+        if updated != original:
+            node.replace_with(updated)
+
+
+def append_row_note(soup: BeautifulSoup, row: Tag, text: str, css_class: str) -> None:
+    cells = row.find_all("td", recursive=False)
+    target = cells[-1] if cells else row
+    note = soup.new_tag("span", attrs={"class": css_class})
+    note.string = text
+    target.append(" ")
+    target.append(note)
+
+
+def synchronize_stage1_action_rows(
+    soup: BeautifulSoup,
+    state: dict[str, Any],
+    language: str,
+) -> None:
+    section = soup.find("section", id="section-13")
+    if not isinstance(section, Tag):
+        raise RuntimeError("Activated promoter Section 13 missing")
+    stage = state.get("stage_1_decision") if isinstance(state.get("stage_1_decision"), dict) else {}
+    activated = {normalize_ticker(value) for value in stage.get("activated_tickers") or []}
+    monitored = {normalize_ticker(value) for value in stage.get("remaining_monitored_tickers") or []}
+
+    for ticker, isin in STAGE1_ROWS.items():
+        row = next(
+            (candidate for candidate in section.select("tbody tr") if isin in candidate.get_text(" ", strip=True)),
+            None,
+        )
+        if not isinstance(row, Tag):
+            raise RuntimeError(f"Activated promoter final-action row missing: {ticker}")
+
+        if ticker in activated:
+            replacements = (
+                (
+                    (r"\bgeblokkeerd\b", "actief"),
+                    (r"\bblocked\b", "actief"),
+                    (r"cash aanhouden", "modelpositie actief"),
+                    (r"retain cash", "modelpositie actief"),
+                    (r"geen activering", "modelpositie actief"),
+                    (r"not activated", "modelpositie actief"),
+                )
+                if language == "nl"
+                else (
+                    (r"\bblocked\b", "active"),
+                    (r"\bgeblokkeerd\b", "active"),
+                    (r"retain cash", "model position active"),
+                    (r"cash aanhouden", "model position active"),
+                    (r"not activated", "model position active"),
+                    (r"geen activering", "model position active"),
+                )
+            )
+            replace_row_text(row, replacements)
+            row_text = row.get_text(" ", strip=True).casefold()
+            required = ("actief", "model") if language == "nl" else ("active", "model")
+            if not all(token in row_text for token in required):
+                append_row_note(
+                    soup,
+                    row,
+                    "Modelpositie actief" if language == "nl" else "Model position active",
+                    "activated-final-action-note",
+                )
+            row_text = row.get_text(" ", strip=True).casefold()
+            if "blocked" in row_text or "geblokkeerd" in row_text:
+                raise RuntimeError(f"Activated final-action row still blocked: {ticker}")
+
+        elif ticker in monitored:
+            replacements = (
+                (
+                    (r"\bactief\b", "geblokkeerd"),
+                    (r"\bactive\b", "geblokkeerd"),
+                    (r"modelpositie actief", "geblokkeerd · cash aanhouden · doel 0,00%"),
+                    (r"model position active", "geblokkeerd · cash aanhouden · doel 0,00%"),
+                )
+                if language == "nl"
+                else (
+                    (r"\bactive\b", "blocked"),
+                    (r"\bactief\b", "blocked"),
+                    (r"model position active", "blocked · retain cash · target 0.00%"),
+                    (r"modelpositie actief", "blocked · retain cash · target 0.00%"),
+                )
+            )
+            replace_row_text(row, replacements)
+            row_text = row.get_text(" ", strip=True).casefold()
+            required = ("geblokkeerd", "cash") if language == "nl" else ("blocked", "cash")
+            zero_target = bool(re.search(r"\b0[,.]00%", row.get_text(" ", strip=True)))
+            if not all(token in row_text for token in required) or not zero_target:
+                append_row_note(
+                    soup,
+                    row,
+                    (
+                        "Geblokkeerd · cash aanhouden · doel 0,00%"
+                        if language == "nl"
+                        else "Blocked · retain cash · target 0.00%"
+                    ),
+                    "monitored-final-action-note",
+                )
+            row_text = row.get_text(" ", strip=True).casefold()
+            if not all(token in row_text for token in required):
+                raise RuntimeError(f"Monitored final-action row lacks blocked/cash status: {ticker}")
 
 
 def patch_client_copy(soup: BeautifulSoup, language: str) -> None:
@@ -105,6 +221,18 @@ def patch_client_copy(soup: BeautifulSoup, language: str) -> None:
         updated = text
         for old, new in replacements.items():
             updated = updated.replace(old, new)
+        updated = re.sub(
+            r"\bschaduwpoort\b",
+            "modelbeoordelingspoort",
+            updated,
+            flags=re.IGNORECASE,
+        )
+        updated = re.sub(
+            r"\bshadow[ -]gate\b",
+            "model review gate",
+            updated,
+            flags=re.IGNORECASE,
+        )
         if updated != text:
             node.replace_with(updated)
 
@@ -141,20 +269,17 @@ def promote(source_manifest: Path, state_path: Path, output_dir: Path) -> Path:
             raise RuntimeError(f"Activated promoter language files missing: {language}")
         source_soup = BeautifulSoup(source_html.read_text(encoding="utf-8"), "html.parser")
         output_soup = BeautifulSoup(output_html.read_text(encoding="utf-8"), "html.parser")
-        # Section 13 carries the state-derived final-action table. It must be
-        # promoted together with the activated summary and decision surface;
-        # otherwise the legacy compatibility copy reintroduces a blocked L0CK row.
         replace_section(output_soup, source_soup, "section-2")
         replace_section(output_soup, source_soup, "section-13")
         replace_section(output_soup, source_soup, "section-14")
+        synchronize_stage1_action_rows(output_soup, state, language)
         patch_client_copy(output_soup, language)
         rendered = str(output_soup)
         output_html.write_text(rendered, encoding="utf-8")
         HTML(string=rendered, base_url=str(output_html.parent.resolve())).write_pdf(str(output_pdf))
-        output_record["activated_production_promotion"] = "l0ck_funded_vvsm_monitored_v2"
+        output_record["activated_production_promotion"] = "l0ck_funded_vvsm_monitored_v3"
 
     portfolio = state["official_portfolio"]
-    stage = state["stage_1_decision"]
     manifest.update(
         {
             "production_convergence_state": str(state_path),
