@@ -141,13 +141,17 @@ def promote(source_manifest: Path, state_path: Path, output_dir: Path) -> Path:
             raise RuntimeError(f"Activated promoter language files missing: {language}")
         source_soup = BeautifulSoup(source_html.read_text(encoding="utf-8"), "html.parser")
         output_soup = BeautifulSoup(output_html.read_text(encoding="utf-8"), "html.parser")
+        # Section 13 carries the state-derived final-action table. It must be
+        # promoted together with the activated summary and decision surface;
+        # otherwise the legacy compatibility copy reintroduces a blocked L0CK row.
         replace_section(output_soup, source_soup, "section-2")
+        replace_section(output_soup, source_soup, "section-13")
         replace_section(output_soup, source_soup, "section-14")
         patch_client_copy(output_soup, language)
         rendered = str(output_soup)
         output_html.write_text(rendered, encoding="utf-8")
         HTML(string=rendered, base_url=str(output_html.parent.resolve())).write_pdf(str(output_pdf))
-        output_record["activated_production_promotion"] = "l0ck_funded_vvsm_monitored_v1"
+        output_record["activated_production_promotion"] = "l0ck_funded_vvsm_monitored_v2"
 
     portfolio = state["official_portfolio"]
     stage = state["stage_1_decision"]
