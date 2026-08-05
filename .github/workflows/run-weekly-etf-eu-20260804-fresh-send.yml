@@ -68,15 +68,41 @@ jobs:
           python -m pytest -q tests/test_etf_eu_production_converged_report_modes.py
 
       - name: Build and validate fresh four-position package
+        id: build_package
+        shell: bash
         run: |
-          set -euo pipefail
+          mkdir -p output/diagnostics
+          set +e
+          set -o pipefail
           python tools/run_etf_eu_aug3_expanded_report_v6.py \
             --donor-dir donor-weekly-etf \
             --report-date "$REPORT_DATE" \
             --report-suffix "$REPORT_SUFFIX" \
             --run-id "$RUN_ID" \
             --source-sha "$SOURCE_SHA" \
-            --donor-commit "$DONOR_COMMIT"
+            --donor-commit "$DONOR_COMMIT" \
+            2>&1 | tee "output/diagnostics/fresh_package_build_${RUN_ID}.log"
+          status=${PIPESTATUS[0]}
+          {
+            echo "build_status=$status"
+            echo "run_id=$RUN_ID"
+            echo "report_date=$REPORT_DATE"
+            echo "report_suffix=$REPORT_SUFFIX"
+            echo "source_sha=$SOURCE_SHA"
+            echo "target_branch=$TARGET_BRANCH"
+            echo "generated_files:"
+            find output -maxdepth 4 -type f -printf '%p\n' | sort
+          } > "output/diagnostics/fresh_package_inventory_${RUN_ID}.txt"
+          exit "$status"
+
+      - name: Upload fresh-package diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: etf-eu-fresh-package-diagnostics-${{ env.RUN_ID }}
+          path: output/diagnostics/
+          if-no-files-found: warn
+          retention-days: 30
 
       - name: Validate current portfolio and report identity
         run: |
