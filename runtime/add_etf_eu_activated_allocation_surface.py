@@ -192,12 +192,87 @@ def activated_status_box(soup: BeautifulSoup, state: dict[str, Any], language: s
         section.append(box)
 
 
+def synchronize_activated_final_action_row(
+    soup: BeautifulSoup,
+    state: dict[str, Any],
+    language: str,
+) -> None:
+    """Make the visible Section 13 row agree with authoritative activation state."""
+
+    stage = state.get("stage_1_decision") if isinstance(state.get("stage_1_decision"), dict) else {}
+    activated = {
+        normalize_ticker(value)
+        for value in stage.get("activated_tickers") or []
+        if normalize_ticker(value)
+    }
+    if "L0CK" not in activated:
+        return
+
+    section = soup.find("section", id="section-13")
+    if not isinstance(section, Tag):
+        raise RuntimeError("Section 13 missing")
+    row = next(
+        (
+            candidate
+            for candidate in section.select("tbody tr")
+            if "IE00BG0J4C88" in candidate.get_text(" ", strip=True)
+        ),
+        None,
+    )
+    if not isinstance(row, Tag):
+        raise RuntimeError("Activated L0CK final-action row missing")
+
+    replacements = (
+        (
+            (r"\bgeblokkeerd\b", "actief"),
+            (r"\bblocked\b", "actief"),
+            (r"cash aanhouden", "modelpositie actief"),
+            (r"retain cash", "modelpositie actief"),
+            (r"geen activering", "modelpositie actief"),
+            (r"not activated", "modelpositie actief"),
+        )
+        if language == "nl"
+        else (
+            (r"\bblocked\b", "active"),
+            (r"\bgeblokkeerd\b", "active"),
+            (r"retain cash", "model position active"),
+            (r"cash aanhouden", "model position active"),
+            (r"not activated", "model position active"),
+            (r"geen activering", "model position active"),
+        )
+    )
+    for node in list(row.find_all(string=True)):
+        if not isinstance(node, NavigableString):
+            continue
+        original = str(node)
+        updated = original
+        for pattern, replacement in replacements:
+            updated = re.sub(pattern, replacement, updated, flags=re.IGNORECASE)
+        if updated != original:
+            node.replace_with(updated)
+
+    row_text = row.get_text(" ", strip=True).casefold()
+    required = ("actief", "model") if language == "nl" else ("active", "model")
+    if not all(token in row_text for token in required):
+        cells = row.find_all("td", recursive=False)
+        target = cells[-1] if cells else row
+        note = soup.new_tag("span", attrs={"class": "activated-final-action-note"})
+        note.string = "Modelpositie actief" if language == "nl" else "Model position active"
+        target.append(" ")
+        target.append(note)
+
+    final_text = row.get_text(" ", strip=True).casefold()
+    if "blocked" in final_text or "geblokkeerd" in final_text:
+        raise RuntimeError("Activated L0CK final-action row still contains blocked status")
+
+
 def add_style(soup: BeautifulSoup) -> None:
     style = soup.new_tag("style")
     style.string = """
 .activated-allocation-status{margin:.3rem 0 0;padding:.42rem .55rem;border:1px solid #84a796;border-radius:7px;background:#f1f7f3;font-size:7.45pt;line-height:1.18;break-inside:avoid}
 .activated-allocation-line{margin:.14rem 0;font-variant-numeric:tabular-nums}
 .activated-allocation-footer{margin-top:.2rem;font-weight:600}
+.activated-final-action-note{font-weight:700}
 .promoted-mapping-table{font-size:6.55pt!important;line-height:1.08!important;table-layout:fixed!important}
 .promoted-mapping-table th,.promoted-mapping-table td{padding:.12rem .16rem!important;vertical-align:top!important;overflow-wrap:anywhere}
 .promoted-mapping-table th:last-child,.promoted-mapping-table td:last-child{width:15.5%!important;white-space:normal!important}
@@ -246,10 +321,11 @@ def main() -> None:
         replace_visible_text(soup, language)
         compact_opportunity_table(soup, language)
         activated_status_box(soup, state, language)
+        synchronize_activated_final_action_row(soup, state, language)
         add_style(soup)
         html_path.write_text(str(soup), encoding="utf-8")
         HTML(filename=str(html_path), base_url=str(html_path.parent.resolve())).write_pdf(str(pdf_path))
-        record["activated_allocation_surface"] = "l0ck_funded_vvsm_monitored_v1"
+        record["activated_allocation_surface"] = "l0ck_funded_vvsm_monitored_v2"
     manifest["activated_allocation_surface"] = {
         "applied": True,
         "funded_stage1_tickers": ["L0CK"],
@@ -258,9 +334,10 @@ def main() -> None:
         "portfolio_mutation_this_report_run": False,
         "real_broker_execution": False,
         "production_delivery_authority": False,
+        "final_action_table_synchronized": True,
     }
     args.manifest.write_text(json.dumps(manifest, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
-    print("ETF_EU_ACTIVATED_ALLOCATION_SURFACE_OK | funded=L0CK | monitored=VVSM | positions=4")
+    print("ETF_EU_ACTIVATED_ALLOCATION_SURFACE_OK | funded=L0CK | monitored=VVSM | positions=4 | action_row=synchronized")
 
 
 if __name__ == "__main__":
