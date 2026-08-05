@@ -59,9 +59,21 @@ The canonical routine workflow must run the governance gate immediately before g
 
 - `.github/workflows/run-weekly-etf-eu-routine.yml`
 
-## Cross-project governance interim host
+## Cross-project governance authority
 
-Until `market-predictions/control-plane` is created, this repository temporarily hosts the shared governance standard and rollout register:
+The canonical shared governance standard, adoption register, templates, and drift audit now live in the private repository:
+
+```text
+market-predictions/control-plane
+```
+
+Canonical standard:
+
+```text
+https://github.com/market-predictions/control-plane/blob/main/control/CROSS_PROJECT_TWO_ROLE_GOVERNANCE_STANDARD_V1.md
+```
+
+The following local files remain as migration provenance and compatibility history, not current shared authority:
 
 - `control/CROSS_PROJECT_TWO_ROLE_GOVERNANCE_STANDARD_V1.md`
 - `control/CROSS_PROJECT_GOVERNANCE_ADOPTION_REGISTER.md`
@@ -70,7 +82,7 @@ Until `market-predictions/control-plane` is created, this repository temporarily
 - `control/CROSS_PROJECT_GOVERNANCE_ROLLOUT_WORK_PACKAGE_20260805.md`
 - `control/decisions/CROSS_PROJECT_GOVERNANCE_STANDARD_ADOPTION_DECISION_20260805.md`
 
-The shared standard defines cross-project role separation only. ETF EU instrument, state, report, recipient, delivery, and portfolio authority remains local to this repository.
+ETF EU instrument, state, report, recipient, delivery, and portfolio authority remains local to this repository.
 
 ## Canonical EU control files
 
