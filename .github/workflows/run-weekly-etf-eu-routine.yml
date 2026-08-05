@@ -268,6 +268,14 @@ jobs:
           python tools/validate_etf_eu_release_assurance.py --evidence "$ASSURANCE"
           echo "ETF_EU_RELEASE_ASSURANCE=$ASSURANCE" >> "$GITHUB_ENV"
 
+      - name: Upload pre-send governance evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: etf-eu-release-assurance-${{ env.ETF_EU_RUN_ID }}
+          path: ${{ env.ETF_EU_RELEASE_ASSURANCE }}
+          if-no-files-found: error
+          retention-days: 90
+
       - name: Execute guarded current-run delivery
         env:
           MRKT_RPRTS_SMTP_HOST: ${{ secrets.MRKT_RPRTS_SMTP_HOST }}
