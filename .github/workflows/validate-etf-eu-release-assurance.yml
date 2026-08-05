@@ -1,0 +1,63 @@
+name: Validate ETF EU release assurance
+
+on:
+  pull_request:
+    paths:
+      - "control/ETF_EU_TWO_ROLE_GOVERNANCE_MODEL_V1.md"
+      - "control/ETF_EU_GOVERNANCE_RELEASE_ASSURANCE_WORK_PACKAGE_20260805.md"
+      - "tools/build_etf_eu_release_assurance.py"
+      - "tools/validate_etf_eu_release_assurance.py"
+      - "fixtures/governance/**"
+      - ".github/workflows/validate-etf-eu-release-assurance.yml"
+      - ".github/workflows/run-weekly-etf-eu-routine.yml"
+  workflow_dispatch:
+    inputs:
+      evidence_path:
+        description: "Existing release-assurance evidence JSON to validate"
+        required: false
+        default: ""
+
+permissions:
+  contents: read
+
+jobs:
+  governance-contract:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Compile governance tools
+        run: |
+          set -euo pipefail
+          python -m py_compile \
+            tools/build_etf_eu_release_assurance.py \
+            tools/validate_etf_eu_release_assurance.py
+
+      - name: Validate positive contract fixture
+        run: |
+          set -euo pipefail
+          python tools/validate_etf_eu_release_assurance.py \
+            --evidence fixtures/governance/etf_eu_release_assurance_pass.json
+
+      - name: Require negative fixture rejection
+        run: |
+          set -euo pipefail
+          if python tools/validate_etf_eu_release_assurance.py \
+            --evidence fixtures/governance/etf_eu_release_assurance_fail.json; then
+            echo "ETF_EU_NEGATIVE_GOVERNANCE_FIXTURE_UNEXPECTEDLY_PASSED" >&2
+            exit 1
+          fi
+          echo "ETF_EU_NEGATIVE_GOVERNANCE_FIXTURE_REJECTED"
+
+      - name: Validate supplied release evidence
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.evidence_path != '' }}
+        run: |
+          set -euo pipefail
+          python tools/validate_etf_eu_release_assurance.py \
+            --evidence "${{ inputs.evidence_path }}"

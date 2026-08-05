@@ -1,130 +1,167 @@
 # Weekly ETF EU Review OS — System Index
 
-This file is the first entry point for serious work on the `weekly-etf-eu` system.
+This file is the first entry point for serious work on `market-predictions/weekly-etf-eu`.
 
-## Purpose
-
-This repository is the European / Dutch-client UCITS ETF review environment derived from `market-predictions/weekly-etf`.
-
-It must not be treated as a translated copy of the U.S.-ETF model. The current product goal is:
+## Product purpose
 
 ```text
 Dutch/EU-client ETF review using UCITS ETFs as investable instruments.
 ```
 
-The original `market-predictions/weekly-etf` repository remains the U.S.-ETF model baseline and upstream donor for mature implementation layers.
+The upstream `market-predictions/weekly-etf` repository is a donor for mature implementation patterns. It is not authority for EU holdings, recipients, trading lines or delivery decisions.
 
-## Four-layer operating model
+## Mandatory session start
 
-Always distinguish:
-
-1. **Decision framework** — which UCITS ETFs available to Dutch/EU investors deserve capital.
-2. **Input/state contract** — where authoritative UCITS instrument, pricing, portfolio and investability facts come from.
-3. **Output contract** — how Dutch-first EU client reports distinguish investable UCITS ETFs from U.S. research proxies.
-4. **Operational runbook** — how GitHub Actions and scripts execute pricing, validation, rendering, state refresh and delivery without accidentally using U.S. ETF holdings as EU portfolio truth.
-
-## Session start rule
-
-For ETF EU architecture, debugging, prompt, workflow, state, pricing, discovery, localization or delivery work, read in this order:
+Read in this order:
 
 1. `control/SYSTEM_INDEX.md`
 2. `control/CURRENT_STATE.md`
 3. `control/NEXT_ACTIONS.md`
-4. only then the minimum relevant execution files
+4. `control/PROJECT_GOVERNANCE_BOOTSTRAP.md`
+5. `control/ETF_EU_TWO_ROLE_GOVERNANCE_MODEL_V1.md`
+6. the minimum relevant execution files
 
-## Upstream-first reuse rule
+## Five-layer operating model
 
-For every new ETF EU task, work package, workflow change, runtime script, validator, renderer, delivery step, or control file, inspect `market-predictions/weekly-etf` before designing or implementing the EU change.
+Always distinguish:
 
-Required discipline:
+1. **Decision framework** — which UCITS instruments deserve capital.
+2. **Input/state contract** — authoritative instruments, prices, holdings, cash and ledger facts.
+3. **Output contract** — Dutch-primary and English-companion report behavior.
+4. **Operational runbook** — generation, validation, persistence, transport and closeout.
+5. **Governance and release assurance** — independent proof that the complete requested outcome was achieved.
 
-1. Identify the closest mature upstream concept, script, workflow step, validator, manifest, or runbook in `market-predictions/weekly-etf`.
-2. Decide explicitly whether to port as-is, adapt, wrap, or intentionally diverge.
-3. Record the reason for adaptation or divergence in the work package, decision artifact, commit summary, or final response.
-4. Borrow implementation concepts, contracts, evidence patterns, and operational safeguards before creating new EU-specific machinery.
-5. Never port U.S. portfolio state, U.S. holdings, U.S. instrument authority, U.S. recipient authority, or U.S. delivery assumptions as EU authority.
+## Two-role governance model
 
-Do not reinvent an EU component from scratch until the upstream `weekly-etf` equivalent has been checked.
+The project has one user-facing coordinator and two internally separated roles:
+
+```text
+implementation_operations
+governance_release_assurance
+```
+
+Role A builds or repairs a release candidate. Role B independently reconstructs and certifies or rejects it. Role A may not self-certify. Role B may not mutate the candidate it certifies.
+
+Project authority files:
+
+- `control/PROJECT_GOVERNANCE_BOOTSTRAP.md`
+- `control/ETF_EU_TWO_ROLE_GOVERNANCE_MODEL_V1.md`
+- `control/ETF_EU_GOVERNANCE_RELEASE_ASSURANCE_WORK_PACKAGE_20260805.md`
+- `control/ETF_EU_GOVERNANCE_CHANGELOG.md`
+
+Machine controls:
+
+- `tools/build_etf_eu_release_assurance.py`
+- `tools/validate_etf_eu_release_assurance.py`
+- `.github/workflows/validate-etf-eu-release-assurance.yml`
+
+The canonical routine workflow must run the governance gate immediately before guarded transport:
+
+- `.github/workflows/run-weekly-etf-eu-routine.yml`
+
+## Cross-project governance authority
+
+The canonical shared governance standard, adoption register, templates, and drift audit now live in the private repository:
+
+```text
+market-predictions/control-plane
+```
+
+Canonical standard:
+
+```text
+https://github.com/market-predictions/control-plane/blob/main/control/CROSS_PROJECT_TWO_ROLE_GOVERNANCE_STANDARD_V1.md
+```
+
+The following local files remain as migration provenance and compatibility history, not current shared authority:
+
+- `control/CROSS_PROJECT_TWO_ROLE_GOVERNANCE_STANDARD_V1.md`
+- `control/CROSS_PROJECT_GOVERNANCE_ADOPTION_REGISTER.md`
+- `control/PROJECT_GOVERNANCE_BOOTSTRAP_TEMPLATE.md`
+- `control/PROJECT_PROMPT_GOVERNANCE_CLAUSE.md`
+- `control/CROSS_PROJECT_GOVERNANCE_ROLLOUT_WORK_PACKAGE_20260805.md`
+- `control/decisions/CROSS_PROJECT_GOVERNANCE_STANDARD_ADOPTION_DECISION_20260805.md`
+
+ETF EU instrument, state, report, recipient, delivery, and portfolio authority remains local to this repository.
 
 ## Canonical EU control files
 
-- `control/ETF_EU_PORTING_STRATEGY_DECISION_20260618.md` — stable decision to keep `weekly-etf-eu` as EU source-of-truth and use `weekly-etf` only as an upstream donor for mature report/runtime/bilingual/macro/delivery safeguards.
-- `control/UCITS_ETF_REVIEW_CONTRACT_V1.md` — authority contract for the EU/UCITS ETF review product.
-- `control/UCITS_INVESTABILITY_RULES.md` — Dutch/EU investability rules for UCITS, PRIIPs/KID, trading line, liquidity and disclosure.
-- `control/UCITS_SYMBOL_REGISTRY_CONTRACT.md` — ISIN-first instrument identity and proxy/candidate separation.
-- `control/UCITS_MIGRATION_PLAN.md` — staged migration and donor-port roadmap from the cloned U.S.-ETF codebase to the EU/UCITS model.
-- `control/ETF_EU_PRODUCTION_DELIVERY_CLOSEOUT_CONTRACT_V1.md` — evidence requirements for closing a production delivery cycle.
-- `control/ETF_EU_ROUTINE_WEEKLY_PRODUCTION_RUNBOOK_V1.md` — the authoritative operational runbook for fresh generation, validation, guarded delivery, delayed receipt verification and production closeout of routine Weekly ETF EU reports.
+- `control/ETF_EU_PORTING_STRATEGY_DECISION_20260618.md`
+- `control/UCITS_ETF_REVIEW_CONTRACT_V1.md`
+- `control/UCITS_INVESTABILITY_RULES.md`
+- `control/UCITS_SYMBOL_REGISTRY_CONTRACT.md`
+- `control/UCITS_MIGRATION_PLAN.md`
+- `control/ETF_EU_PRODUCTION_DELIVERY_CLOSEOUT_CONTRACT_V1.md`
+- `control/ETF_EU_ROUTINE_WEEKLY_PRODUCTION_RUNBOOK_V1.md`
+- `control/ETF_EU_TWO_ROLE_GOVERNANCE_MODEL_V1.md`
 
-## Canonical EU config files
+## Canonical EU configuration
 
-- `config/ucits_symbol_registry.yml` — ISIN-first registry for UCITS ETFs and exchange lines.
-- `config/ucits_benchmark_proxy_map.yml` — U.S. proxy / benchmark to UCITS candidate mapping.
-- `config/nl_client_investability_rules.yml` — client-facing Dutch/EU investability assumptions.
-- `config/etf_eu_discovery_universe.yml` — EU/UCITS investable discovery universe.
+- `config/ucits_symbol_registry.yml`
+- `config/ucits_benchmark_proxy_map.yml`
+- `config/nl_client_investability_rules.yml`
+- `config/etf_eu_discovery_universe.yml`
 
-## Canonical EU state files
-
-Preferred EU-specific state files:
+## Canonical EU state
 
 - `output/etf_eu_portfolio_state.json`
 - `output/etf_eu_valuation_history.csv`
 - `output/etf_eu_trade_ledger.csv`
 - `output/etf_eu_recommendation_scorecard.csv`
 
-Compatibility files from the U.S. clone may remain temporarily, but they are not EU authority unless explicitly rewritten to the EU cash-only seed state.
+Compatibility files from inherited repositories are not authority unless a current EU contract explicitly imports them.
 
-## Non-negotiable discipline
+## Upstream-first reuse rule
 
-- Do not destructively mutate the U.S. `weekly-etf` repo for the EU model.
-- Do not present U.S.-listed ETFs as investable holdings for Dutch/EU retail clients.
-- U.S. ETFs may appear only as research proxies, benchmark comparators or thematic references.
-- Use ISIN-first identity for UCITS ETFs; ticker alone is not enough.
-- Do not fund a UCITS ETF before UCITS status, PRIIPs/KID availability, trading line and pricing are validated.
-- Do not reuse the U.S. portfolio state as EU portfolio truth.
-- Do not claim EU report production delivery until EU-specific validators pass and a delivery receipt or manifest exists.
-- Keep decision framework, input/state contract, output contract and runbook separate.
-- Port mature behavior from `weekly-etf`; do not port U.S. assumptions as EU authority.
-- Check the upstream `market-predictions/weekly-etf` implementation before creating or materially changing EU tasks, scripts, validators, workflows, renderers, delivery files, or control files.
+Before creating or materially changing an EU workflow, runtime script, validator, renderer or control contract:
 
-## GitHub run verification discipline
+1. inspect the closest mature upstream implementation;
+2. choose port, adapt, wrap or intentional divergence;
+3. record the decision;
+4. never import U.S. state or recipient authority as EU authority.
 
-When ChatGPT triggers a GitHub Actions run or any run-queue workflow, ChatGPT owns the verification loop by default.
+## Non-negotiable controls
 
-Operational rule:
+- Use ISIN-first identity; ticker alone is insufficient.
+- Do not present U.S.-listed ETFs as Dutch/EU investable holdings.
+- Do not fund an instrument before investability and pricing gates pass.
+- Do not mutate portfolio state or ledger without explicit authority.
+- Do not claim production delivery from generation, validation or SMTP success alone.
+- Bind source SHA, run identity and report hashes before guarded transport.
+- Require independent receipt evidence before `DELIVERY_CONFIRMED`.
+- Treat missing or contradictory evidence as a blocker.
+- Do not treat legacy workflow presence as proof of production authority.
+- Do not require the user to coordinate implementation and assurance roles separately.
 
-1. Trigger the run by committing the queue/control file.
-2. Build in a short pause before the first status check so GitHub has time to create the workflow run.
-3. Poll run status through available GitHub tools and artifact commits; do not conclude from an immediate empty result.
-4. Check GitHub Actions, commit status, workflow jobs, logs and generated artifact commits directly from GitHub where tool access allows.
-5. If the run fails, inspect the failing step/logs and patch the repo before asking the user for manual screenshots.
-6. If the run passes, verify the committed output artifacts, manifests or receipts before claiming success.
-7. Ask the user for an Actions screenshot only when GitHub tool access cannot expose the run, job logs, artifact, or permission state.
+## Run verification discipline
 
-Never rely on the user as the default run-status checker when GitHub tool access is available.
+When the coordinator triggers a GitHub Actions run, the coordinator owns the verification loop:
+
+1. resolve the run and commit SHA;
+2. inspect workflow and job status;
+3. inspect the exact failing step and logs;
+4. verify generated artifacts and manifests;
+5. run independent governance assurance;
+6. verify transport and receipt evidence;
+7. report the precise terminal state.
+
+The user is not the default workflow monitor.
 
 ## Current operating mode
 
 ```text
-ROUTINE_WEEKLY_ETF_EU_PRODUCTION
+ROUTINE_WEEKLY_ETF_EU_PRODUCTION_WITH_INDEPENDENT_RELEASE_ASSURANCE
 ```
 
-The production-enablement cycle is closed. New weekly reports follow:
+Current direction:
 
 ```text
-control/ETF_EU_ROUTINE_WEEKLY_PRODUCTION_RUNBOOK_V1.md
-```
-
-Current direction of travel:
-
-```text
-keep weekly-etf-eu as EU/UCITS source-of-truth
-→ use weekly-etf as upstream donor for mature implementation layers
-→ create a fresh run id, report date and suffix for every routine report
-→ use current pricing, EU state and ISIN-first instrument authority
-→ generate and validate Dutch-primary and English-companion outputs
-→ execute guarded current-package delivery
-→ perform delayed independent receipt verification
-→ create routine manifest and production closeout
-→ create architecture packages only for specific defects or material capability changes
+fresh pricing and immutable run identity
+→ authoritative portfolio/state contract
+→ Dutch and English report generation
+→ implementation validation
+→ independent governance reconstruction and hash binding
+→ guarded transport
+→ independent receipt verification
+→ production closeout
 ```

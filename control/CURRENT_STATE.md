@@ -113,3 +113,25 @@ model_activation_authority=false
 delivery_authority=false
 email_delivery=false
 ```
+
+## Governance update — 2026-08-05
+
+```text
+two_role_governance=ENFORCED
+implementation_role=implementation_operations
+assurance_role=governance_release_assurance
+user_interface=single_coordinated_project_stream
+enforcement_maturity=LEVEL_4_POST_ACTION_INDEPENDENT_CONFIRMATION
+cross_project_governance_role=interim_canonical_host
+control_plane_repository_status=USER_ACTION_REQUIRED
+```
+
+The pre-send workflow now creates an independent release-assurance record, binds the source SHA and exact Dutch/English artifact hashes, rejects incomplete or self-certified evidence, and blocks guarded transport unless assurance returns `PASS`. Delivery confirmation remains dependent on independent inbox receipt and production closeout evidence.
+
+The repository temporarily hosts the cross-project governance standard and adoption register until `market-predictions/control-plane` is created. This shared authority covers role separation and status semantics only; ETF EU instrument, state, portfolio, recipient, and delivery authority remains local.
+
+Known implementation defects remain open and are not erased by this governance update:
+
+- PR #72's stale production validator assumes exactly three positions and a blocked Stage-1 state.
+- `.github/workflows/generate_predictions.yml` is a legacy FX scheduler and is not a valid Weekly ETF EU production entry point.
+- No fresh governed end-to-end report delivery has yet been completed after activation of the new assurance gate.

@@ -1,59 +1,72 @@
 # Weekly ETF EU Review OS
 
-This repository is the European / Dutch-client UCITS ETF review workbench derived from `market-predictions/weekly-etf`.
+This repository is the European / Dutch-client UCITS ETF review and controlled-delivery system derived from `market-predictions/weekly-etf`.
 
-It is **not** a mechanical translation of the U.S. ETF model. U.S.-listed ETFs and inherited U.S. production artifacts are historical scaffolding unless a current EU control file explicitly grants authority.
+It is **not** a mechanical translation of the U.S. ETF model. U.S.-listed ETFs and inherited production artifacts are donor material only unless a current EU control contract explicitly grants authority.
 
 ## Canonical start sequence
 
-For meaningful architecture, pricing, workflow, report or delivery work, read these live GitHub files first:
+For architecture, pricing, portfolio, report, workflow, governance or delivery work, read:
 
 1. `control/SYSTEM_INDEX.md`
 2. `control/CURRENT_STATE.md`
 3. `control/NEXT_ACTIONS.md`
-4. the minimum relevant execution files
+4. `control/ETF_EU_TWO_ROLE_GOVERNANCE_MODEL_V1.md`
+5. the minimum relevant implementation files
 
-## Canonical EU bootstrap workflow
+## One project, two internal roles
 
-The active EU validation entry point is:
+The user works through one instruction stream and receives one consolidated project status. Internally, the project separates:
 
-```text
-.github/workflows/send-weekly-etf-eu-report.yml
-```
+- `implementation_operations` — builds and repairs the release candidate;
+- `governance_release_assurance` — independently reconstructs and certifies or rejects that candidate.
 
-It currently performs EU/UCITS bootstrap validation only. It may build diagnostic pricing artifacts and candidate report skeletons, but it must preserve:
+The implementation role may not certify its own work. The governance role may not mutate the candidate it certifies.
 
-```text
-funding_authority=false
-portfolio_mutation=false
-production_delivery=false
-no PDF generation
-no email delivery
-```
+## Canonical routine production workflow
 
-The inherited U.S. send workflow is intentionally disabled:
+The routine generation and guarded-delivery path is:
 
 ```text
-.github/workflows/send-weekly-report.yml
+.github/workflows/run-weekly-etf-eu-routine.yml
 ```
 
-## Current active state authority
+Before SMTP delivery, the workflow must build and validate:
 
-Preferred EU state and output paths are documented in `control/SYSTEM_INDEX.md` and `control/CURRENT_STATE.md`.
+```text
+output/quality/etf_eu_release_assurance_<run_id>.json
+```
 
-Current active EU state is cash-only until UCITS investability, valuation pricing, promotion and output contracts are explicitly passed. Historical `output/` files from the cloned U.S. repository are not current EU portfolio truth.
+using:
+
+```text
+tools/build_etf_eu_release_assurance.py
+tools/validate_etf_eu_release_assurance.py
+```
+
+A missing or failed governance decision blocks delivery.
+
+## Completion semantics
+
+The project distinguishes:
+
+```text
+RELEASE_CANDIDATE_READY
+GOVERNANCE_PASS_PRE_SEND
+TRANSPORT_SENT_UNVERIFIED
+DELIVERY_CONFIRMED
+```
+
+A successful renderer, validator, workflow step or SMTP handoff is not by itself proof of delivered production output. Delivery is complete only after independent receipt evidence and production closeout.
+
+## Current authority
+
+Current portfolio, report and delivery authority is documented in `control/CURRENT_STATE.md`. Preferred EU state and output paths are registered in `control/SYSTEM_INDEX.md`.
 
 ## Inherited artifacts
 
-The repository still contains inherited U.S./intraday/ICT files from the clone. They should be treated as archived provenance or migration raw material unless the active EU workflow imports them.
-
-For M0 ground-clearing, the immediate non-destructive rule is:
-
-- do not delete useful history;
-- do not move files that an active workflow imports;
-- do not reactivate sender/PDF/email paths;
-- document quarantine status before destructive cleanup.
+The repository still contains inherited U.S., FX and experimental files. They are not Weekly ETF EU production entry points unless the live system index explicitly says otherwise. Legacy scheduled workflows must not be interpreted as current product automation merely because they still exist in the repository.
 
 ## Dependency discipline
 
-Use `requirements.txt` for local/static validation. The GitHub workflow may still install its minimal dependencies directly until the coordinator updates workflow installation policy.
+Use `requirements.txt` for local/static validation. GitHub workflows may install their minimal dependencies directly where the relevant runbook permits it.
