@@ -7,6 +7,11 @@ from typing import Any
 
 from runtime import add_etf_eu_activated_allocation_surface as legacy
 
+# The source action table is synchronized here through the legacy v2 surface.
+# The final promoter must carry section-13 into the client candidate so the
+# compatibility renderer cannot reintroduce a blocked L0CK row.
+FINAL_PROMOTION_SECTION_SYNC_REQUIRED = "section-13"
+
 
 def load_object(path: Path) -> dict[str, Any]:
     payload = json.loads(path.read_text(encoding="utf-8"))
