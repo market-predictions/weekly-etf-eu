@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 from pathlib import Path
 
 from tools import run_etf_eu_aug3_expanded_report as legacy
@@ -18,6 +19,18 @@ ROUTES = {
 }
 
 
+def routine_state_path(manifest_path: Path) -> Path:
+    payload = json.loads(manifest_path.read_text(encoding="utf-8"))
+    artifacts = payload.get("state_artifacts") if isinstance(payload.get("state_artifacts"), dict) else {}
+    record = artifacts.get("production_convergence_state")
+    if not isinstance(record, dict) or not record.get("path"):
+        raise RuntimeError("Routine manifest does not bind a convergence-state path")
+    state_path = Path(str(record["path"]))
+    if not state_path.is_file():
+        raise RuntimeError(f"Routine convergence-state file is unavailable: {state_path}")
+    return state_path
+
+
 def run_with_activated_allocation_surface(
     *args: str,
     cwd: Path = legacy.ROOT,
@@ -26,6 +39,11 @@ def run_with_activated_allocation_surface(
     routed = list(args)
     if routed:
         routed[0] = ROUTES.get(routed[0], routed[0])
+    if routed and routed[0] == "tools/validate_etf_eu_converged_routine_manifest.py":
+        if len(routed) < 2:
+            raise RuntimeError("Routine manifest validator invocation is missing the manifest path")
+        if "--state" not in routed:
+            routed.extend(["--state", str(routine_state_path(Path(routed[1])))])
     return run_with_compact_model_proposal(*routed, cwd=cwd, capture=capture)
 
 
