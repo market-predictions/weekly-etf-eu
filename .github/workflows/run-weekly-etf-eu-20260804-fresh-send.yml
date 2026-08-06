@@ -1,11 +1,16 @@
-name: Build fresh governed Weekly ETF EU package
+name: Build fresh governed Weekly ETF EU candidate
 
 on:
   pull_request:
     paths:
       - ".github/workflows/run-weekly-etf-eu-20260804-fresh-send.yml"
       - ".github/workflows/generate_predictions.yml"
+      - "config/etf_eu_portfolio_policy_v2.yml"
       - "tools/run_etf_eu_aug3_expanded_report_v6.py"
+      - "tools/build_etf_eu_converged_routine_package.py"
+      - "tools/validate_etf_eu_converged_routine_manifest.py"
+      - "tools/validate_etf_eu_portfolio_policy.py"
+      - "tests/test_validate_etf_eu_portfolio_policy.py"
       - "tools/validate_etf_eu_production_converged_report.py"
       - "tests/test_etf_eu_production_converged_report_modes.py"
       - "pricing/build_current_session_close_results_v2.py"
@@ -31,7 +36,7 @@ jobs:
     timeout-minutes: 45
     env:
       REPORT_DATE: "2026-08-05"
-      REPORT_SUFFIX: "260805_01"
+      REPORT_SUFFIX: "260805_02"
       DONOR_COMMIT: "f61e59e6b4b8f7fc02a16eb42f01f23d8b906985"
       RUN_ID: "20260805_${{ github.run_id }}_${{ github.run_attempt }}"
       SOURCE_SHA: "${{ github.event.pull_request.head.sha || github.sha }}"
@@ -62,12 +67,20 @@ jobs:
           python -m pip install -r requirements.txt
           python -m pip install yfinance weasyprint pypdf beautifulsoup4 pyyaml matplotlib requests pytest
 
-      - name: Validate state-derived production modes
+      - name: Validate state and policy contracts
         run: |
-          python -m py_compile tools/validate_etf_eu_production_converged_report.py
-          python -m pytest -q tests/test_etf_eu_production_converged_report_modes.py
+          python -m py_compile \
+            tools/validate_etf_eu_production_converged_report.py \
+            tools/validate_etf_eu_portfolio_policy.py \
+            tools/build_etf_eu_converged_routine_package.py \
+            tools/validate_etf_eu_converged_routine_manifest.py \
+            tools/build_etf_eu_release_assurance.py \
+            tools/validate_etf_eu_release_assurance.py
+          python -m pytest -q \
+            tests/test_etf_eu_production_converged_report_modes.py \
+            tests/test_validate_etf_eu_portfolio_policy.py
 
-      - name: Build and validate fresh four-position package
+      - name: Build and validate policy-bound package
         id: build_package
         shell: bash
         run: |
@@ -104,7 +117,7 @@ jobs:
           if-no-files-found: warn
           retention-days: 30
 
-      - name: Validate current portfolio and report identity
+      - name: Validate final policy, portfolio and report identity
         run: |
           python - <<'PY'
           import json, os
@@ -113,9 +126,11 @@ jobs:
           run_id = os.environ['RUN_ID']
           report_date = os.environ['REPORT_DATE']
           state_path = Path(f'output/routine_preview/etf_eu_production_convergence_state_{run_id}.json')
+          policy_path = Path(f'output/routine_preview/etf_eu_portfolio_policy_validation_{run_id}.json')
           routine_path = Path(f'output/run_manifests/etf_eu_routine_run_manifest_{report_date}_{run_id}.json')
           pricing_path = Path(f'output/pricing/ucits_price_provider_qualification_{run_id}.json')
           state = json.loads(state_path.read_text())
+          policy = json.loads(policy_path.read_text())
           routine = json.loads(routine_path.read_text())
           pricing = json.loads(pricing_path.read_text())
           portfolio = state['official_portfolio']
@@ -123,6 +138,12 @@ jobs:
           expected = {'VWCE','EUNA','SXR8','L0CK'}
           if tickers != expected:
               raise SystemExit(f'FINAL_FUNDED_TICKER_SET_MISMATCH:{sorted(tickers)}')
+          if policy.get('verdict') != 'PASS' or policy.get('blockers'):
+              raise SystemExit(f'FINAL_PORTFOLIO_POLICY_FAILED:{policy.get("blockers")}')
+          if policy.get('portfolio', {}).get('cash_weight_pct', 0) < 35.0:
+              raise SystemExit('FINAL_CASH_RESERVE_BELOW_35_PCT')
+          if max(policy.get('portfolio', {}).get('computed_weights_pct', {}).values()) > 50.0:
+              raise SystemExit('FINAL_SINGLE_POSITION_ABOVE_50_PCT')
           if portfolio.get('position_count') != 4:
               raise SystemExit('FINAL_POSITION_COUNT_NOT_FOUR')
           if pricing.get('funded_consensus_count') != 4 or pricing.get('funded_identity_anchor_count') != 4:
@@ -136,6 +157,8 @@ jobs:
               raise SystemExit('FINAL_MONITORED_TICKER_SCOPE_MISMATCH')
           if routine.get('report_suffix') != os.environ['REPORT_SUFFIX']:
               raise SystemExit('FINAL_REPORT_SUFFIX_MISMATCH')
+          if routine.get('portfolio_snapshot', {}).get('portfolio_policy_verdict') != 'PASS':
+              raise SystemExit('FINAL_MANIFEST_POLICY_NOT_PASS')
           if routine.get('delivery_authority') is not False:
               raise SystemExit('FINAL_REPORT_DELIVERY_AUTHORITY_ESCALATED')
           print(json.dumps({
@@ -143,7 +166,10 @@ jobs:
               'run_id':run_id,
               'report_date':report_date,
               'report_suffix':routine.get('report_suffix'),
+              'policy_id':policy.get('policy_id'),
               'funded_tickers':sorted(tickers),
+              'computed_weights_pct':policy.get('portfolio', {}).get('computed_weights_pct'),
+              'cash_weight_pct':policy.get('portfolio', {}).get('cash_weight_pct'),
               'funded_consensus_count':pricing.get('funded_consensus_count'),
               'position_count':portfolio.get('position_count'),
               'nav_eur':portfolio.get('nav_eur'),
@@ -154,7 +180,7 @@ jobs:
           },indent=2,sort_keys=True))
           PY
 
-      - name: Persist exact final package and evidence to candidate branch
+      - name: Persist exact final package and policy evidence to candidate branch
         run: |
           set -euo pipefail
           git config user.name "github-actions[bot]"
@@ -170,6 +196,7 @@ jobs:
             output/macro/etf_eu_current_macro_source_${RUN_ID}.json \
             output/macro/etf_eu_macro_policy_${RUN_ID}.json \
             output/routine_preview/etf_eu_production_convergence_state_${RUN_ID}.json \
+            output/routine_preview/etf_eu_portfolio_policy_validation_${RUN_ID}.json \
             output/routine_preview/etf_eu_production_converged_report_validation_${RUN_ID}.json \
             output/routine_preview/etf_eu_converged_routine_manifest_validation_${RUN_ID}.json \
             output/routine_preview/etf_eu_aug3_expanded_report_run_summary_${RUN_ID}.json
@@ -177,7 +204,7 @@ jobs:
             echo "No fresh package changes to persist."
             exit 0
           fi
-          git commit -m "Persist fresh governed Weekly ETF EU ${REPORT_SUFFIX} package [skip ci]"
+          git commit -m "Persist policy-bound Weekly ETF EU ${REPORT_SUFFIX} candidate [skip ci]"
           git reset --hard HEAD
           git clean -fdx
           git fetch origin "$TARGET_BRANCH"
@@ -196,6 +223,7 @@ jobs:
             output/macro/etf_eu_current_macro_source_${{ env.RUN_ID }}.json
             output/macro/etf_eu_macro_policy_${{ env.RUN_ID }}.json
             output/routine_preview/etf_eu_production_convergence_state_${{ env.RUN_ID }}.json
+            output/routine_preview/etf_eu_portfolio_policy_validation_${{ env.RUN_ID }}.json
             output/routine_preview/etf_eu_production_converged_report_validation_${{ env.RUN_ID }}.json
             output/routine_preview/etf_eu_converged_routine_manifest_validation_${{ env.RUN_ID }}.json
             output/routine_preview/pdf_pages_${{ env.RUN_ID }}/
