@@ -44,6 +44,40 @@ def currency_code(value: Any) -> str | None:
     return text or None
 
 
+def previous_weekday(value: date) -> date:
+    candidate = value - timedelta(days=1)
+    while candidate.weekday() >= 5:
+        candidate -= timedelta(days=1)
+    return candidate
+
+
+def resolve_previous_session_close_date(
+    *,
+    report_date: date,
+    last_trade_date: date | None,
+    observed_after_report_session: bool,
+) -> tuple[date | None, str | None]:
+    """Resolve the date represented by closingPricePrevTradingDay.
+
+    During the report-date evening, the endpoint's latest trade is still on the
+    report date and the previous-session close field is accepted after session
+    completion. Once the next Xetra weekday starts, the latest trade advances
+    while the same field represents the immediately preceding session. The old
+    implementation rejected that valid rollover state and destroyed the second
+    source for every funded line.
+
+    Holiday gaps remain fail-closed because only the immediately preceding
+    weekday is inferred. Yahoo must still independently agree on the same date.
+    """
+    if last_trade_date is None:
+        return None, None
+    if last_trade_date == report_date and observed_after_report_session:
+        return report_date, "same_session_completed_close"
+    if last_trade_date > report_date and previous_weekday(last_trade_date) == report_date:
+        return report_date, "next_session_previous_close_rollover"
+    return None, None
+
+
 def boerse_headers(url: str) -> dict[str, str]:
     current = now_utc()
     client_date = current.isoformat(timespec="milliseconds").replace("+00:00", "Z")
@@ -128,17 +162,18 @@ def fetch_boerse(line: dict[str, Any], report_date: date) -> dict[str, Any]:
         session_end_time = time(22, 0)
     session_end = datetime.combine(report_date, session_end_time, tzinfo=BERLIN).astimezone(timezone.utc)
     observed_after_session = observed_at >= session_end
-    # The web endpoint exposes the completed Xetra session close in the field
-    # named closingPricePrevTradingDay after the report-date session has ended.
-    # The separate lastPrice can include the extended-hours final trade and is
-    # retained only as supporting evidence, never as the report close.
     completed_close = positive_float(payload.get("closingPricePrevTradingDay"))
     identity_match = (
         returned_isin == str(line.get("isin") or "").upper()
         and bool(result["venue_match"])
         and bool(result["currency_match"])
     )
-    completed = bool(last_date == report_date and observed_after_session and completed_close is not None and identity_match)
+    resolved_close_date, rollover_mode = resolve_previous_session_close_date(
+        report_date=report_date,
+        last_trade_date=last_date,
+        observed_after_report_session=observed_after_session,
+    )
+    completed = bool(resolved_close_date == report_date and completed_close is not None and identity_match)
     result["identity_status"] = "verified_exact_isin_mic_currency" if identity_match else "identity_mismatch"
     result["identity_evidence"] = [
         {
@@ -147,6 +182,8 @@ def fetch_boerse(line: dict[str, Any], report_date: date) -> dict[str, Any]:
             "returned_mic": returned_mic,
             "returned_currency": returned_currency,
             "session_close_field": "closingPricePrevTradingDay",
+            "resolved_close_date": resolved_close_date.isoformat() if resolved_close_date else None,
+            "rollover_mode": rollover_mode,
             "last_trade_field": "lastPrice",
             "last_trade_price": positive_float(payload.get("lastPrice")),
             "last_trade_timestamp": timestamp_text or None,
@@ -169,6 +206,7 @@ def fetch_boerse(line: dict[str, Any], report_date: date) -> dict[str, Any]:
             "close_date": report_date.isoformat(),
             "close_price": round(float(completed_close), 8),
             "close_age_days": 0,
+            "retrieval_mode": "live_previous_session_close_rollover" if rollover_mode == "next_session_previous_close_rollover" else "live",
             "blockers": [],
         }
     )
