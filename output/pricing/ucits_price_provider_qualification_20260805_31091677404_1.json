@@ -1,0 +1,1291 @@
+{
+  "agreement_tolerance_pct": 1.0,
+  "authority": "development_technical_evidence_only",
+  "commercial_redistribution_authority": false,
+  "delivery_authority": false,
+  "funded_consensus_count": 4,
+  "funded_identity_anchor_count": 4,
+  "funded_line_count": 4,
+  "generated_at_utc": "2026-08-06T10:03:58Z",
+  "line_count": 13,
+  "lines": [
+    {
+      "accepted_provider_count": 2,
+      "agreeing_providers": [
+        "boerse_frankfurt_xetra",
+        "yahoo_chart"
+      ],
+      "agreement_spread_pct": 4e-06,
+      "basket_id": "vwce_xetra_eur",
+      "consensus_close_price": 168.03999665,
+      "currency": "EUR",
+      "exchange": "Xetra",
+      "fund_name": "Vanguard FTSE All-World UCITS ETF USD Acc",
+      "funded": true,
+      "identity_anchor_passed": true,
+      "identity_anchor_providers": [
+        "boerse_frankfurt_xetra",
+        "yahoo_chart"
+      ],
+      "instrument_type": "UCITS ETF",
+      "isin": "IE00BK5BQT80",
+      "provider_results": [
+        {
+          "blockers": [],
+          "close_age_days": 0,
+          "close_date": "2026-08-05",
+          "close_price": 168.04,
+          "configured": true,
+          "currency_match": true,
+          "expected_currency": "EUR",
+          "expected_isin": "IE00BK5BQT80",
+          "expected_venue_code": "XETR",
+          "http_status": 200,
+          "identity_evidence": [
+            {
+              "change_to_previous_day_absolute": -0.06,
+              "change_to_previous_day_pct": -0.04,
+              "last_trade_field": "lastPrice",
+              "last_trade_price": 167.98,
+              "last_trade_timestamp": "2026-08-06T11:48:03+02:00",
+              "observed_after_session_end": true,
+              "price_fixings": 1292,
+              "query_mode": "exact_isin_plus_mic",
+              "resolved_close_date": "2026-08-05",
+              "returned_currency": "EUR",
+              "returned_isin": "IE00BK5BQT80",
+              "returned_mic": "XETR",
+              "rollover_mode": "next_session_previous_close_rollover",
+              "session_close_field": "closingPricePrevTradingDay",
+              "trading_time_end": "22:00:00",
+              "turnover_eur": 11509933.38,
+              "turnover_pieces": 68605.0
+            }
+          ],
+          "identity_status": "verified_exact_isin_mic_currency",
+          "observed_at_utc": "2026-08-06T10:03:50Z",
+          "pricing_status": "priced",
+          "provider": "boerse_frankfurt_xetra",
+          "provider_symbol": "XETR:IE00BK5BQT80",
+          "requested_report_date": "2026-08-05",
+          "retrieval_mode": "live_previous_session_close_rollover",
+          "returned_currency": "EUR",
+          "returned_exchange": "Xetra",
+          "returned_mic": "XETR",
+          "returned_symbol": "XETR:IE00BK5BQT80",
+          "venue_match": true
+        },
+        {
+          "blockers": [],
+          "close_age_days": 0,
+          "close_date": "2026-08-05",
+          "close_price": 168.03999329,
+          "configured": true,
+          "currency_match": true,
+          "expected_currency": "EUR",
+          "expected_isin": "IE00BK5BQT80",
+          "expected_venue_code": "XETR",
+          "http_status": 200,
+          "identity_evidence": [
+            {
+              "returned_currency": "EUR",
+              "returned_exchange": "GER",
+              "returned_symbol": "VWCE.DE"
+            }
+          ],
+          "identity_status": "metadata_matches_expected_line",
+          "observed_at_utc": "2026-08-06T10:03:50Z",
+          "pricing_status": "priced",
+          "provider": "yahoo_chart",
+          "provider_symbol": "VWCE.DE",
+          "requested_report_date": "2026-08-05",
+          "retrieval_mode": "live",
+          "returned_currency": "EUR",
+          "returned_exchange": "GER",
+          "returned_mic": null,
+          "returned_symbol": "VWCE.DE",
+          "venue_match": true
+        }
+      ],
+      "qualification_status": "qualified_development_consensus",
+      "role": "Official global-equity core position",
+      "same_date_provider_count": 2,
+      "selected_close_date": "2026-08-05",
+      "ticker": "VWCE",
+      "venue_code": "XETR"
+    },
+    {
+      "accepted_provider_count": 2,
+      "agreeing_providers": [
+        "boerse_frankfurt_xetra",
+        "yahoo_chart"
+      ],
+      "agreement_spread_pct": 2e-06,
+      "basket_id": "euna_xetra_eur",
+      "consensus_close_price": 4.91160006,
+      "currency": "EUR",
+      "exchange": "Xetra",
+      "fund_name": "iShares Core Global Aggregate Bond UCITS ETF EUR Hedged Acc",
+      "funded": true,
+      "identity_anchor_passed": true,
+      "identity_anchor_providers": [
+        "boerse_frankfurt_xetra",
+        "yahoo_chart"
+      ],
+      "instrument_type": "UCITS ETF",
+      "isin": "IE00BDBRDM35",
+      "provider_results": [
+        {
+          "blockers": [],
+          "close_age_days": 0,
+          "close_date": "2026-08-05",
+          "close_price": 4.9116,
+          "configured": true,
+          "currency_match": true,
+          "expected_currency": "EUR",
+          "expected_isin": "IE00BDBRDM35",
+          "expected_venue_code": "XETR",
+          "http_status": 200,
+          "identity_evidence": [
+            {
+              "change_to_previous_day_absolute": -0.0002,
+              "change_to_previous_day_pct": 0.0,
+              "last_trade_field": "lastPrice",
+              "last_trade_price": 4.9114,
+              "last_trade_timestamp": "2026-08-06T11:44:29+02:00",
+              "observed_after_session_end": true,
+              "price_fixings": 9,
+              "query_mode": "exact_isin_plus_mic",
+              "resolved_close_date": "2026-08-05",
+              "returned_currency": "EUR",
+              "returned_isin": "IE00BDBRDM35",
+              "returned_mic": "XETR",
+              "rollover_mode": "next_session_previous_close_rollover",
+              "session_close_field": "closingPricePrevTradingDay",
+              "trading_time_end": "22:00:00",
+              "turnover_eur": 747243.2126,
+              "turnover_pieces": 152148.0
+            }
+          ],
+          "identity_status": "verified_exact_isin_mic_currency",
+          "observed_at_utc": "2026-08-06T10:03:51Z",
+          "pricing_status": "priced",
+          "provider": "boerse_frankfurt_xetra",
+          "provider_symbol": "XETR:IE00BDBRDM35",
+          "requested_report_date": "2026-08-05",
+          "retrieval_mode": "live_previous_session_close_rollover",
+          "returned_currency": "EUR",
+          "returned_exchange": "Xetra",
+          "returned_mic": "XETR",
+          "returned_symbol": "XETR:IE00BDBRDM35",
+          "venue_match": true
+        },
+        {
+          "blockers": [],
+          "close_age_days": 0,
+          "close_date": "2026-08-05",
+          "close_price": 4.91160011,
+          "configured": true,
+          "currency_match": true,
+          "expected_currency": "EUR",
+          "expected_isin": "IE00BDBRDM35",
+          "expected_venue_code": "XETR",
+          "http_status": 200,
+          "identity_evidence": [
+            {
+              "returned_currency": "EUR",
+              "returned_exchange": "GER",
+              "returned_symbol": "EUNA.DE"
+            }
+          ],
+          "identity_status": "metadata_matches_expected_line",
+          "observed_at_utc": "2026-08-06T10:03:51Z",
+          "pricing_status": "priced",
+          "provider": "yahoo_chart",
+          "provider_symbol": "EUNA.DE",
+          "requested_report_date": "2026-08-05",
+          "retrieval_mode": "live",
+          "returned_currency": "EUR",
+          "returned_exchange": "GER",
+          "returned_mic": null,
+          "returned_symbol": "EUNA.DE",
+          "venue_match": true
+        }
+      ],
+      "qualification_status": "qualified_development_consensus",
+      "role": "Official aggregate-bond position",
+      "same_date_provider_count": 2,
+      "selected_close_date": "2026-08-05",
+      "ticker": "EUNA",
+      "venue_code": "XETR"
+    },
+    {
+      "accepted_provider_count": 2,
+      "agreeing_providers": [
+        "boerse_frankfurt_xetra",
+        "yahoo_chart"
+      ],
+      "agreement_spread_pct": 2e-06,
+      "basket_id": "sxr8_xetra_eur",
+      "consensus_close_price": 722.41999145,
+      "currency": "EUR",
+      "exchange": "Xetra",
+      "fund_name": "iShares Core S&P 500 UCITS ETF USD Acc",
+      "funded": true,
+      "identity_anchor_passed": true,
+      "identity_anchor_providers": [
+        "boerse_frankfurt_xetra",
+        "yahoo_chart"
+      ],
+      "instrument_type": "UCITS ETF",
+      "isin": "IE00B5BMR087",
+      "provider_results": [
+        {
+          "blockers": [],
+          "close_age_days": 0,
+          "close_date": "2026-08-05",
+          "close_price": 722.42,
+          "configured": true,
+          "currency_match": true,
+          "expected_currency": "EUR",
+          "expected_isin": "IE00B5BMR087",
+          "expected_venue_code": "XETR",
+          "http_status": 200,
+          "identity_evidence": [
+            {
+              "change_to_previous_day_absolute": 0.04,
+              "change_to_previous_day_pct": 0.01,
+              "last_trade_field": "lastPrice",
+              "last_trade_price": 722.46,
+              "last_trade_timestamp": "2026-08-06T11:48:16+02:00",
+              "observed_after_session_end": true,
+              "price_fixings": 466,
+              "query_mode": "exact_isin_plus_mic",
+              "resolved_close_date": "2026-08-05",
+              "returned_currency": "EUR",
+              "returned_isin": "IE00B5BMR087",
+              "returned_mic": "XETR",
+              "rollover_mode": "next_session_previous_close_rollover",
+              "session_close_field": "closingPricePrevTradingDay",
+              "trading_time_end": "22:00:00",
+              "turnover_eur": 3070939.88,
+              "turnover_pieces": 4255.0
+            }
+          ],
+          "identity_status": "verified_exact_isin_mic_currency",
+          "observed_at_utc": "2026-08-06T10:03:52Z",
+          "pricing_status": "priced",
+          "provider": "boerse_frankfurt_xetra",
+          "provider_symbol": "XETR:IE00B5BMR087",
+          "requested_report_date": "2026-08-05",
+          "retrieval_mode": "live_previous_session_close_rollover",
+          "returned_currency": "EUR",
+          "returned_exchange": "Xetra",
+          "returned_mic": "XETR",
+          "returned_symbol": "XETR:IE00B5BMR087",
+          "venue_match": true
+        },
+        {
+          "blockers": [],
+          "close_age_days": 0,
+          "close_date": "2026-08-05",
+          "close_price": 722.41998291,
+          "configured": true,
+          "currency_match": true,
+          "expected_currency": "EUR",
+          "expected_isin": "IE00B5BMR087",
+          "expected_venue_code": "XETR",
+          "http_status": 200,
+          "identity_evidence": [
+            {
+              "returned_currency": "EUR",
+              "returned_exchange": "GER",
+              "returned_symbol": "SXR8.DE"
+            }
+          ],
+          "identity_status": "metadata_matches_expected_line",
+          "observed_at_utc": "2026-08-06T10:03:52Z",
+          "pricing_status": "priced",
+          "provider": "yahoo_chart",
+          "provider_symbol": "SXR8.DE",
+          "requested_report_date": "2026-08-05",
+          "retrieval_mode": "live",
+          "returned_currency": "EUR",
+          "returned_exchange": "GER",
+          "returned_mic": null,
+          "returned_symbol": "SXR8.DE",
+          "venue_match": true
+        }
+      ],
+      "qualification_status": "qualified_development_consensus",
+      "role": "Official S&P 500 overweight position",
+      "same_date_provider_count": 2,
+      "selected_close_date": "2026-08-05",
+      "ticker": "SXR8",
+      "venue_code": "XETR"
+    },
+    {
+      "accepted_provider_count": 2,
+      "agreeing_providers": [
+        "boerse_frankfurt_xetra",
+        "yahoo_chart"
+      ],
+      "agreement_spread_pct": 1e-06,
+      "basket_id": "l0ck_xetra_eur",
+      "consensus_close_price": 10.93200008,
+      "currency": "EUR",
+      "exchange": "Xetra",
+      "fund_name": "iShares Digital Security UCITS ETF USD Acc",
+      "funded": true,
+      "identity_anchor_passed": true,
+      "identity_anchor_providers": [
+        "boerse_frankfurt_xetra",
+        "yahoo_chart"
+      ],
+      "instrument_type": "UCITS ETF",
+      "isin": "IE00BG0J4C88",
+      "provider_results": [
+        {
+          "blockers": [],
+          "close_age_days": 0,
+          "close_date": "2026-08-05",
+          "close_price": 10.932,
+          "configured": true,
+          "currency_match": true,
+          "expected_currency": "EUR",
+          "expected_isin": "IE00BG0J4C88",
+          "expected_venue_code": "XETR",
+          "http_status": 200,
+          "identity_evidence": [
+            {
+              "change_to_previous_day_absolute": 0.008,
+              "change_to_previous_day_pct": 0.07,
+              "last_trade_field": "lastPrice",
+              "last_trade_price": 10.94,
+              "last_trade_timestamp": "2026-08-06T11:39:09+02:00",
+              "observed_after_session_end": true,
+              "price_fixings": 63,
+              "query_mode": "exact_isin_plus_mic",
+              "resolved_close_date": "2026-08-05",
+              "returned_currency": "EUR",
+              "returned_isin": "IE00BG0J4C88",
+              "returned_mic": "XETR",
+              "rollover_mode": "next_session_previous_close_rollover",
+              "session_close_field": "closingPricePrevTradingDay",
+              "trading_time_end": "22:00:00",
+              "turnover_eur": 147237.774,
+              "turnover_pieces": 13465.0
+            }
+          ],
+          "identity_status": "verified_exact_isin_mic_currency",
+          "observed_at_utc": "2026-08-06T10:03:53Z",
+          "pricing_status": "priced",
+          "provider": "boerse_frankfurt_xetra",
+          "provider_symbol": "XETR:IE00BG0J4C88",
+          "requested_report_date": "2026-08-05",
+          "retrieval_mode": "live_previous_session_close_rollover",
+          "returned_currency": "EUR",
+          "returned_exchange": "Xetra",
+          "returned_mic": "XETR",
+          "returned_symbol": "XETR:IE00BG0J4C88",
+          "venue_match": true
+        },
+        {
+          "blockers": [],
+          "close_age_days": 0,
+          "close_date": "2026-08-05",
+          "close_price": 10.93200016,
+          "configured": true,
+          "currency_match": true,
+          "expected_currency": "EUR",
+          "expected_isin": "IE00BG0J4C88",
+          "expected_venue_code": "XETR",
+          "http_status": 200,
+          "identity_evidence": [
+            {
+              "returned_currency": "EUR",
+              "returned_exchange": "GER",
+              "returned_symbol": "L0CK.DE"
+            }
+          ],
+          "identity_status": "metadata_matches_expected_line",
+          "observed_at_utc": "2026-08-06T10:03:53Z",
+          "pricing_status": "priced",
+          "provider": "yahoo_chart",
+          "provider_symbol": "L0CK.DE",
+          "requested_report_date": "2026-08-05",
+          "retrieval_mode": "live",
+          "returned_currency": "EUR",
+          "returned_exchange": "GER",
+          "returned_mic": null,
+          "returned_symbol": "L0CK.DE",
+          "venue_match": true
+        }
+      ],
+      "qualification_status": "qualified_development_consensus",
+      "role": "Current cybersecurity opportunity",
+      "same_date_provider_count": 2,
+      "selected_close_date": "2026-08-05",
+      "ticker": "L0CK",
+      "venue_code": "XETR"
+    },
+    {
+      "accepted_provider_count": 2,
+      "agreeing_providers": [
+        "boerse_frankfurt_xetra",
+        "yahoo_chart"
+      ],
+      "agreement_spread_pct": 4e-06,
+      "basket_id": "vvsm_xetra_eur",
+      "consensus_close_price": 93.33999817,
+      "currency": "EUR",
+      "exchange": "Xetra",
+      "fund_name": "VanEck Semiconductor UCITS ETF",
+      "funded": false,
+      "identity_anchor_passed": true,
+      "identity_anchor_providers": [
+        "boerse_frankfurt_xetra",
+        "yahoo_chart"
+      ],
+      "instrument_type": "UCITS ETF",
+      "isin": "IE00BMC38736",
+      "provider_results": [
+        {
+          "blockers": [],
+          "close_age_days": 0,
+          "close_date": "2026-08-05",
+          "close_price": 93.34,
+          "configured": true,
+          "currency_match": true,
+          "expected_currency": "EUR",
+          "expected_isin": "IE00BMC38736",
+          "expected_venue_code": "XETR",
+          "http_status": 200,
+          "identity_evidence": [
+            {
+              "change_to_previous_day_absolute": -1.09,
+              "change_to_previous_day_pct": -1.17,
+              "last_trade_field": "lastPrice",
+              "last_trade_price": 92.25,
+              "last_trade_timestamp": "2026-08-06T11:48:41+02:00",
+              "observed_after_session_end": true,
+              "price_fixings": 476,
+              "query_mode": "exact_isin_plus_mic",
+              "resolved_close_date": "2026-08-05",
+              "returned_currency": "EUR",
+              "returned_isin": "IE00BMC38736",
+              "returned_mic": "XETR",
+              "rollover_mode": "next_session_previous_close_rollover",
+              "session_close_field": "closingPricePrevTradingDay",
+              "trading_time_end": "22:00:00",
+              "turnover_eur": 3638924.73,
+              "turnover_pieces": 39528.0
+            }
+          ],
+          "identity_status": "verified_exact_isin_mic_currency",
+          "observed_at_utc": "2026-08-06T10:03:54Z",
+          "pricing_status": "priced",
+          "provider": "boerse_frankfurt_xetra",
+          "provider_symbol": "XETR:IE00BMC38736",
+          "requested_report_date": "2026-08-05",
+          "retrieval_mode": "live_previous_session_close_rollover",
+          "returned_currency": "EUR",
+          "returned_exchange": "Xetra",
+          "returned_mic": "XETR",
+          "returned_symbol": "XETR:IE00BMC38736",
+          "venue_match": true
+        },
+        {
+          "blockers": [],
+          "close_age_days": 0,
+          "close_date": "2026-08-05",
+          "close_price": 93.33999634,
+          "configured": true,
+          "currency_match": true,
+          "expected_currency": "EUR",
+          "expected_isin": "IE00BMC38736",
+          "expected_venue_code": "XETR",
+          "http_status": 200,
+          "identity_evidence": [
+            {
+              "returned_currency": "EUR",
+              "returned_exchange": "GER",
+              "returned_symbol": "VVSM.DE"
+            }
+          ],
+          "identity_status": "metadata_matches_expected_line",
+          "observed_at_utc": "2026-08-06T10:03:54Z",
+          "pricing_status": "priced",
+          "provider": "yahoo_chart",
+          "provider_symbol": "VVSM.DE",
+          "requested_report_date": "2026-08-05",
+          "retrieval_mode": "live",
+          "returned_currency": "EUR",
+          "returned_exchange": "GER",
+          "returned_mic": null,
+          "returned_symbol": "VVSM.DE",
+          "venue_match": true
+        }
+      ],
+      "qualification_status": "qualified_development_consensus",
+      "role": "Retained Stage-1 semiconductor watchlist candidate",
+      "same_date_provider_count": 2,
+      "selected_close_date": "2026-08-05",
+      "ticker": "VVSM",
+      "venue_code": "XETR"
+    },
+    {
+      "accepted_provider_count": 1,
+      "agreeing_providers": [
+        "boerse_frankfurt_xetra"
+      ],
+      "agreement_spread_pct": 0.0,
+      "basket_id": "cbuff_xetra_eur",
+      "consensus_close_price": 6.915,
+      "currency": "EUR",
+      "exchange": "Xetra",
+      "fund_name": "iShares MSCI World Health Care Sector Advanced UCITS ETF USD Dist",
+      "funded": false,
+      "identity_anchor_passed": true,
+      "identity_anchor_providers": [
+        "boerse_frankfurt_xetra"
+      ],
+      "instrument_type": "UCITS ETF",
+      "isin": "IE00BJ5JNZ06",
+      "provider_results": [
+        {
+          "blockers": [],
+          "close_age_days": 0,
+          "close_date": "2026-08-05",
+          "close_price": 6.915,
+          "configured": true,
+          "currency_match": true,
+          "expected_currency": "EUR",
+          "expected_isin": "IE00BJ5JNZ06",
+          "expected_venue_code": "XETR",
+          "http_status": 200,
+          "identity_evidence": [
+            {
+              "change_to_previous_day_absolute": 0.091,
+              "change_to_previous_day_pct": 1.32,
+              "last_trade_field": "lastPrice",
+              "last_trade_price": 7.006,
+              "last_trade_timestamp": "2026-08-06T11:33:01+02:00",
+              "observed_after_session_end": true,
+              "price_fixings": 12,
+              "query_mode": "exact_isin_plus_mic",
+              "resolved_close_date": "2026-08-05",
+              "returned_currency": "EUR",
+              "returned_isin": "IE00BJ5JNZ06",
+              "returned_mic": "XETR",
+              "rollover_mode": "next_session_previous_close_rollover",
+              "session_close_field": "closingPricePrevTradingDay",
+              "trading_time_end": "22:00:00",
+              "turnover_eur": 13789.57,
+              "turnover_pieces": 1969.0
+            }
+          ],
+          "identity_status": "verified_exact_isin_mic_currency",
+          "observed_at_utc": "2026-08-06T10:03:54Z",
+          "pricing_status": "priced",
+          "provider": "boerse_frankfurt_xetra",
+          "provider_symbol": "XETR:IE00BJ5JNZ06",
+          "requested_report_date": "2026-08-05",
+          "retrieval_mode": "live_previous_session_close_rollover",
+          "returned_currency": "EUR",
+          "returned_exchange": "Xetra",
+          "returned_mic": "XETR",
+          "returned_symbol": "XETR:IE00BJ5JNZ06",
+          "venue_match": true
+        },
+        {
+          "blockers": [
+            "provider_error:404",
+            "regular_market_metadata_provider_error:404"
+          ],
+          "close_age_days": null,
+          "close_date": null,
+          "close_price": null,
+          "configured": true,
+          "currency_match": null,
+          "expected_currency": "EUR",
+          "expected_isin": "IE00BJ5JNZ06",
+          "expected_venue_code": "XETR",
+          "http_status": 404,
+          "observed_at_utc": "2026-08-06T10:03:54Z",
+          "pricing_status": "fetch_failed",
+          "provider": "yahoo_chart",
+          "provider_symbol": "WHCS.DE",
+          "requested_report_date": "2026-08-05",
+          "retrieval_mode": "live",
+          "returned_currency": null,
+          "returned_exchange": null,
+          "returned_mic": null,
+          "returned_symbol": null,
+          "venue_match": null
+        }
+      ],
+      "qualification_status": "single_source_only",
+      "role": "Current healthcare-quality opportunity",
+      "same_date_provider_count": 1,
+      "selected_close_date": "2026-08-05",
+      "ticker": "CBUF",
+      "venue_code": "XETR"
+    },
+    {
+      "accepted_provider_count": 1,
+      "agreeing_providers": [
+        "yahoo_chart"
+      ],
+      "agreement_spread_pct": 0.0,
+      "basket_id": "isae_xams_eur",
+      "consensus_close_price": 48.06000137,
+      "currency": "EUR",
+      "exchange": "Euronext Amsterdam",
+      "fund_name": "iShares Agribusiness UCITS ETF USD Acc",
+      "funded": false,
+      "identity_anchor_passed": true,
+      "identity_anchor_providers": [
+        "yahoo_chart"
+      ],
+      "instrument_type": "UCITS ETF",
+      "isin": "IE00B6R52143",
+      "provider_results": [
+        {
+          "blockers": [
+            "boerse_frankfurt_xetra_only"
+          ],
+          "close_age_days": null,
+          "close_date": null,
+          "close_price": null,
+          "configured": false,
+          "currency_match": null,
+          "expected_currency": "EUR",
+          "expected_isin": "IE00B6R52143",
+          "expected_venue_code": "XAMS",
+          "http_status": null,
+          "observed_at_utc": "2026-08-06T10:03:56Z",
+          "pricing_status": "not_configured",
+          "provider": "boerse_frankfurt_xetra",
+          "provider_symbol": "XAMS:IE00B6R52143",
+          "requested_report_date": "2026-08-05",
+          "retrieval_mode": "live",
+          "returned_currency": null,
+          "returned_exchange": null,
+          "returned_mic": null,
+          "returned_symbol": null,
+          "venue_match": null
+        },
+        {
+          "blockers": [],
+          "close_age_days": 0,
+          "close_date": "2026-08-05",
+          "close_price": 48.06000137,
+          "configured": true,
+          "currency_match": true,
+          "expected_currency": "EUR",
+          "expected_isin": "IE00B6R52143",
+          "expected_venue_code": "XAMS",
+          "http_status": 200,
+          "identity_evidence": [
+            {
+              "returned_currency": "EUR",
+              "returned_exchange": "AMS",
+              "returned_symbol": "ISAE.AS"
+            }
+          ],
+          "identity_status": "metadata_matches_expected_line",
+          "observed_at_utc": "2026-08-06T10:03:56Z",
+          "pricing_status": "priced",
+          "provider": "yahoo_chart",
+          "provider_symbol": "ISAE.AS",
+          "requested_report_date": "2026-08-05",
+          "retrieval_mode": "live",
+          "returned_currency": "EUR",
+          "returned_exchange": "AMS",
+          "returned_mic": null,
+          "returned_symbol": "ISAE.AS",
+          "venue_match": true
+        }
+      ],
+      "qualification_status": "single_source_only",
+      "role": "Current agriculture and food-security opportunity",
+      "same_date_provider_count": 1,
+      "selected_close_date": "2026-08-05",
+      "ticker": "ISAE",
+      "venue_code": "XAMS"
+    },
+    {
+      "accepted_provider_count": 2,
+      "agreeing_providers": [
+        "boerse_frankfurt_xetra",
+        "yahoo_chart"
+      ],
+      "agreement_spread_pct": 0.0,
+      "basket_id": "xmlc_xetra_eur",
+      "consensus_close_price": 19.32999996,
+      "currency": "EUR",
+      "exchange": "Xetra",
+      "fund_name": "L&G Clean Water UCITS ETF USD Acc",
+      "funded": false,
+      "identity_anchor_passed": true,
+      "identity_anchor_providers": [
+        "boerse_frankfurt_xetra",
+        "yahoo_chart"
+      ],
+      "instrument_type": "UCITS ETF",
+      "isin": "IE00BK5BC891",
+      "provider_results": [
+        {
+          "blockers": [],
+          "close_age_days": 0,
+          "close_date": "2026-08-05",
+          "close_price": 19.33,
+          "configured": true,
+          "currency_match": true,
+          "expected_currency": "EUR",
+          "expected_isin": "IE00BK5BC891",
+          "expected_venue_code": "XETR",
+          "http_status": 200,
+          "identity_evidence": [
+            {
+              "change_to_previous_day_absolute": -0.03,
+              "change_to_previous_day_pct": -0.16,
+              "last_trade_field": "lastPrice",
+              "last_trade_price": 19.3,
+              "last_trade_timestamp": "2026-08-06T11:41:46+02:00",
+              "observed_after_session_end": true,
+              "price_fixings": 71,
+              "query_mode": "exact_isin_plus_mic",
+              "resolved_close_date": "2026-08-05",
+              "returned_currency": "EUR",
+              "returned_isin": "IE00BK5BC891",
+              "returned_mic": "XETR",
+              "rollover_mode": "next_session_previous_close_rollover",
+              "session_close_field": "closingPricePrevTradingDay",
+              "trading_time_end": "22:00:00",
+              "turnover_eur": 531864.134,
+              "turnover_pieces": 27538.0
+            }
+          ],
+          "identity_status": "verified_exact_isin_mic_currency",
+          "observed_at_utc": "2026-08-06T10:03:56Z",
+          "pricing_status": "priced",
+          "provider": "boerse_frankfurt_xetra",
+          "provider_symbol": "XETR:IE00BK5BC891",
+          "requested_report_date": "2026-08-05",
+          "retrieval_mode": "live_previous_session_close_rollover",
+          "returned_currency": "EUR",
+          "returned_exchange": "Xetra",
+          "returned_mic": "XETR",
+          "returned_symbol": "XETR:IE00BK5BC891",
+          "venue_match": true
+        },
+        {
+          "blockers": [],
+          "close_age_days": 0,
+          "close_date": "2026-08-05",
+          "close_price": 19.32999992,
+          "configured": true,
+          "currency_match": true,
+          "expected_currency": "EUR",
+          "expected_isin": "IE00BK5BC891",
+          "expected_venue_code": "XETR",
+          "http_status": 200,
+          "identity_evidence": [
+            {
+              "returned_currency": "EUR",
+              "returned_exchange": "GER",
+              "returned_symbol": "XMLC.DE"
+            }
+          ],
+          "identity_status": "metadata_matches_expected_line",
+          "observed_at_utc": "2026-08-06T10:03:56Z",
+          "pricing_status": "priced",
+          "provider": "yahoo_chart",
+          "provider_symbol": "XMLC.DE",
+          "requested_report_date": "2026-08-05",
+          "retrieval_mode": "live",
+          "returned_currency": "EUR",
+          "returned_exchange": "GER",
+          "returned_mic": null,
+          "returned_symbol": "XMLC.DE",
+          "venue_match": true
+        }
+      ],
+      "qualification_status": "qualified_development_consensus",
+      "role": "Current clean-water infrastructure opportunity",
+      "same_date_provider_count": 2,
+      "selected_close_date": "2026-08-05",
+      "ticker": "XMLC",
+      "venue_code": "XETR"
+    },
+    {
+      "accepted_provider_count": 2,
+      "agreeing_providers": [
+        "boerse_frankfurt_xetra",
+        "yahoo_chart"
+      ],
+      "agreement_spread_pct": 5e-06,
+      "basket_id": "iqqq_xetra_eur",
+      "consensus_close_price": 67.98000168,
+      "currency": "EUR",
+      "exchange": "Xetra",
+      "fund_name": "iShares Global Water UCITS ETF USD Dist",
+      "funded": false,
+      "identity_anchor_passed": true,
+      "identity_anchor_providers": [
+        "boerse_frankfurt_xetra",
+        "yahoo_chart"
+      ],
+      "instrument_type": "UCITS ETF",
+      "isin": "IE00B1TXK627",
+      "provider_results": [
+        {
+          "blockers": [],
+          "close_age_days": 0,
+          "close_date": "2026-08-05",
+          "close_price": 67.98,
+          "configured": true,
+          "currency_match": true,
+          "expected_currency": "EUR",
+          "expected_isin": "IE00B1TXK627",
+          "expected_venue_code": "XETR",
+          "http_status": 200,
+          "identity_evidence": [
+            {
+              "change_to_previous_day_absolute": 0.23,
+              "change_to_previous_day_pct": 0.34,
+              "last_trade_field": "lastPrice",
+              "last_trade_price": 68.21,
+              "last_trade_timestamp": "2026-08-06T11:48:44+02:00",
+              "observed_after_session_end": true,
+              "price_fixings": 67,
+              "query_mode": "exact_isin_plus_mic",
+              "resolved_close_date": "2026-08-05",
+              "returned_currency": "EUR",
+              "returned_isin": "IE00B1TXK627",
+              "returned_mic": "XETR",
+              "rollover_mode": "next_session_previous_close_rollover",
+              "session_close_field": "closingPricePrevTradingDay",
+              "trading_time_end": "22:00:00",
+              "turnover_eur": 454240.7,
+              "turnover_pieces": 6665.0
+            }
+          ],
+          "identity_status": "verified_exact_isin_mic_currency",
+          "observed_at_utc": "2026-08-06T10:03:57Z",
+          "pricing_status": "priced",
+          "provider": "boerse_frankfurt_xetra",
+          "provider_symbol": "XETR:IE00B1TXK627",
+          "requested_report_date": "2026-08-05",
+          "retrieval_mode": "live_previous_session_close_rollover",
+          "returned_currency": "EUR",
+          "returned_exchange": "Xetra",
+          "returned_mic": "XETR",
+          "returned_symbol": "XETR:IE00B1TXK627",
+          "venue_match": true
+        },
+        {
+          "blockers": [],
+          "close_age_days": 0,
+          "close_date": "2026-08-05",
+          "close_price": 67.98000336,
+          "configured": true,
+          "currency_match": true,
+          "expected_currency": "EUR",
+          "expected_isin": "IE00B1TXK627",
+          "expected_venue_code": "XETR",
+          "http_status": 200,
+          "identity_evidence": [
+            {
+              "returned_currency": "EUR",
+              "returned_exchange": "GER",
+              "returned_symbol": "IQQQ.DE"
+            }
+          ],
+          "identity_status": "metadata_matches_expected_line",
+          "observed_at_utc": "2026-08-06T10:03:56Z",
+          "pricing_status": "priced",
+          "provider": "yahoo_chart",
+          "provider_symbol": "IQQQ.DE",
+          "requested_report_date": "2026-08-05",
+          "retrieval_mode": "live",
+          "returned_currency": "EUR",
+          "returned_exchange": "GER",
+          "returned_mic": null,
+          "returned_symbol": "IQQQ.DE",
+          "venue_match": true
+        }
+      ],
+      "qualification_status": "qualified_development_consensus",
+      "role": "Current global-water utilities opportunity",
+      "same_date_provider_count": 2,
+      "selected_close_date": "2026-08-05",
+      "ticker": "IQQQ",
+      "venue_code": "XETR"
+    },
+    {
+      "accepted_provider_count": 2,
+      "agreeing_providers": [
+        "boerse_frankfurt_xetra",
+        "yahoo_chart"
+      ],
+      "agreement_spread_pct": 1e-06,
+      "basket_id": "dfen_xetra_eur",
+      "consensus_close_price": 55.93000016,
+      "currency": "EUR",
+      "exchange": "Xetra",
+      "fund_name": "VanEck Defense UCITS ETF",
+      "funded": false,
+      "identity_anchor_passed": true,
+      "identity_anchor_providers": [
+        "boerse_frankfurt_xetra",
+        "yahoo_chart"
+      ],
+      "instrument_type": "UCITS ETF",
+      "isin": "IE000YYE6WK5",
+      "provider_results": [
+        {
+          "blockers": [],
+          "close_age_days": 0,
+          "close_date": "2026-08-05",
+          "close_price": 55.93,
+          "configured": true,
+          "currency_match": true,
+          "expected_currency": "EUR",
+          "expected_isin": "IE000YYE6WK5",
+          "expected_venue_code": "XETR",
+          "http_status": 200,
+          "identity_evidence": [
+            {
+              "change_to_previous_day_absolute": 0.34,
+              "change_to_previous_day_pct": 0.61,
+              "last_trade_field": "lastPrice",
+              "last_trade_price": 56.27,
+              "last_trade_timestamp": "2026-08-06T11:48:36+02:00",
+              "observed_after_session_end": true,
+              "price_fixings": 300,
+              "query_mode": "exact_isin_plus_mic",
+              "resolved_close_date": "2026-08-05",
+              "returned_currency": "EUR",
+              "returned_isin": "IE000YYE6WK5",
+              "returned_mic": "XETR",
+              "rollover_mode": "next_session_previous_close_rollover",
+              "session_close_field": "closingPricePrevTradingDay",
+              "trading_time_end": "22:00:00",
+              "turnover_eur": 1308449.15,
+              "turnover_pieces": 23238.0
+            }
+          ],
+          "identity_status": "verified_exact_isin_mic_currency",
+          "observed_at_utc": "2026-08-06T10:03:57Z",
+          "pricing_status": "priced",
+          "provider": "boerse_frankfurt_xetra",
+          "provider_symbol": "XETR:IE000YYE6WK5",
+          "requested_report_date": "2026-08-05",
+          "retrieval_mode": "live_previous_session_close_rollover",
+          "returned_currency": "EUR",
+          "returned_exchange": "Xetra",
+          "returned_mic": "XETR",
+          "returned_symbol": "XETR:IE000YYE6WK5",
+          "venue_match": true
+        },
+        {
+          "blockers": [],
+          "close_age_days": 0,
+          "close_date": "2026-08-05",
+          "close_price": 55.93000031,
+          "configured": true,
+          "currency_match": true,
+          "expected_currency": "EUR",
+          "expected_isin": "IE000YYE6WK5",
+          "expected_venue_code": "XETR",
+          "http_status": 200,
+          "identity_evidence": [
+            {
+              "returned_currency": "EUR",
+              "returned_exchange": "GER",
+              "returned_symbol": "DFEN.DE"
+            }
+          ],
+          "identity_status": "metadata_matches_expected_line",
+          "observed_at_utc": "2026-08-06T10:03:57Z",
+          "pricing_status": "priced",
+          "provider": "yahoo_chart",
+          "provider_symbol": "DFEN.DE",
+          "requested_report_date": "2026-08-05",
+          "retrieval_mode": "live",
+          "returned_currency": "EUR",
+          "returned_exchange": "GER",
+          "returned_mic": null,
+          "returned_symbol": "DFEN.DE",
+          "venue_match": true
+        }
+      ],
+      "qualification_status": "qualified_development_consensus",
+      "role": "Current defense-resilience opportunity",
+      "same_date_provider_count": 2,
+      "selected_close_date": "2026-08-05",
+      "ticker": "DFEN",
+      "venue_code": "XETR"
+    },
+    {
+      "accepted_provider_count": 1,
+      "agreeing_providers": [
+        "yahoo_chart"
+      ],
+      "agreement_spread_pct": 0.0,
+      "basket_id": "cspx_lse_usd",
+      "consensus_close_price": 834.15002441,
+      "currency": "USD",
+      "exchange": "London Stock Exchange",
+      "fund_name": "iShares Core S&P 500 UCITS ETF USD Acc",
+      "funded": false,
+      "identity_anchor_passed": true,
+      "identity_anchor_providers": [
+        "yahoo_chart"
+      ],
+      "instrument_type": "UCITS ETF",
+      "isin": "IE00B5BMR087",
+      "provider_results": [
+        {
+          "blockers": [
+            "boerse_frankfurt_xetra_only"
+          ],
+          "close_age_days": null,
+          "close_date": null,
+          "close_price": null,
+          "configured": false,
+          "currency_match": null,
+          "expected_currency": "USD",
+          "expected_isin": "IE00B5BMR087",
+          "expected_venue_code": "XLON",
+          "http_status": null,
+          "observed_at_utc": "2026-08-06T10:03:58Z",
+          "pricing_status": "not_configured",
+          "provider": "boerse_frankfurt_xetra",
+          "provider_symbol": "XLON:IE00B5BMR087",
+          "requested_report_date": "2026-08-05",
+          "retrieval_mode": "live",
+          "returned_currency": null,
+          "returned_exchange": null,
+          "returned_mic": null,
+          "returned_symbol": null,
+          "venue_match": null
+        },
+        {
+          "blockers": [],
+          "close_age_days": 0,
+          "close_date": "2026-08-05",
+          "close_price": 834.15002441,
+          "configured": true,
+          "currency_match": true,
+          "expected_currency": "USD",
+          "expected_isin": "IE00B5BMR087",
+          "expected_venue_code": "XLON",
+          "http_status": 200,
+          "identity_evidence": [
+            {
+              "returned_currency": "USD",
+              "returned_exchange": "LSE",
+              "returned_symbol": "CSPX.L"
+            }
+          ],
+          "identity_status": "metadata_matches_expected_line",
+          "observed_at_utc": "2026-08-06T10:03:58Z",
+          "pricing_status": "priced",
+          "provider": "yahoo_chart",
+          "provider_symbol": "CSPX.L",
+          "requested_report_date": "2026-08-05",
+          "retrieval_mode": "live",
+          "returned_currency": "USD",
+          "returned_exchange": "LSE",
+          "returned_mic": null,
+          "returned_symbol": "CSPX.L",
+          "venue_match": true
+        }
+      ],
+      "qualification_status": "single_source_only",
+      "role": "S&P 500 UCITS cross-venue diagnostic",
+      "same_date_provider_count": 1,
+      "selected_close_date": "2026-08-05",
+      "ticker": "CSPX",
+      "venue_code": "XLON"
+    },
+    {
+      "accepted_provider_count": 1,
+      "agreeing_providers": [
+        "yahoo_chart"
+      ],
+      "agreement_spread_pct": 0.0,
+      "basket_id": "iwda_xams_eur",
+      "consensus_close_price": 128.25999451,
+      "currency": "EUR",
+      "exchange": "Euronext Amsterdam",
+      "fund_name": "iShares Core MSCI World UCITS ETF USD Acc",
+      "funded": false,
+      "identity_anchor_passed": true,
+      "identity_anchor_providers": [
+        "yahoo_chart"
+      ],
+      "instrument_type": "UCITS ETF",
+      "isin": "IE00B4L5Y983",
+      "provider_results": [
+        {
+          "blockers": [
+            "boerse_frankfurt_xetra_only"
+          ],
+          "close_age_days": null,
+          "close_date": null,
+          "close_price": null,
+          "configured": false,
+          "currency_match": null,
+          "expected_currency": "EUR",
+          "expected_isin": "IE00B4L5Y983",
+          "expected_venue_code": "XAMS",
+          "http_status": null,
+          "observed_at_utc": "2026-08-06T10:03:58Z",
+          "pricing_status": "not_configured",
+          "provider": "boerse_frankfurt_xetra",
+          "provider_symbol": "XAMS:IE00B4L5Y983",
+          "requested_report_date": "2026-08-05",
+          "retrieval_mode": "live",
+          "returned_currency": null,
+          "returned_exchange": null,
+          "returned_mic": null,
+          "returned_symbol": null,
+          "venue_match": null
+        },
+        {
+          "blockers": [],
+          "close_age_days": 0,
+          "close_date": "2026-08-05",
+          "close_price": 128.25999451,
+          "configured": true,
+          "currency_match": true,
+          "expected_currency": "EUR",
+          "expected_isin": "IE00B4L5Y983",
+          "expected_venue_code": "XAMS",
+          "http_status": 200,
+          "identity_evidence": [
+            {
+              "returned_currency": "EUR",
+              "returned_exchange": "AMS",
+              "returned_symbol": "IWDA.AS"
+            }
+          ],
+          "identity_status": "metadata_matches_expected_line",
+          "observed_at_utc": "2026-08-06T10:03:58Z",
+          "pricing_status": "priced",
+          "provider": "yahoo_chart",
+          "provider_symbol": "IWDA.AS",
+          "requested_report_date": "2026-08-05",
+          "retrieval_mode": "live",
+          "returned_currency": "EUR",
+          "returned_exchange": "AMS",
+          "returned_mic": null,
+          "returned_symbol": "IWDA.AS",
+          "venue_match": true
+        }
+      ],
+      "qualification_status": "single_source_only",
+      "role": "Developed-world equity diagnostic",
+      "same_date_provider_count": 1,
+      "selected_close_date": "2026-08-05",
+      "ticker": "IWDA",
+      "venue_code": "XAMS"
+    },
+    {
+      "accepted_provider_count": 1,
+      "agreeing_providers": [
+        "yahoo_chart"
+      ],
+      "agreement_spread_pct": 0.0,
+      "basket_id": "cndx_lse_usd",
+      "consensus_close_price": 1705.80004883,
+      "currency": "USD",
+      "exchange": "London Stock Exchange",
+      "fund_name": "iShares NASDAQ 100 UCITS ETF USD Acc",
+      "funded": false,
+      "identity_anchor_passed": true,
+      "identity_anchor_providers": [
+        "yahoo_chart"
+      ],
+      "instrument_type": "UCITS ETF",
+      "isin": "IE00B53SZB19",
+      "provider_results": [
+        {
+          "blockers": [
+            "boerse_frankfurt_xetra_only"
+          ],
+          "close_age_days": null,
+          "close_date": null,
+          "close_price": null,
+          "configured": false,
+          "currency_match": null,
+          "expected_currency": "USD",
+          "expected_isin": "IE00B53SZB19",
+          "expected_venue_code": "XLON",
+          "http_status": null,
+          "observed_at_utc": "2026-08-06T10:03:58Z",
+          "pricing_status": "not_configured",
+          "provider": "boerse_frankfurt_xetra",
+          "provider_symbol": "XLON:IE00B53SZB19",
+          "requested_report_date": "2026-08-05",
+          "retrieval_mode": "live",
+          "returned_currency": null,
+          "returned_exchange": null,
+          "returned_mic": null,
+          "returned_symbol": null,
+          "venue_match": null
+        },
+        {
+          "blockers": [],
+          "close_age_days": 0,
+          "close_date": "2026-08-05",
+          "close_price": 1705.80004883,
+          "configured": true,
+          "currency_match": true,
+          "expected_currency": "USD",
+          "expected_isin": "IE00B53SZB19",
+          "expected_venue_code": "XLON",
+          "http_status": 200,
+          "identity_evidence": [
+            {
+              "returned_currency": "USD",
+              "returned_exchange": "LSE",
+              "returned_symbol": "CNDX.L"
+            }
+          ],
+          "identity_status": "metadata_matches_expected_line",
+          "observed_at_utc": "2026-08-06T10:03:58Z",
+          "pricing_status": "priced",
+          "provider": "yahoo_chart",
+          "provider_symbol": "CNDX.L",
+          "requested_report_date": "2026-08-05",
+          "retrieval_mode": "live",
+          "returned_currency": "USD",
+          "returned_exchange": "LSE",
+          "returned_mic": null,
+          "returned_symbol": "CNDX.L",
+          "venue_match": true
+        }
+      ],
+      "qualification_status": "single_source_only",
+      "role": "Nasdaq 100 cross-venue diagnostic",
+      "same_date_provider_count": 1,
+      "selected_close_date": "2026-08-05",
+      "ticker": "CNDX",
+      "venue_code": "XLON"
+    }
+  ],
+  "portfolio_mutation": false,
+  "provider_order": [
+    "boerse_frankfurt_xetra",
+    "yahoo_chart"
+  ],
+  "report_date": "2026-08-05",
+  "report_pricing_gate_passed": true,
+  "schema_version": "ucits_price_provider_qualification_v2"
+}
