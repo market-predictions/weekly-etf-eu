@@ -1,0 +1,177 @@
+{
+  "artifact_type": "etf_eu_portfolio_policy_validation",
+  "blockers": [],
+  "checks": [
+    {
+      "evidence": {
+        "policy_id": "ETF_EU_PORTFOLIO_POLICY_V2_STAGE1_PARTIAL",
+        "schema_version": "etf_eu_portfolio_policy_v2"
+      },
+      "id": "policy_schema_valid",
+      "passed": true
+    },
+    {
+      "evidence": {
+        "expected": [
+          "EUNA",
+          "L0CK",
+          "SXR8",
+          "VWCE"
+        ],
+        "funded": [
+          "EUNA",
+          "L0CK",
+          "SXR8",
+          "VWCE"
+        ]
+      },
+      "id": "release_roster_exact",
+      "passed": true
+    },
+    {
+      "evidence": {
+        "allowed": [
+          "EUNA",
+          "L0CK",
+          "SXR8",
+          "VWCE"
+        ],
+        "funded": [
+          "EUNA",
+          "L0CK",
+          "SXR8",
+          "VWCE"
+        ]
+      },
+      "id": "funded_tickers_allowed",
+      "passed": true
+    },
+    {
+      "evidence": {
+        "actual": 4,
+        "maximum": 8,
+        "minimum": 4
+      },
+      "id": "position_count_within_policy",
+      "passed": true
+    },
+    {
+      "evidence": {
+        "missing": []
+      },
+      "id": "position_market_values_present",
+      "passed": true
+    },
+    {
+      "evidence": {
+        "nav_eur": 100512.23
+      },
+      "id": "positive_nav",
+      "passed": true
+    },
+    {
+      "evidence": {
+        "computed_invested_eur": 50303.83,
+        "stated_invested_eur": 50303.83,
+        "tolerance_eur": 1.0
+      },
+      "id": "invested_value_reconciles",
+      "passed": true
+    },
+    {
+      "evidence": {
+        "computed_total_eur": 100512.23,
+        "nav_eur": 100512.23,
+        "tolerance_eur": 1.0
+      },
+      "id": "cash_plus_positions_equals_nav",
+      "passed": true
+    },
+    {
+      "evidence": {
+        "computed_weights_pct": {
+          "EUNA": 7.456904,
+          "L0CK": 10.158455,
+          "SXR8": 7.187384,
+          "VWCE": 25.244729
+        },
+        "maximum_pct": 50.0,
+        "violations": {}
+      },
+      "id": "maximum_single_position_weight",
+      "passed": true
+    },
+    {
+      "evidence": {},
+      "id": "ticker_weight_caps",
+      "passed": true
+    },
+    {
+      "evidence": {
+        "cash_weight_pct": 49.952528,
+        "minimum_pct": 35.0
+      },
+      "id": "minimum_cash_reserve",
+      "passed": true
+    },
+    {
+      "evidence": {},
+      "id": "stated_weights_reconcile",
+      "passed": true
+    },
+    {
+      "evidence": {
+        "activated": [
+          "L0CK"
+        ],
+        "required": [
+          "L0CK"
+        ]
+      },
+      "id": "required_activation_present",
+      "passed": true
+    },
+    {
+      "evidence": {
+        "executable_trade_intents": []
+      },
+      "id": "no_executable_trade_intents",
+      "passed": true
+    },
+    {
+      "evidence": {
+        "model_portfolio_only": true,
+        "real_broker_execution": false
+      },
+      "id": "model_only_boundary",
+      "passed": true
+    }
+  ],
+  "generated_at_utc": "2026-08-06T09:32:28Z",
+  "policy_id": "ETF_EU_PORTFOLIO_POLICY_V2_STAGE1_PARTIAL",
+  "policy_path": "config/etf_eu_portfolio_policy_v2.yml",
+  "policy_sha256": "6e10aa4e27c53b9197b649195f25a046e4095584f0f9348c28615f801306bd0c",
+  "portfolio": {
+    "cash_eur": 50208.4,
+    "cash_weight_pct": 49.952528,
+    "computed_weights_pct": {
+      "EUNA": 7.456904,
+      "L0CK": 10.158455,
+      "SXR8": 7.187384,
+      "VWCE": 25.244729
+    },
+    "funded_tickers": [
+      "EUNA",
+      "L0CK",
+      "SXR8",
+      "VWCE"
+    ],
+    "nav_eur": 100512.23,
+    "position_count": 4
+  },
+  "schema_version": "etf_eu_portfolio_policy_validation_v2",
+  "state_path": "/home/runner/work/weekly-etf-eu/weekly-etf-eu/output/routine_preview/etf_eu_production_convergence_state_20260805_31089349064_1.json",
+  "state_sha256": "5cb0783113da4efbe19fe14fc500b08e9251366360f840794a6adda9b0f1d37e",
+  "valid": true,
+  "verdict": "PASS"
+}
