@@ -1,0 +1,430 @@
+{
+  "active_drivers": [],
+  "authority": {
+    "authority_class": "current_official_policy_context_plus_historical_regime",
+    "client_facing_authority": false,
+    "client_surface_allowed": true,
+    "decision_authority": "descriptive_only",
+    "decision_framework": "Fresh official central-bank decisions may inform descriptive context; the retained donor regime label is historical strategy context only.",
+    "decision_impact": "legacy_lane_adjustments_only",
+    "input_state_contract": "Official Fed and ECB releases are current policy inputs. Donor market-regime and lane-adjustment fields remain historical context and cannot create allocation authority.",
+    "operational_runbook": "Verify official policy releases, preserve donor schema, record refresh provenance, and keep funding and execution gates separate.",
+    "output_contract": "Only client-safe policy context and explicitly labelled historical regime context may enter the EU report.",
+    "shadow_only": true
+  },
+  "central_banks": {
+    "boe": {
+      "confidence": 0.45,
+      "etf_implication": "No direct portfolio action unless UK exposure enters the universe.",
+      "likely_direction": "Cautious easing bias",
+      "main_risk": "Sticky services inflation keeps UK duration and cyclicals mixed.",
+      "stance": "Neutral / transition"
+    },
+    "boj": {
+      "confidence": 0.5,
+      "etf_implication": "Avoid treating long-duration exposure as automatically defensive.",
+      "likely_direction": "Slow tightening / balance-sheet normalization risk",
+      "main_risk": "A yield or yen shock can tighten global financial conditions.",
+      "stance": "Gradual normalization risk"
+    },
+    "ecb": {
+      "confidence": 0.95,
+      "etf_implication": "European equity and bond additions require exact UCITS identity, current completed-close evidence, liquidity and relative-strength confirmation.",
+      "event_date": "2026-07-23",
+      "event_status": "verified_latest_policy_decision",
+      "likely_direction": "The ECB kept all three key rates unchanged on 23 July 2026 and retained a meeting-by-meeting, data-dependent approach.",
+      "main_risk": "Energy-price volatility and second-round inflation effects can weaken growth while keeping policy restrictive.",
+      "source_url": "https://www.ecb.europa.eu/press/pr/date/2026/html/ecb.mp260723~29f24d99bc.en.html",
+      "stance": "On hold after June tightening / data-dependent"
+    },
+    "fed": {
+      "confidence": 0.95,
+      "etf_implication": "Maintain quality and cash discipline; duration-sensitive or high-beta allocations still require current price, relative-strength and portfolio gates.",
+      "event_date": "2026-07-29",
+      "event_status": "verified_latest_policy_decision",
+      "likely_direction": "The FOMC kept the federal funds target at 3.50%-3.75% on 29 July 2026; three members preferred a 25 bp increase.",
+      "main_risk": "Elevated inflation and energy-related supply shocks increase the risk of renewed tightening or delayed easing.",
+      "source_url": "https://www.federalreserve.gov/newsevents/pressreleases/monetary20260729a.htm",
+      "stance": "On hold / inflation vigilance"
+    },
+    "pboc": {
+      "confidence": 0.55,
+      "etf_implication": "China exposure remains tactical watchlist unless price confirmation improves.",
+      "likely_direction": "Targeted support rather than broad reflation unless confidence improves",
+      "main_risk": "China stimulus disappointment can weigh on China beta and commodities.",
+      "stance": "Supportive but credibility-sensitive"
+    }
+  },
+  "confidence_decomposition": {
+    "client_facing_authority": false,
+    "components": {
+      "GLD_return_3m_pct": -12.05,
+      "IWM_rs_vs_SPY_3m_pct": 2.84,
+      "SMH_return_3m_pct": 2.65,
+      "SPY_return_3m_pct": 2.76,
+      "TLT_return_3m_pct": 0.0,
+      "legacy_confidence": 0.64
+    },
+    "decision_impact": "none_shadow_explanation_only",
+    "method": "legacy_proxy_static_explained_for_schema_v1",
+    "notes": [
+      "This is a compatibility decomposition for the legacy proxy regime path.",
+      "Deterministic derived confidence is planned for Phase 3 and is not yet production authority.",
+      "Current legacy regime label: Policy transition / mixed regime"
+    ],
+    "shadow_only": true
+  },
+  "cross_asset_confirmation": [
+    "Semiconductor leadership supports SMH, but factor overlap must remain explicit.",
+    "Small-cap and duration signals are not strong enough to justify broad beta expansion.",
+    "Hedge exposures must re-earn their role through current contribution and price behavior."
+  ],
+  "current_context_refresh": {
+    "authority": "descriptive_only",
+    "delivery_authority": false,
+    "execution_authority": false,
+    "fresh_official_sources": [
+      {
+        "event_date": "2026-07-29",
+        "institution": "Federal Reserve",
+        "source_url": "https://www.federalreserve.gov/newsevents/pressreleases/monetary20260729a.htm",
+        "verification_status": "official_primary_source_verified"
+      },
+      {
+        "event_date": "2026-07-23",
+        "institution": "European Central Bank",
+        "source_url": "https://www.ecb.europa.eu/press/pr/date/2026/html/ecb.mp260723~29f24d99bc.en.html",
+        "verification_status": "official_primary_source_verified"
+      }
+    ],
+    "funding_authority": false,
+    "historical_donor_report_date": "2026-07-29",
+    "historical_donor_source": "/home/runner/work/weekly-etf-eu/weekly-etf-eu/donor-weekly-etf/output/macro/latest.json",
+    "portfolio_mutation": false,
+    "refresh_scope": "official_central_bank_policy_facts_only",
+    "refreshed_at_utc": "2026-08-06T10:22:43Z",
+    "regime_label_treatment": "retained_historical_strategy_context_not_new_market_regime_measurement",
+    "report_date": "2026-08-05",
+    "schema_version": "etf_eu_current_macro_source_refresh_v1"
+  },
+  "field_authority": {
+    "active_drivers": {
+      "authority_class": "stage1_thesis_shadow_only",
+      "client_surface_allowed": false,
+      "decision_authority": "none_wp9_not_promoted",
+      "notes": [
+        "Stage-1 drivers are internal only until Stage-2 confirmation and explicit promotion."
+      ]
+    },
+    "central_banks": {
+      "authority_class": "client_safe_descriptive_policy_context",
+      "client_surface_allowed": true,
+      "decision_authority": "descriptive_only",
+      "notes": [
+        "May be paraphrased as policy context; it cannot create portfolio action by itself."
+      ]
+    },
+    "confidence_decomposition": {
+      "authority_class": "shadow_explanation",
+      "client_surface_allowed": false,
+      "decision_authority": "none_shadow_explanation_only",
+      "notes": [
+        "Internal explanation of legacy confidence only; do not expose components directly in client reports."
+      ]
+    },
+    "current_context_refresh": {
+      "authority_class": "official_policy_provenance",
+      "client_surface_allowed": false,
+      "decision_authority": "descriptive_only",
+      "notes": [
+        "Records official policy freshness and donor-history boundaries.",
+        "Does not authorize portfolio mutation, funding, execution or delivery."
+      ]
+    },
+    "deterministic_regime_shadow": {
+      "authority_class": "shadow_comparison_only",
+      "client_surface_allowed": false,
+      "decision_authority": "none_shadow_comparison_only",
+      "notes": [
+        "Raw macro_axes, macro_axis_scores, macro_evidence and shadow regime output must not enter client reports or decisions."
+      ]
+    },
+    "lane_adjustments": {
+      "authority_class": "legacy_compatibility_decision_input",
+      "client_surface_allowed": false,
+      "decision_authority": "legacy_lane_adjustments_only",
+      "notes": [
+        "Maintained for backward-compatible lane discovery only; not a promotion of deterministic regime output."
+      ]
+    },
+    "macro_data_audit_summary": {
+      "authority_class": "shadow_provenance_only",
+      "client_surface_allowed": false,
+      "decision_authority": "none_phase2_audit_only",
+      "notes": [
+        "Audit summary may support provenance review but cannot set regime or portfolio authority."
+      ]
+    },
+    "macro_signals": {
+      "authority_class": "internal_evidence_context",
+      "client_surface_allowed": false,
+      "decision_authority": "none_internal_evidence_only",
+      "notes": [
+        "Internal evidence layer; only sanitized summaries may transfer through report_transfer and macro_report_surface."
+      ]
+    },
+    "policy_catalysts": {
+      "authority_class": "client_safe_descriptive_catalyst_context",
+      "client_surface_allowed": true,
+      "decision_authority": "descriptive_only",
+      "notes": [
+        "Only catalysts explicitly marked transfer_to_report=true may be surfaced."
+      ]
+    },
+    "portfolio_implications": {
+      "authority_class": "client_safe_discipline_context",
+      "client_surface_allowed": true,
+      "decision_authority": "descriptive_only",
+      "notes": [
+        "May describe discipline and review implications; does not authorize trades without portfolio gates."
+      ]
+    },
+    "regime": {
+      "authority_class": "client_safe_descriptive_legacy",
+      "client_surface_allowed": true,
+      "decision_authority": "descriptive_only",
+      "notes": [
+        "May be shown as current descriptive regime wording through the client-safe macro report surface.",
+        "Does not by itself authorize lane scoring, fundability, or trades."
+      ]
+    },
+    "report_transfer": {
+      "authority_class": "client_surface_filter",
+      "client_surface_allowed": true,
+      "decision_authority": "output_contract_only",
+      "notes": [
+        "Limits what descriptive macro content can reach the report; does not add investment authority."
+      ]
+    }
+  },
+  "generated_at_utc": "2026-08-06T10:22:43Z",
+  "lane_adjustments": {
+    "AI compute infrastructure": {
+      "reason": "Regime and price leadership still support AI compute exposure, but concentration discipline applies.",
+      "score_adjustment": 0.08
+    },
+    "China platform beta": {
+      "reason": "Policy support is not yet enough to offset confidence and price-confirmation risk.",
+      "score_adjustment": -0.08
+    },
+    "Defense innovation / sovereign resilience": {
+      "reason": "Policy support is durable, but implementation quality remains the main decision bottleneck.",
+      "score_adjustment": 0.08
+    },
+    "Gold hedge review": {
+      "reason": "Gold must prove hedge behavior; macro status alone is not enough for fresh capital.",
+      "score_adjustment": -0.06
+    },
+    "Grid buildout / electrification": {
+      "reason": "AI power demand and infrastructure policy support the grid lane; funding still depends on PAVE-vs-GRID duel evidence.",
+      "score_adjustment": 0.1
+    },
+    "Non-U.S. developed diversification": {
+      "reason": "Non-U.S. developed exposure is now present through IEFA, but additional allocation still needs policy, pricing and relative-strength confirmation.",
+      "score_adjustment": 0.04
+    },
+    "Rate-sensitive small caps": {
+      "reason": "Current regime does not yet confirm broad small-cap risk appetite.",
+      "score_adjustment": -0.1
+    }
+  },
+  "macro_data_audit_summary": {
+    "client_facing_authority": false,
+    "decision_impact": "none_phase2_audit_only",
+    "mode": "none",
+    "observation_count": 0,
+    "present": false,
+    "reference_date": null,
+    "shadow_only": true,
+    "status": "shadow_unavailable"
+  },
+  "macro_signals": {
+    "duration": {
+      "evidence": {
+        "TLT_return_3m_pct": 0.0
+      },
+      "signal": "not_confirmed_as_tailwind"
+    },
+    "equity_leadership": {
+      "evidence": {
+        "IWM_rs_vs_SPY_3m_pct": 2.84,
+        "SMH_return_3m_pct": 2.65,
+        "SPY_return_3m_pct": 2.76
+      },
+      "signal": "mixed"
+    },
+    "hedge_ballast": {
+      "evidence": {
+        "GLD_return_3m_pct": -12.05
+      },
+      "signal": "under_review"
+    }
+  },
+  "policy_catalysts": [
+    {
+      "affected_lanes": [
+        "AI compute infrastructure",
+        "Rate-sensitive small caps",
+        "Long-duration bonds"
+      ],
+      "confidence": 0.95,
+      "direction": "on hold with hawkish dissent",
+      "event_date": "2026-07-29",
+      "event_status": "verified_report_week_policy_event",
+      "latest_signal": "The FOMC held the target range at 3.50%-3.75%; three voters preferred a 25 bp increase, reinforcing inflation and rate-volatility discipline.",
+      "policy_area": "Federal Reserve rate-policy hold",
+      "source_url": "https://www.federalreserve.gov/newsevents/pressreleases/monetary20260729a.htm",
+      "time_horizon": "1-6 months",
+      "transfer_to_report": true
+    },
+    {
+      "affected_lanes": [
+        "Non-U.S. developed diversification",
+        "Rate-sensitive small caps",
+        "Long-duration bonds"
+      ],
+      "confidence": 0.95,
+      "direction": "on hold / data-dependent",
+      "event_date": "2026-07-23",
+      "event_status": "verified_report_week_policy_event",
+      "latest_signal": "The ECB kept key rates unchanged and retained a data-dependent approach while monitoring energy-driven inflation risks.",
+      "policy_area": "ECB rate-policy hold",
+      "source_url": "https://www.ecb.europa.eu/press/pr/date/2026/html/ecb.mp260723~29f24d99bc.en.html",
+      "time_horizon": "1-6 months",
+      "transfer_to_report": true
+    },
+    {
+      "affected_lanes": [
+        "AI compute infrastructure",
+        "Grid buildout / electrification"
+      ],
+      "confidence": 0.72,
+      "direction": "supportive",
+      "latest_signal": "Capital spending and strategic supply-chain policy continue to support semiconductor and infrastructure lanes.",
+      "policy_area": "AI infrastructure and semiconductor supply chains",
+      "time_horizon": "3-12 months",
+      "transfer_to_report": true
+    },
+    {
+      "affected_lanes": [
+        "Defense innovation / sovereign resilience"
+      ],
+      "confidence": 0.65,
+      "direction": "supportive but implementation-sensitive",
+      "latest_signal": "Defense-budget durability remains a structural support, but ETF vehicle choice still matters.",
+      "policy_area": "Defense and sovereign resilience",
+      "time_horizon": "6-18 months",
+      "transfer_to_report": true
+    },
+    {
+      "affected_lanes": [
+        "Uranium / nuclear fuel cycle"
+      ],
+      "confidence": 0.6,
+      "direction": "supportive but cyclical",
+      "latest_signal": "Energy-security policy keeps uranium and nuclear infrastructure relevant, but timing remains price-confirmation dependent.",
+      "policy_area": "Energy security and nuclear policy",
+      "time_horizon": "6-24 months",
+      "transfer_to_report": false
+    },
+    {
+      "affected_lanes": [
+        "China platform beta",
+        "EM equity beta"
+      ],
+      "confidence": 0.52,
+      "direction": "mixed",
+      "latest_signal": "Support remains watchlist-relevant, but confidence and earnings confirmation are still required.",
+      "policy_area": "China stimulus and platform regulation",
+      "time_horizon": "1-6 months",
+      "transfer_to_report": false
+    }
+  ],
+  "portfolio_implications": [
+    "Retain cash discipline while policy remains inflation-sensitive and both the Fed and ECB are on hold.",
+    "Fund only exact UCITS lines with current completed-close agreement, adequate liquidity and explicit allocation authority.",
+    "Treat thematic candidates as monitored opportunities until portfolio and activation gates pass; current prices alone do not authorize funding."
+  ],
+  "promotion_gates": {
+    "blocked_authority": [
+      "raw_macro_axes_client_surface",
+      "raw_macro_axis_scores_client_surface",
+      "deterministic_regime_shadow_client_surface",
+      "stage1_thesis_candidates_client_surface",
+      "macro_direct_lane_scoring_authority",
+      "macro_direct_fundability_authority",
+      "macro_direct_portfolio_trade_authority"
+    ],
+    "client_surface_status": "descriptive_surface_only",
+    "decision_authority_status": "none_for_portfolio_activation",
+    "required_before_decision_authority": [
+      "macro_policy_pack_schema_contract_green",
+      "deterministic_regime_fixture_replay_green",
+      "macro_audit_fixture_replay_green",
+      "macro_compliance_validator_green",
+      "bilingual_report_surface_validation_green",
+      "production_report_validation_green",
+      "explicit_control_layer_promotion_decision"
+    ],
+    "status": "descriptive_policy_refresh_not_promoted"
+  },
+  "reference_architecture_repo": "market-predictions/weekly-etf",
+  "regime": {
+    "confidence": 0.64,
+    "confidence_source": "retained_donor_historical_context",
+    "current": "Policy transition / mixed regime",
+    "previous": "Unknown",
+    "what_changed": [
+      "The 29 July FOMC decision kept rates unchanged but included three votes for a rate increase.",
+      "The ECB kept rates unchanged on 23 July while highlighting persistent energy and inflation uncertainty.",
+      "The market-regime label is retained from the 29 July donor review as historical strategy context and is not re-estimated in this refresh."
+    ]
+  },
+  "regime_memory": {
+    "breadth_trend": "improving",
+    "confidence_trend": "flat",
+    "cross_asset_confirmation": "mixed",
+    "current_confidence": 0.64,
+    "current_regime": "Policy transition / mixed regime",
+    "decision_rule": "Do not infer a fresh regime shift from policy releases alone; require new price, breadth and cross-asset evidence.",
+    "failed_rotation_count": 0,
+    "last_major_shift": "2026-07-29",
+    "previous_confidence": 0.66,
+    "prior_regime": "Risk-on growth",
+    "regime_changed_this_run": false,
+    "report_date": "2026-08-05",
+    "report_transfer": {
+      "max_lines": 2,
+      "show_in_report": true,
+      "summary": "Policy transition / mixed regime remains historical strategy context from 29 July; fresh Fed and ECB decisions reinforce inflation and cash-discipline risks."
+    },
+    "transition_state": "retained_historical_context",
+    "updated_at_utc": "2026-08-06T10:22:43Z",
+    "weeks_in_regime": 1
+  },
+  "report_date": "2026-08-05",
+  "report_transfer": {
+    "max_policy_catalysts": 3,
+    "max_portfolio_implications": 3,
+    "max_what_changed_bullets": 3,
+    "style_rule": "Transfer only current official policy facts and clearly labelled historical regime context; never present stale donor analysis as current market truth."
+  },
+  "schema_version": "1.0",
+  "source_files": {
+    "macro_context": "config/etf_macro_fundamental_context.yml",
+    "macro_data_audit": null,
+    "pricing_audit": "output/pricing/price_audit_2026-07-29_20260729_212005.json",
+    "relative_strength": "output/market_history/etf_relative_strength.json"
+  },
+  "source_of_truth_repo": "market-predictions/weekly-etf-eu"
+}
