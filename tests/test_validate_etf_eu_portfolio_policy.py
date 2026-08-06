@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 from copy import deepcopy
+from datetime import date
 
+from pricing.build_current_session_close_results import resolve_previous_session_close_date
 from tools.validate_etf_eu_portfolio_policy import validate
 
 
@@ -101,3 +103,23 @@ def test_nav_arithmetic_mismatch_is_blocked() -> None:
     result = validate(POLICY, state)
     assert result["verdict"] == "FAIL"
     assert "cash_plus_positions_equals_nav" in result["blockers"]
+
+
+def test_xetra_next_session_rollover_preserves_previous_close_date() -> None:
+    resolved, mode = resolve_previous_session_close_date(
+        report_date=date(2026, 8, 5),
+        last_trade_date=date(2026, 8, 6),
+        observed_after_report_session=True,
+    )
+    assert resolved == date(2026, 8, 5)
+    assert mode == "next_session_previous_close_rollover"
+
+
+def test_xetra_stale_rollover_remains_fail_closed() -> None:
+    resolved, mode = resolve_previous_session_close_date(
+        report_date=date(2026, 8, 4),
+        last_trade_date=date(2026, 8, 6),
+        observed_after_report_session=True,
+    )
+    assert resolved is None
+    assert mode is None
