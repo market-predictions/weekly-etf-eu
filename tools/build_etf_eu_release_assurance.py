@@ -33,7 +33,6 @@ def load_json(path: Path) -> Any:
 
 
 def contains_identity(payload: Any, value: str) -> bool:
-    """Return True when a scalar value appears anywhere in a JSON-like payload."""
     if isinstance(payload, dict):
         return any(contains_identity(item, value) for item in payload.values())
     if isinstance(payload, list):
@@ -41,13 +40,7 @@ def contains_identity(payload: Any, value: str) -> bool:
     return str(payload) == value
 
 
-def add_check(
-    checks: list[dict[str, Any]],
-    blockers: list[str],
-    check_id: str,
-    passed: bool,
-    evidence: Any,
-) -> None:
+def add_check(checks: list[dict[str, Any]], blockers: list[str], check_id: str, passed: bool, evidence: Any) -> None:
     checks.append({"id": check_id, "passed": bool(passed), "evidence": evidence})
     if not passed:
         blockers.append(check_id)
@@ -73,25 +66,13 @@ def main() -> int:
 
     checks: list[dict[str, Any]] = []
     blockers: list[str] = []
-
     try:
         datetime.strptime(args.report_date, "%Y-%m-%d")
         valid_report_date = True
     except ValueError:
         valid_report_date = False
     source_sha_valid = bool(re.fullmatch(r"[0-9a-fA-F]{40}", args.source_sha))
-    add_check(
-        checks,
-        blockers,
-        "source_commit_bound",
-        source_sha_valid and valid_report_date and bool(args.run_id) and bool(args.report_suffix),
-        {
-            "source_sha": args.source_sha,
-            "run_id": args.run_id,
-            "report_date": args.report_date,
-            "report_suffix": args.report_suffix,
-        },
-    )
+    add_check(checks, blockers, "source_commit_bound", source_sha_valid and valid_report_date and bool(args.run_id) and bool(args.report_suffix), {"source_sha": args.source_sha, "run_id": args.run_id, "report_date": args.report_date, "report_suffix": args.report_suffix})
 
     artifact_paths = {
         "package_manifest": args.package_manifest,
@@ -109,7 +90,7 @@ def main() -> int:
 
     parsed: dict[str, Any] = {}
     json_errors: dict[str, str] = {}
-    for key in ("package_manifest", "ready_artifact", "routine_manifest", "visual_review"):
+    for key in ("package_manifest", "ready_artifact", "routine_manifest", "visual_review", "delivery_queue"):
         path = artifact_paths[key]
         if path.is_file():
             try:
@@ -139,13 +120,7 @@ def main() -> int:
         for key, path in artifact_paths.items():
             hashes[key] = {"path": str(path), "sha256": sha256_file(path)}
     client_hashes_complete = all(key in hashes for key in REQUIRED_CLIENT_ARTIFACTS)
-    add_check(
-        checks,
-        blockers,
-        "artifact_hashes_complete",
-        client_hashes_complete,
-        {key: hashes.get(key) for key in REQUIRED_CLIENT_ARTIFACTS},
-    )
+    add_check(checks, blockers, "artifact_hashes_complete", client_hashes_complete, {key: hashes.get(key) for key in REQUIRED_CLIENT_ARTIFACTS})
 
     identity_failures: list[str] = []
     for key in ("package_manifest", "ready_artifact", "routine_manifest"):
@@ -157,78 +132,67 @@ def main() -> int:
             identity_failures.append(f"{key}: run_id not bound")
         if not contains_identity(payload, args.report_date):
             identity_failures.append(f"{key}: report_date not bound")
-    add_check(
-        checks,
-        blockers,
-        "manifest_identity_consistent",
-        not identity_failures,
-        identity_failures,
-    )
+    add_check(checks, blockers, "manifest_identity_consistent", not identity_failures, identity_failures)
+
+    routine = parsed.get("routine_manifest") if isinstance(parsed.get("routine_manifest"), dict) else {}
+    state_artifacts = routine.get("state_artifacts") if isinstance(routine.get("state_artifacts"), dict) else {}
+    policy_record = state_artifacts.get("portfolio_policy_validation") if isinstance(state_artifacts.get("portfolio_policy_validation"), dict) else {}
+    state_record = state_artifacts.get("production_convergence_state") if isinstance(state_artifacts.get("production_convergence_state"), dict) else {}
+    policy_path = Path(str(policy_record.get("path") or ""))
+    policy_payload: dict[str, Any] = {}
+    policy_errors: list[str] = []
+    if not policy_path.is_file():
+        policy_errors.append("policy validation artifact missing")
+    else:
+        try:
+            loaded = load_json(policy_path)
+            if not isinstance(loaded, dict):
+                policy_errors.append("policy validation is not a JSON object")
+            else:
+                policy_payload = loaded
+        except (OSError, UnicodeDecodeError, json.JSONDecodeError) as exc:
+            policy_errors.append(f"policy validation unreadable: {exc}")
+    if policy_payload:
+        if policy_payload.get("schema_version") != "etf_eu_portfolio_policy_validation_v2":
+            policy_errors.append("unexpected policy validation schema")
+        if policy_payload.get("verdict") != "PASS" or policy_payload.get("valid") is not True or policy_payload.get("blockers"):
+            policy_errors.append("policy validation did not PASS")
+        if policy_record.get("sha256") != sha256_file(policy_path):
+            policy_errors.append("policy validation artifact hash mismatch")
+        if policy_record.get("policy_id") != policy_payload.get("policy_id"):
+            policy_errors.append("policy identity mismatch")
+        if policy_record.get("policy_sha256") != policy_payload.get("policy_sha256"):
+            policy_errors.append("policy source hash mismatch")
+        if policy_payload.get("state_sha256") != state_record.get("sha256"):
+            policy_errors.append("policy PASS is not bound to convergence state")
+    add_check(checks, blockers, "portfolio_policy_passed", not policy_errors, {"errors": policy_errors, "policy_id": policy_payload.get("policy_id"), "policy_sha256": policy_payload.get("policy_sha256"), "state_sha256": policy_payload.get("state_sha256"), "validation_sha256": sha256_file(policy_path) if policy_path.is_file() else None})
+    if policy_path.is_file():
+        hashes["portfolio_policy_validation"] = {"path": str(policy_path), "sha256": sha256_file(policy_path)}
 
     visual = parsed.get("visual_review", {})
-    visual_passed = (
-        isinstance(visual, dict)
-        and visual.get("visual_review_passed") is True
-        and not visual.get("blockers")
-    )
-    add_check(
-        checks,
-        blockers,
-        "visual_review_passed",
-        visual_passed,
-        {
-            "visual_review_passed": visual.get("visual_review_passed") if isinstance(visual, dict) else None,
-            "blockers": visual.get("blockers") if isinstance(visual, dict) else ["invalid visual review payload"],
-        },
-    )
+    visual_passed = isinstance(visual, dict) and visual.get("visual_review_passed") is True and not visual.get("blockers")
+    add_check(checks, blockers, "visual_review_passed", visual_passed, {"visual_review_passed": visual.get("visual_review_passed") if isinstance(visual, dict) else None, "blockers": visual.get("blockers") if isinstance(visual, dict) else ["invalid visual review payload"]})
 
-    queue_text = ""
-    if args.delivery_queue.is_file():
-        queue_text = args.delivery_queue.read_text(encoding="utf-8", errors="replace")
-    queue_bound = args.run_id in queue_text and args.report_date in queue_text
-    add_check(
-        checks,
-        blockers,
-        "delivery_queue_bound",
-        queue_bound,
-        {
-            "path": str(args.delivery_queue),
-            "run_id_present": args.run_id in queue_text,
-            "report_date_present": args.report_date in queue_text,
-        },
-    )
+    queue = parsed.get("delivery_queue") if isinstance(parsed.get("delivery_queue"), dict) else {}
+    queue_bound = contains_identity(queue, args.run_id) and contains_identity(queue, args.report_date)
+    queue_policy_bound = contains_identity(queue, str(policy_payload.get("policy_id") or "")) and contains_identity(queue, str(policy_payload.get("policy_sha256") or ""))
+    add_check(checks, blockers, "delivery_queue_bound", queue_bound, {"path": str(args.delivery_queue), "run_id_bound": contains_identity(queue, args.run_id), "report_date_bound": contains_identity(queue, args.report_date)})
+    add_check(checks, blockers, "delivery_queue_policy_bound", queue_policy_bound, {"policy_id": policy_payload.get("policy_id"), "policy_sha256": policy_payload.get("policy_sha256")})
 
-    add_check(
-        checks,
-        blockers,
-        "roles_separated",
-        IMPLEMENTATION_ROLE != ASSURANCE_ROLE,
-        {
-            "implementation_role": IMPLEMENTATION_ROLE,
-            "assurance_role": ASSURANCE_ROLE,
-            "implementation_may_self_certify": False,
-        },
-    )
+    add_check(checks, blockers, "roles_separated", IMPLEMENTATION_ROLE != ASSURANCE_ROLE, {"implementation_role": IMPLEMENTATION_ROLE, "assurance_role": ASSURANCE_ROLE, "implementation_may_self_certify": False})
 
     decision = "PASS" if not blockers else "FAIL"
     output = {
-        "schema_version": 1,
+        "schema_version": 2,
         "product": "weekly_etf_eu",
         "generated_at_utc": datetime.now(timezone.utc).replace(microsecond=0).isoformat(),
         "decision": decision,
+        "status": "GOVERNANCE_PASS_PRE_SEND" if decision == "PASS" else "GOVERNANCE_FAIL",
         "implementation_role": IMPLEMENTATION_ROLE,
         "assurance_role": ASSURANCE_ROLE,
-        "separation_of_duties": {
-            "same_role": False,
-            "implementation_may_self_certify": False,
-            "assurance_may_mutate_release_candidate": False,
-        },
-        "identity": {
-            "source_sha": args.source_sha.lower(),
-            "run_id": args.run_id,
-            "report_date": args.report_date,
-            "report_suffix": args.report_suffix,
-        },
+        "separation_of_duties": {"same_role": False, "implementation_may_self_certify": False, "assurance_may_mutate_release_candidate": False},
+        "identity": {"source_sha": args.source_sha.lower(), "run_id": args.run_id, "report_date": args.report_date, "report_suffix": args.report_suffix},
+        "portfolio_policy": {"policy_id": policy_payload.get("policy_id"), "policy_sha256": policy_payload.get("policy_sha256"), "validation_sha256": sha256_file(policy_path) if policy_path.is_file() else None, "state_sha256": policy_payload.get("state_sha256"), "verdict": policy_payload.get("verdict")},
         "checks": checks,
         "artifact_hashes": hashes,
         "blockers": blockers,
