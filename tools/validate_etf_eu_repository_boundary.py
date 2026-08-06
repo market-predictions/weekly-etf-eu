@@ -1,5 +1,10 @@
 #!/usr/bin/env python3
-"""Fail closed when FX production assets leak into the Weekly ETF EU repository."""
+"""Fail closed when FX production assets leak into the Weekly ETF EU repository.
+
+Data-provider names are not product identity by themselves. Twelve Data may be used
+for bounded UCITS symbol discovery. The prohibited signals below identify the actual
+FX runner, output contract and DailyTradeBias product surfaces.
+"""
 from __future__ import annotations
 
 import argparse
@@ -14,12 +19,13 @@ PROHIBITED_ROOT_PATHS = (
     "gpt.txt",
 )
 PROHIBITED_WORKFLOW_TOKENS = (
-    "TWELVEDATA_API_KEY",
     "python prediction.py",
     "daily_outputs/latest",
     "FX_BACKTEST",
     "DailyTradeBias",
     "market-predictions/daily-fx",
+    "today_prediction_ranking",
+    "Today_Predictions.zip",
 )
 
 
@@ -54,6 +60,10 @@ def validate(root: Path) -> dict[str, Any]:
         "blockers": blockers,
         "prohibited_root_paths": list(PROHIBITED_ROOT_PATHS),
         "prohibited_workflow_tokens": list(PROHIBITED_WORKFLOW_TOKENS),
+        "allowed_cross_product_neutral_provider_use": [
+            "bounded UCITS symbol discovery",
+            "ETF pricing diagnostics without FX output contracts",
+        ],
     }
 
 
