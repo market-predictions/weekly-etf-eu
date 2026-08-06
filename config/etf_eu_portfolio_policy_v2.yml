@@ -1,0 +1,67 @@
+schema_version: etf_eu_portfolio_policy_v2
+policy_id: ETF_EU_PORTFOLIO_POLICY_V2_STAGE1_PARTIAL
+status: active_release_authority
+effective_date: 2026-08-06
+portfolio_id: weekly_etf_eu_model
+base_currency: EUR
+model_portfolio_only: true
+real_broker_execution_allowed: false
+
+# Authority precedence is explicit. Donor opportunity promotion may select a candidate,
+# but it may never override this portfolio envelope or silently rewrite target weights.
+authority_precedence:
+  - this_policy
+  - authoritative_portfolio_state
+  - current_pricing_evidence
+  - donor_opportunity_state
+  - historical_strategy_context
+
+active_release_mode:
+  mode_id: stage1_partial_activation
+  expected_funded_tickers:
+    - VWCE
+    - EUNA
+    - SXR8
+    - L0CK
+  allowed_funded_tickers:
+    - VWCE
+    - EUNA
+    - SXR8
+    - L0CK
+  monitored_unfunded_tickers:
+    - VVSM
+  minimum_position_count: 4
+  maximum_position_count: 8
+  minimum_cash_weight_pct: 35.0
+  maximum_single_position_weight_pct: 50.0
+  maximum_satellite_weight_pct: 15.0
+  maximum_weight_by_ticker_pct:
+    VWCE: 50.0
+    EUNA: 15.0
+    SXR8: 15.0
+    L0CK: 15.0
+  required_activation_tickers:
+    - L0CK
+  prohibited_executable_trade_intents: true
+
+strategic_context:
+  source: config/etf_eu_target_allocation.yml
+  status: long_horizon_context_not_current_order_authority
+  note: >-
+    The older strategic targets remain portfolio-design context. They do not authorize
+    automatic migration, fifth-position funding, incumbent sales, or concentration above
+    this active release envelope. Any replacement policy must explicitly supersede this ID.
+
+reconciliation:
+  nav_tolerance_eur: 1.00
+  weight_tolerance_pct: 0.10
+  require_position_market_values: true
+  require_cash_plus_positions_equals_nav: true
+  require_stated_weights_match_computed_weights: true
+
+release_rules:
+  portfolio_policy_validation_required: true
+  validation_verdict_required: PASS
+  bind_policy_hash_to_routine_manifest: true
+  bind_validation_hash_to_release_assurance: true
+  fail_closed_on_missing_or_stale_policy_evidence: true
