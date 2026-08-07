@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import json
 import sys
 from datetime import date, datetime, time, timedelta, timezone
@@ -17,6 +18,7 @@ _original_fetch_yahoo = legacy.fetch_yahoo
 _original_fetch_boerse = legacy.fetch_boerse
 CORE_FUNDED_TICKERS = {"VWCE", "EUNA", "SXR8"}
 ALLOWED_ACTIVATED_TICKERS = {"L0CK"}
+BOERSE_HISTORY_TRACE_SALT = "w4ivc1ATTGta6njAZzMbkL3kJwxMfEAKDa3MNr"
 
 
 def normalize_ticker(value: Any) -> str:
@@ -67,11 +69,21 @@ def _historical_close_from_boerse_payload(payload: Any, report_date: date) -> tu
     return None
 
 
-def fetch_boerse_with_historical_replay(
-    line: dict[str, Any],
-    report_date: date,
-) -> dict[str, Any]:
-    """Use the live Börse identity check, then replay the exact report-date close when needed."""
+def boerse_history_headers(url: str) -> dict[str, str]:
+    current = legacy.now_utc()
+    client_date = current.isoformat(timespec="milliseconds").replace("+00:00", "Z")
+    trace_id = hashlib.md5((client_date + url + BOERSE_HISTORY_TRACE_SALT).encode("utf-8")).hexdigest()
+    return {
+        "Accept": "application/json, text/plain, */*",
+        "Client-Date": client_date,
+        "X-Client-TraceId": trace_id,
+        "Referer": "https://www.boerse-frankfurt.de/",
+        "User-Agent": "Mozilla/5.0 Weekly-ETF-EU-Historical-Close/1.0",
+    }
+
+
+def fetch_boerse_with_historical_replay(line: dict[str, Any], report_date: date) -> dict[str, Any]:
+    """Use live Börse identity, then replay exact report-date history with the history API contract."""
 
     result = _original_fetch_boerse(line, report_date)
     if result.get("pricing_status") == "priced" and result.get("close_date") == report_date.isoformat():
@@ -86,16 +98,19 @@ def fetch_boerse_with_historical_replay(
         return result
 
     params = {
-        "limit": 10,
+        "limit": 50,
         "offset": 0,
         "isin": line["isin"],
         "mic": line["venue_code"],
         "minDate": report_date.isoformat(),
         "maxDate": report_date.isoformat(),
+        "cleanSplit": "false",
+        "cleanPayout": "false",
+        "cleanSubscriptionRights": "false",
     }
     url = f"{legacy.BASE_URL}/v1/data/price_history?{urlencode(params)}"
     try:
-        response = requests.get(url, headers=legacy.boerse_headers(url), timeout=legacy.TIMEOUT_SECONDS)
+        response = requests.get(url, headers=boerse_history_headers(url), timeout=legacy.TIMEOUT_SECONDS)
         payload = response.json()
     except Exception as exc:
         blockers = list(result.get("blockers") or [])
