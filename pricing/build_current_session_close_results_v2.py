@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import sys
 from datetime import date, datetime, time, timedelta, timezone
 from pathlib import Path
 from typing import Any
@@ -70,23 +71,13 @@ def fetch_boerse_with_historical_replay(
     line: dict[str, Any],
     report_date: date,
 ) -> dict[str, Any]:
-    """Use the live Börse identity check, then replay the exact report-date close when needed.
-
-    The legacy live endpoint is intentionally retained as the identity anchor. If the
-    requested report date is no longer the latest completed Xetra session, the same
-    exact ISIN+MIC query is sent to Börse Frankfurt's daily price-history endpoint.
-    This preserves the two-provider Börse+Yahoo consensus requirement for delayed CI
-    reruns without treating a later live session as evidence for an older report date.
-    """
+    """Use the live Börse identity check, then replay the exact report-date close when needed."""
 
     result = _original_fetch_boerse(line, report_date)
     if result.get("pricing_status") == "priced" and result.get("close_date") == report_date.isoformat():
         return result
     if line.get("venue_code") != "XETR":
         return result
-
-    # Historical price evidence may only supplement an already verified exact
-    # instrument identity. A failed/mismatched live identity must remain fail-closed.
     if result.get("venue_match") is not True or result.get("currency_match") is not True:
         blockers = list(result.get("blockers") or [])
         if "historical_replay_identity_not_verified" not in blockers:
@@ -104,11 +95,7 @@ def fetch_boerse_with_historical_replay(
     }
     url = f"{legacy.BASE_URL}/v1/data/price_history?{urlencode(params)}"
     try:
-        response = requests.get(
-            url,
-            headers=legacy.boerse_headers(url),
-            timeout=legacy.TIMEOUT_SECONDS,
-        )
+        response = requests.get(url, headers=legacy.boerse_headers(url), timeout=legacy.TIMEOUT_SECONDS)
         payload = response.json()
     except Exception as exc:
         blockers = list(result.get("blockers") or [])
@@ -120,6 +107,7 @@ def fetch_boerse_with_historical_replay(
         blockers = list(result.get("blockers") or [])
         blockers.append(f"historical_replay_provider_error:{response.status_code}")
         result["blockers"] = blockers
+        result["historical_replay_debug"] = {"url": url, "status_code": response.status_code}
         return result
 
     historical = _historical_close_from_boerse_payload(payload, report_date)
@@ -127,6 +115,14 @@ def fetch_boerse_with_historical_replay(
         blockers = list(result.get("blockers") or [])
         blockers.append("historical_report_date_close_unavailable")
         result["blockers"] = blockers
+        result["historical_replay_debug"] = {
+            "url": url,
+            "status_code": response.status_code,
+            "payload_type": type(payload).__name__,
+            "payload_keys": sorted(payload.keys()) if isinstance(payload, dict) else [],
+            "total_count": payload.get("totalCount") if isinstance(payload, dict) else None,
+            "sample_data": (payload.get("data") or [])[:2] if isinstance(payload, dict) and isinstance(payload.get("data"), list) else None,
+        }
         return result
 
     close_price, row = historical
@@ -161,10 +157,7 @@ def fetch_boerse_with_historical_replay(
     return result
 
 
-def fetch_yahoo_with_regular_market_fallback(
-    line: dict[str, Any],
-    report_date: date,
-) -> dict[str, Any]:
+def fetch_yahoo_with_regular_market_fallback(line: dict[str, Any], report_date: date) -> dict[str, Any]:
     result = _original_fetch_yahoo(line, report_date)
     if result.get("pricing_status") == "priced" and result.get("close_date") == report_date.isoformat():
         return result
@@ -177,21 +170,10 @@ def fetch_yahoo_with_regular_market_fallback(
     period1 = int(datetime.combine(start, time.min, tzinfo=timezone.utc).timestamp())
     period2 = int(datetime.combine(report_date + timedelta(days=2), time.min, tzinfo=timezone.utc).timestamp())
     url = f"https://query1.finance.yahoo.com/v8/finance/chart/{quote(symbol)}"
-    params = {
-        "period1": period1,
-        "period2": period2,
-        "interval": "1d",
-        "events": "history",
-        "includeAdjustedClose": "true",
-    }
+    params = {"period1": period1, "period2": period2, "interval": "1d", "events": "history", "includeAdjustedClose": "true"}
     observed_at = datetime.now(timezone.utc)
     try:
-        response = requests.get(
-            url,
-            params=params,
-            timeout=legacy.TIMEOUT_SECONDS,
-            headers={"User-Agent": "Weekly-ETF-EU/1.0"},
-        )
+        response = requests.get(url, params=params, timeout=legacy.TIMEOUT_SECONDS, headers={"User-Agent": "Weekly-ETF-EU/1.0"})
         payload = response.json()
     except Exception as exc:
         result.setdefault("blockers", []).append(f"regular_market_metadata_request_exception:{type(exc).__name__}")
@@ -204,11 +186,7 @@ def fetch_yahoo_with_regular_market_fallback(
         return result
 
     meta = data_rows[0].get("meta") or {}
-    fallback = report_date_regular_market_close(
-        meta,
-        report_date=report_date,
-        observed_at_utc=observed_at,
-    )
+    fallback = report_date_regular_market_close(meta, report_date=report_date, observed_at_utc=observed_at)
     if fallback is None:
         result.setdefault("blockers", []).append("report_date_regular_market_metadata_unavailable")
         return result
@@ -216,56 +194,77 @@ def fetch_yahoo_with_regular_market_fallback(
     returned_currency = str(meta.get("currency") or "").upper() or None
     returned_exchange = str(meta.get("exchangeName") or meta.get("fullExchangeName") or "") or None
     expected_venue = str(line.get("venue_code") or "").upper()
-    venue_aliases = {
-        "XETR": {"GER", "XETRA", "GERMANY", "DEX"},
-        "XAMS": {"AMS", "AS", "AMSTERDAM", "EURONEXT AMSTERDAM"},
-        "XLON": {"LSE", "LON", "LONDON", "LONDON STOCK EXCHANGE"},
-    }
+    venue_aliases = {"XETR": {"GER", "XETRA", "GERMANY", "DEX"}, "XAMS": {"AMS", "AS", "AMSTERDAM", "EURONEXT AMSTERDAM"}, "XLON": {"LSE", "LON", "LONDON", "LONDON STOCK EXCHANGE"}}
     venue_match = returned_exchange.upper() in venue_aliases.get(expected_venue, {expected_venue}) if returned_exchange else None
     currency_match = returned_currency == str(line.get("currency") or "").upper() if returned_currency else None
     if venue_match is not True or currency_match is not True:
         result.setdefault("blockers", []).append("regular_market_metadata_identity_mismatch")
         return result
 
-    result.update(
-        {
-            "pricing_status": "priced",
-            "close_date": report_date.isoformat(),
-            "close_price": round(float(fallback["close_price"]), 8),
-            "close_age_days": 0,
-            "returned_symbol": str(meta.get("symbol") or symbol),
-            "returned_exchange": returned_exchange,
-            "returned_mic": None,
-            "returned_currency": returned_currency,
-            "venue_match": venue_match,
-            "currency_match": currency_match,
-            "identity_status": "metadata_matches_expected_line",
-            "retrieval_mode": "live_regular_market_metadata_fallback",
-            "regular_market_metadata_fallback": fallback,
-            "blockers": [],
-        }
-    )
+    result.update({"pricing_status": "priced", "close_date": report_date.isoformat(), "close_price": round(float(fallback["close_price"]), 8), "close_age_days": 0, "returned_symbol": str(meta.get("symbol") or symbol), "returned_exchange": returned_exchange, "returned_mic": None, "returned_currency": returned_currency, "venue_match": venue_match, "currency_match": currency_match, "identity_status": "metadata_matches_expected_line", "retrieval_mode": "live_regular_market_metadata_fallback", "regular_market_metadata_fallback": fallback, "blockers": []})
     evidence = list(result.get("identity_evidence") or [])
-    evidence.append(
-        {
-            "returned_symbol": str(meta.get("symbol") or symbol),
-            "returned_exchange": returned_exchange,
-            "returned_currency": returned_currency,
-            "regular_market_price": fallback["close_price"],
-            "regular_market_time_berlin": fallback["regular_market_time_berlin"],
-            "completion_mode": fallback["completion_mode"],
-            "source_field": fallback["source_field"],
-        }
-    )
+    evidence.append({"returned_symbol": str(meta.get("symbol") or symbol), "returned_exchange": returned_exchange, "returned_currency": returned_currency, "regular_market_price": fallback["close_price"], "regular_market_time_berlin": fallback["regular_market_time_berlin"], "completion_mode": fallback["completion_mode"], "source_field": fallback["source_field"]})
     result["identity_evidence"] = evidence
     return result
+
+
+def _argument_value(flag: str) -> str | None:
+    try:
+        index = sys.argv.index(flag)
+    except ValueError:
+        return None
+    return sys.argv[index + 1] if index + 1 < len(sys.argv) else None
+
+
+def print_funded_failure_diagnostics() -> None:
+    path_text = _argument_value("--qualification-output")
+    if not path_text:
+        return
+    path = Path(path_text)
+    if not path.is_file():
+        return
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+    except Exception:
+        return
+    funded = [row for row in payload.get("lines") or [] if isinstance(row, dict) and row.get("funded")]
+    compact = []
+    for row in funded:
+        compact.append(
+            {
+                "ticker": row.get("ticker"),
+                "qualification_status": row.get("qualification_status"),
+                "selected_close_date": row.get("selected_close_date"),
+                "same_date_provider_count": row.get("same_date_provider_count"),
+                "providers": [
+                    {
+                        "provider": provider.get("provider"),
+                        "status": provider.get("pricing_status"),
+                        "close_date": provider.get("close_date"),
+                        "close_price": provider.get("close_price"),
+                        "venue_match": provider.get("venue_match"),
+                        "currency_match": provider.get("currency_match"),
+                        "retrieval_mode": provider.get("retrieval_mode"),
+                        "blockers": provider.get("blockers"),
+                        "historical_replay_debug": provider.get("historical_replay_debug"),
+                    }
+                    for provider in row.get("provider_results") or []
+                    if isinstance(provider, dict)
+                ],
+            }
+        )
+    print("FUNDED_PRICING_FAILURE_DIAGNOSTICS=" + json.dumps(compact, sort_keys=True))
 
 
 def main() -> None:
     legacy.fetch_boerse = fetch_boerse_with_historical_replay
     legacy.fetch_yahoo = fetch_yahoo_with_regular_market_fallback
     legacy.FUNDED_TICKERS = funded_tickers_from_state()
-    legacy.main()
+    try:
+        legacy.main()
+    except SystemExit:
+        print_funded_failure_diagnostics()
+        raise
 
 
 if __name__ == "__main__":
