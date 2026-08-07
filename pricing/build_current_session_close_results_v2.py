@@ -4,7 +4,7 @@ import json
 from datetime import date, datetime, time, timedelta, timezone
 from pathlib import Path
 from typing import Any
-from urllib.parse import quote
+from urllib.parse import quote, urlencode
 
 import requests
 
@@ -13,6 +13,7 @@ from pricing.yahoo_regular_market_fallback import report_date_regular_market_clo
 
 
 _original_fetch_yahoo = legacy.fetch_yahoo
+_original_fetch_boerse = legacy.fetch_boerse
 CORE_FUNDED_TICKERS = {"VWCE", "EUNA", "SXR8"}
 ALLOWED_ACTIVATED_TICKERS = {"L0CK"}
 
@@ -44,6 +45,120 @@ def funded_tickers_from_state(path: Path = Path("output/etf_eu_portfolio_state.j
         if not activation.get("activation_id"):
             raise RuntimeError("Activated pricing scope lacks activation provenance")
     return funded
+
+
+def _historical_close_from_boerse_payload(payload: Any, report_date: date) -> tuple[float, dict[str, Any]] | None:
+    if not isinstance(payload, dict):
+        return None
+    rows = payload.get("data") or []
+    if not isinstance(rows, list):
+        return None
+    for row in rows:
+        if not isinstance(row, dict):
+            continue
+        row_date_text = str(row.get("date") or "").strip()[:10]
+        if row_date_text != report_date.isoformat():
+            continue
+        close = legacy.positive_float(row.get("close"))
+        if close is None:
+            continue
+        return float(close), row
+    return None
+
+
+def fetch_boerse_with_historical_replay(
+    line: dict[str, Any],
+    report_date: date,
+) -> dict[str, Any]:
+    """Use the live Börse identity check, then replay the exact report-date close when needed.
+
+    The legacy live endpoint is intentionally retained as the identity anchor. If the
+    requested report date is no longer the latest completed Xetra session, the same
+    exact ISIN+MIC query is sent to Börse Frankfurt's daily price-history endpoint.
+    This preserves the two-provider Börse+Yahoo consensus requirement for delayed CI
+    reruns without treating a later live session as evidence for an older report date.
+    """
+
+    result = _original_fetch_boerse(line, report_date)
+    if result.get("pricing_status") == "priced" and result.get("close_date") == report_date.isoformat():
+        return result
+    if line.get("venue_code") != "XETR":
+        return result
+
+    # Historical price evidence may only supplement an already verified exact
+    # instrument identity. A failed/mismatched live identity must remain fail-closed.
+    if result.get("venue_match") is not True or result.get("currency_match") is not True:
+        blockers = list(result.get("blockers") or [])
+        if "historical_replay_identity_not_verified" not in blockers:
+            blockers.append("historical_replay_identity_not_verified")
+        result["blockers"] = blockers
+        return result
+
+    params = {
+        "limit": 10,
+        "offset": 0,
+        "isin": line["isin"],
+        "mic": line["venue_code"],
+        "minDate": report_date.isoformat(),
+        "maxDate": report_date.isoformat(),
+    }
+    url = f"{legacy.BASE_URL}/v1/data/price_history?{urlencode(params)}"
+    try:
+        response = requests.get(
+            url,
+            headers=legacy.boerse_headers(url),
+            timeout=legacy.TIMEOUT_SECONDS,
+        )
+        payload = response.json()
+    except Exception as exc:
+        blockers = list(result.get("blockers") or [])
+        blockers.append(f"historical_replay_request_exception:{type(exc).__name__}")
+        result["blockers"] = blockers
+        return result
+
+    if response.status_code != 200:
+        blockers = list(result.get("blockers") or [])
+        blockers.append(f"historical_replay_provider_error:{response.status_code}")
+        result["blockers"] = blockers
+        return result
+
+    historical = _historical_close_from_boerse_payload(payload, report_date)
+    if historical is None:
+        blockers = list(result.get("blockers") or [])
+        blockers.append("historical_report_date_close_unavailable")
+        result["blockers"] = blockers
+        return result
+
+    close_price, row = historical
+    evidence = list(result.get("identity_evidence") or [])
+    evidence.append(
+        {
+            "query_mode": "exact_isin_plus_mic_historical_price_history",
+            "queried_isin": str(line.get("isin") or "").upper(),
+            "queried_mic": str(line.get("venue_code") or "").upper(),
+            "historical_date": report_date.isoformat(),
+            "historical_close": round(close_price, 8),
+            "historical_open": legacy.positive_float(row.get("open")),
+            "historical_high": legacy.positive_float(row.get("high")),
+            "historical_low": legacy.positive_float(row.get("low")),
+            "historical_turnover_pieces": legacy.positive_float(row.get("turnoverPieces")),
+            "historical_turnover_eur": legacy.positive_float(row.get("turnoverEuro")),
+            "endpoint": "boerse_frankfurt_price_history",
+        }
+    )
+    result.update(
+        {
+            "pricing_status": "priced",
+            "close_date": report_date.isoformat(),
+            "close_price": round(close_price, 8),
+            "close_age_days": 0,
+            "identity_status": "verified_exact_isin_mic_currency_with_historical_close",
+            "identity_evidence": evidence,
+            "retrieval_mode": "historical_exact_isin_mic_replay",
+            "blockers": [],
+        }
+    )
+    return result
 
 
 def fetch_yahoo_with_regular_market_fallback(
@@ -147,6 +262,7 @@ def fetch_yahoo_with_regular_market_fallback(
 
 
 def main() -> None:
+    legacy.fetch_boerse = fetch_boerse_with_historical_replay
     legacy.fetch_yahoo = fetch_yahoo_with_regular_market_fallback
     legacy.FUNDED_TICKERS = funded_tickers_from_state()
     legacy.main()
