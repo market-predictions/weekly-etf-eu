@@ -6,11 +6,13 @@ from pathlib import Path
 from typing import Any
 
 from runtime import add_etf_eu_activated_allocation_surface as legacy
+from runtime.synchronize_etf_eu_activated_front_page import synchronize_manifest
 
 # The source action table is synchronized here through the legacy v2 surface.
 # The final promoter must carry and finalize section-13 so the compatibility
 # renderer cannot reintroduce blocked L0CK, unqualified VVSM, or shadow-gate text.
 FINAL_PROMOTION_SECTION_SYNC_REQUIRED = "section-13:activated-L0CK:blocked-VVSM:client-safe"
+FRONT_PAGE_STATE_SYNC_REQUIRED = "section-1+section-2:authoritative-four-position:L0CK-active"
 
 
 def load_object(path: Path) -> dict[str, Any]:
@@ -29,6 +31,15 @@ def current_report_date(argv: list[str]) -> str:
     index = argv.index("--report-date")
     if index + 1 >= len(argv):
         raise RuntimeError("Activated allocation surface report date value is missing")
+    return argv[index + 1]
+
+
+def argument_value(argv: list[str], flag: str) -> str:
+    if flag not in argv:
+        raise RuntimeError(f"Activated allocation surface requires {flag}")
+    index = argv.index(flag)
+    if index + 1 >= len(argv):
+        raise RuntimeError(f"Activated allocation surface value is missing for {flag}")
     return argv[index + 1]
 
 
@@ -67,12 +78,18 @@ def discover_activated_state(report_date: str) -> Path:
 
 def main() -> None:
     argv = list(sys.argv)
+    if len(argv) < 2 or argv[1].startswith("-"):
+        raise RuntimeError("Activated allocation surface requires manifest path as first argument")
+    manifest_path = Path(argv[1])
     if "--state" not in argv:
         report_date = current_report_date(argv)
         state_path = discover_activated_state(report_date)
         argv.extend(["--state", str(state_path)])
         sys.argv = argv
+    else:
+        state_path = Path(argument_value(argv, "--state"))
     legacy.main()
+    synchronize_manifest(manifest_path, state_path)
 
 
 if __name__ == "__main__":
