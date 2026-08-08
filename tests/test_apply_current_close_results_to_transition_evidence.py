@@ -9,7 +9,13 @@ from pricing.apply_current_close_results_to_transition_evidence import apply
 
 
 class CurrentCloseTransitionOverlayTests(unittest.TestCase):
-    def _write_case(self, providers: list[str], *, identity_anchor: bool = True) -> tuple[Path, Path, Path, tempfile.TemporaryDirectory]:
+    def _write_case(
+        self,
+        providers: list[str],
+        *,
+        identity_anchor: bool = True,
+        qualification_isin_field: str = "expected_isin",
+    ) -> tuple[Path, Path, Path, tempfile.TemporaryDirectory]:
         tmp = tempfile.TemporaryDirectory()
         root = Path(tmp.name)
         transition = root / "transition.json"
@@ -61,27 +67,26 @@ class CurrentCloseTransitionOverlayTests(unittest.TestCase):
             ),
             encoding="utf-8",
         )
+        qualification_row = {
+            qualification_isin_field: "IE00BG0J4C88",
+            "ticker": "L0CK",
+            "qualification_status": "qualified_development_consensus",
+            "identity_anchor_passed": identity_anchor,
+            "identity_anchor_providers": ["yahoo_chart"] if identity_anchor else [],
+            "provider_results": [],
+        }
         qualification.write_text(
             json.dumps(
                 {
                     "report_date": "2026-08-05",
-                    "lines": [
-                        {
-                            "isin": "IE00BG0J4C88",
-                            "ticker": "L0CK",
-                            "qualification_status": "qualified_development_consensus",
-                            "identity_anchor_passed": identity_anchor,
-                            "identity_anchor_providers": ["yahoo_chart"] if identity_anchor else [],
-                            "provider_results": [],
-                        }
-                    ],
+                    "lines": [qualification_row],
                 }
             ),
             encoding="utf-8",
         )
         return transition, pricing, qualification, tmp
 
-    def test_alpha_yahoo_wp11a_consensus_updates_exact_line(self):
+    def test_native_wp11a_expected_isin_updates_exact_line(self):
         transition, pricing, qualification, tmp = self._write_case(["alpha_vantage", "yahoo_chart"])
         try:
             apply(transition, pricing, qualification)
@@ -104,6 +109,17 @@ class CurrentCloseTransitionOverlayTests(unittest.TestCase):
         )
         self.assertTrue(payload["current_close_overlay"]["applied"])
         self.assertEqual(payload["current_close_overlay"]["updated_row_count"], 1)
+
+    def test_legacy_isin_alias_remains_replay_compatible(self):
+        transition, pricing, qualification, tmp = self._write_case(
+            ["alpha_vantage", "yahoo_chart"], qualification_isin_field="isin"
+        )
+        try:
+            apply(transition, pricing, qualification)
+            payload = json.loads(transition.read_text(encoding="utf-8"))
+        finally:
+            tmp.cleanup()
+        self.assertTrue(payload["current_close_overlay"]["applied"])
 
     def test_single_source_consensus_is_rejected(self):
         transition, pricing, qualification, tmp = self._write_case(["yahoo_chart"])
