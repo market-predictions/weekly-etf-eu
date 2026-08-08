@@ -61,6 +61,8 @@ EXACT_PHRASES = {
         "identificeer en verifieer een geschikte UCITS-implementatie voor landbouwaandelen",
     "identify and verify a suitable UCITS uranium or nuclear implementation":
         "identificeer en verifieer een geschikte UCITS-implementatie voor uranium of nucleaire energie",
+    "promoted exposures are not yet implemented": "gepromoveerde exposures zijn nog niet geïmplementeerd",
+    "Promoted exposures pending implementation": "Gepromoveerde exposures wachten op implementatie",
     "promoted exposures are not represented": "gepromoveerde exposures zijn niet vertegenwoordigd",
     "current positions require re-underwriting": "huidige posities moeten opnieuw worden beoordeeld",
     "6 promoted exposures are not represented": "Zes gepromoveerde exposures zijn niet vertegenwoordigd",
@@ -96,6 +98,8 @@ FORBIDDEN_PATTERNS = [
     re.compile(r"\bdetermine whether an eligible\b", re.IGNORECASE),
     re.compile(r"\bcurrent positions require re-underwriting\b", re.IGNORECASE),
     re.compile(r"\bpromoted exposures are not represented\b", re.IGNORECASE),
+    re.compile(r"\bpromoted exposures are not yet implemented\b", re.IGNORECASE),
+    re.compile(r"\bPromoted exposures pending implementation\b", re.IGNORECASE),
     re.compile(r"\b(?:Cybersecurity resilience|AI compute infrastructure|Grid buildout / electrification|"
                r"Healthcare quality and defensive growth|Defense innovation / sovereign resilience|"
                r"Food security / agriculture inputs|Broad commodity inflation hedge|"
