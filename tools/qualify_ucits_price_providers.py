@@ -10,6 +10,7 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
+from pricing.alpha_vantage_capacity_policy import install_funded_only_alpha_policy
 from pricing.provider_secret_safety import enforce_provider_secret_safety
 from pricing.ucits_funded_universe import resolve_provider_registry_funded_universe
 from pricing.ucits_price_evidence_cache import apply_provider_evidence_cache
@@ -31,6 +32,7 @@ def main() -> None:
     parser.add_argument("--agreement-tolerance-pct", type=float, default=1.0)
     args = parser.parse_args()
     secret_safety = enforce_provider_secret_safety()
+    install_funded_only_alpha_policy()
     providers = [item.strip() for item in args.providers.split(",") if item.strip()] or None
     output = Path(args.output)
     resolved_registry = output.with_name(f"{output.stem}_resolved_registry.yml")
@@ -56,6 +58,11 @@ def main() -> None:
     payload["provider_registry_source"] = args.registry
     payload["resolved_provider_registry"] = str(resolved_registry)
     payload["provider_secret_safety"] = secret_safety
+    payload["alpha_vantage_capacity_policy"] = {
+        "identity_search_calls": 0,
+        "live_close_scope": "authoritative_funded_positions_only",
+        "identity_anchor_authority": "independent_exact_line_provider_required_by_wp11a_policy",
+    }
     output.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     print(
         "UCITS_PRICE_IDENTITY_POLICY_OK"
