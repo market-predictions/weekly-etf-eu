@@ -103,3 +103,22 @@ def test_fetch_missing_exact_date_fails_closed_with_sanitized_diagnostics() -> N
     assert result["close_price"] is None
     assert result["blockers"] == ["exact_report_date_history_close_unavailable"]
     assert result["history_diagnostics"]["returned_dates"] == ["2026-08-04"]
+
+
+def test_fetch_http_200_with_null_data_fails_closed_without_live_substitution() -> None:
+    """Freeze the public Börse response shape observed during 2026-08-05 replay."""
+    session = FakeSession(FakeResponse({"totalCount": 0, "data": None}, status_code=200))
+    result = fetch_exact_history_close(
+        LINE,
+        REPORT_DATE,
+        headers_factory=headers,
+        session=session,
+    )
+    assert result["http_status"] == 200
+    assert result["pricing_status"] == "fetch_failed"
+    assert result["close_date"] is None
+    assert result["close_price"] is None
+    assert result["retrieval_mode"] == "historical_exact_date"
+    assert result["blockers"] == ["exact_report_date_history_close_unavailable"]
+    assert result["history_diagnostics"]["data_type"] == "NoneType"
+    assert result["history_diagnostics"]["total_count"] == 0
