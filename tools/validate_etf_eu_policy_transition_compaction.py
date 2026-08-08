@@ -7,6 +7,10 @@ from pathlib import Path
 from typing import Any
 
 
+LEGACY_MARKER = "actionable_intents_without_duplicate_incumbents_v2"
+ACTIVATED_MARKER = "actionable_intents_state_aware_v3"
+
+
 def load(path: Path) -> dict[str, Any]:
     payload = json.loads(path.read_text(encoding="utf-8"))
     if not isinstance(payload, dict):
@@ -27,6 +31,7 @@ def validate(manifest: dict[str, Any]) -> list[str]:
     if set(compaction.get("incumbent_evidence_remains_in_sections") or []) != {"10", "13", "15"}:
         blockers.append("incumbent evidence lineage is incomplete")
     removed_legacy = compaction.get("duplicate_incumbent_block_removed_by_language") if isinstance(compaction.get("duplicate_incumbent_block_removed_by_language"), dict) else {}
+    funded_compaction = compaction.get("already_funded_candidate_compacted_by_language") if isinstance(compaction.get("already_funded_candidate_compacted_by_language"), dict) else {}
 
     for language, files in (manifest.get("languages") or {}).items():
         if language not in {"nl", "en"} or not isinstance(files, dict):
@@ -35,23 +40,41 @@ def validate(manifest: dict[str, Any]) -> list[str]:
         if not path.is_file():
             blockers.append(f"missing {language} HTML")
             continue
-        if files.get("policy_transition_compaction") != "actionable_intents_without_duplicate_incumbents_v2":
-            blockers.append(f"{language} compaction file marker missing")
+        marker = files.get("policy_transition_compaction")
+        activated = marker == ACTIVATED_MARKER and funded_compaction.get(language) is True
+        if marker not in {LEGACY_MARKER, ACTIVATED_MARKER}:
+            blockers.append(f"{language} compaction file marker missing or unsupported")
+        if marker == ACTIVATED_MARKER and funded_compaction.get(language) not in {True, False}:
+            blockers.append(f"{language} activated compaction state marker missing")
         if removed_legacy.get(language) is not True:
             blockers.append(f"{language} duplicate incumbent block removal not recorded")
+
         text = path.read_text(encoding="utf-8")
         section = re.search(r'<section id="section-14"[^>]*>(.*?)</section>', text, re.DOTALL)
         body = section.group(1) if section else ""
         table = re.search(r'<table class="wide-table allocator-order-table">.*?<tbody>(.*?)</tbody></table>', body, re.DOTALL)
         rows = re.findall(r'<tr>.*?</tr>', table.group(1), re.DOTALL) if table else []
-        if len(rows) != 2:
-            blockers.append(f"{language} Section 14 must contain exactly two actionable intent rows")
-        if "VVSM" not in body or "LOCK" not in body:
-            blockers.append(f"{language} actionable intent tickers missing")
+        expected_rows = 1 if activated else 2
+        if len(rows) != expected_rows:
+            blockers.append(f"{language} Section 14 must contain exactly {expected_rows} actionable intent rows")
+        if "VVSM" not in body:
+            blockers.append(f"{language} VVSM actionable intent ticker missing")
+        if activated:
+            if "LOCK" in body or "L0CK" in body:
+                blockers.append(f"{language} already-funded L0CK still appears as a new actionable intent")
+            funded_note = "L0CK is already funded" if language == "en" else "L0CK is al gefinancierd"
+            if funded_note not in body:
+                blockers.append(f"{language} already-funded L0CK evidence note missing")
+        elif "LOCK" not in body and "L0CK" not in body:
+            blockers.append(f"{language} cybersecurity actionable intent ticker missing")
+
         for stale in ("Blocked / deferred", "Geblokkeerd / uitgesteld"):
             if stale in body:
                 blockers.append(f"{language} Section 14 still repeats deferred rows")
-        note = "remain fully documented in Sections 11 and 13" if language == "en" else "blijven volledig onderbouwd in secties 11 en 13"
+        if activated:
+            note = "deferred exposures remain documented in Sections 11 and 13" if language == "en" else "uitgestelde exposures blijven onderbouwd in secties 11 en 13"
+        else:
+            note = "remain fully documented in Sections 11 and 13" if language == "en" else "blijven volledig onderbouwd in secties 11 en 13"
         if note not in body:
             blockers.append(f"{language} deferred-evidence note missing")
         if "allocator-legacy-table" in body:
