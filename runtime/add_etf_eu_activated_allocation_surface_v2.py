@@ -12,7 +12,7 @@ from runtime.synchronize_etf_eu_activated_front_page import synchronize_manifest
 # The final promoter must carry and finalize section-13 so the compatibility
 # renderer cannot reintroduce blocked L0CK, unqualified VVSM, or shadow-gate text.
 FINAL_PROMOTION_SECTION_SYNC_REQUIRED = "section-13:activated-L0CK:blocked-VVSM:client-safe"
-FRONT_PAGE_STATE_SYNC_REQUIRED = "section-1+section-2:authoritative-four-position:L0CK-active"
+FRONT_PAGE_STATE_SYNC_REQUIRED = "section-1+section-2+section-2A+section-4:authoritative-four-position:L0CK-active:v3"
 
 
 def load_object(path: Path) -> dict[str, Any]:
