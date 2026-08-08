@@ -52,6 +52,13 @@ def test_exact_date_row_is_selected() -> None:
     assert selected["turnover_eur"] == 12345.0
 
 
+def test_iso_timestamp_date_is_normalized() -> None:
+    payload = {"totalCount": 1, "data": [{"date": "2026-08-05T00:00:00Z", "close": 165.1}]}
+    selected = select_exact_history_close(payload, REPORT_DATE)
+    assert selected is not None
+    assert selected["date"] == "2026-08-05"
+
+
 def test_prior_row_is_not_silently_substituted() -> None:
     payload = {"totalCount": 1, "data": [{"date": "2026-08-04", "close": 164.2}]}
     assert select_exact_history_close(payload, REPORT_DATE) is None
@@ -80,10 +87,11 @@ def test_fetch_binds_exact_isin_mic_and_date() -> None:
     assert result["currency_match"] is None
     assert "isin=IE00BK5BQT80" in session.urls[0]
     assert "mic=XETR" in session.urls[0]
-    assert "minDate=2026-08-05" in session.urls[0]
+    assert "minDate=2026-07-29" in session.urls[0]
+    assert "maxDate=2026-08-06" in session.urls[0]
 
 
-def test_fetch_missing_exact_date_fails_closed() -> None:
+def test_fetch_missing_exact_date_fails_closed_with_sanitized_diagnostics() -> None:
     session = FakeSession(FakeResponse({"totalCount": 1, "data": [{"date": "2026-08-04", "close": 164.2}]}))
     result = fetch_exact_history_close(
         LINE,
@@ -94,3 +102,4 @@ def test_fetch_missing_exact_date_fails_closed() -> None:
     assert result["pricing_status"] == "fetch_failed"
     assert result["close_price"] is None
     assert result["blockers"] == ["exact_report_date_history_close_unavailable"]
+    assert result["history_diagnostics"]["returned_dates"] == ["2026-08-04"]
