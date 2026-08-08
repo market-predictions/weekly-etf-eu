@@ -1,0 +1,32 @@
+{
+  "schema_version": "etf_eu_transition_replay_fixture_provenance_v1",
+  "report_date": "2026-07-27",
+  "source_workflow": "Validate ETF EU transition composition replay",
+  "source_workflow_run_id": 30499644294,
+  "source_workflow_head_sha": "132b01a50974ac08f84e0001495194d5f86ce753",
+  "source_artifact_id": 8742966830,
+  "source_artifact_name": "etf-eu-transition-composition-replay",
+  "source_artifact_digest": "sha256:1ca8e8a04bb74525fd8302dcf89e4e6be48b05d3cd68d6bbbf9db7e39dec31e1",
+  "fixture_path": "config/replay/etf_eu_transition_replay_panel_20260727.json.gz",
+  "fixture_gzip_sha256": "bb79bbeec46610f1ebbfef7ca175c70f8b210c5f5287640f41a51eb14e088221",
+  "materialized_panel_sha256": "6959cbafaeef4c564c9fffb248cf16e3e38b8750fe90cc966b7ea98234d8d7d1",
+  "common_trading_day_count": 252,
+  "common_start_date": "2025-07-24",
+  "common_end_date": "2026-07-24",
+  "symbols": {
+    "VWCE": "VWCE.DE",
+    "EUNA": "EUNA.DE",
+    "SXR8": "SXR8.DE",
+    "VVSM": "VVSM.DE",
+    "LOCK": "L0CK.DE"
+  },
+  "authority": {
+    "valuation_grade": false,
+    "funding_authority": false,
+    "portfolio_mutation": false,
+    "execution_authority": false,
+    "optimization_authority": false,
+    "production_delivery_authority": false
+  },
+  "purpose": "Deterministic historical composition replay only; replaces live Yahoo dependency for fixed-date CI replay."
+}
