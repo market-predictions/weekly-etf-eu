@@ -1,0 +1,18 @@
+name: Historical ETF EU Stage-1 activation 2026-08-04 (archived)
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  archived:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Historical workflow notice
+        run: |
+          echo "Archived one-off Stage-1 model-capital activation completed on 2026-08-04."
+          echo "The authoritative activated state is now stored in the portfolio and convergence artifacts."
+          echo "This workflow has no current activation, portfolio-mutation, PR-gate, or delivery authority."
+          echo "The original implementation remains available in Git history."

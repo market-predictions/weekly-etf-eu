@@ -1,8 +1,8 @@
 {
   "base_currency": "EUR",
-  "cash_eur": 60439.44,
+  "cash_eur": 50208.4,
   "inception_date": "2026-05-30",
-  "invested_market_value_eur": 39317.32,
+  "invested_market_value_eur": 49548.36,
   "last_broker_neutral_allocation_activation": {
     "activation_id": "ETF-EU-BROKER-NEUTRAL-20260716_205500",
     "portfolio_mutation": true,
@@ -12,13 +12,13 @@
     "validation": "output/quality/etf_eu_broker_neutral_allocation_review_validation_20260716_205500.json"
   },
   "last_model_capital_activation": {
-    "activation_id": "ETF-EU-BROKER-NEUTRAL-20260716_205500",
-    "applied_at_utc": "2026-07-16T21:07:30Z",
-    "decision": "output/runtime/etf_eu_broker_neutral_allocation_review_20260716_205500.json",
-    "report_date": "2026-07-16",
-    "run_id": "20260716_205500",
-    "trade_count": 2,
-    "validation": "output/quality/etf_eu_broker_neutral_allocation_review_validation_20260716_205500.json"
+    "activation_id": "ETF-EU-STAGE1-2026-08-04-20260804_STAGE1_30947965670_1",
+    "run_id": "20260804_STAGE1_30947965670_1",
+    "report_date": "2026-08-04",
+    "decision": "output/activation/etf_eu_stage1_allocation_decision_20260804_STAGE1_30947965670_1.json",
+    "validation": "output/activation/etf_eu_stage1_allocation_validation_20260804_STAGE1_30947965670_1.json",
+    "trade_count": 1,
+    "applied_at_utc": "2026-08-04T20:31:46Z"
   },
   "last_routine_position_review": {
     "portfolio_action": "revalue_and_hold",
@@ -36,12 +36,66 @@
   "nav_eur": 99756.76,
   "notes": [
     "Repository model portfolio only; no real brokerage order was placed.",
-    "Broker-specific account permission was not used as a model-investability gate.",
     "Blocked strategic target capacity remains cash.",
     "U.S.-listed ETFs remain research proxies only."
   ],
   "portfolio_mode": "dutch_eu_ucits_model_active",
   "positions": [
+    {
+      "isin": "IE00BG0J4C88",
+      "fund_name": "iShares Digital Security UCITS ETF USD (Acc)",
+      "provider": "iShares / BlackRock",
+      "ucits_status": "confirmed",
+      "priips_kid_status": "available",
+      "investability_status": "funded_model_position",
+      "primary_exchange": "Xetra",
+      "exchange_ticker": "L0CK",
+      "ticker": "L0CK",
+      "trading_currency": "EUR",
+      "base_currency": "USD",
+      "shares": 934,
+      "avg_entry_local": 10.954004,
+      "current_price_local": 10.954,
+      "previous_price_local": 10.954,
+      "market_value_local": 10231.04,
+      "previous_market_value_local": 10231.04,
+      "market_value_eur": 10231.04,
+      "previous_market_value_eur": 10231.04,
+      "portfolio_role": "Cybersecurity satellite",
+      "conviction_tier": "Satellite",
+      "strategic_target_weight_pct": 10.15861,
+      "phase_target_weight_pct": 10.15861,
+      "target_weight_pct": 10.15861,
+      "price_date": "2026-08-04",
+      "pricing_status": "timestamped_exact_line_ask_quote_model_activation",
+      "verification_status": "verified_ucits_trading_line",
+      "model_execution_price_basis": "timestamped_exact_line_ask_quote_model_only_no_real_broker_order",
+      "model_portfolio_only": true,
+      "real_broker_execution": false,
+      "source_run_id": "20260804_STAGE1_30947965670_1",
+      "last_action": "Buy",
+      "shares_delta_this_run": 934,
+      "action_executed_this_run": "Model buy",
+      "distribution_policy": "accumulating",
+      "domicile": "Ireland",
+      "portfolio_contribution_eur": 0.0,
+      "portfolio_contribution_pct_nav": 0.0,
+      "pricing_completed_close": true,
+      "pricing_source": "Deutsche Boerse exact-line ask quote with two-source completed-close qualification",
+      "pricing_source_quality": "development_exact_line_quote_and_completed_close_consensus",
+      "quote_ask_eur": 10.954,
+      "quote_ask_size": 2636,
+      "quote_bid_eur": 10.914,
+      "quote_bid_size": 2645,
+      "quote_evidence": "output/activation/etf_eu_stage1_quote_evidence_20260804_STAGE1_30947965670_1.json",
+      "quote_spread_pct_mid": 0.36583135,
+      "quote_timestamp_utc": "2026-08-04T19:48:58Z",
+      "unrealized_pnl_eur": 0.0,
+      "unrealized_pnl_pct": 0.0,
+      "current_weight_pct": 10.255987,
+      "previous_weight_pct": 10.255987,
+      "weight_inherited_pct": 10.255987
+    },
     {
       "action_executed_this_run": "Routine revaluation and hold",
       "avg_entry_local": 165.32,
@@ -67,7 +121,7 @@
       "previous_market_value_eur": 24963.32,
       "previous_market_value_local": 24963.32,
       "previous_price_local": 165.32,
-      "previous_weight_pct": 24.959177,
+      "previous_weight_pct": 24.866766,
       "price_date": "2026-07-24",
       "pricing_completed_close": true,
       "pricing_source": "Yahoo/yfinance completed-close connectivity evidence",
@@ -89,7 +143,7 @@
       "unrealized_pnl_eur": -157.04,
       "unrealized_pnl_pct": -0.629084,
       "verification_status": "verified_ucits_trading_line",
-      "weight_inherited_pct": 24.959177
+      "weight_inherited_pct": 24.866766
     },
     {
       "action_executed_this_run": "Routine revaluation and hold",
@@ -116,7 +170,7 @@
       "previous_market_value_eur": 7497.24,
       "previous_market_value_local": 7497.24,
       "previous_price_local": 4.913,
-      "previous_weight_pct": 7.495996,
+      "previous_weight_pct": 7.483242,
       "price_date": "2026-07-24",
       "pricing_completed_close": true,
       "pricing_source": "Yahoo/yfinance completed-close connectivity evidence",
@@ -138,7 +192,7 @@
       "unrealized_pnl_eur": -32.2,
       "unrealized_pnl_pct": -0.429472,
       "verification_status": "verified_ucits_trading_line",
-      "weight_inherited_pct": 7.495996
+      "weight_inherited_pct": 7.483242
     },
     {
       "action_executed_this_run": "Routine revaluation and hold",
@@ -168,7 +222,7 @@
       "previous_market_value_eur": 7116.6,
       "previous_market_value_local": 7116.6,
       "previous_price_local": 711.66,
-      "previous_weight_pct": 7.115419,
+      "previous_weight_pct": 7.06318,
       "price_date": "2026-07-24",
       "pricing_completed_close": true,
       "pricing_source": "Yahoo/yfinance completed-close connectivity evidence",
@@ -195,11 +249,11 @@
       "unrealized_pnl_eur": -54.0,
       "unrealized_pnl_pct": -0.760567,
       "verification_status": "verified_ucits_trading_line",
-      "weight_inherited_pct": 7.115419
+      "weight_inherited_pct": 7.06318
     }
   ],
   "real_broker_execution": false,
   "schema_version": "etf_eu_portfolio_state_v2",
   "starting_capital_eur": 100000.0,
-  "valuation_source": "latest_verified_exact_line_completed_close_model_valuation"
+  "valuation_source": "guarded_model_capital_activation_v1"
 }

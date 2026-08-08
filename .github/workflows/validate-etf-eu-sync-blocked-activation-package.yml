@@ -1,123 +1,18 @@
-name: Validate ETF EU sync blocked activation package
+name: Historical ETF EU blocked-activation validation (archived)
 
 on:
   workflow_dispatch:
-  pull_request:
-    paths:
-      - "config/etf_eu_sync_cutover_package_sources_20260729.yml"
-      - "config/etf_eu_cutover_product_evidence_20260728.yml"
-      - "control/evidence/etf_eu_shadow_cid_mailbox_receipt_*.json"
-      - "output/etf_eu_portfolio_state.json"
-      - "output/etf_eu_trade_ledger.csv"
-      - "runtime/build_etf_eu_sync_blocked_activation_package.py"
-      - "tools/validate_etf_eu_shadow_cid_mailbox_receipt.py"
-      - "tools/validate_etf_eu_sync_blocked_activation_package.py"
-      - ".github/workflows/validate-etf-eu-sync-blocked-activation-package.yml"
 
 permissions:
   contents: read
-  actions: read
 
 jobs:
-  blocked-activation-package:
+  archived:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Weekly ETF EU
-        uses: actions/checkout@v4
-
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
-
-      - name: Install dependencies
-        run: python -m pip install pyyaml
-
-      - name: Validate mailbox receipt
+      - name: Historical workflow notice
         run: |
-          python tools/validate_etf_eu_shadow_cid_mailbox_receipt.py \
-            control/evidence/etf_eu_shadow_cid_mailbox_receipt_wp_sync_08_cid_20260729_002500.json
-
-      - name: Validate immutable source workflows and artifacts
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          set -euo pipefail
-          python - <<'PY' > /tmp/source_rows.tsv
-          import yaml
-          from pathlib import Path
-          payload = yaml.safe_load(Path("config/etf_eu_sync_cutover_package_sources_20260729.yml").read_text())
-          for key, row in payload["source_artifacts"].items():
-              print("\t".join([
-                  key,
-                  str(row["workflow_run_id"]),
-                  row["workflow_name"],
-                  row["artifact_name"],
-                  str(row["artifact_id"]),
-                  row["artifact_digest"],
-              ]))
-          PY
-          while IFS=$'\t' read -r KEY RUN_ID WORKFLOW_NAME ARTIFACT_NAME ARTIFACT_ID ARTIFACT_DIGEST; do
-            RUN_JSON="$(gh api "repos/${GITHUB_REPOSITORY}/actions/runs/${RUN_ID}")"
-            test "$(printf '%s' "$RUN_JSON" | jq -r '.name')" = "$WORKFLOW_NAME"
-            test "$(printf '%s' "$RUN_JSON" | jq -r '.status')" = "completed"
-            test "$(printf '%s' "$RUN_JSON" | jq -r '.conclusion')" = "success"
-            if [ "$KEY" != "shadow_cid_delivery" ]; then
-              test "$(printf '%s' "$RUN_JSON" | jq -r '.head_sha')" = "d33169fa513e22ac9197efe4fab9857ebaa6f85f"
-            fi
-            ARTIFACT_JSON="$(gh api "repos/${GITHUB_REPOSITORY}/actions/artifacts/${ARTIFACT_ID}")"
-            test "$(printf '%s' "$ARTIFACT_JSON" | jq -r '.name')" = "$ARTIFACT_NAME"
-            test "$(printf '%s' "$ARTIFACT_JSON" | jq -r '.digest')" = "$ARTIFACT_DIGEST"
-            test "$(printf '%s' "$ARTIFACT_JSON" | jq -r '.expired')" = "false"
-            echo "CUTOVER_SOURCE_OK | key=$KEY | run=$RUN_ID | artifact=$ARTIFACT_ID"
-          done < /tmp/source_rows.tsv
-
-      - name: Download exact allocator and Stage-2 sources
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          set -euo pipefail
-          mkdir -p output/cutover_sources/report output/cutover_sources/replay
-          gh run download 30410361517 \
-            --repo "$GITHUB_REPOSITORY" \
-            --name etf-eu-allocator-report-shadow \
-            --dir output/cutover_sources/report
-          gh run download 30410361535 \
-            --repo "$GITHUB_REPOSITORY" \
-            --name etf-eu-transition-composition-replay \
-            --dir output/cutover_sources/replay
-          ALLOCATOR="$(find output/cutover_sources/report -type f -name 'etf_eu_target_allocator_shadow.json' -print -quit)"
-          STAGE2="$(find output/cutover_sources/replay -type f -name 'etf_eu_stage_2_readiness.json' -print -quit)"
-          test -n "$ALLOCATOR"
-          test -n "$STAGE2"
-          echo "ALLOCATOR_PATH=$ALLOCATOR" >> "$GITHUB_ENV"
-          echo "STAGE2_PATH=$STAGE2" >> "$GITHUB_ENV"
-
-      - name: Build and validate blocked activation package
-        run: |
-          set -euo pipefail
-          mkdir -p output/sync_cutover
-          python runtime/build_etf_eu_sync_blocked_activation_package.py \
-            --sources config/etf_eu_sync_cutover_package_sources_20260729.yml \
-            --portfolio output/etf_eu_portfolio_state.json \
-            --ledger output/etf_eu_trade_ledger.csv \
-            --allocator "$ALLOCATOR_PATH" \
-            --stage-2 "$STAGE2_PATH" \
-            --product-evidence config/etf_eu_cutover_product_evidence_20260728.yml \
-            --receipt control/evidence/etf_eu_shadow_cid_mailbox_receipt_wp_sync_08_cid_20260729_002500.json \
-            --output output/sync_cutover/etf_eu_sync_blocked_activation_package_20260729.json
-          python tools/validate_etf_eu_sync_blocked_activation_package.py \
-            output/sync_cutover/etf_eu_sync_blocked_activation_package_20260729.json \
-            --portfolio output/etf_eu_portfolio_state.json \
-            --ledger output/etf_eu_trade_ledger.csv \
-            | tee output/sync_cutover/etf_eu_sync_blocked_activation_package_validation_20260729.json
-
-      - uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: etf-eu-sync-blocked-activation-package
-          path: |
-            config/etf_eu_sync_cutover_package_sources_20260729.yml
-            control/evidence/etf_eu_shadow_cid_mailbox_receipt_wp_sync_08_cid_20260729_002500.json
-            output/sync_cutover/
-          if-no-files-found: error
-          retention-days: 90
+          echo "Archived blocked-state validation from the pre-activation migration."
+          echo "It is incompatible with the authoritative partially activated four-position state."
+          echo "It has no PR-gate, portfolio, report, or delivery authority."
+          echo "The original implementation remains available in Git history."

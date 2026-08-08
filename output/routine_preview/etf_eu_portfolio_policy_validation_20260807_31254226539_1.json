@@ -1,0 +1,220 @@
+{
+  "allocation_lineage": {
+    "activation_id": "ETF-EU-STAGE1-2026-08-04-20260804_STAGE1_30947965670_1",
+    "decision_schema_version": "etf_eu_stage1_allocation_decision_v1",
+    "method": "protected_state_plus_explicit_authorized_mutation",
+    "share_or_cash_mutation_detected": false
+  },
+  "artifact_type": "etf_eu_portfolio_policy_validation",
+  "authoritative_state_path": "output/etf_eu_portfolio_state.json",
+  "authoritative_state_sha256": "a1b8812b474f6746eec3f291cc58cd33a9510559236313572e17e35b9abd1f75",
+  "blockers": [],
+  "checks": [
+    {
+      "evidence": {
+        "policy_id": "ETF_EU_RELEASE_LINEAGE_POLICY_V2",
+        "schema_version": "etf_eu_portfolio_policy_v2"
+      },
+      "id": "policy_schema_valid",
+      "passed": true
+    },
+    {
+      "evidence": {
+        "method": "protected_state_plus_explicit_authorized_mutation"
+      },
+      "id": "lineage_method_valid",
+      "passed": true
+    },
+    {
+      "evidence": {
+        "candidate_duplicates": [],
+        "protected_duplicates": []
+      },
+      "id": "unique_position_identity",
+      "passed": true
+    },
+    {
+      "evidence": {
+        "candidate": [
+          "EUNA",
+          "L0CK",
+          "SXR8",
+          "VWCE"
+        ],
+        "protected": [
+          "EUNA",
+          "L0CK",
+          "SXR8",
+          "VWCE"
+        ]
+      },
+      "id": "protected_ticker_roster_preserved",
+      "passed": true
+    },
+    {
+      "evidence": {},
+      "id": "protected_share_identity_preserved",
+      "passed": true
+    },
+    {
+      "evidence": {
+        "candidate_cash_eur": 50208.4,
+        "protected_cash_eur": 50208.4,
+        "tolerance_eur": 0.01
+      },
+      "id": "protected_cash_preserved",
+      "passed": true
+    },
+    {
+      "evidence": {
+        "cash_eur": 50208.4
+      },
+      "id": "no_leverage_or_negative_cash",
+      "passed": true
+    },
+    {
+      "evidence": {
+        "candidate_activation_id": "ETF-EU-STAGE1-2026-08-04-20260804_STAGE1_30947965670_1",
+        "decision_activation_id": "ETF-EU-STAGE1-2026-08-04-20260804_STAGE1_30947965670_1",
+        "policy_activation_id": "ETF-EU-STAGE1-2026-08-04-20260804_STAGE1_30947965670_1",
+        "protected_activation_id": "ETF-EU-STAGE1-2026-08-04-20260804_STAGE1_30947965670_1"
+      },
+      "id": "activation_identity_bound",
+      "passed": true
+    },
+    {
+      "evidence": {
+        "allocation_status": "ready_for_guarded_model_activation",
+        "schema_version": "etf_eu_stage1_allocation_decision_v1"
+      },
+      "id": "allocation_decision_schema_valid",
+      "passed": true
+    },
+    {
+      "evidence": {
+        "decision_buys": [
+          "L0CK"
+        ],
+        "required": [
+          "L0CK"
+        ]
+      },
+      "id": "required_activation_decision_present",
+      "passed": true
+    },
+    {
+      "evidence": {},
+      "id": "activation_share_delta_bound",
+      "passed": true
+    },
+    {
+      "evidence": {
+        "missing": []
+      },
+      "id": "position_market_values_present",
+      "passed": true
+    },
+    {
+      "evidence": {},
+      "id": "market_value_matches_shares_times_price",
+      "passed": true
+    },
+    {
+      "evidence": {
+        "nav_eur": 100563.51
+      },
+      "id": "positive_nav",
+      "passed": true
+    },
+    {
+      "evidence": {
+        "computed_invested_eur": 50355.11,
+        "stated_invested_eur": 50355.11,
+        "tolerance_eur": 1.0
+      },
+      "id": "invested_value_reconciles",
+      "passed": true
+    },
+    {
+      "evidence": {
+        "computed_total_eur": 100563.51,
+        "nav_eur": 100563.51,
+        "tolerance_eur": 1.0
+      },
+      "id": "cash_plus_positions_equals_nav",
+      "passed": true
+    },
+    {
+      "evidence": {},
+      "id": "stated_weights_reconcile",
+      "passed": true
+    },
+    {
+      "evidence": {
+        "activated": [
+          "L0CK"
+        ],
+        "required": [
+          "L0CK"
+        ]
+      },
+      "id": "required_activation_present",
+      "passed": true
+    },
+    {
+      "evidence": {
+        "executable_trade_intents": []
+      },
+      "id": "no_executable_trade_intents",
+      "passed": true
+    },
+    {
+      "evidence": {
+        "model_portfolio_only": true,
+        "real_broker_execution": false
+      },
+      "id": "model_only_boundary",
+      "passed": true
+    },
+    {
+      "evidence": {
+        "actual": "a1b8812b474f6746eec3f291cc58cd33a9510559236313572e17e35b9abd1f75",
+        "embedded": "a1b8812b474f6746eec3f291cc58cd33a9510559236313572e17e35b9abd1f75"
+      },
+      "id": "embedded_authoritative_state_hash_bound",
+      "passed": true
+    }
+  ],
+  "decision_path": "output/activation/etf_eu_stage1_allocation_decision_20260804_STAGE1_30947965670_1.json",
+  "decision_sha256": "dd2579b018a079e27ebef170c514c66c48ccfb1bbc8b07b858984c94a11b1912",
+  "generated_at_utc": "2026-08-08T11:09:16Z",
+  "policy_id": "ETF_EU_RELEASE_LINEAGE_POLICY_V2",
+  "policy_path": "config/etf_eu_portfolio_policy_v2.yml",
+  "policy_sha256": "51cb252998e4c30598872eb203c89f7e43728aa19fb6ccdb6e3d4c28b33446b2",
+  "portfolio": {
+    "cash_eur": 50208.4,
+    "cash_weight_pct": 49.927056,
+    "computed_weights_pct": {
+      "EUNA": 7.446876,
+      "L0CK": 10.153275,
+      "SXR8": 7.189884,
+      "VWCE": 25.282908
+    },
+    "concentration_is_observation_not_hard_cap": true,
+    "funded_tickers": [
+      "EUNA",
+      "L0CK",
+      "SXR8",
+      "VWCE"
+    ],
+    "largest_position_ticker": "VWCE",
+    "largest_position_weight_pct": 25.282908,
+    "nav_eur": 100563.51,
+    "position_count": 4
+  },
+  "schema_version": "etf_eu_portfolio_policy_validation_v2",
+  "state_path": "/home/runner/work/weekly-etf-eu/weekly-etf-eu/output/routine_preview/etf_eu_production_convergence_state_20260807_31254226539_1.json",
+  "state_sha256": "2f6c486bf8ef4bb0c3550f5eaacb748c722a77694d591cb5c81710b650a997ec",
+  "valid": true,
+  "verdict": "PASS"
+}

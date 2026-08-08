@@ -15,8 +15,10 @@ REQUIRED_CHECKS = {
     "artifact_formats_valid",
     "artifact_hashes_complete",
     "manifest_identity_consistent",
+    "portfolio_policy_passed",
     "visual_review_passed",
     "delivery_queue_bound",
+    "delivery_queue_policy_bound",
     "roles_separated",
 }
 REQUIRED_CLIENT_ARTIFACTS = {"nl_html", "nl_pdf", "en_html", "en_pdf"}
@@ -36,12 +38,12 @@ def main() -> int:
     except (OSError, UnicodeDecodeError, json.JSONDecodeError) as exc:
         fail(f"unreadable evidence: {exc}")
 
-    if payload.get("schema_version") != 1:
-        fail("schema_version must equal 1")
+    if payload.get("schema_version") != 2:
+        fail("schema_version must equal 2")
     if payload.get("product") != "weekly_etf_eu":
         fail("unexpected product")
-    if payload.get("decision") != "PASS":
-        fail(f"decision is {payload.get('decision')!r}, expected 'PASS'")
+    if payload.get("decision") != "PASS" or payload.get("status") != "GOVERNANCE_PASS_PRE_SEND":
+        fail("assurance must be GOVERNANCE_PASS_PRE_SEND")
     if payload.get("blockers"):
         fail("blockers must be empty")
     if payload.get("implementation_role") != "implementation_operations":
@@ -67,6 +69,15 @@ def main() -> int:
     if not identity.get("run_id") or not identity.get("report_date") or not identity.get("report_suffix"):
         fail("run identity is incomplete")
 
+    policy = payload.get("portfolio_policy")
+    if not isinstance(policy, dict):
+        fail("portfolio_policy evidence missing")
+    if policy.get("verdict") != "PASS" or not policy.get("policy_id"):
+        fail("portfolio policy did not PASS")
+    for key in ("policy_sha256", "validation_sha256", "state_sha256"):
+        if not re.fullmatch(r"[0-9a-f]{64}", str(policy.get(key, ""))):
+            fail(f"invalid portfolio policy hash: {key}")
+
     checks = payload.get("checks")
     if not isinstance(checks, list):
         fail("checks must be a list")
@@ -81,19 +92,17 @@ def main() -> int:
     missing = sorted(REQUIRED_CHECKS - set(by_id))
     if missing:
         fail(f"missing required checks: {', '.join(missing)}")
-    failed = sorted(
-        check_id for check_id in REQUIRED_CHECKS if by_id[check_id].get("passed") is not True
-    )
+    failed = sorted(check_id for check_id in REQUIRED_CHECKS if by_id[check_id].get("passed") is not True)
     if failed:
         fail(f"required checks failed: {', '.join(failed)}")
 
     hashes = payload.get("artifact_hashes")
     if not isinstance(hashes, dict):
         fail("artifact_hashes missing")
-    missing_hashes = sorted(REQUIRED_CLIENT_ARTIFACTS - set(hashes))
+    missing_hashes = sorted((REQUIRED_CLIENT_ARTIFACTS | {"portfolio_policy_validation"}) - set(hashes))
     if missing_hashes:
-        fail(f"missing client artifact hashes: {', '.join(missing_hashes)}")
-    for key in REQUIRED_CLIENT_ARTIFACTS:
+        fail(f"missing artifact hashes: {', '.join(missing_hashes)}")
+    for key in REQUIRED_CLIENT_ARTIFACTS | {"portfolio_policy_validation"}:
         entry = hashes.get(key)
         if not isinstance(entry, dict):
             fail(f"invalid artifact hash entry: {key}")
@@ -102,10 +111,7 @@ def main() -> int:
         if not re.fullmatch(r"[0-9a-f]{64}", str(entry.get("sha256", ""))):
             fail(f"invalid sha256: {key}")
 
-    print(
-        "ETF_EU_RELEASE_ASSURANCE_VALID | "
-        f"run_id={identity['run_id']} | source_sha={identity['source_sha']}"
-    )
+    print("ETF_EU_RELEASE_ASSURANCE_VALID | " f"run_id={identity['run_id']} | source_sha={identity['source_sha']} | policy={policy['policy_id']}")
     return 0
 
 

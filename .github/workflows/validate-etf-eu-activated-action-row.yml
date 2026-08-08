@@ -1,0 +1,41 @@
+name: Validate ETF EU activated action-row contract
+
+on:
+  pull_request:
+    paths:
+      - "runtime/add_etf_eu_activated_allocation_surface.py"
+      - "runtime/add_etf_eu_activated_allocation_surface_v2.py"
+      - "tests/test_etf_eu_activated_action_row.py"
+      - "tests/test_etf_eu_activated_portfolio_copy.py"
+      - ".github/workflows/validate-etf-eu-activated-action-row.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install bounded dependencies
+        run: python -m pip install beautifulsoup4 weasyprint pytest
+
+      - name: Compile activated surface implementation
+        run: |
+          python -m py_compile \
+            runtime/add_etf_eu_activated_allocation_surface.py \
+            runtime/add_etf_eu_activated_allocation_surface_v2.py
+
+      - name: Run activated allocation surface regression tests
+        run: |
+          python -m pytest -q \
+            tests/test_etf_eu_activated_action_row.py \
+            tests/test_etf_eu_activated_portfolio_copy.py

@@ -1,0 +1,67 @@
+schema_version: etf_eu_portfolio_policy_v2
+policy_id: ETF_EU_RELEASE_LINEAGE_POLICY_V2
+status: active_release_authority
+effective_date: 2026-08-06
+portfolio_id: weekly_etf_eu_model
+base_currency: EUR
+model_portfolio_only: true
+real_broker_execution_allowed: false
+
+# Weekly ETF donor rule: the whole portfolio is re-underwritten each cycle.
+# The donor does not define a universal 50% maximum position or mandatory cash floor.
+# Therefore release validity is proved by allocation lineage, not an invented cap.
+authority_precedence:
+  - explicit_current_allocation_decision
+  - protected_portfolio_state_and_trade_ledger
+  - current_completed_close_valuation
+  - donor_opportunity_state
+  - historical_strategy_context
+
+allocation_lineage:
+  method: protected_state_plus_explicit_authorized_mutation
+  authoritative_portfolio_state: output/etf_eu_portfolio_state.json
+  authoritative_trade_ledger: output/etf_eu_trade_ledger.csv
+  current_authorized_decision: output/activation/etf_eu_stage1_allocation_decision_20260804_STAGE1_30947965670_1.json
+  current_activation_id: ETF-EU-STAGE1-2026-08-04-20260804_STAGE1_30947965670_1
+  preserve_ticker_and_share_identity_during_valuation_only_runs: true
+  preserve_cash_during_valuation_only_runs: true
+  require_explicit_decision_for_any_share_or_cash_mutation: true
+  required_activated_tickers:
+    - L0CK
+  monitored_unfunded_tickers:
+    - VVSM
+
+concentration_policy:
+  hard_maximum_position_weight_pct: null
+  mandatory_cash_floor_pct: null
+  interpretation: observation_and_underwriting_disclosure_not_automatic_release_block
+  note: >-
+    A high weight caused by genuine price movement is reported and reviewed. A high
+    weight caused by an unapproved allocator reconstruction fails the lineage checks.
+    Any future hard concentration limit requires an explicit, separately logged policy decision.
+
+strategic_context:
+  source: config/etf_eu_target_allocation.yml
+  status: long_horizon_design_context_not_current_order_authority
+  note: >-
+    The strategic target file may inform the next full portfolio underwriting. It does
+    not authorize silent migration, automatic full investment, or current share changes.
+
+reconciliation:
+  nav_tolerance_eur: 1.00
+  cash_tolerance_eur: 0.01
+  weight_tolerance_pct: 0.10
+  market_value_tolerance_eur: 1.00
+  require_position_market_values: true
+  require_cash_plus_positions_equals_nav: true
+  require_stated_weights_match_computed_weights: true
+  require_market_value_matches_shares_times_price: true
+
+release_rules:
+  portfolio_policy_validation_required: true
+  validation_verdict_required: PASS
+  bind_policy_hash_to_routine_manifest: true
+  bind_authoritative_state_hash_to_validation: true
+  bind_current_state_hash_to_validation: true
+  bind_validation_hash_to_release_assurance: true
+  fail_closed_on_missing_or_stale_lineage_evidence: true

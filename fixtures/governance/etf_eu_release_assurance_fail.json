@@ -1,7 +1,8 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "product": "weekly_etf_eu",
   "decision": "FAIL",
+  "status": "GOVERNANCE_FAIL",
   "implementation_role": "implementation_operations",
   "assurance_role": "governance_release_assurance",
   "separation_of_duties": {
@@ -15,6 +16,13 @@
     "report_date": "2026-08-05",
     "report_suffix": "260805_01"
   },
+  "portfolio_policy": {
+    "policy_id": "ETF_EU_PORTFOLIO_POLICY_V2_STAGE1_PARTIAL",
+    "policy_sha256": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+    "validation_sha256": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+    "state_sha256": "9999999999999999999999999999999999999999999999999999999999999999",
+    "verdict": "PASS"
+  },
   "checks": [
     {"id": "source_commit_bound", "passed": true, "evidence": {}},
     {"id": "artifact_files_present", "passed": true, "evidence": {}},
@@ -22,15 +30,18 @@
     {"id": "artifact_formats_valid", "passed": true, "evidence": {}},
     {"id": "artifact_hashes_complete", "passed": true, "evidence": {}},
     {"id": "manifest_identity_consistent", "passed": true, "evidence": {}},
+    {"id": "portfolio_policy_passed", "passed": true, "evidence": {}},
     {"id": "visual_review_passed", "passed": false, "evidence": {"blockers": ["rendered page defect"]}},
     {"id": "delivery_queue_bound", "passed": true, "evidence": {}},
+    {"id": "delivery_queue_policy_bound", "passed": true, "evidence": {}},
     {"id": "roles_separated", "passed": true, "evidence": {}}
   ],
   "artifact_hashes": {
     "nl_html": {"path": "output/fresh_generation/nl.html", "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"},
     "nl_pdf": {"path": "output/fresh_generation/nl.pdf", "sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"},
     "en_html": {"path": "output/fresh_generation/en.html", "sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"},
-    "en_pdf": {"path": "output/fresh_generation/en.pdf", "sha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"}
+    "en_pdf": {"path": "output/fresh_generation/en.pdf", "sha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"},
+    "portfolio_policy_validation": {"path": "output/routine_preview/policy.json", "sha256": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"}
   },
   "blockers": ["visual_review_passed"]
 }

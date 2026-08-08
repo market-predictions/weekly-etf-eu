@@ -1,0 +1,62 @@
+{
+  "artifact_type": "etf_eu_stage1_quote_evidence",
+  "funding_authority": false,
+  "line_count": 2,
+  "portfolio_mutation": false,
+  "qualified_line_count": 2,
+  "real_broker_execution": false,
+  "report_date": "2026-08-04",
+  "rows": [
+    {
+      "ask_eur": 94.9,
+      "ask_size": 600,
+      "bid_eur": 94.14,
+      "bid_size": 600,
+      "blockers": [],
+      "instrument_status": "Active",
+      "isin": "IE00BMC38736",
+      "last_price_eur": 94.82,
+      "last_price_timestamp": "2026-08-04T18:49:03Z",
+      "mic": "XETR",
+      "observed_at_utc": "2026-08-04T20:04:07Z",
+      "quote_timestamp_berlin": "2026-08-04T21:48:50+02:00",
+      "quote_timestamp_utc": "2026-08-04T19:48:50Z",
+      "source": "immutable GitHub Actions Stage-1 quote probe artifact",
+      "spread_absolute_eur": 0.76,
+      "spread_pct_mid": 0.80406263,
+      "status": "qualified_timestamped_exact_line_quote",
+      "ticker": "VVSM",
+      "trading_status": "Retail Early/Late"
+    },
+    {
+      "ask_eur": 10.954,
+      "ask_size": 2636,
+      "bid_eur": 10.914,
+      "bid_size": 2645,
+      "blockers": [],
+      "instrument_status": "Active",
+      "isin": "IE00BG0J4C88",
+      "last_price_eur": 10.85,
+      "last_price_timestamp": "2026-08-04T15:35:54Z",
+      "mic": "XETR",
+      "observed_at_utc": "2026-08-04T20:04:08Z",
+      "quote_timestamp_berlin": "2026-08-04T21:48:58+02:00",
+      "quote_timestamp_utc": "2026-08-04T19:48:58Z",
+      "source": "immutable GitHub Actions Stage-1 quote probe artifact",
+      "spread_absolute_eur": 0.04,
+      "spread_pct_mid": 0.36583135,
+      "status": "qualified_timestamped_exact_line_quote",
+      "ticker": "L0CK",
+      "trading_status": "Closing Auction / Vwap Crossing"
+    }
+  ],
+  "run_id": "20260804_STAGE1_30947965670_1",
+  "schema_version": "etf_eu_stage1_quote_evidence_v1",
+  "source_provenance": {
+    "artifact_id": "8907144364",
+    "artifact_sha256": "2192d9acab37901101c466f3893a9ed917ad3925df9de485f5ca7bef66545e5b",
+    "immutable_capture": true,
+    "source_file": "imported_quote/etf_eu_stage1_quote_probe_30946125583.json",
+    "workflow_run_id": "30946125583"
+  }
+}

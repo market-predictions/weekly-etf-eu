@@ -33,11 +33,12 @@ def copy_file(source: Path, target: Path) -> dict[str, Any]:
         raise RuntimeError(f"Source package file missing or empty: {source}")
     target.parent.mkdir(parents=True, exist_ok=True)
     shutil.copy2(source, target)
-    return {
-        "path": str(target),
-        "sha256": sha256_file(target),
-        "size_bytes": target.stat().st_size,
-    }
+    return {"path": str(target), "sha256": sha256_file(target), "size_bytes": target.stat().st_size}
+
+
+def normalize_ticker(value: Any) -> str:
+    ticker = str(value or "").strip().upper()
+    return "L0CK" if ticker == "LOCK" else ticker
 
 
 def build(
@@ -45,6 +46,7 @@ def build(
     state_path: Path,
     pricing_path: Path,
     macro_path: Path,
+    portfolio_policy_validation_path: Path,
     output_dir: Path,
     manifest_dir: Path,
     run_id: str,
@@ -57,13 +59,23 @@ def build(
     state = load(state_path)
     pricing = load(pricing_path)
     macro = load(macro_path)
+    policy_validation = load(portfolio_policy_validation_path)
     if client.get("schema_version") != "etf_eu_production_converged_report_manifest_v1":
         raise RuntimeError("Unexpected client report manifest schema")
     if state.get("schema_version") != "etf_eu_production_convergence_state_v1":
         raise RuntimeError("Unexpected convergence state schema")
     if state.get("report_date") != report_date:
         raise RuntimeError("Convergence state report date differs from routine request")
-    if state.get("stage_1_decision", {}).get("executable_trade_intents") != []:
+    if policy_validation.get("schema_version") != "etf_eu_portfolio_policy_validation_v2":
+        raise RuntimeError("Unexpected portfolio policy validation schema")
+    if policy_validation.get("verdict") != "PASS" or policy_validation.get("valid") is not True or policy_validation.get("blockers"):
+        raise RuntimeError(f"Portfolio policy validation did not PASS: {policy_validation.get('blockers')}")
+    if policy_validation.get("state_sha256") != sha256_file(state_path):
+        raise RuntimeError("Portfolio policy validation is not bound to the current convergence state")
+
+    stage = state.get("stage_1_decision") if isinstance(state.get("stage_1_decision"), dict) else {}
+    executable_intents = stage.get("executable_trade_intents")
+    if executable_intents != []:
         raise RuntimeError("Convergence state contains executable trade intents")
 
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -78,6 +90,12 @@ def build(
     }
 
     portfolio = state.get("official_portfolio") if isinstance(state.get("official_portfolio"), dict) else {}
+    positions = [row for row in portfolio.get("positions") or [] if isinstance(row, dict)]
+    funded_tickers = sorted({normalize_ticker(row.get("ticker") or row.get("exchange_ticker")) for row in positions if normalize_ticker(row.get("ticker") or row.get("exchange_ticker"))})
+    activation = portfolio.get("last_model_capital_activation") or state.get("model_capital_activation") or {}
+    activated_tickers = sorted({normalize_ticker(value) for value in stage.get("activated_tickers") or [] if normalize_ticker(value)})
+    monitored_tickers = sorted({normalize_ticker(value) for value in stage.get("remaining_monitored_tickers") or [] if normalize_ticker(value)})
+
     manifest = {
         "schema_version": "etf_eu_routine_run_manifest_v3_converged",
         "artifact_type": "etf_eu_routine_run_manifest",
@@ -91,7 +109,7 @@ def build(
         "donor_commit_sha": donor_commit,
         "donor_report_date": state.get("donor", {}).get("report_date") or state.get("donor", {}).get("source_report_date"),
         "report_engine": "production_convergence_v1",
-        "client_renderer_mode": "synchronized_premium_production_candidate",
+        "client_renderer_mode": client.get("client_renderer_mode"),
         "report_section_count": 19,
         "languages": ["nl", "en"],
         "dutch_primary": True,
@@ -99,9 +117,14 @@ def build(
         "expected_attachment_count": 4,
         "files": files,
         "state_artifacts": {
-            "production_convergence_state": {
-                "path": str(state_path),
-                "sha256": sha256_file(state_path),
+            "production_convergence_state": {"path": str(state_path), "sha256": sha256_file(state_path)},
+            "portfolio_policy_validation": {
+                "path": str(portfolio_policy_validation_path),
+                "sha256": sha256_file(portfolio_policy_validation_path),
+                "policy_id": policy_validation.get("policy_id"),
+                "policy_sha256": policy_validation.get("policy_sha256"),
+                "state_sha256": policy_validation.get("state_sha256"),
+                "verdict": policy_validation.get("verdict"),
             },
             "pricing_artifact": {
                 "path": str(pricing_path),
@@ -110,15 +133,8 @@ def build(
                 "priced_line_count": pricing.get("priced_line_count"),
                 "failed_line_count": pricing.get("failed_line_count"),
             },
-            "macro_policy_pack": {
-                "path": str(macro_path),
-                "sha256": sha256_file(macro_path),
-                "report_date": macro.get("report_date"),
-            },
-            "client_report_manifest": {
-                "path": str(client_manifest_path),
-                "sha256": sha256_file(client_manifest_path),
-            },
+            "macro_policy_pack": {"path": str(macro_path), "sha256": sha256_file(macro_path), "report_date": macro.get("report_date")},
+            "client_report_manifest": {"path": str(client_manifest_path), "sha256": sha256_file(client_manifest_path)},
         },
         "portfolio_snapshot": {
             "starting_capital_eur": portfolio.get("starting_capital_eur"),
@@ -126,20 +142,31 @@ def build(
             "cash_eur": portfolio.get("cash_eur"),
             "invested_market_value_eur": portfolio.get("invested_market_value_eur"),
             "position_count": portfolio.get("position_count"),
-            "positions": portfolio.get("positions"),
+            "funded_tickers": funded_tickers,
+            "positions": positions,
             "valuation_role": portfolio.get("valuation_role"),
             "pricing_close_dates": portfolio.get("pricing_close_dates"),
             "official_portfolio_state_sha256": portfolio.get("portfolio_state_sha256"),
             "official_trade_ledger_sha256": portfolio.get("trade_ledger_sha256"),
+            "model_portfolio_only": portfolio.get("model_portfolio_only"),
+            "real_broker_execution": portfolio.get("real_broker_execution"),
+            "activation_id": activation.get("activation_id") if isinstance(activation, dict) else None,
+            "portfolio_policy_id": policy_validation.get("policy_id"),
+            "portfolio_policy_verdict": policy_validation.get("verdict"),
         },
         "strategy_snapshot": {
             "current_promoted_exposure_count": len(state.get("promoted_exposures") or []),
             "mapped_promoted_exposure_count": state.get("strategy", {}).get("mapped_promoted_exposure_count"),
             "unmapped_promoted_exposure_count": state.get("strategy", {}).get("unmapped_promoted_exposure_count"),
             "stage_1_review_candidate_count": len(state.get("stage_1_review_candidates") or []),
-            "stage_1_decision": state.get("stage_1_decision", {}).get("value"),
-            "stage_1_activation_authorized": state.get("stage_1_decision", {}).get("stage_1_activation_authorized"),
-            "executable_trade_intents": state.get("stage_1_decision", {}).get("executable_trade_intents"),
+            "stage_1_decision": stage.get("value"),
+            "stage_1_activation_authorized": stage.get("stage_1_activation_authorized"),
+            "activated_tickers": activated_tickers,
+            "remaining_monitored_tickers": monitored_tickers,
+            "executable_trade_intents": executable_intents,
+            "model_portfolio_only": portfolio.get("model_portfolio_only"),
+            "real_broker_execution": portfolio.get("real_broker_execution"),
+            "activation_id": activation.get("activation_id") if isinstance(activation, dict) else None,
         },
         "package_status": "generated_pending_machine_and_visual_review",
         "ready_for_controlled_delivery": False,
@@ -163,6 +190,7 @@ def main() -> None:
     parser.add_argument("--state", type=Path, required=True)
     parser.add_argument("--pricing", type=Path, required=True)
     parser.add_argument("--macro", type=Path, required=True)
+    parser.add_argument("--portfolio-policy-validation", type=Path, required=True)
     parser.add_argument("--output-dir", type=Path, default=Path("output/fresh_generation"))
     parser.add_argument("--manifest-dir", type=Path, default=Path("output/run_manifests"))
     parser.add_argument("--run-id", required=True)
@@ -176,6 +204,7 @@ def main() -> None:
         state_path=args.state,
         pricing_path=args.pricing,
         macro_path=args.macro,
+        portfolio_policy_validation_path=args.portfolio_policy_validation,
         output_dir=args.output_dir,
         manifest_dir=args.manifest_dir,
         run_id=args.run_id,

@@ -1,0 +1,45 @@
+name: Validate Weekly ETF EU product boundary
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate-product-boundary:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install test dependency
+        run: python -m pip install --upgrade pip pytest
+
+      - name: Compile boundary validator
+        run: python -m py_compile tools/validate_etf_eu_repository_boundary.py
+
+      - name: Run planted boundary tests
+        run: python -m pytest -q tests/test_validate_etf_eu_repository_boundary.py
+
+      - name: Audit repository product boundary
+        run: |
+          python tools/validate_etf_eu_repository_boundary.py \
+            --root . \
+            --output output/governance/etf_eu_repository_boundary_validation.json
+
+      - name: Upload boundary evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: etf-eu-repository-boundary-${{ github.run_id }}
+          path: output/governance/etf_eu_repository_boundary_validation.json
+          if-no-files-found: warn
+          retention-days: 90

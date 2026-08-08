@@ -7,8 +7,8 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-
-FUNDED_TICKERS = ("VWCE", "EUNA", "SXR8")
+CORE_TICKERS = {"VWCE", "EUNA", "SXR8"}
+ALLOWED_ACTIVATED_TICKERS = {"L0CK"}
 
 
 def load_json(path: Path) -> dict[str, Any]:
@@ -31,18 +31,35 @@ def utc_now() -> str:
 
 
 def ticker(position: dict[str, Any]) -> str:
-    return str(position.get("ticker") or position.get("exchange_ticker") or "").strip().upper()
+    value = str(position.get("ticker") or position.get("exchange_ticker") or "").strip().upper()
+    return "L0CK" if value == "LOCK" else value
+
+
+def validate_funded_set(portfolio: dict[str, Any], symbols: set[str]) -> None:
+    if not CORE_TICKERS.issubset(symbols):
+        raise RuntimeError(f"Core funded ticker set is incomplete: {sorted(symbols)}")
+    extras = symbols - CORE_TICKERS
+    if not extras.issubset(ALLOWED_ACTIVATED_TICKERS):
+        raise RuntimeError(f"Unexpected activated funded tickers: {sorted(extras)}")
+    if extras:
+        if portfolio.get("schema_version") != "etf_eu_portfolio_state_v2":
+            raise RuntimeError("Activated portfolio must use state schema v2")
+        if portfolio.get("model_portfolio_only") is not True or portfolio.get("real_broker_execution") is not False:
+            raise RuntimeError("Activated portfolio authority boundary is invalid")
+        activation = portfolio.get("last_model_capital_activation") or {}
+        if not activation.get("activation_id"):
+            raise RuntimeError("Activated portfolio provenance is missing")
 
 
 def build(portfolio: dict[str, Any], pricing: dict[str, Any], portfolio_path: Path, ledger_path: Path, report_date: str, run_id: str) -> dict[str, Any]:
     positions = [dict(row) for row in portfolio.get("positions") or [] if isinstance(row, dict)]
     by_ticker = {ticker(row): row for row in positions if ticker(row)}
-    if set(by_ticker) != set(FUNDED_TICKERS):
-        raise RuntimeError(f"Official funded ticker set differs: {sorted(by_ticker)}")
+    validate_funded_set(portfolio, set(by_ticker))
+    funded_tickers = tuple(sorted(by_ticker))
 
     pricing_rows = [row for row in pricing.get("rows") or [] if isinstance(row, dict)]
     priced_by_ticker = {
-        str(row.get("ticker") or "").strip().upper(): row
+        ("L0CK" if str(row.get("ticker") or "").strip().upper() == "LOCK" else str(row.get("ticker") or "").strip().upper()): row
         for row in pricing_rows
         if row.get("pricing_status") == "priced_non_authoritative"
         and row.get("close_price") is not None
@@ -53,7 +70,7 @@ def build(portfolio: dict[str, Any], pricing: dict[str, Any], portfolio_path: Pa
     missing: list[str] = []
     close_dates: set[str] = set()
     invested = 0.0
-    for symbol in FUNDED_TICKERS:
+    for symbol in funded_tickers:
         official = by_ticker[symbol]
         price_row = priced_by_ticker.get(symbol)
         if not price_row:
@@ -80,6 +97,7 @@ def build(portfolio: dict[str, Any], pricing: dict[str, Any], portfolio_path: Pa
             {
                 **official,
                 "ticker": symbol,
+                "exchange_ticker": symbol,
                 "shares": shares,
                 "prior_valuation_report_date": official.get("last_valuation_report_date"),
                 "prior_valuation_run_id": official.get("last_valuation_run_id"),
@@ -153,7 +171,8 @@ def build(portfolio: dict[str, Any], pricing: dict[str, Any], portfolio_path: Pa
         "priced_line_count": pricing.get("priced_line_count"),
         "official_portfolio_state_sha256": sha256_file(portfolio_path),
         "official_trade_ledger_sha256": sha256_file(ledger_path),
-        "protected_official_shares": {symbol: by_ticker[symbol].get("shares") for symbol in FUNDED_TICKERS},
+        "protected_official_shares": {symbol: by_ticker[symbol].get("shares") for symbol in funded_tickers},
+        "activated_model_tickers": sorted(set(funded_tickers) - CORE_TICKERS),
         "portfolio_mutation": False,
         "ledger_write": False,
         "funding_authority": False,

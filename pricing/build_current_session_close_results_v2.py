@@ -1,22 +1,111 @@
 from __future__ import annotations
 
+import json
 from datetime import date, datetime, time, timedelta, timezone
+from pathlib import Path
 from typing import Any
 from urllib.parse import quote
 
 import requests
 
 from pricing import build_current_session_close_results as legacy
+from pricing.accepted_close_evidence_cache import provider_from_cache
+from pricing.boerse_frankfurt_historical_close import fetch_exact_history_close
 from pricing.yahoo_regular_market_fallback import report_date_regular_market_close
 
 
 _original_fetch_yahoo = legacy.fetch_yahoo
+_original_fetch_boerse = legacy.fetch_boerse
+CORE_FUNDED_TICKERS = {"VWCE", "EUNA", "SXR8"}
+ALLOWED_ACTIVATED_TICKERS = {"L0CK"}
 
 
-def fetch_yahoo_with_regular_market_fallback(
-    line: dict[str, Any],
-    report_date: date,
-) -> dict[str, Any]:
+def normalize_ticker(value: Any) -> str:
+    ticker = str(value or "").strip().upper()
+    return "L0CK" if ticker == "LOCK" else ticker
+
+
+def funded_tickers_from_state(path: Path = Path("output/etf_eu_portfolio_state.json")) -> set[str]:
+    if not path.exists():
+        return set(CORE_FUNDED_TICKERS)
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    positions = payload.get("positions") if isinstance(payload, dict) else []
+    funded = {
+        normalize_ticker(row.get("ticker") or row.get("exchange_ticker"))
+        for row in positions or []
+        if isinstance(row, dict) and normalize_ticker(row.get("ticker") or row.get("exchange_ticker"))
+    }
+    if not CORE_FUNDED_TICKERS.issubset(funded):
+        raise RuntimeError(f"Core funded pricing scope is incomplete: {sorted(funded)}")
+    extras = funded - CORE_FUNDED_TICKERS
+    if not extras.issubset(ALLOWED_ACTIVATED_TICKERS):
+        raise RuntimeError(f"Unexpected activated funded pricing scope: {sorted(extras)}")
+    if extras:
+        if payload.get("model_portfolio_only") is not True or payload.get("real_broker_execution") is not False:
+            raise RuntimeError("Activated pricing scope lacks model-only authority boundary")
+        activation = payload.get("last_model_capital_activation") or {}
+        if not activation.get("activation_id"):
+            raise RuntimeError("Activated pricing scope lacks activation provenance")
+    return funded
+
+
+def fetch_boerse_replay_safe(line: dict[str, Any], report_date: date) -> dict[str, Any]:
+    """Resolve Börse evidence without relabelling a rolling close as history.
+
+    For a report date whose accepted two-provider qualification was preserved at
+    report time, the immutable cache is authoritative replay evidence. This is
+    preferable to re-querying a rolling endpoint weeks later and is explicitly
+    bound to date, basket, ISIN, MIC, provider symbol, source workflow SHA and
+    Actions artifact digest.
+
+    If no cache exists, exact-date Börse price history is attempted. The live
+    previous-session field remains only a bounded same/next-session fallback.
+    """
+    cached = provider_from_cache(line, report_date, "boerse_frankfurt_xetra")
+    if cached is not None:
+        return cached
+
+    history = fetch_exact_history_close(
+        line,
+        report_date,
+        headers_factory=legacy.boerse_headers,
+        timeout_seconds=legacy.TIMEOUT_SECONDS,
+    )
+    if history.get("pricing_status") == "priced" and history.get("close_date") == report_date.isoformat():
+        return history
+
+    live = _original_fetch_boerse(line, report_date)
+    if live.get("pricing_status") == "priced" and live.get("close_date") == report_date.isoformat():
+        evidence = list(live.get("identity_evidence") or [])
+        evidence.append(
+            {
+                "history_replay_attempt": "failed",
+                "history_provider": history.get("provider"),
+                "history_blockers": history.get("blockers") or [],
+                "fallback_scope": "same_or_immediately_next_session_only",
+            }
+        )
+        live["identity_evidence"] = evidence
+        live["retrieval_mode"] = f"bounded_live_fallback_after_history_failure:{live.get('retrieval_mode') or 'live'}"
+        return live
+
+    combined = dict(history)
+    blockers = list(history.get("blockers") or [])
+    blockers.extend(f"live_fallback:{value}" for value in (live.get("blockers") or []))
+    combined["blockers"] = sorted(set(blockers))
+    combined["pricing_status"] = "fetch_failed"
+    combined["live_fallback_status"] = live.get("pricing_status")
+    return combined
+
+
+def fetch_yahoo_with_regular_market_fallback(line: dict[str, Any], report_date: date) -> dict[str, Any]:
+    # A preserved report-time qualification must replay as one coherent evidence
+    # set. Do not combine its unadjusted close with a later provider series that
+    # may have been retroactively adjusted after a split or other corporate action.
+    cached = provider_from_cache(line, report_date, "yahoo_chart")
+    if cached is not None:
+        return cached
+
     result = _original_fetch_yahoo(line, report_date)
     if result.get("pricing_status") == "priced" and result.get("close_date") == report_date.isoformat():
         return result
@@ -56,11 +145,7 @@ def fetch_yahoo_with_regular_market_fallback(
         return result
 
     meta = data_rows[0].get("meta") or {}
-    fallback = report_date_regular_market_close(
-        meta,
-        report_date=report_date,
-        observed_at_utc=observed_at,
-    )
+    fallback = report_date_regular_market_close(meta, report_date=report_date, observed_at_utc=observed_at)
     if fallback is None:
         result.setdefault("blockers", []).append("report_date_regular_market_metadata_unavailable")
         return result
@@ -114,7 +199,9 @@ def fetch_yahoo_with_regular_market_fallback(
 
 
 def main() -> None:
+    legacy.fetch_boerse = fetch_boerse_replay_safe
     legacy.fetch_yahoo = fetch_yahoo_with_regular_market_fallback
+    legacy.FUNDED_TICKERS = funded_tickers_from_state()
     legacy.main()
 
 

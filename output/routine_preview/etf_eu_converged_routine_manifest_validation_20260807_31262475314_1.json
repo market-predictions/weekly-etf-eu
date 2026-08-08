@@ -1,0 +1,12 @@
+{
+  "artifact_type": "etf_eu_converged_routine_manifest_validation",
+  "valid": true,
+  "blockers": [],
+  "run_id": "20260807_31262475314_1",
+  "report_date": "2026-08-07",
+  "report_suffix": "260807_01",
+  "attachment_count": 4,
+  "report_engine": "production_convergence_v1",
+  "portfolio_policy_id": "ETF_EU_RELEASE_LINEAGE_POLICY_V2",
+  "portfolio_policy_verdict": "PASS"
+}

@@ -3,135 +3,179 @@
 ## Snapshot
 
 ```text
-date=2026-08-04
+date=2026-08-08
 repository=market-predictions/weekly-etf-eu
-working_branch=routine/20260803-expanded-funded-report
-pull_request=71
-validated_runtime_sha=d9f49c6f729cb632e77f8b21f9558eeefc5f6b1c
-operating_mode=fresh_expanded_report_validated_no_send
-selected_next_action=MERGE_PR71_THEN_DECIDE_MODEL_ACTIVATION_OR_RETAIN_THREE_POSITIONS
+working_branch=agent/etf-eu-client-grade-release-remediation
+pull_request=80
+operating_mode=client_grade_release_remediation_no_send
+implementation_status=RELEASE_CANDIDATE_READY_FOR_PRICING_LINEAGE
+assurance_status=GOVERNANCE_INDETERMINATE_FOR_FULL_REPORT
+selected_next_action=COMPLETE_CURRENT_FRESH_PACKAGE_THEN_INDEPENDENTLY_ASSURE_REVIEWABLE_CANDIDATE
 ```
 
-A fresh 2026-08-03 Weekly ETF EU package has been generated and fully validated. It contains current closing-price evidence for 13 controlled lines, six promoted UCITS opportunities, the retained VVSM line, and an evidence-qualified but unexecuted expansion proposal from three to five positions.
+The highest-priority pricing-lineage blocker has been resolved at implementation level. Historical report replay no longer depends on a rolling live `previous close` field or on a later mutable adjusted price series.
 
-## Official protected portfolio
+No current report is approved for delivery. No email transport or independent receipt is claimed.
+
+## Product boundary
+
+The ETF EU remediation branch is product-pure:
 
 ```text
-VWCE_shares=151
-EUNA_shares=1526
-SXR8_shares=10
-cash_eur=60439.44
-current_nav_eur=99937.41
-official_position_count=3
-portfolio_state_sha256=6642334558818e630f0b22a2500ef44b2489ff237aacca638e81f184c165aa6f
-trade_ledger_sha256=718f0681fe0d1162f9a91c34aa90489eb8566aecb06c12a1a2d9ad251be3e87c
-portfolio_mutation=false
-ledger_write=false
+product=weekly_etf_eu
+misplaced_fx_scheduler=removed
+misplaced_fx_generator=removed
+daily_fx_instructions=removed
+daily_outputs_fx_tree=removed
+mt5_fx_tree=removed
+repository_boundary_ci=PASS
 ```
 
-## Current pricing
+The prior `.github/workflows/generate_predictions.yml` path was an FX workflow that invoked `prediction.py` and could surface Weekly FX output from the ETF EU repository. It is absent on the remediation branch. Repository-boundary CI is green.
+
+## Protected model portfolio authority
+
+Authoritative state:
 
 ```text
-report_date=2026-08-03
-controlled_line_count=13
-priced_line_count=13
-funded_consensus=3/3
-funded_identity_anchors=3/3
-pricing_gate_passed=true
+output/etf_eu_portfolio_state.json
+output/etf_eu_trade_ledger.csv
 ```
 
-Funded closes:
+Current protected model positions:
 
-| Ticker | Close |
+| Ticker | Shares |
 |---|---:|
-| VWCE | €165.10 |
-| EUNA | €4.8969 |
-| SXR8 | €709.52 |
-
-Stage-1 closes:
-
-| Ticker | Close |
-|---|---:|
-| VVSM | €88.15 |
-| L0CK | €10.5940 |
-
-Pricing uses Deutsche Börse/Xetra exact ISIN+MIC evidence plus Yahoo Chart agreement. The Yahoo path includes a report-date regular-market metadata fallback for delayed German daily bars, without relaxing the report-date or two-provider gates.
-
-## Model expansion proposal
+| VWCE | 151 |
+| EUNA | 1,526 |
+| SXR8 | 10 |
+| L0CK | 934 |
 
 ```text
-proposed_position_count=5
-VVSM_proposed_shares=168
-L0CK_proposed_shares=956
-projected_cash_eur=35477.44
-projected_cash_weight_pct=35.563945
-proposal_applied=false
+cash_eur=50208.40
+position_count=4
+model_portfolio_only=true
 real_broker_execution=false
+activation_id=ETF-EU-STAGE1-2026-08-04-20260804_STAGE1_30947965670_1
 ```
 
-The proposal remains blocked by timestamped bid/ask/quote-size evidence, donor fresh-add direction and explicit model-capital activation authority. Current closes and accepted liquidity evidence are no longer blockers.
+VVSM remains monitored and unfunded.
 
-## Final report package
+## Allocation authority correction
+
+The earlier remediation draft's universal 50% position cap and mandatory 35% cash floor were rejected after comparison with the mature Weekly ETF donor rules.
+
+Current policy:
 
 ```text
-report_suffix=260803_05
-run_id=20260803_30860298693_1
-workflow_run=30860298693
-workflow_job=91840542978
-artifact_id=8874130446
-artifact_sha256=f451dc03ae726bcab519be21a566b72369c51f8396bb6e572624b16a3525fa57
-nl_pages=12
-en_pages=11
-total_reviewed_pages=23
-low_content_pages=0
+policy_id=ETF_EU_RELEASE_LINEAGE_POLICY_V2
+hard_maximum_position_weight_pct=null
+mandatory_cash_floor_pct=null
+allocation_validity=protected_state_plus_explicit_authorized_mutation
 ```
 
-Files:
+A valuation-only report must preserve the protected ticker roster, exact shares and cash. Any mutation requires an explicit allocation-decision artifact. Concentration is an underwriting observation and disclosure issue unless an explicit later decision establishes a hard cap.
+
+Therefore the previously observed ~75% VWCE reconstruction is invalid because it changed shares and cash without authority, not because 75% crossed an invented 50% threshold.
+
+## Replay-safe pricing lineage
+
+Work package:
 
 ```text
-output/fresh_generation/weekly_etf_eu_review_nl_260803_05.html
-output/fresh_generation/weekly_etf_eu_review_nl_260803_05.pdf
-output/fresh_generation/weekly_etf_eu_review_260803_05.html
-output/fresh_generation/weekly_etf_eu_review_260803_05.pdf
+ETF-EU-WP-SYNC-11B
+status=RELEASE_CANDIDATE_READY
 ```
 
-The report shows the official three-position portfolio, current prices for the broader opportunity set, and the unexecuted five-position model proposal. Exact `L0CK` naming and historical regime-context labeling were independently checked.
-
-Evidence:
+Original accepted 2026-08-05 evidence was recovered from the still-retained GitHub Actions artifact:
 
 ```text
-control/evidence/etf_eu_aug3_expanded_report_evidence_20260804.md
+source_workflow_run_id=31051399761
+source_run_id=20260805_31051399761_1
+source_workflow_head_sha=476579ecc0644250d7d12a8f69784a279118d389
+actions_artifact_id=8948609199
+actions_artifact_digest=sha256:631f90f24caabc271b1d290b519adf5c3e667cb717f35563f522d030cb49c55a
+qualification_member_sha256=02ad0fa5dd431eebadf73c370b6ab9fdc85a570332667a26234ad0d1758611d4
 ```
+
+Original accepted funded closes:
+
+| Ticker | Close | Providers | Spread |
+|---|---:|---|---:|
+| VWCE | 168.04 | Börse Frankfurt + Yahoo | 0.0% |
+| EUNA | 4.9116 | Börse Frankfurt + Yahoo | 0.0% |
+| SXR8 | 722.42 | Börse Frankfurt + Yahoo | 0.0% |
+| L0CK | 10.932 | Börse Frankfurt + Yahoo | 0.0% |
+
+The evidence is preserved in:
+
+```text
+state/price_evidence_cache/ucits_close_evidence_2026-08-05.json
+```
+
+Replay is exact-date and identity bound. It rejects report-date, basket, ticker, ISIN, MIC, currency, provider-set, provider-symbol, tolerance or provenance mismatches.
+
+Independent implementation CI:
+
+```text
+workflow=Validate ETF EU replay-safe historical pricing
+workflow_run_id=31254153417
+job_id=93094895139
+conclusion=success
+funded_two_provider_replay=4/4
+funded_identity_anchor_replay=4/4
+```
+
+The public Börse Frankfurt `price_history` endpoint was also tested. It returned HTTP 200 with an empty object for the tested ETF requests on hosted GitHub runners, so it is not treated as a durable sole replay source. The two-provider gate was not weakened.
+
+## Current CI state
+
+For the replay-safe commit line, the following are green:
+
+```text
+Validate ETF EU replay-safe historical pricing=PASS
+Validate ETF EU multi-provider close-price engine=PASS
+Validate Weekly ETF EU product boundary=PASS
+Validate ETF EU release assurance fixtures=PASS
+Validate ETF EU activated action-row contract=PASS
+```
+
+The broader fresh governed candidate build is executing separately and must complete before the project can present a client report for review.
+
+## Client-grade release status
+
+```text
+product_boundary_validation=PASS
+allocation_lineage_architecture=PASS
+historical_pricing_replay=PASS
+funded_two_provider_replay=4/4
+fresh_current_package=IN_PROGRESS
+four_file_candidate=NOT_YET_CONFIRMED
+machine_report_validation=NOT_YET_CONFIRMED
+visual_review=NOT_YET_CONFIRMED
+independent_full_release_assurance=NOT_YET_RUN_ON_FINAL_CANDIDATE
+user_review=NOT_YET_REQUESTED
+email_delivery=false
+independent_receipt_confirmed=false
+```
+
+## Maturity gaps after current P1 work
+
+1. Finish one fresh governed ETF EU candidate using the repaired product, allocation and pricing lineage.
+2. Bind replay-safe/current pricing evidence into one immutable run-input manifest.
+3. Independently reconstruct report/state/pricing equality and visual parity.
+4. Consolidate historical generation and send workflows to a small production allowlist.
+5. Designate one canonical production renderer.
+6. Present the exact Dutch/English candidate to the user before delivery authority exists.
+7. After explicit approval, execute guarded transport and independently confirm inbox receipt/attachment identity.
 
 ## Authority boundary
 
 ```text
 portfolio_mutation=false
 ledger_write=false
-execution_authority=false
-model_activation_authority=false
-delivery_authority=false
+real_broker_execution=false
 email_delivery=false
+delivery_authority=false
+receipt_confirmed=false
 ```
-
-## Governance update — 2026-08-05
-
-```text
-two_role_governance=ENFORCED
-implementation_role=implementation_operations
-assurance_role=governance_release_assurance
-user_interface=single_coordinated_project_stream
-enforcement_maturity=LEVEL_4_POST_ACTION_INDEPENDENT_CONFIRMATION
-cross_project_governance_role=interim_canonical_host
-control_plane_repository_status=USER_ACTION_REQUIRED
-```
-
-The pre-send workflow now creates an independent release-assurance record, binds the source SHA and exact Dutch/English artifact hashes, rejects incomplete or self-certified evidence, and blocks guarded transport unless assurance returns `PASS`. Delivery confirmation remains dependent on independent inbox receipt and production closeout evidence.
-
-The repository temporarily hosts the cross-project governance standard and adoption register until `market-predictions/control-plane` is created. This shared authority covers role separation and status semantics only; ETF EU instrument, state, portfolio, recipient, and delivery authority remains local.
-
-Known implementation defects remain open and are not erased by this governance update:
-
-- PR #72's stale production validator assumes exactly three positions and a blocked Stage-1 state.
-- `.github/workflows/generate_predictions.yml` is a legacy FX scheduler and is not a valid Weekly ETF EU production entry point.
-- No fresh governed end-to-end report delivery has yet been completed after activation of the new assurance gate.

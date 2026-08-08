@@ -1,0 +1,158 @@
+{
+  "agreement_tolerance_pct": 1.0,
+  "artifact_type": "accepted_two_provider_close_evidence",
+  "commercial_redistribution_authority": false,
+  "delivery_authority": false,
+  "evidence_role": "immutable_report_time_replay_evidence",
+  "funded_consensus_count": 4,
+  "funded_identity_anchor_count": 4,
+  "funded_line_count": 4,
+  "lines": [
+    {
+      "agreement_spread_pct": 0.0,
+      "basket_id": "vwce_xetra_eur",
+      "consensus_close_price": 168.04,
+      "currency": "EUR",
+      "identity_anchor_passed": true,
+      "isin": "IE00BK5BQT80",
+      "providers": [
+        {
+          "close_date": "2026-08-05",
+          "close_price": 168.04,
+          "currency_match": true,
+          "identity_status": "verified_exact_isin_mic_currency",
+          "provider": "boerse_frankfurt_xetra",
+          "provider_symbol": "XETR:IE00BK5BQT80",
+          "retrieval_mode": "live",
+          "venue_match": true
+        },
+        {
+          "close_date": "2026-08-05",
+          "close_price": 168.04,
+          "currency_match": true,
+          "identity_status": "metadata_matches_expected_line",
+          "provider": "yahoo_chart",
+          "provider_symbol": "VWCE.DE",
+          "retrieval_mode": "live_regular_market_metadata_fallback",
+          "venue_match": true
+        }
+      ],
+      "selected_close_date": "2026-08-05",
+      "ticker": "VWCE",
+      "venue_code": "XETR"
+    },
+    {
+      "agreement_spread_pct": 0.0,
+      "basket_id": "euna_xetra_eur",
+      "consensus_close_price": 4.9116,
+      "currency": "EUR",
+      "identity_anchor_passed": true,
+      "isin": "IE00BDBRDM35",
+      "providers": [
+        {
+          "close_date": "2026-08-05",
+          "close_price": 4.9116,
+          "currency_match": true,
+          "identity_status": "verified_exact_isin_mic_currency",
+          "provider": "boerse_frankfurt_xetra",
+          "provider_symbol": "XETR:IE00BDBRDM35",
+          "retrieval_mode": "live",
+          "venue_match": true
+        },
+        {
+          "close_date": "2026-08-05",
+          "close_price": 4.9116,
+          "currency_match": true,
+          "identity_status": "metadata_matches_expected_line",
+          "provider": "yahoo_chart",
+          "provider_symbol": "EUNA.DE",
+          "retrieval_mode": "live_regular_market_metadata_fallback",
+          "venue_match": true
+        }
+      ],
+      "selected_close_date": "2026-08-05",
+      "ticker": "EUNA",
+      "venue_code": "XETR"
+    },
+    {
+      "agreement_spread_pct": 0.0,
+      "basket_id": "sxr8_xetra_eur",
+      "consensus_close_price": 722.42,
+      "currency": "EUR",
+      "identity_anchor_passed": true,
+      "isin": "IE00B5BMR087",
+      "providers": [
+        {
+          "close_date": "2026-08-05",
+          "close_price": 722.42,
+          "currency_match": true,
+          "identity_status": "verified_exact_isin_mic_currency",
+          "provider": "boerse_frankfurt_xetra",
+          "provider_symbol": "XETR:IE00B5BMR087",
+          "retrieval_mode": "live",
+          "venue_match": true
+        },
+        {
+          "close_date": "2026-08-05",
+          "close_price": 722.42,
+          "currency_match": true,
+          "identity_status": "metadata_matches_expected_line",
+          "provider": "yahoo_chart",
+          "provider_symbol": "SXR8.DE",
+          "retrieval_mode": "live_regular_market_metadata_fallback",
+          "venue_match": true
+        }
+      ],
+      "selected_close_date": "2026-08-05",
+      "ticker": "SXR8",
+      "venue_code": "XETR"
+    },
+    {
+      "agreement_spread_pct": 0.0,
+      "basket_id": "l0ck_xetra_eur",
+      "consensus_close_price": 10.932,
+      "currency": "EUR",
+      "identity_anchor_passed": true,
+      "isin": "IE00BG0J4C88",
+      "providers": [
+        {
+          "close_date": "2026-08-05",
+          "close_price": 10.932,
+          "currency_match": true,
+          "identity_status": "verified_exact_isin_mic_currency",
+          "provider": "boerse_frankfurt_xetra",
+          "provider_symbol": "XETR:IE00BG0J4C88",
+          "retrieval_mode": "live",
+          "venue_match": true
+        },
+        {
+          "close_date": "2026-08-05",
+          "close_price": 10.932,
+          "currency_match": true,
+          "identity_status": "metadata_matches_expected_line",
+          "provider": "yahoo_chart",
+          "provider_symbol": "L0CK.DE",
+          "retrieval_mode": "live_regular_market_metadata_fallback",
+          "venue_match": true
+        }
+      ],
+      "selected_close_date": "2026-08-05",
+      "ticker": "L0CK",
+      "venue_code": "XETR"
+    }
+  ],
+  "portfolio_mutation": false,
+  "report_date": "2026-08-05",
+  "report_pricing_gate_passed": true,
+  "schema_version": "ucits_close_evidence_cache_v1",
+  "source_actions_artifact": {
+    "artifact_digest": "sha256:631f90f24caabc271b1d290b519adf5c3e667cb717f35563f522d030cb49c55a",
+    "artifact_id": 8948609199,
+    "artifact_name": "etf-eu-final-package-20260805_31051399761_1",
+    "qualification_member_path": "pricing/ucits_price_provider_qualification_20260805_31051399761_1.json",
+    "qualification_member_sha256": "02ad0fa5dd431eebadf73c370b6ab9fdc85a570332667a26234ad0d1758611d4"
+  },
+  "source_run_id": "20260805_31051399761_1",
+  "source_workflow_head_sha": "476579ecc0644250d7d12a8f69784a279118d389",
+  "source_workflow_run_id": 31051399761
+}
