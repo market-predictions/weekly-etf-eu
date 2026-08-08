@@ -192,6 +192,93 @@ def activated_status_box(soup: BeautifulSoup, state: dict[str, Any], language: s
         section.append(box)
 
 
+def synchronize_authoritative_portfolio_copy(
+    soup: BeautifulSoup,
+    state: dict[str, Any],
+    language: str,
+) -> None:
+    """Synchronize visible summary/action copy with the authoritative activated state."""
+
+    portfolio = state.get("official_portfolio") if isinstance(state.get("official_portfolio"), dict) else {}
+    positions = {
+        normalize_ticker(row.get("ticker") or row.get("exchange_ticker")): row
+        for row in portfolio.get("positions") or []
+        if isinstance(row, dict)
+    }
+    stage = state.get("stage_1_decision") if isinstance(state.get("stage_1_decision"), dict) else {}
+    activated = {
+        normalize_ticker(value)
+        for value in stage.get("activated_tickers") or []
+        if normalize_ticker(value)
+    }
+    if "L0CK" not in positions or "L0CK" not in activated:
+        return
+
+    position_count = len(positions)
+    cash = portfolio.get("cash_eur")
+
+    section_1 = soup.find("section", id="section-1")
+    if not isinstance(section_1, Tag):
+        raise RuntimeError("Section 1 missing")
+    summary_items = section_1.find_all("li")
+    portfolio_prefix = "Officiële modelportefeuille:" if language == "nl" else "Official model portfolio:"
+    outcome_prefix = "Actuele uitkomst:" if language == "nl" else "Current outcome:"
+    portfolio_item = next((item for item in summary_items if item.get_text(" ", strip=True).startswith(portfolio_prefix)), None)
+    outcome_item = next((item for item in summary_items if item.get_text(" ", strip=True).startswith(outcome_prefix)), None)
+    if not isinstance(portfolio_item, Tag) or not isinstance(outcome_item, Tag):
+        raise RuntimeError("Authoritative Section 1 portfolio copy anchors missing")
+    if language == "nl":
+        portfolio_item.string = f"Officiële modelportefeuille: {position_count} posities en {euro(cash, language)} cash."
+        outcome_item.string = "Actuele uitkomst: L0CK is toegevoegd als vierde modelpositie; resterende niet-gealloceerde ruimte blijft cash."
+    else:
+        portfolio_item.string = f"Official model portfolio: {position_count} positions and {euro(cash, language)} cash."
+        outcome_item.string = "Current outcome: L0CK has been added as the fourth model position; remaining unallocated capacity stays in cash."
+
+    section_2 = soup.find("section", id="section-2")
+    if not isinstance(section_2, Tag):
+        raise RuntimeError("Section 2 missing")
+    l0ck_row = next(
+        (row for row in section_2.select("tbody tr") if "IE00BG0J4C88" in row.get_text(" ", strip=True)),
+        None,
+    )
+    if not isinstance(l0ck_row, Tag):
+        raise RuntimeError("L0CK portfolio-action row missing")
+    cells = l0ck_row.find_all("td", recursive=False)
+    if len(cells) < 6:
+        raise RuntimeError("L0CK portfolio-action row shape changed")
+    if language == "nl":
+        cells[4].string = "Actieve modelpositie"
+        cells[5].string = "Actueel gepromoveerd en geactiveerd als modelpositie onder de geautoriseerde fase-1-allocatie."
+    else:
+        cells[4].string = "Active model position"
+        cells[5].string = "Currently promoted and activated as a model position under the authorized Stage-1 allocation."
+
+    section_2a = soup.find("section", id="section-2A")
+    if not isinstance(section_2a, Tag):
+        raise RuntimeError("Section 2A missing")
+    cards = section_2a.select(".cockpit-card")
+    if len(cards) < 4:
+        raise RuntimeError("Decision cockpit shape changed")
+    if language == "nl":
+        cards[1].string = f"{position_count} officiële modelposities; L0CK is in deze modelallocatie geactiveerd."
+        cards[2].string = "VVSM is niet actueel gepromoveerd; L0CK is actief als modelpositie."
+        cards[3].string = f"Cash is {euro(cash, language)} na de L0CK-modelallocatie; resterende ruimte is niet gealloceerd."
+    else:
+        cards[1].string = f"{position_count} official model positions; L0CK is activated in this model allocation."
+        cards[2].string = "VVSM is not currently promoted; L0CK is active as a model position."
+        cards[3].string = f"Cash is {euro(cash, language)} after the L0CK model allocation; remaining capacity is unallocated."
+
+    stale_markers = (
+        ("3 officiële posities", "geen portefeuillewijziging", "gepromoveerd maar geblokkeerd", "Geblokkeerd; cash behouden")
+        if language == "nl"
+        else ("3 official positions", "no portfolio change", "promoted but blocked", "Blocked; retain cash")
+    )
+    visible = soup.get_text(" ", strip=True)
+    remaining = [marker for marker in stale_markers if marker in visible]
+    if remaining:
+        raise RuntimeError(f"Stale activated-allocation copy remains: {remaining}")
+
+
 def synchronize_activated_final_action_row(
     soup: BeautifulSoup,
     state: dict[str, Any],
@@ -321,23 +408,31 @@ def main() -> None:
         replace_visible_text(soup, language)
         compact_opportunity_table(soup, language)
         activated_status_box(soup, state, language)
+        synchronize_authoritative_portfolio_copy(soup, state, language)
         synchronize_activated_final_action_row(soup, state, language)
         add_style(soup)
         html_path.write_text(str(soup), encoding="utf-8")
         HTML(filename=str(html_path), base_url=str(html_path.parent.resolve())).write_pdf(str(pdf_path))
-        record["activated_allocation_surface"] = "l0ck_funded_vvsm_monitored_v2"
+        record["activated_allocation_surface"] = "l0ck_funded_vvsm_monitored_v3"
     manifest["activated_allocation_surface"] = {
         "applied": True,
         "funded_stage1_tickers": ["L0CK"],
         "remaining_monitored_tickers": ["VVSM"],
-        "current_position_count": 4,
+        "current_position_count": len(
+            [
+                row
+                for row in (state.get("official_portfolio") or {}).get("positions", [])
+                if isinstance(row, dict)
+            ]
+        ),
         "portfolio_mutation_this_report_run": False,
         "real_broker_execution": False,
         "production_delivery_authority": False,
         "final_action_table_synchronized": True,
+        "summary_and_cockpit_synchronized": True,
     }
     args.manifest.write_text(json.dumps(manifest, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
-    print("ETF_EU_ACTIVATED_ALLOCATION_SURFACE_OK | funded=L0CK | monitored=VVSM | positions=4 | action_row=synchronized")
+    print("ETF_EU_ACTIVATED_ALLOCATION_SURFACE_OK | funded=L0CK | monitored=VVSM | summary=authoritative | action_row=synchronized")
 
 
 if __name__ == "__main__":
