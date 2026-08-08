@@ -35,10 +35,10 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 45
     env:
-      REPORT_DATE: "2026-08-05"
-      REPORT_SUFFIX: "260805_02"
+      REPORT_DATE: "2026-08-07"
+      REPORT_SUFFIX: "260807_01"
       DONOR_COMMIT: "f61e59e6b4b8f7fc02a16eb42f01f23d8b906985"
-      RUN_ID: "20260805_${{ github.run_id }}_${{ github.run_attempt }}"
+      RUN_ID: "20260807_${{ github.run_id }}_${{ github.run_attempt }}"
       SOURCE_SHA: "${{ github.event.pull_request.head.sha || github.sha }}"
       TARGET_BRANCH: "${{ github.head_ref || github.ref_name }}"
       PYTHONPATH: "${{ github.workspace }}"
