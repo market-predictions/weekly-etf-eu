@@ -24,6 +24,11 @@ def num(value: Any, default: float = 0.0) -> float:
         return default
 
 
+def normalize_ticker(value: Any) -> str:
+    ticker = str(value or "").strip().upper()
+    return "L0CK" if ticker == "LOCK" else ticker
+
+
 def utc_now() -> str:
     return datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
 
@@ -34,7 +39,13 @@ def panel_frame(panel: dict[str, Any]) -> pd.DataFrame:
         if not isinstance(row, dict):
             continue
         values = row.get("adjusted_close_eur") if isinstance(row.get("adjusted_close_eur"), dict) else {}
-        rows.append({"date": row.get("date"), **{str(key): num(value) for key, value in values.items()}})
+        normalized: dict[str, float] = {}
+        for key, value in values.items():
+            ticker = normalize_ticker(key)
+            if ticker in normalized:
+                raise RuntimeError(f"Replay panel ticker alias collision: {ticker}")
+            normalized[ticker] = num(value)
+        rows.append({"date": row.get("date"), **normalized})
     frame = pd.DataFrame(rows)
     if frame.empty:
         raise RuntimeError("Replay panel has no rows")
@@ -45,11 +56,13 @@ def panel_frame(panel: dict[str, Any]) -> pd.DataFrame:
 
 def current_composition(portfolio: dict[str, Any]) -> dict[str, Any]:
     nav = num(portfolio.get("nav_eur"))
-    assets = {
-        str(row.get("ticker") or row.get("exchange_ticker") or "").upper(): num(row.get("market_value_eur"))
-        for row in portfolio.get("positions") or []
-        if isinstance(row, dict)
-    }
+    assets: dict[str, float] = {}
+    for row in portfolio.get("positions") or []:
+        if not isinstance(row, dict):
+            continue
+        ticker = normalize_ticker(row.get("ticker") or row.get("exchange_ticker"))
+        if ticker:
+            assets[ticker] = assets.get(ticker, 0.0) + num(row.get("market_value_eur"))
     return {
         "variant_id": "current_eu_portfolio",
         "asset_values_eur": assets,
@@ -67,14 +80,14 @@ def allocator_composition(variant: dict[str, Any], nav: float) -> dict[str, Any]
             continue
         order = row.get("order") if isinstance(row.get("order"), dict) else {}
         candidate = row.get("candidate") if isinstance(row.get("candidate"), dict) else {}
-        ticker = str(candidate.get("ticker") or "").upper()
+        ticker = normalize_ticker(candidate.get("ticker"))
         value = num(order.get("target_market_value_eur"))
         if ticker and value > 0:
             assets[ticker] = assets.get(ticker, 0.0) + value
     for row in variant.get("legacy_rows") or []:
         if not isinstance(row, dict):
             continue
-        ticker = str(row.get("ticker") or "").upper()
+        ticker = normalize_ticker(row.get("ticker"))
         value = num(row.get("target_market_value_eur"))
         if ticker and value > 0:
             assets[ticker] = assets.get(ticker, 0.0) + value
@@ -99,7 +112,7 @@ def composition_weights(composition: dict[str, Any]) -> tuple[dict[str, float], 
     pre_cost_total = sum(num(value) for value in assets.values()) + cash
     if pre_cost_total <= 0 or nav <= 0:
         raise RuntimeError(f"Invalid composition totals for {composition.get('variant_id')}")
-    weights = {str(ticker): num(value) / pre_cost_total for ticker, value in assets.items()}
+    weights = {normalize_ticker(ticker): num(value) / pre_cost_total for ticker, value in assets.items()}
     cash_weight = cash / pre_cost_total
     cost_pct_nav = cost / nav
     return weights, cash_weight, cost_pct_nav
@@ -201,6 +214,7 @@ def build(panel: dict[str, Any], allocator: dict[str, Any], portfolio: dict[str,
             "cash_daily_return": 0.0,
             "transaction_cost": "one_time_starting_nav_reduction_from_allocator_estimate",
             "purpose": "sanity_check_only_not_strategy_backtest_or_performance_proof",
+            "ticker_identity_normalization": "LOCK_alias_normalized_to_L0CK",
         },
         "source_quality": panel.get("source_quality"),
         "variant_results": results,
