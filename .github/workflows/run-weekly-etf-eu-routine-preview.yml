@@ -108,7 +108,7 @@ jobs:
           set -euo pipefail
           MACRO_ARTIFACT="output/macro/etf_eu_macro_policy_pack_${ETF_EU_RUN_ID}.json"
           python -m runtime.adapt_weekly_etf_macro_for_eu --source-url "https://raw.githubusercontent.com/market-predictions/weekly-etf/main/output/macro/latest.json" --report-date "$ETF_EU_REPORT_DATE" --run-id "$ETF_EU_RUN_ID" --output "$MACRO_ARTIFACT" --latest-output output/macro/latest.json
-          python tools/update_etf_eu_valuation_history.py --portfolio-state output/etf_eu_portfolio_state.json --history output/etf_eu_valuation_history.csv --report-date "$ETF_EU_REPORT_DATE" --source-report "routine-client-grade-v2-${ETF_EU_RUN_ID}" --comment "Three-position funded-aware non-delivery preview" --output output/etf_eu_valuation_history.csv
+          python tools/update_etf_eu_valuation_history.py --portfolio-state output/etf_eu_portfolio_state.json --history output/etf_eu_valuation_history.csv --report-date "$ETF_EU_REPORT_DATE" --source-report "routine-client-grade-v2-${ETF_EU_RUN_ID}" --comment "Funded-aware non-delivery preview" --output output/etf_eu_valuation_history.csv
           echo "ETF_EU_MACRO_ARTIFACT=$MACRO_ARTIFACT" >> "$GITHUB_ENV"
 
       - name: Build funded-aware Dutch and English outputs
@@ -142,6 +142,11 @@ jobs:
           from pathlib import Path
           run_id = os.environ["ETF_EU_RUN_ID"]
           suffix = os.environ["ETF_EU_REPORT_SUFFIX"]
+          portfolio = json.loads(Path("output/etf_eu_portfolio_state.json").read_text(encoding="utf-8"))
+          funded_positions = [
+              position for position in portfolio.get("positions", [])
+              if position.get("investability_status") == "funded_model_position"
+          ]
           payload = {
               "schema_version": "etf_eu_routine_preview_manifest_v1",
               "artifact_type": "etf_eu_routine_preview_manifest",
@@ -149,7 +154,8 @@ jobs:
               "report_date": os.environ["ETF_EU_REPORT_DATE"],
               "report_suffix": suffix,
               "status": "generated_and_machine_validated_pending_complete_visual_review",
-              "position_count_expected": 3,
+              "position_count_expected": len(funded_positions),
+              "funded_tickers_expected": sorted(position.get("ticker") for position in funded_positions),
               "model_portfolio_only": True,
               "real_broker_execution": False,
               "production_delivery_authority": False,
@@ -190,6 +196,6 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -f "output/pricing/ucits_close_price_validation_basket_results_${ETF_EU_RUN_ID}.json" "$ETF_EU_MACRO_ARTIFACT" output/macro/latest.json output/etf_eu_valuation_history.csv "output/runtime/etf_eu_client_grade_report_state_${ETF_EU_RUN_ID}.json" "output/fresh_generation/weekly_etf_eu_review_nl_${ETF_EU_REPORT_SUFFIX}.md" "output/fresh_generation/weekly_etf_eu_review_${ETF_EU_REPORT_SUFFIX}.md" "output/fresh_generation/weekly_etf_eu_review_nl_${ETF_EU_REPORT_SUFFIX}.html" "output/fresh_generation/weekly_etf_eu_review_${ETF_EU_REPORT_SUFFIX}.html" "output/fresh_generation/weekly_etf_eu_review_nl_${ETF_EU_REPORT_SUFFIX}.pdf" "output/fresh_generation/weekly_etf_eu_review_${ETF_EU_REPORT_SUFFIX}.pdf" "output/fresh_generation/etf_eu_fresh_generation_package_manifest_${ETF_EU_RUN_ID}.json" "output/fresh_generation/etf_eu_ready_for_controlled_delivery_${ETF_EU_RUN_ID}.json" "output/quality/etf_eu_client_grade_v2_validation_${ETF_EU_RUN_ID}.json" "output/quality/etf_eu_routine_pdf_client_grade_${ETF_EU_RUN_ID}_nl.json" "output/quality/etf_eu_routine_pdf_client_grade_${ETF_EU_RUN_ID}_en.json" "output/quality/etf_eu_routine_pdf_client_grade_${ETF_EU_RUN_ID}.json" "output/quality/review_pages/${ETF_EU_RUN_ID}" "output/run_manifests/etf_eu_routine_run_manifest_${ETF_EU_REPORT_DATE}_${ETF_EU_RUN_ID}.json" "output/run_manifests/etf_eu_routine_preview_manifest_${ETF_EU_RUN_ID}.json"
-          git commit -m "Persist ETF EU three-position routine preview ${ETF_EU_RUN_ID} [skip ci]"
+          git commit -m "Persist ETF EU funded-aware routine preview ${ETF_EU_RUN_ID} [skip ci]"
           git pull --rebase origin main
           git push origin HEAD:main
