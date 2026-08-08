@@ -10,6 +10,10 @@ from runtime import synchronize_etf_eu_current_state_surface as legacy
 
 
 CLIENT_STATE_CONTRACT = "authoritative_four_position_current_state_v2"
+# Capture the v1 implementation once, before synchronize_manifest temporarily
+# replaces legacy._sync_8. Calling legacy._sync_8 from the wrapper after that
+# replacement would recurse into the wrapper itself.
+_BASE_SYNC_8 = legacy._sync_8
 
 
 def _sync_8_with_authoritative_coverage(
@@ -17,7 +21,7 @@ def _sync_8_with_authoritative_coverage(
     positions: dict[str, dict[str, Any]],
     lang: str,
 ) -> None:
-    legacy._sync_8(soup, positions, lang)
+    _BASE_SYNC_8(soup, positions, lang)
     section = legacy._section(soup, "8")
     summary = section.find("div", class_="alignment-summary")
     if not isinstance(summary, Tag):
