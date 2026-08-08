@@ -1,0 +1,9 @@
+# Weekly ETF EU routine preview request — 2026-08-05 / version 02
+schema_version=etf_eu_routine_preview_request_v1
+artifact_type=etf_eu_routine_preview_request
+run_id=20260805_222300
+report_date=2026-08-05
+report_suffix=260805_02
+previous_routine_manifest=output/run_manifests/etf_eu_routine_run_manifest_2026-07-12_20260712_125000.json
+previous_delivery_closeout_manifest=output/run_manifests/etf_eu_delivery_closeout_manifest_20260710_1755.json
+execution_mode=generate_validate_only
