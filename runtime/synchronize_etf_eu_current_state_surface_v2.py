@@ -5,15 +5,29 @@ from pathlib import Path
 from typing import Any
 
 from bs4 import BeautifulSoup, Tag
+from weasyprint import HTML
 
 from runtime import synchronize_etf_eu_current_state_surface as legacy
 
 
-CLIENT_STATE_CONTRACT = "authoritative_four_position_current_state_v3"
+CLIENT_STATE_CONTRACT = "authoritative_four_position_current_state_v4"
 # Capture the v1 implementation once, before synchronize_manifest temporarily
 # replaces legacy._sync_8. Calling legacy._sync_8 from the wrapper after that
 # replacement would recurse into the wrapper itself.
 _BASE_SYNC_8 = legacy._sync_8
+
+NL_SECTION9_SENTENCE_MAP = {
+    "More useful if broad equity leadership narrows further.":
+        "Wordt relevanter als het leiderschap binnen de brede aandelenmarkt versmalt.",
+    "Becomes more relevant if energy, fertilizer or crop stress rises.":
+        "Wordt relevanter als de druk op energie, kunstmest of landbouwgewassen toeneemt.",
+    "Moves up if relative strength improves versus PAVE/GRID.":
+        "Wordt aantrekkelijker als de relatieve sterkte verbetert ten opzichte van PAVE/GRID.",
+    "More useful if equity beta weakens and defensive infrastructure improves.":
+        "Wordt relevanter als aandelenbeta verzwakt en defensieve infrastructuur relatief verbetert.",
+    "The lane remains relevant, but PPA must justify itself versus ITA.":
+        "Het thema blijft relevant, maar PPA moet zijn relatieve meerwaarde ten opzichte van ITA aantonen.",
+}
 
 
 def _sync_8_with_authoritative_coverage(
@@ -27,10 +41,6 @@ def _sync_8_with_authoritative_coverage(
     if not isinstance(summary, Tag):
         raise RuntimeError("Section 8 exact donor-exposure coverage summary missing")
 
-    # Under the activated four-position contract, L0CK is the only funded line
-    # that is an exact currently promoted donor exposure. Broad core positions
-    # are explicitly not substitutes for another thematic exposure, so this
-    # coverage metric must equal authoritative current L0CK portfolio weight.
     coverage_pct = float(positions["L0CK"]["client_weight_pct"])
     strong = soup.new_tag("strong")
     strong.string = legacy._pct(coverage_pct, lang)
@@ -74,6 +84,27 @@ def _sync_8_with_authoritative_coverage(
             6,
             "Current completed close available; donor target remains strategy context and the current strategy/promotion gate has not passed.",
         )
+
+
+def _sync_nl_section9_language(html_path: Path, pdf_path: Path) -> None:
+    soup = BeautifulSoup(html_path.read_text(encoding="utf-8"), "html.parser")
+    section = legacy._section(soup, "9")
+    changed = False
+    for cell in section.find_all("td"):
+        text = cell.get_text(" ", strip=True)
+        replacement = NL_SECTION9_SENTENCE_MAP.get(text)
+        if replacement is None:
+            continue
+        cell.clear()
+        cell.string = replacement
+        changed = True
+    section_text = " ".join(section.get_text(" ", strip=True).split())
+    leaked = [source for source in NL_SECTION9_SENTENCE_MAP if source in section_text]
+    if leaked:
+        raise RuntimeError(f"Dutch Section 9 still contains English client sentences: {leaked}")
+    if changed:
+        html_path.write_text(str(soup), encoding="utf-8")
+        HTML(filename=str(html_path), base_url=str(html_path.parent.resolve())).write_pdf(str(pdf_path))
 
 
 def _validate_section_8_current_state(
@@ -126,15 +157,20 @@ def synchronize_manifest(manifest_path: Path, state_path: Path) -> None:
         record = manifest.get("languages", {}).get(lang)
         if not isinstance(record, dict):
             raise RuntimeError(f"Manifest language record missing: {lang}")
-        _validate_section_8_current_state(Path(str(record["html"])), positions, lang)
+        html_path = Path(str(record["html"]))
+        pdf_path = Path(str(record["pdf"]))
+        if lang == "nl":
+            _sync_nl_section9_language(html_path, pdf_path)
+        _validate_section_8_current_state(html_path, positions, lang)
         record["activated_client_state_contract"] = CLIENT_STATE_CONTRACT
     contract = manifest.get("activated_client_state_contract")
     if isinstance(contract, dict):
         contract["contract_version"] = CLIENT_STATE_CONTRACT
         contract["section_8_exact_donor_exposure_coverage"] = "derived_from_authoritative_l0ck_weight"
         contract["section_8_vvsm_status"] = "monitored_unfunded_current_close_available_strategy_promotion_gate_not_passed"
+        contract["nl_section_9_client_language"] = "deterministic_dutch_sentences_v1"
     manifest_path.write_text(json.dumps(manifest, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     print(
-        "ETF_EU_SECTION8_CURRENT_STATE_OK | authority=current_L0CK_weight | "
-        "VVSM=monitored_unfunded_current_close_available | broad_core_substitution=false"
+        "ETF_EU_CURRENT_CLIENT_STATE_V4_OK | authority=current_L0CK_weight | "
+        "VVSM=monitored_unfunded_current_close_available | nl_section9=dutch | broad_core_substitution=false"
     )
