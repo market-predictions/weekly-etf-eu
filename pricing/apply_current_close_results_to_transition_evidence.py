@@ -47,11 +47,17 @@ def qualified_price_rows(pricing: dict[str, Any]) -> dict[tuple[str, str], dict[
 
 
 def qualification_rows(qualification: dict[str, Any]) -> dict[tuple[str, str], dict[str, Any]]:
+    """Index native WP11A qualification lines by exact instrument identity.
+
+    Native `ucits_price_provider_qualification_v1` rows expose the instrument ISIN
+    as `expected_isin`; older compatibility fixtures used `isin`. Accept the native
+    field first and retain the legacy alias only for backwards-compatible replay.
+    """
     result: dict[tuple[str, str], dict[str, Any]] = {}
     for row in qualification.get("lines") or []:
         if not isinstance(row, dict):
             continue
-        isin = str(row.get("isin") or "").strip().upper()
+        isin = str(row.get("expected_isin") or row.get("isin") or "").strip().upper()
         ticker = normalized_ticker(row.get("ticker"))
         if isin and ticker:
             result[(isin, ticker)] = row
