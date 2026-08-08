@@ -1,0 +1,112 @@
+name: Validate ETF EU replay-safe historical pricing
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/validate-etf-eu-replay-safe-pricing.yml"
+      - "pricing/boerse_frankfurt_historical_close.py"
+      - "pricing/build_current_session_close_results.py"
+      - "pricing/build_current_session_close_results_v2.py"
+      - "pricing/yahoo_regular_market_fallback.py"
+      - "config/ucits_close_price_validation_basket.yml"
+      - "output/etf_eu_portfolio_state.json"
+      - "tests/test_etf_eu_replay_safe_historical_close.py"
+      - "control/work_packages/WP_SYNC_11B_REPLAY_SAFE_HISTORICAL_CLOSE_EVIDENCE_20260808.md"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  replay-safe-pricing:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      PYTHONPATH: ${{ github.workspace }}
+      REPORT_DATE: "2026-08-05"
+      RUN_ID: "REPLAY_${{ github.run_id }}_${{ github.run_attempt }}"
+
+    steps:
+      - name: Checkout candidate
+        uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install bounded dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install requests pyyaml pytest
+
+      - name: Compile replay adapter
+        run: |
+          python -m py_compile \
+            pricing/boerse_frankfurt_historical_close.py \
+            pricing/build_current_session_close_results.py \
+            pricing/build_current_session_close_results_v2.py
+
+      - name: Run deterministic replay tests
+        run: |
+          python -m pytest -q tests/test_etf_eu_replay_safe_historical_close.py
+
+      - name: Replay exact completed close from public sources
+        run: |
+          mkdir -p output/pricing/replay
+          python pricing/build_current_session_close_results_v2.py \
+            --basket config/ucits_close_price_validation_basket.yml \
+            --report-date "$REPORT_DATE" \
+            --run-id "$RUN_ID" \
+            --output "output/pricing/replay/ucits_close_price_validation_basket_results_${RUN_ID}.json" \
+            --qualification-output "output/pricing/replay/ucits_price_provider_qualification_${RUN_ID}.json"
+
+      - name: Enforce funded replay contract
+        run: |
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+
+          run_id = os.environ["RUN_ID"]
+          path = Path(f"output/pricing/replay/ucits_price_provider_qualification_{run_id}.json")
+          payload = json.loads(path.read_text(encoding="utf-8"))
+          funded = [row for row in payload.get("lines", []) if row.get("funded")]
+          failures = []
+          if payload.get("funded_line_count") != 4:
+              failures.append(f"funded_line_count={payload.get('funded_line_count')}")
+          if payload.get("funded_consensus_count") != 4:
+              failures.append(f"funded_consensus_count={payload.get('funded_consensus_count')}")
+          if payload.get("funded_identity_anchor_count") != 4:
+              failures.append(f"funded_identity_anchor_count={payload.get('funded_identity_anchor_count')}")
+          if payload.get("report_pricing_gate_passed") is not True:
+              failures.append("report_pricing_gate_passed=false")
+          for row in funded:
+              if row.get("selected_close_date") != os.environ["REPORT_DATE"]:
+                  failures.append(f"{row.get('ticker')}:wrong_date={row.get('selected_close_date')}")
+              providers = {item.get("provider"): item for item in row.get("provider_results", [])}
+              history = providers.get("boerse_frankfurt_price_history")
+              yahoo = providers.get("yahoo_chart")
+              if not history or history.get("pricing_status") != "priced" or history.get("retrieval_mode") != "historical_exact_date":
+                  failures.append(f"{row.get('ticker')}:historical_boerse_missing")
+              if not yahoo or yahoo.get("pricing_status") != "priced":
+                  failures.append(f"{row.get('ticker')}:yahoo_missing")
+          if failures:
+              raise SystemExit("ETF_EU_REPLAY_SAFE_PRICING_FAIL | " + "; ".join(failures))
+          print(json.dumps({
+              "status": "PASS",
+              "report_date": os.environ["REPORT_DATE"],
+              "funded_line_count": payload.get("funded_line_count"),
+              "funded_consensus_count": payload.get("funded_consensus_count"),
+              "funded_identity_anchor_count": payload.get("funded_identity_anchor_count"),
+              "funded_tickers": [row.get("ticker") for row in funded],
+              "funded_closes": {row.get("ticker"): row.get("consensus_close_price") for row in funded},
+          }, indent=2, sort_keys=True))
+          PY
+
+      - name: Upload sanitized replay evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: etf-eu-replay-safe-pricing-${{ env.RUN_ID }}
+          path: output/pricing/replay/
+          if-no-files-found: warn
+          retention-days: 90
