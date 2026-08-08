@@ -82,7 +82,7 @@ def page(language: str) -> BeautifulSoup:
         '</tbody></table></section>'
         f'<section id="section-2A"><div class="cockpit-grid">{cockpit}</div></section>'
         '<section id="section-4">'
-        '<table class="wide-table production-opportunity-table"><tbody>'
+        '<table class="wide-table promoted-mapping-table"><tbody>'
         '<tr><td>1</td><td>Cybersecurity resilience</td>'
         '<td>L0CK · iShares Digital Security UCITS ETF USD (Acc) · IE00BG0J4C88</td>'
         f'<td>19.02%</td><td>{radar_status}</td><td>{radar_action}</td><td>{radar_reason}</td><td>Evidence</td></tr>'
