@@ -9,7 +9,7 @@ from bs4 import BeautifulSoup, Tag
 from runtime import synchronize_etf_eu_current_state_surface as legacy
 
 
-CLIENT_STATE_CONTRACT = "authoritative_four_position_current_state_v2"
+CLIENT_STATE_CONTRACT = "authoritative_four_position_current_state_v3"
 # Capture the v1 implementation once, before synchronize_manifest temporarily
 # replaces legacy._sync_8. Calling legacy._sync_8 from the wrapper after that
 # replacement would recurse into the wrapper itself.
@@ -44,8 +44,39 @@ def _sync_8_with_authoritative_coverage(
         summary.append(strong)
         summary.append(". This measures the same exposures; broad core funds do not count as substitutes for another thematic exposure.")
 
+    # VVSM is an exact mapped analytical line with a current close, but the
+    # authoritative Stage-1 contract keeps it monitored and unfunded because
+    # the strategy/promotion gate has not passed. Do not misdescribe the gap as
+    # missing pricing evidence.
+    tables = section.find_all("table")
+    if len(tables) < 2:
+        raise RuntimeError("Section 8 exposure-alignment table missing")
+    vvsm_row = next(
+        (row for row in tables[-1].select("tbody tr") if "VVSM" in row.get_text(" ", strip=True)),
+        None,
+    )
+    if not isinstance(vvsm_row, Tag):
+        raise RuntimeError("Section 8 VVSM alignment row missing")
+    cells = vvsm_row.find_all("td", recursive=False)
+    if len(cells) < 7:
+        raise RuntimeError("Section 8 VVSM alignment row has unexpected column count")
+    if lang == "nl":
+        legacy._set(cells, 5, "Gemonitord / niet gefinancierd")
+        legacy._set(
+            cells,
+            6,
+            "Actuele slotkoers beschikbaar; donordoel blijft strategiecontext en de huidige strategie-/promotiepoort is niet geslaagd.",
+        )
+    else:
+        legacy._set(cells, 5, "Monitored / unfunded")
+        legacy._set(
+            cells,
+            6,
+            "Current completed close available; donor target remains strategy context and the current strategy/promotion gate has not passed.",
+        )
 
-def _validate_section_8_coverage(
+
+def _validate_section_8_current_state(
     html_path: Path,
     positions: dict[str, dict[str, Any]],
     lang: str,
@@ -60,6 +91,24 @@ def _validate_section_8_coverage(
         raise RuntimeError(
             f"Section 8 exact donor-exposure coverage does not match authoritative L0CK weight: expected {expected}"
         )
+
+    vvsm_row = next(
+        (row for row in section.select("tbody tr") if "VVSM" in row.get_text(" ", strip=True)),
+        None,
+    )
+    if not isinstance(vvsm_row, Tag):
+        raise RuntimeError("Section 8 VVSM row missing after synchronization")
+    vvsm_text = " ".join(vvsm_row.get_text(" ", strip=True).split()).casefold()
+    forbidden = ("current pricing basis missing", "actuele prijsbasis ontbreekt")
+    if any(token in vvsm_text for token in forbidden):
+        raise RuntimeError("Section 8 VVSM row still claims missing current pricing")
+    required = (
+        ("gemonitord", "niet gefinancierd", "slotkoers beschikbaar", "promotiepoort")
+        if lang == "nl"
+        else ("monitored", "unfunded", "completed close available", "promotion gate")
+    )
+    if not all(token in vvsm_text for token in required):
+        raise RuntimeError("Section 8 VVSM row does not match authoritative monitored/unfunded semantics")
 
 
 def synchronize_manifest(manifest_path: Path, state_path: Path) -> None:
@@ -77,11 +126,15 @@ def synchronize_manifest(manifest_path: Path, state_path: Path) -> None:
         record = manifest.get("languages", {}).get(lang)
         if not isinstance(record, dict):
             raise RuntimeError(f"Manifest language record missing: {lang}")
-        _validate_section_8_coverage(Path(str(record["html"])), positions, lang)
+        _validate_section_8_current_state(Path(str(record["html"])), positions, lang)
         record["activated_client_state_contract"] = CLIENT_STATE_CONTRACT
     contract = manifest.get("activated_client_state_contract")
     if isinstance(contract, dict):
         contract["contract_version"] = CLIENT_STATE_CONTRACT
         contract["section_8_exact_donor_exposure_coverage"] = "derived_from_authoritative_l0ck_weight"
+        contract["section_8_vvsm_status"] = "monitored_unfunded_current_close_available_strategy_promotion_gate_not_passed"
     manifest_path.write_text(json.dumps(manifest, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
-    print("ETF_EU_SECTION8_COVERAGE_OK | authority=current_L0CK_weight | broad_core_substitution=false")
+    print(
+        "ETF_EU_SECTION8_CURRENT_STATE_OK | authority=current_L0CK_weight | "
+        "VVSM=monitored_unfunded_current_close_available | broad_core_substitution=false"
+    )
