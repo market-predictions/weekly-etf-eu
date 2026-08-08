@@ -4,6 +4,7 @@ on:
   pull_request:
     paths:
       - "runtime/add_etf_eu_activated_allocation_surface.py"
+      - "runtime/add_etf_eu_activated_allocation_surface_v2.py"
       - "tests/test_etf_eu_activated_action_row.py"
       - "tests/test_etf_eu_activated_portfolio_copy.py"
       - ".github/workflows/validate-etf-eu-activated-action-row.yml"
@@ -28,7 +29,10 @@ jobs:
         run: python -m pip install beautifulsoup4 weasyprint pytest
 
       - name: Compile activated surface implementation
-        run: python -m py_compile runtime/add_etf_eu_activated_allocation_surface.py
+        run: |
+          python -m py_compile \
+            runtime/add_etf_eu_activated_allocation_surface.py \
+            runtime/add_etf_eu_activated_allocation_surface_v2.py
 
       - name: Run activated allocation surface regression tests
         run: |
