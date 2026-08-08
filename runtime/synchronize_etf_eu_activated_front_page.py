@@ -53,7 +53,9 @@ def authoritative_contract(state: dict[str, Any]) -> dict[str, Any]:
     }
     declared_count = int(portfolio.get("position_count") or 0)
     if tickers != EXPECTED_ACTIVATED_TICKERS:
-        raise RuntimeError(f"Front-page activation contract requires exact funded set {sorted(EXPECTED_ACTIVATED_TICKERS)}; got {sorted(tickers)}")
+        raise RuntimeError(
+            f"Front-page activation contract requires exact funded set {sorted(EXPECTED_ACTIVATED_TICKERS)}; got {sorted(tickers)}"
+        )
     if declared_count != len(positions) or declared_count != 4:
         raise RuntimeError(f"Front-page activation contract requires four official positions; got {declared_count}")
     if activated != {"L0CK"}:
@@ -72,6 +74,18 @@ def authoritative_contract(state: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+def _section(soup: BeautifulSoup, section_id: str) -> Tag | None:
+    expected = section_id.casefold()
+    return next(
+        (
+            candidate
+            for candidate in soup.find_all("section")
+            if str(candidate.get("id") or "").casefold() == expected
+        ),
+        None,
+    )
+
+
 def _replace_list_item(section: Tag, prefixes: tuple[str, ...], replacement: str) -> None:
     target = next(
         (item for item in section.find_all("li") if item.get_text(" ", strip=True).startswith(prefixes)),
@@ -84,27 +98,46 @@ def _replace_list_item(section: Tag, prefixes: tuple[str, ...], replacement: str
 
 
 def synchronize_summary(soup: BeautifulSoup, contract: dict[str, Any], language: str) -> None:
-    section = soup.find("section", id="section-1")
+    section = _section(soup, "section-1")
     if not isinstance(section, Tag):
         raise RuntimeError("Section 1 missing")
     count = int(contract["position_count"])
     cash = euro(contract["cash_eur"], language)
     if language == "nl":
-        _replace_list_item(section, ("Officiële modelportefeuille:",), f"Officiële modelportefeuille: {count} posities en {cash} cash.")
-        _replace_list_item(section, ("Actuele uitkomst:",), "Actuele uitkomst: L0CK is actief als vierde modelpositie; VVSM blijft gemonitord en niet gefinancierd.")
+        _replace_list_item(
+            section,
+            ("Officiële modelportefeuille:",),
+            f"Officiële modelportefeuille: {count} posities en {cash} cash.",
+        )
+        _replace_list_item(
+            section,
+            ("Actuele uitkomst:",),
+            "Actuele uitkomst: L0CK is actief als vierde modelpositie; VVSM blijft gemonitord en niet gefinancierd.",
+        )
     else:
-        _replace_list_item(section, ("Official model portfolio:",), f"Official model portfolio: {count} positions and {cash} cash.")
-        _replace_list_item(section, ("Current outcome:",), "Current outcome: L0CK is active as the fourth model position; VVSM remains monitored and unfunded.")
+        _replace_list_item(
+            section,
+            ("Official model portfolio:",),
+            f"Official model portfolio: {count} positions and {cash} cash.",
+        )
+        _replace_list_item(
+            section,
+            ("Current outcome:",),
+            "Current outcome: L0CK is active as the fourth model position; VVSM remains monitored and unfunded.",
+        )
 
 
 def synchronize_l0ck_action_row(soup: BeautifulSoup, language: str) -> None:
-    section = soup.find("section", id="section-2")
+    section = _section(soup, "section-2")
     if not isinstance(section, Tag):
         raise RuntimeError("Section 2 missing")
     table = section.find("table", class_="production-opportunity-table")
     if not isinstance(table, Tag):
         raise RuntimeError("Section 2 portfolio-action table missing")
-    row = next((candidate for candidate in table.select("tbody tr") if L0CK_ISIN in candidate.get_text(" ", strip=True)), None)
+    row = next(
+        (candidate for candidate in table.select("tbody tr") if L0CK_ISIN in candidate.get_text(" ", strip=True)),
+        None,
+    )
     if not isinstance(row, Tag):
         raise RuntimeError("Section 2 L0CK action row missing")
     cells = row.find_all("td", recursive=False)
@@ -119,12 +152,10 @@ def synchronize_l0ck_action_row(soup: BeautifulSoup, language: str) -> None:
 
 
 def synchronize_cockpit_summary(soup: BeautifulSoup, contract: dict[str, Any], language: str) -> None:
-    section = soup.find("section", id="section-2a")
+    section = _section(soup, "section-2A")
     if not isinstance(section, Tag):
         raise RuntimeError("Section 2A cockpit summary missing")
-    cards = section.select("div.cockpit-summary-grid > div.summary-card")
-    if len(cards) < 3:
-        raise RuntimeError("Section 2A cockpit summary has unexpected card count")
+
     cash = euro(contract["cash_eur"], language)
     cash_weight = float(contract.get("cash_weight_pct") or 0)
     if language == "nl":
@@ -139,22 +170,43 @@ def synchronize_cockpit_summary(soup: BeautifulSoup, contract: dict[str, Any], l
             "L0CK active; VVSM monitored and unfunded.",
             f"Cash {cash} ({cash_weight:.2f}%); no new broker order placed.",
         ]
-    for card, value in zip(cards[:3], values):
-        value_node = card.find("div", class_="value")
-        if not isinstance(value_node, Tag):
-            raise RuntimeError("Section 2A cockpit card value missing")
-        value_node.clear()
-        value_node.string = value
+
+    # Actual production HTML uses four plain cockpit cards. The first card is the
+    # donor-opportunity count and is not portfolio state, so preserve it and
+    # replace only the three portfolio-state cards.
+    plain_cards = section.select("div.cockpit-grid > div.cockpit-card")
+    if len(plain_cards) >= 4:
+        for card, value in zip(plain_cards[-3:], values):
+            card.clear()
+            card.string = value
+        return
+
+    # Retain support for the newer structured card variant used by isolated
+    # component previews.
+    structured_cards = section.select("div.cockpit-summary-grid > div.summary-card")
+    if len(structured_cards) >= 3:
+        for card, value in zip(structured_cards[:3], values):
+            value_node = card.find("div", class_="value")
+            if not isinstance(value_node, Tag):
+                raise RuntimeError("Section 2A cockpit card value missing")
+            value_node.clear()
+            value_node.string = value
+        return
+
+    raise RuntimeError("Section 2A cockpit summary has unexpected DOM contract")
 
 
 def synchronize_l0ck_radar_row(soup: BeautifulSoup, language: str) -> None:
-    section = soup.find("section", id="section-4")
+    section = _section(soup, "section-4")
     if not isinstance(section, Tag):
         raise RuntimeError("Section 4 opportunity radar missing")
     table = section.find("table", class_="production-opportunity-table")
     if not isinstance(table, Tag):
         raise RuntimeError("Section 4 radar table missing")
-    row = next((candidate for candidate in table.select("tbody tr") if L0CK_ISIN in candidate.get_text(" ", strip=True)), None)
+    row = next(
+        (candidate for candidate in table.select("tbody tr") if L0CK_ISIN in candidate.get_text(" ", strip=True)),
+        None,
+    )
     if not isinstance(row, Tag):
         raise RuntimeError("Section 4 L0CK radar row missing")
     cells = row.find_all("td", recursive=False)
@@ -171,14 +223,17 @@ def synchronize_l0ck_radar_row(soup: BeautifulSoup, language: str) -> None:
 
 
 def _row_for_isin(section: Tag, isin: str) -> Tag | None:
-    return next((candidate for candidate in section.select("tbody tr") if isin in candidate.get_text(" ", strip=True)), None)
+    return next(
+        (candidate for candidate in section.select("tbody tr") if isin in candidate.get_text(" ", strip=True)),
+        None,
+    )
 
 
 def validate_front_page(soup: BeautifulSoup, contract: dict[str, Any], language: str) -> None:
-    section_1 = soup.find("section", id="section-1")
-    section_2 = soup.find("section", id="section-2")
-    section_2a = soup.find("section", id="section-2a")
-    section_4 = soup.find("section", id="section-4")
+    section_1 = _section(soup, "section-1")
+    section_2 = _section(soup, "section-2")
+    section_2a = _section(soup, "section-2A")
+    section_4 = _section(soup, "section-4")
     if not all(isinstance(section, Tag) for section in (section_1, section_2, section_2a, section_4)):
         raise RuntimeError("Required activated client sections missing after synchronization")
 
@@ -209,6 +264,8 @@ def validate_front_page(soup: BeautifulSoup, contract: dict[str, Any], language:
         "3 official positions",
         "l0ck geblokkeerd",
         "l0ck blocked",
+        "l0ck gepromoveerd maar geblokkeerd",
+        "l0ck promoted but blocked",
         "cash blijft beschikbaar zolang de activeringspoorten niet slagen",
         "cash remains available while activation gates fail",
     )
@@ -245,7 +302,7 @@ def synchronize_manifest(manifest_path: Path, state_path: Path) -> None:
         if not isinstance(record, dict):
             raise RuntimeError(f"Manifest language record missing: {language}")
         synchronize_html(Path(str(record["html"])), Path(str(record["pdf"])), state, language)
-        record["activated_front_page_contract"] = "authoritative_four_position_v2"
+        record["activated_front_page_contract"] = "authoritative_four_position_v3"
     manifest["activated_front_page_contract"] = {
         "applied": True,
         "state_path": str(state_path),
@@ -260,7 +317,9 @@ def synchronize_manifest(manifest_path: Path, state_path: Path) -> None:
         "production_delivery_authority": False,
     }
     manifest_path.write_text(json.dumps(manifest, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
-    print("ETF_EU_ACTIVATED_FRONT_PAGE_OK | positions=4 | active=L0CK | monitored=VVSM | sections=1,2,2A,4 | broker_execution=false")
+    print(
+        "ETF_EU_ACTIVATED_FRONT_PAGE_OK | positions=4 | active=L0CK | monitored=VVSM | sections=1,2,2A,4 | broker_execution=false"
+    )
 
 
 def main() -> None:
