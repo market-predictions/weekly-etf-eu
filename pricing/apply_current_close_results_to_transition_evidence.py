@@ -19,25 +19,23 @@ def normalized_ticker(value: Any) -> str:
     return "L0CK" if ticker == "LOCK" else ticker
 
 
-def qualified_price_rows(pricing: dict[str, Any]) -> dict[tuple[str, str], dict[str, Any]]:
-    """Index provider-agnostic WP11A consensus rows by exact instrument identity.
+def current_price_rows(pricing: dict[str, Any]) -> dict[tuple[str, str], dict[str, Any]]:
+    """Index usable same-date WP11A price rows by exact instrument identity.
 
-    The transition overlay must consume the qualification contract, not a historical
-    provider pair. A pricing row is eligible here only when it carries the WP11A
-    qualified-consensus status, at least two agreeing providers, and a completed
-    close value/date. Exact-line identity is enforced separately against the
-    qualification artifact before any transition row is updated.
+    Funded-vs-unfunded authority is enforced later from the native qualification
+    artifact. Both two-provider consensus rows and identity-anchored single-source
+    candidate rows are retained here; the latter remain non-authoritative and can
+    never satisfy the funded valuation gate.
     """
     result: dict[tuple[str, str], dict[str, Any]] = {}
+    allowed = {"qualified_development_consensus", "single_source_only"}
     for row in pricing.get("rows") or []:
         if not isinstance(row, dict):
             continue
-        if row.get("source_agreement_status") != "qualified_development_consensus":
+        if row.get("source_agreement_status") not in allowed:
             continue
         providers = {str(value).strip() for value in row.get("agreeing_providers") or [] if str(value).strip()}
-        if len(providers) < 2:
-            continue
-        if row.get("close_price") is None or not row.get("close_date"):
+        if not providers or row.get("close_price") is None or not row.get("close_date"):
             continue
         isin = str(row.get("isin") or "").strip().upper()
         ticker = normalized_ticker(row.get("ticker"))
@@ -47,12 +45,6 @@ def qualified_price_rows(pricing: dict[str, Any]) -> dict[tuple[str, str], dict[
 
 
 def qualification_rows(qualification: dict[str, Any]) -> dict[tuple[str, str], dict[str, Any]]:
-    """Index native WP11A qualification lines by exact instrument identity.
-
-    Native `ucits_price_provider_qualification_v1` rows expose the instrument ISIN
-    as `expected_isin`; older compatibility fixtures used `isin`. Accept the native
-    field first and retain the legacy alias only for backwards-compatible replay.
-    """
     result: dict[tuple[str, str], dict[str, Any]] = {}
     for row in qualification.get("lines") or []:
         if not isinstance(row, dict):
@@ -64,13 +56,15 @@ def qualification_rows(qualification: dict[str, Any]) -> dict[tuple[str, str], d
     return result
 
 
-def exchange_turnover_evidence(row: dict[str, Any]) -> dict[str, Any] | None:
-    """Return optional exchange-turnover corroboration when a provider exposes it.
+def exact_line_identity_anchored(row: dict[str, Any]) -> bool:
+    return bool(
+        row.get("identity_assurance_status") == "metadata_anchored_exact_line"
+        or int(row.get("identity_anchor_provider_count") or 0) > 0
+        or row.get("identity_anchor_providers")
+    )
 
-    This remains optional and does not determine price qualification. The current
-    WP11A Alpha+Yahoo route has no Börse turnover payload, so absence must not block
-    a valid same-date two-provider close consensus.
-    """
+
+def exchange_turnover_evidence(row: dict[str, Any]) -> dict[str, Any] | None:
     for provider in row.get("provider_results") or []:
         if not isinstance(provider, dict) or provider.get("provider") != "boerse_frankfurt_xetra":
             continue
@@ -91,22 +85,17 @@ def exchange_turnover_evidence(row: dict[str, Any]) -> dict[str, Any] | None:
     return None
 
 
-def apply(
-    transition_path: Path,
-    pricing_path: Path,
-    qualification_path: Path,
-) -> None:
+def apply(transition_path: Path, pricing_path: Path, qualification_path: Path) -> None:
     transition = load_object(transition_path)
     pricing = load_object(pricing_path)
     qualification = load_object(qualification_path)
-
     transition_report_date = date.fromisoformat(str(transition.get("report_date")))
     if str(pricing.get("report_date")) != transition_report_date.isoformat():
         raise RuntimeError("Pricing and transition report dates differ")
     if str(qualification.get("report_date")) != transition_report_date.isoformat():
         raise RuntimeError("Qualification and transition report dates differ")
 
-    prices = qualified_price_rows(pricing)
+    prices = current_price_rows(pricing)
     qualification_index = qualification_rows(qualification)
     updated = 0
     updated_exposures: list[str] = []
@@ -114,21 +103,42 @@ def apply(
     for row in transition.get("rows") or []:
         if not isinstance(row, dict):
             continue
-        key = (
-            str(row.get("isin") or "").strip().upper(),
-            normalized_ticker(row.get("ticker")),
-        )
+        key = (str(row.get("isin") or "").strip().upper(), normalized_ticker(row.get("ticker")))
         price = prices.get(key)
         qualified = qualification_index.get(key)
-        if not price or not qualified:
+        if not price or not qualified or not exact_line_identity_anchored(qualified):
             continue
-        if qualified.get("qualification_status") != "qualified_development_consensus":
-            continue
-        if qualified.get("identity_anchor_passed") is not True:
-            continue
+
         agreeing_providers = [str(value) for value in price.get("agreeing_providers") or [] if str(value)]
-        if len(set(agreeing_providers)) < 2:
-            continue
+        provider_count = len(set(agreeing_providers))
+        qualification_status = str(qualified.get("qualification_status") or "")
+        # Missing funded authority is treated conservatively as funded so old
+        # artifacts cannot gain a weaker path by omission.
+        is_funded = qualified.get("funded") is not False
+        if is_funded:
+            if qualification_status != "qualified_development_consensus" or provider_count < 2:
+                continue
+            evidence_status = "priced_current_exact_line_consensus"
+            source_quality = "development_two_source_exact_line_consensus"
+            close_contract = "funded_same_date_two_provider_consensus_with_exact_line_identity_anchor"
+        else:
+            if qualification_status not in {"qualified_development_consensus", "single_source_only"} or provider_count < 1:
+                continue
+            evidence_status = (
+                "priced_current_exact_line_consensus"
+                if provider_count >= 2
+                else "priced_current_exact_line_identity_anchored_single_source"
+            )
+            source_quality = (
+                "development_two_source_exact_line_consensus"
+                if provider_count >= 2
+                else "development_identity_anchored_single_source_non_authoritative"
+            )
+            close_contract = (
+                "unfunded_same_date_two_provider_consensus_with_exact_line_identity_anchor"
+                if provider_count >= 2
+                else "unfunded_same_date_identity_anchored_single_source_shadow"
+            )
 
         close_date = date.fromisoformat(str(price.get("close_date")))
         if close_date > transition_report_date:
@@ -147,44 +157,41 @@ def apply(
         original_status = row.get("status")
         original_blockers = list(row.get("blockers") or [])
         current_turnover = exchange_turnover_evidence(qualified)
-        row.update(
-            {
-                "status": "priced_current_exact_line_consensus",
-                "completed_close": True,
-                "close_date": close_date.isoformat(),
-                "close_price": float(price["close_price"]),
-                "whole_share_price_eur": float(price["close_price"]),
-                "price_age_calendar_days": (transition_report_date - close_date).days,
-                "source": "WP11A qualified same-date completed-close consensus",
-                "source_quality": "development_two_source_exact_line_consensus",
-                "source_agreement_status": price.get("source_agreement_status"),
-                "agreeing_providers": agreeing_providers,
-                "agreement_spread_pct": price.get("agreement_spread_pct"),
-                "identity_anchor_passed": qualified.get("identity_anchor_passed"),
-                "identity_anchor_providers": list(qualified.get("identity_anchor_providers") or []),
-                "valuation_grade": False,
-                "funding_authority": False,
-                "execution_authority": False,
-                "production_delivery_authority": False,
-                "blockers": [],
-                "current_close_overlay": {
-                    "applied": True,
-                    "pricing_artifact": str(pricing_path),
-                    "qualification_artifact": str(qualification_path),
-                    "original_status": original_status,
-                    "original_blockers": original_blockers,
-                    "close_contract": "same_date_two_provider_consensus_with_exact_line_identity_anchor",
-                    "commercial_redistribution_authority": False,
-                },
-                "liquidity_evidence": {
-                    "twenty_day_metric_retained": retained_liquidity,
-                    "current_report_date_exchange_corroboration": current_turnover,
-                    "interpretation": (
-                        "The 20-day median remains the policy metric; optional current exchange turnover is corroborating evidence only."
-                    ),
-                },
-            }
-        )
+        row.update({
+            "status": evidence_status,
+            "completed_close": True,
+            "close_date": close_date.isoformat(),
+            "close_price": float(price["close_price"]),
+            "whole_share_price_eur": float(price["close_price"]),
+            "price_age_calendar_days": (transition_report_date - close_date).days,
+            "source": "WP11A completed-close evidence",
+            "source_quality": source_quality,
+            "source_agreement_status": price.get("source_agreement_status"),
+            "agreeing_providers": agreeing_providers,
+            "agreement_spread_pct": price.get("agreement_spread_pct"),
+            "identity_assurance_status": qualified.get("identity_assurance_status"),
+            "identity_anchor_providers": list(qualified.get("identity_anchor_providers") or []),
+            "wp11a_funded_line": is_funded,
+            "valuation_grade": bool(is_funded and provider_count >= 2),
+            "funding_authority": False,
+            "execution_authority": False,
+            "production_delivery_authority": False,
+            "blockers": [],
+            "current_close_overlay": {
+                "applied": True,
+                "pricing_artifact": str(pricing_path),
+                "qualification_artifact": str(qualification_path),
+                "original_status": original_status,
+                "original_blockers": original_blockers,
+                "close_contract": close_contract,
+                "commercial_redistribution_authority": False,
+            },
+            "liquidity_evidence": {
+                "twenty_day_metric_retained": retained_liquidity,
+                "current_report_date_exchange_corroboration": current_turnover,
+                "interpretation": "The 20-day median remains the policy metric; current close evidence replaces stale price fields only.",
+            },
+        })
         updated += 1
         updated_exposures.append(str(row.get("exposure_id") or ""))
 
@@ -196,19 +203,19 @@ def apply(
         "qualification_artifact": str(qualification_path),
         "report_date": transition_report_date.isoformat(),
         "authority": "development_price_and_liquidity_input_only",
+        "funded_lines_keep_two_provider_gate": True,
+        "unfunded_candidate_single_source_requires_exact_line_identity_anchor": True,
         "portfolio_mutation": False,
         "funding_authority": False,
         "execution_authority": False,
         "production_delivery_authority": False,
     }
     transition["priced_line_count"] = sum(
-        1
-        for row in transition.get("rows") or []
+        1 for row in transition.get("rows") or []
         if isinstance(row, dict) and str(row.get("status") or "").startswith("priced_")
     )
     transition["completed_close_gate_passed"] = bool(
-        transition["priced_line_count"]
-        and all(
+        transition["priced_line_count"] and all(
             row.get("completed_close") is True
             for row in transition.get("rows") or []
             if isinstance(row, dict) and str(row.get("status") or "").startswith("priced_")
