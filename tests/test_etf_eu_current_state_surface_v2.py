@@ -48,7 +48,6 @@ def test_english_vvsm_row_uses_monitored_unfunded_current_close_semantics() -> N
     assert "Current completed close available" in text
     assert "strategy/promotion gate has not passed" in text
     assert "current pricing basis missing" not in text
-    # Donor target and zero current exposure remain strategy context; no hidden allocation rewrite.
     assert "25.20%" in text
     assert "0.00%" in text
 
@@ -71,14 +70,32 @@ def test_dutch_section_8_coverage_and_vvsm_semantics_are_localized() -> None:
     assert "0.00%" in text
 
 
+def test_dutch_section_9_full_sentences_are_translated_at_final_writer(tmp_path) -> None:
+    html_path = tmp_path / "nl.html"
+    pdf_path = tmp_path / "nl.pdf"
+    rows = "".join(
+        f"<tr><td>{index}</td><td>{sentence}</td></tr>"
+        for index, sentence in enumerate(surface.NL_SECTION9_SENTENCE_MAP, start=1)
+    )
+    html_path.write_text(
+        f"<html><body><section id='section-9'><table><tbody>{rows}</tbody></table></section></body></html>",
+        encoding="utf-8",
+    )
+    surface._sync_nl_section9_language(html_path, pdf_path)
+    rendered = BeautifulSoup(html_path.read_text(encoding="utf-8"), "html.parser").get_text(" ", strip=True)
+    for source, translation in surface.NL_SECTION9_SENTENCE_MAP.items():
+        assert source not in rendered
+        assert translation in rendered
+    assert pdf_path.is_file()
+    assert pdf_path.stat().st_size > 0
+
+
 def test_delegated_patch_path_does_not_recurse() -> None:
     soup = _soup()
     positions = {"L0CK": {"client_weight_pct": 10.158455}}
     original = surface.legacy._sync_8
     surface.legacy._sync_8 = surface._sync_8_with_authoritative_coverage
     try:
-        # This mirrors the delegation used by synchronize_manifest. Before the
-        # captured-base fix, this call recursed until RecursionError.
         surface.legacy._sync_8(soup, positions, "en")
     finally:
         surface.legacy._sync_8 = original
