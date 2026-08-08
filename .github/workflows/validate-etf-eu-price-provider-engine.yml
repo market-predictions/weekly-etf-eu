@@ -10,6 +10,7 @@ on:
   pull_request:
     paths:
       - "config/ucits_price_provider_registry.yml"
+      - "config/ucits_close_price_validation_basket.yml"
       - "config/etf_eu_provider_close_cache_*.json"
       - "config/alpha_vantage_key_rotation_confirmed.json"
       - "output/etf_eu_portfolio_state.json"
@@ -76,7 +77,7 @@ jobs:
             tests/test_apply_etf_eu_routine_valuation_to_client_report.py \
             -v
 
-      - name: Qualify all twelve trading lines with live providers
+      - name: Qualify controlled trading-line universe with live providers
         if: github.event_name == 'workflow_dispatch'
         run: |
           set -euo pipefail
@@ -99,10 +100,15 @@ jobs:
           import json
           import os
           from pathlib import Path
+          import yaml
 
           path = Path("output/provider_qualification/ucits_price_provider_qualification.json")
           payload = json.loads(path.read_text())
           portfolio = json.loads(Path("output/etf_eu_portfolio_state.json").read_text())
+          registry = yaml.safe_load(Path("config/ucits_price_provider_registry.yml").read_text()) or {}
+          expected_line_count = len([
+              row for row in registry.get("trading_lines", []) if isinstance(row, dict)
+          ])
           expected_funded = [
               row for row in portfolio.get("positions", [])
               if isinstance(row, dict) and row.get("investability_status") == "funded_model_position"
@@ -110,10 +116,11 @@ jobs:
           expected_funded_count = len(expected_funded)
           if payload["schema_version"] != "ucits_price_provider_qualification_v1":
               raise SystemExit("PRICE_ENGINE_SCHEMA_MISMATCH")
-          if payload["line_count"] != 12 or payload["funded_line_count"] != expected_funded_count:
+          if payload["line_count"] != expected_line_count or payload["funded_line_count"] != expected_funded_count:
               raise SystemExit(
                   f"PRICE_ENGINE_BASKET_SCOPE_MISMATCH:lines={payload['line_count']}:"
-                  f"funded={payload['funded_line_count']}:expected_funded={expected_funded_count}"
+                  f"expected_lines={expected_line_count}:funded={payload['funded_line_count']}:"
+                  f"expected_funded={expected_funded_count}"
               )
           authority = payload.get("funded_universe_authority") or {}
           if authority.get("funded_position_count") != expected_funded_count:
@@ -148,6 +155,7 @@ jobs:
           print(
               "ETF_EU_PRICE_ENGINE_OK"
               f" | configured={payload['provider_configuration']}"
+              f" | lines={payload['line_count']}"
               f" | funded_consensus={payload['funded_consensus_count']}/{payload['funded_line_count']}"
               f" | identity_anchors={payload['funded_identity_anchor_count']}/{payload['funded_line_count']}"
               f" | stale_registry_flags={authority.get('stale_registry_funded_flags_overridden', [])}"
