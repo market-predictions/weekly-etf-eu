@@ -59,13 +59,21 @@ class ProviderEvidenceRedactionTests(unittest.TestCase):
     def test_rotated_alpha_secret_remains_available(self):
         with tempfile.TemporaryDirectory() as tmp:
             marker = Path(tmp) / "rotation-marker.json"
-            marker.write_text("{}", encoding="utf-8")
+            marker.write_text(json.dumps({
+                "schema_version": "alpha_vantage_key_rotation_confirmation_v1",
+                "rotation_confirmed": True,
+                "secret_value_recorded": False,
+                "repository_secret_name": "ALPHA_VANTAGE_API_KEY",
+                "confirmed_at_utc": "2026-08-08T13:00:00Z",
+                "reason": "test fixture only",
+            }), encoding="utf-8")
             with patch.object(provider_secret_safety, "ALPHA_ROTATION_MARKER", marker):
                 with patch.dict(os.environ, {"ALPHA_VANTAGE_API_KEY": "rotated-key"}, clear=False):
                     result = enforce_provider_secret_safety()
                     self.assertEqual(os.environ.get("ALPHA_VANTAGE_API_KEY"), "rotated-key")
         self.assertTrue(result["alpha_vantage_rotation_confirmed"])
         self.assertTrue(result["alpha_vantage_live_enabled"])
+        self.assertEqual(result["rotation_marker_status"], "valid_rotation_confirmation")
 
 
 if __name__ == "__main__":
