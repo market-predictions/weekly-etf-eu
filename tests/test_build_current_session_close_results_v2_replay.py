@@ -45,7 +45,7 @@ def _live_later_session_result() -> dict[str, object]:
     }
 
 
-def test_boerse_historical_replay_recovers_exact_report_date(monkeypatch) -> None:
+def test_boerse_historical_replay_recovers_exact_report_date_from_bounded_window(monkeypatch) -> None:
     report_date = date(2026, 8, 5)
     monkeypatch.setattr(pricing_v2, "_original_fetch_boerse", lambda line, day: _live_later_session_result())
 
@@ -53,12 +53,13 @@ def test_boerse_historical_replay_recovers_exact_report_date(monkeypatch) -> Non
         assert "/v1/data/price_history?" in url
         assert "isin=IE00BK5BQT80" in url
         assert "mic=XETR" in url
-        assert "minDate=2026-08-05" in url
-        assert "maxDate=2026-08-05" in url
+        assert "minDate=2026-08-01" in url
+        assert "maxDate=2026-08-06" in url
         return _FakeResponse(
             {
-                "totalCount": 1,
+                "totalCount": 3,
                 "data": [
+                    {"date": "2026-08-04", "close": 135.0},
                     {
                         "date": "2026-08-05",
                         "open": 136.1,
@@ -67,7 +68,8 @@ def test_boerse_historical_replay_recovers_exact_report_date(monkeypatch) -> Non
                         "close": 136.72,
                         "turnoverPieces": 1000,
                         "turnoverEuro": 136720,
-                    }
+                    },
+                    {"date": "2026-08-06", "close": 138.0},
                 ],
             }
         )
@@ -83,6 +85,8 @@ def test_boerse_historical_replay_recovers_exact_report_date(monkeypatch) -> Non
     assert result["currency_match"] is True
     assert result["blockers"] == []
     assert result["identity_evidence"][-1]["endpoint"] == "boerse_frankfurt_price_history"
+    assert result["identity_evidence"][-1]["history_window_start"] == "2026-08-01"
+    assert result["identity_evidence"][-1]["history_window_end"] == "2026-08-06"
 
 
 def test_boerse_historical_replay_remains_fail_closed_without_identity(monkeypatch) -> None:
@@ -110,3 +114,28 @@ def test_historical_parser_requires_exact_report_date() -> None:
         ],
     }
     assert pricing_v2._historical_close_from_boerse_payload(payload, date(2026, 8, 5)) is None
+
+
+def test_boerse_historical_replay_fails_closed_when_window_has_no_exact_report_date(monkeypatch) -> None:
+    report_date = date(2026, 8, 5)
+    monkeypatch.setattr(pricing_v2, "_original_fetch_boerse", lambda line, day: _live_later_session_result())
+    monkeypatch.setattr(
+        pricing_v2.requests,
+        "get",
+        lambda *args, **kwargs: _FakeResponse(
+            {
+                "totalCount": 2,
+                "data": [
+                    {"date": "2026-08-04", "close": 135.0},
+                    {"date": "2026-08-06", "close": 138.0},
+                ],
+            }
+        ),
+    )
+
+    result = pricing_v2.fetch_boerse_with_historical_replay(_line(), report_date)
+
+    assert result["pricing_status"] == "fetch_failed"
+    assert "historical_report_date_close_unavailable" in result["blockers"]
+    assert result["historical_replay_debug"]["window_start"] == "2026-08-01"
+    assert result["historical_replay_debug"]["window_end"] == "2026-08-06"
