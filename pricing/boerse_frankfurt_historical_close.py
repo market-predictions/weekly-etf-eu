@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import date, datetime, timezone
+from datetime import date, datetime, timedelta, timezone
 from typing import Any, Callable
 from urllib.parse import urlencode
 
@@ -17,12 +17,49 @@ def positive_float(value: Any) -> float | None:
     return number if number > 0 else None
 
 
+def normalize_history_date(value: Any) -> str | None:
+    text = str(value or "").strip()
+    if not text:
+        return None
+    candidates = [text, text[:10]]
+    for candidate in candidates:
+        try:
+            return date.fromisoformat(candidate).isoformat()
+        except ValueError:
+            pass
+    for pattern in ("%d.%m.%Y", "%d/%m/%Y"):
+        try:
+            return datetime.strptime(text, pattern).date().isoformat()
+        except ValueError:
+            pass
+    return None
+
+
+def history_payload_diagnostics(payload: Any) -> dict[str, Any]:
+    if not isinstance(payload, dict):
+        return {"payload_type": type(payload).__name__}
+    rows = payload.get("data")
+    if not isinstance(rows, list):
+        return {
+            "payload_keys": sorted(str(key) for key in payload.keys())[:30],
+            "data_type": type(rows).__name__,
+            "total_count": payload.get("totalCount"),
+        }
+    return {
+        "payload_keys": sorted(str(key) for key in payload.keys())[:30],
+        "total_count": payload.get("totalCount"),
+        "returned_row_count": len(rows),
+        "returned_dates": [normalize_history_date(row.get("date")) or str(row.get("date") or "") for row in rows[:20] if isinstance(row, dict)],
+        "row_keys": sorted({str(key) for row in rows[:20] if isinstance(row, dict) for key in row.keys()}),
+    }
+
+
 def select_exact_history_close(payload: Any, report_date: date) -> dict[str, Any] | None:
     """Return the exact requested-date history row or None.
 
-    Börse Frankfurt's price-history payload is an object with a `data` array.
-    Replay authority is intentionally exact-date only: a prior or later row is
-    never silently substituted for the requested completed close.
+    Replay authority is exact-date only. A wider retrieval window is allowed to
+    accommodate endpoint boundary semantics, but a prior or later row is never
+    silently substituted for the requested completed close.
     """
     if not isinstance(payload, dict):
         return None
@@ -33,7 +70,7 @@ def select_exact_history_close(payload: Any, report_date: date) -> dict[str, Any
     for row in rows:
         if not isinstance(row, dict):
             continue
-        if str(row.get("date") or "") != requested:
+        if normalize_history_date(row.get("date")) != requested:
             continue
         close = positive_float(row.get("close"))
         if close is None:
@@ -90,17 +127,15 @@ def fetch_exact_history_close(
         result["blockers"] = ["boerse_frankfurt_history_xetra_only"]
         return result
 
-    # Use a one-day bounded window and still filter the response to the exact
-    # requested date. maxDate is advanced one day because the public endpoint's
-    # boundary behavior has varied; exact-date selection below remains strict.
-    from datetime import timedelta
-
+    # Retrieve a bounded surrounding window because the public endpoint's
+    # min/max boundary semantics can omit a single-day query. Exact-date
+    # selection below is still strict and therefore replay-safe.
     params = {
-        "limit": 10,
+        "limit": 20,
         "offset": 0,
         "isin": isin,
         "mic": mic,
-        "minDate": report_date.isoformat(),
+        "minDate": (report_date - timedelta(days=7)).isoformat(),
         "maxDate": (report_date + timedelta(days=1)).isoformat(),
         "cleanSplit": "false",
         "cleanPayout": "false",
@@ -119,12 +154,14 @@ def fetch_exact_history_close(
     if response.status_code != 200 or not isinstance(payload, dict):
         result["pricing_status"] = "fetch_failed"
         result["blockers"] = [f"history_provider_error:{response.status_code}"]
+        result["history_diagnostics"] = history_payload_diagnostics(payload)
         return result
 
     selected = select_exact_history_close(payload, report_date)
     if selected is None:
         result["pricing_status"] = "fetch_failed"
         result["blockers"] = ["exact_report_date_history_close_unavailable"]
+        result["history_diagnostics"] = history_payload_diagnostics(payload)
         return result
 
     result.update(
@@ -137,9 +174,6 @@ def fetch_exact_history_close(
             "returned_exchange": "Xetra",
             "returned_mic": mic,
             "returned_currency": None,
-            # The endpoint is queried by exact ISIN+MIC. It does not need to
-            # echo currency metadata; Yahoo remains the independent metadata
-            # anchor required by the existing consensus policy.
             "venue_match": True,
             "currency_match": None,
             "identity_status": "exact_isin_mic_query_history_row",
@@ -154,6 +188,7 @@ def fetch_exact_history_close(
                     "turnover_pieces": selected.get("turnover_pieces"),
                 }
             ],
+            "history_diagnostics": history_payload_diagnostics(payload),
             "blockers": [],
         }
     )
