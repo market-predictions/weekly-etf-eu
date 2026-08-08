@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from bs4 import BeautifulSoup
 
-from runtime.synchronize_etf_eu_current_state_surface_v2 import _sync_8_with_authoritative_coverage
+from runtime import synchronize_etf_eu_current_state_surface_v2 as surface
 
 
 def _soup() -> BeautifulSoup:
@@ -28,7 +28,7 @@ def _soup() -> BeautifulSoup:
 def test_section_8_coverage_is_replaced_by_authoritative_l0ck_weight() -> None:
     soup = _soup()
     positions = {"L0CK": {"client_weight_pct": 10.158455}}
-    _sync_8_with_authoritative_coverage(soup, positions, "en")
+    surface._sync_8_with_authoritative_coverage(soup, positions, "en")
     summary = soup.select_one("#section-8 .alignment-summary").get_text(" ", strip=True)
     assert "10.16%" in summary
     assert "10.41%" not in summary
@@ -40,8 +40,24 @@ def test_section_8_coverage_is_replaced_by_authoritative_l0ck_weight() -> None:
 def test_dutch_section_8_coverage_uses_localized_authoritative_weight() -> None:
     soup = _soup()
     positions = {"L0CK": {"client_weight_pct": 10.158455}}
-    _sync_8_with_authoritative_coverage(soup, positions, "nl")
+    surface._sync_8_with_authoritative_coverage(soup, positions, "nl")
     summary = soup.select_one("#section-8 .alignment-summary").get_text(" ", strip=True)
     assert "Exacte donor-exposuredekking" in summary
     assert "10,16%" in summary
     assert "10,41%" not in summary
+
+
+def test_delegated_patch_path_does_not_recurse() -> None:
+    soup = _soup()
+    positions = {"L0CK": {"client_weight_pct": 10.158455}}
+    original = surface.legacy._sync_8
+    surface.legacy._sync_8 = surface._sync_8_with_authoritative_coverage
+    try:
+        # This mirrors the delegation used by synchronize_manifest. Before the
+        # captured-base fix, this call recursed until RecursionError.
+        surface.legacy._sync_8(soup, positions, "en")
+    finally:
+        surface.legacy._sync_8 = original
+    summary = soup.select_one("#section-8 .alignment-summary").get_text(" ", strip=True)
+    assert "10.16%" in summary
+    assert "10.41%" not in summary
