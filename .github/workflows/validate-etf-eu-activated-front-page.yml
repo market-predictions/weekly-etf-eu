@@ -1,0 +1,37 @@
+name: Validate ETF EU activated front-page contract
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - "runtime/add_etf_eu_activated_allocation_surface_v2.py"
+      - "runtime/synchronize_etf_eu_activated_front_page.py"
+      - "tests/test_etf_eu_activated_front_page_contract.py"
+      - ".github/workflows/validate-etf-eu-activated-front-page.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  validate-activated-front-page:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout Weekly ETF EU
+        uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install bounded dependencies
+        run: python -m pip install beautifulsoup4 weasyprint
+
+      - name: Compile activated front-page synchronizer
+        run: |
+          python -m py_compile \
+            runtime/add_etf_eu_activated_allocation_surface_v2.py \
+            runtime/synchronize_etf_eu_activated_front_page.py
+
+      - name: Run planted stale-front-page regression tests
+        run: python -m pytest -q tests/test_etf_eu_activated_front_page_contract.py
