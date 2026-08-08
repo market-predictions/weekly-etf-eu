@@ -19,6 +19,11 @@ REQUIRED_BLOCKERS = {
     "separate_stage_2_activation_authorization_missing",
 }
 
+PROTECTED_CASH_FLOOR_PCT_NAV = 25.0
+MAXIMUM_SXR8_REDUCTION_PCT_NAV = 5.0
+STAGE_2_DESTINATION_CAP_PCT_NAV = 15.0
+TOLERANCE = 0.02
+
 
 def load(path: Path) -> dict[str, Any]:
     payload = json.loads(path.read_text(encoding="utf-8"))
@@ -32,6 +37,10 @@ def num(value: Any, default: float = 0.0) -> float:
         return float(value)
     except (TypeError, ValueError):
         return default
+
+
+def close(left: float, right: float, tolerance: float = TOLERANCE) -> bool:
+    return abs(left - right) <= tolerance
 
 
 def validate(payload: dict[str, Any]) -> list[str]:
@@ -63,20 +72,46 @@ def validate(payload: dict[str, Any]) -> list[str]:
         blockers.append("Stage-2 destination line mismatch")
     if abs(num(destination.get("donor_target_weight_pct_nav")) - 24.66) > 0.01:
         blockers.append("unexpected donor target weight")
-    if abs(num(destination.get("stage_2_maximum_weight_pct_nav")) - 15.0) > 0.001:
+    destination_cap = num(destination.get("stage_2_maximum_weight_pct_nav"))
+    if not close(destination_cap, STAGE_2_DESTINATION_CAP_PCT_NAV, 0.001):
         blockers.append("Stage-2 destination cap mismatch")
 
+    state = payload.get("current_shadow_state") if isinstance(payload.get("current_shadow_state"), dict) else {}
+    current_cash = num(state.get("stage_1_projected_cash_weight_pct_nav"))
+    sxr8_weight = num(state.get("sxr8_weight_pct_nav"))
+    if current_cash < PROTECTED_CASH_FLOOR_PCT_NAV - TOLERANCE:
+        blockers.append("Stage-1 shadow cash is below the Stage-2 protected cash floor")
+    if num(state.get("stage_1_projected_position_count")) <= 0:
+        blockers.append("Stage-1 projected position count is missing")
+
     capacity = payload.get("capacity_analysis") if isinstance(payload.get("capacity_analysis"), dict) else {}
-    if abs(num(capacity.get("excess_cash_above_floor_pct_nav")) - 10.569579) > 0.02:
-        blockers.append("excess-cash capacity mismatch")
-    if abs(num(capacity.get("cash_source_used_pct_nav")) - 10.569579) > 0.02:
-        blockers.append("cash-source use mismatch")
-    if abs(num(capacity.get("sxr8_source_used_pct_nav")) - 4.430421) > 0.02:
-        blockers.append("SXR8 source use mismatch")
-    if abs(num(capacity.get("theoretical_destination_weight_pct_nav")) - 15.0) > 0.02:
+    expected_excess_cash = max(0.0, current_cash - PROTECTED_CASH_FLOOR_PCT_NAV)
+    theoretical_target = num(capacity.get("theoretical_destination_weight_pct_nav"))
+    expected_cash_use = min(theoretical_target, expected_excess_cash)
+    expected_sxr8_capacity = min(MAXIMUM_SXR8_REDUCTION_PCT_NAV, max(0.0, sxr8_weight))
+    expected_remaining_after_cash = max(0.0, theoretical_target - expected_cash_use)
+    expected_sxr8_use = min(expected_remaining_after_cash, expected_sxr8_capacity)
+    expected_projected_cash = current_cash - expected_cash_use
+
+    if not close(num(capacity.get("excess_cash_above_floor_pct_nav")), expected_excess_cash):
+        blockers.append("excess-cash capacity is inconsistent with current Stage-1 cash")
+    if not close(num(capacity.get("cash_source_used_pct_nav")), expected_cash_use):
+        blockers.append("cash-source use is inconsistent with current Stage-1 cash")
+    if not close(num(capacity.get("sxr8_current_weight_pct_nav")), sxr8_weight):
+        blockers.append("SXR8 source weight is inconsistent with current Stage-1 state")
+    if not close(num(capacity.get("sxr8_source_capacity_pct_nav")), expected_sxr8_capacity):
+        blockers.append("SXR8 source capacity violates the 5% per-run cap")
+    if not close(num(capacity.get("sxr8_source_used_pct_nav")), expected_sxr8_use):
+        blockers.append("SXR8 source use is inconsistent with the funding waterfall")
+    if not close(theoretical_target, STAGE_2_DESTINATION_CAP_PCT_NAV):
         blockers.append("theoretical destination capacity mismatch")
-    if abs(num(capacity.get("projected_cash_weight_after_capacity_use_pct_nav")) - 25.0) > 0.02:
-        blockers.append("projected protected cash floor mismatch")
+    if not close(num(capacity.get("projected_cash_weight_after_capacity_use_pct_nav")), expected_projected_cash):
+        blockers.append("projected cash after Stage-2 capacity use is inconsistent")
+    if expected_excess_cash >= theoretical_target - TOLERANCE:
+        if expected_projected_cash < PROTECTED_CASH_FLOOR_PCT_NAV - TOLERANCE:
+            blockers.append("projected protected cash floor violated")
+    elif not close(expected_projected_cash, PROTECTED_CASH_FLOOR_PCT_NAV):
+        blockers.append("cash-first waterfall did not stop at protected cash floor")
     if capacity.get("euna_source_available") is not False:
         blockers.append("EUNA must not be available as a Stage-2 source")
     if num(capacity.get("euna_source_used_pct_nav")) != 0.0:
@@ -93,6 +128,20 @@ def validate(payload: dict[str, Any]) -> list[str]:
         blockers.append("funding-source order mismatch")
     if [row.get("priority") for row in sources if isinstance(row, dict)] != [1, 2, 3]:
         blockers.append("funding-source priorities are not contiguous")
+    source_by_id = {str(row.get("source_id")): row for row in sources if isinstance(row, dict)}
+    cash_source = source_by_id.get("excess_cash_above_floor", {})
+    sxr8_source = source_by_id.get("sxr8_overlap_reduction", {})
+    euna_source = source_by_id.get("euna_risk_budget_release", {})
+    if not close(num(cash_source.get("simulated_capacity_pct_nav")), expected_excess_cash):
+        blockers.append("funding-order cash capacity mismatch")
+    if not close(num(cash_source.get("simulated_use_pct_nav")), expected_cash_use):
+        blockers.append("funding-order cash use mismatch")
+    if not close(num(sxr8_source.get("simulated_capacity_pct_nav")), expected_sxr8_capacity):
+        blockers.append("funding-order SXR8 capacity mismatch")
+    if not close(num(sxr8_source.get("simulated_use_pct_nav")), expected_sxr8_use):
+        blockers.append("funding-order SXR8 use mismatch")
+    if euna_source.get("available") is not False or num(euna_source.get("simulated_use_pct_nav")) != 0.0:
+        blockers.append("funding-order EUNA boundary mismatch")
 
     gates = payload.get("entry_gate_results") if isinstance(payload.get("entry_gate_results"), dict) else {}
     expected_gate_values = {
