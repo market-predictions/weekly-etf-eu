@@ -9,10 +9,12 @@ from urllib.parse import quote
 import requests
 
 from pricing import build_current_session_close_results as legacy
+from pricing.boerse_frankfurt_historical_close import fetch_exact_history_close
 from pricing.yahoo_regular_market_fallback import report_date_regular_market_close
 
 
 _original_fetch_yahoo = legacy.fetch_yahoo
+_original_fetch_boerse = legacy.fetch_boerse
 CORE_FUNDED_TICKERS = {"VWCE", "EUNA", "SXR8"}
 ALLOWED_ACTIVATED_TICKERS = {"L0CK"}
 
@@ -44,6 +46,52 @@ def funded_tickers_from_state(path: Path = Path("output/etf_eu_portfolio_state.j
         if not activation.get("activation_id"):
             raise RuntimeError("Activated pricing scope lacks activation provenance")
     return funded
+
+
+def fetch_boerse_replay_safe(
+    line: dict[str, Any],
+    report_date: date,
+) -> dict[str, Any]:
+    """Prefer exact-date history and retain only the bounded live fallback.
+
+    `price_information/single` exposes a rolling previous-session field and is
+    useful around the immediate session boundary, but it is not replay authority
+    for an older report. The date-addressable history endpoint is therefore tried
+    first. If it cannot provide the requested date, the legacy adapter may still
+    prove the same/next-session completed close under its existing fail-closed
+    date logic.
+    """
+    history = fetch_exact_history_close(
+        line,
+        report_date,
+        headers_factory=legacy.boerse_headers,
+        timeout_seconds=legacy.TIMEOUT_SECONDS,
+    )
+    if history.get("pricing_status") == "priced" and history.get("close_date") == report_date.isoformat():
+        return history
+
+    live = _original_fetch_boerse(line, report_date)
+    if live.get("pricing_status") == "priced" and live.get("close_date") == report_date.isoformat():
+        evidence = list(live.get("identity_evidence") or [])
+        evidence.append(
+            {
+                "history_replay_attempt": "failed",
+                "history_provider": history.get("provider"),
+                "history_blockers": history.get("blockers") or [],
+                "fallback_scope": "same_or_immediately_next_session_only",
+            }
+        )
+        live["identity_evidence"] = evidence
+        live["retrieval_mode"] = f"bounded_live_fallback_after_history_failure:{live.get('retrieval_mode') or 'live'}"
+        return live
+
+    combined = dict(history)
+    blockers = list(history.get("blockers") or [])
+    blockers.extend(f"live_fallback:{value}" for value in (live.get("blockers") or []))
+    combined["blockers"] = sorted(set(blockers))
+    combined["pricing_status"] = "fetch_failed"
+    combined["live_fallback_status"] = live.get("pricing_status")
+    return combined
 
 
 def fetch_yahoo_with_regular_market_fallback(
@@ -147,6 +195,7 @@ def fetch_yahoo_with_regular_market_fallback(
 
 
 def main() -> None:
+    legacy.fetch_boerse = fetch_boerse_replay_safe
     legacy.fetch_yahoo = fetch_yahoo_with_regular_market_fallback
     legacy.FUNDED_TICKERS = funded_tickers_from_state()
     legacy.main()
