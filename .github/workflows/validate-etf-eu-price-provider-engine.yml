@@ -11,7 +11,9 @@ on:
     paths:
       - "config/ucits_price_provider_registry.yml"
       - "config/etf_eu_provider_close_cache_*.json"
+      - "config/alpha_vantage_key_rotation_confirmed.json"
       - "output/etf_eu_portfolio_state.json"
+      - "pricing/provider_secret_safety.py"
       - "pricing/ucits_funded_universe.py"
       - "pricing/ucits_price_provider_engine.py"
       - "pricing/ucits_price_evidence_cache.py"
@@ -20,6 +22,7 @@ on:
       - "runtime/build_etf_eu_routine_valuation_overlay.py"
       - "runtime/apply_etf_eu_routine_valuation_to_client_report.py"
       - "tools/qualify_ucits_price_providers.py"
+      - "tests/test_provider_secret_safety.py"
       - "tests/test_ucits_funded_universe.py"
       - "tests/test_ucits_price_provider_engine.py"
       - "tests/test_ucits_price_evidence_cache.py"
@@ -28,6 +31,7 @@ on:
       - "tests/test_etf_eu_routine_valuation_overlay.py"
       - "tests/test_apply_etf_eu_routine_valuation_to_client_report.py"
       - "control/work_packages/WP_SYNC_11A_MULTI_PROVIDER_CLOSE_PRICE_ENGINE_20260803.md"
+      - "control/work_packages/WP_SYNC_11A_OPERATIONALIZATION_20260808.md"
       - ".github/workflows/validate-etf-eu-price-provider-engine.yml"
 
 permissions:
@@ -56,9 +60,10 @@ jobs:
       - name: Install bounded dependencies
         run: python -m pip install requests==2.32.3 PyYAML==6.0.2 beautifulsoup4 weasyprint
 
-      - name: Run deterministic adapter, funded-universe, cache, redaction, consensus, identity, valuation and client-surface tests
+      - name: Run deterministic adapter, secret-safety, funded-universe, cache, redaction, consensus, identity, valuation and client-surface tests
         run: |
           python -m unittest \
+            tests/test_provider_secret_safety.py \
             tests/test_ucits_funded_universe.py \
             tests/test_ucits_price_provider_engine.py \
             tests/test_ucits_price_evidence_cache.py \
