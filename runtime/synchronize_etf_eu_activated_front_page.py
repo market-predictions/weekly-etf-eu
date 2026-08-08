@@ -200,7 +200,7 @@ def synchronize_l0ck_radar_row(soup: BeautifulSoup, language: str) -> None:
     section = _section(soup, "section-4")
     if not isinstance(section, Tag):
         raise RuntimeError("Section 4 opportunity radar missing")
-    table = section.find("table", class_="production-opportunity-table")
+    table = section.find("table", class_="promoted-mapping-table")
     if not isinstance(table, Tag):
         raise RuntimeError("Section 4 radar table missing")
     row = next(
