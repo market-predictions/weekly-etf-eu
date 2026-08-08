@@ -28,7 +28,7 @@ def validate(manifest: dict[str, Any]) -> list[str]:
             blockers.append(f"policy transition compaction {key} must be false")
     if set(compaction.get("deferred_exposures_remain_in_sections") or []) != {"11", "13"}:
         blockers.append("deferred exposure evidence lineage is incomplete")
-    if set(compaction.get("incumbent_evidence_remains_in_sections") or []) != {"10", "13", "15"}:
+    if set(compaction.get("incumbent_evidence_remain_in_sections") or compaction.get("incumbent_evidence_remains_in_sections") or []) != {"10", "13", "15"}:
         blockers.append("incumbent evidence lineage is incomplete")
     removed_legacy = compaction.get("duplicate_incumbent_block_removed_by_language") if isinstance(compaction.get("duplicate_incumbent_block_removed_by_language"), dict) else {}
     funded_compaction = compaction.get("already_funded_candidate_compacted_by_language") if isinstance(compaction.get("already_funded_candidate_compacted_by_language"), dict) else {}
@@ -54,18 +54,19 @@ def validate(manifest: dict[str, Any]) -> list[str]:
         body = section.group(1) if section else ""
         table = re.search(r'<table class="wide-table allocator-order-table">.*?<tbody>(.*?)</tbody></table>', body, re.DOTALL)
         rows = re.findall(r'<tr>.*?</tr>', table.group(1), re.DOTALL) if table else []
+        actionable_html = "".join(rows)
         expected_rows = 1 if activated else 2
         if len(rows) != expected_rows:
             blockers.append(f"{language} Section 14 must contain exactly {expected_rows} actionable intent rows")
-        if "VVSM" not in body:
+        if "VVSM" not in actionable_html:
             blockers.append(f"{language} VVSM actionable intent ticker missing")
         if activated:
-            if "LOCK" in body or "L0CK" in body:
+            if "LOCK" in actionable_html or "L0CK" in actionable_html:
                 blockers.append(f"{language} already-funded L0CK still appears as a new actionable intent")
             funded_note = "L0CK is already funded" if language == "en" else "L0CK is al gefinancierd"
             if funded_note not in body:
                 blockers.append(f"{language} already-funded L0CK evidence note missing")
-        elif "LOCK" not in body and "L0CK" not in body:
+        elif "LOCK" not in actionable_html and "L0CK" not in actionable_html:
             blockers.append(f"{language} cybersecurity actionable intent ticker missing")
 
         for stale in ("Blocked / deferred", "Geblokkeerd / uitgesteld"):
