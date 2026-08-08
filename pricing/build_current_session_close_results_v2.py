@@ -9,6 +9,7 @@ from urllib.parse import quote
 import requests
 
 from pricing import build_current_session_close_results as legacy
+from pricing.accepted_close_evidence_cache import provider_from_cache
 from pricing.boerse_frankfurt_historical_close import fetch_exact_history_close
 from pricing.yahoo_regular_market_fallback import report_date_regular_market_close
 
@@ -48,19 +49,22 @@ def funded_tickers_from_state(path: Path = Path("output/etf_eu_portfolio_state.j
     return funded
 
 
-def fetch_boerse_replay_safe(
-    line: dict[str, Any],
-    report_date: date,
-) -> dict[str, Any]:
-    """Prefer exact-date history and retain only the bounded live fallback.
+def fetch_boerse_replay_safe(line: dict[str, Any], report_date: date) -> dict[str, Any]:
+    """Resolve Börse evidence without relabelling a rolling close as history.
 
-    `price_information/single` exposes a rolling previous-session field and is
-    useful around the immediate session boundary, but it is not replay authority
-    for an older report. The date-addressable history endpoint is therefore tried
-    first. If it cannot provide the requested date, the legacy adapter may still
-    prove the same/next-session completed close under its existing fail-closed
-    date logic.
+    For a report date whose accepted two-provider qualification was preserved at
+    report time, the immutable cache is authoritative replay evidence. This is
+    preferable to re-querying a rolling endpoint weeks later and is explicitly
+    bound to date, basket, ISIN, MIC, provider symbol, source workflow SHA and
+    Actions artifact digest.
+
+    If no cache exists, exact-date Börse price history is attempted. The live
+    previous-session field remains only a bounded same/next-session fallback.
     """
+    cached = provider_from_cache(line, report_date, "boerse_frankfurt_xetra")
+    if cached is not None:
+        return cached
+
     history = fetch_exact_history_close(
         line,
         report_date,
@@ -94,10 +98,14 @@ def fetch_boerse_replay_safe(
     return combined
 
 
-def fetch_yahoo_with_regular_market_fallback(
-    line: dict[str, Any],
-    report_date: date,
-) -> dict[str, Any]:
+def fetch_yahoo_with_regular_market_fallback(line: dict[str, Any], report_date: date) -> dict[str, Any]:
+    # A preserved report-time qualification must replay as one coherent evidence
+    # set. Do not combine its unadjusted close with a later provider series that
+    # may have been retroactively adjusted after a split or other corporate action.
+    cached = provider_from_cache(line, report_date, "yahoo_chart")
+    if cached is not None:
+        return cached
+
     result = _original_fetch_yahoo(line, report_date)
     if result.get("pricing_status") == "priced" and result.get("close_date") == report_date.isoformat():
         return result
@@ -137,11 +145,7 @@ def fetch_yahoo_with_regular_market_fallback(
         return result
 
     meta = data_rows[0].get("meta") or {}
-    fallback = report_date_regular_market_close(
-        meta,
-        report_date=report_date,
-        observed_at_utc=observed_at,
-    )
+    fallback = report_date_regular_market_close(meta, report_date=report_date, observed_at_utc=observed_at)
     if fallback is None:
         result.setdefault("blockers", []).append("report_date_regular_market_metadata_unavailable")
         return result
