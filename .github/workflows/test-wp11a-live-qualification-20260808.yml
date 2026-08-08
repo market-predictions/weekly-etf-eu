@@ -1,0 +1,152 @@
+name: Test WP11A live qualification 20260808
+
+on:
+  push:
+    branches:
+      - test/wp11a-live-qualification-20260808
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  wp11a-live-qualification:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    env:
+      REPORT_DATE: "2026-08-05"
+      LEEWAY_API_TOKEN: ${{ secrets.LEEWAY_API_TOKEN }}
+      EODHD_API_TOKEN: ${{ secrets.EODHD_API_TOKEN }}
+      MARKETSTACK_ACCESS_KEY: ${{ secrets.MARKETSTACK_ACCESS_KEY }}
+      ALPHA_VANTAGE_API_KEY: ${{ secrets.ALPHA_VANTAGE_API_KEY }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install bounded dependencies
+        run: python -m pip install requests==2.32.3 PyYAML==6.0.2 beautifulsoup4 weasyprint
+
+      - name: Record protected state hashes
+        run: |
+          mkdir -p output/provider_qualification
+          sha256sum output/etf_eu_portfolio_state.json output/etf_eu_trade_ledger.csv > output/provider_qualification/protected_before.sha256
+
+      - name: Run complete deterministic WP11A regression suite
+        run: |
+          python -m unittest \
+            tests/test_ucits_price_provider_engine.py \
+            tests/test_ucits_price_evidence_cache.py \
+            tests/test_ucits_price_evidence_redaction.py \
+            tests/test_ucits_price_qualification_policy.py \
+            tests/test_etf_eu_routine_valuation_overlay.py \
+            tests/test_apply_etf_eu_routine_valuation_to_client_report.py \
+            -v
+
+      - name: Run live five-provider qualification without historical cache
+        run: |
+          set -euo pipefail
+          python tools/qualify_ucits_price_providers.py \
+            --registry config/ucits_price_provider_registry.yml \
+            --provider-cache "" \
+            --report-date "$REPORT_DATE" \
+            --output output/provider_qualification/wp11a_live_qualification_20260805.json \
+            --verify-identity \
+            --pause-seconds 1 \
+            --max-close-age-days 7 \
+            --agreement-tolerance-pct 1.0
+
+      - name: Evaluate current four-position operational readiness
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          source = Path('output/provider_qualification/wp11a_live_qualification_20260805.json')
+          payload = json.loads(source.read_text())
+          targets = ['VWCE', 'EUNA', 'SXR8', 'L0CK']
+          by_ticker = {row.get('ticker'): row for row in payload.get('lines', [])}
+          rows = []
+          overall = True
+          for ticker in targets:
+              line = by_ticker.get(ticker)
+              if not line:
+                  rows.append({'ticker': ticker, 'present': False, 'pass': False})
+                  overall = False
+                  continue
+              providers = []
+              for p in line.get('provider_results', []):
+                  providers.append({
+                      'provider': p.get('provider'),
+                      'configured': p.get('configured'),
+                      'pricing_status': p.get('pricing_status'),
+                      'close_date': p.get('close_date'),
+                      'close_price': p.get('close_price'),
+                      'identity_status': p.get('identity_status'),
+                      'venue_match': p.get('venue_match'),
+                      'currency_match': p.get('currency_match'),
+                      'blockers': p.get('blockers') or [],
+                  })
+              line_pass = (
+                  line.get('qualification_status') == 'qualified_development_consensus'
+                  and int(line.get('same_date_provider_count') or 0) >= 2
+                  and bool(line.get('identity_anchor_providers'))
+                  and line.get('selected_close_date') == '2026-08-05'
+              )
+              overall = overall and line_pass
+              rows.append({
+                  'ticker': ticker,
+                  'registry_funded': line.get('funded'),
+                  'qualification_status': line.get('qualification_status'),
+                  'selected_close_date': line.get('selected_close_date'),
+                  'same_date_provider_count': line.get('same_date_provider_count'),
+                  'agreement_spread_pct': line.get('agreement_spread_pct'),
+                  'identity_anchor_providers': line.get('identity_anchor_providers') or [],
+                  'providers': providers,
+                  'pass': line_pass,
+              })
+
+          summary = {
+              'schema_version': 'wp11a_live_operational_test_v1',
+              'report_date': payload.get('report_date'),
+              'provider_order': payload.get('provider_order'),
+              'provider_configuration': payload.get('provider_configuration'),
+              'provider_cache_used_count': payload.get('provider_cache_used_count', 0),
+              'registry_funded_line_count': payload.get('funded_line_count'),
+              'registry_funded_consensus_count': payload.get('funded_consensus_count'),
+              'registry_report_pricing_gate_passed': payload.get('report_pricing_gate_passed'),
+              'current_four_position_rows': rows,
+              'current_four_position_operational_pass': overall,
+          }
+          out = Path('output/provider_qualification/wp11a_live_operational_test_summary.json')
+          out.write_text(json.dumps(summary, indent=2, sort_keys=True) + '\n')
+          print(json.dumps(summary, indent=2, sort_keys=True))
+          PY
+
+      - name: Prove protected state unchanged
+        run: |
+          sha256sum output/etf_eu_portfolio_state.json output/etf_eu_trade_ledger.csv > output/provider_qualification/protected_after.sha256
+          diff -u output/provider_qualification/protected_before.sha256 output/provider_qualification/protected_after.sha256
+
+      - name: Upload WP11A live test evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: wp11a-live-qualification-20260808-${{ github.run_id }}
+          path: output/provider_qualification/
+          if-no-files-found: error
+          retention-days: 90
+
+      - name: Enforce current four-position verdict
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          payload = json.loads(Path('output/provider_qualification/wp11a_live_operational_test_summary.json').read_text())
+          if payload.get('current_four_position_operational_pass') is not True:
+              raise SystemExit('WP11A_CURRENT_FOUR_POSITION_OPERATIONAL_TEST_FAILED')
+          print('WP11A_CURRENT_FOUR_POSITION_OPERATIONAL_TEST_PASS')
+          PY
