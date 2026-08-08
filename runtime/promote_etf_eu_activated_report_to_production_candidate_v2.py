@@ -4,27 +4,30 @@ import argparse
 from pathlib import Path
 
 from runtime import promote_etf_eu_activated_report_to_production_candidate as activated
-from runtime.synchronize_etf_eu_activated_front_page import synchronize_manifest
+from runtime.synchronize_etf_eu_activated_front_page import synchronize_manifest as synchronize_front_page
+from runtime.synchronize_etf_eu_current_state_surface import synchronize_manifest as synchronize_current_state
 
 
-FINAL_CLIENT_SURFACE_CONTRACT = "authoritative-four-position-after-final-promoter:v1"
+FINAL_CLIENT_SURFACE_CONTRACT = "authoritative-four-position-after-final-promoter:v2"
 
 
 def promote(source_manifest: Path, state_path: Path, output_dir: Path) -> Path:
-    """Run the compatibility promoter, then re-assert authoritative client state.
+    """Promote through the compatibility renderer, then reassert client truth.
 
-    The activated promoter deliberately invokes the legacy promoter with a blocked
-    compatibility state so historical renderer assumptions remain usable. That
-    compatibility pass is allowed internally, but it must never be the final
-    writer of portfolio state visible to the client. The exact final NL/EN HTML
-    and PDFs are therefore synchronized again from authoritative convergence
-    state after promotion and fail closed if Sections 1, 2, 2A or 4 disagree.
+    The legacy promoter may use a blocked compatibility state internally, but it
+    may never be the final writer of client-visible portfolio state. After that
+    pass, authoritative four-position state is reapplied first to Sections
+    1/2/2A/4 and then to current-state Sections 5/6/8/9/10/11/12/13. Historical
+    valuation context in Section 7 and the explicitly non-actionable allocator
+    scenario in Section 14 remain intact.
     """
     manifest_path = activated.promote(source_manifest, state_path, output_dir)
-    synchronize_manifest(manifest_path, state_path)
+    synchronize_front_page(manifest_path, state_path)
+    synchronize_current_state(manifest_path, state_path)
     print(
         "ETF_EU_FINAL_CLIENT_STATE_OK | positions=4 | active=L0CK | monitored=VVSM | "
-        "sections=1,2,2A,4 | broker_execution=false"
+        "current_sections=1,2,2A,4,5,6,8,9,10,11,12,13 | historical=7 | scenario=14 | "
+        "broker_execution=false"
     )
     return manifest_path
 
