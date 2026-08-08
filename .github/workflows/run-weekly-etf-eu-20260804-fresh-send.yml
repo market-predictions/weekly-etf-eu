@@ -7,7 +7,9 @@ on:
       - "config/alpha_vantage_key_rotation_confirmed.json"
       - "tools/run_etf_eu_aug3_expanded_report_v6.py"
       - "tools/validate_etf_eu_production_converged_report.py"
+      - "tools/validate_etf_eu_production_converged_report_v2.py"
       - "tests/test_etf_eu_production_converged_report_modes.py"
+      - "tests/test_etf_eu_production_converged_report_v2.py"
       - "tests/test_run_etf_eu_aug3_expanded_report_v6_pricing_route.py"
       - "tests/test_etf_eu_activated_front_page_contract.py"
       - "tests/test_etf_eu_current_state_surface.py"
@@ -40,6 +42,10 @@ on:
       - "output/etf_eu_trade_ledger.csv"
   workflow_dispatch:
 
+concurrency:
+  group: etf-eu-fresh-package-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: write
 
@@ -61,10 +67,10 @@ jobs:
       ALPHA_VANTAGE_API_KEY: ${{ secrets.ALPHA_VANTAGE_API_KEY }}
 
     steps:
-      - name: Checkout Weekly ETF EU candidate branch
+      - name: Checkout exact Weekly ETF EU candidate source
         uses: actions/checkout@v4
         with:
-          ref: ${{ env.TARGET_BRANCH }}
+          ref: ${{ env.SOURCE_SHA }}
           fetch-depth: 0
 
       - name: Checkout Weekly ETF donor
@@ -88,6 +94,7 @@ jobs:
         run: |
           python -m py_compile \
             tools/validate_etf_eu_production_converged_report.py \
+            tools/validate_etf_eu_production_converged_report_v2.py \
             pricing/build_wp11a_current_session_compat.py \
             pricing/provider_secret_safety.py \
             pricing/apply_current_close_results_to_transition_evidence.py \
@@ -98,6 +105,7 @@ jobs:
             runtime/promote_etf_eu_activated_report_to_production_candidate_v2.py
           python -m pytest -q \
             tests/test_etf_eu_production_converged_report_modes.py \
+            tests/test_etf_eu_production_converged_report_v2.py \
             tests/test_apply_current_close_results_to_transition_evidence.py \
             tests/test_etf_eu_target_allocator_activated_candidate_reconciliation.py \
             tests/test_provider_secret_safety.py \
@@ -181,6 +189,8 @@ jobs:
               raise SystemExit('FINAL_MONITORED_TICKER_SCOPE_MISMATCH')
           if routine.get('report_suffix') != os.environ['REPORT_SUFFIX']:
               raise SystemExit('FINAL_REPORT_SUFFIX_MISMATCH')
+          if routine.get('source_commit_sha') != os.environ['SOURCE_SHA']:
+              raise SystemExit('FINAL_REPORT_SOURCE_SHA_MISMATCH')
           if routine.get('delivery_authority') is not False:
               raise SystemExit('FINAL_REPORT_DELIVERY_AUTHORITY_ESCALATED')
           print(json.dumps({
@@ -188,6 +198,7 @@ jobs:
               'run_id':run_id,
               'report_date':report_date,
               'report_suffix':routine.get('report_suffix'),
+              'source_sha':routine.get('source_commit_sha'),
               'funded_tickers':sorted(tickers),
               'funded_consensus_count':pricing.get('funded_consensus_count'),
               'position_count':portfolio.get('position_count'),
@@ -199,11 +210,19 @@ jobs:
           },indent=2,sort_keys=True))
           PY
 
-      - name: Persist exact final package and evidence to candidate branch
+      - name: Persist exact final package and evidence to unchanged candidate branch
         run: |
           set -euo pipefail
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git fetch origin "$TARGET_BRANCH"
+          remote_head=$(git rev-parse "origin/$TARGET_BRANCH")
+          if [[ "$remote_head" != "$SOURCE_SHA" ]]; then
+            echo "::error title=Stale candidate source::Expected branch head $SOURCE_SHA but found $remote_head. Refusing to rebase or persist generated artifacts from a stale source."
+            exit 1
+          fi
+
           git add -f \
             output/fresh_generation/weekly_etf_eu_review_nl_${REPORT_SUFFIX}.html \
             output/fresh_generation/weekly_etf_eu_review_nl_${REPORT_SUFFIX}.pdf \
@@ -224,10 +243,6 @@ jobs:
             exit 0
           fi
           git commit -m "Persist fresh governed Weekly ETF EU ${REPORT_SUFFIX} package [skip ci]"
-          git reset --hard HEAD
-          git clean -fdx
-          git fetch origin "$TARGET_BRANCH"
-          git rebase "origin/$TARGET_BRANCH"
           git push origin HEAD:"$TARGET_BRANCH"
 
       - name: Upload final package evidence
