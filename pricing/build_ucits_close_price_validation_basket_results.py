@@ -11,6 +11,7 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
+from pricing.alpha_vantage_capacity_policy import install_funded_only_alpha_policy
 from pricing.provider_secret_safety import enforce_provider_secret_safety
 from pricing.ucits_funded_universe import resolve_provider_registry_funded_universe
 from pricing.ucits_price_evidence_cache import apply_provider_evidence_cache
@@ -43,6 +44,7 @@ def main() -> None:
     args = parser.parse_args()
 
     secret_safety = enforce_provider_secret_safety()
+    install_funded_only_alpha_policy()
     report_date = date.fromisoformat(args.report_date or os.environ.get("REPORT_DATE") or date.today().isoformat())
     providers = [item.strip() for item in args.providers.split(",") if item.strip()] or None
     output_dir = Path(args.output_dir)
@@ -72,6 +74,11 @@ def main() -> None:
     qualification["provider_registry_source"] = args.provider_registry
     qualification["resolved_provider_registry"] = str(resolved_registry_path)
     qualification["provider_secret_safety"] = secret_safety
+    qualification["alpha_vantage_capacity_policy"] = {
+        "identity_search_calls": 0,
+        "live_close_scope": "authoritative_funded_positions_only",
+        "identity_anchor_authority": "independent_exact_line_provider_required_by_wp11a_policy",
+    }
     qualification_path.write_text(json.dumps(qualification, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     build_legacy_validation_artifact(
         qualification_path=qualification_path,
