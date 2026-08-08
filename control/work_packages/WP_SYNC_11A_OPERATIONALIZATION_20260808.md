@@ -6,7 +6,9 @@ Finish operationalizing the already validated WP-SYNC-11A multi-provider complet
 
 ## Current issue
 
-The original WP-SYNC-11A closeout proved the architecture for 2026-07-31 and three funded positions using date-bound Alpha Vantage historical corroboration plus live Yahoo Chart. It did not prove future-date provider redundancy. The current authoritative portfolio contains four funded positions, while the static provider registry still contains historical funding flags.
+The original WP-SYNC-11A closeout proved the architecture for 2026-07-31 and three funded positions using date-bound Alpha Vantage historical corroboration plus live Yahoo Chart. It did not prove future-date provider redundancy.
+
+The internal state and routing defects discovered during the reopen are now repaired. The remaining blocker is external: the existing Alpha Vantage repository secret must be rotated before the safety layer may re-enable that provider.
 
 ## Scope
 
@@ -14,7 +16,7 @@ The original WP-SYNC-11A closeout proved the architecture for 2026-07-31 and thr
 2. Preserve the two-provider same-date 1.0% spread gate and exact-line identity-anchor requirement.
 3. Restore at least one genuinely live second provider for fresh report dates.
 4. Re-run live no-cache qualification for all four funded positions.
-5. Route governed routine pricing through the proven WP11A qualification path.
+5. Route governed PR fresh-package pricing and canonical routine pricing through the same WP11A qualification path.
 6. Require fresh independent release assurance for the repaired release candidate.
 
 ## Non-goals
@@ -24,6 +26,7 @@ The original WP-SYNC-11A closeout proved the architecture for 2026-07-31 and thr
 - No portfolio mutation or ledger write.
 - No report delivery or recipient action.
 - No commercial data-redistribution authority decision.
+- No return to the old Börse/Yahoo compatibility path as production authority.
 
 ## Acceptance criteria
 
@@ -36,25 +39,53 @@ historical_cache_required=false
 funded_consensus=4/4
 funded_identity_anchors=4/4
 protected_state_unchanged=true
-routine_uses_wp11a_engine=true
+PR_fresh_package_uses_wp11a_engine=true
+canonical_routine_uses_wp11a_engine=true
 independent_assurance=PASS
 ```
 
-## Evidence baseline
+## Completed internal work
 
 ```text
-isolated_live_audit_run=31255211953
-isolated_live_audit_artifact=9021200763
-isolated_live_audit_sha256=02d80ccc11900f569f70b0abe58a978ea884063ad4e7e144c50085405bd1e649
-baseline_live_provider=yahoo_chart
-baseline_live_consensus=0/4
+funded_universe_state_authority_repair=PASS
+stale_L0CK_registry_flag_detection=PASS
+deterministic_WP11A_suite=PASS
+repaired_four_position_live_contract=PASS
+protected_state_proof=PASS
+PR_fresh_package_WP11A_convergence=PASS
+no_cache_identity_anchors=4/4
 ```
+
+Evidence:
+
+```text
+control/evidence/wp11a_reopen_operational_audit_20260808.md
+initial_live_audit_run=31255211953
+repaired_live_audit_run=31258172996
+repaired_live_audit_artifact=9022002190
+repaired_live_audit_sha256=c91db0567da886eb83f4c1dbf67e44a5604da107ed92b4f543e1fa980153786b
+fresh_package_route_run=31258280491
+fresh_package_diagnostics_artifact=9022036048
+```
+
+## External dependency
+
+```text
+required_action=replace_GitHub_Actions_secret_ALPHA_VANTAGE_API_KEY_with_new_key
+rotation_marker_present=false
+alpha_vantage_live_enabled=false
+other_keyed_providers_configured=false
+fallback_order=Leeway,EODHD,Marketstack
+```
+
+The rotation marker must not be committed before explicit confirmation that the GitHub secret has been replaced. Secret values must never be pasted into chat, repository files, logs or evidence artifacts.
 
 ## Status
 
 ```text
-status=ACTIVE
+status=BLOCKED_EXTERNAL_CREDENTIAL
 owner=implementation_operations
 principal_decision_required=false
-external_dependency=rotated_or_new_provider_credential_may_be_required
+principal_action_required=ROTATE_ALPHA_VANTAGE_REPOSITORY_SECRET
+safe_internal_work_remaining_before_rotation=NONE_MATERIAL
 ```
