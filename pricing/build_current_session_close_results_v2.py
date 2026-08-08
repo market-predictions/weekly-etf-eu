@@ -19,6 +19,8 @@ _original_fetch_boerse = legacy.fetch_boerse
 CORE_FUNDED_TICKERS = {"VWCE", "EUNA", "SXR8"}
 ALLOWED_ACTIVATED_TICKERS = {"L0CK"}
 BOERSE_HISTORY_TRACE_SALT = "w4ivc1ATTGta6njAZzMbkL3kJwxMfEAKDa3MNr"
+BOERSE_HISTORY_LOOKBACK_DAYS = 4
+BOERSE_HISTORY_LOOKAHEAD_DAYS = 1
 
 
 def normalize_ticker(value: Any) -> str:
@@ -83,7 +85,7 @@ def boerse_history_headers(url: str) -> dict[str, str]:
 
 
 def fetch_boerse_with_historical_replay(line: dict[str, Any], report_date: date) -> dict[str, Any]:
-    """Use live Börse identity, then replay exact report-date history with the history API contract."""
+    """Use live Börse identity, then replay the exact report-date close from a bounded history window."""
 
     result = _original_fetch_boerse(line, report_date)
     if result.get("pricing_status") == "priced" and result.get("close_date") == report_date.isoformat():
@@ -97,13 +99,15 @@ def fetch_boerse_with_historical_replay(line: dict[str, Any], report_date: date)
         result["blockers"] = blockers
         return result
 
+    history_start = report_date - timedelta(days=BOERSE_HISTORY_LOOKBACK_DAYS)
+    history_end = report_date + timedelta(days=BOERSE_HISTORY_LOOKAHEAD_DAYS)
     params = {
         "limit": 50,
         "offset": 0,
         "isin": line["isin"],
         "mic": line["venue_code"],
-        "minDate": report_date.isoformat(),
-        "maxDate": report_date.isoformat(),
+        "minDate": history_start.isoformat(),
+        "maxDate": history_end.isoformat(),
         "cleanSplit": "false",
         "cleanPayout": "false",
         "cleanSubscriptionRights": "false",
@@ -122,7 +126,12 @@ def fetch_boerse_with_historical_replay(line: dict[str, Any], report_date: date)
         blockers = list(result.get("blockers") or [])
         blockers.append(f"historical_replay_provider_error:{response.status_code}")
         result["blockers"] = blockers
-        result["historical_replay_debug"] = {"url": url, "status_code": response.status_code}
+        result["historical_replay_debug"] = {
+            "url": url,
+            "status_code": response.status_code,
+            "window_start": history_start.isoformat(),
+            "window_end": history_end.isoformat(),
+        }
         return result
 
     historical = _historical_close_from_boerse_payload(payload, report_date)
@@ -133,6 +142,8 @@ def fetch_boerse_with_historical_replay(line: dict[str, Any], report_date: date)
         result["historical_replay_debug"] = {
             "url": url,
             "status_code": response.status_code,
+            "window_start": history_start.isoformat(),
+            "window_end": history_end.isoformat(),
             "payload_type": type(payload).__name__,
             "payload_keys": sorted(payload.keys()) if isinstance(payload, dict) else [],
             "total_count": payload.get("totalCount") if isinstance(payload, dict) else None,
@@ -147,6 +158,8 @@ def fetch_boerse_with_historical_replay(line: dict[str, Any], report_date: date)
             "query_mode": "exact_isin_plus_mic_historical_price_history",
             "queried_isin": str(line.get("isin") or "").upper(),
             "queried_mic": str(line.get("venue_code") or "").upper(),
+            "history_window_start": history_start.isoformat(),
+            "history_window_end": history_end.isoformat(),
             "historical_date": report_date.isoformat(),
             "historical_close": round(close_price, 8),
             "historical_open": legacy.positive_float(row.get("open")),
