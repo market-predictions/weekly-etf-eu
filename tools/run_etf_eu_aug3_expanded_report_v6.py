@@ -14,6 +14,7 @@ ROUTES = {
     "runtime/finalize_etf_eu_sister_report_nl_language.py": "runtime/finalize_etf_eu_sister_report_nl_language_v2.py",
     "runtime/compact_etf_eu_policy_transition_surface.py": "runtime/compact_etf_eu_policy_transition_surface_v2.py",
     "runtime/promote_etf_eu_sister_report_to_production_candidate.py": "runtime/promote_etf_eu_activated_report_to_production_candidate_v2.py",
+    "tools/validate_etf_eu_production_converged_report.py": "tools/validate_etf_eu_production_converged_report_v2.py",
     "tools/validate_etf_eu_target_allocator_shadow_v3.py": "tools/validate_etf_eu_target_allocator_shadow_v3_activated.py",
     "tools/run_etf_eu_allocator_report_validation_bundle.py": "tools/run_etf_eu_allocator_report_validation_bundle_v2.py",
 }
