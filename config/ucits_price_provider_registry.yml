@@ -56,6 +56,17 @@ trading_lines:
     currency: EUR
     provider_symbols: {leeway: L0CK.XETRA, eodhd: L0CK.XETRA, marketstack: L0CK, alpha_vantage: L0CK.DEX, yahoo_chart: L0CK.DE}
     provider_exchange_codes: {leeway: XETRA, eodhd: XETRA, marketstack: XETR, alpha_vantage: DEX, yahoo_chart: GER}
+  - basket_id: vvsm_xetra_eur
+    funded: false
+    fund_name: VanEck Semiconductor UCITS ETF
+    isin: IE00BMC38736
+    instrument_type: UCITS ETF
+    exchange: Xetra
+    venue_code: XETR
+    ticker: VVSM
+    currency: EUR
+    provider_symbols: {leeway: VVSM.XETRA, eodhd: VVSM.XETRA, marketstack: VVSM, alpha_vantage: VVSM.DEX, yahoo_chart: VVSM.DE}
+    provider_exchange_codes: {leeway: XETRA, eodhd: XETRA, marketstack: XETR, alpha_vantage: DEX, yahoo_chart: GER}
   - basket_id: cbuff_xetra_eur
     funded: false
     fund_name: iShares MSCI World Health Care Sector Advanced UCITS ETF USD Dist
