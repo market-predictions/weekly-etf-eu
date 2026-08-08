@@ -17,6 +17,36 @@ if str(ROOT) not in sys.path:
 from runtime import build_etf_eu_euna_risk_budget_review as base
 
 
+def normalize_ticker(value: Any) -> str:
+    ticker = str(value or "").strip().upper()
+    return "L0CK" if ticker == "LOCK" else ticker
+
+
+def normalize_panel_identity(panel: dict[str, Any]) -> dict[str, Any]:
+    """Normalize historical replay aliases before risk-budget consumption.
+
+    The preserved replay fixture predates canonical L0CK naming and exposes the
+    cybersecurity series as LOCK. The activated allocator uses L0CK. Normalize at
+    this input boundary and fail closed if both aliases occur in the same row.
+    """
+    normalized = json.loads(json.dumps(panel))
+    for row in normalized.get("rows") or []:
+        if not isinstance(row, dict):
+            continue
+        prices = row.get("adjusted_close_eur") if isinstance(row.get("adjusted_close_eur"), dict) else {}
+        mapped: dict[str, Any] = {}
+        for key, value in prices.items():
+            ticker = normalize_ticker(key)
+            if ticker in mapped:
+                raise RuntimeError(f"EUNA replay panel ticker alias collision: {ticker}")
+            mapped[ticker] = value
+        row["adjusted_close_eur"] = mapped
+    metadata = normalized.get("deterministic_replay_fixture")
+    if isinstance(metadata, dict):
+        metadata["ticker_identity_normalization"] = "LOCK_alias_normalized_to_L0CK"
+    return normalized
+
+
 def json_safe(value: Any) -> Any:
     if isinstance(value, dict):
         return {str(key): json_safe(item) for key, item in value.items()}
@@ -39,8 +69,9 @@ def main() -> None:
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
 
+    panel = normalize_panel_identity(base.load_json(args.panel))
     payload = base.build(
-        base.load_json(args.panel),
+        panel,
         base.load_json(args.allocator),
         base.load_yaml(args.policy),
     )
