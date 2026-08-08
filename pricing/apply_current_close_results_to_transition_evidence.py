@@ -20,14 +20,22 @@ def normalized_ticker(value: Any) -> str:
 
 
 def qualified_price_rows(pricing: dict[str, Any]) -> dict[tuple[str, str], dict[str, Any]]:
+    """Index provider-agnostic WP11A consensus rows by exact instrument identity.
+
+    The transition overlay must consume the qualification contract, not a historical
+    provider pair. A pricing row is eligible here only when it carries the WP11A
+    qualified-consensus status, at least two agreeing providers, and a completed
+    close value/date. Exact-line identity is enforced separately against the
+    qualification artifact before any transition row is updated.
+    """
     result: dict[tuple[str, str], dict[str, Any]] = {}
     for row in pricing.get("rows") or []:
         if not isinstance(row, dict):
             continue
         if row.get("source_agreement_status") != "qualified_development_consensus":
             continue
-        providers = {str(value) for value in row.get("agreeing_providers") or []}
-        if providers != {"boerse_frankfurt_xetra", "yahoo_chart"}:
+        providers = {str(value).strip() for value in row.get("agreeing_providers") or [] if str(value).strip()}
+        if len(providers) < 2:
             continue
         if row.get("close_price") is None or not row.get("close_date"):
             continue
@@ -50,7 +58,13 @@ def qualification_rows(qualification: dict[str, Any]) -> dict[tuple[str, str], d
     return result
 
 
-def boerse_turnover_evidence(row: dict[str, Any]) -> dict[str, Any] | None:
+def exchange_turnover_evidence(row: dict[str, Any]) -> dict[str, Any] | None:
+    """Return optional exchange-turnover corroboration when a provider exposes it.
+
+    This remains optional and does not determine price qualification. The current
+    WP11A Alpha+Yahoo route has no Börse turnover payload, so absence must not block
+    a valid same-date two-provider close consensus.
+    """
     for provider in row.get("provider_results") or []:
         if not isinstance(provider, dict) or provider.get("provider") != "boerse_frankfurt_xetra":
             continue
@@ -106,6 +120,9 @@ def apply(
             continue
         if qualified.get("identity_anchor_passed") is not True:
             continue
+        agreeing_providers = [str(value) for value in price.get("agreeing_providers") or [] if str(value)]
+        if len(set(agreeing_providers)) < 2:
+            continue
 
         close_date = date.fromisoformat(str(price.get("close_date")))
         if close_date > transition_report_date:
@@ -123,7 +140,7 @@ def apply(
         }
         original_status = row.get("status")
         original_blockers = list(row.get("blockers") or [])
-        current_turnover = boerse_turnover_evidence(qualified)
+        current_turnover = exchange_turnover_evidence(qualified)
         row.update(
             {
                 "status": "priced_current_exact_line_consensus",
@@ -132,10 +149,10 @@ def apply(
                 "close_price": float(price["close_price"]),
                 "whole_share_price_eur": float(price["close_price"]),
                 "price_age_calendar_days": (transition_report_date - close_date).days,
-                "source": "Deutsche Boerse Xetra completed-session close plus Yahoo Chart agreement",
+                "source": "WP11A qualified same-date completed-close consensus",
                 "source_quality": "development_two_source_exact_line_consensus",
                 "source_agreement_status": price.get("source_agreement_status"),
-                "agreeing_providers": list(price.get("agreeing_providers") or []),
+                "agreeing_providers": agreeing_providers,
                 "agreement_spread_pct": price.get("agreement_spread_pct"),
                 "identity_anchor_passed": qualified.get("identity_anchor_passed"),
                 "identity_anchor_providers": list(qualified.get("identity_anchor_providers") or []),
@@ -150,14 +167,14 @@ def apply(
                     "qualification_artifact": str(qualification_path),
                     "original_status": original_status,
                     "original_blockers": original_blockers,
-                    "close_contract": "exact_isin_mic_currency_two_source_completed_session_consensus",
+                    "close_contract": "same_date_two_provider_consensus_with_exact_line_identity_anchor",
                     "commercial_redistribution_authority": False,
                 },
                 "liquidity_evidence": {
                     "twenty_day_metric_retained": retained_liquidity,
                     "current_report_date_exchange_corroboration": current_turnover,
                     "interpretation": (
-                        "The 20-day median remains the policy metric; current Xetra turnover is corroborating evidence only."
+                        "The 20-day median remains the policy metric; optional current exchange turnover is corroborating evidence only."
                     ),
                 },
             }
