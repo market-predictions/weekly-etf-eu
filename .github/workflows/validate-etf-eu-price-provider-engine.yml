@@ -14,6 +14,7 @@ on:
       - "config/alpha_vantage_key_rotation_confirmed.json"
       - "output/etf_eu_portfolio_state.json"
       - "pricing/provider_secret_safety.py"
+      - "pricing/alpha_vantage_capacity_policy.py"
       - "pricing/ucits_funded_universe.py"
       - "pricing/ucits_price_provider_engine.py"
       - "pricing/ucits_price_evidence_cache.py"
@@ -23,6 +24,7 @@ on:
       - "runtime/apply_etf_eu_routine_valuation_to_client_report.py"
       - "tools/qualify_ucits_price_providers.py"
       - "tests/test_provider_secret_safety.py"
+      - "tests/test_alpha_vantage_capacity_policy.py"
       - "tests/test_ucits_funded_universe.py"
       - "tests/test_ucits_price_provider_engine.py"
       - "tests/test_ucits_price_evidence_cache.py"
@@ -60,10 +62,11 @@ jobs:
       - name: Install bounded dependencies
         run: python -m pip install requests==2.32.3 PyYAML==6.0.2 beautifulsoup4 weasyprint
 
-      - name: Run deterministic adapter, secret-safety, funded-universe, cache, redaction, consensus, identity, valuation and client-surface tests
+      - name: Run deterministic adapter, capacity, secret-safety, funded-universe, cache, redaction, consensus, identity, valuation and client-surface tests
         run: |
           python -m unittest \
             tests/test_provider_secret_safety.py \
+            tests/test_alpha_vantage_capacity_policy.py \
             tests/test_ucits_funded_universe.py \
             tests/test_ucits_price_provider_engine.py \
             tests/test_ucits_price_evidence_cache.py \
@@ -121,6 +124,11 @@ jobs:
               raise SystemExit("PRICE_ENGINE_FUNDED_IDENTITY_ANCHOR_MISSING")
           if payload.get("secret_redaction_applied") is not True:
               raise SystemExit("PRICE_ENGINE_REDACTION_NOT_APPLIED")
+          capacity = payload.get("alpha_vantage_capacity_policy") or {}
+          if capacity.get("identity_search_calls") != 0:
+              raise SystemExit("ALPHA_CAPACITY_IDENTITY_SEARCH_NOT_ZERO")
+          if capacity.get("live_close_scope") != "authoritative_funded_positions_only":
+              raise SystemExit("ALPHA_CAPACITY_SCOPE_MISMATCH")
           for line in payload["lines"]:
               if line.get("funded") and line.get("qualification_status") == "qualified_development_consensus":
                   if not line.get("identity_anchor_providers"):
