@@ -4,7 +4,7 @@ on:
   pull_request:
     paths:
       - ".github/workflows/run-weekly-etf-eu-20260804-fresh-send.yml"
-      - ".github/workflows/generate_predictions.yml"
+      - "config/alpha_vantage_key_rotation_confirmed.json"
       - "tools/run_etf_eu_aug3_expanded_report_v6.py"
       - "tools/validate_etf_eu_production_converged_report.py"
       - "tests/test_etf_eu_production_converged_report_modes.py"
@@ -15,6 +15,7 @@ on:
       - "pricing/ucits_price_provider_engine.py"
       - "pricing/ucits_price_qualification_policy.py"
       - "pricing/provider_secret_safety.py"
+      - "tests/test_provider_secret_safety.py"
       - "tests/test_ucits_funded_universe.py"
       - "runtime/build_etf_eu_routine_valuation_overlay.py"
       - "runtime/build_etf_eu_production_convergence_state_v2.py"
@@ -73,11 +74,12 @@ jobs:
           python -m pip install -r requirements.txt
           python -m pip install yfinance weasyprint pypdf beautifulsoup4 pyyaml matplotlib requests pytest
 
-      - name: Validate state-derived production and WP11A routing modes
+      - name: Validate state-derived production, secret safety and WP11A routing modes
         run: |
-          python -m py_compile tools/validate_etf_eu_production_converged_report.py pricing/build_wp11a_current_session_compat.py
+          python -m py_compile tools/validate_etf_eu_production_converged_report.py pricing/build_wp11a_current_session_compat.py pricing/provider_secret_safety.py
           python -m pytest -q \
             tests/test_etf_eu_production_converged_report_modes.py \
+            tests/test_provider_secret_safety.py \
             tests/test_ucits_funded_universe.py \
             tests/test_run_etf_eu_aug3_expanded_report_v6_pricing_route.py
 
