@@ -1,0 +1,128 @@
+name: Test repaired WP11A four-position live qualification
+
+on:
+  push:
+    branches:
+      - test/wp11a-four-position-live-20260808-v2
+    paths:
+      - ".github/workflows/test-wp11a-four-position-live-20260808-v2.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  live-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      LEEWAY_API_TOKEN: ${{ secrets.LEEWAY_API_TOKEN }}
+      EODHD_API_TOKEN: ${{ secrets.EODHD_API_TOKEN }}
+      MARKETSTACK_ACCESS_KEY: ${{ secrets.MARKETSTACK_ACCESS_KEY }}
+      ALPHA_VANTAGE_API_KEY: ${{ secrets.ALPHA_VANTAGE_API_KEY }}
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install bounded dependencies
+        run: python -m pip install requests==2.32.3 PyYAML==6.0.2 beautifulsoup4 weasyprint
+      - name: Record protected state hashes
+        run: |
+          sha256sum output/etf_eu_portfolio_state.json output/etf_eu_trade_ledger.csv > protected_before.sha256
+      - name: Run deterministic WP11A suite
+        run: |
+          python -m unittest \
+            tests/test_ucits_funded_universe.py \
+            tests/test_ucits_price_provider_engine.py \
+            tests/test_ucits_price_evidence_cache.py \
+            tests/test_ucits_price_evidence_redaction.py \
+            tests/test_ucits_price_qualification_policy.py \
+            tests/test_etf_eu_routine_valuation_overlay.py \
+            tests/test_apply_etf_eu_routine_valuation_to_client_report.py \
+            -v
+      - name: Run live no-cache qualification for 5 August
+        run: |
+          set -euo pipefail
+          mkdir -p output/wp11a_live_repaired
+          python tools/qualify_ucits_price_providers.py \
+            --registry config/ucits_price_provider_registry.yml \
+            --portfolio-state output/etf_eu_portfolio_state.json \
+            --provider-cache "" \
+            --report-date 2026-08-05 \
+            --output output/wp11a_live_repaired/qualification.json \
+            --verify-identity \
+            --pause-seconds 0.2 \
+            --max-close-age-days 7 \
+            --agreement-tolerance-pct 1.0
+      - name: Evaluate repaired four-position contract
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p = json.loads(Path('output/wp11a_live_repaired/qualification.json').read_text())
+          authority = p.get('funded_universe_authority') or {}
+          funded = [row for row in p['lines'] if row.get('funded')]
+          expected = {'VWCE','EUNA','SXR8','L0CK'}
+          actual = {row['ticker'] for row in funded}
+          if p['funded_line_count'] != 4 or actual != expected:
+              raise SystemExit(f'WP11A_FUNDED_UNIVERSE_REPAIR_FAILED:count={p["funded_line_count"]}:tickers={sorted(actual)}')
+          if 'l0ck_xetra_eur' not in authority.get('stale_registry_funded_flags_overridden', []):
+              raise SystemExit('WP11A_STALE_L0CK_FLAG_NOT_DETECTED')
+          summary = {
+              'funded_line_count': p['funded_line_count'],
+              'funded_consensus_count': p['funded_consensus_count'],
+              'funded_identity_anchor_count': p['funded_identity_anchor_count'],
+              'report_pricing_gate_passed': p['report_pricing_gate_passed'],
+              'provider_configuration': p['provider_configuration'],
+              'provider_secret_safety': p.get('provider_secret_safety'),
+              'stale_registry_funded_flags_overridden': authority.get('stale_registry_funded_flags_overridden'),
+              'funded_lines': [
+                  {
+                      'ticker': row['ticker'],
+                      'status': row['qualification_status'],
+                      'same_date_provider_count': row['same_date_provider_count'],
+                      'identity_anchor_providers': row.get('identity_anchor_providers', []),
+                      'providers': [
+                          {
+                              'provider': r['provider'],
+                              'configured': r['configured'],
+                              'pricing_status': r['pricing_status'],
+                              'close_date': r['close_date'],
+                              'close_price': r['close_price'],
+                              'blockers': r.get('blockers', []),
+                          }
+                          for r in row['provider_results']
+                      ],
+                  }
+                  for row in funded
+              ],
+          }
+          Path('output/wp11a_live_repaired/summary.json').write_text(json.dumps(summary, indent=2, sort_keys=True)+'\n')
+          print(json.dumps(summary, indent=2, sort_keys=True))
+          PY
+      - name: Prove protected state unchanged
+        run: |
+          sha256sum output/etf_eu_portfolio_state.json output/etf_eu_trade_ledger.csv > protected_after.sha256
+          diff -u protected_before.sha256 protected_after.sha256
+      - name: Upload repaired live audit evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: wp11a-four-position-live-repaired-${{ github.run_id }}
+          path: |
+            output/wp11a_live_repaired/
+            protected_before.sha256
+            protected_after.sha256
+          if-no-files-found: error
+          retention-days: 90
+      - name: Enforce live operational verdict
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p = json.loads(Path('output/wp11a_live_repaired/qualification.json').read_text())
+          if not p.get('report_pricing_gate_passed'):
+              raise SystemExit(f'WP11A_LIVE_OPERATIONAL_NOT_READY:{p["funded_consensus_count"]}/{p["funded_line_count"]}')
+          print('WP11A_LIVE_OPERATIONAL_READY')
+          PY
