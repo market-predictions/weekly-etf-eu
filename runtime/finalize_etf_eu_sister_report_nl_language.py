@@ -61,10 +61,12 @@ EXACT_PHRASES = {
         "identificeer en verifieer een geschikte UCITS-implementatie voor landbouwaandelen",
     "identify and verify a suitable UCITS uranium or nuclear implementation":
         "identificeer en verifieer een geschikte UCITS-implementatie voor uranium of nucleaire energie",
-    "6 promoted exposures are not represented":
-        "Zes gepromoveerde exposures zijn niet vertegenwoordigd",
-    "3 current positions require re-underwriting":
-        "Drie huidige posities moeten opnieuw worden beoordeeld",
+    "promoted exposures are not yet implemented": "gepromoveerde exposures zijn nog niet geïmplementeerd",
+    "Promoted exposures pending implementation": "Gepromoveerde exposures wachten op implementatie",
+    "promoted exposures are not represented": "gepromoveerde exposures zijn niet vertegenwoordigd",
+    "current positions require re-underwriting": "huidige posities moeten opnieuw worden beoordeeld",
+    "6 promoted exposures are not represented": "Zes gepromoveerde exposures zijn niet vertegenwoordigd",
+    "3 current positions require re-underwriting": "Drie huidige posities moeten opnieuw worden beoordeeld",
     "Stabilising aggregate bonds": "Stabiliserende wereldwijde obligaties",
     "defense_resilience": "Defensie-innovatie en strategische weerbaarheid",
     "agri_food_security": "Voedselzekerheid en landbouwinputs",
@@ -81,7 +83,6 @@ EXACT_CELL_LABELS = {
     "schaduwkandidaat": "Schaduwkandidaat",
 }
 
-# Restore official product names that were touched by an earlier broad wording pass.
 OFFICIAL_NAME_REPAIRS = {
     "iShares Kernpositie Global Aggregate Bond UCITS ETF EUR Hedged Acc":
         "iShares Core Global Aggregate Bond UCITS ETF EUR Hedged Acc",
@@ -97,6 +98,8 @@ FORBIDDEN_PATTERNS = [
     re.compile(r"\bdetermine whether an eligible\b", re.IGNORECASE),
     re.compile(r"\bcurrent positions require re-underwriting\b", re.IGNORECASE),
     re.compile(r"\bpromoted exposures are not represented\b", re.IGNORECASE),
+    re.compile(r"\bpromoted exposures are not yet implemented\b", re.IGNORECASE),
+    re.compile(r"\bPromoted exposures pending implementation\b", re.IGNORECASE),
     re.compile(r"\b(?:Cybersecurity resilience|AI compute infrastructure|Grid buildout / electrification|"
                r"Healthcare quality and defensive growth|Defense innovation / sovereign resilience|"
                r"Food security / agriculture inputs|Broad commodity inflation hedge|"
@@ -123,9 +126,6 @@ def finalize(text: str) -> str:
 
     for raw, replacement in sorted(OFFICIAL_NAME_REPAIRS.items(), key=lambda item: len(item[0]), reverse=True):
         client = _replace_phrase(client, raw, replacement)
-    # Replace longer sentences before short tokens that may be embedded in them.
-    # This prevents a short translation such as `Risk-on growth` from breaking
-    # the exact match for the complete regime-change sentence.
     for raw, replacement in sorted(EXACT_PHRASES.items(), key=lambda item: len(item[0]), reverse=True):
         client = _replace_phrase(client, raw, replacement)
     for raw, replacement in sorted(EXACT_CELL_LABELS.items(), key=lambda item: len(item[0]), reverse=True):

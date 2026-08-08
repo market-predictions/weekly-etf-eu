@@ -8,6 +8,7 @@ on:
       - "config/shared_exposure_ucits_map.yml"
       - "config/ucits_symbol_registry_sync_additions.yml"
       - "config/ucits_symbol_registry_sync_additions_wp09.yml"
+      - "output/etf_eu_portfolio_state.json"
       - "runtime/merge_etf_eu_sync_registries.py"
       - "runtime/add_etf_eu_target_allocator_surface.py"
       - "runtime/add_etf_eu_incumbent_overlap_surface.py"
@@ -30,6 +31,8 @@ on:
       - "tools/validate_etf_eu_policy_transition_compaction.py"
       - "tools/validate_etf_eu_policy_report_pagination.py"
       - "tools/validate_etf_eu_target_allocator_shadow_v3.py"
+      - "tools/validate_etf_eu_target_allocator_shadow_v3_activated.py"
+      - "tests/test_etf_eu_target_allocator_activated_candidate_reconciliation.py"
       - "tools/validate_weekly_etf_donor_contract_pin.py"
       - "tools/run_etf_eu_allocator_report_validation_bundle.py"
       - "tools/validate_etf_eu_sister_report_pdf_layout.py"
@@ -71,7 +74,11 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install -r requirements.txt
-          python -m pip install weasyprint yfinance pypdf
+          python -m pip install weasyprint yfinance pypdf pytest
+
+      - name: Validate activated candidate reconciliation contract
+        run: |
+          python -m pytest -q tests/test_etf_eu_target_allocator_activated_candidate_reconciliation.py
 
       - name: Build donor and synchronization artifacts
         run: |
@@ -111,7 +118,7 @@ jobs:
           python tools/validate_etf_eu_target_allocator_shadow_v2.py \
             output/sync_shadow/etf_eu_target_allocator_shadow_v2.json
 
-      - name: Build overlap review and policy-driven allocator
+      - name: Build overlap review and policy-driven allocator against authoritative portfolio state
         run: |
           python runtime/build_etf_eu_incumbent_overlap_review.py \
             --output output/sync_shadow/etf_eu_incumbent_overlap_review.json
@@ -120,12 +127,14 @@ jobs:
           python runtime/build_etf_eu_target_allocator_shadow_v3_policy_gate.py \
             --base-allocator output/sync_shadow/etf_eu_target_allocator_shadow_v2.json \
             --sync-shadow output/sync_shadow/etf_eu_strategy_sync_shadow.json \
+            --portfolio-state output/etf_eu_portfolio_state.json \
             --transition-evidence output/sync_shadow/etf_eu_transition_evidence.json \
             --overlap-review output/sync_shadow/etf_eu_incumbent_overlap_review.json \
             --policy config/etf_eu_transition_policy_v1.yml \
             --output output/sync_shadow/etf_eu_target_allocator_shadow.json
-          python tools/validate_etf_eu_target_allocator_shadow_v3.py \
-            output/sync_shadow/etf_eu_target_allocator_shadow.json
+          python tools/validate_etf_eu_target_allocator_shadow_v3_activated.py \
+            output/sync_shadow/etf_eu_target_allocator_shadow.json \
+            --portfolio-state output/etf_eu_portfolio_state.json
 
       - name: Render synchronized sister report
         run: |
@@ -182,6 +191,7 @@ jobs:
           name: etf-eu-allocator-report-shadow
           path: |
             config/weekly_etf_donor_contract_pin.json
+            output/etf_eu_portfolio_state.json
             output/sync_shadow/etf_eu_transition_evidence.json
             output/sync_shadow/etf_eu_target_allocator_shadow_v2.json
             output/sync_shadow/etf_eu_incumbent_overlap_review.json

@@ -1,0 +1,18 @@
+name: Historical ETF EU Stage-1 quote probe 2026-08-04 (archived)
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  archived:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Historical workflow notice
+        run: |
+          echo "Archived one-off Stage-1 quote probe from 2026-08-04."
+          echo "It has no current pricing, activation, PR-gate, or delivery authority."
+          echo "Current pricing must come from the governed fresh-package or canonical routine."
+          echo "The original implementation remains available in Git history."

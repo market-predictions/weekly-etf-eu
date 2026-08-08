@@ -1,0 +1,18 @@
+name: Historical ETF EU 2026-08-04 pricing diagnostic (archived)
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  archived:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Historical workflow notice
+        run: |
+          echo "Archived one-off 2026-08-04 pricing diagnostic."
+          echo "It has no PR-gate, production, pricing, activation, or delivery authority."
+          echo "Use the governed fresh-package and canonical routine workflows."
+          echo "The original implementation remains available in Git history."

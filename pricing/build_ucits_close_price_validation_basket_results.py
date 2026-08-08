@@ -11,7 +11,9 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
+from pricing.alpha_vantage_capacity_policy import install_funded_only_alpha_policy
 from pricing.provider_secret_safety import enforce_provider_secret_safety
+from pricing.ucits_funded_universe import resolve_provider_registry_funded_universe
 from pricing.ucits_price_evidence_cache import apply_provider_evidence_cache
 from pricing.ucits_price_provider_engine import (
     build_legacy_validation_artifact,
@@ -24,6 +26,7 @@ def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--basket", default="config/ucits_close_price_validation_basket.yml")
     parser.add_argument("--provider-registry", default="config/ucits_price_provider_registry.yml")
+    parser.add_argument("--portfolio-state", default="output/etf_eu_portfolio_state.json")
     parser.add_argument("--provider-cache", default="config/etf_eu_provider_close_cache_20260731.json")
     parser.add_argument("--run-id", required=True)
     parser.add_argument("--report-date")
@@ -41,14 +44,21 @@ def main() -> None:
     args = parser.parse_args()
 
     secret_safety = enforce_provider_secret_safety()
+    install_funded_only_alpha_policy()
     report_date = date.fromisoformat(args.report_date or os.environ.get("REPORT_DATE") or date.today().isoformat())
     providers = [item.strip() for item in args.providers.split(",") if item.strip()] or None
     output_dir = Path(args.output_dir)
     qualification_path = output_dir / f"ucits_price_provider_qualification_{args.run_id}.json"
     legacy_path = output_dir / f"ucits_close_price_validation_basket_results_{args.run_id}.json"
+    resolved_registry_path = output_dir / f"ucits_price_provider_registry_resolved_{args.run_id}.yml"
 
-    build_provider_qualification(
+    funded_authority = resolve_provider_registry_funded_universe(
         registry_path=Path(args.provider_registry),
+        portfolio_state_path=Path(args.portfolio_state),
+        output_path=resolved_registry_path,
+    )
+    build_provider_qualification(
+        registry_path=resolved_registry_path,
         report_date=report_date,
         output_path=qualification_path,
         providers=providers,
@@ -60,7 +70,15 @@ def main() -> None:
     cache_path = Path(args.provider_cache) if args.provider_cache else None
     apply_provider_evidence_cache(qualification_path, cache_path)
     qualification = apply_identity_anchor_policy(qualification_path)
+    qualification["funded_universe_authority"] = funded_authority
+    qualification["provider_registry_source"] = args.provider_registry
+    qualification["resolved_provider_registry"] = str(resolved_registry_path)
     qualification["provider_secret_safety"] = secret_safety
+    qualification["alpha_vantage_capacity_policy"] = {
+        "identity_search_calls": 0,
+        "live_close_scope": "authoritative_funded_positions_only",
+        "identity_anchor_authority": "independent_exact_line_provider_required_by_wp11a_policy",
+    }
     qualification_path.write_text(json.dumps(qualification, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     build_legacy_validation_artifact(
         qualification_path=qualification_path,
@@ -77,6 +95,7 @@ def main() -> None:
         f" | funded_consensus={qualification['funded_consensus_count']}/{qualification['funded_line_count']}"
         f" | identity_anchors={qualification['funded_identity_anchor_count']}/{qualification['funded_line_count']}"
         f" | cache_used={qualification.get('provider_cache_used_count', 0)}"
+        f" | stale_registry_flags={funded_authority['stale_registry_funded_flags_overridden']}"
         f" | alpha_live={secret_safety['alpha_vantage_live_enabled']}"
         f" | gate={qualification['report_pricing_gate_passed']}"
     )

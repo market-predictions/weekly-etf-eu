@@ -1,0 +1,28 @@
+{
+  "activated_tickers": [
+    "L0CK"
+  ],
+  "activation_id": "ETF-EU-STAGE1-2026-08-04-20260804_STAGE1_30947965670_1",
+  "artifact_type": "etf_eu_stage1_activation_evidence",
+  "decision": "output/activation/etf_eu_stage1_allocation_decision_20260804_STAGE1_30947965670_1.json",
+  "email_delivery_authority": false,
+  "model_portfolio_only": true,
+  "portfolio_state_written": true,
+  "post_activation_portfolio": {
+    "cash_eur": 50208.4,
+    "invested_market_value_eur": 49548.36,
+    "nav_eur": 99756.76,
+    "position_count": 4
+  },
+  "quote_evidence": "output/activation/etf_eu_stage1_quote_evidence_20260804_STAGE1_30947965670_1.json",
+  "real_broker_execution": false,
+  "report_date": "2026-08-04",
+  "result": "output/activation/etf_eu_stage1_activation_result_20260804_STAGE1_30947965670_1.json",
+  "run_id": "20260804_STAGE1_30947965670_1",
+  "schema_version": "etf_eu_stage1_activation_evidence_v1",
+  "skipped_tickers": [
+    "VVSM"
+  ],
+  "trade_ledger_written": true,
+  "validation": "output/activation/etf_eu_stage1_allocation_validation_20260804_STAGE1_30947965670_1.json"
+}

@@ -1,0 +1,51 @@
+name: Validate ETF EU activated client-state contract
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - "runtime/add_etf_eu_activated_allocation_surface_v2.py"
+      - "runtime/synchronize_etf_eu_activated_front_page.py"
+      - "runtime/synchronize_etf_eu_current_state_surface.py"
+      - "runtime/synchronize_etf_eu_current_state_surface_v2.py"
+      - "tools/validate_etf_eu_production_converged_report_v2.py"
+      - "tests/test_etf_eu_activated_front_page_contract.py"
+      - "tests/test_etf_eu_current_state_surface.py"
+      - "tests/test_etf_eu_current_state_surface_v2.py"
+      - "tests/test_etf_eu_production_converged_report_v2.py"
+      - ".github/workflows/validate-etf-eu-activated-front-page.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  validate-activated-client-state:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout Weekly ETF EU
+        uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install bounded dependencies
+        run: python -m pip install beautifulsoup4 weasyprint pypdf pytest
+
+      - name: Compile activated client-state writers and semantic validator
+        run: |
+          python -m py_compile \
+            runtime/add_etf_eu_activated_allocation_surface_v2.py \
+            runtime/synchronize_etf_eu_activated_front_page.py \
+            runtime/synchronize_etf_eu_current_state_surface.py \
+            runtime/synchronize_etf_eu_current_state_surface_v2.py \
+            tools/validate_etf_eu_production_converged_report_v2.py
+
+      - name: Run activated client-state regression tests
+        run: |
+          python -m pytest -q \
+            tests/test_etf_eu_activated_front_page_contract.py \
+            tests/test_etf_eu_current_state_surface.py \
+            tests/test_etf_eu_current_state_surface_v2.py \
+            tests/test_etf_eu_production_converged_report_v2.py

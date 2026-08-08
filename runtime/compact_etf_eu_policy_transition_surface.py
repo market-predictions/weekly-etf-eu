@@ -30,27 +30,62 @@ NL_COMPACT_REPLACEMENTS = {
     "Voorgestelde beleidsgestuurde fase-1 allocatie": "Voorgestelde fase-1 allocatie",
     "Beleidsgestuurde fase-1 schaduwintentie": "Fase-1 schaduwintentie",
     "Koop 156 hele aandelen VVSM. Effectieve exposure-ondergrens 17,91% versus limiet 18,00%. VanEck Semiconductor UCITS ETF": "156 VVSM; effectieve exposure 17,91% / limiet 18,00%.",
-    "Koop 995 hele aandelen LOCK. Effectieve exposure-ondergrens 10,19% versus limiet 15,00%. iShares Digital Security UCITS ETF USD (Acc)": "995 LOCK; effectieve exposure 10,19% / limiet 15,00%.",
-    "7 uitgestelde donor-exposures blijven volledig onderbouwd in secties 11 en 13; deze tabel toont uitsluitend de daadwerkelijke fase-1 schaduwintenties.": "7 uitgestelde exposures blijven volledig onderbouwd in secties 11 en 13; hier staan alleen de fase-1 intenties.",
 }
 
+BLOCKED_MARKERS = ("Blocked / deferred", "Geblokkeerd / uitgesteld")
+CYBER_MARKERS = ("Cybersecurity resilience", "Cybersecurityweerbaarheid")
+L0CK_CURRENT_POSITION_MARKER = "<td>L0CK</td>"
 
-def compact_section(body: str, language: str) -> tuple[str, int, bool]:
+
+def _is_blocked_row(row: str) -> bool:
+    return any(marker in row for marker in BLOCKED_MARKERS)
+
+
+def _activated_existing_cyber(body: str, blocked_rows: list[str], actionable_rows: list[str]) -> bool:
+    """Identify the four-position state from rendered, client-safe state evidence.
+
+    One actionable Stage-1 row is valid only when L0CK is already present in the
+    current-position block and cybersecurity is therefore non-actionable as a new
+    trade. This keeps the legacy three-position expectation at two actionable rows.
+    """
+    return bool(
+        len(actionable_rows) == 1
+        and L0CK_CURRENT_POSITION_MARKER in body
+        and any(any(marker in row for marker in CYBER_MARKERS) for row in blocked_rows)
+    )
+
+
+def compact_section(body: str, language: str) -> tuple[str, int, bool, bool]:
     match = TABLE_RE.search(body)
     if not match:
         raise RuntimeError(f"Allocator transition table not found for {language}")
     rows = ROW_RE.findall(match.group(2))
-    blocked_markers = ("Blocked / deferred", "Geblokkeerd / uitgesteld")
-    kept = [row for row in rows if not any(marker in row for marker in blocked_markers)]
-    removed = len(rows) - len(kept)
-    if len(kept) != 2:
-        raise RuntimeError(f"Expected two actionable Stage-1 rows for {language}; found {len(kept)}")
+    blocked_rows = [row for row in rows if _is_blocked_row(row)]
+    kept = [row for row in rows if not _is_blocked_row(row)]
+    activated_existing_cyber = _activated_existing_cyber(body, blocked_rows, kept)
+    expected_actionable = 1 if activated_existing_cyber else 2
+    if len(kept) != expected_actionable:
+        raise RuntimeError(
+            f"Expected {expected_actionable} actionable Stage-1 rows for {language}; found {len(kept)}"
+        )
+    if any("shadow intent" not in row.lower() and "schaduwintentie" not in row.lower() for row in kept):
+        raise RuntimeError(f"Non-intent row survived Stage-1 compaction for {language}")
+
+    removed = len(blocked_rows)
     rebuilt = match.group(1) + "".join(kept) + match.group(3)
-    note = (
-        f'<div class="alignment-summary">{removed} uitgestelde donor-exposures blijven volledig onderbouwd in secties 11 en 13; deze tabel toont uitsluitend de daadwerkelijke fase-1 schaduwintenties.</div>'
-        if language == "nl" else
-        f'<div class="alignment-summary">{removed} deferred donor exposures remain fully documented in Sections 11 and 13; this table shows only the actual Stage-1 shadow intents.</div>'
-    )
+    if activated_existing_cyber:
+        deferred_count = max(0, removed - 1)
+        note = (
+            f'<div class="alignment-summary">{deferred_count} uitgestelde exposures blijven onderbouwd in secties 11 en 13; L0CK is al gefinancierd en verschijnt daarom niet als nieuwe koopintentie.</div>'
+            if language == "nl" else
+            f'<div class="alignment-summary">{deferred_count} deferred exposures remain documented in Sections 11 and 13; L0CK is already funded and therefore does not appear as a new buy intent.</div>'
+        )
+    else:
+        note = (
+            f'<div class="alignment-summary">{removed} uitgestelde donor-exposures blijven volledig onderbouwd in secties 11 en 13; hier staan alleen de fase-1 intenties.</div>'
+            if language == "nl" else
+            f'<div class="alignment-summary">{removed} deferred donor exposures remain fully documented in Sections 11 and 13; this table shows only the actual Stage-1 shadow intents.</div>'
+        )
     updated = body[:match.start()] + rebuilt + note + body[match.end():]
 
     replacement = (
@@ -65,7 +100,7 @@ def compact_section(body: str, language: str) -> tuple[str, int, bool]:
     if language == "nl":
         for source, compact in NL_COMPACT_REPLACEMENTS.items():
             updated = updated.replace(source, compact)
-    return updated, removed, True
+    return updated, removed, True, activated_existing_cyber
 
 
 def main() -> None:
@@ -75,6 +110,7 @@ def main() -> None:
     manifest = json.loads(args.manifest.read_text(encoding="utf-8"))
     removed_by_language: dict[str, int] = {}
     duplicate_incumbent_block_removed: dict[str, bool] = {}
+    already_funded_candidate_compacted: dict[str, bool] = {}
     for language, files in (manifest.get("languages") or {}).items():
         if language not in {"nl", "en"} or not isinstance(files, dict):
             continue
@@ -83,9 +119,10 @@ def main() -> None:
         text = html_path.read_text(encoding="utf-8")
 
         def replace(match: re.Match[str]) -> str:
-            compacted, removed, legacy_removed = compact_section(match.group(2), language)
+            compacted, removed, legacy_removed, funded_compacted = compact_section(match.group(2), language)
             removed_by_language[language] = removed
             duplicate_incumbent_block_removed[language] = legacy_removed
+            already_funded_candidate_compacted[language] = funded_compacted
             return match.group(1) + compacted + match.group(3)
 
         updated, count = SECTION_RE.subn(replace, text, count=1)
@@ -93,12 +130,13 @@ def main() -> None:
             raise RuntimeError(f"Could not compact Section 14 for {language}")
         html_path.write_text(updated, encoding="utf-8")
         HTML(string=updated, base_url=str(html_path.parent.resolve())).write_pdf(pdf_path)
-        files["policy_transition_compaction"] = "actionable_intents_without_duplicate_incumbents_v2"
+        files["policy_transition_compaction"] = "actionable_intents_state_aware_v3"
 
     manifest["policy_transition_compaction"] = {
         "applied": True,
-        "removed_deferred_row_count_by_language": removed_by_language,
+        "removed_non_actionable_row_count_by_language": removed_by_language,
         "duplicate_incumbent_block_removed_by_language": duplicate_incumbent_block_removed,
+        "already_funded_candidate_compacted_by_language": already_funded_candidate_compacted,
         "incumbent_evidence_remains_in_sections": ["10", "13", "15"],
         "deferred_exposures_remain_in_sections": ["11", "13"],
         "portfolio_mutation": False,

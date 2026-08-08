@@ -6,14 +6,17 @@ on:
     paths:
       - "config/weekly_etf_donor_contract_pin.json"
       - "config/etf_eu_transition_replay_universe.yml"
+      - "config/replay/etf_eu_transition_replay_panel_20260727.json.gz"
+      - "config/replay/etf_eu_transition_replay_panel_20260727.provenance.json"
       - "config/etf_eu_transition_policy_v1.yml"
       - "config/etf_eu_euna_risk_budget_policy_v1.yml"
       - "config/etf_eu_stage_2_transition_policy_v1.yml"
       - "config/etf_eu_cutover_product_evidence_20260728.yml"
       - "config/etf_eu_incumbent_overlap_evidence_20260724.yml"
       - "config/etf_eu_transition_evidence_cache_20260724.yml"
+      - "output/etf_eu_portfolio_state.json"
       - "control/ETF_EU_STAGE_2_TRANSITION_AND_ROLLBACK_CONTRACT_V1.md"
-      - "pricing/build_etf_eu_transition_replay_panel.py"
+      - "pricing/materialize_etf_eu_transition_replay_fixture.py"
       - "runtime/build_etf_eu_transition_replay.py"
       - "runtime/build_etf_eu_euna_risk_budget_review.py"
       - "runtime/build_etf_eu_euna_risk_budget_review_jsonsafe.py"
@@ -22,6 +25,9 @@ on:
       - "runtime/build_etf_eu_incumbent_overlap_review.py"
       - "runtime/build_etf_eu_target_allocator_shadow_v3.py"
       - "runtime/build_etf_eu_target_allocator_shadow_v3_policy_gate.py"
+      - "tools/validate_etf_eu_target_allocator_shadow_v3.py"
+      - "tools/validate_etf_eu_target_allocator_shadow_v3_activated.py"
+      - "tests/test_etf_eu_target_allocator_activated_candidate_reconciliation.py"
       - "tools/validate_etf_eu_transition_replay.py"
       - "tools/validate_etf_eu_euna_risk_budget_review.py"
       - "tools/validate_etf_eu_stage_2_readiness.py"
@@ -57,7 +63,11 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install -r requirements.txt
-          python -m pip install yfinance pandas numpy
+          python -m pip install yfinance pandas numpy pytest
+
+      - name: Validate activated candidate reconciliation contract
+        run: |
+          python -m pytest -q tests/test_etf_eu_target_allocator_activated_candidate_reconciliation.py
 
       - name: Build donor and synchronization artifacts
         run: |
@@ -81,7 +91,7 @@ jobs:
           python runtime/normalize_etf_eu_alignment_contract.py output/sync_shadow/etf_eu_strategy_sync_shadow.json
           python tools/validate_etf_eu_strategy_sync_shadow.py output/sync_shadow/etf_eu_strategy_sync_shadow.json
 
-      - name: Build policy-driven allocator
+      - name: Build policy-driven allocator against authoritative portfolio state
         run: |
           python pricing/build_etf_eu_transition_evidence.py \
             --report-date 2026-07-27 \
@@ -102,16 +112,20 @@ jobs:
           python runtime/build_etf_eu_target_allocator_shadow_v3_policy_gate.py \
             --base-allocator output/sync_shadow/etf_eu_target_allocator_shadow_v2.json \
             --sync-shadow output/sync_shadow/etf_eu_strategy_sync_shadow.json \
+            --portfolio-state output/etf_eu_portfolio_state.json \
             --transition-evidence output/sync_shadow/etf_eu_transition_evidence.json \
             --overlap-review output/sync_shadow/etf_eu_incumbent_overlap_review.json \
             --policy config/etf_eu_transition_policy_v1.yml \
             --output output/sync_shadow/etf_eu_target_allocator_shadow.json
-          python tools/validate_etf_eu_target_allocator_shadow_v3.py \
-            output/sync_shadow/etf_eu_target_allocator_shadow.json
+          python tools/validate_etf_eu_target_allocator_shadow_v3_activated.py \
+            output/sync_shadow/etf_eu_target_allocator_shadow.json \
+            --portfolio-state output/etf_eu_portfolio_state.json
 
-      - name: Build and validate transition replay
+      - name: Materialize and validate deterministic transition replay
         run: |
-          python pricing/build_etf_eu_transition_replay_panel.py \
+          python pricing/materialize_etf_eu_transition_replay_fixture.py \
+            --fixture config/replay/etf_eu_transition_replay_panel_20260727.json.gz \
+            --provenance config/replay/etf_eu_transition_replay_panel_20260727.provenance.json \
             --universe config/etf_eu_transition_replay_universe.yml \
             --output output/sync_shadow/etf_eu_transition_replay_panel.json
           python runtime/build_etf_eu_transition_replay.py \
@@ -150,9 +164,11 @@ jobs:
           name: etf-eu-transition-composition-replay
           path: |
             config/weekly_etf_donor_contract_pin.json
+            config/replay/etf_eu_transition_replay_panel_20260727.provenance.json
             config/etf_eu_euna_risk_budget_policy_v1.yml
             config/etf_eu_stage_2_transition_policy_v1.yml
             config/etf_eu_cutover_product_evidence_20260728.yml
+            output/etf_eu_portfolio_state.json
             control/ETF_EU_STAGE_2_TRANSITION_AND_ROLLBACK_CONTRACT_V1.md
             output/sync_shadow/etf_eu_target_allocator_shadow.json
             output/sync_shadow/etf_eu_incumbent_overlap_review.json

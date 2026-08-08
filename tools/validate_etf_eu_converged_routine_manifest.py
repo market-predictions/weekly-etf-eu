@@ -7,6 +7,10 @@ from pathlib import Path
 from typing import Any
 
 
+CORE_FUNDED = {"VWCE", "EUNA", "SXR8"}
+ALLOWED_ACTIVATED = {"L0CK"}
+
+
 def load(path: Path) -> dict[str, Any]:
     payload = json.loads(path.read_text(encoding="utf-8"))
     if not isinstance(payload, dict):
@@ -20,6 +24,11 @@ def sha256_file(path: Path) -> str:
         for block in iter(lambda: handle.read(1024 * 1024), b""):
             digest.update(block)
     return digest.hexdigest()
+
+
+def normalize_ticker(value: Any) -> str:
+    ticker = str(value or "").strip().upper()
+    return "L0CK" if ticker == "LOCK" else ticker
 
 
 def validate(manifest: dict[str, Any]) -> list[str]:
@@ -73,14 +82,43 @@ def validate(manifest: dict[str, Any]) -> list[str]:
             blockers.append(f"state artifact hash mismatch: {role}")
 
     portfolio = manifest.get("portfolio_snapshot") if isinstance(manifest.get("portfolio_snapshot"), dict) else {}
-    if portfolio.get("position_count") != 3:
-        blockers.append("portfolio position count must be three")
+    positions = [row for row in portfolio.get("positions") or [] if isinstance(row, dict)]
+    funded = {
+        normalize_ticker(row.get("ticker") or row.get("exchange_ticker"))
+        for row in positions
+        if normalize_ticker(row.get("ticker") or row.get("exchange_ticker"))
+    }
+    if not CORE_FUNDED.issubset(funded):
+        blockers.append(f"core funded tickers are incomplete: {sorted(funded)}")
+    extras = funded - CORE_FUNDED
+    if not extras.issubset(ALLOWED_ACTIVATED):
+        blockers.append(f"unexpected activated funded tickers: {sorted(extras)}")
+    if portfolio.get("position_count") != len(positions):
+        blockers.append("portfolio position count does not match positions")
+    if len(positions) not in {3, 4}:
+        blockers.append("portfolio position count must be three or four")
+    declared_funded = {
+        normalize_ticker(value)
+        for value in portfolio.get("funded_tickers") or []
+        if normalize_ticker(value)
+    }
+    if declared_funded != funded:
+        blockers.append("portfolio funded ticker summary does not match positions")
     if float(portfolio.get("cash_eur") or 0) <= 0:
         blockers.append("cash value missing")
     if not portfolio.get("pricing_close_dates"):
         blockers.append("pricing close dates missing")
     if not portfolio.get("official_portfolio_state_sha256") or not portfolio.get("official_trade_ledger_sha256"):
         blockers.append("protected-state hashes missing")
+
+    activated_state = funded == CORE_FUNDED | ALLOWED_ACTIVATED
+    if activated_state:
+        if portfolio.get("model_portfolio_only") is not True:
+            blockers.append("activated portfolio must remain model-only")
+        if portfolio.get("real_broker_execution") is not False:
+            blockers.append("activated portfolio must not imply broker execution")
+        if not portfolio.get("activation_id"):
+            blockers.append("activated portfolio provenance is missing")
 
     strategy = manifest.get("strategy_snapshot") if isinstance(manifest.get("strategy_snapshot"), dict) else {}
     if strategy.get("current_promoted_exposure_count") != 6:
@@ -91,10 +129,30 @@ def validate(manifest: dict[str, Any]) -> list[str]:
         blockers.append("unmapped promoted exposure count must be zero")
     if strategy.get("stage_1_review_candidate_count") != 2:
         blockers.append("Stage-1 review candidate count must be two")
-    if strategy.get("stage_1_decision") != "blocked":
-        blockers.append("Stage-1 decision must remain blocked")
-    if strategy.get("stage_1_activation_authorized") is not False:
-        blockers.append("Stage-1 activation authority must be false")
+
+    if activated_state:
+        if strategy.get("stage_1_decision") != "partially_activated":
+            blockers.append("activated Stage-1 decision must be partially_activated")
+        if strategy.get("stage_1_activation_authorized") is not True:
+            blockers.append("historical Stage-1 activation authority must be recorded")
+        if set(strategy.get("activated_tickers") or []) != {"L0CK"}:
+            blockers.append("activated Stage-1 ticker set must contain L0CK only")
+        if set(strategy.get("remaining_monitored_tickers") or []) != {"VVSM"}:
+            blockers.append("remaining monitored Stage-1 ticker must be VVSM")
+        if strategy.get("model_portfolio_only") is not True:
+            blockers.append("activated strategy snapshot must remain model-only")
+        if strategy.get("real_broker_execution") is not False:
+            blockers.append("activated strategy snapshot must not imply broker execution")
+        if not strategy.get("activation_id"):
+            blockers.append("activated strategy provenance is missing")
+    else:
+        if strategy.get("stage_1_decision") != "blocked":
+            blockers.append("pre-activation Stage-1 decision must remain blocked")
+        if strategy.get("stage_1_activation_authorized") is not False:
+            blockers.append("pre-activation Stage-1 authority must be false")
+        if strategy.get("activated_tickers") not in ([], None):
+            blockers.append("pre-activation Stage-1 activated tickers must be empty")
+
     if strategy.get("executable_trade_intents") != []:
         blockers.append("executable trade intents must be empty")
 
@@ -124,6 +182,8 @@ def main() -> None:
         "report_suffix": manifest.get("report_suffix"),
         "attachment_count": len(manifest.get("files") or {}),
         "report_engine": manifest.get("report_engine"),
+        "funded_position_count": len(manifest.get("portfolio_snapshot", {}).get("positions") or []),
+        "stage_1_decision": manifest.get("strategy_snapshot", {}).get("stage_1_decision"),
     }
     text = json.dumps(result, indent=2, ensure_ascii=False)
     print(text)

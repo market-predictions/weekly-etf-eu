@@ -1,0 +1,10 @@
+{
+  "schema_version": "alpha_vantage_key_rotation_confirmation_v1",
+  "rotation_confirmed": true,
+  "secret_value_recorded": false,
+  "repository_secret_name": "ALPHA_VANTAGE_API_KEY",
+  "confirmed_at_utc": "2026-08-08T13:14:00Z",
+  "confirmation_source": "principal_confirmed_repository_secret_updated",
+  "scope": "market-predictions/weekly-etf-eu GitHub Actions repository secret",
+  "notes": "Non-secret operational confirmation only. The credential value is not recorded in repository content."
+}
