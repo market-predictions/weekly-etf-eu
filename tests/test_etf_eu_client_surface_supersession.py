@@ -79,13 +79,14 @@ def test_authoritative_state_supersedes_stale_client_fragments(
 
     visible = soup.get_text(" ", strip=True)
     assert required_count in visible
-    assert visible.casefold().count("l0ck") == 1
-    assert "fixed 50%" not in visible.casefold()
-    assert "minimum cash" not in visible.casefold()
-    assert "maximum new etf" not in visible.casefold()
-    assert "minimale cash" not in visible.casefold()
-    assert "maximale nieuwe etf" not in visible.casefold()
-    assert "state-bound review" in visible
+    folded = visible.casefold()
+    assert folded.count("l0ck") == 1
+    assert "fixed 50%" not in folded
+    assert "minimum cash" not in folded
+    assert "maximum new etf" not in folded
+    assert "minimale cash" not in folded
+    assert "maximale nieuwe etf" not in folded
+    assert "state-bound review" in folded
 
 
 def test_duplicate_funded_row_without_authoritative_weight_fails_closed() -> None:
