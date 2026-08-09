@@ -3,15 +3,18 @@
 ## Snapshot
 
 ```text
-date=2026-08-08
+date=2026-08-09
 repository=market-predictions/weekly-etf-eu
-working_branch=agent/etf-eu-governed-release-20260805
-pull_request=78
+main_sha_at_reconciliation=93dbe7450e44d22a2fe247a8d1f1ffb9e07adf3c
 operating_mode=ROUTINE_WEEKLY_ETF_EU_PRODUCTION_WITH_INDEPENDENT_RELEASE_ASSURANCE
-current_work_package=ETF-EU-WP-SYNC-11A_OPERATIONALIZATION_20260808
-state=BLOCKED_EXTERNAL_CREDENTIAL
+current_work_package=ETF-EU-WP-RELEASE-INTEGRATION-V3
+active_claim=ETF-EU-RELEASE-INTEGRATION-V3
+working_branch=agent/etf-eu-release-integration-v3
+superseded_pull_request=80
+superseded_head=01fb4e9238d1921dc8fd52ad552d3acba5bfceea
+state=ACTIVE_CLIENT_GRADE_RELEASE_REPAIR
 principal_decision_required=false
-principal_action_required=ROTATE_ALPHA_VANTAGE_REPOSITORY_SECRET
+principal_action_required=false
 portfolio_mutation=false
 ledger_write=false
 report_delivery=false
@@ -20,13 +23,64 @@ real_broker_execution=false
 
 ## Current objective
 
-Finish operationalizing the already validated WP-SYNC-11A multi-provider completed-close architecture for the current four-position model portfolio, then rerun the governed fresh-package and independent-assurance path without weakening the pricing gate.
+Reconstruct one clean Weekly ETF EU release line from current `main`, carrying forward only the still-relevant PR #80 remediation deltas. Then prove the resulting exact head through product-boundary, allocation-lineage, completed-close pricing/replay, client-surface and report gates; generate a fresh Dutch/English candidate; and obtain fresh independent release assurance.
 
-The relevant distinction is now explicit:
+The project must not continue accumulating on PR #80. Its branch is now read-only implementation/evidence donor material under the canonical work-claim lifecycle standard.
 
-- the WP11A **software architecture** is validated;
-- the WP11A **fresh-date operational provider redundancy** is not yet complete;
-- the remaining pricing blocker is an external provider credential boundary, not a need for a new pricing architecture.
+## Why the integration line changed
+
+Live comparison at reconciliation showed PR #80 had materially diverged from `main`:
+
+```text
+pr80_head=01fb4e9238d1921dc8fd52ad552d3acba5bfceea
+main=93dbe7450e44d22a2fe247a8d1f1ffb9e07adf3c
+status=diverged
+ahead_by=95
+behind_by=147
+merge_base=050bf08506b54400615538feeca272fbf967ed82
+```
+
+This satisfies the canonical material-drift stop rule. The old line is superseded through:
+
+```text
+control/WORK_CLAIMS.json
+handover/ETF_EU_PR80_TO_RELEASE_INTEGRATION_V3_20260809.md
+```
+
+## What is already resolved on current main
+
+PR #78 was merged on 2026-08-08 as merge commit:
+
+```text
+994dbc8a6383b36510e981469d423c581ebc451b
+```
+
+That merged release integration established, among other things:
+
+- the authoritative four-position funded model state;
+- Alpha Vantage secret rotation and live provider reactivation;
+- live 2026-08-05 funded pricing with 4/4 two-provider consensus;
+- 4/4 exact-line identity anchors;
+- zero historical-cache use for the funded current valuation;
+- removal of inherited FX root assets and active FX workflow paths from the ETF EU product boundary;
+- state-derived funded-universe pricing authority;
+- convergence of the fresh-package route onto the WP11A pricing engine.
+
+PR #82 was subsequently merged as:
+
+```text
+f4d814d31357c5d74b5dda079b21150687926929
+```
+
+It made the canonical non-delivery preview state-aware for the four-position portfolio and preserved:
+
+```text
+production_delivery_authority=false
+send_executed=false
+receipt_confirmed=false
+```
+
+The old `BLOCKED_EXTERNAL_CREDENTIAL` / `ROTATE_ALPHA_VANTAGE_REPOSITORY_SECRET` state is therefore retired and must not be resurrected by future sessions.
 
 ## Authoritative protected portfolio
 
@@ -46,126 +100,78 @@ Current funded model positions:
 | L0CK | IE00BG0J4C88 | Xetra | 934 |
 
 ```text
+cash_eur=50208.40
 funded_position_count=4
+vvsm_status=monitored_unfunded
 model_portfolio_only=true
 real_broker_execution=false
 ```
 
-## WP11A funded-universe repair
+This is the protected model state. A valuation/report run must preserve exact shares and cash unless a separate explicit allocation decision authorizes mutation.
 
-The provider registry previously contained historical `funded` flags and still declared `L0CK` unfunded after the portfolio had activated it. That duplication is no longer pricing authority.
+## Current allocation authority
 
-The repaired qualification path now derives the funded universe from `output/etf_eu_portfolio_state.json` and matches every funded line to the provider registry by:
+The PR #80 remediation established the still-relevant authority principle that must be reconstructed on the clean successor if absent from current `main`:
 
 ```text
-ISIN + ticker + primary_exchange + trading_currency
+explicit current allocation decision
+> protected portfolio state and trade ledger
+> current completed-close valuation
+> donor opportunity state
+> historical strategy context
 ```
 
-A funded portfolio position without exactly one registry match fails closed. Stale static registry flags are surfaced only as diagnostics.
-
-Implementation:
+The earlier proposed universal constraints are not current ETF EU authority:
 
 ```text
-pricing/ucits_funded_universe.py
-pricing/build_ucits_close_price_validation_basket_results.py
-tools/qualify_ucits_price_providers.py
-tests/test_ucits_funded_universe.py
+50% maximum position=RETIRED_UNSUPPORTED_SHADOW_RULE
+35% minimum cash=RETIRED_UNSUPPORTED_SHADOW_RULE
+15% maximum new ETF=RETIRED_UNSUPPORTED_SHADOW_RULE
+75%=PRICING_COVERAGE_CONTEXT_NOT_POSITION_CAP
 ```
 
-The deterministic funded-universe regression tests pass on PR #78.
+Any surviving client/report fragment that presents those unsupported fixed percentages as current allocation controls must fail closed.
 
-## Fresh no-cache live evidence — 2026-08-05
+## Independent assurance diagnosis that remains open
 
-Repaired isolated audit:
+Issue #81 independently reviewed frozen PR #80 head:
 
 ```text
-workflow_run=31258172996
-artifact_id=9022002190
-artifact_sha256=c91db0567da886eb83f4c1dbf67e44a5604da107ed92b4f543e1fa980153786b
-funded_line_count=4
-funded_identity_anchors=4/4
-funded_consensus=0/4
-historical_cache_used=0
-pricing_gate_passed=false
-protected_state_unchanged=true
+d38e8bad3575542bc8e5781812c9cd669f975a3a
+ETF_EU_PR80_RELEASE_CLOSEOUT_VERIFY=FAIL
 ```
 
-Provider availability observed:
+The machine lineage, pricing, repository-boundary and visual-page integrity evidence were materially strong, but the client output contradicted authoritative state. The release-blocking defect class was stale legacy/shadow report composition:
+
+1. Section 6 still stated three official positions;
+2. Section 13 contained a correct active L0CK row and a second stale 0.00% L0CK row;
+3. Section 14 still presented fixed 50% / 35% minimum cash / 15% maximum new ETF as current controls;
+4. Section 15 correctly showed L0CK as a 934-share active holding, exposing the contradiction.
+
+PR #80 later received a generic repair and deterministic regression coverage for this defect class, but the final PR #80 head never obtained exact-head release assurance. The old `FAIL` remains diagnostic evidence only and cannot authorize the clean successor.
+
+## Successor release contract
+
+The clean successor must preserve newer `main` behavior and port only still-relevant donor deltas. Its release candidate is valid only if the exact surviving head proves:
 
 ```text
-leeway=not_configured_missing_LEEWAY_API_TOKEN
-eodhd=not_configured_missing_EODHD_API_TOKEN
-marketstack=not_configured_missing_MARKETSTACK_ACCESS_KEY
-alpha_vantage=secret_present_but_disabled_pending_confirmed_rotation
-yahoo_chart=live
-```
-
-Yahoo Chart returned exact 2026-08-05 Xetra/EUR closes for all four funded lines and supplied the required identity anchor, but a single source cannot satisfy the two-provider gate.
-
-## Production-path convergence
-
-The canonical routine workflow already used `pricing/build_ucits_close_price_validation_basket_results.py`. The PR #78 fresh-package path previously bypassed that engine through the old current-session compatibility route.
-
-That divergence is repaired. The PR fresh-package runner now routes the historical entry point through:
-
-```text
-pricing/build_wp11a_current_session_compat.py
-→ pricing/build_ucits_close_price_validation_basket_results.py
-```
-
-Regression protection:
-
-```text
-tests/test_run_etf_eu_aug3_expanded_report_v6_pricing_route.py
-```
-
-Fresh governed-package run:
-
-```text
-workflow_run=31258280491
-source_sha=c7c4932fb9fdef7f2836d23273eb10405613d4eb
-routing_tests=PASS
-wp11a_route_observed=true
-funded_consensus=0/4
-funded_identity_anchors=4/4
-historical_cache_used=0
-stale_registry_flag_detected=l0ck_xetra_eur
-alpha_vantage_live=false
-terminal_result=FAIL_CLOSED_AT_WP11A_PRICE_GATE
-```
-
-This is the intended fail-closed result until a second provider is genuinely live. The prior Börse/Yahoo compatibility path is no longer production authority for this release candidate.
-
-## External credential blocker
-
-Alpha Vantage is the shortest second-provider path because:
-
-1. its adapter is already implemented and deterministically tested;
-2. a repository secret already exists;
-3. prior accepted July 31 evidence demonstrated Alpha Vantage + Yahoo agreement for VWCE, EUNA and SXR8;
-4. live use is deliberately disabled by `pricing/provider_secret_safety.py` because the earlier key may have been exposed in a provider response message.
-
-The existing secret must therefore be replaced with a newly issued Alpha Vantage key. Only after the principal confirms replacement may the repository record `config/alpha_vantage_key_rotation_confirmed.json` and re-enable the provider.
-
-If Alpha Vantage cannot return valid same-date exact-line evidence for all four funded positions, the next fallback is to configure one of Leeway, EODHD or Marketstack; the two-provider requirement will not be relaxed.
-
-## WP11A closure criteria
-
-WP-SYNC-11A operationalization may close only when the exact release candidate proves:
-
-```text
-funded_universe_authority=output/etf_eu_portfolio_state.json
+product_boundary=PASS
+allocation_lineage=PASS
+protected_state_preserved=true
 funded_position_count=4
-same_date_provider_requirement=2
-agreement_tolerance_pct=1.0
-historical_cache_required=false
-funded_consensus=4/4
-funded_identity_anchors=4/4
-protected_state_unchanged=true
-fresh_package_uses_wp11a_engine=true
-independent_release_assurance=PASS
+funded_same_date_two_provider_consensus=4/4
+funded_exact_line_identity_anchors=4/4
+historical_cache_required_for_current_funded_valuation=false
+pricing_replay_contract=PASS
+client_surface_supersession=PASS
+no_duplicate_funded_ticker_state=true
+no_stale_three_position_copy=true
+no_retired_50_35_15_shadow_policy_as_current_control=true
+nl_en_report_machine_validation=PASS
+nl_en_report_visual_validation=PASS
+fresh_independent_release_assurance=PASS
 ```
 
 ## Authority boundary
 
-No fresh report has been delivered in this work cycle. No portfolio or ledger mutation occurred. No real broker execution occurred. A successful future pricing run will still not itself constitute report delivery or production closeout.
+No report delivery is authorized or claimed in this reconciliation. No portfolio or ledger mutation occurred. No real broker execution occurred. Historical PR #80 generated artifacts and successful implementation runs are donor evidence only, not the current release candidate or a delivery receipt.
