@@ -11,10 +11,11 @@ from runtime import synchronize_etf_eu_current_state_surface as legacy
 
 
 CLIENT_STATE_CONTRACT = "authoritative_four_position_current_state_v4"
-# Capture the v1 implementation once, before synchronize_manifest temporarily
-# replaces legacy._sync_8. Calling legacy._sync_8 from the wrapper after that
+# Capture the v1 implementations once, before synchronize_manifest temporarily
+# replaces them. Calling legacy._sync_8 or legacy._sync_13 from a wrapper after
 # replacement would recurse into the wrapper itself.
 _BASE_SYNC_8 = legacy._sync_8
+_BASE_SYNC_13 = legacy._sync_13
 
 NL_SECTION9_SENTENCE_MAP = {
     "More useful if broad equity leadership narrows further.":
@@ -86,6 +87,55 @@ def _sync_8_with_authoritative_coverage(
         )
 
 
+def _sync_13_after_client_surface_supersession(
+    soup: BeautifulSoup,
+    contract: dict[str, Any],
+    positions: dict[str, dict[str, Any]],
+    lang: str,
+) -> None:
+    """Keep v1 Section-13 logic idempotent after stale L0CK-row removal.
+
+    The authoritative supersession pass intentionally removes the duplicate
+    legacy incumbent L0CK ticker row and keeps the canonical L0CK exposure row
+    identified by ISIN. The v1 synchronizer historically required both rows.
+    For the final writer we temporarily provide one synthetic incumbent row so
+    the proven v1 synchronization logic can run unchanged, then remove that
+    synthetic row again. The persisted client surface therefore remains
+    deduplicated while a second synchronization pass is safe.
+    """
+    table = legacy._section(soup, "13").find("table", class_="final-alignment-table")
+    if not isinstance(table, Tag):
+        raise RuntimeError("Section 13 final action table missing")
+
+    incumbent_rows = [
+        row
+        for row in table.select("tbody tr")
+        if legacy._cells(row, 1, "Section 13 row")[0].get_text(" ", strip=True).upper() == "L0CK"
+    ]
+    if len(incumbent_rows) > 1:
+        raise RuntimeError(f"Section 13 duplicate L0CK incumbent rows before synchronization: {len(incumbent_rows)}")
+
+    synthetic_row: Tag | None = None
+    if not incumbent_rows:
+        exposure_row = legacy._row(table, legacy.L0CK_ISIN)
+        clone = BeautifulSoup(str(exposure_row), "html.parser").find("tr")
+        if not isinstance(clone, Tag):
+            raise RuntimeError("Unable to clone authoritative Section 13 L0CK exposure row")
+        cells = legacy._cells(clone, 10, "Synthetic Section 13 L0CK incumbent")
+        legacy._set(cells, 0, "L0CK")
+        tbody = table.find("tbody")
+        if not isinstance(tbody, Tag):
+            raise RuntimeError("Section 13 table body missing")
+        tbody.append(clone)
+        synthetic_row = clone
+
+    try:
+        _BASE_SYNC_13(soup, contract, positions, lang)
+    finally:
+        if synthetic_row is not None and synthetic_row.parent is not None:
+            synthetic_row.decompose()
+
+
 def _sync_nl_section9_language(html_path: Path, pdf_path: Path) -> None:
     soup = BeautifulSoup(html_path.read_text(encoding="utf-8"), "html.parser")
     section = legacy._section(soup, "9")
@@ -146,11 +196,14 @@ def synchronize_manifest(manifest_path: Path, state_path: Path) -> None:
     state = json.loads(state_path.read_text(encoding="utf-8"))
     _, positions = legacy.contract(state)
     original_sync_8 = legacy._sync_8
+    original_sync_13 = legacy._sync_13
     legacy._sync_8 = _sync_8_with_authoritative_coverage
+    legacy._sync_13 = _sync_13_after_client_surface_supersession
     try:
         legacy.synchronize_manifest(manifest_path, state_path)
     finally:
         legacy._sync_8 = original_sync_8
+        legacy._sync_13 = original_sync_13
 
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
     for lang in ("nl", "en"):
@@ -169,8 +222,10 @@ def synchronize_manifest(manifest_path: Path, state_path: Path) -> None:
         contract["section_8_exact_donor_exposure_coverage"] = "derived_from_authoritative_l0ck_weight"
         contract["section_8_vvsm_status"] = "monitored_unfunded_current_close_available_strategy_promotion_gate_not_passed"
         contract["nl_section_9_client_language"] = "deterministic_dutch_sentences_v1"
+        contract["section_13_l0ck_incumbent_semantics"] = "canonical_exposure_row_only_after_supersession"
     manifest_path.write_text(json.dumps(manifest, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     print(
         "ETF_EU_CURRENT_CLIENT_STATE_V4_OK | authority=current_L0CK_weight | "
-        "VVSM=monitored_unfunded_current_close_available | nl_section9=dutch | broad_core_substitution=false"
+        "VVSM=monitored_unfunded_current_close_available | nl_section9=dutch | broad_core_substitution=false | "
+        "section13_L0CK=canonical_exposure_row_only"
     )
