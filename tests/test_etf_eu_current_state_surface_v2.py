@@ -141,3 +141,5 @@ def test_section_13_resync_accepts_canonical_l0ck_exposure_without_legacy_incumb
     exposure_text = exposure_rows[0].get_text(" ", strip=True)
     assert "10.16% 10.16% 0.00%" in exposure_text
     assert "Model position active; no execution" in exposure_text
+
+# CI retrigger: validate persisted V3 package lineage on exact PR head.
