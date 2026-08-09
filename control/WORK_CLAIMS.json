@@ -1,0 +1,58 @@
+{
+  "schema_version": "1.0.0",
+  "standard_id": "WORK_CLAIM_AND_BRANCH_LIFECYCLE_STANDARD_V1",
+  "project_repository": "market-predictions/weekly-etf-eu",
+  "default_target_branch": "main",
+  "claims": [
+    {
+      "claim_id": "ETF-EU-PR80-RELEASE-REMEDIATION",
+      "workpackage_id": "ETF-EU-PR80",
+      "repository": "market-predictions/weekly-etf-eu",
+      "release_line": "weekly-etf-eu-current-release",
+      "integration_claim": true,
+      "owner_role": "implementation_operations",
+      "scope": "PR #80 product-boundary separation, allocation-lineage, pricing/replay and client-surface remediation lineage.",
+      "branch": "agent/etf-eu-client-grade-release-remediation",
+      "base_or_target_branch": "main",
+      "last_reconciled_target_sha": "93dbe7450e44d22a2fe247a8d1f1ffb9e07adf3c",
+      "current_claim_head_sha": "01fb4e9238d1921dc8fd52ad552d3acba5bfceea",
+      "status": "SUPERSEDED",
+      "opened_at": "2026-08-06T09:23:56Z",
+      "last_reconciled_at": "2026-08-09T21:20:00Z",
+      "pull_request": 80,
+      "pull_request_or_issue_reference": "PR #80",
+      "dependencies": [
+        {"pull_request": 78},
+        {"pull_request": 82}
+      ],
+      "handover": {
+        "disposition": "SUPERSEDE",
+        "successor_claim_id": "ETF-EU-RELEASE-INTEGRATION-V3",
+        "path": "handover/ETF_EU_PR80_TO_RELEASE_INTEGRATION_V3_20260809.md"
+      }
+    },
+    {
+      "claim_id": "ETF-EU-RELEASE-INTEGRATION-V3",
+      "workpackage_id": "ETF-EU-WP-RELEASE-INTEGRATION-V3",
+      "repository": "market-predictions/weekly-etf-eu",
+      "release_line": "weekly-etf-eu-current-release",
+      "integration_claim": true,
+      "owner_role": "implementation_operations",
+      "scope": "Reconstruct the current release from current main by porting only still-relevant PR #80 deltas, then run exact-head CI, generate a fresh four-file candidate, validate it and obtain fresh independent assurance.",
+      "branch": "agent/etf-eu-release-integration-v3",
+      "base_or_target_branch": "main",
+      "last_reconciled_target_sha": "93dbe7450e44d22a2fe247a8d1f1ffb9e07adf3c",
+      "current_claim_head_sha": "93dbe7450e44d22a2fe247a8d1f1ffb9e07adf3c",
+      "status": "ACTIVE",
+      "opened_at": "2026-08-09T21:20:00Z",
+      "last_reconciled_at": "2026-08-09T21:20:00Z",
+      "pull_request": 0,
+      "pull_request_or_issue_reference": "successor to PR #80; PR to be opened after relevant-delta reconstruction",
+      "dependencies": [
+        {"pull_request": 78},
+        {"pull_request": 82}
+      ],
+      "handover": null
+    }
+  ]
+}

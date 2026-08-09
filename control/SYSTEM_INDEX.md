@@ -17,9 +17,13 @@ Read in this order:
 1. `control/SYSTEM_INDEX.md`
 2. `control/CURRENT_STATE.md`
 3. `control/NEXT_ACTIONS.md`
-4. `control/PROJECT_GOVERNANCE_BOOTSTRAP.md`
-5. `control/ETF_EU_TWO_ROLE_GOVERNANCE_MODEL_V1.md`
-6. the minimum relevant execution files
+4. `control/WORK_CLAIMS.json`
+5. the active/superseding handover record referenced by the claim registry, when present
+6. `control/PROJECT_GOVERNANCE_BOOTSTRAP.md`
+7. `control/ETF_EU_TWO_ROLE_GOVERNANCE_MODEL_V1.md`
+8. the minimum relevant execution files
+
+Before continuing consequential work, reconcile the active claim against live GitHub branch, target, dependency, PR and handover state under the canonical control-plane lifecycle standard. Do not continue accumulating on a materially stale integration line.
 
 ## Five-layer operating model
 
@@ -48,6 +52,7 @@ Project authority files:
 - `control/ETF_EU_TWO_ROLE_GOVERNANCE_MODEL_V1.md`
 - `control/ETF_EU_GOVERNANCE_RELEASE_ASSURANCE_WORK_PACKAGE_20260805.md`
 - `control/ETF_EU_GOVERNANCE_CHANGELOG.md`
+- `control/WORK_CLAIMS.json`
 
 Machine controls:
 
@@ -61,17 +66,21 @@ The canonical routine workflow must run the governance gate immediately before g
 
 ## Cross-project governance authority
 
-The canonical shared governance standard, adoption register, templates, and drift audit now live in the private repository:
+The canonical shared governance, operating-method and claim/branch lifecycle standards live in the private repository:
 
 ```text
 market-predictions/control-plane
 ```
 
-Canonical standard:
+Canonical standards include:
 
 ```text
-https://github.com/market-predictions/control-plane/blob/main/control/CROSS_PROJECT_TWO_ROLE_GOVERNANCE_STANDARD_V1.md
+control/CROSS_PROJECT_PRINCIPAL_AGENT_OPERATING_CHARTER_V1.md
+control/CROSS_PROJECT_TWO_ROLE_GOVERNANCE_STANDARD_V1.md
+control/WORK_CLAIM_AND_BRANCH_LIFECYCLE_STANDARD_V1.md
 ```
+
+The work-claim lifecycle standard requires proactive coordinator reconciliation, one active release-integration claim per release line, explicit claim closure/transfer/supersession through handover, and a hard stop on material branch drift.
 
 The following local files remain as migration provenance and compatibility history, not current shared authority:
 
@@ -82,7 +91,30 @@ The following local files remain as migration provenance and compatibility histo
 - `control/CROSS_PROJECT_GOVERNANCE_ROLLOUT_WORK_PACKAGE_20260805.md`
 - `control/decisions/CROSS_PROJECT_GOVERNANCE_STANDARD_ADOPTION_DECISION_20260805.md`
 
-ETF EU instrument, state, report, recipient, delivery, and portfolio authority remains local to this repository.
+ETF EU instrument, state, report, recipient, delivery, portfolio and project-local work-claim authority remains local to this repository.
+
+## Work-claim and handover authority
+
+Machine-readable claim registry:
+
+```text
+control/WORK_CLAIMS.json
+```
+
+Durable ownership/lineage handovers:
+
+```text
+handover/
+```
+
+Rules:
+
+- the coordinator must detect orphaned/stale claims without principal prompting;
+- a merged or closed PR may not silently leave an overlapping claim active;
+- a superseded branch is read-only implementation/evidence donor material;
+- generated reports and CI retriggers may not prolong a materially stale release line;
+- roadmap/current-state records must point at the one surviving integration claim;
+- every handover must end in `CLOSE`, `TRANSFER` or `SUPERSEDE` disposition.
 
 ## Canonical EU control files
 
@@ -132,6 +164,7 @@ Before creating or materially changing an EU workflow, runtime script, validator
 - Treat missing or contradictory evidence as a blocker.
 - Do not treat legacy workflow presence as proof of production authority.
 - Do not require the user to coordinate implementation and assurance roles separately.
+- Do not continue implementation/release accumulation on a materially stale claim branch.
 
 ## Run verification discipline
 
@@ -156,7 +189,8 @@ ROUTINE_WEEKLY_ETF_EU_PRODUCTION_WITH_INDEPENDENT_RELEASE_ASSURANCE
 Current direction:
 
 ```text
-fresh pricing and immutable run identity
+claim/branch reconciliation
+→ fresh pricing and immutable run identity
 → authoritative portfolio/state contract
 → Dutch and English report generation
 → implementation validation
