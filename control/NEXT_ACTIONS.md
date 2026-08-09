@@ -3,68 +3,88 @@
 ## Current priority
 
 ```text
-FINISH_WP_SYNC_11A_OPERATIONAL_PROVIDER_REDUNDANCY
+RECONSTRUCT_ONE_CLEAN_RELEASE_LINE_FROM_CURRENT_MAIN
 ```
 
-The project must finish the existing multi-provider pricing architecture rather than create another price-validation path.
-
-Current state:
+Current authoritative work lineage:
 
 ```text
-work_package=ETF-EU-WP-SYNC-11A_OPERATIONALIZATION_20260808
-pull_request=78
-state=BLOCKED_EXTERNAL_CREDENTIAL
+work_package=ETF-EU-WP-RELEASE-INTEGRATION-V3
+active_claim=ETF-EU-RELEASE-INTEGRATION-V3
+branch=agent/etf-eu-release-integration-v3
+target=main
+superseded_pr=80
 principal_decision_required=false
-principal_action_required=ROTATE_ALPHA_VANTAGE_REPOSITORY_SECRET
+principal_action_required=false
 ```
+
+The former PR #78 / Alpha Vantage rotation sequence is complete and obsolete. Do not reopen it.
 
 ## Immediate sequence
 
-1. Principal replaces the existing GitHub Actions repository secret `ALPHA_VANTAGE_API_KEY` with a newly issued Alpha Vantage key. The key must never be pasted into chat or committed to the repository.
-2. After explicit confirmation that the GitHub secret was replaced, implementation records a non-secret `config/alpha_vantage_key_rotation_confirmed.json` marker.
-3. Rerun the repaired WP11A live qualification for report date 2026-08-05 with historical cache disabled.
-4. Require the authoritative funded universe to be exactly VWCE, EUNA, SXR8 and L0CK.
-5. Require 4/4 funded lines to have at least two providers on the same completed-close date within 1.0% spread and 4/4 exact-line identity anchors.
-6. If Alpha Vantage fails any funded line because of symbol coverage, quota, date or identity limitations, keep the gate closed and configure the next viable provider from Leeway, EODHD or Marketstack. Do not return to a parallel Börse/Yahoo production path.
-7. Once 4/4 live no-cache consensus passes, rerun `Build fresh governed Weekly ETF EU package` on the exact repaired candidate.
-8. Require independent `governance_release_assurance` on the resulting exact candidate before merge or any guarded delivery action.
-9. Reconcile `control/CURRENT_STATE.md`, this file, the WP11A operationalization work package, evidence record and durable decision record at closeout.
-10. Surface guarded delivery only after the complete current-run package and assurance are valid; delivery remains a separate authority/action layer.
+1. Merge the work-claim/branch lifecycle reconciliation so `main` records one active integration claim and the explicit PR #80 → V3 supersession handover.
+2. Fast-forward the still-clean `agent/etf-eu-release-integration-v3` branch to the resulting current `main` so the successor begins on one exact contemporary base.
+3. Compare current `main` against PR #80 path-by-path and classify every PR #80 change as one of:
+   - already present on current `main`;
+   - still relevant and must be ported;
+   - superseded by newer `main` behavior;
+   - historical/generated evidence only and must not be ported.
+4. Port only the minimum still-relevant source/config/test/workflow deltas. Do not cherry-pick or force-merge the 95-commit PR #80 history.
+5. Specifically prove or restore, where needed:
+   - product-boundary separation from inherited FX execution;
+   - `ETF_EU_RELEASE_LINEAGE_POLICY_V2` allocation authority semantics;
+   - protected four-position valuation-only state preservation;
+   - replay-safe/multi-provider completed-close pricing contracts;
+   - generic client-surface supersession repair;
+   - deterministic rejection of stale three-position copy, duplicate funded ticker rows and retired fixed 50%/35%/15% shadow controls.
+6. Open one successor release-integration PR and update `control/WORK_CLAIMS.json` with its PR identity at the next reconciliation gate.
+7. Run all relevant exact-head CI on that successor, including product-boundary, allocation-lineage, pricing/replay, activated-client-surface and final report-validation gates.
+8. Generate a fresh Dutch-primary / English-companion four-file candidate only after the exact source head is green.
+9. Validate the fresh NL/EN HTML and PDF artifacts mechanically and visually. Explicitly inspect Sections 6, 13, 14 and 15 for the defect class found by issue #81.
+10. Obtain a fresh independent `governance_release_assurance` verdict bound to the exact successor candidate. Prior PR #80 `FAIL` evidence is diagnostic only.
+11. If assurance returns PASS, merge the successor and close PR #80 as superseded, preserving its handover/evidence pointers. If assurance returns FAIL/INDETERMINATE, repair through a new exact candidate and re-assure.
+12. Reconcile `control/CURRENT_STATE.md`, this file, `control/WORK_CLAIMS.json`, relevant work-package records and portfolio-control state onto the surviving merged lineage.
+13. Only after a separately authorized guarded-delivery step may transport be considered. Delivery success requires independent receipt/attachment evidence; generation, CI and SMTP invocation are insufficient.
 
-## Already completed in this cycle
-
-```text
-funded_universe_state_authority_repair=PASS
-stale_L0CK_registry_flag_detection=PASS
-deterministic_WP11A_suite=PASS
-fresh_package_WP11A_route_regression_test=PASS
-canonical_routine_uses_WP11A=true
-PR78_fresh_package_uses_WP11A=true
-no_cache_live_funded_count=4
-no_cache_live_identity_anchors=4/4
-no_cache_live_consensus=0/4
-protected_state_unchanged=true
-```
-
-Evidence:
+## Already completed and not to be repeated
 
 ```text
-control/evidence/wp11a_reopen_operational_audit_20260808.md
-workflow_run=31258172996
-artifact_id=9022002190
-fresh_package_run=31258280491
+PR78_merged=true
+alpha_vantage_secret_rotation_complete=true
+funded_live_consensus_2026_08_05=4/4
+funded_identity_anchors_2026_08_05=4/4
+historical_cache_used_for_that_funded_run=0
+funded_position_count=4
+PR82_four_position_preview_repair_merged=true
+PR80_material_drift_diagnosed=true
+PR80_status=SUPERSEDED_DONOR_LINEAGE
+clean_successor_branch_created=true
 ```
+
+## PR #80 donor evidence to preserve, not blindly merge
+
+Important donor evidence includes:
+
+```text
+pr80_head=01fb4e9238d1921dc8fd52ad552d3acba5bfceea
+historical_assurance_head=d38e8bad3575542bc8e5781812c9cd669f975a3a
+historical_assurance_verdict=FAIL
+fresh_package_run=31262475314
+client_surface_generic_repair_commit=707058bde97febbd8e860016c6bd58356b2bb9d2
+```
+
+The old branch may be read for code and evidence but may not receive new release-advancing commits.
 
 ## Prohibited shortcuts
 
 Do not:
 
-- weaken the two-provider same-date requirement;
-- increase the 1.0% agreement tolerance merely to make a run pass;
-- use another venue, share class or proxy as the funded Xetra line;
-- treat a static registry `funded` flag as portfolio authority;
-- reuse July 31 evidence for August 5;
-- reintroduce the old Börse/Yahoo compatibility path as production authority;
-- record the Alpha rotation marker before the GitHub secret is genuinely replaced;
-- expose any API key in repository content, logs, artifacts or chat;
-- claim report delivery from pricing, rendering, SMTP invocation or package generation alone.
+- continue remediation or CI-retrigger accumulation on PR #80;
+- force-merge or wholesale rebase the 95-commit donor lineage into current `main`;
+- port generated historical report/evidence artifacts merely because they exist in PR #80;
+- weaken the funded two-provider same-date requirement or exact-line identity requirements;
+- mutate shares or cash during valuation/report reconstruction without explicit allocation authority;
+- reintroduce unsupported universal 50% maximum-position, 35% minimum-cash or 15% maximum-new-ETF controls;
+- treat the donor's 75% pricing-coverage context as a position-weight cap;
+- reuse the prior independent FAIL as approval for a descendant or successor;
+- send email, claim delivery, imply broker execution or claim production closeout from a successful candidate build alone.
