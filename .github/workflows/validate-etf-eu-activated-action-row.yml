@@ -1,3 +1,4 @@
+# Control: semantics-neutral synchronize marker for exact-head CI invocation.
 name: Validate ETF EU activated action-row contract
 
 on:
