@@ -2,108 +2,56 @@ from __future__ import annotations
 
 import argparse
 import json
-from datetime import date
 from pathlib import Path
-from typing import Any
 
-ALLOWED_STATUSES = {
-    'priced_non_authoritative',
-    'fetch_failed',
-    'candidate_requires_verification',
-    'policy_review_required_not_ucits',
-    'diagnostics_only',
-}
-REQUIRED_ROW_FIELDS = {
-    'basket_id', 'fund_name', 'isin', 'instrument_type', 'exchange', 'venue_code', 'ticker',
-    'provider_symbol_yahoo', 'currency', 'verification_status', 'pricing_status', 'close_date',
-    'close_price', 'source_id', 'source_name', 'source_quality_status', 'source_agreement_status',
-    'observed_at_utc', 'valuation_grade', 'fundable', 'blockers', 'request_index', 'attempt_count',
-    'rate_limited', 'pause_seconds_before_request', 'rate_limit_cooldown_seconds'
-}
+from pricing.ucits_close_price_validation_contract_v2 import validate_artifact
 
 
-def validate(path: Path) -> dict[str, Any]:
-    data = json.loads(path.read_text(encoding='utf-8'))
-    assert data['schema_version'] == 'ucits_close_price_validation_basket_results_v1'
-    assert data['source_basket'] == 'config/ucits_close_price_validation_basket.yml'
-    assert data['valuation_grade'] is False
-    assert data['funding_authority'] is False
-    assert data['portfolio_mutation'] is False
-    assert data['production_delivery_authority'] is False
-    throttle = data.get('throttle_policy') or {}
-    assert throttle['source'] == 'yahoo_yfinance'
-    assert throttle.get('official_published_limit_found', False) is False
-    assert throttle['requests_are_serialized'] is True
-    assert float(throttle['pause_seconds_between_symbols']) >= 10.0
-    assert throttle.get('rate_limit_mode') in {'stop', 'sleep'}
-    assert float(throttle['rate_limit_cooldown_seconds']) >= 300.0
-    assert int(throttle['max_attempts_per_symbol']) >= 1
-    rows = list(data.get('rows') or [])
-    assert data['line_count'] == len(rows)
-    assert len(rows) >= 8
-    venues = {row['exchange'] for row in rows if row.get('exchange')}
-    currencies = {row['currency'] for row in rows if row.get('currency')}
-    assert data['venue_count'] == len(venues)
-    assert data['currency_count'] == len(currencies)
-    assert data['venue_count'] >= 3
-    assert data['currency_count'] >= 2
-
-    completed_close_mode = data.get('close_selection_policy') == 'latest_daily_bar_strictly_before_report_date'
-    report_date = date.fromisoformat(data['report_date']) if completed_close_mode else None
-    priced = 0
-    failed = 0
-    for row in rows:
-        assert REQUIRED_ROW_FIELDS.issubset(row.keys())
-        assert row['pricing_status'] in ALLOWED_STATUSES
-        assert row['valuation_grade'] is False
-        assert row['fundable'] is False
-        assert isinstance(row['blockers'], list)
-        assert row['source_quality_status'] == 'non_authoritative_connectivity_only'
-        assert row['source_agreement_status'] == 'not_agreement_gate_not_valuation_grade'
-        assert int(row['request_index']) >= 1
-        skipped_due_rate_limit = 'not_attempted_due_to_prior_yahoo_rate_limit' in row['blockers']
-        if int(row['request_index']) > 1 and not skipped_due_rate_limit:
-            assert float(row['pause_seconds_before_request']) >= 10.0
-        assert float(row['rate_limit_cooldown_seconds']) >= 300.0
-        if row['pricing_status'] == 'priced_non_authoritative':
-            assert row['close_price'] is not None
-            assert float(row['close_price']) > 0
-            assert row['close_date']
-            if completed_close_mode:
-                assert row.get('completed_close') is True
-                assert date.fromisoformat(row['close_date']) < report_date
-                assert row.get('close_selection_policy') == data['close_selection_policy']
-            priced += 1
-        if row['pricing_status'] == 'fetch_failed':
-            failed += 1
-    assert data['priced_line_count'] == priced
-    assert data['failed_line_count'] == failed
-    assert data['min_threshold_met'] is True
-    if completed_close_mode:
-        assert data.get('completed_close_gate_passed') is True
-        assert priced > 0
-    return {
-        'status': 'valid',
-        'artifact': str(path),
-        'line_count': len(rows),
-        'priced_line_count': priced,
-        'venue_count': len(venues),
-        'currency_count': len(currencies),
-        'valuation_grade': False,
-        'funding_authority': False,
-        'completed_close_gate_passed': data.get('completed_close_gate_passed'),
-        'close_selection_policy': data.get('close_selection_policy'),
-        'throttle_policy': throttle,
-        'batch_stopped_for_rate_limit': data.get('batch_stopped_for_rate_limit', False),
-    }
+def validate(
+    path: Path,
+    *,
+    portfolio_state: Path = Path("output/etf_eu_portfolio_state.json"),
+    expected_report_date: str | None = None,
+) -> dict[str, object]:
+    result = validate_artifact(
+        path,
+        expected_report_date=expected_report_date,
+        portfolio_state_path=portfolio_state,
+        require_funded_consensus=True,
+    )
+    if result["valid"] is not True:
+        raise AssertionError("; ".join(result["blockers"]))
+    return result
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--artifact', required=True)
+    parser = argparse.ArgumentParser(
+        description="Validate the canonical Weekly ETF EU v2 completed-close pricing contract."
+    )
+    parser.add_argument("--artifact", required=True)
+    parser.add_argument(
+        "--portfolio-state",
+        default="output/etf_eu_portfolio_state.json",
+    )
+    parser.add_argument("--expected-report-date")
     args = parser.parse_args()
-    print(json.dumps(validate(Path(args.artifact)), indent=2))
+    try:
+        result = validate(
+            Path(args.artifact),
+            portfolio_state=Path(args.portfolio_state),
+            expected_report_date=args.expected_report_date,
+        )
+    except AssertionError as exc:
+        result = validate_artifact(
+            Path(args.artifact),
+            expected_report_date=args.expected_report_date,
+            portfolio_state_path=Path(args.portfolio_state),
+            require_funded_consensus=True,
+        )
+        print(json.dumps(result, indent=2, sort_keys=True))
+        raise SystemExit(str(exc))
+    print(json.dumps(result, indent=2, sort_keys=True))
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
