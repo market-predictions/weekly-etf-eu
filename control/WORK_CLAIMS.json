@@ -38,19 +38,47 @@
       "release_line": "weekly-etf-eu-current-release",
       "integration_claim": true,
       "owner_role": "implementation_operations",
-      "scope": "Reconstruct the current release from current main by porting only still-relevant PR #80 deltas, then run exact-head CI, generate a fresh four-file candidate, validate it and obtain fresh independent assurance.",
+      "scope": "Frozen V3 release-integration lineage through exact PR #84 head; preserved as independently assured evidence and superseded for broader architecture convergence.",
       "branch": "agent/etf-eu-release-integration-v3",
       "base_or_target_branch": "main",
-      "last_reconciled_target_sha": "93dbe7450e44d22a2fe247a8d1f1ffb9e07adf3c",
-      "current_claim_head_sha": "93dbe7450e44d22a2fe247a8d1f1ffb9e07adf3c",
-      "status": "ACTIVE",
+      "last_reconciled_target_sha": "76325f60a3abcda4a059f7823c9c0b5024802870",
+      "current_claim_head_sha": "888a55b5bc8ae3d465691117157c616893b3addb",
+      "status": "SUPERSEDED",
       "opened_at": "2026-08-09T21:20:00Z",
-      "last_reconciled_at": "2026-08-09T21:20:00Z",
-      "pull_request": 0,
-      "pull_request_or_issue_reference": "successor to PR #80; PR to be opened after relevant-delta reconstruction",
+      "last_reconciled_at": "2026-08-10T09:53:00Z",
+      "pull_request": 84,
+      "pull_request_or_issue_reference": "PR #84; issue #87 exact-head release assurance PASS; frozen read-only evidence",
       "dependencies": [
         {"pull_request": 78},
-        {"pull_request": 82}
+        {"pull_request": 82},
+        {"issue": 87}
+      ],
+      "handover": {
+        "disposition": "SUPERSEDE",
+        "successor_claim_id": "ETF-EU-DONOR-CONVERGENCE-V1",
+        "path": "handover/ETF_EU_PR84_TO_DONOR_CONVERGENCE_V1_20260810.md"
+      }
+    },
+    {
+      "claim_id": "ETF-EU-DONOR-CONVERGENCE-V1",
+      "workpackage_id": "ETF-EU-WP-DONOR-CONVERGENCE-V1",
+      "repository": "market-predictions/weekly-etf-eu",
+      "release_line": "weekly-etf-eu-current-release",
+      "integration_claim": true,
+      "owner_role": "implementation_operations",
+      "scope": "Close donor-parity and EU authority gaps: remove shadow allocation leakage, converge discovery/re-underwriting/state/runtime contracts, canonicalize routine production and prepare a fresh independently assured successor release candidate without portfolio mutation or delivery.",
+      "branch": "agent/etf-eu-donor-convergence-v1",
+      "base_or_target_branch": "main",
+      "last_reconciled_target_sha": "76325f60a3abcda4a059f7823c9c0b5024802870",
+      "current_claim_head_sha": "557a2a0872976e042eb26292ff01b43ec5e799ec",
+      "status": "ACTIVE",
+      "opened_at": "2026-08-10T09:53:00Z",
+      "last_reconciled_at": "2026-08-10T09:53:00Z",
+      "pull_request": 0,
+      "pull_request_or_issue_reference": "successor to frozen PR #84; PR to be opened after control/authority bootstrap",
+      "dependencies": [
+        {"pull_request": 84},
+        {"issue": 87}
       ],
       "handover": null
     }
