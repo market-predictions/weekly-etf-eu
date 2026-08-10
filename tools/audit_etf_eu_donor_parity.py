@@ -33,9 +33,7 @@ REQUIRED_BUCKETS = {
 
 
 def text(path: Path) -> str:
-    if not path.exists():
-        return ""
-    return path.read_text(encoding="utf-8")
+    return path.read_text(encoding="utf-8") if path.exists() else ""
 
 
 def yaml_obj(path: Path) -> dict[str, Any]:
@@ -48,13 +46,7 @@ def yaml_obj(path: Path) -> dict[str, Any]:
 def result(capability: str, layer: str, status: str, evidence: list[str], note: str) -> dict[str, Any]:
     if status not in ALLOWED:
         raise ValueError(status)
-    return {
-        "capability": capability,
-        "layer": layer,
-        "status": status,
-        "evidence": evidence,
-        "note": note,
-    }
+    return {"capability": capability, "layer": layer, "status": status, "evidence": evidence, "note": note}
 
 
 def audit(root: Path, donor_root: Path | None = None) -> dict[str, Any]:
@@ -63,16 +55,19 @@ def audit(root: Path, donor_root: Path | None = None) -> dict[str, Any]:
     investability = text(root / "control/UCITS_INVESTABILITY_RULES.md")
     authority = text(root / "control/ETF_EU_ALLOCATION_AUTHORITY_CONVERGENCE_V1.md")
     reunderwriting = text(root / "control/CAPITAL_REUNDERWRITING_RULES.md")
-    lane_contract = text(root / "control/LANE_DISCOVERY_CONTRACT.md")
     system_index = text(root / "control/SYSTEM_INDEX.md")
     runbook = text(root / "control/ETF_EU_ROUTINE_WEEKLY_PRODUCTION_RUNBOOK_V2.md")
     state_v3 = text(root / "runtime/build_etf_eu_production_convergence_state_v3.py")
-    client_surface = text(root / "runtime/synchronize_etf_eu_current_state_surface_v2.py")
+    pr_surface = text(root / "runtime/synchronize_etf_eu_current_state_surface_v2.py")
+    renderer_v3 = text(root / "runtime/render_etf_eu_client_grade_v3_converged.py")
+    package_v3 = text(root / "tools/build_etf_eu_routine_report_package_v2.py")
+    validator_v3 = text(root / "tools/validate_etf_eu_client_grade_report_v3.py")
     score_builder = text(root / "runtime/build_etf_eu_current_reunderwriting_scorecard.py")
     score_validator = text(root / "tools/validate_etf_eu_current_reunderwriting_scorecard.py")
     macro = text(root / "runtime/adapt_weekly_etf_macro_for_eu.py")
     routine = text(root / ".github/workflows/run-weekly-etf-eu-routine.yml")
-    assurance = text(root / "tools/validate_etf_eu_release_assurance.py")
+    assurance_builder = text(root / "tools/build_etf_eu_release_assurance.py")
+    assurance_validator = text(root / "tools/validate_etf_eu_release_assurance.py")
 
     items: list[dict[str, Any]] = []
 
@@ -89,22 +84,20 @@ def audit(root: Path, donor_root: Path | None = None) -> dict[str, Any]:
         and int(rules.get("minimum_challengers") or 0) >= 4
     )
     items.append(result(
-        "broad_discovery",
-        "decision_framework",
-        "EU_ADAPTED_PARITY" if discovery_ok else "GAP_BLOCKING",
+        "broad_discovery", "decision_framework", "EU_ADAPTED_PARITY" if discovery_ok else "GAP_BLOCKING",
         ["config/etf_eu_discovery_universe.yml", "control/LANE_DISCOVERY_CONTRACT.md"],
         "Donor-comparable breadth is preserved while missing exact UCITS mappings block funding rather than research." if discovery_ok else "Required donor breadth or Stage-1 de-freezing is incomplete.",
     ))
 
-    mapping_ok = all(
-        row.get("proxy_authority") in {None, "research_only"}
-        and row.get("mapping_status")
-        for row in lanes
-    ) and "U.S.-listed ETFs remain research references only" in investability
+    investability_folded = investability.casefold()
+    proxy_boundary_ok = (
+        "u.s.-listed etfs may be used only" in investability_folded
+        and "research proxies" in investability_folded
+        and "may not be portfolio holdings" in investability_folded
+    )
+    mapping_ok = all(row.get("proxy_authority") in {None, "research_only"} and row.get("mapping_status") for row in lanes) and proxy_boundary_ok
     items.append(result(
-        "proxy_to_ucits_mapping",
-        "input_state_contract",
-        "INTENTIONAL_EU_DIVERGENCE" if mapping_ok else "GAP_BLOCKING",
+        "proxy_to_ucits_mapping", "input_state_contract", "INTENTIONAL_EU_DIVERGENCE" if mapping_ok else "GAP_BLOCKING",
         ["control/UCITS_INVESTABILITY_RULES.md", "config/etf_eu_discovery_universe.yml"],
         "EU requires exact UCITS identity/KID/trading-line evidence; U.S. vehicles remain research proxies." if mapping_ok else "Proxy/fundable boundary is not explicit enough.",
     ))
@@ -118,147 +111,99 @@ def audit(root: Path, donor_root: Path | None = None) -> dict[str, Any]:
         and "historical_stage1_candidate_gate_applied" in state_v3
     )
     items.append(result(
-        "allocation_authority",
-        "decision_framework",
-        "EU_ADAPTED_PARITY" if transition_ok else "GAP_BLOCKING",
+        "allocation_authority", "decision_framework", "EU_ADAPTED_PARITY" if transition_ok else "GAP_BLOCKING",
         ["control/ETF_EU_ALLOCATION_AUTHORITY_CONVERGENCE_V1.md", "config/etf_eu_transition_policy_v1.yml", "runtime/build_etf_eu_production_convergence_state_v3.py"],
         "Current authority is separated from historical Stage-1/shadow scenarios without inventing replacement caps." if transition_ok else "Historical transition policy can still affect current allocation authority.",
     ))
 
     retired_tokens = ["35% minimum cash", "15% maximum new ETF", "50% cash-first"]
     authority_ok = all(token in authority for token in retired_tokens) and "current_allocation_authority=false" in authority
-    client_ok = (
-        "transition_allocator_removed_from_client_authority" in client_surface
-        and "measured_lower_bound_not_target_or_control" in client_surface
-        and "broker_neutral_model_execution_permission_separate" in client_surface
-    )
+    client_combined = pr_surface + "\n" + renderer_v3 + "\n" + package_v3 + "\n" + validator_v3
+    client_ok = all(token in client_combined for token in [
+        "shadow_policy_used_for_current_allocation",
+        "retired_fixed_percentage_used",
+        "historical_target_used_for_current_trade",
+        "measured_lower_bound",
+        "broker_specific_permission_required_for_model",
+    ]) and "client_grade_v3_donor_converged" in client_combined
     items.append(result(
-        "client_control_authority_hygiene",
-        "output_contract",
-        "EU_ADAPTED_PARITY" if authority_ok and client_ok else "GAP_BLOCKING",
-        ["runtime/synchronize_etf_eu_current_state_surface_v2.py", "control/ETF_EU_ALLOCATION_AUTHORITY_CONVERGENCE_V1.md"],
-        "Retired/shadow percentages are removed from current client authority and embedded exposure is typed as a lower bound." if authority_ok and client_ok else "Current client authority can still expose historical controls or ambiguous lower-bound semantics.",
+        "client_control_authority_hygiene", "output_contract", "EU_ADAPTED_PARITY" if authority_ok and client_ok else "GAP_BLOCKING",
+        ["runtime/render_etf_eu_client_grade_v3_converged.py", "tools/build_etf_eu_routine_report_package_v2.py", "tools/validate_etf_eu_client_grade_report_v3.py", "control/ETF_EU_ALLOCATION_AUTHORITY_CONVERGENCE_V1.md"],
+        "Current client/report authority is actual-state based; retired/shadow percentages and historical targets are excluded and embedded exposure is typed as a lower bound." if authority_ok and client_ok else "Current client authority can still expose historical controls or ambiguous lower-bound semantics.",
     ))
 
-    broker_ok = (
-        "broker_specific_permission_required_for_model=false" in investability
-        and "broker_permission_required_for_real_execution=true" in investability
-        and "broker_specific_permission_required_for_model=false" in runbook
-        and "broker_permission_required_for_real_execution=true" in runbook
-    )
+    broker_ok = all(token in investability for token in [
+        "broker_specific_permission_required_for_model=false",
+        "broker_permission_required_for_real_execution=true",
+    ]) and all(token in runbook for token in [
+        "broker_specific_permission_required_for_model=false",
+        "broker_permission_required_for_real_execution=true",
+    ])
     items.append(result(
-        "broker_neutral_model_boundary",
-        "input_state_contract",
-        "INTENTIONAL_EU_DIVERGENCE" if broker_ok else "GAP_BLOCKING",
+        "broker_neutral_model_boundary", "input_state_contract", "INTENTIONAL_EU_DIVERGENCE" if broker_ok else "GAP_BLOCKING",
         ["control/UCITS_INVESTABILITY_RULES.md", "control/ETF_EU_ROUTINE_WEEKLY_PRODUCTION_RUNBOOK_V2.md"],
         "Model investability is broker-neutral; account permission is reserved for real execution." if broker_ok else "Broker-neutrality contracts remain contradictory.",
     ))
 
-    reunderwriting_ok = all(token in reunderwriting for token in [
-        "Would initiate today?",
-        "Exact-UCITS alternative duel",
-        "Action clock / inertia",
-        "Cash policy",
-    ]) and "funded positions" in score_validator and "fresh_cash_test" in score_builder
+    reunderwriting_ok = all(token in reunderwriting for token in ["Would initiate today?", "Exact-UCITS alternative duel", "Action clock / inertia", "Cash policy"]) and all(token in score_builder for token in ["fresh_cash_test", "would_initiate_today", "cash_policy_flag", "current_price_status"]) and "all_funded_positions_covered" in score_validator
     items.append(result(
-        "capital_reunderwriting",
-        "decision_framework",
-        "EU_ADAPTED_PARITY" if reunderwriting_ok else "GAP_BLOCKING",
+        "capital_reunderwriting", "decision_framework", "EU_ADAPTED_PARITY" if reunderwriting_ok else "GAP_BLOCKING",
         ["control/CAPITAL_REUNDERWRITING_RULES.md", "runtime/build_etf_eu_current_reunderwriting_scorecard.py", "tools/validate_etf_eu_current_reunderwriting_scorecard.py"],
-        "Donor fresh-cash, alternative-duel, action-clock and cash-discipline behaviors are adapted to exact UCITS candidates." if reunderwriting_ok else "Current-run re-underwriting memory is incomplete.",
+        "Donor fresh-cash, alternative-duel, action-clock and cash-discipline behaviors are adapted to exact UCITS candidates and current pricing evidence." if reunderwriting_ok else "Current-run re-underwriting memory is incomplete.",
     ))
 
-    normalized_ok = all(token in state_v3 for token in [
-        "current_allocation_authority",
-        "historical_transition_scenario",
-        "historical_target_used_for_current_trade",
-        "promoted_exposures",
-    ])
+    normalized_ok = all(token in state_v3 for token in ["current_allocation_authority", "historical_transition_scenario", "historical_target_used_for_current_trade", "promoted_exposures"]) and all(token in package_v3 for token in ["_apply_current_funded_valuation", "_persist_current_valuation_history", "current_reunderwriting"])
     items.append(result(
-        "normalized_state_authority",
-        "input_state_contract",
-        "EU_ADAPTED_PARITY" if normalized_ok else "GAP_BLOCKING",
-        ["runtime/build_etf_eu_production_convergence_state_v3.py"],
-        "Actual state/current review authority is explicitly separated from historical transition evidence." if normalized_ok else "Normalized state still conflates current and historical authority.",
+        "normalized_state_authority", "input_state_contract", "EU_ADAPTED_PARITY" if normalized_ok else "GAP_BLOCKING",
+        ["runtime/build_etf_eu_production_convergence_state_v3.py", "tools/build_etf_eu_routine_report_package_v2.py"],
+        "Actual state/current valuation/re-underwriting are explicitly separated from historical transition evidence and historical target authority." if normalized_ok else "Normalized state still conflates current and historical authority.",
     ))
 
-    macro_ok = all(token in macro for token in [
-        "source_sha256",
-        "source_report_date",
-        "age_days_at_eu_report_date",
-        "age_days > 3",
-    ]) and "runtime.adapt_weekly_etf_macro_for_eu" in routine
+    macro_ok = all(token in macro for token in ["source_sha256", "source_report_date", "age_days_at_eu_report_date", "age_days > 3", "freshness_passed"]) and "runtime.adapt_weekly_etf_macro_for_eu" in routine
     items.append(result(
-        "macro_provenance_and_freshness",
-        "input_state_contract",
-        "EU_ADAPTED_PARITY" if macro_ok else "GAP_BLOCKING",
+        "macro_provenance_and_freshness", "input_state_contract", "EU_ADAPTED_PARITY" if macro_ok else "GAP_BLOCKING",
         ["runtime/adapt_weekly_etf_macro_for_eu.py", ".github/workflows/run-weekly-etf-eu-routine.yml"],
-        "Donor macro content is hash/date bound and current routine adapts it with a fail-closed freshness limit." if macro_ok else "Current routine is not provably tied to donor macro evidence date/content identity.",
+        "Donor macro content is hash/date bound and current routine adapts it with a fail-closed evidence-date freshness limit." if macro_ok else "Current routine is not provably tied to donor macro evidence date/content identity.",
     ))
 
-    routine_ok = (
-        "ETF_EU_REPORT_DATE" in routine
-        and "request_path" in routine
-        and "Build and validate independent governance release assurance" in routine
-        and "Execute guarded current-run delivery" in routine
-        and "run-weekly-etf-eu-routine.yml" in system_index
-        and "RUNBOOK_V2" in system_index
-    )
+    routine_ok = all(token in routine for token in [
+        "ETF_EU_REPORT_DATE", "request_path", "Run five-layer donor parity audit",
+        "Validate donor-converged current re-underwriting memory",
+        "Build and validate independent governance release assurance",
+        "Execute guarded current-run delivery",
+    ]) and "run-weekly-etf-eu-routine.yml" in system_index and "RUNBOOK_V2" in system_index
     items.append(result(
-        "canonical_dynamic_routine",
-        "operational_runbook",
-        "EU_ADAPTED_PARITY" if routine_ok else "GAP_BLOCKING",
+        "canonical_dynamic_routine", "operational_runbook", "EU_ADAPTED_PARITY" if routine_ok else "GAP_BLOCKING",
         [".github/workflows/run-weekly-etf-eu-routine.yml", "control/ETF_EU_ROUTINE_WEEKLY_PRODUCTION_RUNBOOK_V2.md", "control/SYSTEM_INDEX.md"],
-        "The routine is request/run-scoped and separate from historical hardcoded repair workflows." if routine_ok else "Routine-production authority or dynamic date/run identity remains ambiguous.",
+        "The routine is request/run-scoped, donor-parity/re-underwriting gated, and separate from historical hardcoded repair workflows." if routine_ok else "Routine-production authority or dynamic date/run identity remains ambiguous.",
     ))
 
-    assurance_ok = bool(assurance) and "governance" in system_index.casefold() and "receipt" in runbook.casefold()
+    assurance_ok = bool(assurance_builder) and bool(assurance_validator) and "governance" in system_index.casefold() and "receipt" in runbook.casefold()
     items.append(result(
-        "independent_release_and_delivery_assurance",
-        "governance_release_assurance",
-        "PARITY" if assurance_ok else "GAP_BLOCKING",
-        ["tools/validate_etf_eu_release_assurance.py", "control/ETF_EU_TWO_ROLE_GOVERNANCE_MODEL_V1.md", "control/ETF_EU_ROUTINE_WEEKLY_PRODUCTION_RUNBOOK_V2.md"],
+        "independent_release_and_delivery_assurance", "governance_release_assurance", "PARITY" if assurance_ok else "GAP_BLOCKING",
+        ["tools/build_etf_eu_release_assurance.py", "tools/validate_etf_eu_release_assurance.py", "control/ETF_EU_TWO_ROLE_GOVERNANCE_MODEL_V1.md", "control/ETF_EU_ROUTINE_WEEKLY_PRODUCTION_RUNBOOK_V2.md"],
         "Independent candidate assurance and separate receipt-confirmed delivery closeout are preserved." if assurance_ok else "Release/delivery assurance evidence is incomplete.",
     ))
 
-    intentional = [
+    for capability, layer, note in [
         ("isin_first_identity", "input_state_contract", "ISIN + exact share class/trading line is stronger EU-specific authority."),
         ("ucits_priips_kid_gate", "input_state_contract", "UCITS/PRIIPs/KID is an EU-specific fundability boundary."),
         ("dutch_primary_output", "output_contract", "Dutch-primary plus English companion is an intentional product divergence."),
         ("us_etfs_research_only", "decision_framework", "U.S. ETFs are research proxies, never funded EU holdings."),
         ("no_report_workflow_broker_execution", "operational_runbook", "Report workflow cannot execute real broker orders."),
-    ]
-    for capability, layer, note in intentional:
+    ]:
         items.append(result(capability, layer, "INTENTIONAL_EU_DIVERGENCE", ["control/SYSTEM_INDEX.md"], note))
 
     donor_evidence: dict[str, Any] = {"checked": False}
     if donor_root is not None:
-        donor_files = [
-            donor_root / "control/LANE_DISCOVERY_CONTRACT.md",
-            donor_root / "control/CAPITAL_REUNDERWRITING_RULES.md",
-            donor_root / "control/ETF_RUNTIME_STATE_CONTRACT.md",
-        ]
-        donor_evidence = {
-            "checked": True,
-            "required_files": [str(path) for path in donor_files],
-            "all_required_files_present": all(path.exists() for path in donor_files),
-        }
-        if not donor_evidence["all_required_files_present"]:
-            items.append(result(
-                "donor_reference_material",
-                "governance_release_assurance",
-                "GAP_BLOCKING",
-                [str(path) for path in donor_files],
-                "Required donor reference contracts are not available to the parity audit.",
-            ))
-        else:
-            items.append(result(
-                "donor_reference_material",
-                "governance_release_assurance",
-                "PARITY",
-                [str(path) for path in donor_files],
-                "Mature donor discovery/re-underwriting/runtime reference contracts are present for comparison.",
-            ))
+        donor_files = [donor_root / "control/LANE_DISCOVERY_CONTRACT.md", donor_root / "control/CAPITAL_REUNDERWRITING_RULES.md", donor_root / "control/ETF_RUNTIME_STATE_CONTRACT.md"]
+        present = all(path.exists() for path in donor_files)
+        donor_evidence = {"checked": True, "required_files": [str(path) for path in donor_files], "all_required_files_present": present}
+        items.append(result(
+            "donor_reference_material", "governance_release_assurance", "PARITY" if present else "GAP_BLOCKING",
+            [str(path) for path in donor_files],
+            "Mature donor discovery/re-underwriting/runtime reference contracts are present for comparison." if present else "Required donor reference contracts are not available to the parity audit.",
+        ))
 
     blockers = [item for item in items if item["status"] == "GAP_BLOCKING"]
     nonblocking = [item for item in items if item["status"] == "GAP_NONBLOCKING"]
@@ -272,10 +217,7 @@ def audit(root: Path, donor_root: Path | None = None) -> dict[str, Any]:
             "blocking_gap_count": len(blockers),
             "nonblocking_gap_count": len(nonblocking),
             "release_blocked": bool(blockers),
-            "statuses": {
-                status: sum(1 for item in items if item["status"] == status)
-                for status in sorted(ALLOWED)
-            },
+            "statuses": {status: sum(1 for item in items if item["status"] == status) for status in sorted(ALLOWED)},
         },
         "donor_evidence": donor_evidence,
         "valid": not blockers,
