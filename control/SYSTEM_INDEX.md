@@ -141,9 +141,12 @@ Rules:
 - `control/UCITS_SYMBOL_REGISTRY_CONTRACT.md`
 - `control/UCITS_MIGRATION_PLAN.md`
 - `control/CAPITAL_REUNDERWRITING_RULES.md`
+- `control/LANE_DISCOVERY_CONTRACT.md`
 - `control/ETF_EU_PRODUCTION_DELIVERY_CLOSEOUT_CONTRACT_V1.md`
-- `control/ETF_EU_ROUTINE_WEEKLY_PRODUCTION_RUNBOOK_V1.md`
+- `control/ETF_EU_ROUTINE_WEEKLY_PRODUCTION_RUNBOOK_V2.md`
 - `control/ETF_EU_TWO_ROLE_GOVERNANCE_MODEL_V1.md`
+
+`control/ETF_EU_ROUTINE_WEEKLY_PRODUCTION_RUNBOOK_V1.md` is retained as historical compatibility provenance. It is superseded for current routine runs by V2 and may not override V2 broker-neutrality, allocation-authority, discovery or re-underwriting rules.
 
 ## Canonical EU configuration
 
