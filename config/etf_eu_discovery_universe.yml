@@ -1,28 +1,265 @@
-schema_version: etf_eu_discovery_universe_v1
-universe_type: ucits_candidates
+schema_version: etf_eu_discovery_universe_v2
+universe_type: ucits_research_and_mapping_candidates
+authority_contract: control/ETF_EU_ALLOCATION_AUTHORITY_CONVERGENCE_V1.md
 
 rules:
   us_etfs_allowed_as_research_proxies_only: true
   funded_candidates_require_ucits_verification: true
-  canonical_identity: isin_first
+  canonical_identity: isin_plus_exact_trading_line
+  research_lane_may_exist_without_ucits_mapping: true
+  missing_ucits_mapping_blocks_funding_not_research: true
+  historical_stage1_allowlist_is_discovery_gate: false
+  minimum_assessed_breadth_buckets: 12
+  target_candidate_lanes_min: 10
+  target_candidate_lanes_max: 15
+  minimum_challengers: 4
+  promoted_live_radar_min: 5
+  promoted_live_radar_max: 8
+  donor_target_weight_is_allocation_authority: false
+
+required_breadth_buckets:
+  - ai_digital_infrastructure
+  - defense_resilience
+  - grid_power_electrification
+  - uranium_nuclear
+  - agriculture_food_security
+  - water
+  - china
+  - india_regional_industrialization
+  - biotech_healthcare_innovation
+  - fintech_financial_infrastructure
+  - robotics_automation
+  - critical_minerals_materials
 
 lanes:
-  - lane_name: Core U.S. equity UCITS
-    benchmark_proxy: SPY
-    investable_status: requires_ucits_candidate_verification
-    candidate_source: config/ucits_benchmark_proxy_map.yml
+  - lane_name: Cybersecurity resilience UCITS
+    taxonomy_tag: cyber_security
+    bucket: ai_digital_infrastructure
+    benchmark_proxy: CIBR
+    proxy_authority: research_only
+    mapping_status: exact_ucits_mapping_available
+    candidate:
+      ticker: L0CK
+      isin: IE00BG0J4C88
+      venue: Xetra
+      trading_currency: EUR
+      mapping_evidence: current_portfolio_and_stage1_activation
 
-  - lane_name: Semiconductor UCITS
+  - lane_name: Semiconductor / AI compute UCITS
+    taxonomy_tag: ai_compute_infrastructure
+    bucket: ai_digital_infrastructure
     benchmark_proxy: SMH
-    investable_status: requires_ucits_candidate_verification
-    candidate_source: config/ucits_benchmark_proxy_map.yml
+    proxy_authority: research_only
+    mapping_status: exact_ucits_mapping_available
+    candidate:
+      ticker: VVSM
+      isin: IE00BMC38736
+      venue: Xetra
+      trading_currency: EUR
+      mapping_evidence: config/etf_eu_incumbent_overlap_evidence_20260724.yml
 
-  - lane_name: Infrastructure UCITS
+  - lane_name: Defense resilience UCITS
+    taxonomy_tag: defense_resilience
+    bucket: defense_resilience
+    benchmark_proxy: PPA
+    proxy_authority: research_only
+    mapping_status: exact_ucits_mapping_available
+    candidate:
+      ticker: DFEN
+      isin: IE000YYE6WK5
+      venue: Xetra
+      trading_currency: EUR
+      mapping_evidence: config/etf_eu_prioritized_ucits_mapping_evidence_20260728.yml
+
+  - lane_name: Grid / electrification UCITS
+    taxonomy_tag: grid_power
+    bucket: grid_power_electrification
     benchmark_proxy: PAVE
-    investable_status: requires_ucits_candidate_verification
-    candidate_source: config/ucits_benchmark_proxy_map.yml
+    proxy_authority: research_only
+    mapping_status: mapping_required
+    candidate: null
+    mapping_evidence: config/etf_eu_prioritized_ucits_mapping_evidence_20260728.yml
+    note: Exact official ISIN and European trading line remain unresolved in the retained mapping evidence.
 
-  - lane_name: Gold / commodity hedge EU-listed products
-    benchmark_proxy: GLD
-    investable_status: requires_ucits_candidate_verification
-    candidate_source: config/ucits_benchmark_proxy_map.yml
+  - lane_name: Uranium / nuclear UCITS
+    taxonomy_tag: uranium_nuclear
+    bucket: uranium_nuclear
+    benchmark_proxy: URNM
+    proxy_authority: research_only
+    mapping_status: exact_ucits_mapping_available
+    candidate:
+      ticker: NUKL
+      isin: IE000M7V94E1
+      venue: requires_current_line_reconfirmation
+      trading_currency: requires_current_line_reconfirmation
+      mapping_evidence: config/etf_eu_prioritized_ucits_mapping_evidence_20260728.yml
+
+  - lane_name: Agriculture / food-security UCITS
+    taxonomy_tag: agri_food_security
+    bucket: agriculture_food_security
+    benchmark_proxy: null
+    proxy_source: donor_lane_dynamic
+    proxy_authority: research_only
+    mapping_status: exact_ucits_mapping_available
+    candidate:
+      ticker: ISAE
+      isin: IE00B6R52143
+      venue: Euronext Amsterdam
+      trading_currency: EUR
+      mapping_evidence: config/etf_eu_prioritized_ucits_mapping_evidence_20260728.yml
+
+  - lane_name: Water infrastructure UCITS
+    taxonomy_tag: water_infrastructure
+    bucket: water
+    benchmark_proxy: null
+    proxy_source: donor_lane_dynamic
+    proxy_authority: research_only
+    mapping_status: exact_ucits_mapping_available
+    candidate:
+      ticker: XMLC
+      isin: IE00BK5BC891
+      venue: Xetra
+      trading_currency: EUR
+      mapping_evidence: config/ucits_close_price_validation_basket.yml
+
+  - lane_name: Water utilities UCITS
+    taxonomy_tag: water_utilities
+    bucket: water
+    benchmark_proxy: null
+    proxy_source: donor_lane_dynamic
+    proxy_authority: research_only
+    mapping_status: exact_ucits_mapping_available
+    candidate:
+      ticker: IQQQ
+      isin: IE00B1TXK627
+      venue: Xetra
+      trading_currency: EUR
+      mapping_evidence: config/ucits_close_price_validation_basket.yml
+
+  - lane_name: Healthcare quality UCITS
+    taxonomy_tag: healthcare_quality
+    bucket: biotech_healthcare_innovation
+    benchmark_proxy: XLV
+    proxy_authority: research_only
+    mapping_status: exact_ucits_mapping_available
+    candidate:
+      ticker: CBUF
+      isin: IE00BJ5JNZ06
+      venue: Xetra
+      trading_currency: EUR
+      mapping_evidence: config/etf_eu_prioritized_ucits_mapping_evidence_20260728.yml
+
+  - lane_name: Biotechnology innovation UCITS
+    taxonomy_tag: biotech_innovation
+    bucket: biotech_healthcare_innovation
+    benchmark_proxy: XBI
+    proxy_authority: research_only
+    mapping_status: exact_ucits_mapping_available
+    candidate:
+      ticker: 2B70
+      isin: IE00BYXG2H39
+      venue: requires_current_line_reconfirmation
+      trading_currency: requires_current_line_reconfirmation
+      mapping_evidence: config/etf_eu_prioritized_ucits_mapping_evidence_20260728.yml
+
+  - lane_name: Developed ex-U.S. equity UCITS
+    taxonomy_tag: non_us_developed_equities
+    bucket: india_regional_industrialization
+    benchmark_proxy: IEFA
+    proxy_authority: research_only
+    mapping_status: exact_ucits_mapping_available_but_fresh_fundability_evidence_required
+    candidate:
+      ticker: IXUA
+      isin: IE000R4ZNTN3
+      venue: requires_current_line_reconfirmation
+      trading_currency: requires_current_line_reconfirmation
+      mapping_evidence: config/etf_eu_prioritized_ucits_mapping_evidence_20260728.yml
+    note: This lane supplies developed ex-U.S. breadth; it does not substitute for a dedicated India lane.
+
+  - lane_name: China opportunity UCITS
+    taxonomy_tag: china
+    bucket: china
+    benchmark_proxy: null
+    proxy_source: donor_lane_dynamic
+    proxy_authority: research_only
+    mapping_status: mapping_required
+    candidate: null
+
+  - lane_name: India industrialization UCITS
+    taxonomy_tag: india_industrialization
+    bucket: india_regional_industrialization
+    benchmark_proxy: null
+    proxy_source: donor_lane_dynamic
+    proxy_authority: research_only
+    mapping_status: mapping_required
+    candidate: null
+
+  - lane_name: Financial infrastructure / fintech UCITS
+    taxonomy_tag: fintech_financial_infrastructure
+    bucket: fintech_financial_infrastructure
+    benchmark_proxy: null
+    proxy_source: donor_lane_dynamic
+    proxy_authority: research_only
+    mapping_status: mapping_required
+    candidate: null
+
+  - lane_name: Robotics / automation UCITS
+    taxonomy_tag: robotics_automation
+    bucket: robotics_automation
+    benchmark_proxy: null
+    proxy_source: donor_lane_dynamic
+    proxy_authority: research_only
+    mapping_status: mapping_required
+    candidate: null
+
+  - lane_name: Critical minerals / enabling materials UCITS
+    taxonomy_tag: critical_minerals_materials
+    bucket: critical_minerals_materials
+    benchmark_proxy: null
+    proxy_source: donor_lane_dynamic
+    proxy_authority: research_only
+    mapping_status: mapping_required
+    candidate: null
+
+  - lane_name: Core U.S. equity UCITS
+    taxonomy_tag: core_us_equity
+    bucket: ai_digital_infrastructure
+    benchmark_proxy: SPY
+    proxy_authority: research_only
+    mapping_status: funded_exact_ucits_line
+    candidate:
+      ticker: SXR8
+      isin: IE00B5BMR087
+      venue: Xetra
+      trading_currency: EUR
+
+  - lane_name: Global core equity UCITS
+    taxonomy_tag: global_core_equity
+    bucket: india_regional_industrialization
+    benchmark_proxy: null
+    proxy_source: broad_core_reference
+    proxy_authority: research_only
+    mapping_status: funded_exact_ucits_line
+    candidate:
+      ticker: VWCE
+      isin: IE00BK5BQT80
+      venue: Xetra
+      trading_currency: EUR
+
+  - lane_name: Aggregate bond stabiliser UCITS
+    taxonomy_tag: aggregate_bonds
+    bucket: grid_power_electrification
+    benchmark_proxy: null
+    proxy_source: portfolio_role_reference
+    proxy_authority: research_only
+    mapping_status: funded_exact_ucits_line
+    candidate:
+      ticker: EUNA
+      isin: IE00BDBRDM35
+      venue: Xetra
+      trading_currency: EUR
+
+intentional_divergence:
+  - U.S. benchmark proxies are never fundable EU holdings.
+  - A research bucket remains assessed even when exact UCITS mapping is missing.
+  - Exact UCITS mapping, KID, trading line and current pricing are separate fundability gates.
