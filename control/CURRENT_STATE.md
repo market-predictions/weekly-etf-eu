@@ -14,7 +14,8 @@ working_branch=agent/etf-eu-donor-parity-reconciliation-v1
 pull_request=91
 parent_issue=90
 failed_assurance_issue=92
-state=ASSURANCE_FAIL_IMPLEMENTATION_REPAIR_ACTIVE
+state=REPAIR_IMPLEMENTATION_COMPLETE_PRE_HANDOVER
+last_green_semantic_head=19954692ff8b33d5ffac9b09d6654210a7194997
 principal_decision_required=false
 principal_action_required=false
 merge_authorized=false
@@ -25,9 +26,9 @@ report_delivery=false
 real_broker_execution=false
 ```
 
-## Assurance outcome
+## Assurance history
 
-Independent `governance_release_assurance` reviewed frozen PR #91 head:
+Independent issue #92 reviewed frozen PR #91 head:
 
 `a9f93af018623011ac4b2cae742d69ea1441b4ca`
 
@@ -35,57 +36,60 @@ and returned:
 
 `ETF_EU_PR91_DONOR_PARITY_ASSURANCE: FAIL`
 
-Issue #92 is the immutable assurance record for that failed candidate. The failed SHA must never be treated as merge- or delivery-authorized.
+Issue #92 is closed as the immutable assurance record for that failed candidate. The failed SHA has no merge or delivery authority and cannot be reused for the repaired candidate.
 
-The review confirmed the donor-parity allocation/state decisions and protected portfolio boundaries, but found two executable release blockers below.
+The review confirmed the existing donor-parity allocation/state decisions and protected boundaries. It found two executable blockers: pricing-contract incoherence and stale three-position Markdown delivery copy.
 
-## P0 blocker A — pricing v2 execution contract
+## Repair outcome — COMPLETE
 
-The failed candidate mixed three incompatible expectations:
-- provider builder emitted `ucits_close_price_validation_basket_results_v2`;
-- validator required v1;
-- normalized state still relied on historical `min_threshold_met`.
-
-The candidate workflow also failed to bind provider pricing explicitly to `ETF_EU_REPORT_DATE` and did not require funded consensus at the provider boundary.
-
-Repair authority:
-- `pricing/ucits_close_price_validation_contract_v2.py`
-- `tools/validate_ucits_close_price_validation_basket_results.py`
-- `runtime/build_etf_eu_client_grade_report_state_v2.py`
-- `.github/workflows/run-weekly-etf-eu-routine.yml`
-
-Required current behavior:
+### Pricing v2
+Canonical candidate chain is now:
 
 ```text
 candidate request report_date
-→ provider qualification on that exact date
+→ provider qualification on exact report_date
 → ucits_close_price_validation_basket_results_v2
-→ funded two-provider consensus + exact-line identity gate
-→ v2 validator
+→ funded two-provider same-date consensus
+→ shared v2 validator
 → v2 normalized state
 → candidate package
 ```
 
-Any v1 schema, report-date drift, missing funded line, one-provider funded evidence or failed funded pricing gate must fail closed.
+The candidate workflow passes the exact report date, requires funded consensus and validates against the same report date. V1 schema, report-date drift, one-provider funded evidence, missing funded lines and a failed funded pricing gate fail closed.
 
-## P0 blocker B — Markdown delivery-state consistency
+The hidden package-level legacy `min_threshold_met`/priced-line-count release gate has been removed. Persisted normalized state carries funded v2 pricing evidence and funded-consistency metadata.
 
-The failed candidate still had a hard-coded Markdown reconciliation path that could state `three funded UCITS positions`, omit L0CK and describe only VWCE/EUNA/SXR8 even though protected state contains four funded positions.
+### Markdown/output consistency
+NL and EN Markdown are now state-derived delivery artifacts:
+- funded count is dynamic;
+- exact funded ticker set includes VWCE, EUNA, SXR8 and L0CK;
+- hard-coded three-position copy is removed;
+- retired strategic/phase targets and fixed 7.50% reserve wording fail closed;
+- mixed-language NL leakage fails closed;
+- Markdown has its own strict candidate QA artifact;
+- final HTML/PDF normalizes internal funded-status enums to client-safe labels.
 
-Repair authority:
-- `runtime/reconcile_etf_eu_funded_markdown.py`
-- `tools/validate_etf_eu_markdown_delivery_artifacts.py`
-- `.github/workflows/run-weekly-etf-eu-routine.yml`
+### Real end-to-end candidate regression
+The donor-parity release regression invokes the real v2 package builder and generates/validates all six client artifacts: NL/EN MD, HTML and PDF.
 
-Required current behavior:
-- NL/EN Markdown funded count is dynamic from protected/current normalized state;
-- funded ticker set is dynamic and includes L0CK;
-- retired three-position, strategic/phase-target and fixed 7.50% reserve wording fails closed;
-- Markdown is validated as a real delivery artifact, not merely an audit companion.
+Exact semantic-baseline evidence for `19954692ff8b33d5ffac9b09d6654210a7194997`:
+- donor parity/full package E2E `31433054217` — SUCCESS, 31 tests passed;
+- product boundary `31433053898` — SUCCESS;
+- release evidence preflight `31433054597` — SUCCESS;
+- shadow CID transport `31433054225` — SUCCESS;
+- strategy synchronization shadow `31433054231` — SUCCESS;
+- target allocator shadow `31433054316` — SUCCESS;
+- transition composition replay `31433054295` — SUCCESS.
+
+The donor-parity job also reports:
+
+```text
+ETF_EU_WORKFLOW_AUTHORITY=PASS
+ETF_EU_CANDIDATE_PRICING_AND_MARKDOWN_WIRING=PASS
+ETF_EU_DONOR_PARITY_STATIC_AUTHORITY_AUDIT=PASS
+```
 
 ## Protected portfolio authority
-
-Authority remains:
 
 `output/etf_eu_portfolio_state.json`
 
@@ -103,16 +107,13 @@ model_portfolio_only=true
 real_broker_execution=false
 ```
 
-This assurance-fail repair does not reopen allocation decisions and may not change shares, cash or the trade ledger.
+No repair commit changed protected shares, cash or the trade ledger.
 
-## Allocation authority retained from the passed scope
+## Allocation authority — NOT REOPENED
 
-Canonical contract:
+`control/ETF_EU_ALLOCATION_AUTHORITY_V1.md` remains canonical.
 
-`control/ETF_EU_ALLOCATION_AUTHORITY_V1.md`
-
-Still retired as current authority:
-
+Retired current authority:
 ```text
 50% maximum position
 35% minimum cash
@@ -120,34 +121,25 @@ Still retired as current authority:
 75% as a position cap
 ```
 
-Still research/shadow only unless separately adopted:
-
+Research/shadow only unless separately adopted:
 ```text
 25% turnover
 18% AI-compute/semiconductor cap
 ```
 
-Donor cash >3%/>5% and ~40% factor thresholds remain review/disclosure triggers, not allocation caps or target weights.
+Donor cash >3%/>5% and ~40% factor thresholds remain review/disclosure triggers, not allocation caps or targets. No new stable allocation decision is required for this repair.
 
-No new stable allocation decision is needed in `DECISION_LOG.md` for this repair.
+## Current release boundary
 
-## Workflow/release boundary
-
-PR #91 has been returned to draft implementation state. Any semantic repair creates a new candidate/head SHA and invalidates the earlier assurance cycle.
-
-Required sequence:
+Product implementation is complete. Remaining work is governance-only:
 
 ```text
-repair both blockers
-→ executable end-to-end candidate regression
-→ all exact-head PR gates green
-→ new implementation handover
-→ freeze new PR #91 head
+reconcile claim/next-actions/changelog
+→ final repair handover commit
+→ freeze resulting PR #91 SHA
 → fresh independent assurance in a new issue
 → merge only after PASS + unchanged head
 → exact-main validation and lifecycle closeout
-→ separate fresh-report production cycle
-→ separate guarded delivery authority
 ```
 
 No email send or broker execution is authorized by this repair mandate.
