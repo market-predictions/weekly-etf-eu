@@ -2,20 +2,6 @@ name: Validate ETF EU donor parity
 
 on:
   pull_request:
-    paths:
-      - "control/ETF_EU_ALLOCATION_AUTHORITY_V1.md"
-      - "control/ETF_EU_DISCOVERY_FUNDABILITY_CONTRACT_V1.md"
-      - "control/ETF_EU_ROUTINE_WEEKLY_PRODUCTION_RUNBOOK_V1.md"
-      - "config/ucits_benchmark_proxy_map.yml"
-      - "runtime/apply_etf_eu_donor_parity_contract.py"
-      - "runtime/build_etf_eu_donor_discovery_bridge.py"
-      - "runtime/adapt_weekly_etf_macro_for_eu.py"
-      - "tools/build_etf_eu_routine_report_package_v2.py"
-      - "tools/resolve_etf_eu_completed_close_date.py"
-      - "tools/select_weekly_etf_donor_lane_artifact.py"
-      - "tests/test_etf_eu_donor_parity_contract.py"
-      - "tests/test_etf_eu_donor_discovery_bridge.py"
-      - "tests/test_resolve_etf_eu_completed_close_date.py"
   workflow_dispatch:
 
 jobs:
@@ -23,34 +9,55 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
       - run: pip install pytest pyyaml
-      - name: Compile parity modules
+      - name: Compile parity and authority modules
         run: |
           python -m py_compile \
             runtime/apply_etf_eu_donor_parity_contract.py \
             runtime/build_etf_eu_donor_discovery_bridge.py \
             runtime/adapt_weekly_etf_macro_for_eu.py \
+            runtime/send_etf_eu_controlled_report.py \
             tools/resolve_etf_eu_completed_close_date.py \
             tools/select_weekly_etf_donor_lane_artifact.py \
-            tools/build_etf_eu_routine_report_package_v2.py
-      - name: Run donor-parity regressions
+            tools/build_etf_eu_routine_report_package_v2.py \
+            tools/validate_etf_eu_routine_report_request.py \
+            tools/validate_etf_eu_guarded_delivery_authority.py \
+            tools/validate_etf_eu_workflow_authority.py
+      - name: Run donor-parity and authority regressions
         run: |
           python -m pytest -q \
             tests/test_etf_eu_donor_parity_contract.py \
             tests/test_etf_eu_donor_discovery_bridge.py \
-            tests/test_resolve_etf_eu_completed_close_date.py
-      - name: Static authority leak audit
+            tests/test_resolve_etf_eu_completed_close_date.py \
+            tests/test_etf_eu_guarded_delivery_authority.py \
+            tests/test_etf_eu_routine_request_authority.py
+      - name: Validate workflow authority topology
+        run: |
+          python tools/validate_etf_eu_workflow_authority.py
+      - name: Static allocation authority leak audit
         run: |
           python - <<'PY'
           from pathlib import Path
+          import yaml
+
           authority = Path('control/ETF_EU_ALLOCATION_AUTHORITY_V1.md').read_text(encoding='utf-8')
           runbook = Path('control/ETF_EU_ROUTINE_WEEKLY_PRODUCTION_RUNBOOK_V1.md').read_text(encoding='utf-8')
+          transition = yaml.safe_load(Path('config/etf_eu_transition_policy_v1.yml').read_text(encoding='utf-8'))
+          target = yaml.safe_load(Path('config/etf_eu_target_allocation.yml').read_text(encoding='utf-8'))
           assert 'broker_specific_permission_required_for_model=false' in authority
           assert 'broker_permission_required_for_real_execution=true' in authority
           assert 'there is no universal current ETF EU cash floor' in runbook
           assert 'Transition allocator, CAP01 first-tranche activation' in runbook
+          assert transition['authority_status'] == 'HISTORICAL_NON_EXECUTABLE'
+          assert transition['canonical_for_current_allocation'] is False
+          assert transition['funding_authority'] is False
+          assert target['authority_status'] == 'HISTORICAL_NON_EXECUTABLE'
+          assert target['canonical_for_current_allocation'] is False
+          assert target['activation']['broker_specific_permission_required_for_model'] is False
           print('ETF_EU_DONOR_PARITY_STATIC_AUTHORITY_AUDIT=PASS')
           PY
