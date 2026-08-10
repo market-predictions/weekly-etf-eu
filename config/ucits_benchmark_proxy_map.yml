@@ -1,63 +1,125 @@
-# U.S. proxy to UCITS candidate map.
-# U.S. proxies are research references only, not EU portfolio holdings.
+# U.S. donor/research proxy to EU/UCITS candidate map.
+# Research proxies are never EU portfolio holdings. Funding requires the separate
+# UCITS investability + exact-line pricing + explicit allocation-decision gates.
+schema_version: ucits_benchmark_proxy_map_v2
+canonical_identity: isin_plus_exact_trading_line
+portfolio_state_authority: output/etf_eu_portfolio_state.json
+funding_authority: false
+execution_authority: false
 
 proxy_mappings:
-  - theme: S&P 500 core beta
-    us_proxy: SPY
-    benchmark: S&P 500
-    eu_role: Core U.S. equity exposure through UCITS ETF
+  - exposure_id: core_us_equity
+    donor_proxies: [SPY]
+    status: mapped_verified_line
     ucits_candidates:
-      - isin: TBD
-        fund_name: TBD S&P 500 UCITS ETF
-        provider: TBD
-        exchange_ticker: TBD
-        exchange: TBD
-        trading_currency: EUR
-        distribution_policy: accumulating_preferred
-        hedged_unhedged: unhedged
-        investability_status: candidate_requires_verification
+      - {isin: IE00B5BMR087, fund_name: iShares Core S&P 500 UCITS ETF USD Acc, exchange_ticker: SXR8, exchange: Xetra, trading_currency: EUR, identity_status: verified}
 
-  - theme: Semiconductor leadership
-    us_proxy: SMH
-    benchmark: Semiconductor equity basket
-    eu_role: Semiconductor thematic exposure through UCITS ETF
+  - exposure_id: global_equity_core
+    donor_proxies: [VT, ACWI]
+    status: mapped_verified_line
     ucits_candidates:
-      - isin: TBD
-        fund_name: TBD Semiconductor UCITS ETF
-        provider: TBD
-        exchange_ticker: TBD
-        exchange: TBD
-        trading_currency: EUR
-        distribution_policy: accumulating_preferred
-        hedged_unhedged: unhedged
-        investability_status: candidate_requires_verification
+      - {isin: IE00BK5BQT80, fund_name: Vanguard FTSE All-World UCITS ETF USD Acc, exchange_ticker: VWCE, exchange: Xetra, trading_currency: EUR, identity_status: verified}
 
-  - theme: Gold / hard-asset hedge
-    us_proxy: GLD
-    benchmark: Gold spot / physical gold ETP reference
-    eu_role: Gold or commodity hedge through EU-listed product
+  - exposure_id: developed_ex_us_equities
+    donor_proxies: [IEFA]
+    status: mapped_market_evidence_incomplete
     ucits_candidates:
-      - isin: TBD
-        fund_name: TBD Gold ETC / UCITS-equivalent eligible product
-        provider: TBD
-        exchange_ticker: TBD
-        exchange: TBD
-        trading_currency: EUR
-        distribution_policy: not_applicable_or_accumulating
-        hedged_unhedged: unhedged
-        investability_status: candidate_requires_verification
+      - {isin: IE000R4ZNTN3, fund_name: iShares MSCI World ex-USA UCITS ETF, exchange_ticker: IXUA, exchange: unresolved_in_current_evidence, trading_currency: unresolved_in_current_evidence, identity_status: official_identity_and_exact_line_pass_but_current_market_evidence_incomplete}
 
-  - theme: Infrastructure / real asset capex
-    us_proxy: PAVE
-    benchmark: Infrastructure equity basket
-    eu_role: Infrastructure exposure through UCITS ETF
+  - exposure_id: ai_compute_infrastructure
+    donor_proxies: [SMH, SOXX]
+    status: mapped_verified_line
     ucits_candidates:
-      - isin: TBD
-        fund_name: TBD Infrastructure UCITS ETF
-        provider: TBD
-        exchange_ticker: TBD
-        exchange: TBD
-        trading_currency: EUR
-        distribution_policy: accumulating_preferred
-        hedged_unhedged: unhedged
-        investability_status: candidate_requires_verification
+      - {isin: IE00BMC38736, fund_name: VanEck Semiconductor UCITS ETF, exchange_ticker: VVSM, exchange: Xetra, trading_currency: EUR, identity_status: verified}
+
+  - exposure_id: cyber_security
+    donor_proxies: [CIBR, BUG, HACK]
+    status: mapped_verified_line
+    ucits_candidates:
+      - {isin: IE00BG0J4C88, fund_name: iShares Digital Security UCITS ETF USD Acc, exchange_ticker: L0CK, exchange: Xetra, trading_currency: EUR, identity_status: verified}
+
+  - exposure_id: healthcare_quality
+    donor_proxies: [XLV, VHT]
+    status: mapped_verified_line_market_evidence_required
+    ucits_candidates:
+      - {isin: IE00BJ5JNZ06, fund_name: iShares MSCI World Health Care Sector Advanced UCITS ETF USD Dist, exchange_ticker: CBUF, exchange: Xetra, trading_currency: EUR, identity_status: verified}
+
+  - exposure_id: biotech_innovation
+    donor_proxies: [XBI, IBB]
+    status: mapped_market_evidence_incomplete
+    ucits_candidates:
+      - {isin: IE00BYXG2H39, fund_name: iShares Nasdaq US Biotechnology UCITS ETF, exchange_ticker: 2B70, exchange: unresolved_in_current_evidence, trading_currency: unresolved_in_current_evidence, identity_status: official_identity_and_exact_line_pass_but_current_market_evidence_incomplete}
+
+  - exposure_id: agriculture_food_security
+    donor_proxies: [MOO, VEGI]
+    status: mapped_verified_line_market_evidence_required
+    ucits_candidates:
+      - {isin: IE00B6R52143, fund_name: iShares Agribusiness UCITS ETF USD Acc, exchange_ticker: ISAE, exchange: Euronext Amsterdam, trading_currency: EUR, identity_status: verified}
+
+  - exposure_id: water_infrastructure
+    donor_proxies: [FIW, PHO, CGW]
+    status: mapped_verified_lines_market_evidence_required
+    ucits_candidates:
+      - {isin: IE00BK5BC891, fund_name: L&G Clean Water UCITS ETF USD Acc, exchange_ticker: XMLC, exchange: Xetra, trading_currency: EUR, identity_status: verified}
+      - {isin: IE00B1TXK627, fund_name: iShares Global Water UCITS ETF USD Dist, exchange_ticker: IQQQ, exchange: Xetra, trading_currency: EUR, identity_status: verified}
+
+  - exposure_id: defense_resilience
+    donor_proxies: [PPA, ITA]
+    status: mapped_verified_line_watch_only_until_current_decision
+    ucits_candidates:
+      - {isin: IE000YYE6WK5, fund_name: VanEck Defense UCITS ETF, exchange_ticker: DFEN, exchange: Xetra, trading_currency: EUR, identity_status: verified}
+
+  - exposure_id: uranium_nuclear
+    donor_proxies: [URNM, URA, NLR]
+    status: mapped_market_evidence_incomplete
+    ucits_candidates:
+      - {isin: IE000M7V94E1, fund_name: VanEck Uranium and Nuclear Technologies UCITS ETF, exchange_ticker: NUKL, exchange: unresolved_in_current_evidence, trading_currency: unresolved_in_current_evidence, identity_status: official_identity_and_exact_line_pass_but_current_market_evidence_incomplete}
+
+  - exposure_id: grid_power_electrification
+    donor_proxies: [PAVE, GRID]
+    status: mapping_incomplete
+    ucits_candidates:
+      - {isin: unresolved, fund_name: First Trust Nasdaq Clean Edge Smart Grid Infrastructure UCITS ETF, exchange_ticker: unresolved, exchange: unresolved, trading_currency: unresolved, identity_status: exact_official_isin_and_european_line_required}
+
+  - exposure_id: china
+    donor_proxies: [MCHI, KWEB]
+    status: mapping_required
+    ucits_candidates: []
+
+  - exposure_id: india_regional_industrialization
+    donor_proxies: [INDA, EPI]
+    status: mapping_required
+    ucits_candidates: []
+
+  - exposure_id: fintech_financial_infrastructure
+    donor_proxies: [FINX, ARKF]
+    status: mapping_required
+    ucits_candidates: []
+
+  - exposure_id: robotics_automation
+    donor_proxies: [BOTZ, ROBO]
+    status: mapping_required
+    ucits_candidates: []
+
+  - exposure_id: critical_minerals_materials
+    donor_proxies: [LIT, REMX, PICK]
+    status: mapping_required
+    ucits_candidates: []
+
+  - exposure_id: gold_hard_assets
+    donor_proxies: [GLD, IAU]
+    status: policy_blocked_non_ucits_etc
+    ucits_candidates:
+      - {isin: unresolved, fund_name: iShares Physical Gold ETC, exchange_ticker: SGLN, exchange: London Stock Exchange, trading_currency: USD, identity_status: non_ucits_etc_policy_review_required}
+
+sources:
+  - config/ucits_symbol_registry.yml
+  - config/ucits_close_price_validation_basket.yml
+  - config/etf_eu_prioritized_ucits_mapping_evidence_20260728.yml
+
+rules:
+  us_listed_proxy_fundable: false
+  mapping_is_funding_authority: false
+  unresolved_identity_is_fundable: false
+  completed_close_required_for_funding: true
+  explicit_allocation_decision_required_for_funding: true
