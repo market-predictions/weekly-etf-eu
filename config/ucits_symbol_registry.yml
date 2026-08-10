@@ -1,11 +1,17 @@
-# UCITS symbol registry. ISIN plus exact venue/line identifiers are authoritative.
-schema_version: ucits_symbol_registry_v2
+# UCITS instrument identity registry.
+# This file owns stable instrument/share-class/trading-line identity only.
+# Current funded/unfunded portfolio state lives exclusively in output/etf_eu_portfolio_state.json.
+schema_version: ucits_symbol_registry_v3
 canonical_identity: isin_plus_exact_trading_line
-registry_status: active_model_portfolio
-last_reviewed: 2026-07-16
+registry_status: active_identity_authority
+last_reviewed: 2026-08-10
+portfolio_funding_state_authority: output/etf_eu_portfolio_state.json
+registry_is_funding_authority: false
+registry_is_allocation_authority: false
+registry_is_execution_authority: false
 
 funds:
-  - registry_id: core_us_equity_cspx
+  - registry_id: core_us_equity_ishares_sp500_acc
     role: Core U.S. equity exposure
     isin: IE00B5BMR087
     fund_name: iShares Core S&P 500 UCITS ETF USD (Acc)
@@ -13,7 +19,6 @@ funds:
     instrument_type: UCITS ETF
     ucits_status: confirmed
     priips_kid_status: available
-    investability_status: funded_model_position
     domicile: Ireland
     base_currency: USD
     distribution_policy: accumulating
@@ -22,20 +27,18 @@ funds:
     ter_pct: 0.07
     trading_lines:
       - {exchange: London Stock Exchange, venue_code: XLON, exchange_ticker: CSPX, trading_currency: USD, pricing_symbol_yahoo: CSPX.L, line_verification_status: verified_ucits_trading_line}
-      - {exchange: Xetra, venue_code: XETR, exchange_ticker: SXR8, trading_currency: EUR, pricing_symbol_yahoo: SXR8.DE, line_verification_status: verified_ucits_trading_line, model_position_status: funded_10_whole_shares}
+      - {exchange: Xetra, venue_code: XETR, exchange_ticker: SXR8, trading_currency: EUR, provider_symbol_leeway: SXR8.XETRA, provider_symbol_eodhd: SXR8.XETRA, provider_symbol_marketstack: SXR8.XETRA, provider_symbol_alpha_vantage: SXR8.DEX, pricing_symbol_yahoo: SXR8.DE, line_verification_status: verified_ucits_trading_line}
     research_proxies:
       - {us_proxy: SPY, purpose: benchmark_reference_only, proxy_must_not_be_funded: true}
 
   - registry_id: global_core_vanguard_ftse_all_world_acc
     role: Global core equity exposure
     isin: IE00BK5BQT80
-    fund_name: Vanguard FTSE All-World UCITS ETF (USD) Accumulating
+    fund_name: Vanguard FTSE All-World UCITS ETF USD Acc
     provider: Vanguard
     instrument_type: UCITS ETF
     ucits_status: confirmed
     priips_kid_status: available
-    investability_status: verified_candidate_not_funded
-    fundable_status: blocked_pending_fresh_xetra_close_and_new_allocation_decision
     domicile: Ireland
     base_currency: USD
     distribution_policy: accumulating
@@ -43,22 +46,19 @@ funds:
     benchmark_index: FTSE All-World Index
     ter_pct: 0.19
     trading_lines:
-      - {exchange: Xetra, venue_code: XETR, exchange_ticker: VWCE, trading_currency: EUR, bloomberg_ticker: "VWCE GY", reuters_ric: VWCE.DE, pricing_symbol_yahoo: VWCE.DE, line_verification_status: verified_ucits_trading_line}
-    evidence:
-      - https://www.nl.vanguard/professional/product/etf/equity/9679/ftse-all-world-ucits-etf-usd-accumulating
-      - https://www.vanguard.co.uk/professional/product/etf/equity/9679/ftse-all-world-ucits-etf-usd-accumulating
-      - https://live.deutsche-boerse.com/en/etf/vanguard-ftse-all-world-ucits-etf-usd-accumulating
+      - {exchange: Xetra, venue_code: XETR, exchange_ticker: VWCE, trading_currency: EUR, bloomberg_ticker: "VWCE GY", reuters_ric: VWCE.DE, provider_symbol_leeway: VWCE.XETRA, provider_symbol_eodhd: VWCE.XETRA, provider_symbol_marketstack: VWCE.XETRA, provider_symbol_alpha_vantage: VWCE.DEX, pricing_symbol_yahoo: VWCE.DE, line_verification_status: verified_ucits_trading_line}
+    research_proxies:
+      - {us_proxy: VT, purpose: broad_global_comparator_only, proxy_must_not_be_funded: true}
+      - {us_proxy: ACWI, purpose: broad_global_comparator_only, proxy_must_not_be_funded: true}
 
   - registry_id: aggregate_bonds_ishares_global_aggregate_eur_hedged_acc
     role: Stabilising global aggregate bonds
     isin: IE00BDBRDM35
-    fund_name: iShares Core Global Aggregate Bond UCITS ETF EUR Hedged (Accumulating)
+    fund_name: iShares Core Global Aggregate Bond UCITS ETF EUR Hedged Acc
     provider: iShares / BlackRock
     instrument_type: UCITS ETF
     ucits_status: confirmed
     priips_kid_status: available
-    investability_status: verified_candidate_not_funded
-    fundable_status: blocked_pending_fresh_xetra_close_and_new_allocation_decision
     domicile: Ireland
     share_class_currency: EUR
     distribution_policy: accumulating
@@ -66,64 +66,118 @@ funds:
     benchmark_index: Bloomberg Global Aggregate Bond Index
     ter_pct: 0.10
     trading_lines:
-      - exchange: Xetra
-        venue_code: XETR
-        exchange_ticker: EUNA
-        trading_currency: EUR
-        issuer_exchange_ticker: AGGH
-        bloomberg_ticker: EUNA
-        reuters_ric: EUNA.DE
-        pricing_symbol_yahoo: EUNA.DE
-        line_verification_status: verified_ucits_trading_line
-        alias_reconciliation_status: completed_broker_neutral
+      - {exchange: Xetra, venue_code: XETR, exchange_ticker: EUNA, trading_currency: EUR, issuer_exchange_ticker: AGGH, bloomberg_ticker: EUNA, reuters_ric: EUNA.DE, provider_symbol_leeway: EUNA.XETRA, provider_symbol_eodhd: EUNA.XETRA, provider_symbol_marketstack: EUNA.XETRA, provider_symbol_alpha_vantage: EUNA.DEX, pricing_symbol_yahoo: EUNA.DE, line_verification_status: verified_ucits_trading_line, alias_reconciliation_status: completed_broker_neutral}
     identity_notes:
-      - IE00BDBRDM35 is EUR Hedged Accumulating, not GBP Hedged Distributing.
-      - Deutsche Börse identifies the Xetra trading line as EUNA; the issuer listings table labels the same Xetra line with issuer ticker AGGH and Bloomberg/RIC aliases EUNA and EUNA.DE.
-      - The repository model uses EUNA as the canonical Xetra exchange ticker and preserves AGGH as an issuer alias; no broker-specific symbol is authoritative.
-    evidence:
-      - https://www.ishares.com/ch/individual/en/products/291770/ishares-core-global-aggregate-bond-ucits-etf-fund
-      - https://live.deutsche-boerse.com/en/etf/ishares-core-global-aggregate-bond-ucits-etf-eur-hedged-acc
+      - IE00BDBRDM35 is EUR Hedged Accumulating.
+      - EUNA is the canonical Xetra trading-line ticker; AGGH is retained as issuer alias.
 
-  - registry_id: semiconductor_vaneck_smh_ucits
+  - registry_id: cybersecurity_ishares_digital_security_acc
+    role: Cybersecurity thematic exposure
+    isin: IE00BG0J4C88
+    fund_name: iShares Digital Security UCITS ETF USD Acc
+    provider: iShares / BlackRock
+    instrument_type: UCITS ETF
+    ucits_status: confirmed
+    priips_kid_status: available
+    domicile: Ireland
+    base_currency: USD
+    distribution_policy: accumulating
+    trading_lines:
+      - {exchange: Xetra, venue_code: XETR, exchange_ticker: L0CK, trading_currency: EUR, provider_symbol_leeway: L0CK.XETRA, provider_symbol_eodhd: L0CK.XETRA, provider_symbol_marketstack: L0CK.XETRA, provider_symbol_alpha_vantage: L0CK.DEX, pricing_symbol_yahoo: L0CK.DE, line_verification_status: verified_ucits_trading_line}
+    research_proxies:
+      - {us_proxy: CIBR, purpose: thematic_comparator_only, proxy_must_not_be_funded: true}
+      - {us_proxy: BUG, purpose: thematic_comparator_only, proxy_must_not_be_funded: true}
+
+  - registry_id: semiconductor_vaneck_ucits
     role: Semiconductor thematic exposure
     isin: IE00BMC38736
     fund_name: VanEck Semiconductor UCITS ETF
     provider: VanEck
     instrument_type: UCITS ETF
-    ucits_status: confirmed_by_fund_name
+    ucits_status: confirmed
     priips_kid_status: available
-    investability_status: candidate_requires_verification
-    fundable_status: not_funded_requires_full_verification
     ter_pct: 0.35
+    trading_lines:
+      - {exchange: Xetra, venue_code: XETR, exchange_ticker: VVSM, trading_currency: EUR, provider_symbol_leeway: VVSM.XETRA, provider_symbol_eodhd: VVSM.XETRA, provider_symbol_marketstack: VVSM.XETRA, provider_symbol_alpha_vantage: VVSM.DEX, pricing_symbol_yahoo: VVSM.DE, line_verification_status: verified_ucits_trading_line}
     research_proxies:
-      - {us_proxy: SMH, purpose: benchmark_reference_only, proxy_must_not_be_funded: true}
+      - {us_proxy: SMH, purpose: thematic_comparator_only, proxy_must_not_be_funded: true}
+      - {us_proxy: SOXX, purpose: thematic_comparator_only, proxy_must_not_be_funded: true}
 
-  - registry_id: gold_ishares_physical_gold_etc
-    role: Gold / hard-asset hedge
-    isin: TBD
-    fund_name: iShares Physical Gold ETC
-    instrument_type: ETC
-    ucits_status: not_ucits_etc
-    investability_status: policy_review_required_not_ucits
-    fundable_status: not_fundable_under_ucits_only_policy
-    research_proxies:
-      - {us_proxy: GLD, purpose: benchmark_reference_only, proxy_must_not_be_funded: true}
-
-  - registry_id: infrastructure_ishares_global_infr
-    role: Infrastructure / real-asset capex exposure
-    isin: TBD
-    fund_name: iShares Global Infrastructure UCITS ETF
+  - registry_id: healthcare_ishares_msci_world_advanced
+    role: Healthcare quality exposure
+    isin: IE00BJ5JNZ06
+    fund_name: iShares MSCI World Health Care Sector Advanced UCITS ETF USD Dist
+    provider: iShares / BlackRock
     instrument_type: UCITS ETF
-    ucits_status: pending_verification
-    investability_status: candidate_requires_verification
-    fundable_status: not_funded_requires_full_verification
+    ucits_status: confirmed
+    priips_kid_status: available
+    trading_lines:
+      - {exchange: Xetra, venue_code: XETR, exchange_ticker: CBUF, trading_currency: EUR, provider_symbol_leeway: CBUF.XETRA, provider_symbol_eodhd: CBUF.XETRA, provider_symbol_marketstack: CBUF.XETRA, provider_symbol_alpha_vantage: CBUF.DEX, pricing_symbol_yahoo: WHCS.DE, line_verification_status: verified_ucits_trading_line}
     research_proxies:
-      - {us_proxy: PAVE, purpose: benchmark_reference_only, proxy_must_not_be_funded: true}
+      - {us_proxy: XLV, purpose: sector_comparator_only, proxy_must_not_be_funded: true}
 
-registry_notes:
-  - Current funded model position: 10 whole shares SXR8.
-  - VWCE exact Xetra line is verified and awaits fresh pricing plus a new allocation decision.
-  - IE00BDBRDM35 Xetra alias reconciliation is complete: EUNA is canonical for the model and AGGH is retained as issuer alias.
-  - Incorrect AGGH LSE/GBP share-class mapping remains removed.
+  - registry_id: agriculture_ishares_agribusiness
+    role: Agriculture and food-security exposure
+    isin: IE00B6R52143
+    fund_name: iShares Agribusiness UCITS ETF USD Acc
+    provider: iShares / BlackRock
+    instrument_type: UCITS ETF
+    ucits_status: confirmed
+    priips_kid_status: available
+    trading_lines:
+      - {exchange: Euronext Amsterdam, venue_code: XAMS, exchange_ticker: ISAE, trading_currency: EUR, provider_symbol_leeway: ISAE.XAMS, provider_symbol_eodhd: ISAE.AS, provider_symbol_marketstack: ISAE.XAMS, provider_symbol_alpha_vantage: ISAE.AMS, pricing_symbol_yahoo: ISAE.AS, line_verification_status: verified_ucits_trading_line}
+    research_proxies:
+      - {us_proxy: MOO, purpose: thematic_comparator_only, proxy_must_not_be_funded: true}
+
+  - registry_id: water_lg_clean_water
+    role: Clean-water infrastructure exposure
+    isin: IE00BK5BC891
+    fund_name: L&G Clean Water UCITS ETF USD Acc
+    provider: L&G
+    instrument_type: UCITS ETF
+    ucits_status: confirmed
+    priips_kid_status: available
+    trading_lines:
+      - {exchange: Xetra, venue_code: XETR, exchange_ticker: XMLC, trading_currency: EUR, provider_symbol_leeway: XMLC.XETRA, provider_symbol_eodhd: XMLC.XETRA, provider_symbol_marketstack: XMLC.XETRA, provider_symbol_alpha_vantage: XMLC.DEX, pricing_symbol_yahoo: XMLC.DE, line_verification_status: verified_ucits_trading_line}
+    research_proxies:
+      - {us_proxy: FIW, purpose: thematic_comparator_only, proxy_must_not_be_funded: true}
+
+  - registry_id: water_ishares_global_water
+    role: Global water utilities exposure
+    isin: IE00B1TXK627
+    fund_name: iShares Global Water UCITS ETF USD Dist
+    provider: iShares / BlackRock
+    instrument_type: UCITS ETF
+    ucits_status: confirmed
+    priips_kid_status: available
+    trading_lines:
+      - {exchange: Xetra, venue_code: XETR, exchange_ticker: IQQQ, trading_currency: EUR, provider_symbol_leeway: IQQQ.XETRA, provider_symbol_eodhd: IQQQ.XETRA, provider_symbol_marketstack: IQQQ.XETRA, provider_symbol_alpha_vantage: IQQQ.DEX, pricing_symbol_yahoo: IQQQ.DE, line_verification_status: verified_ucits_trading_line}
+    research_proxies:
+      - {us_proxy: PHO, purpose: thematic_comparator_only, proxy_must_not_be_funded: true}
+
+  - registry_id: defense_vaneck_dfen
+    role: Defense and sovereign-resilience exposure
+    isin: IE000YYE6WK5
+    fund_name: VanEck Defense UCITS ETF
+    provider: VanEck
+    instrument_type: UCITS ETF
+    ucits_status: confirmed
+    priips_kid_status: available
+    trading_lines:
+      - {exchange: Xetra, venue_code: XETR, exchange_ticker: DFEN, trading_currency: EUR, provider_symbol_leeway: DFEN.XETRA, provider_symbol_eodhd: DFEN.XETRA, provider_symbol_marketstack: DFEN.XETRA, provider_symbol_alpha_vantage: DFEN.DEX, pricing_symbol_yahoo: DFEN.DE, line_verification_status: verified_ucits_trading_line}
+    research_proxies:
+      - {us_proxy: PPA, purpose: thematic_comparator_only, proxy_must_not_be_funded: true}
+      - {us_proxy: ITA, purpose: thematic_comparator_only, proxy_must_not_be_funded: true}
+
+policy_review_or_incomplete:
+  - {registry_id: gold_ishares_physical_gold_etc, role: Gold / hard-asset exposure, fund_name: iShares Physical Gold ETC, instrument_type: ETC, ucits_status: not_ucits_etc, identity_status: policy_review_required_not_ucits, research_proxy: GLD}
+  - {registry_id: developed_ex_us_ishares_msci_world_ex_usa, isin: IE000R4ZNTN3, exchange_ticker: IXUA, identity_status: exact_line_evidence_exists_but_current_market_evidence_incomplete}
+  - {registry_id: biotech_ishares_nasdaq_us_biotechnology, isin: IE00BYXG2H39, exchange_ticker: 2B70, identity_status: exact_line_evidence_exists_but_current_market_evidence_incomplete}
+  - {registry_id: uranium_nuclear_vaneck_nukl, isin: IE000M7V94E1, exchange_ticker: NUKL, identity_status: exact_line_evidence_exists_but_current_market_evidence_incomplete}
+  - {registry_id: grid_power_ucits, identity_status: exact_official_isin_and_european_line_unresolved}
+
+registry_rules:
+  - Current funded/unfunded status must be derived from output/etf_eu_portfolio_state.json, never from this registry.
+  - Ticker alone is insufficient identity.
   - Broker/account permissions are outside the broker-neutral model-investability gate.
-  - U.S. ETFs remain research references only.
+  - U.S.-listed ETFs are research references only and may not be funded in the EU model.

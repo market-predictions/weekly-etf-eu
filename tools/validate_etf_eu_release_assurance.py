@@ -1,5 +1,10 @@
 #!/usr/bin/env python3
-"""Validate a Weekly ETF EU governance release-assurance record."""
+"""Validate Weekly ETF EU machine release-evidence preflight.
+
+The historical filename is retained for compatibility. A valid record proves only that
+machine evidence is internally complete; it never represents independent assurance,
+merge authority or delivery authority.
+"""
 from __future__ import annotations
 
 import argparse
@@ -17,13 +22,13 @@ REQUIRED_CHECKS = {
     "manifest_identity_consistent",
     "visual_review_passed",
     "delivery_queue_bound",
-    "roles_separated",
+    "independent_assurance_not_claimed",
 }
 REQUIRED_CLIENT_ARTIFACTS = {"nl_html", "nl_pdf", "en_html", "en_pdf"}
 
 
 def fail(message: str) -> None:
-    raise SystemExit(f"ETF_EU_RELEASE_ASSURANCE_INVALID: {message}")
+    raise SystemExit(f"ETF_EU_RELEASE_EVIDENCE_PREFLIGHT_INVALID: {message}")
 
 
 def main() -> int:
@@ -36,28 +41,30 @@ def main() -> int:
     except (OSError, UnicodeDecodeError, json.JSONDecodeError) as exc:
         fail(f"unreadable evidence: {exc}")
 
-    if payload.get("schema_version") != 1:
-        fail("schema_version must equal 1")
+    if payload.get("schema_version") != 2:
+        fail("schema_version must equal 2")
+    if payload.get("artifact_type") != "etf_eu_release_evidence_preflight":
+        fail("unexpected artifact type")
     if payload.get("product") != "weekly_etf_eu":
         fail("unexpected product")
-    if payload.get("decision") != "PASS":
-        fail(f"decision is {payload.get('decision')!r}, expected 'PASS'")
+    if payload.get("machine_preflight_status") != "PASS":
+        fail(f"machine preflight is {payload.get('machine_preflight_status')!r}, expected 'PASS'")
     if payload.get("blockers"):
         fail("blockers must be empty")
     if payload.get("implementation_role") != "implementation_operations":
         fail("unexpected implementation role")
-    if payload.get("assurance_role") != "governance_release_assurance":
-        fail("unexpected assurance role")
-
-    separation = payload.get("separation_of_duties")
-    if not isinstance(separation, dict):
-        fail("separation_of_duties missing")
-    if separation.get("same_role") is not False:
-        fail("implementation and assurance roles must be separate")
-    if separation.get("implementation_may_self_certify") is not False:
-        fail("implementation role may not self-certify")
-    if separation.get("assurance_may_mutate_release_candidate") is not False:
-        fail("assurance role may not mutate the candidate it certifies")
+    if payload.get("required_assurance_role") != "governance_release_assurance":
+        fail("required independent assurance role missing")
+    if payload.get("independent_assurance_verdict") is not None:
+        fail("machine preflight may not claim an independent assurance verdict")
+    if payload.get("independent_assurance_required") is not True:
+        fail("independent assurance must remain required")
+    if payload.get("merge_authority") is not False:
+        fail("machine preflight may not grant merge authority")
+    if payload.get("delivery_authority") is not False:
+        fail("machine preflight may not grant delivery authority")
+    if "decision" in payload or "assurance_role" in payload:
+        fail("legacy self-assurance fields are forbidden")
 
     identity = payload.get("identity")
     if not isinstance(identity, dict):
@@ -103,8 +110,8 @@ def main() -> int:
             fail(f"invalid sha256: {key}")
 
     print(
-        "ETF_EU_RELEASE_ASSURANCE_VALID | "
-        f"run_id={identity['run_id']} | source_sha={identity['source_sha']}"
+        "ETF_EU_RELEASE_EVIDENCE_PREFLIGHT_VALID | "
+        f"run_id={identity['run_id']} | source_sha={identity['source_sha']} | independent_assurance_required=true"
     )
     return 0
 

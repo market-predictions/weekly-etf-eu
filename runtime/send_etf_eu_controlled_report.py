@@ -56,10 +56,10 @@ def _read_config() -> dict[str, str]:
     return cfg
 
 
-def _report_paths(report_suffix: str) -> dict[str, Path]:
+def _report_paths(report_suffix: str, *, nl_md: str | None = None, en_md: str | None = None) -> dict[str, Path]:
     return {
-        "nl_md": Path(f"output/weekly_etf_eu_review_nl_{report_suffix}.md"),
-        "en_md": Path(f"output/weekly_etf_eu_review_{report_suffix}.md"),
+        "nl_md": Path(nl_md) if nl_md else Path(f"output/weekly_etf_eu_review_nl_{report_suffix}.md"),
+        "en_md": Path(en_md) if en_md else Path(f"output/weekly_etf_eu_review_{report_suffix}.md"),
     }
 
 
@@ -71,6 +71,8 @@ def _package_paths(manifest_path: Path | None) -> dict[str, Path]:
     _require(payload.get("pdf_output_available") is True, "package manifest has no PDF output")
     _require(payload.get("dutch_primary") is True, "Dutch primary PDF required")
     _require(payload.get("english_companion") is True, "English companion PDF required")
+    _require(payload.get("source_is_independently_assured") is True, "package source is not independently assured")
+    _require(payload.get("artifact_hashes_verified") is True, "package artifact hashes were not verified")
     paths = {
         "nl_pdf": Path(str(payload.get("dutch_primary_pdf"))),
         "en_pdf": Path(str(payload.get("english_companion_pdf"))),
@@ -202,13 +204,15 @@ def main() -> None:
     parser.add_argument("--run-id", required=True)
     parser.add_argument("--report-date", required=True)
     parser.add_argument("--report-suffix", required=True)
+    parser.add_argument("--nl-md")
+    parser.add_argument("--en-md")
     parser.add_argument("--output-dir", default="output/delivery")
     parser.add_argument("--require-pdf-package", action="store_true")
     parser.add_argument("--delivery-package-manifest", default=None)
     args = parser.parse_args()
     _require(args.confirm_controlled_send, "controlled sender requires explicit --confirm-controlled-send")
     cfg = _read_config()
-    reports = _report_paths(args.report_suffix)
+    reports = _report_paths(args.report_suffix, nl_md=args.nl_md, en_md=args.en_md)
     package = _package_paths(Path(args.delivery_package_manifest) if args.delivery_package_manifest else None)
     if args.require_pdf_package:
         _require(bool(package), "--require-pdf-package requires --delivery-package-manifest")

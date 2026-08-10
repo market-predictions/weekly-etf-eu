@@ -21,15 +21,8 @@
       "last_reconciled_at": "2026-08-09T21:20:00Z",
       "pull_request": 80,
       "pull_request_or_issue_reference": "PR #80",
-      "dependencies": [
-        {"pull_request": 78},
-        {"pull_request": 82}
-      ],
-      "handover": {
-        "disposition": "SUPERSEDE",
-        "successor_claim_id": "ETF-EU-RELEASE-INTEGRATION-V3",
-        "path": "handover/ETF_EU_PR80_TO_RELEASE_INTEGRATION_V3_20260809.md"
-      }
+      "dependencies": [{"pull_request": 78}, {"pull_request": 82}],
+      "handover": {"disposition": "SUPERSEDE", "successor_claim_id": "ETF-EU-RELEASE-INTEGRATION-V3", "path": "handover/ETF_EU_PR80_TO_RELEASE_INTEGRATION_V3_20260809.md"}
     },
     {
       "claim_id": "ETF-EU-RELEASE-INTEGRATION-V3",
@@ -38,21 +31,55 @@
       "release_line": "weekly-etf-eu-current-release",
       "integration_claim": true,
       "owner_role": "implementation_operations",
-      "scope": "Reconstruct the current release from current main by porting only still-relevant PR #80 deltas, then run exact-head CI, generate a fresh four-file candidate, validate it and obtain fresh independent assurance.",
+      "scope": "Clean successor release integration culminating in PR #84.",
       "branch": "agent/etf-eu-release-integration-v3",
       "base_or_target_branch": "main",
-      "last_reconciled_target_sha": "93dbe7450e44d22a2fe247a8d1f1ffb9e07adf3c",
-      "current_claim_head_sha": "93dbe7450e44d22a2fe247a8d1f1ffb9e07adf3c",
-      "status": "ACTIVE",
+      "last_reconciled_target_sha": "3d97712a9bd135192f67b8c5dd860d295adbf5fc",
+      "current_claim_head_sha": "888a55b5bc8ae3d465691117157c616893b3addb",
+      "status": "CLOSED",
       "opened_at": "2026-08-09T21:20:00Z",
-      "last_reconciled_at": "2026-08-09T21:20:00Z",
-      "pull_request": 0,
-      "pull_request_or_issue_reference": "successor to PR #80; PR to be opened after relevant-delta reconstruction",
-      "dependencies": [
-        {"pull_request": 78},
-        {"pull_request": 82}
-      ],
-      "handover": null
+      "last_reconciled_at": "2026-08-10T16:05:00+02:00",
+      "pull_request": 84,
+      "pull_request_or_issue_reference": "PR #84 merged; assurance issue #87 PASS",
+      "dependencies": [{"pull_request": 78}, {"pull_request": 82}],
+      "handover": {"disposition": "CLOSE", "path": "handover/ETF_EU_RELEASE_INTEGRATION_V3_CLOSE_20260810.md"}
+    },
+    {
+      "claim_id": "ETF-EU-DONOR-PARITY-RECONCILIATION-V1",
+      "workpackage_id": "ETF-EU-WP-DONOR-PARITY-RECONCILIATION-V1",
+      "repository": "market-predictions/weekly-etf-eu",
+      "release_line": "weekly-etf-eu-current-release",
+      "integration_claim": true,
+      "owner_role": "implementation_operations",
+      "scope": "Remove transition/shadow authority leaks and close donor-parity gaps across decision, state, output, runbook and governance layers while preserving EU-specific UCITS controls; includes repair of PR #91 assurance FAIL blockers.",
+      "branch": "agent/etf-eu-donor-parity-reconciliation-v1",
+      "base_or_target_branch": "main",
+      "last_reconciled_target_sha": "3d97712a9bd135192f67b8c5dd860d295adbf5fc",
+      "current_claim_head_sha": "a9f7906df5abdaf00751552d4f950b3e13f0b778",
+      "status": "HANDOVER_READY",
+      "opened_at": "2026-08-10T16:04:10+02:00",
+      "last_reconciled_at": "2026-08-10T23:22:00+02:00",
+      "pull_request": 91,
+      "pull_request_or_issue_reference": "Issue #90; PR #91 repaired after issue #92 FAIL; semantic baseline 19954692ff8b33d5ffac9b09d6654210a7194997 fully green; fresh exact-head assurance pending after atomic repair handover",
+      "dependencies": [{"pull_request": 84}],
+      "last_assurance": {
+        "issue": 92,
+        "reviewed_head_sha": "a9f93af018623011ac4b2cae742d69ea1441b4ca",
+        "verdict": "FAIL",
+        "merge_authority": false,
+        "delivery_authority": false,
+        "blockers": [
+          "canonical pricing builder-validator-normalized-state v2 contract incoherent",
+          "Markdown delivery artifacts hard-coded to three funded positions and omitted L0CK"
+        ]
+      },
+      "handover": {
+        "disposition": "HANDOVER_READY",
+        "path": "handover/ETF_EU_PR91_ASSURANCE_FAIL_REPAIR_V1_20260810.md",
+        "validated_semantic_head_sha": "19954692ff8b33d5ffac9b09d6654210a7194997",
+        "pre_handover_governance_head_sha": "a9f7906df5abdaf00751552d4f950b3e13f0b778",
+        "exact_assurance_head_authority": "live PR #91 head after the atomic claim+handover commit; any subsequent head change invalidates assurance"
+      }
     }
   ]
 }

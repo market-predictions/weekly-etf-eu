@@ -3,88 +3,104 @@
 ## Current priority
 
 ```text
-RECONSTRUCT_ONE_CLEAN_RELEASE_LINE_FROM_CURRENT_MAIN
+FREEZE_REPAIRED_PR91_AND_START_FRESH_INDEPENDENT_ASSURANCE
 ```
 
-Current authoritative work lineage:
+Current authoritative lineage:
 
 ```text
-work_package=ETF-EU-WP-RELEASE-INTEGRATION-V3
-active_claim=ETF-EU-RELEASE-INTEGRATION-V3
-branch=agent/etf-eu-release-integration-v3
+parent_work_package=ETF-EU-WP-DONOR-PARITY-RECONCILIATION-V1
+repair_work_package=ETF_EU_PR91_ASSURANCE_FAIL_REPAIR_V1
+active_claim=ETF-EU-DONOR-PARITY-RECONCILIATION-V1
+branch=agent/etf-eu-donor-parity-reconciliation-v1
+pull_request=91
+parent_issue=90
+failed_assurance_issue=92
+failed_frozen_head=a9f93af018623011ac4b2cae742d69ea1441b4ca
+last_green_semantic_head=19954692ff8b33d5ffac9b09d6654210a7194997
 target=main
-superseded_pr=80
+merge_authorized=false
+delivery_authorized=false
 principal_decision_required=false
 principal_action_required=false
 ```
 
-The former PR #78 / Alpha Vantage rotation sequence is complete and obsolete. Do not reopen it.
+## Completed repair — do not reopen without regression evidence
 
-## Immediate sequence
-
-1. Merge the work-claim/branch lifecycle reconciliation so `main` records one active integration claim and the explicit PR #80 → V3 supersession handover.
-2. Fast-forward the still-clean `agent/etf-eu-release-integration-v3` branch to the resulting current `main` so the successor begins on one exact contemporary base.
-3. Compare current `main` against PR #80 path-by-path and classify every PR #80 change as one of:
-   - already present on current `main`;
-   - still relevant and must be ported;
-   - superseded by newer `main` behavior;
-   - historical/generated evidence only and must not be ported.
-4. Port only the minimum still-relevant source/config/test/workflow deltas. Do not cherry-pick or force-merge the 95-commit PR #80 history.
-5. Specifically prove or restore, where needed:
-   - product-boundary separation from inherited FX execution;
-   - `ETF_EU_RELEASE_LINEAGE_POLICY_V2` allocation authority semantics;
-   - protected four-position valuation-only state preservation;
-   - replay-safe/multi-provider completed-close pricing contracts;
-   - generic client-surface supersession repair;
-   - deterministic rejection of stale three-position copy, duplicate funded ticker rows and retired fixed 50%/35%/15% shadow controls.
-6. Open one successor release-integration PR and update `control/WORK_CLAIMS.json` with its PR identity at the next reconciliation gate.
-7. Run all relevant exact-head CI on that successor, including product-boundary, allocation-lineage, pricing/replay, activated-client-surface and final report-validation gates.
-8. Generate a fresh Dutch-primary / English-companion four-file candidate only after the exact source head is green.
-9. Validate the fresh NL/EN HTML and PDF artifacts mechanically and visually. Explicitly inspect Sections 6, 13, 14 and 15 for the defect class found by issue #81.
-10. Obtain a fresh independent `governance_release_assurance` verdict bound to the exact successor candidate. Prior PR #80 `FAIL` evidence is diagnostic only.
-11. If assurance returns PASS, merge the successor and close PR #80 as superseded, preserving its handover/evidence pointers. If assurance returns FAIL/INDETERMINATE, repair through a new exact candidate and re-assure.
-12. Reconcile `control/CURRENT_STATE.md`, this file, `control/WORK_CLAIMS.json`, relevant work-package records and portfolio-control state onto the surviving merged lineage.
-13. Only after a separately authorized guarded-delivery step may transport be considered. Delivery success requires independent receipt/attachment evidence; generation, CI and SMTP invocation are insufficient.
-
-## Already completed and not to be repeated
-
+### Pricing contract
 ```text
-PR78_merged=true
-alpha_vantage_secret_rotation_complete=true
-funded_live_consensus_2026_08_05=4/4
-funded_identity_anchors_2026_08_05=4/4
-historical_cache_used_for_that_funded_run=0
-funded_position_count=4
-PR82_four_position_preview_repair_merged=true
-PR80_material_drift_diagnosed=true
-PR80_status=SUPERSEDED_DONOR_LINEAGE
-clean_successor_branch_created=true
+report_date explicitly bound=true
+canonical_pricing_schema=ucits_close_price_validation_basket_results_v2
+funded_two_provider_consensus_fail_closed=true
+v2_validator_and_normalized_state_same_contract=true
+legacy_min_threshold_release_gate=false
+report_date_drift_negative_test=true
+one_provider_negative_test=true
 ```
 
-## PR #80 donor evidence to preserve, not blindly merge
-
-Important donor evidence includes:
-
+### Markdown/output contract
 ```text
-pr80_head=01fb4e9238d1921dc8fd52ad552d3acba5bfceea
-historical_assurance_head=d38e8bad3575542bc8e5781812c9cd669f975a3a
-historical_assurance_verdict=FAIL
-fresh_package_run=31262475314
-client_surface_generic_repair_commit=707058bde97febbd8e860016c6bd58356b2bb9d2
+markdown_state_derived=true
+dynamic_funded_count=true
+funded_tickers_include_L0CK=true
+three_position_copy_fail_closed=true
+retired_target_reserve_copy_fail_closed=true
+markdown_delivery_validation=true
+client_internal_enum_leak_closed=true
 ```
 
-The old branch may be read for code and evidence but may not receive new release-advancing commits.
+### End-to-end proof
+Semantic head `19954692ff8b33d5ffac9b09d6654210a7194997`:
+- donor parity/full six-artifact candidate build run `31433054217` — SUCCESS, 31 tests passed;
+- product boundary `31433053898` — SUCCESS;
+- release evidence preflight `31433054597` — SUCCESS;
+- shadow CID `31433054225` — SUCCESS;
+- strategy synchronization shadow `31433054231` — SUCCESS;
+- target allocator shadow `31433054316` — SUCCESS;
+- transition composition replay `31433054295` — SUCCESS.
+
+## Remaining sequence
+
+1. Finish governance reconciliation of claim/changelog around the completed repair.
+2. Write `handover/ETF_EU_PR91_ASSURANCE_FAIL_REPAIR_V1_20260810.md` as the final candidate mutation.
+3. Re-read live PR #91 head after that handover commit. That resulting SHA becomes the only frozen fresh-assurance target.
+4. Mark PR #91 ready for review without changing its head.
+5. Open a **new assurance issue distinct from #92** bound to that exact SHA.
+6. Required independent verdict:
+
+`ETF_EU_PR91_ASSURANCE_FAIL_REPAIR_REVERIFY: PASS | FAIL | INDETERMINATE`
+
+7. Fresh reviewer must independently re-check:
+   - old pricing blocker is closed end to end;
+   - old Markdown/L0CK blocker is closed in actual delivery artifacts;
+   - full six-artifact package regression is meaningful;
+   - four protected funded positions remain unchanged;
+   - retired 50/35/15 and research-only 25/18 authority boundaries remain intact;
+   - candidate/delivery workflow separation remains intact;
+   - no portfolio/ledger mutation, broker execution or send occurred.
+8. If PASS and frozen head remains unchanged, merge PR #91.
+9. Run exact-main validation and reconcile project + central Control state.
+10. Close issue #90 and the integration claim only after exact-main evidence is sufficient.
+
+## Separate post-release production sequence
+
+Only after PR #91 closeout:
+1. create a new non-main candidate for the genuinely current Weekly ETF EU report;
+2. resolve latest valid completed close;
+3. run donor discovery → UCITS mapping → exact-line pricing → current re-underwriting;
+4. generate NL/EN MD/HTML/PDF from one state;
+5. independently assure the exact report candidate;
+6. merge/exact-main validate if PASS;
+7. guarded delivery only under separate principal send authority;
+8. delivery success only with positive receipt/attachment evidence.
+
+## Decisions not reopened
+The assurance FAIL was an implementation/output-contract failure, not an allocation-policy decision. Do not reopen the existing allocation authority without new decision evidence.
 
 ## Prohibited shortcuts
-
 Do not:
-
-- continue remediation or CI-retrigger accumulation on PR #80;
-- force-merge or wholesale rebase the 95-commit donor lineage into current `main`;
-- port generated historical report/evidence artifacts merely because they exist in PR #80;
-- weaken the funded two-provider same-date requirement or exact-line identity requirements;
-- mutate shares or cash during valuation/report reconstruction without explicit allocation authority;
-- reintroduce unsupported universal 50% maximum-position, 35% minimum-cash or 15% maximum-new-ETF controls;
-- treat the donor's 75% pricing-coverage context as a position-weight cap;
-- reuse the prior independent FAIL as approval for a descendant or successor;
-- send email, claim delivery, imply broker execution or claim production closeout from a successful candidate build alone.
+- merge failed head `a9f93af...`;
+- reuse issue #92 for the repaired head;
+- mutate the candidate after fresh assurance begins;
+- treat CI/machine preflight as independent assurance;
+- send email or execute broker actions from this repair mandate.

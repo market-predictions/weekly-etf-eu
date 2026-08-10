@@ -15,10 +15,16 @@ REQUIRED = {
     "previous_routine_manifest",
     "previous_delivery_closeout_manifest",
     "execution_mode",
-    "send_confirmation",
+    "delivery_authority",
     "recipient_plaintext_values_exposed",
     "secret_values_exposed",
     "raw_receipt_pdf_stored_in_github",
+}
+FORBIDDEN_KEYS = {
+    "send_confirmation",
+    "second_send_confirmation",
+    "smtp_recipient",
+    "recipient_email",
 }
 FORBIDDEN = [
     re.compile(r"\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b", re.IGNORECASE),
@@ -44,20 +50,30 @@ def parse(path: Path) -> dict[str, str]:
     missing = REQUIRED - set(data)
     if missing:
         raise AssertionError(f"request missing keys: {sorted(missing)}")
+    forbidden_present = FORBIDDEN_KEYS & set(data)
+    if forbidden_present:
+        raise AssertionError(
+            "candidate request contains delivery-only keys: "
+            f"{sorted(forbidden_present)}"
+        )
     return data
 
 
 def validate(path: Path) -> dict[str, str]:
     data = parse(path)
-    if data["schema_version"] != "etf_eu_routine_report_request_v1":
-        raise AssertionError("request schema mismatch")
+    if data["schema_version"] != "etf_eu_routine_report_request_v2":
+        raise AssertionError("request schema mismatch; current routine requires v2 candidate-only requests")
     if data["artifact_type"] != "etf_eu_routine_report_request":
         raise AssertionError("request type mismatch")
-    if data["execution_mode"] != "generate_validate_send":
-        raise AssertionError("unsupported execution mode")
-    if data["send_confirmation"] != "confirm_guarded_send":
-        raise AssertionError("guarded send confirmation missing")
-    for key in ["recipient_plaintext_values_exposed", "secret_values_exposed", "raw_receipt_pdf_stored_in_github"]:
+    if data["execution_mode"] != "generate_validate_candidate":
+        raise AssertionError("unsupported execution mode; routine generation is candidate-only")
+    if data["delivery_authority"] != "false":
+        raise AssertionError("candidate request cannot grant delivery authority")
+    for key in [
+        "recipient_plaintext_values_exposed",
+        "secret_values_exposed",
+        "raw_receipt_pdf_stored_in_github",
+    ]:
         if data[key] != "false":
             raise AssertionError(f"{key} must be false")
     run_id = data["run_id"]
@@ -84,7 +100,13 @@ def main() -> None:
     parser.add_argument("--request", required=True)
     args = parser.parse_args()
     data = validate(Path(args.request))
-    print(f"ETF_EU_ROUTINE_REPORT_REQUEST_OK | run_id={data['run_id']} | report_date={data['report_date']}")
+    print(
+        "ETF_EU_ROUTINE_REPORT_REQUEST_OK"
+        f" | run_id={data['run_id']}"
+        f" | report_date={data['report_date']}"
+        " | mode=generate_validate_candidate"
+        " | delivery_authority=false"
+    )
 
 
 if __name__ == "__main__":

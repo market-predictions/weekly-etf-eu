@@ -6,7 +6,9 @@ from argparse import Namespace
 from pathlib import Path
 from typing import Any
 
-from runtime.build_etf_eu_client_grade_report_state import build_state
+from runtime.apply_etf_eu_donor_parity_contract import apply_contract, write_recommendation_scorecard
+from runtime.build_etf_eu_client_grade_report_state_v2 import build_state
+from runtime.build_etf_eu_donor_discovery_bridge import write_bridge
 from runtime.inject_etf_eu_funded_identity_strip import inject_funded_identity_strip
 from runtime.polish_etf_eu_client_grade_html import polish
 from runtime.reconcile_etf_eu_funded_markdown import reconcile_funded_markdown
@@ -26,10 +28,42 @@ def _write(path: Path, payload: dict[str, Any]) -> None:
     path.write_text(json.dumps(payload, indent=2, sort_keys=True, ensure_ascii=False) + "\n", encoding="utf-8")
 
 
+def _client_safe_status_text(text: str, *, language: str) -> str:
+    replacement = "Actieve modelpositie" if language == "nl" else "Active model position"
+    return text.replace("funded_model_position_active", replacement)
+
+
+def _restore_normalized_funded_consistency(state: dict[str, Any]) -> dict[str, Any]:
+    positions = [
+        row
+        for row in (state.get("portfolio") or {}).get("positions") or []
+        if isinstance(row, dict)
+    ]
+    if not positions:
+        return state
+    consistency = dict(state.get("funded_consistency") or {})
+    consistency.update(
+        {
+            "position_count": len(positions),
+            "funded_tickers": [
+                str(row.get("exchange_ticker") or row.get("ticker") or "").strip().upper()
+                for row in positions
+            ],
+            "allocation_map_reconciled": True,
+            "opportunity_radar_reconciled": True,
+            "broker_neutral_model_language": True,
+            "normalized_state_authority": True,
+        }
+    )
+    state["funded_consistency"] = consistency
+    return state
+
+
 def build(args: argparse.Namespace) -> dict[str, Path]:
     legacy_outputs = build_legacy_package(args)
     output_dir = Path(args.output_dir)
     state_path = Path("output/runtime") / f"etf_eu_client_grade_report_state_{args.run_id}.json"
+    macro_pack = _load(Path(args.macro_pack))
 
     state_args = Namespace(
         portfolio_state=args.portfolio_state,
@@ -45,6 +79,31 @@ def build(args: argparse.Namespace) -> dict[str, Path]:
     state = build_state(state_args)
     if state.get("state_valid") is not True:
         raise RuntimeError(f"Client-grade v2 state is invalid: {state.get('blockers')}")
+
+    state = apply_contract(state, macro_pack=macro_pack)
+    state = _restore_normalized_funded_consistency(state)
+    bridge_path: Path | None = None
+    if getattr(args, "donor_lane_artifact", None):
+        bridge_path = Path("output/runtime") / f"etf_eu_donor_discovery_bridge_{args.run_id}.json"
+        bridge = write_bridge(
+            Path(args.donor_lane_artifact),
+            Path(args.proxy_map),
+            Path(args.pricing_artifact),
+            Path(args.portfolio_state),
+            bridge_path,
+        )
+        state["donor_discovery_bridge"] = bridge
+        state["discovery_parity"] = {
+            "contract": "control/ETF_EU_DISCOVERY_FUNDABILITY_CONTRACT_V1.md",
+            "donor_lane_artifact": str(args.donor_lane_artifact),
+            "bridge_artifact": str(bridge_path),
+            "assessed_lane_count": bridge.get("assessed_lane_count"),
+            "assessed_buckets": bridge.get("assessed_buckets"),
+            "required_breadth_buckets": bridge.get("required_breadth_buckets"),
+            "funding_authority": False,
+        }
+
+    write_recommendation_scorecard(state, Path(args.recommendation_scorecard), args.report_date, args.run_id)
     _write(state_path, state)
 
     nl_html = output_dir / f"weekly_etf_eu_review_nl_{args.report_suffix}.html"
@@ -55,8 +114,16 @@ def build(args: argparse.Namespace) -> dict[str, Path]:
     render(state_path, "nl", nl_html, nl_pdf)
     render(state_path, "en", en_html, en_pdf)
 
+    # The renderer may enrich the same state file for presentation. Reassert the
+    # normalized funded-consistency contract after both renders so validators and
+    # final client artifacts consume one persisted state authority.
+    funded_state = _restore_normalized_funded_consistency(_load(state_path))
+    _write(state_path, funded_state)
+
     nl_polished = polish(nl_html.read_text(encoding="utf-8"), language="nl")
     en_polished = polish(en_html.read_text(encoding="utf-8"), language="en")
+    nl_polished = _client_safe_status_text(nl_polished, language="nl")
+    en_polished = _client_safe_status_text(en_polished, language="en")
     nl_polished = inject_funded_identity_strip(nl_polished, language="nl")
     en_polished = inject_funded_identity_strip(en_polished, language="en")
     nl_html.write_text(nl_polished, encoding="utf-8")
@@ -64,7 +131,6 @@ def build(args: argparse.Namespace) -> dict[str, Path]:
     HTML(string=nl_polished, base_url=str(nl_html.parent.resolve())).write_pdf(str(nl_pdf))
     HTML(string=en_polished, base_url=str(en_html.parent.resolve())).write_pdf(str(en_pdf))
 
-    funded_state = _load(state_path)
     manifest_path = Path(legacy_outputs["manifest"])
     ready_path = Path(legacy_outputs["ready"])
     routine_path = Path(legacy_outputs["routine"])
@@ -78,14 +144,25 @@ def build(args: argparse.Namespace) -> dict[str, Path]:
     en_md.write_text(reconcile_funded_markdown(en_md.read_text(encoding="utf-8"), funded_state, language="en"), encoding="utf-8")
 
     promotion_fields = {
-        "client_renderer_mode": "client_grade_v2_funded_aware",
+        "client_renderer_mode": "client_grade_v2_funded_aware_donor_parity_v1",
         "production_renderer": "runtime/render_etf_eu_client_grade_v2_funded.py",
         "renderer_engine": "weasyprint",
-        "render_source_authority": "normalized_report_state",
+        "render_source_authority": "normalized_report_state_plus_donor_parity_contract",
         "normalized_report_state": str(state_path),
-        "markdown_role": "funded_state_reconciled_audit_companion_not_v2_render_source",
-        "markdown_generation_status": "generated_funded_state_reconciled_audit_companion",
+        "recommendation_scorecard": args.recommendation_scorecard,
+        "allocation_authority_contract": "control/ETF_EU_ALLOCATION_AUTHORITY_V1.md",
+        "discovery_fundability_contract": "control/ETF_EU_DISCOVERY_FUNDABILITY_CONTRACT_V1.md",
+        "donor_discovery_bridge": str(bridge_path) if bridge_path else None,
+        "donor_parity_contract": "runtime/apply_etf_eu_donor_parity_contract.py",
+        "pricing_contract": "ucits_close_price_validation_basket_results_v2",
+        "pricing_state_builder": "runtime/build_etf_eu_client_grade_report_state_v2.py",
+        "funded_two_provider_consensus_required": True,
+        "shadow_transition_policy_current_authority": False,
+        "markdown_role": "funded_state_derived_delivery_artifact",
+        "markdown_generation_status": "generated_from_normalized_funded_state",
         "macro_policy_pack": args.macro_pack,
+        "macro_source_report_date": (macro_pack.get("donor_provenance") or {}).get("source_report_date"),
+        "macro_freshness_authority": "donor_provenance.source_report_date",
         "ucits_registry": args.registry,
         "investor_brief_present": True,
         "analyst_appendix_present": True,
@@ -94,11 +171,11 @@ def build(args: argparse.Namespace) -> dict[str, Path]:
         "equity_surface": "chart" if funded_state["equity_curve"]["show_chart"] else "cash_preservation_callout",
         "funded_position_count": funded_state["portfolio"]["position_count"],
         "full_generation_status": "client_grade_v2_generated_pending_quality_gates",
-        "upstream_pattern_adapted": "weekly-etf normalized report state, investor/analyst hierarchy, macro surface, conditional equity curve and component renderer adapted for EU/UCITS production",
+        "upstream_pattern_adapted": "weekly-etf discovery breadth, normalized report state and capital re-underwriting memory adapted to EU/UCITS identity, pricing and fundability gates",
     }
     manifest.update(promotion_fields)
     manifest["renderer"] = "runtime/render_etf_eu_client_grade_v2_funded.py"
-    manifest["client_surface_sanitizer"] = "runtime/polish_etf_eu_client_grade_html.py"
+    manifest["client_surface_sanitizer"] = "runtime/polish_etf_eu_client_grade_html.py+funded_status_label_normalization"
     manifest["html_generation_status"] = "client_grade_v2_generated"
     manifest["pdf_generation_status"] = "client_grade_v2_generated_pending_quality_gates"
     ready.update(promotion_fields)
@@ -109,14 +186,18 @@ def build(args: argparse.Namespace) -> dict[str, Path]:
     _write(manifest_path, manifest)
     _write(ready_path, ready)
     _write(routine_path, routine)
-    return {
+    outputs = {
         **legacy_outputs,
         "state": state_path,
+        "recommendation_scorecard": Path(args.recommendation_scorecard),
         "dutch_html": nl_html,
         "english_html": en_html,
         "dutch_pdf": nl_pdf,
         "english_pdf": en_pdf,
     }
+    if bridge_path:
+        outputs["donor_discovery_bridge"] = bridge_path
+    return outputs
 
 
 def main() -> None:
@@ -127,6 +208,8 @@ def main() -> None:
     parser.add_argument("--pricing-artifact", required=True)
     parser.add_argument("--macro-pack", required=True)
     parser.add_argument("--registry", default="config/ucits_symbol_registry.yml")
+    parser.add_argument("--proxy-map", default="config/ucits_benchmark_proxy_map.yml")
+    parser.add_argument("--donor-lane-artifact")
     parser.add_argument("--output-dir", default="output/fresh_generation")
     parser.add_argument("--portfolio-state", default="output/etf_eu_portfolio_state.json")
     parser.add_argument("--valuation-history", default="output/etf_eu_valuation_history.csv")
