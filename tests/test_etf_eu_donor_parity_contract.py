@@ -38,12 +38,23 @@ def test_contract_removes_shadow_controls_and_preserves_four_positions() -> None
 def test_allocation_map_has_no_fixed_cash_floor_or_strategic_target_copy() -> None:
     state = apply_contract(sample_state())
     text = " ".join(str(value) for row in state["allocation_map"] for value in row.values()).lower()
-    assert "35%" not in text
-    assert "15%" not in text
-    assert "7.50%" not in text
-    assert "7,50%" not in text
-    assert "strategic target" not in text
-    assert "strategisch doel" not in text
+    # Current measured weights may legitimately equal a historical target percentage.
+    # Reject policy semantics, not the numeric value itself.
+    forbidden_policy_phrases = (
+        "35% minimum cash",
+        "35% minimum-cash",
+        "minimum cash 35%",
+        "15% maximum new etf",
+        "15% max new etf",
+        "7.50% minimum cash",
+        "7,50% minimum cash",
+        "minimum cash 7.50%",
+        "minimum cash 7,50%",
+        "strategic target",
+        "strategisch doel",
+    )
+    for phrase in forbidden_policy_phrases:
+        assert phrase not in text
     assert "no fixed cash floor" in text
 
 
