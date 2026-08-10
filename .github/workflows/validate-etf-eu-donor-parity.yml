@@ -43,7 +43,8 @@ jobs:
             tests/test_etf_eu_guarded_delivery_authority.py \
             tests/test_etf_eu_routine_request_authority.py \
             tests/test_etf_eu_funded_renderer_authority.py \
-            tests/test_etf_eu_pricing_v2_and_markdown_delivery.py
+            tests/test_etf_eu_pricing_v2_and_markdown_delivery.py \
+            tests/test_etf_eu_candidate_build_end_to_end.py
       - name: Validate workflow authority topology
         run: |
           python tools/validate_etf_eu_workflow_authority.py
