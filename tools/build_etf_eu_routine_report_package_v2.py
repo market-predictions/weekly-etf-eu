@@ -6,6 +6,7 @@ from argparse import Namespace
 from pathlib import Path
 from typing import Any
 
+from runtime.apply_etf_eu_donor_parity_contract import apply_contract
 from runtime.build_etf_eu_client_grade_report_state import build_state
 from runtime.inject_etf_eu_funded_identity_strip import inject_funded_identity_strip
 from runtime.polish_etf_eu_client_grade_html import polish
@@ -45,6 +46,11 @@ def build(args: argparse.Namespace) -> dict[str, Path]:
     state = build_state(state_args)
     if state.get("state_valid") is not True:
         raise RuntimeError(f"Client-grade v2 state is invalid: {state.get('blockers')}")
+
+    # Canonical post-build normalization. Legacy state builders may still contain
+    # transition-era display assumptions; this layer makes them non-authoritative
+    # before any NL/EN client rendering occurs.
+    state = apply_contract(state)
     _write(state_path, state)
 
     nl_html = output_dir / f"weekly_etf_eu_review_nl_{args.report_suffix}.html"
@@ -78,11 +84,14 @@ def build(args: argparse.Namespace) -> dict[str, Path]:
     en_md.write_text(reconcile_funded_markdown(en_md.read_text(encoding="utf-8"), funded_state, language="en"), encoding="utf-8")
 
     promotion_fields = {
-        "client_renderer_mode": "client_grade_v2_funded_aware",
+        "client_renderer_mode": "client_grade_v2_funded_aware_donor_parity_v1",
         "production_renderer": "runtime/render_etf_eu_client_grade_v2_funded.py",
         "renderer_engine": "weasyprint",
-        "render_source_authority": "normalized_report_state",
+        "render_source_authority": "normalized_report_state_plus_donor_parity_contract",
         "normalized_report_state": str(state_path),
+        "allocation_authority_contract": "control/ETF_EU_ALLOCATION_AUTHORITY_V1.md",
+        "donor_parity_contract": "runtime/apply_etf_eu_donor_parity_contract.py",
+        "shadow_transition_policy_current_authority": False,
         "markdown_role": "funded_state_reconciled_audit_companion_not_v2_render_source",
         "markdown_generation_status": "generated_funded_state_reconciled_audit_companion",
         "macro_policy_pack": args.macro_pack,
@@ -94,7 +103,7 @@ def build(args: argparse.Namespace) -> dict[str, Path]:
         "equity_surface": "chart" if funded_state["equity_curve"]["show_chart"] else "cash_preservation_callout",
         "funded_position_count": funded_state["portfolio"]["position_count"],
         "full_generation_status": "client_grade_v2_generated_pending_quality_gates",
-        "upstream_pattern_adapted": "weekly-etf normalized report state, investor/analyst hierarchy, macro surface, conditional equity curve and component renderer adapted for EU/UCITS production",
+        "upstream_pattern_adapted": "weekly-etf normalized report state, capital re-underwriting memory, investor/analyst hierarchy, macro surface, conditional equity curve and component renderer adapted for EU/UCITS production",
     }
     manifest.update(promotion_fields)
     manifest["renderer"] = "runtime/render_etf_eu_client_grade_v2_funded.py"
