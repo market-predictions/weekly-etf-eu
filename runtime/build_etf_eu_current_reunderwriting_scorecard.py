@@ -10,10 +10,10 @@ from typing import Any
 FIELDS = [
     "report_date", "isin", "exchange_ticker", "fund_name", "weight_pct", "shares",
     "current_price_local", "trading_currency", "market_value_eur", "price_date",
-    "current_price_status", "total_score", "suggested_action", "conviction_tier",
-    "portfolio_role", "fresh_cash_test", "would_initiate_today",
-    "would_initiate_at_current_weight", "thesis_score", "implementation_score",
-    "replaceable_status", "weeks_replaceable", "best_alternative",
+    "current_price_status", "pricing_source", "pricing_agreement_status", "total_score",
+    "suggested_action", "conviction_tier", "portfolio_role", "fresh_cash_test",
+    "would_initiate_today", "would_initiate_at_current_weight", "thesis_score",
+    "implementation_score", "replaceable_status", "weeks_replaceable", "best_alternative",
     "contribution_quality", "factor_overlap_flag", "hedge_validity_status",
     "cash_policy_flag", "required_next_action", "override_reason", "discipline_flags",
     "ucits_status", "priips_kid_status", "investability_status",
@@ -59,7 +59,7 @@ def donor_index(state: dict[str, Any]) -> dict[str, dict[str, Any]]:
             continue
         ticker = normalize_ticker(row.get("exchange_symbol") or row.get("portfolio_label"))
         if ticker:
-            result[ticker] = row
+            result[ticker] = dict(row)
     for row in state.get("stage_1_review_candidates") or []:
         if not isinstance(row, dict):
             continue
@@ -82,6 +82,17 @@ def prior_index(path: Path | None) -> dict[str, dict[str, str]]:
             ticker = normalize_ticker(row.get("exchange_ticker") or row.get("ticker"))
             if ticker:
                 result[ticker] = dict(row)
+    return result
+
+
+def pricing_index(payload: dict[str, Any]) -> dict[str, dict[str, Any]]:
+    result: dict[str, dict[str, Any]] = {}
+    for row in payload.get("rows") or []:
+        if not isinstance(row, dict):
+            continue
+        ticker = normalize_ticker(row.get("ticker"))
+        if ticker:
+            result[ticker] = dict(row)
     return result
 
 
@@ -114,14 +125,45 @@ def hedge_status(ticker: str, role: str) -> str:
     return "Not designated hedge/ballast sleeve"
 
 
-def current_price_status(row: dict[str, Any], report_date: str) -> str:
-    price = float(row.get("current_price_local") or row.get("selected_close") or 0.0)
-    price_date = str(row.get("price_date") or row.get("last_valuation_report_date") or "")[:10]
-    if price <= 0:
-        return "missing"
-    if price_date == report_date:
-        return "current_report_date"
-    return "prior_or_stale_requires_current_evidence"
+def selected_price(position: dict[str, Any], pricing: dict[str, Any] | None, report_date: str) -> dict[str, Any]:
+    pricing = pricing or {}
+    close = pricing.get("close_price")
+    close_date = str(pricing.get("close_date") or "")[:10]
+    current = (
+        close is not None
+        and close_date == report_date
+        and pricing.get("completed_close_on_or_before_report_date") is True
+    )
+    if current:
+        price = float(close)
+        shares = float(position.get("shares") or 0.0)
+        currency = str(pricing.get("currency") or position.get("trading_currency") or position.get("currency") or "")
+        # Current funded lines are EUR in the protected portfolio. If a future
+        # funded line is non-EUR, NAV conversion must come from normalized state;
+        # do not fabricate FX here.
+        market_value = round(shares * price, 2) if currency == "EUR" else position.get("market_value_eur")
+        return {
+            "price": price,
+            "price_date": close_date,
+            "status": "current_report_date_completed_close",
+            "source": pricing.get("source_name") or pricing.get("source_id") or "current_pricing_artifact",
+            "agreement": pricing.get("source_agreement_status") or "",
+            "currency": currency,
+            "market_value_eur": market_value,
+        }
+
+    price = position.get("current_price_local") or position.get("selected_close")
+    price_date = str(position.get("price_date") or position.get("last_valuation_report_date") or "")[:10]
+    status = "missing" if not price else "prior_or_stale_requires_current_evidence"
+    return {
+        "price": price,
+        "price_date": price_date,
+        "status": status,
+        "source": position.get("pricing_source") or "protected_portfolio_state",
+        "agreement": position.get("pricing_source_quality") or "",
+        "currency": position.get("trading_currency") or position.get("currency"),
+        "market_value_eur": position.get("market_value_eur"),
+    }
 
 
 def build_rows(
@@ -130,39 +172,43 @@ def build_rows(
     prior: dict[str, dict[str, str]],
     report_date: str,
     source_report: str,
+    pricing_payload: dict[str, Any] | None = None,
 ) -> list[dict[str, Any]]:
     donor = donor_index(state)
+    prices = pricing_index(pricing_payload or {})
     cash_flag = cash_policy(portfolio, state)
     rows: list[dict[str, Any]] = []
     for position in positions_from_sources(portfolio, state):
         ticker = normalize_ticker(position.get("ticker") or position.get("exchange_ticker"))
         donor_row = donor.get(ticker, {})
         old = prior.get(ticker, {})
-        price_status = current_price_status(position, report_date)
+        price = selected_price(position, prices.get(ticker), report_date)
         donor_score = donor_row.get("shared_score") or donor_row.get("current_promotion_score")
         donor_review = str(donor_row.get("donor_review_status") or "")
         currently_promoted = donor_row.get("currently_promoted")
-        evidence_current = price_status == "current_report_date"
+        evidence_current = price["status"] == "current_report_date_completed_close"
 
         if donor_review:
             fresh_cash = donor_review
         elif evidence_current:
-            fresh_cash = "Current evidence available; explicit fresh-cash re-underwriting required"
+            fresh_cash = "Current completed-close evidence available; explicit fresh-cash re-underwriting required"
         else:
             fresh_cash = "Unresolved until current completed-close re-underwriting is complete"
 
         if donor_review and "hold" in donor_review.casefold():
             initiate_today = "Smaller/monitor" if "smaller" in donor_review.casefold() else "Hold/monitor"
+        elif evidence_current:
+            initiate_today = "Unresolved"
         else:
             initiate_today = "Unresolved"
 
         current_weight = float(position.get("current_weight_pct") or position.get("weight_pct") or 0.0)
-        initiate_weight = "No/Review" if initiate_today in {"Smaller/monitor", "Unresolved"} and current_weight > 0 else "Unresolved"
+        initiate_weight = "No/Review" if current_weight > 0 and initiate_today in {"Smaller/monitor", "Unresolved"} else "Unresolved"
 
         replaceable = old.get("replaceable_status") or "Current review required"
         try:
             weeks = int(float(old.get("weeks_replaceable") or 0))
-        except ValueError:
+        except (TypeError, ValueError):
             weeks = 0
         if replaceable.casefold() not in {"none", "", "current review required"}:
             weeks += 1
@@ -179,11 +225,13 @@ def build_rows(
             "fund_name": position.get("fund_name"),
             "weight_pct": round(current_weight, 6),
             "shares": int(float(position.get("shares") or 0)),
-            "current_price_local": position.get("current_price_local"),
-            "trading_currency": position.get("trading_currency") or position.get("currency"),
-            "market_value_eur": position.get("market_value_eur"),
-            "price_date": position.get("price_date") or position.get("last_valuation_report_date"),
-            "current_price_status": price_status,
+            "current_price_local": price["price"],
+            "trading_currency": price["currency"],
+            "market_value_eur": price["market_value_eur"],
+            "price_date": price["price_date"],
+            "current_price_status": price["status"],
+            "pricing_source": price["source"],
+            "pricing_agreement_status": price["agreement"],
             "total_score": donor_score if donor_score is not None else "",
             "suggested_action": action,
             "conviction_tier": position.get("conviction_tier") or "",
@@ -206,7 +254,7 @@ def build_rows(
             "ucits_status": position.get("ucits_status"),
             "priips_kid_status": position.get("priips_kid_status"),
             "investability_status": position.get("investability_status"),
-            "reunderwriting_status": "CURRENT_REVIEW_REQUIRED" if initiate_today == "Unresolved" else "CURRENT_EVIDENCE_PARTIAL",
+            "reunderwriting_status": "CURRENT_EVIDENCE_READY_FOR_REVIEW" if evidence_current else "CURRENT_REVIEW_REQUIRED",
             "source_report": source_report,
         })
     return rows
@@ -224,6 +272,7 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="Build current-run ETF EU capital re-underwriting memory for every funded position")
     parser.add_argument("--portfolio-state", type=Path, default=Path("output/etf_eu_portfolio_state.json"))
     parser.add_argument("--convergence-state", type=Path)
+    parser.add_argument("--pricing-artifact", type=Path)
     parser.add_argument("--prior-scorecard", type=Path, default=Path("output/etf_eu_recommendation_scorecard.csv"))
     parser.add_argument("--report-date", required=True)
     parser.add_argument("--source-report", required=True)
@@ -231,12 +280,15 @@ def main() -> None:
     args = parser.parse_args()
     portfolio = load_json(args.portfolio_state)
     state = load_json(args.convergence_state)
+    pricing_payload = load_json(args.pricing_artifact)
     prior = prior_index(args.prior_scorecard)
-    rows = build_rows(portfolio, state, prior, args.report_date, args.source_report)
+    rows = build_rows(portfolio, state, prior, args.report_date, args.source_report, pricing_payload)
     write(rows, args.output)
+    current_prices = sum(row["current_price_status"] == "current_report_date_completed_close" for row in rows)
     print(
         "ETF_EU_CURRENT_REUNDERWRITING_SCORECARD_OK"
-        f" | funded_positions={len(rows)} | tickers={','.join(row['exchange_ticker'] for row in rows)}"
+        f" | funded_positions={len(rows)} | current_prices={current_prices}"
+        f" | tickers={','.join(row['exchange_ticker'] for row in rows)}"
         " | portfolio_mutation=false"
     )
 
