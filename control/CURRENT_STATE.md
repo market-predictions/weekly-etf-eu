@@ -3,16 +3,18 @@
 ## Snapshot
 
 ```text
-date=2026-08-09
+date=2026-08-10
 repository=market-predictions/weekly-etf-eu
-main_sha_at_reconciliation=93dbe7450e44d22a2fe247a8d1f1ffb9e07adf3c
+live_main_at_opening=76325f60a3abcda4a059f7823c9c0b5024802870
 operating_mode=ROUTINE_WEEKLY_ETF_EU_PRODUCTION_WITH_INDEPENDENT_RELEASE_ASSURANCE
-current_work_package=ETF-EU-WP-RELEASE-INTEGRATION-V3
-active_claim=ETF-EU-RELEASE-INTEGRATION-V3
-working_branch=agent/etf-eu-release-integration-v3
-superseded_pull_request=80
-superseded_head=01fb4e9238d1921dc8fd52ad552d3acba5bfceea
-state=ACTIVE_CLIENT_GRADE_RELEASE_REPAIR
+state=DONOR_CONVERGENCE_IMPLEMENTATION_ACTIVE
+current_work_package=ETF-EU-WP-DONOR-CONVERGENCE-V1
+active_claim=ETF-EU-DONOR-CONVERGENCE-V1
+working_branch=agent/etf-eu-donor-convergence-v1
+prior_frozen_pull_request=84
+prior_frozen_head=888a55b5bc8ae3d465691117157c616893b3addb
+prior_assurance_issue=87
+prior_assurance_verdict=PASS
 principal_decision_required=false
 principal_action_required=false
 portfolio_mutation=false
@@ -23,64 +25,36 @@ real_broker_execution=false
 
 ## Current objective
 
-Reconstruct one clean Weekly ETF EU release line from current `main`, carrying forward only the still-relevant PR #80 remediation deltas. Then prove the resulting exact head through product-boundary, allocation-lineage, completed-close pricing/replay, client-surface and report gates; generate a fresh Dutch/English candidate; and obtain fresh independent release assurance.
+Converge Weekly ETF EU on the mature Weekly ETF donor behavior for discovery, capital re-underwriting, recommendation memory, normalized state and routine execution while preserving EU-specific UCITS/investability authority.
 
-The project must not continue accumulating on PR #80. Its branch is now read-only implementation/evidence donor material under the canonical work-claim lifecycle standard.
-
-## Why the integration line changed
-
-Live comparison at reconciliation showed PR #80 had materially diverged from `main`:
+The current priority is no longer to merge PR #84. PR #84 is frozen assured evidence. A broader architecture audit discovered material authority/runtime gaps outside issue #87 scope, so the clean successor line is:
 
 ```text
-pr80_head=01fb4e9238d1921dc8fd52ad552d3acba5bfceea
-main=93dbe7450e44d22a2fe247a8d1f1ffb9e07adf3c
-status=diverged
-ahead_by=95
-behind_by=147
-merge_base=050bf08506b54400615538feeca272fbf967ed82
+branch=agent/etf-eu-donor-convergence-v1
+roadmap=docs/roadmaps/WEEKLY_ETF_EU_DONOR_CONVERGENCE_ROADMAP_20260810.md
+work_package=control/work_packages/ETF_EU_WP_DONOR_CONVERGENCE_V1_20260810.md
+authority_contract=control/ETF_EU_ALLOCATION_AUTHORITY_CONVERGENCE_V1.md
+handover=handover/ETF_EU_PR84_TO_DONOR_CONVERGENCE_V1_20260810.md
 ```
 
-This satisfies the canonical material-drift stop rule. The old line is superseded through:
+## Why PR #84 is not merged
 
-```text
-control/WORK_CLAIMS.json
-handover/ETF_EU_PR80_TO_RELEASE_INTEGRATION_V3_20260809.md
-```
+Issue #87 correctly returned PASS for exact frozen head `888a55b5bc8ae3d465691117157c616893b3addb` within its release-assurance scope.
 
-## What is already resolved on current main
+A later donor-vs-EU architecture audit established additional defect classes:
 
-PR #78 was merged on 2026-08-08 as merge commit:
+1. shadow transition-policy percentages still influence allocator mechanics;
+2. retired 35% minimum cash and 15% maximum-new-position semantics remain in historical preferred allocation machinery;
+3. 25% turnover and theme caps have no current authority but can be presented/used as controls;
+4. the historical two-theme Stage-1 allowlist constrains current allocation review;
+5. embedded semiconductor overlap is analytical lower-bound evidence, not a minimum/control;
+6. broker-neutral investability conflicts with runbook account-permission wording;
+7. recommendation memory is stale/incomplete;
+8. discovery, re-underwriting and challenger discipline are not operationally donor-comparable;
+9. actual portfolio state and historical target/scenario metadata require stronger separation;
+10. canonical routine and macro-provenance authority need convergence.
 
-```text
-994dbc8a6383b36510e981469d423c581ebc451b
-```
-
-That merged release integration established, among other things:
-
-- the authoritative four-position funded model state;
-- Alpha Vantage secret rotation and live provider reactivation;
-- live 2026-08-05 funded pricing with 4/4 two-provider consensus;
-- 4/4 exact-line identity anchors;
-- zero historical-cache use for the funded current valuation;
-- removal of inherited FX root assets and active FX workflow paths from the ETF EU product boundary;
-- state-derived funded-universe pricing authority;
-- convergence of the fresh-package route onto the WP11A pricing engine.
-
-PR #82 was subsequently merged as:
-
-```text
-f4d814d31357c5d74b5dda079b21150687926929
-```
-
-It made the canonical non-delivery preview state-aware for the four-position portfolio and preserved:
-
-```text
-production_delivery_authority=false
-send_executed=false
-receipt_confirmed=false
-```
-
-The old `BLOCKED_EXTERNAL_CREDENTIAL` / `ROTATE_ALPHA_VANTAGE_REPOSITORY_SECRET` state is therefore retired and must not be resurrected by future sessions.
+Changing PR #84 would invalidate its exact-head PASS. Merging it before fixing the broader defects would create avoidable release churn. It is therefore superseded for further implementation but preserved read-only as evidence.
 
 ## Authoritative protected portfolio
 
@@ -90,7 +64,7 @@ Authority:
 output/etf_eu_portfolio_state.json
 ```
 
-Current funded model positions:
+Protected funded model positions:
 
 | Ticker | ISIN | Venue | Shares |
 |---|---|---|---:|
@@ -107,71 +81,93 @@ model_portfolio_only=true
 real_broker_execution=false
 ```
 
-This is the protected model state. A valuation/report run must preserve exact shares and cash unless a separate explicit allocation decision authorizes mutation.
+This convergence package may repair metadata/authority separation but may not mutate protected shares, cash or the trade ledger.
 
 ## Current allocation authority
 
-The PR #80 remediation established the still-relevant authority principle that must be reconstructed on the clean successor if absent from current `main`:
+Canonical contract:
+
+`control/ETF_EU_ALLOCATION_AUTHORITY_CONVERGENCE_V1.md`
+
+Authority order:
 
 ```text
 explicit current allocation decision
 > protected portfolio state and trade ledger
-> current completed-close valuation
-> donor opportunity state
-> historical strategy context
+> current completed-close valuation and exact-line identity
+> current re-underwriting/overlap/fundability evidence
+> current donor opportunity state after EU mapping
+> historical strategy context, transition scenarios and prior reports
 ```
 
-The earlier proposed universal constraints are not current ETF EU authority:
+Retired/non-authoritative controls:
 
 ```text
 50% maximum position=RETIRED_UNSUPPORTED_SHADOW_RULE
 35% minimum cash=RETIRED_UNSUPPORTED_SHADOW_RULE
 15% maximum new ETF=RETIRED_UNSUPPORTED_SHADOW_RULE
 75%=PRICING_COVERAGE_CONTEXT_NOT_POSITION_CAP
+25% turnover transition value=CURRENT_AUTHORITY_FALSE
+18% semiconductor transition cap=CURRENT_AUTHORITY_FALSE
+historical Stage-1 maximum positions=CURRENT_AUTHORITY_FALSE_UNLESS_SEPARATELY_DECIDED
 ```
 
-Any surviving client/report fragment that presents those unsupported fixed percentages as current allocation controls must fail closed.
+No replacement numerical hard caps have been authorized.
 
-## Independent assurance diagnosis that remains open
+## Diagnosed current runtime root cause
 
-Issue #81 independently reviewed frozen PR #80 head:
+`config/etf_eu_transition_policy_v1.yml` declares itself shadow-only but its values are consumed by:
 
 ```text
-d38e8bad3575542bc8e5781812c9cd669f975a3a
-ETF_EU_PR80_RELEASE_CLOSEOUT_VERIFY=FAIL
+runtime/build_etf_eu_target_allocator_shadow_v3.py
+runtime/build_etf_eu_target_allocator_shadow_v3_policy_gate.py
 ```
 
-The machine lineage, pricing, repository-boundary and visual-page integrity evidence were materially strong, but the client output contradicted authoritative state. The release-blocking defect class was stale legacy/shadow report composition:
-
-1. Section 6 still stated three official positions;
-2. Section 13 contained a correct active L0CK row and a second stale 0.00% L0CK row;
-3. Section 14 still presented fixed 50% / 35% minimum cash / 15% maximum new ETF as current controls;
-4. Section 15 correctly showed L0CK as a 934-share active holding, exposing the contradiction.
-
-PR #80 later received a generic repair and deterministic regression coverage for this defect class, but the final PR #80 head never obtained exact-head release assurance. The old `FAIL` remains diagnostic evidence only and cannot authorize the clean successor.
-
-## Successor release contract
-
-The clean successor must preserve newer `main` behavior and port only still-relevant donor deltas. Its release candidate is valid only if the exact surviving head proves:
+The base shadow allocator calculates its preferred scenario from turnover, cash reserve, direct-position and theme caps. The policy gate further requires exactly:
 
 ```text
-product_boundary=PASS
-allocation_lineage=PASS
-protected_state_preserved=true
-funded_position_count=4
-funded_same_date_two_provider_consensus=4/4
-funded_exact_line_identity_anchors=4/4
-historical_cache_required_for_current_funded_valuation=false
-pricing_replay_contract=PASS
-client_surface_supersession=PASS
-no_duplicate_funded_ticker_state=true
-no_stale_three_position_copy=true
-no_retired_50_35_15_shadow_policy_as_current_control=true
-nl_en_report_machine_validation=PASS
-nl_en_report_visual_validation=PASS
-fresh_independent_release_assurance=PASS
+ai_compute_infrastructure
+cyber_security
 ```
 
-## Authority boundary
+This historical scenario machinery must remain reproducible where useful but must not drive current allocation/client authority.
 
-No report delivery is authorized or claimed in this reconciliation. No portfolio or ledger mutation occurred. No real broker execution occurred. Historical PR #80 generated artifacts and successful implementation runs are donor evidence only, not the current release candidate or a delivery receipt.
+## Strong foundations to preserve
+
+Already established and not to be weakened:
+
+- ISIN-first UCITS identity;
+- exact trading-line verification;
+- UCITS and PRIIPs/KID gates;
+- U.S. ETFs as research proxies only;
+- funded same-date multi-provider completed-close consensus;
+- exact-line identity anchors;
+- broker-neutral model portfolio;
+- Dutch-primary + English-companion package;
+- Weekly FX product-boundary separation;
+- independent release assurance;
+- delivery receipt/attachment evidence before `DELIVERY_CONFIRMED`.
+
+## Current release gate
+
+No report delivery or merge is authorized from this convergence state.
+
+Required sequence:
+
+```text
+P0 authority repair
+→ P1 donor-parity/runtime convergence
+→ P2 client/maturity closeout
+→ exact-head CI + parity audit
+→ fresh NL/EN candidate
+→ complete visual validation
+→ fresh independent governance_release_assurance
+→ merge only on PASS and unchanged head
+→ separately governed fresh production run/delivery if requested
+```
+
+## Principal boundary
+
+No principal decision is currently required. Existing authority is sufficient to remove stale/shadow rules, converge donor behavior, improve state/runtime separation and add fail-closed tests.
+
+Escalate only if a new hard portfolio limit, mandate change, real broker execution, recipient/delivery change or deliberate acceptance of a material blocking gap becomes necessary.
