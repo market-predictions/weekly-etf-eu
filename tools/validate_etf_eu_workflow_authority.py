@@ -27,6 +27,7 @@ RETIRED_ACTIVE_PATHS = {
     "preview-weekly-etf-eu-converged-routine.yml",
     "export-etf-eu-preview-artifact-20260717.yml",
     "refresh-etf-state-from-report.yml",
+    "validate-etf-eu-allocator-report-shadow.yml",
 }
 
 
