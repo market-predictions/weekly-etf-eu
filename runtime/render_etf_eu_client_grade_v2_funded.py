@@ -11,6 +11,20 @@ from weasyprint import HTML
 from runtime.render_etf_eu_client_grade_v2 import build_html
 
 
+FORBIDDEN_CLIENT_PHRASES = (
+    "reserve minimaal 7,50%",
+    "reserve at least 7.50%",
+    "strategisch doel",
+    "strategic target",
+    "fasedoel",
+    "phase target",
+    "drie gefinancierde modelposities",
+    "three funded model positions",
+    "alle drie gefinancierde posities",
+    "all three funded positions",
+)
+
+
 def e(value: Any) -> str:
     return html.escape(str(value if value is not None else ""), quote=True)
 
@@ -34,7 +48,8 @@ def table(headers: list[str], rows: list[list[str]]) -> str:
 
 
 def ticker_of(row: dict[str, Any]) -> str:
-    return str(row.get("exchange_ticker") or row.get("ticker") or "").strip().upper()
+    ticker = str(row.get("exchange_ticker") or row.get("ticker") or "").strip().upper()
+    return "L0CK" if ticker == "LOCK" else ticker
 
 
 def whole(value: Any, language: str) -> str:
@@ -58,206 +73,123 @@ def position_summary(positions: list[dict[str, Any]], language: str) -> str:
     return joined([f"{whole(row.get('shares'), language)} {ticker_of(row)}" for row in positions], language)
 
 
+def _current_run_change_authorized(state: dict[str, Any]) -> bool:
+    authority = state.get("authority") if isinstance(state.get("authority"), dict) else {}
+    return bool(authority.get("portfolio_mutation") is True or authority.get("trade_ledger_mutation") is True)
+
+
 def funded_overlay(state: dict[str, Any]) -> dict[str, Any]:
+    """Add only current-state consistency metadata.
+
+    Allocation map and position rows are already normalized by
+    apply_etf_eu_donor_parity_contract. This layer must never recreate CAP01 targets,
+    fixed cash floors or hard-coded funded-position counts.
+    """
     state = dict(state)
     portfolio = dict(state.get("portfolio") or {})
     positions = [dict(row) for row in portfolio.get("positions") or [] if isinstance(row, dict)]
+    portfolio["positions"] = positions
+    state["portfolio"] = portfolio
     if not positions:
         return state
 
-    nav = float(portfolio.get("nav_eur") or 0.0)
-    cash = float(portfolio.get("cash_eur") or 0.0)
-    cash_weight = round(cash / nav * 100.0, 2) if nav else 0.0
-    by_ticker = {ticker_of(row): row for row in positions if ticker_of(row)}
-    funded_tickers = list(by_ticker)
-
-    allocation_map: list[dict[str, str]] = [
-        {
-            "segment_nl": "Cash",
-            "segment_en": "Cash",
-            "stance_nl": f"Huidig {cash_weight:.2f}% · reserve minimaal 7,50%",
-            "stance_en": f"Current {cash_weight:.2f}% · reserve at least 7.50%",
-            "note_nl": "Resterende doelcapaciteit blijft cash en wordt niet automatisch naar andere thema’s doorgeschoven.",
-            "note_en": "Remaining target capacity stays in cash and is not automatically redistributed to other themes.",
-        }
-    ]
-
-    detail_rows = [
-        ("VWCE", "Wereldwijde aandelenkern", "Global equity core"),
-        ("SXR8", "Amerikaanse aandelenoverweging", "U.S. equity overweight"),
-        ("EUNA", "Wereldwijde obligatiestabilisator", "Global aggregate-bond stabiliser"),
-    ]
-    for ticker, segment_nl, segment_en in detail_rows:
-        row = by_ticker.get(ticker)
-        if not row:
-            continue
-        weight = float(row.get("current_weight_pct") or 0.0)
-        strategic = float(row.get("strategic_target_weight_pct") or row.get("target_weight_pct") or 0.0)
-        shares_nl = whole(row.get("shares"), "nl")
-        shares_en = whole(row.get("shares"), "en")
-        if ticker == "SXR8":
-            note_nl = f"{shares_nl} stukken SXR8 actief; een tweede tranche is niet geautoriseerd."
-            note_en = f"{shares_en} shares of SXR8 are active; a second tranche is not authorised."
-        else:
-            note_nl = f"{shares_nl} stukken {ticker} actief; extra inzet vereist een nieuw, afzonderlijk allocatiebesluit."
-            note_en = f"{shares_en} shares of {ticker} are active; additional deployment requires a new separate allocation decision."
-        allocation_map.append(
-            {
-                "segment_nl": segment_nl,
-                "segment_en": segment_en,
-                "stance_nl": f"Actief {weight:.2f}% · strategisch doel {strategic:.2f}%",
-                "stance_en": f"Active {weight:.2f}% · strategic target {strategic:.2f}%",
-                "note_nl": note_nl,
-                "note_en": note_en,
-            }
-        )
-
-    allocation_map.extend(
-        [
-            {
-                "segment_nl": "Satellieten",
-                "segment_en": "Satellites",
-                "stance_nl": "Nog niet gefinancierd",
-                "stance_en": "Not funded",
-                "note_nl": "SXRV en semiconductorblootstelling vereisen exacte lijnidentiteit, verse prijzen, concentratiecontrole en een afzonderlijk besluit.",
-                "note_en": "SXRV and semiconductor exposure require exact-line identity, fresh pricing, concentration review and a separate decision.",
-            },
-            {
-                "segment_nl": "Goud / harde activa",
-                "segment_en": "Gold / hard assets",
-                "stance_nl": "Beleidsmatig geblokkeerd",
-                "stance_en": "Policy blocked",
-                "note_nl": "De ETC-structuur valt buiten het huidige UCITS-only beleid.",
-                "note_en": "The ETC structure remains outside the current UCITS-only policy.",
-            },
-        ]
-    )
-    state["allocation_map"] = allocation_map
+    funded_tickers = [ticker_of(row) for row in positions if ticker_of(row)]
+    funded_set = set(funded_tickers)
 
     lanes: list[dict[str, Any]] = []
-    funded_set = set(funded_tickers)
     for source in state.get("opportunity_radar") or []:
         lane = dict(source)
-        lane_tickers = {str(value).strip().upper() for value in (lane.get("candidate_tickers") or lane.get("tickers") or [])}
+        lane_tickers = {
+            str(value).strip().upper()
+            for value in (lane.get("candidate_tickers") or lane.get("tickers") or [])
+        }
         active = sorted(lane_tickers & funded_set)
         lane["funded_count"] = len(active)
         lane["funded_tickers"] = active
         if active:
             lane["status"] = "funded_model_position_active"
-            lane["implementation_score"] = 5
-            lane["next_confirmation_nl"] = "Bewaak rol, bijdrage en overlap; geen uitbreiding zonder verse completed close, concentratiecontrole en afzonderlijk allocatiebesluit."
-            lane["next_confirmation_en"] = "Monitor role, contribution and overlap; do not add without a fresh completed close, concentration review and a separate allocation decision."
-        elif lane.get("status") == "operationally_mature_not_funded":
-            lane["next_confirmation_nl"] = "Bevestig de exacte handelslijn, een verse completed close en een afzonderlijk allocatiebesluit."
-            lane["next_confirmation_en"] = "Confirm the exact trading line, a fresh completed close and a separate allocation decision."
+            lane["next_confirmation_nl"] = "Bewaak rol, bijdrage, overlap en actuele re-underwriting; geen wijziging zonder verse evidence en afzonderlijk allocatiebesluit."
+            lane["next_confirmation_en"] = "Monitor role, contribution, overlap and current re-underwriting; no change without fresh evidence and a separate allocation decision."
         lanes.append(lane)
     state["opportunity_radar"] = lanes
 
     funnel = dict(state.get("verification_funnel") or {})
-    funnel.update(
-        {
-            "funded_positions": len(positions),
-            "cash_eur": cash,
-            "decision": "maintain_three_position_model_portfolio_and_require_separate_authority_for_any_change",
-        }
-    )
+    funnel["funded_positions"] = len(positions)
+    funnel["cash_eur"] = portfolio.get("cash_eur")
+    funnel["decision"] = "preserve_protected_funded_state_pending_current_reunderwriting_and_explicit_allocation_decision"
     state["verification_funnel"] = funnel
 
     next_run = dict(state.get("next_run_input") or {})
-    next_run["priority_candidates"] = [*funded_tickers, "SXRV", "SMH"]
+    existing_priority = [str(item).strip().upper() for item in next_run.get("priority_candidates") or []]
+    next_run["priority_candidates"] = list(dict.fromkeys([*funded_tickers, *existing_priority]))
     next_run["required_actions"] = [
-        "monitor VWCE, EUNA and SXR8 against role, contribution, overlap and invalidation conditions",
+        f"re-underwrite every funded position ({', '.join(funded_tickers)}) from current evidence rather than historical target metadata",
         "obtain fresh exact-line completed closes before any add, reduction or new position",
-        "review global-equity overlap between VWCE and the direct SXR8 overweight",
-        "keep satellite and later-tranche capacity in cash unless a separate validated allocation decision authorises change",
+        "run direct replacement duels for any replaceable or weakening holding",
+        "classify material cash and apply deploy-or-explain only when a fully fundable actionable lane exists",
     ]
     state["next_run_input"] = next_run
 
-    state["second_order_effects"] = [
+    effects: list[dict[str, str]] = [
         {
-            "driver_nl": "Drie gefinancierde modelposities",
-            "driver_en": "Three funded model positions",
-            "first_nl": "VWCE, EUNA en SXR8 brengen wereldwijde aandelen-, obligatie- en Amerikaanse overweging samen.",
-            "first_en": "VWCE, EUNA and SXR8 combine global equity, aggregate bonds and a direct U.S. overweight.",
-            "second_nl": "Rendement, stabilisatie en overlap worden nu afzonderlijk meetbaar.",
-            "second_en": "Return, stabilisation and overlap are now separately observable.",
-            "implication_nl": "Beoordeel iedere positie op rol en bijdrage; wijzig niets zonder afzonderlijk besluit.",
-            "implication_en": "Review every position by role and contribution; change nothing without a separate decision.",
-        },
-        {
+            "driver_nl": f"{len(positions)} gefinancierde modelposities",
+            "driver_en": f"{len(positions)} funded model positions",
+            "first_nl": f"De beschermde modelportefeuille bevat {joined(funded_tickers, 'nl')}.",
+            "first_en": f"The protected model portfolio contains {joined(funded_tickers, 'en')}.",
+            "second_nl": "Iedere positie moet kapitaal per run opnieuw verdienen via fresh-cash en implementation re-underwriting.",
+            "second_en": "Every position must re-earn capital each run through fresh-cash and implementation re-underwriting.",
+            "implication_nl": "Een historische aankoop of doelweging geeft geen actuele Hold-, Add- of Reduce-authority.",
+            "implication_en": "A historical purchase or target weight creates no current Hold, Add or Reduce authority.",
+        }
+    ]
+    if {"VWCE", "SXR8"} <= funded_set:
+        effects.append({
             "driver_nl": "VWCE plus directe SXR8-overweging",
             "driver_en": "VWCE plus direct SXR8 overweight",
-            "first_nl": "De portefeuille heeft brede werelddekking met aanvullende Amerikaanse blootstelling.",
-            "first_en": "The portfolio combines broad global coverage with additional U.S. exposure.",
-            "second_nl": "De feitelijke Amerikaanse weging is hoger dan de afzonderlijke SXR8-weging suggereert.",
-            "second_en": "Effective U.S. exposure is higher than the standalone SXR8 weight suggests.",
-            "implication_nl": "Meet overlap vóór een tweede SXR8-tranche of verdere wereldwijde aandeleninzet.",
-            "implication_en": "Measure overlap before a second SXR8 tranche or further global-equity deployment.",
-        },
-        {
+            "first_nl": "Brede werelddekking bevat al Amerikaanse mega-capblootstelling naast de directe SXR8-positie.",
+            "first_en": "Broad global exposure already contains U.S. mega-cap exposure alongside the direct SXR8 position.",
+            "second_nl": "Tickerdiversificatie kan daardoor meer factoroverlap bevatten dan de positietelling suggereert.",
+            "second_en": "Ticker diversification can therefore contain more factor overlap than the position count suggests.",
+            "implication_nl": "Meet factoroverlap vóór verdere inzet; de donor-40%-regel is een concentratiewaarschuwing, geen position cap.",
+            "implication_en": "Measure factor overlap before further deployment; the donor 40% rule is a concentration warning, not a position cap.",
+        })
+    if "EUNA" in funded_set:
+        effects.append({
             "driver_nl": "EUNA als obligatiestabilisator",
             "driver_en": "EUNA as bond stabiliser",
-            "first_nl": "De EUR-gehedgede aggregate-bondpositie voegt renterisicospreiding toe.",
-            "first_en": "The EUR-hedged aggregate-bond position adds duration diversification.",
-            "second_nl": "De stabiliserende werking kan afnemen bij gelijktijdige rente- en aandelenstress.",
-            "second_en": "Its stabilising effect may weaken during simultaneous rate and equity stress.",
-            "implication_nl": "Volg bijdrage en correlatie; behandel EUNA niet als gegarandeerde bescherming.",
-            "implication_en": "Monitor contribution and correlation; do not treat EUNA as guaranteed protection.",
-        },
-        {
-            "driver_nl": "Technologie- en halfgeleiderkandidaten",
-            "driver_en": "Technology and semiconductor candidates",
-            "first_nl": "Hogere structurele groeiblootstelling.",
-            "first_en": "Higher structural growth exposure.",
-            "second_nl": "Meer factorconcentratie en hogere volatiliteit dan brede kernblootstelling.",
-            "second_en": "Greater factor concentration and volatility than broad core exposure.",
-            "implication_nl": "Behandel als satellietblootstelling en vereis een afzonderlijk allocatiebesluit.",
-            "implication_en": "Treat as satellite exposure and require a separate allocation decision.",
-        },
-    ]
-
-    risks = []
-    for source in state.get("risks") or []:
-        item = dict(source)
-        item["invalidation_nl"] = str(item.get("invalidation_nl") or "").replace(
-            "identiteit, KID, handelslijn en brokerbeschikbaarheid",
-            "identiteit, KID, exacte handelslijn, actuele prijsbasis en afzonderlijk allocatiebesluit",
-        )
-        item["invalidation_en"] = str(item.get("invalidation_en") or "").replace(
-            "identity, KID, trading line and broker availability",
-            "identity, KID, exact trading line, current pricing and a separate allocation decision",
-        )
-        risks.append(item)
-    state["risks"] = risks
-
-    macro = dict(state.get("macro") or {})
-    macro["what_changed"] = [
-        "The model portfolio now holds VWCE, EUNA and SXR8; review shifts from activation to contribution and overlap.",
-        "AI and semiconductor leadership keeps the satellite watchlist relevant, but concentration risk still blocks automatic funding.",
-    ]
-    macro["portfolio_implications"] = [
-        str(item)
-        .replace("selected UCITS trading line, broker availability and current pricing are jointly verified", "selected UCITS trading line and current pricing are verified and a separate allocation decision exists")
-        .replace("selected UCITS trading line, broker availability and current pricing", "selected UCITS trading line, current pricing and separate allocation authority")
-        for item in macro.get("portfolio_implications") or []
-    ]
-    state["macro"] = macro
+            "first_nl": "De EUR-gehedgede aggregate-bondpositie kan renterisicospreiding toevoegen.",
+            "first_en": "The EUR-hedged aggregate-bond position can add duration diversification.",
+            "second_nl": "Ballastwerking is empirisch te toetsen en niet gegarandeerd.",
+            "second_en": "Ballast behaviour is empirical and not guaranteed.",
+            "implication_nl": "Hedge-/ballastvaliditeit moet expliciet worden herbeoordeeld.",
+            "implication_en": "Hedge/ballast validity must be explicitly re-underwritten.",
+        })
+    if "L0CK" in funded_set:
+        effects.append({
+            "driver_nl": "L0CK cybersecurity-satelliet",
+            "driver_en": "L0CK cybersecurity satellite",
+            "first_nl": "De portefeuille heeft een expliciete cybersecurity-satelliet naast kernblootstellingen.",
+            "first_en": "The portfolio has an explicit cybersecurity satellite alongside core exposures.",
+            "second_nl": "Satellietbijdrage en overlap moeten afzonderlijk van de structurele cybersecurity-thesis worden gemeten.",
+            "second_en": "Satellite contribution and overlap must be measured separately from the structural cybersecurity thesis.",
+            "implication_nl": "Een geldige thesis rechtvaardigt niet automatisch het huidige instrument of gewicht.",
+            "implication_en": "A valid thesis does not automatically justify the current instrument or weight.",
+        })
+    state["second_order_effects"] = effects
 
     authority = dict(state.get("authority") or {})
-    authority.update(
-        {
-            "model_position_present": True,
-            "real_broker_execution": False,
-            "broker_specific_permission_required_for_model": False,
-            "broker_permission_required_for_real_execution": True,
-        }
-    )
+    authority.update({
+        "model_position_present": True,
+        "real_broker_execution": False,
+        "broker_specific_permission_required_for_model": False,
+        "broker_permission_required_for_real_execution": True,
+    })
     state["authority"] = authority
     state["funded_consistency"] = {
         "position_count": len(positions),
         "funded_tickers": funded_tickers,
-        "allocation_map_reconciled": True,
-        "opportunity_radar_reconciled": True,
+        "allocation_map_source": "donor_parity_normalized_current_state",
+        "historical_target_copy_rendered": False,
         "broker_neutral_model_language": True,
     }
     return state
@@ -265,12 +197,42 @@ def funded_overlay(state: dict[str, Any]) -> dict[str, Any]:
 
 def position_table(state: dict[str, Any], language: str) -> str:
     positions = state.get("portfolio", {}).get("positions") or []
-    headers = ["Handelslijn", "Fonds", "ISIN", "Stukken", "Prijs", "Peildatum", "Marktwaarde", "Gewicht", "Fasedoel", "Status"] if language == "nl" else ["Trading line", "Fund", "ISIN", "Shares", "Price", "Pricing date", "Market value", "Weight", "Phase target", "Status"]
+    headers = (
+        ["Handelslijn", "Fonds", "ISIN", "Stukken", "Prijs", "Peildatum", "Marktwaarde", "Gewicht", "Re-underwriting"]
+        if language == "nl"
+        else ["Trading line", "Fund", "ISIN", "Shares", "Price", "Pricing date", "Market value", "Weight", "Re-underwriting"]
+    )
+    memory = {
+        str(row.get("ticker") or "").upper(): row
+        for row in state.get("recommendation_memory") or []
+        if isinstance(row, dict)
+    }
     rows: list[list[str]] = []
     for row in positions:
-        status = "Modelpositie · geen brokerorder" if language == "nl" else "Model position · no brokerage order"
-        rows.append([e(ticker_of(row)), e(row.get("fund_name")), e(row.get("isin")), e(whole(row.get("shares"), language)), money(row.get("current_price_local"), language), e(row.get("price_date") or "n/a"), money(row.get("market_value_eur"), language), num(row.get("current_weight_pct"), language) + "%", num(row.get("phase_target_weight_pct") or row.get("target_weight_pct"), language) + "%", e(status)])
-    intro = "De gefinancierde posities zijn uitsluitend in de repository-modelportefeuille verwerkt. Resterende doelcapaciteit blijft cash totdat een afzonderlijk besluit wijziging autoriseert." if language == "nl" else "The funded positions exist only in the repository model portfolio. Remaining target capacity stays in cash until a separate decision authorises change."
+        ticker = ticker_of(row)
+        decision = memory.get(ticker, {})
+        reunderwriting = (
+            "Actueel afgerond" if decision.get("reunderwriting_complete") is True else "Onopgelost · review vereist"
+        ) if language == "nl" else (
+            "Current and complete" if decision.get("reunderwriting_complete") is True else "Unresolved · review required"
+        )
+        rows.append([
+            e(ticker),
+            e(row.get("fund_name")),
+            e(row.get("isin")),
+            e(whole(row.get("shares"), language)),
+            money(row.get("current_price_local"), language),
+            e(row.get("price_date") or "n/a"),
+            money(row.get("market_value_eur"), language),
+            num(row.get("current_weight_pct"), language) + "%",
+            e(reunderwriting),
+        ])
+    intro = (
+        "Dit zijn de beschermde modelposities. Historische CAP01-/transition-doelgewichten zijn auditmetadata en worden niet als actuele targets weergegeven. Iedere wijziging vereist actuele re-underwriting en een afzonderlijk allocatiebesluit."
+        if language == "nl"
+        else
+        "These are the protected model positions. Historical CAP01/transition target weights are audit metadata and are not displayed as current targets. Every change requires current re-underwriting and a separate allocation decision."
+    )
     return '<div class="note-box">' + e(intro) + "</div>" + table(headers, rows)
 
 
@@ -281,79 +243,73 @@ def patch_copy(rendered: str, state: dict[str, Any], language: str) -> str:
         return rendered
 
     count = len(positions)
+    tickers = [ticker_of(row) for row in positions]
+    ticker_list = joined(tickers, language)
     summary = position_summary(positions, language)
     invested = money(portfolio.get("invested_market_value_eur"), language)
     cash = money(portfolio.get("cash_eur"), language)
-    new_positions = [row for row in positions if float(row.get("shares_delta_this_run") or 0) > 0]
-    held_positions = [row for row in positions if row not in new_positions]
-    new_summary = position_summary(new_positions, language)
-    held_summary = joined([ticker_of(row) for row in held_positions], language)
+    mutation = _current_run_change_authorized(state)
 
     if language == "nl":
         weekly_action = (
-            f"Deze week: eerste tranches toegevoegd in {new_summary}; {held_summary} aangehouden."
-            if new_positions and held_positions
-            else f"Deze week: {count} gefinancierde modelposities actief — {summary}."
+            f"Deze run: een expliciete modelportefeuillewijziging is geautoriseerd; actuele staat bevat {count} posities — {summary}."
+            if mutation else
+            f"Deze run: geen portefeuillewijziging geautoriseerd; {count} beschermde modelposities actief — {summary}."
         )
         replacements = {
             "Cash behouden": f"{count} modelposities actief",
             "Eerste modelpositie actief": f"{count} modelposities actief",
-            "De S&amp;P 500 UCITS-lijnen zijn operationeel het verst gevorderd, maar inzet van kapitaal vereist een afzonderlijk allocatiebesluit.": f"Actieve modelportefeuille: {summary}; resterende doelcapaciteit blijft cash.",
-            "De eerste tranche is geactiveerd: 151 hele stukken VWCE; geblokkeerde doelgewichten blijven cash.": f"Actieve modelportefeuille: {summary}; resterende doelcapaciteit blijft cash.",
+            "De S&amp;P 500 UCITS-lijnen zijn operationeel het verst gevorderd, maar inzet van kapitaal vereist een afzonderlijk allocatiebesluit.": f"Beschermde modelportefeuille: {ticker_list}; iedere wijziging vereist actuele re-underwriting en afzonderlijk allocatiebesluit.",
             "Deze week: geen portefeuilletransactie; de EU-modelportefeuille blijft volledig in cash.": weekly_action,
             "Deze week: eerste modelaankoop uitgevoerd — 151 hele stukken VWCE.": weekly_action,
-            "Volgende actie vereist brokerbeschikbaarheid, actuele prijsbasis, bronovereenkomst en een afzonderlijk allocatiebesluit.": "Volgende actie: bewaak rol, bijdrage en overlap; wijzig niets zonder verse prijzen en een afzonderlijk allocatiebesluit.",
-            "Volgende actie: bewaak bijdrage en relatieve kracht; activeer geen volgend doelgewicht voordat de eigen verificatiegates slagen.": "Volgende actie: bewaak rol, bijdrage en overlap; wijzig niets zonder verse prijzen en een afzonderlijk allocatiebesluit.",
-            "Versnel verificatie van SXR8/CSPX zonder het afzonderlijke allocatiebesluit over te slaan.": "Behoud VWCE, EUNA en SXR8; laat resterende capaciteit cash en beoordeel iedere wijziging afzonderlijk.",
-            "Behoud de eerste tranche; laat geblokkeerde capaciteit cash en beoordeel de volgende tranche alleen met verse prijzen.": "Behoud VWCE, EUNA en SXR8; laat resterende capaciteit cash en beoordeel iedere wijziging afzonderlijk.",
-            "De portefeuille is nog niet belegd. Dit is een bewuste kapitaalbeschermingsstatus.": f"De modelportefeuille heeft nu {invested} belegd en {cash} cash. Er is geen echte brokerorder geplaatst.",
-            "Behoud EUR 100.000 cash totdat een afzonderlijk allocatiebesluit is genomen.": "Behoud de drie gefinancierde posities; resterende doelcapaciteit blijft cash totdat een afzonderlijk besluit wijziging autoriseert.",
-            "Behoud de gefinancierde eerste tranche in VWCE; resterende doelcapaciteit blijft cash totdat de bijbehorende gates slagen.": "Behoud de drie gefinancierde posities; resterende doelcapaciteit blijft cash totdat een afzonderlijk besluit wijziging autoriseert.",
-            "Kies de gewenste broker- en valutalijn, versterk de prijsbasis en maak daarna pas de kapitaalbeslissing.": "Beoordeel VWCE, EUNA en SXR8 op rol, bijdrage en overlap vóór verdere inzet.",
-            "Beoordeel de positie tegen haar fasedoel en valideer de wereldwijde kern- en obligatielijnen vóór verdere inzet.": "Beoordeel VWCE, EUNA en SXR8 op rol, bijdrage en overlap vóór verdere inzet.",
-            "Ververs macrodata vóór productiepromotie.": "Gebruik bij iedere wijziging opnieuw actuele macro- en prijsinformatie.",
-            "Gebruik bij de volgende tranche opnieuw actuele macro- en prijsinformatie.": "Gebruik bij iedere wijziging opnieuw actuele macro- en prijsinformatie.",
-            "De prijzen zijn marktobservaties en geen zelfstandige basis voor waardering of aankoop.": "Marktobservaties ondersteunen uitsluitend de transparante modelportefeuille; zij zijn geen echte brokeruitvoering.",
-            "funded_model_position_active": "Gefinancierde modelpositie actief",
-            "The model portfolio now holds VWCE, EUNA and SXR8; review shifts from activation to contribution and overlap.": "De modelportefeuille bevat nu VWCE, EUNA en SXR8; de review verschuift van activatie naar bijdrage en overlap.",
-            "AI and semiconductor leadership keeps the satellite watchlist relevant, but concentration risk still blocks automatic funding.": "AI- en semiconductorleiderschap houdt de satellietvolglijst relevant, maar concentratierisico blokkeert automatische financiering.",
-            "Geen inzet vóór identiteit, KID, broker en lijn zijn bevestigd.": "Geen inzet vóór identiteit, KID, exacte handelslijn, actuele prijsbasis en afzonderlijk besluit zijn bevestigd.",
-            "monitor VWCE, EUNA and SXR8 against role, contribution, overlap and invalidation conditions": "Bewaak VWCE, EUNA en SXR8 op rol, bijdrage, overlap en invalidatievoorwaarden",
-            "obtain fresh exact-line completed closes before any add, reduction or new position": "Verkrijg verse exact-line completed closes vóór iedere uitbreiding, reductie of nieuwe positie",
-            "review global-equity overlap between VWCE and the direct SXR8 overweight": "Beoordeel de wereldwijde-aandelenoverlap tussen VWCE en de directe SXR8-overweging",
-            "keep satellite and later-tranche capacity in cash unless a separate validated allocation decision authorises change": "Houd satelliet- en lateretranchecapaciteit cash tenzij een afzonderlijk gevalideerd allocatiebesluit wijziging autoriseert",
+            "De portefeuille is nog niet belegd. Dit is een bewuste kapitaalbeschermingsstatus.": f"De modelportefeuille heeft {invested} belegd en {cash} cash; geen echte brokeruitvoering.",
+            "Behoud EUR 100.000 cash totdat een afzonderlijk allocatiebesluit is genomen.": f"Behoud de beschermde staat ({ticker_list}) totdat actuele re-underwriting een afzonderlijk allocatiebesluit ondersteunt.",
+            "Best onderbouwde implementatie:": "Geverifieerde implementatielijnen:",
+            "Kies de gewenste broker- en valutalijn, versterk de prijsbasis en maak daarna pas de kapitaalbeslissing.": "Gebruik exacte handelslijn, actuele prijsbasis, re-underwriting en afzonderlijke allocatie-authority voor iedere wijziging.",
+            "Ververs macrodata vóór productiepromotie.": "Gebruik donor-provenance om macroversheid fail-closed te beoordelen.",
+            "Volgende actie vereist brokerbeschikbaarheid, actuele prijsbasis, bronovereenkomst en een afzonderlijk allocatiebesluit.": "Volgende actie: completeer actuele re-underwriting en wijzig niets zonder verse exacte-lijnprijzen en afzonderlijk allocatiebesluit.",
+            "Versnel verificatie van SXR8/CSPX zonder het afzonderlijke allocatiebesluit over te slaan.": f"Re-underwrite {ticker_list}; beoordeel challengers via de donor→UCITS→pricing→fundability-keten.",
+            "Geen inzet vóór identiteit, KID, broker en lijn zijn bevestigd.": "Geen inzet vóór identiteit, KID, exacte handelslijn, actuele prijsbasis, fundability en afzonderlijk allocatiebesluit zijn bevestigd.",
+            "De prijzen zijn marktobservaties en geen zelfstandige basis voor waardering of aankoop.": "Prijsbewijs ondersteunt actuele modelwaardering en vergelijking; het creëert nooit zelfstandig funding- of brokerauthority.",
         }
     else:
         weekly_action = (
-            f"This week: first tranches added in {new_summary}; {held_summary} maintained."
-            if new_positions and held_positions
-            else f"This week: {count} funded model positions active — {summary}."
+            f"This run: an explicit model-portfolio change is authorised; current state contains {count} positions — {summary}."
+            if mutation else
+            f"This run: no portfolio change is authorised; {count} protected model positions are active — {summary}."
         )
         replacements = {
             "Retain cash": f"{count} model positions active",
             "First model position active": f"{count} model positions active",
-            "The S&amp;P 500 UCITS lines are operationally most advanced, but capital deployment requires a separate allocation decision.": f"Active model portfolio: {summary}; remaining target capacity stays in cash.",
-            "The first tranche is active: 151 whole shares of VWCE; blocked target capacity remains cash.": f"Active model portfolio: {summary}; remaining target capacity stays in cash.",
+            "The S&amp;P 500 UCITS lines are operationally most advanced, but capital deployment requires a separate allocation decision.": f"Protected model portfolio: {ticker_list}; every change requires current re-underwriting and a separate allocation decision.",
             "This week: no portfolio transaction; the EU model portfolio remains fully in cash.": weekly_action,
             "This week: first model purchase executed — 151 whole shares of VWCE.": weekly_action,
-            "Next action requires broker availability, current pricing, source agreement and a separate allocation decision.": "Next action: monitor role, contribution and overlap; change nothing without fresh pricing and a separate allocation decision.",
-            "Next action: monitor contribution and relative strength; release no further target until its own verification gates pass.": "Next action: monitor role, contribution and overlap; change nothing without fresh pricing and a separate allocation decision.",
-            "Accelerate SXR8/CSPX verification without bypassing the separate allocation decision.": "Maintain VWCE, EUNA and SXR8; keep remaining capacity in cash and review every change separately.",
-            "Maintain the first tranche, keep blocked capacity in cash and review the next tranche only with fresh prices.": "Maintain VWCE, EUNA and SXR8; keep remaining capacity in cash and review every change separately.",
-            "The portfolio is not yet invested. This is a deliberate capital-preservation state.": f"The model portfolio now has {invested} invested and {cash} in cash. No real brokerage order was placed.",
-            "Retain EUR 100,000 cash until a separate allocation decision is made.": "Maintain all three funded positions; remaining target capacity stays in cash until a separate decision authorises change.",
-            "Maintain the funded first tranche in VWCE; remaining target capacity stays cash until its gates pass.": "Maintain all three funded positions; remaining target capacity stays in cash until a separate decision authorises change.",
-            "Select the preferred broker and currency line, strengthen pricing evidence, and only then make the capital decision.": "Review VWCE, EUNA and SXR8 by role, contribution and overlap before further deployment.",
-            "Review the position against its phase target and validate the global-core and bond lines before further deployment.": "Review VWCE, EUNA and SXR8 by role, contribution and overlap before further deployment.",
-            "Refresh macro data before production promotion.": "Use current macro and pricing inputs for every portfolio change.",
-            "Use refreshed macro and pricing inputs before the next tranche.": "Use current macro and pricing inputs for every portfolio change.",
-            "Prices are market observations and not an independent basis for valuation or purchase.": "Market observations support only the transparent model portfolio; they are not a real brokerage execution.",
-            "funded_model_position_active": "Funded model position active",
-            "No allocation before identity, KID, broker and trading line are confirmed.": "No allocation before identity, KID, exact trading line, current pricing and a separate decision are confirmed.",
+            "The portfolio is not yet invested. This is a deliberate capital-preservation state.": f"The model portfolio has {invested} invested and {cash} in cash; no real broker execution.",
+            "Retain EUR 100,000 cash until a separate allocation decision is made.": f"Preserve the protected state ({ticker_list}) until current re-underwriting supports a separate allocation decision.",
+            "Best-supported implementation:": "Verified implementation lines:",
+            "Select the preferred broker and currency line, strengthen pricing evidence, and only then make the capital decision.": "Use exact trading-line identity, current pricing, re-underwriting and separate allocation authority for every change.",
+            "Refresh macro data before production promotion.": "Use donor provenance to fail-close macro freshness.",
+            "Next action requires broker availability, current pricing, source agreement and a separate allocation decision.": "Next action: complete current re-underwriting and change nothing without fresh exact-line pricing and a separate allocation decision.",
+            "Accelerate SXR8/CSPX verification without bypassing the separate allocation decision.": f"Re-underwrite {ticker_list}; assess challengers through the donor→UCITS→pricing→fundability chain.",
+            "No allocation before identity, KID, broker and trading line are confirmed.": "No allocation before identity, KID, exact trading line, current pricing, fundability and a separate allocation decision are confirmed.",
+            "Prices are market observations and not an independent basis for valuation or purchase.": "Pricing evidence supports current model valuation and comparison; it never creates funding or broker authority on its own.",
         }
     for old, new in replacements.items():
         rendered = rendered.replace(old, new)
     return rendered.replace("<p>Position analysis active.</p>", position_table(state, language))
+
+
+def validate_client_surface(rendered: str, state: dict[str, Any]) -> None:
+    lowered = rendered.lower()
+    for phrase in FORBIDDEN_CLIENT_PHRASES:
+        if phrase.lower() in lowered:
+            raise RuntimeError(f"ETF_EU_RETIRED_CLIENT_COPY_LEAK={phrase}")
+    funded = [ticker_of(row) for row in state.get("portfolio", {}).get("positions") or [] if ticker_of(row)]
+    missing = [ticker for ticker in funded if ticker not in rendered]
+    if missing:
+        raise RuntimeError(f"ETF_EU_FUNDED_TICKER_MISSING_FROM_CLIENT_SURFACE={missing}")
+    if "50% maximum" in lowered or "35% minimum" in lowered or "15% maximum" in lowered:
+        raise RuntimeError("ETF_EU_RETIRED_50_35_15_POLICY_LEAK")
 
 
 def render(state_path: Path, language: str, html_output: Path, pdf_output: Path) -> None:
@@ -363,6 +319,7 @@ def render(state_path: Path, language: str, html_output: Path, pdf_output: Path)
     state = funded_overlay(state)
     state_path.write_text(json.dumps(state, indent=2, sort_keys=True, ensure_ascii=False) + "\n", encoding="utf-8")
     rendered = patch_copy(build_html(state, language), state, language)
+    validate_client_surface(rendered, state)
     html_output.parent.mkdir(parents=True, exist_ok=True)
     pdf_output.parent.mkdir(parents=True, exist_ok=True)
     html_output.write_text(rendered, encoding="utf-8")
