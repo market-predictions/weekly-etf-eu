@@ -18,14 +18,19 @@ jobs:
       - name: Compile parity and authority modules
         run: |
           python -m py_compile \
+            pricing/ucits_close_price_validation_contract_v2.py \
             runtime/apply_etf_eu_donor_parity_contract.py \
+            runtime/build_etf_eu_client_grade_report_state_v2.py \
             runtime/build_etf_eu_donor_discovery_bridge.py \
             runtime/adapt_weekly_etf_macro_for_eu.py \
+            runtime/reconcile_etf_eu_funded_markdown.py \
             runtime/render_etf_eu_client_grade_v2_funded.py \
             runtime/send_etf_eu_controlled_report.py \
             tools/resolve_etf_eu_completed_close_date.py \
             tools/select_weekly_etf_donor_lane_artifact.py \
             tools/build_etf_eu_routine_report_package_v2.py \
+            tools/validate_ucits_close_price_validation_basket_results.py \
+            tools/validate_etf_eu_markdown_delivery_artifacts.py \
             tools/validate_etf_eu_routine_report_request.py \
             tools/validate_etf_eu_guarded_delivery_authority.py \
             tools/validate_etf_eu_workflow_authority.py
@@ -37,10 +42,30 @@ jobs:
             tests/test_resolve_etf_eu_completed_close_date.py \
             tests/test_etf_eu_guarded_delivery_authority.py \
             tests/test_etf_eu_routine_request_authority.py \
-            tests/test_etf_eu_funded_renderer_authority.py
+            tests/test_etf_eu_funded_renderer_authority.py \
+            tests/test_etf_eu_pricing_v2_and_markdown_delivery.py
       - name: Validate workflow authority topology
         run: |
           python tools/validate_etf_eu_workflow_authority.py
+      - name: Static candidate pricing wiring audit
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          workflow = Path('.github/workflows/run-weekly-etf-eu-routine.yml').read_text(encoding='utf-8')
+          required = [
+              '--report-date "$ETF_EU_REPORT_DATE"',
+              '--require-funded-consensus',
+              '--expected-report-date "$ETF_EU_REPORT_DATE"',
+              'validate_etf_eu_markdown_delivery_artifacts',
+              'etf_eu_markdown_delivery_validation_${ETF_EU_RUN_ID}.json',
+          ]
+          for token in required:
+              assert token in workflow, token
+          package = Path('tools/build_etf_eu_routine_report_package_v2.py').read_text(encoding='utf-8')
+          assert 'build_etf_eu_client_grade_report_state_v2 import build_state' in package
+          print('ETF_EU_CANDIDATE_PRICING_AND_MARKDOWN_WIRING=PASS')
+          PY
       - name: Static allocation authority leak audit
         run: |
           python - <<'PY'
