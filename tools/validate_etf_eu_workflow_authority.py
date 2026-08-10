@@ -28,7 +28,20 @@ RETIRED_ACTIVE_PATHS = {
     "export-etf-eu-preview-artifact-20260717.yml",
     "refresh-etf-state-from-report.yml",
     "validate-etf-eu-allocator-report-shadow.yml",
+    # Retired after PR #91 post-merge exact-main validation exposed US donor execution leakage.
+    "persist-etf-pricing-audit.yml",
+    "validate-etf-runtime.yml",
 }
+
+PROHIBITED_US_DONOR_EXECUTION_TOKENS = (
+    "pricing.run_pricing_pass",
+    "output/etf_portfolio_state.json",
+    "weekly_analysis_pro_",
+    "send_report.py",
+    "import send_report",
+    "etf.txt",
+    "etf-pro.txt",
+)
 
 
 def _require(condition: bool, message: str) -> None:
@@ -40,9 +53,29 @@ def validate() -> None:
     _require(CANDIDATE.exists(), "canonical candidate workflow missing")
     _require(TRANSPORT.exists(), "canonical controlled transport workflow missing")
 
-    active_names = {path.name for path in WORKFLOW_DIR.glob("*.yml")}
+    active_paths = sorted(WORKFLOW_DIR.glob("*.yml"))
+    active_names = {path.name for path in active_paths}
     leaked = sorted(RETIRED_ACTIVE_PATHS & active_names)
     _require(not leaked, f"retired workflows remain executable: {leaked}")
+
+    missing_disabled = sorted(
+        name for name in RETIRED_ACTIVE_PATHS
+        if not (WORKFLOW_DIR / f"{name}.disabled").exists()
+    )
+    _require(not missing_disabled, f"retired workflow audit evidence missing: {missing_disabled}")
+
+    donor_runtime_leaks: list[str] = []
+    for path in active_paths:
+        text = path.read_text(encoding="utf-8", errors="replace")
+        folded = text.casefold()
+        for token in PROHIBITED_US_DONOR_EXECUTION_TOKENS:
+            if token.casefold() in folded:
+                donor_runtime_leaks.append(f"{path.name}:{token}")
+    _require(
+        not donor_runtime_leaks,
+        "US Weekly ETF donor execution token(s) remain in active ETF EU workflows: "
+        + ", ".join(donor_runtime_leaks),
+    )
 
     candidate = CANDIDATE.read_text(encoding="utf-8")
     for forbidden in (
@@ -84,7 +117,7 @@ def validate() -> None:
         _require(forbidden not in transport, f"controlled transport may not create its own release authority: {forbidden}")
 
     active_send_invocations: list[str] = []
-    for path in WORKFLOW_DIR.glob("*.yml"):
+    for path in active_paths:
         text = path.read_text(encoding="utf-8")
         if "runtime.send_etf_eu_controlled_report" in text or "runtime.send_etf_eu_rel" in text or "--mode send" in text:
             active_send_invocations.append(path.name)
@@ -97,7 +130,7 @@ def validate() -> None:
         "ETF_EU_WORKFLOW_AUTHORITY=PASS"
         f" | active_workflows={len(active_names)}"
         f" | retired_disabled={len(RETIRED_ACTIVE_PATHS)}"
-        " | candidate_route=1 | delivery_route=1"
+        " | candidate_route=1 | delivery_route=1 | us_donor_execution_routes=0"
     )
 
 
