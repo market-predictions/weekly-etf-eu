@@ -1,29 +1,33 @@
-name: Weekly ETF EU routine production run
+name: Weekly ETF EU candidate build
 
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - "control/run_queue/etf_eu_routine_report_request_*.md"
   workflow_dispatch:
     inputs:
       request_path:
-        description: "Prepared routine report request path"
+        description: "Prepared v2 candidate request path"
         required: true
-        default: "control/run_queue/etf_eu_routine_report_request_20260712_125000.md"
 
 permissions:
   contents: write
 
 jobs:
-  routine-production:
+  candidate-build:
     runs-on: ubuntu-latest
     steps:
-      - name: Check out repository
+      - name: Require non-main candidate branch
+        run: |
+          set -euo pipefail
+          if [ "${GITHUB_REF_NAME}" = "main" ]; then
+            echo "ETF_EU_CANDIDATE_BUILD_REFUSES_MAIN" >&2
+            exit 1
+          fi
+          echo "ETF_EU_CANDIDATE_BRANCH=${GITHUB_REF_NAME}" >> "$GITHUB_ENV"
+
+      - name: Check out exact candidate branch
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          ref: ${{ github.ref_name }}
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -44,30 +48,24 @@ jobs:
             fonts-lato \
             poppler-utils
 
-      - name: Install routine dependencies
+      - name: Install candidate dependencies
         run: |
           set -euo pipefail
           python -m pip install --upgrade pip
           pip install pyyaml yfinance mistune weasyprint
 
-      - name: Resolve and validate routine request
+      - name: Resolve and validate candidate request
+        env:
+          ETF_EU_REQUEST_PATH: ${{ inputs.request_path }}
         run: |
           set -euo pipefail
-          REQUEST_PATH="${{ github.event.inputs.request_path || '' }}"
-          if [ -z "$REQUEST_PATH" ]; then
-            REQUEST_PATH="$(git diff-tree --no-commit-id --name-only -r HEAD | grep '^control/run_queue/etf_eu_routine_report_request_.*\.md$' | head -1 || true)"
-          fi
-          if [ -z "$REQUEST_PATH" ]; then
-            echo "ETF_EU_ROUTINE_REQUEST_NOT_RESOLVED" >&2
-            exit 1
-          fi
-          python tools/validate_etf_eu_routine_report_request.py --request "$REQUEST_PATH"
-          python - "$REQUEST_PATH" <<'PY'
+          python tools/validate_etf_eu_routine_report_request.py --request "$ETF_EU_REQUEST_PATH"
+          python - "$ETF_EU_REQUEST_PATH" <<'PY'
           import sys
           from pathlib import Path
-          from tools.validate_etf_eu_routine_report_request import parse
+          from tools.validate_etf_eu_routine_report_request import validate
 
-          data = parse(Path(sys.argv[1]))
+          data = validate(Path(sys.argv[1]))
           mapping = {
               "ETF_EU_REQUEST_PATH": sys.argv[1],
               "ETF_EU_RUN_ID": data["run_id"],
@@ -75,7 +73,6 @@ jobs:
               "ETF_EU_REPORT_SUFFIX": data["report_suffix"],
               "ETF_EU_PREVIOUS_ROUTINE_MANIFEST": data["previous_routine_manifest"],
               "ETF_EU_PREVIOUS_CLOSEOUT": data["previous_delivery_closeout_manifest"],
-              "ETF_EU_SEND_CONFIRMATION": data["send_confirmation"],
           }
           with Path("env.out").open("w", encoding="utf-8") as handle:
               for key, value in mapping.items():
@@ -101,7 +98,7 @@ jobs:
           python tools/validate_ucits_close_price_validation_basket_results.py \
             --artifact "output/pricing/ucits_close_price_validation_basket_results_${ETF_EU_RUN_ID}.json"
 
-      - name: Refresh macro context and valuation history
+      - name: Refresh macro context and candidate valuation history
         run: |
           set -euo pipefail
           MACRO_ARTIFACT="output/macro/etf_eu_macro_policy_pack_${ETF_EU_RUN_ID}.json"
@@ -115,12 +112,12 @@ jobs:
             --portfolio-state output/etf_eu_portfolio_state.json \
             --history output/etf_eu_valuation_history.csv \
             --report-date "$ETF_EU_REPORT_DATE" \
-            --source-report "routine-client-grade-v2-${ETF_EU_RUN_ID}" \
-            --comment "Validated routine EU/UCITS production observation" \
+            --source-report "routine-candidate-${ETF_EU_RUN_ID}" \
+            --comment "Candidate-only EU/UCITS valuation observation; not delivery authority" \
             --output output/etf_eu_valuation_history.csv
           echo "ETF_EU_MACRO_ARTIFACT=$MACRO_ARTIFACT" >> "$GITHUB_ENV"
 
-      - name: Build promoted client-grade v2 routine package
+      - name: Build client-grade v2 candidate package
         run: |
           set -euo pipefail
           python -m tools.build_etf_eu_routine_report_package_v2 \
@@ -133,7 +130,7 @@ jobs:
             --previous-routine-manifest "$ETF_EU_PREVIOUS_ROUTINE_MANIFEST" \
             --previous-delivery-closeout-manifest "$ETF_EU_PREVIOUS_CLOSEOUT"
 
-      - name: Validate promoted client-grade v2 machine contract
+      - name: Validate candidate machine contract
         run: |
           set -euo pipefail
           mkdir -p output/quality
@@ -152,7 +149,7 @@ jobs:
             --run-id "$ETF_EU_RUN_ID" \
             --output-dir output/quality
 
-      - name: Render complete routine PDF review pages
+      - name: Render complete candidate PDF review pages
         run: |
           set -euo pipefail
           REVIEW_ROOT="output/quality/review_pages/${ETF_EU_RUN_ID}"
@@ -172,7 +169,7 @@ jobs:
             "output/fresh_generation/weekly_etf_eu_review_${ETF_EU_REPORT_SUFFIX}.pdf" \
             "$REVIEW_ROOT/en/all/page"
 
-      - name: Persist pre-delivery client-grade v2 preview
+      - name: Persist generated candidate outputs to candidate branch only
         run: |
           set -euo pipefail
           git config user.name "github-actions[bot]"
@@ -182,6 +179,7 @@ jobs:
             "$ETF_EU_MACRO_ARTIFACT" \
             output/macro/latest.json \
             output/etf_eu_valuation_history.csv \
+            output/etf_eu_recommendation_scorecard.csv \
             "output/runtime/etf_eu_client_grade_report_state_${ETF_EU_RUN_ID}.json" \
             "output/fresh_generation/weekly_etf_eu_review_nl_${ETF_EU_REPORT_SUFFIX}.md" \
             "output/fresh_generation/weekly_etf_eu_review_${ETF_EU_REPORT_SUFFIX}.md" \
@@ -195,161 +193,37 @@ jobs:
             "output/quality/etf_eu_routine_pdf_client_grade_${ETF_EU_RUN_ID}_nl.json" \
             "output/quality/etf_eu_routine_pdf_client_grade_${ETF_EU_RUN_ID}_en.json" \
             "output/quality/etf_eu_routine_pdf_client_grade_${ETF_EU_RUN_ID}.json" \
-            "output/quality/review_pages/${ETF_EU_RUN_ID}" \
             "output/run_manifests/etf_eu_routine_run_manifest_${ETF_EU_REPORT_DATE}_${ETF_EU_RUN_ID}.json"
-          if ! git diff --cached --quiet; then
-            git commit -m "Persist ETF EU client-grade v2 pre-delivery preview ${ETF_EU_RUN_ID} [skip ci]"
-            git push origin HEAD:main
+          if git diff --cached --quiet; then
+            echo "ETF_EU_CANDIDATE_OUTPUTS_UNCHANGED"
+          else
+            git commit -m "Persist ETF EU candidate ${ETF_EU_RUN_ID} [skip ci]"
+            git push origin "HEAD:${ETF_EU_CANDIDATE_BRANCH}"
           fi
+          echo "ETF_EU_CANDIDATE_ONLY=PASS"
+          echo "ETF_EU_DELIVERY_AUTHORITY=false"
 
-      - name: Require explicit rendered-page visual review
-        run: |
-          set -euo pipefail
-          VISUAL_REVIEW="output/quality/etf_eu_routine_pdf_visual_review_${ETF_EU_RUN_ID}.json"
-          if [ ! -f "$VISUAL_REVIEW" ]; then
-            echo "ETF_EU_PDF_VISUAL_REVIEW_REQUIRED | artifact=$VISUAL_REVIEW" >&2
-            exit 1
-          fi
-          python - "$VISUAL_REVIEW" <<'PY'
-          import json
-          import sys
-          from pathlib import Path
-
-          path = Path(sys.argv[1])
-          payload = json.loads(path.read_text(encoding="utf-8"))
-          if payload.get("visual_review_passed") is not True or payload.get("blockers"):
-              raise SystemExit("ETF_EU_PDF_VISUAL_REVIEW_NOT_PASSED")
-          print(f"ETF_EU_PDF_VISUAL_REVIEW_OK | artifact={path}")
-          PY
-
-      - name: Validate routine package readiness
-        run: |
-          set -euo pipefail
-          python -m tools.prepare_etf_eu_routine_package_readiness_v2 \
-            --manifest "output/fresh_generation/etf_eu_fresh_generation_package_manifest_${ETF_EU_RUN_ID}.json" \
-            --ready-artifact "output/fresh_generation/etf_eu_ready_for_controlled_delivery_${ETF_EU_RUN_ID}.json" \
-            --routine-manifest "output/run_manifests/etf_eu_routine_run_manifest_${ETF_EU_REPORT_DATE}_${ETF_EU_RUN_ID}.json" \
-            --write-gate "output/fresh_generation/etf_eu_routine_package_readiness_${ETF_EU_RUN_ID}.json" \
-            --pdf-client-grade-gate "output/quality/etf_eu_routine_pdf_client_grade_${ETF_EU_RUN_ID}.json" \
-            --pdf-visual-review "output/quality/etf_eu_routine_pdf_visual_review_${ETF_EU_RUN_ID}.json"
-
-      - name: Prepare current-run delivery control
-        run: |
-          set -euo pipefail
-          python tools/prepare_etf_eu_routine_delivery_control.py \
-            --run-id "$ETF_EU_RUN_ID" \
-            --report-date "$ETF_EU_REPORT_DATE" \
-            --report-suffix "$ETF_EU_REPORT_SUFFIX" \
-            --package-manifest "output/fresh_generation/etf_eu_fresh_generation_package_manifest_${ETF_EU_RUN_ID}.json" \
-            --ready-artifact "output/fresh_generation/etf_eu_ready_for_controlled_delivery_${ETF_EU_RUN_ID}.json" \
-            --routine-manifest "output/run_manifests/etf_eu_routine_run_manifest_${ETF_EU_REPORT_DATE}_${ETF_EU_RUN_ID}.json"
-          python tools/validate_etf_eu_routine_delivery_queue.py \
-            --queue "control/run_queue/etf_eu_routine_delivery_request_${ETF_EU_RUN_ID}.md"
-
-      - name: Build and validate independent governance release assurance
-        run: |
-          set -euo pipefail
-          ASSURANCE="output/quality/etf_eu_release_assurance_${ETF_EU_RUN_ID}.json"
-          python tools/build_etf_eu_release_assurance.py \
-            --run-id "$ETF_EU_RUN_ID" \
-            --report-date "$ETF_EU_REPORT_DATE" \
-            --report-suffix "$ETF_EU_REPORT_SUFFIX" \
-            --source-sha "$GITHUB_SHA" \
-            --package-manifest "output/fresh_generation/etf_eu_fresh_generation_package_manifest_${ETF_EU_RUN_ID}.json" \
-            --ready-artifact "output/fresh_generation/etf_eu_ready_for_controlled_delivery_${ETF_EU_RUN_ID}.json" \
-            --routine-manifest "output/run_manifests/etf_eu_routine_run_manifest_${ETF_EU_REPORT_DATE}_${ETF_EU_RUN_ID}.json" \
-            --visual-review "output/quality/etf_eu_routine_pdf_visual_review_${ETF_EU_RUN_ID}.json" \
-            --delivery-queue "control/run_queue/etf_eu_routine_delivery_request_${ETF_EU_RUN_ID}.md" \
-            --nl-html "output/fresh_generation/weekly_etf_eu_review_nl_${ETF_EU_REPORT_SUFFIX}.html" \
-            --nl-pdf "output/fresh_generation/weekly_etf_eu_review_nl_${ETF_EU_REPORT_SUFFIX}.pdf" \
-            --en-html "output/fresh_generation/weekly_etf_eu_review_${ETF_EU_REPORT_SUFFIX}.html" \
-            --en-pdf "output/fresh_generation/weekly_etf_eu_review_${ETF_EU_REPORT_SUFFIX}.pdf" \
-            --output "$ASSURANCE"
-          python tools/validate_etf_eu_release_assurance.py --evidence "$ASSURANCE"
-          echo "ETF_EU_RELEASE_ASSURANCE=$ASSURANCE" >> "$GITHUB_ENV"
-
-      - name: Upload pre-send governance evidence
+      - name: Upload frozen candidate review bundle
         uses: actions/upload-artifact@v4
         with:
-          name: etf-eu-release-assurance-${{ env.ETF_EU_RUN_ID }}
-          path: ${{ env.ETF_EU_RELEASE_ASSURANCE }}
+          name: etf-eu-candidate-${{ env.ETF_EU_RUN_ID }}
+          path: |
+            output/fresh_generation/weekly_etf_eu_review_nl_${{ env.ETF_EU_REPORT_SUFFIX }}.md
+            output/fresh_generation/weekly_etf_eu_review_${{ env.ETF_EU_REPORT_SUFFIX }}.md
+            output/fresh_generation/weekly_etf_eu_review_nl_${{ env.ETF_EU_REPORT_SUFFIX }}.html
+            output/fresh_generation/weekly_etf_eu_review_${{ env.ETF_EU_REPORT_SUFFIX }}.html
+            output/fresh_generation/weekly_etf_eu_review_nl_${{ env.ETF_EU_REPORT_SUFFIX }}.pdf
+            output/fresh_generation/weekly_etf_eu_review_${{ env.ETF_EU_REPORT_SUFFIX }}.pdf
+            output/fresh_generation/etf_eu_fresh_generation_package_manifest_${{ env.ETF_EU_RUN_ID }}.json
+            output/runtime/etf_eu_client_grade_report_state_${{ env.ETF_EU_RUN_ID }}.json
+            output/quality/etf_eu_client_grade_v2_validation_${{ env.ETF_EU_RUN_ID }}.json
+            output/quality/review_pages/${{ env.ETF_EU_RUN_ID }}
           if-no-files-found: error
           retention-days: 90
 
-      - name: Execute guarded current-run delivery
-        env:
-          MRKT_RPRTS_SMTP_HOST: ${{ secrets.MRKT_RPRTS_SMTP_HOST }}
-          MRKT_RPRTS_SMTP_PORT: ${{ secrets.MRKT_RPRTS_SMTP_PORT }}
-          MRKT_RPRTS_SMTP_USER: ${{ secrets.MRKT_RPRTS_SMTP_USER }}
-          MRKT_RPRTS_SMTP_PASS: ${{ secrets.MRKT_RPRTS_SMTP_PASS }}
-          MRKT_RPRTS_MAIL_FROM: ${{ secrets.MRKT_RPRTS_MAIL_FROM }}
-          MRKT_RPRTS_MAIL_TO: ${{ secrets.MRKT_RPRTS_MAIL_TO }}
-          MRKT_RPRTS_MAIL_TO_NL: ${{ secrets.MRKT_RPRTS_MAIL_TO_NL }}
-          MRKT_RPRTS_SUBJECT_PREFIX_NL: ${{ vars.MRKT_RPRTS_SUBJECT_PREFIX_NL }}
+      - name: State assurance boundary
         run: |
-          set -euo pipefail
-          if [ "$ETF_EU_SEND_CONFIRMATION" != "confirm_guarded_send" ]; then
-            echo "ETF_EU_ROUTINE_SEND_CONFIRMATION_MISSING" >&2
-            exit 1
-          fi
-          RUNTIME_RUN_ID="$(date -u +'%Y%m%d_%H%M%S')"
-          echo "ETF_EU_RUNTIME_RUN_ID=$RUNTIME_RUN_ID" >> "$GITHUB_ENV"
-          python -m runtime.send_etf_eu_current_package_delivery \
-            --queue "control/run_queue/etf_eu_routine_delivery_request_${ETF_EU_RUN_ID}.md" \
-            --mode send \
-            --run-id "$RUNTIME_RUN_ID" \
-            --output-dir output/delivery
-          python tools/validate_etf_eu_current_package_transport_runner.py \
-            --adapter output/delivery_control/etf_eu_current_package_transport_runner_adapter_20260710_000000.json \
-            --result "output/delivery/etf_eu_current_package_transport_result_${RUNTIME_RUN_ID}.json"
-
-      - name: Update routine manifest after transport
-        run: |
-          set -euo pipefail
-          python tools/update_etf_eu_routine_after_transport.py \
-            --routine-manifest "output/run_manifests/etf_eu_routine_run_manifest_${ETF_EU_REPORT_DATE}_${ETF_EU_RUN_ID}.json" \
-            --transport-result "output/delivery/etf_eu_current_package_transport_result_${ETF_EU_RUNTIME_RUN_ID}.json" \
-            --delivery-evidence "output/delivery/etf_eu_current_package_delivery_evidence_${ETF_EU_RUNTIME_RUN_ID}.json"
-
-      - name: Persist routine production artifacts
-        run: |
-          set -euo pipefail
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -f \
-            "output/pricing/ucits_close_price_validation_basket_results_${ETF_EU_RUN_ID}.json" \
-            "$ETF_EU_MACRO_ARTIFACT" \
-            output/macro/latest.json \
-            output/etf_eu_valuation_history.csv \
-            "output/runtime/etf_eu_client_grade_report_state_${ETF_EU_RUN_ID}.json" \
-            "output/fresh_generation/weekly_etf_eu_review_nl_${ETF_EU_REPORT_SUFFIX}.md" \
-            "output/fresh_generation/weekly_etf_eu_review_${ETF_EU_REPORT_SUFFIX}.md" \
-            "output/fresh_generation/weekly_etf_eu_review_nl_${ETF_EU_REPORT_SUFFIX}.html" \
-            "output/fresh_generation/weekly_etf_eu_review_${ETF_EU_REPORT_SUFFIX}.html" \
-            "output/fresh_generation/weekly_etf_eu_review_nl_${ETF_EU_REPORT_SUFFIX}.pdf" \
-            "output/fresh_generation/weekly_etf_eu_review_${ETF_EU_REPORT_SUFFIX}.pdf" \
-            "output/fresh_generation/etf_eu_fresh_generation_package_manifest_${ETF_EU_RUN_ID}.json" \
-            "output/fresh_generation/etf_eu_ready_for_controlled_delivery_${ETF_EU_RUN_ID}.json" \
-            "output/fresh_generation/etf_eu_routine_package_readiness_${ETF_EU_RUN_ID}.json" \
-            "output/quality/etf_eu_client_grade_v2_validation_${ETF_EU_RUN_ID}.json" \
-            "output/quality/etf_eu_routine_pdf_client_grade_${ETF_EU_RUN_ID}_nl.json" \
-            "output/quality/etf_eu_routine_pdf_client_grade_${ETF_EU_RUN_ID}_en.json" \
-            "output/quality/etf_eu_routine_pdf_client_grade_${ETF_EU_RUN_ID}.json" \
-            "output/quality/etf_eu_routine_pdf_visual_review_${ETF_EU_RUN_ID}.json" \
-            "$ETF_EU_RELEASE_ASSURANCE" \
-            "output/quality/review_pages/${ETF_EU_RUN_ID}" \
-            "output/delivery_prep/etf_eu_guarded_fresh_package_delivery_prep_${ETF_EU_RUN_ID}.json" \
-            "output/delivery_authorization/etf_eu_guarded_send_authorization_${ETF_EU_RUN_ID}.json" \
-            "output/delivery_control/etf_eu_controlled_delivery_decision_${ETF_EU_RUN_ID}.json" \
-            "output/delivery_control/etf_eu_controlled_delivery_transport_selection_${ETF_EU_RUN_ID}.json" \
-            "control/run_queue/etf_eu_routine_delivery_request_${ETF_EU_RUN_ID}.md" \
-            "output/delivery/etf_eu_current_package_transport_result_${ETF_EU_RUNTIME_RUN_ID}.json" \
-            "output/delivery/etf_eu_current_package_delivery_evidence_${ETF_EU_RUNTIME_RUN_ID}.json" \
-            "output/run_manifests/etf_eu_routine_run_manifest_${ETF_EU_REPORT_DATE}_${ETF_EU_RUN_ID}.json" \
-            output/run_manifests/latest_etf_eu_routine_run_manifest_path.txt
-          if git diff --cached --quiet; then
-            echo "ETF_EU_ROUTINE_ARTIFACTS_NOT_STAGED" >&2
-            exit 1
-          fi
-          git commit -m "Persist ETF EU client-grade v2 routine production run ${ETF_EU_RUN_ID} [skip ci]"
-          git push origin HEAD:main
+          echo "ETF_EU_CANDIDATE_BUILD_COMPLETE"
+          echo "ETF_EU_INDEPENDENT_ASSURANCE_REQUIRED=true"
+          echo "ETF_EU_MERGE_AUTHORITY=false"
+          echo "ETF_EU_DELIVERY_AUTHORITY=false"
