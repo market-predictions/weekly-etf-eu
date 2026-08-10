@@ -1,5 +1,58 @@
 # Weekly ETF EU — Governance Changelog
 
+## 2026-08-10 — Post-merge US donor execution leak repair
+
+### Trigger
+
+- Independent issue #93 returned `ETF_EU_PR91_ASSURANCE_FAIL_REPAIR_REVERIFY: PASS` on frozen PR #91 head `686c658c03d5ba4cbd208e254822a73b3fb514f2`.
+- PR #91 was merged unchanged as `202b0a629af34c697c7b7cb8fdce97fbb56bddbc`.
+- Post-merge push workflow `Persist ETF pricing audit` then executed retained US Weekly ETF runtime `pricing.run_pricing_pass` and committed `d771bde734ffda6120a77b1f4fe0e99bd198cc96` to ETF EU `main`.
+- The bot commit added US pricing artifacts containing GLD/GSG/PAVE/PPA/SMH/SPY/URNM rather than the protected EU funded set VWCE/EUNA/SXR8/L0CK.
+- `Validate ETF runtime changes` also executed the same donor pricing path and legacy `send_report.py` renderer. Both legacy jobs could be green while violating ETF EU product identity.
+
+### Root cause
+
+The repository retained donor/US runtime modules for historical/donor purposes, which is acceptable. The defect was that two active ETF EU workflows still invoked those modules. `pricing/run_pricing_pass.py` defaults to donor state/output conventions (`output/etf_portfolio_state.json`, `weekly_analysis_pro_*`, U.S. close timing). The repository-boundary gate only protected against FX product leakage and therefore missed US Weekly ETF donor-runtime leakage.
+
+### Repair line
+
+- Opened issue #94 and draft PR #95.
+- Created successor claim `ETF-EU-POST-MERGE-US-DONOR-LEAK-REPAIR-V1`.
+- Marked merged PR #91 claim `ETF-EU-DONOR-PARITY-RECONCILIATION-V1` `SUPERSEDED` with explicit handover; parent issue #90 remains open until successor exact-main closeout.
+- Retired `.github/workflows/persist-etf-pricing-audit.yml` to `.yml.disabled` audit history.
+- Retired `.github/workflows/validate-etf-runtime.yml` to `.yml.disabled` audit history.
+- Removed `output/pricing/price_audit_2026-08-10_20260810_214841.json` and `output/pricing/price_cache_2026-08-10.json` from the repaired candidate.
+- Extended `tools/validate_etf_eu_repository_boundary.py` to reject active US donor execution tokens.
+- Extended `tools/validate_etf_eu_workflow_authority.py` to reject active US donor execution tokens and require all retired routes to have non-executable `.disabled` audit copies.
+- Added planted regressions proving donor pricing/report invocations fail when active but are allowed as disabled audit history.
+- Updated workflow-authority index, roadmap, work package, current state, next actions and handover around the new successor line.
+
+### Authority correction
+
+The post-merge incident establishes an explicit additional rule:
+
+```text
+green CI != product identity
+retained donor source != active ETF EU execution authority
+```
+
+The only report/pricing release path is the EU/UCITS candidate route under `run-weekly-etf-eu-routine.yml`. The only real delivery path remains `send-weekly-etf-eu-controlled-transport.yml`.
+
+### Protected boundaries
+
+```text
+portfolio_mutation=false
+trade_ledger_write=false
+real_broker_execution=false
+report_delivery=false
+smtp_send=false
+allocation_decision_reopened=false
+```
+
+PR #95 requires fresh exact-head independent assurance before merge. The PASS from issue #93 does not transfer to the successor candidate.
+
+---
+
 ## 2026-08-10 — Donor-parity authority reconciliation and release-topology hardening
 
 ### What changed
@@ -16,7 +69,7 @@
 - Removed a post-normalization shadow renderer that recreated a 7.50% cash reserve, strategic/phase targets and three-position copy; funded rendering is now dynamic and fail-closed on retired client copy.
 - Replaced the routine production workflow with a candidate-only non-main route that cannot self-assure, push candidate output to main or send email.
 - Disabled nineteen historical activation/send/repair/preview workflows by retaining them only as `.yml.disabled` audit evidence.
-- During final workflow audit, also retired the old 2026-07-27 allocator `sister report` workflow because it rendered a parallel client-like report from historical transition/shadow allocation state. This raises the disabled historical/parallel route count to twenty.
+- During final workflow audit, also retired the old 2026-07-27 allocator `sister report` workflow because it rendered a parallel client-like report from historical transition/shadow allocation state. This raised the disabled historical/parallel route count to twenty before the later post-merge donor-runtime correction above.
 - Reconciled `config/weekly_etf_donor_contract_pin.json` and its validator to exactly three active immutable-donor research-only workflows plus the disabled allocator sister-report route as retired audit evidence.
 - Made controlled transport the sole active real ETF EU delivery route and bound it to independent PASS, approved main-lineage commit, principal guarded-send authority and SHA-256 for all six approved NL/EN MD/HTML/PDF artifacts.
 - Controlled transport no longer re-renders an assured report; it sends the exact approved artifacts.
@@ -44,9 +97,9 @@ A separate role-B reviewer on one exact frozen PR head is mandatory. The candida
 
 No protected portfolio or trade-ledger mutation, real broker execution, SMTP send or delivery claim occurred as part of PR #91 implementation.
 
-### Release state
+### Release outcome update
 
-Implementation is converged. Final exact-head CI, final handover commit and independent assurance remain required before merge. Post-merge exact-main validation and claim/state closeout remain required after PASS.
+PR #91 later received independent PASS in issue #93 and was merged as `202b0a629af34c697c7b7cb8fdce97fbb56bddbc`. The subsequent post-merge donor-runtime defect is handled by the separate successor line documented above.
 
 ---
 
