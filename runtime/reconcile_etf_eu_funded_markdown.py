@@ -54,6 +54,7 @@ def validate_funded_markdown(text: str, state: dict[str, Any], *, language: str)
             "strategisch doelgewicht",
             "fase-doelgewicht",
             "fasedoelgewicht",
+            "do not allocate capital to thematic or gold exposure",
         ]
         if language == "nl"
         else [
@@ -86,6 +87,7 @@ def reconcile_funded_markdown(text: str, state: dict[str, Any], *, language: str
             "- **Actie:** geen transactie; EUR 100.000 cash behouden.": f"- **Actie:** {position_names} als huidige modelposities beoordelen; resterende liquiditeit {cash}.",
             "- **Reden:** de portefeuille bevat nog geen gefinancierde UCITS-posities en de huidige prijsrun levert marktobservaties, geen zelfstandige basis voor aankoop of waardering.": f"- **Reden:** de modelportefeuille bevat {count} gefinancierde UCITS-posities ({position_names}); de review gebruikt actuele state, completed-close prijsbewijs en re-underwriting.",
             "- **Beste operationele kandidaat:** de geverifieerde S&P 500 UCITS-lijnen blijven het verst gevorderd voor verdere bevestiging bij de broker en van de handelslijn.": f"- **Huidige positiegrondslag:** {position_names}; rollen, bijdrage, overlap en re-underwriting komen uit de actuele genormaliseerde state.",
+            "- **Niet doen:** do not allocate capital to thematic or gold exposure until identity, KID, trading-line and product-policy checks are complete.": "- **Niet doen:** geen nieuw kapitaal toewijzen uitsluitend op basis van proxy, mapping of prijsbeschikbaarheid; identiteit, KID, exacte handelslijn, re-underwriting en expliciet allocatiebesluit blijven verplicht.",
             "- **Portefeuillebesluit:** cash behouden; geen instrument is door deze prijsrun automatisch geschikt geworden voor opname in de portefeuille.": "- **Portefeuillebesluit:** bestaande posities blijven uitsluitend onder actuele re-underwriting; mapping of pricing alleen creëert geen Add/Hold/Reduce- of funding-authority.",
             "- **Kernaandelen:** operationeel het meest volwassen; SXR8 en CSPX blijven onderzoekskandidaten en zijn niet gefinancierd.": "- **Kernaandelen:** funded/unfunded status wordt uitsluitend uit de protected portfolio state afgeleid; research-alternatieven blijven niet-gefinancierde vergelijkingslijnen.",
             "- **Core-aandelen:** operationeel het meest volwassen; SXR8 en CSPX blijven onderzoekskandidaten en zijn niet gefinancierd.": "- **Kernaandelen:** funded/unfunded status wordt uitsluitend uit de protected portfolio state afgeleid; research-alternatieven blijven niet-gefinancierde vergelijkingslijnen.",
