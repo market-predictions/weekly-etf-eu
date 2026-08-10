@@ -50,6 +50,7 @@ def validate(payload: dict[str, Any], repository_root: Path) -> list[str]:
         "funding_authority",
         "execution_authority",
         "production_delivery_authority",
+        "client_report_render_authority",
     ):
         if authority.get(key) is not False:
             blockers.append(f"{key} must be false")
@@ -63,13 +64,15 @@ def validate(payload: dict[str, Any], repository_root: Path) -> list[str]:
         blockers.append("rollback must not reverse trades automatically")
 
     workflow_paths = payload.get("workflow_paths") if isinstance(payload.get("workflow_paths"), list) else []
-    if len(workflow_paths) != 4:
-        blockers.append("exactly four donor-consuming workflows must be registered")
+    if len(workflow_paths) != 3:
+        blockers.append("exactly three active research-only donor-consuming workflows must be registered")
     for raw_path in workflow_paths:
         path = repository_root / str(raw_path)
         if not path.is_file():
             blockers.append(f"registered workflow is missing: {raw_path}")
             continue
+        if not str(raw_path).endswith(".yml"):
+            blockers.append(f"active donor workflow must be an executable .yml path: {raw_path}")
         text = path.read_text(encoding="utf-8")
         if f"repository: {EXPECTED_REPOSITORY}" not in text:
             blockers.append(f"workflow does not checkout the expected donor repository: {raw_path}")
@@ -78,6 +81,16 @@ def validate(payload: dict[str, Any], repository_root: Path) -> list[str]:
         for forbidden in FORBIDDEN_MUTABLE_REFS:
             if forbidden in text:
                 blockers.append(f"workflow contains forbidden mutable donor ref {forbidden!r}: {raw_path}")
+
+    retired_paths = payload.get("retired_workflow_paths") if isinstance(payload.get("retired_workflow_paths"), list) else []
+    if retired_paths != [".github/workflows/validate-etf-eu-allocator-report-shadow.yml.disabled"]:
+        blockers.append("retired donor workflow registry must contain exactly the disabled allocator sister-report route")
+    for raw_path in retired_paths:
+        path = repository_root / str(raw_path)
+        if not path.is_file():
+            blockers.append(f"retired workflow audit file is missing: {raw_path}")
+        if str(raw_path).endswith(".yml"):
+            blockers.append(f"retired workflow must not remain executable: {raw_path}")
 
     return blockers
 
@@ -98,6 +111,8 @@ def main() -> None:
         "artifact_type": "etf_eu_donor_contract_pin_validation",
         "contract_release_id": payload.get("contract_release_id"),
         "donor_commit_sha": payload.get("donor_commit_sha"),
+        "active_research_workflows": len(payload.get("workflow_paths") or []),
+        "retired_workflows": len(payload.get("retired_workflow_paths") or []),
         "valid": not blockers,
         "blockers": blockers,
     }, indent=2))
