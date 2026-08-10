@@ -51,7 +51,7 @@
       "release_line": "weekly-etf-eu-current-release",
       "integration_claim": true,
       "owner_role": "implementation_operations",
-      "scope": "Remove transition/shadow authority leaks and close donor-parity gaps across decision, state, output, runbook and governance layers while preserving EU-specific UCITS controls; includes repair of PR #91 assurance FAIL blockers.",
+      "scope": "Donor-parity reconciliation through independently assured and merged PR #91.",
       "branch": "agent/etf-eu-donor-parity-reconciliation-v1",
       "base_or_target_branch": "main",
       "last_reconciled_target_sha": "202b0a629af34c697c7b7cb8fdce97fbb56bddbc",
@@ -60,7 +60,7 @@
       "opened_at": "2026-08-10T16:04:10+02:00",
       "last_reconciled_at": "2026-08-10T23:58:00+02:00",
       "pull_request": 91,
-      "pull_request_or_issue_reference": "Issue #90; PR #91 independently PASSed in issue #93 and merged as 202b0a629af34c697c7b7cb8fdce97fbb56bddbc; post-merge push exposed a separate US donor execution leak now owned by successor issue #94 / PR #95.",
+      "pull_request_or_issue_reference": "Issue #90; PR #91 PASSed in issue #93 and merged as 202b0a629af34c697c7b7cb8fdce97fbb56bddbc; post-merge donor execution leak transferred to issue #94 / PR #95.",
       "dependencies": [{"pull_request": 84}],
       "last_assurance": {
         "issue": 93,
@@ -85,16 +85,16 @@
       "release_line": "weekly-etf-eu-current-release",
       "integration_claim": true,
       "owner_role": "implementation_operations",
-      "scope": "Remove post-merge executable US Weekly ETF donor pricing/report paths from Weekly ETF EU, remove leaked generated US pricing artifacts, and make workflow/product-boundary gates fail closed on future donor-runtime reactivation.",
+      "scope": "Remove post-merge executable US Weekly ETF donor pricing/report paths, remove leaked US pricing artifacts, and fail closed on future donor-runtime/report reactivation.",
       "branch": "agent/etf-eu-post-merge-us-donor-leak-repair-v1",
       "base_or_target_branch": "main",
       "last_reconciled_target_sha": "d771bde734ffda6120a77b1f4fe0e99bd198cc96",
-      "current_claim_head_sha": "cd532d81efff0cc6608313fac7dd6b28285bcccf",
-      "status": "ACTIVE",
+      "current_claim_head_sha": "d9b5731bbd0b125e2df9b778282116f9d8c32314",
+      "status": "HANDOVER_READY",
       "opened_at": "2026-08-10T23:54:33+02:00",
-      "last_reconciled_at": "2026-08-10T23:58:00+02:00",
+      "last_reconciled_at": "2026-08-11T00:06:00+02:00",
       "pull_request": 95,
-      "pull_request_or_issue_reference": "Issue #94; draft PR #95",
+      "pull_request_or_issue_reference": "Issue #94; draft PR #95; semantic baseline d9b5731b green; fresh independent assurance required on exact live head after atomic handover commit.",
       "dependencies": [{"pull_request": 91}],
       "protected_boundaries": {
         "portfolio_mutation": false,
@@ -103,6 +103,21 @@
         "report_delivery": false,
         "smtp_send": false,
         "allocation_decision_reopened": false
+      },
+      "validation": {
+        "semantic_baseline_sha": "d9b5731bbd0b125e2df9b778282116f9d8c32314",
+        "product_boundary_run": 31436751783,
+        "donor_parity_run": 31436751773,
+        "full_package_tests_passed": 31,
+        "active_workflows": 32,
+        "retired_disabled_workflows": 23,
+        "us_donor_execution_routes": 0
+      },
+      "handover": {
+        "disposition": "HANDOVER_READY",
+        "path": "handover/ETF_EU_POST_MERGE_US_DONOR_LEAK_REPAIR_V1_20260810.md",
+        "semantic_baseline_sha": "d9b5731bbd0b125e2df9b778282116f9d8c32314",
+        "exact_assurance_head_authority": "live PR #95 head after the atomic claim+handover commit; any subsequent head change invalidates assurance"
       }
     }
   ]
