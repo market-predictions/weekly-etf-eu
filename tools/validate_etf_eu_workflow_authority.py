@@ -31,6 +31,7 @@ RETIRED_ACTIVE_PATHS = {
     # Retired after PR #91 post-merge exact-main validation exposed US donor execution leakage.
     "persist-etf-pricing-audit.yml",
     "validate-etf-runtime.yml",
+    "validate-etf-lane-breadth.yml",
 }
 
 PROHIBITED_US_DONOR_EXECUTION_TOKENS = (
@@ -49,11 +50,17 @@ def _require(condition: bool, message: str) -> None:
         raise AssertionError(message)
 
 
+def _active_workflows() -> list[Path]:
+    return sorted(
+        set(WORKFLOW_DIR.glob("*.yml")) | set(WORKFLOW_DIR.glob("*.yaml"))
+    )
+
+
 def validate() -> None:
     _require(CANDIDATE.exists(), "canonical candidate workflow missing")
     _require(TRANSPORT.exists(), "canonical controlled transport workflow missing")
 
-    active_paths = sorted(WORKFLOW_DIR.glob("*.yml"))
+    active_paths = _active_workflows()
     active_names = {path.name for path in active_paths}
     leaked = sorted(RETIRED_ACTIVE_PATHS & active_names)
     _require(not leaked, f"retired workflows remain executable: {leaked}")
