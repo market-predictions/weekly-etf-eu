@@ -1,8 +1,17 @@
 schema_version: etf_eu_transition_policy_v1
-status: shadow_only
+status: historical_shadow_only
 portfolio_mutation: false
 funding_authority: false
 execution_authority: false
+current_allocation_authority: false
+client_control_authority: false
+current_funding_authority: false
+real_execution_authority: false
+authority_contract: control/ETF_EU_ALLOCATION_AUTHORITY_CONVERGENCE_V1.md
+authority_note: >-
+  Historical Stage-1 transition assumptions retained for reproducibility only.
+  No value in this file is a current allocation, funding or client-control rule
+  unless separately reauthorized by a later explicit decision.
 comparison_variants:
   frozen_candidate_exposures:
     - ai_compute_infrastructure
@@ -10,7 +19,13 @@ comparison_variants:
   registry_expansion_must_not_change_comparison_compositions: true
   strict_mapped_replication_scope: full_donor_weights_within_frozen_candidate_exposures
   staged_cash_first_50pct_scope: half_donor_weights_within_frozen_candidate_exposures
+  current_allocation_authority: false
+  client_surface_default: internal_only
 stage_1:
+  historical_transition_stage: true
+  current_allocation_authority: false
+  current_candidate_gate_authority: false
+  client_control_authority: false
   allocation_method: donor_weight_priority_within_explicit_stage_1_candidate_set_subject_to_portfolio_controls
   candidate_exposures:
     - ai_compute_infrastructure
@@ -34,6 +49,14 @@ stage_1:
   embedded_exposure_policy:
     ai_compute_infrastructure: subtract_measured_incumbent_lower_bound_from_effective_cap
     cyber_security: subtract_measured_incumbent_lower_bound_from_effective_cap_with_incomplete_coverage_warning
+  historical_value_authority:
+    maximum_positions: historical_scenario_only
+    maximum_gross_turnover_pct_nav: historical_scenario_only
+    minimum_post_stage_cash_pct_nav: retired_unsupported_shadow_rule
+    maximum_new_direct_position_pct_nav: retired_unsupported_shadow_rule
+    minimum_new_trade_pct_nav: historical_scenario_only
+    minimum_median_daily_traded_value_eur_20d: historical_scenario_only
+    effective_theme_caps_pct_nav: historical_scenario_only
 stage_2_entry_conditions:
   - developed_ex_us_candidate_has_verified_kid_and_current_price_liquidity_evidence
   - at_least_one_additional_donor_sleeve_has_verified_ucits_implementation
@@ -52,3 +75,5 @@ hard_boundaries:
   newly_mapped_exposures_cannot_enter_stage_1_without_policy_change: true
   registry_expansion_cannot_rewrite_historical_comparators: true
   report_text_cannot_create_trade_intents: true
+  historical_stage1_cannot_create_current_allocation_authority: true
+  historical_stage1_cannot_create_client_control_authority: true
