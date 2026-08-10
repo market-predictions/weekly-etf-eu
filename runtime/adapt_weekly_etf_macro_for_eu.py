@@ -31,21 +31,33 @@ def _load_source(source: str) -> tuple[dict[str, Any], str, str]:
         raw = source_path.read_bytes()
         resolved_source = source_path.resolve().as_uri()
     else:
-        request = urllib.request.Request(source, headers={"User-Agent": "weekly-etf-eu-macro-adapter/1.2"})
+        request = urllib.request.Request(source, headers={"User-Agent": "weekly-etf-eu-macro-adapter/1.3"})
         with urllib.request.urlopen(request, timeout=30) as response:
             raw = response.read()
         resolved_source = source
     return json.loads(raw.decode("utf-8")), hashlib.sha256(raw).hexdigest(), resolved_source
 
 
+def _underlying_donor_date(donor: dict[str, Any]) -> tuple[date | None, str | None, str]:
+    refresh = donor.get("current_context_refresh") if isinstance(donor.get("current_context_refresh"), dict) else {}
+    underlying = refresh.get("historical_donor_report_date")
+    if underlying:
+        return _parse_date(underlying), str(underlying)[:10], "current_context_refresh.historical_donor_report_date"
+    raw = donor.get("report_date") or donor.get("generated_at_utc")
+    return _parse_date(raw), str(raw or "")[:10] or None, "donor.report_date_or_generated_at"
+
+
 def adapt(donor: dict[str, Any], *, report_date: str, run_id: str, source_url: str, source_sha256: str) -> dict[str, Any]:
     target_date = _parse_date(report_date)
-    donor_date = _parse_date(donor.get("report_date") or donor.get("generated_at_utc"))
+    donor_date, donor_evidence_date, donor_date_source = _underlying_donor_date(donor)
     if target_date is None or donor_date is None:
-        raise RuntimeError("Could not resolve report date or donor macro date")
+        raise RuntimeError("Could not resolve report date or underlying donor macro evidence date")
     age_days = (target_date - donor_date).days
     if age_days < 0 or age_days > 3:
-        raise RuntimeError(f"Donor macro pack is not current enough for EU routine run: age_days={age_days}")
+        raise RuntimeError(
+            "Donor macro evidence is not current enough for EU routine run: "
+            f"age_days={age_days} evidence_date={donor_evidence_date} source={donor_date_source}"
+        )
 
     payload = copy.deepcopy(donor)
     payload["schema_version"] = "etf_eu_macro_policy_pack_v2"
@@ -60,11 +72,14 @@ def adapt(donor: dict[str, Any], *, report_date: str, run_id: str, source_url: s
         "source_repo": "market-predictions/weekly-etf",
         "source_url": source_url,
         "source_sha256": source_sha256,
-        "source_report_date": donor.get("report_date"),
+        "source_report_date": donor_evidence_date,
+        "source_date_field": donor_date_source,
+        "wrapper_report_date": donor.get("report_date"),
         "source_generated_at_utc": donor.get("generated_at_utc"),
         "age_days_at_eu_report_date": age_days,
         "freshness_limit_days": 3,
         "freshness_passed": True,
+        "wrapper_generation_refreshes_underlying_evidence_date": False,
     }
     payload["authority"] = {
         "authority_class": "eu_descriptive_macro_context",
@@ -74,7 +89,7 @@ def adapt(donor: dict[str, Any], *, report_date: str, run_id: str, source_url: s
         "shadow_only": True,
         "input_state_contract": "Current weekly-etf macro pack is donor context; EU portfolio, UCITS registry, current pricing and current re-underwriting remain authoritative.",
         "output_contract": "Only client-safe descriptive regime, central-bank and policy context may enter the EU report.",
-        "operational_runbook": "Refresh from the current donor pack, bind content hash and evidence date, adapt implications to EU/UCITS, and never create funding or trade authority.",
+        "operational_runbook": "Refresh from the current donor pack, bind content hash and underlying evidence date, and never create funding or trade authority.",
         "broker_specific_permission_required_for_model": False,
         "broker_permission_required_for_real_execution": True,
     }
@@ -98,6 +113,7 @@ def adapt(donor: dict[str, Any], *, report_date: str, run_id: str, source_url: s
         "us_etfs_research_only": True,
         "broker_specific_permission_required_for_model": False,
         "broker_permission_required_for_real_execution": True,
+        "valuation_grade": False,
         "funding_authority": False,
         "portfolio_mutation": False,
         "production_delivery_authority": False,
@@ -126,13 +142,7 @@ def main() -> None:
         parser.error("--run-id is required when WP11_RUN_ID is not set")
     source = args.source_url or args.source
     donor, source_sha256, resolved_source = _load_source(source)
-    payload = adapt(
-        donor,
-        report_date=args.report_date,
-        run_id=args.run_id,
-        source_url=resolved_source,
-        source_sha256=source_sha256,
-    )
+    payload = adapt(donor, report_date=args.report_date, run_id=args.run_id, source_url=resolved_source, source_sha256=source_sha256)
     output = Path(args.output)
     output.parent.mkdir(parents=True, exist_ok=True)
     rendered = json.dumps(payload, indent=2, sort_keys=True, ensure_ascii=False) + "\n"
@@ -144,7 +154,8 @@ def main() -> None:
     print(json.dumps({
         "output": str(output),
         "source_sha256": source_sha256,
-        "source_report_date": donor.get("report_date"),
+        "source_report_date": payload["donor_provenance"]["source_report_date"],
+        "source_date_field": payload["donor_provenance"]["source_date_field"],
         "eu_report_date": args.report_date,
         "age_days_at_eu_report_date": payload["donor_provenance"]["age_days_at_eu_report_date"],
         "run_id": args.run_id,
