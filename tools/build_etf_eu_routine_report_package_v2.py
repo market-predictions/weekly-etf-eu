@@ -32,6 +32,7 @@ def build(args: argparse.Namespace) -> dict[str, Path]:
     legacy_outputs = build_legacy_package(args)
     output_dir = Path(args.output_dir)
     state_path = Path("output/runtime") / f"etf_eu_client_grade_report_state_{args.run_id}.json"
+    macro_pack = _load(Path(args.macro_pack))
 
     state_args = Namespace(
         portfolio_state=args.portfolio_state,
@@ -48,7 +49,7 @@ def build(args: argparse.Namespace) -> dict[str, Path]:
     if state.get("state_valid") is not True:
         raise RuntimeError(f"Client-grade v2 state is invalid: {state.get('blockers')}")
 
-    state = apply_contract(state)
+    state = apply_contract(state, macro_pack=macro_pack)
     bridge_path: Path | None = None
     if getattr(args, "donor_lane_artifact", None):
         bridge_path = Path("output/runtime") / f"etf_eu_donor_discovery_bridge_{args.run_id}.json"
@@ -118,6 +119,8 @@ def build(args: argparse.Namespace) -> dict[str, Path]:
         "markdown_role": "funded_state_reconciled_audit_companion_not_v2_render_source",
         "markdown_generation_status": "generated_funded_state_reconciled_audit_companion",
         "macro_policy_pack": args.macro_pack,
+        "macro_source_report_date": (macro_pack.get("donor_provenance") or {}).get("source_report_date"),
+        "macro_freshness_authority": "donor_provenance.source_report_date",
         "ucits_registry": args.registry,
         "investor_brief_present": True,
         "analyst_appendix_present": True,
