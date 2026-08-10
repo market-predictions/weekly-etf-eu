@@ -3,21 +3,24 @@
 ## Current priority
 
 ```text
-FREEZE_REPAIRED_PR91_AND_START_FRESH_INDEPENDENT_ASSURANCE
+CLOSE_POST_MERGE_US_DONOR_EXECUTION_LEAK_ON_PR95
 ```
 
 Current authoritative lineage:
 
 ```text
-parent_work_package=ETF-EU-WP-DONOR-PARITY-RECONCILIATION-V1
-repair_work_package=ETF_EU_PR91_ASSURANCE_FAIL_REPAIR_V1
-active_claim=ETF-EU-DONOR-PARITY-RECONCILIATION-V1
-branch=agent/etf-eu-donor-parity-reconciliation-v1
-pull_request=91
 parent_issue=90
-failed_assurance_issue=92
-failed_frozen_head=a9f93af018623011ac4b2cae742d69ea1441b4ca
-last_green_semantic_head=19954692ff8b33d5ffac9b09d6654210a7194997
+post_merge_repair_issue=94
+prior_pr=91
+prior_assurance_issue=93
+prior_assurance=PASS
+prior_reviewed_head=686c658c03d5ba4cbd208e254822a73b3fb514f2
+prior_merge_commit=202b0a629af34c697c7b7cb8fdce97fbb56bddbc
+post_merge_defect_main=d771bde734ffda6120a77b1f4fe0e99bd198cc96
+active_work_package=ETF-EU-WP-POST-MERGE-US-DONOR-LEAK-REPAIR-V1
+active_claim=ETF-EU-POST-MERGE-US-DONOR-LEAK-REPAIR-V1
+branch=agent/etf-eu-post-merge-us-donor-leak-repair-v1
+pull_request=95
 target=main
 merge_authorized=false
 delivery_authorized=false
@@ -25,82 +28,70 @@ principal_decision_required=false
 principal_action_required=false
 ```
 
-## Completed repair — do not reopen without regression evidence
+## Incident to close
 
-### Pricing contract
-```text
-report_date explicitly bound=true
-canonical_pricing_schema=ucits_close_price_validation_basket_results_v2
-funded_two_provider_consensus_fail_closed=true
-v2_validator_and_normalized_state_same_contract=true
-legacy_min_threshold_release_gate=false
-report_date_drift_negative_test=true
-one_provider_negative_test=true
-```
+After valid PASS and merge of PR #91, a legacy push workflow executed US Weekly ETF donor runtime and committed US product pricing artifacts to ETF EU `main`.
 
-### Markdown/output contract
-```text
-markdown_state_derived=true
-dynamic_funded_count=true
-funded_tickers_include_L0CK=true
-three_position_copy_fail_closed=true
-retired_target_reserve_copy_fail_closed=true
-markdown_delivery_validation=true
-client_internal_enum_leak_closed=true
-```
+Bad post-merge bot commit:
 
-### End-to-end proof
-Semantic head `19954692ff8b33d5ffac9b09d6654210a7194997`:
-- donor parity/full six-artifact candidate build run `31433054217` — SUCCESS, 31 tests passed;
-- product boundary `31433053898` — SUCCESS;
-- release evidence preflight `31433054597` — SUCCESS;
-- shadow CID `31433054225` — SUCCESS;
-- strategy synchronization shadow `31433054231` — SUCCESS;
-- target allocator shadow `31433054316` — SUCCESS;
-- transition composition replay `31433054295` — SUCCESS.
+`d771bde734ffda6120a77b1f4fe0e99bd198cc96`
 
-## Remaining sequence
+Added files:
+- `output/pricing/price_audit_2026-08-10_20260810_214841.json`;
+- `output/pricing/price_cache_2026-08-10.json`.
 
-1. Finish governance reconciliation of claim/changelog around the completed repair.
-2. Write `handover/ETF_EU_PR91_ASSURANCE_FAIL_REPAIR_V1_20260810.md` as the final candidate mutation.
-3. Re-read live PR #91 head after that handover commit. That resulting SHA becomes the only frozen fresh-assurance target.
-4. Mark PR #91 ready for review without changing its head.
-5. Open a **new assurance issue distinct from #92** bound to that exact SHA.
-6. Required independent verdict:
+The audit contains GLD/GSG/PAVE/PPA/SMH/SPY/URNM. This is not protected ETF EU state and must not survive the repaired release line.
 
-`ETF_EU_PR91_ASSURANCE_FAIL_REPAIR_REVERIFY: PASS | FAIL | INDETERMINATE`
+## Implementation sequence — active
 
-7. Fresh reviewer must independently re-check:
-   - old pricing blocker is closed end to end;
-   - old Markdown/L0CK blocker is closed in actual delivery artifacts;
-   - full six-artifact package regression is meaningful;
-   - four protected funded positions remain unchanged;
-   - retired 50/35/15 and research-only 25/18 authority boundaries remain intact;
-   - candidate/delivery workflow separation remains intact;
-   - no portfolio/ledger mutation, broker execution or send occurred.
-8. If PASS and frozen head remains unchanged, merge PR #91.
-9. Run exact-main validation and reconcile project + central Control state.
-10. Close issue #90 and the integration claim only after exact-main evidence is sufficient.
+1. Keep `.github/workflows/persist-etf-pricing-audit.yml` non-executable as `.yml.disabled` audit history.
+2. Keep `.github/workflows/validate-etf-runtime.yml` non-executable as `.yml.disabled` audit history.
+3. Keep both erroneous US pricing artifacts deleted from PR #95.
+4. Run product-boundary validation across all active `.yml/.yaml` workflows and fail on donor execution tokens including:
+   - `pricing.run_pricing_pass`;
+   - `output/etf_portfolio_state.json`;
+   - `weekly_analysis_pro_`;
+   - `send_report.py` / `import send_report`;
+   - `etf.txt`;
+   - `etf-pro.txt`.
+5. Run workflow-authority validation and require the newly retired workflows to have `.disabled` evidence while remaining absent from active workflow names.
+6. Inspect CI failures for any additional active US donor route. If found, retire or replace only the affected execution route; do not build a second EU pricing/report authority.
+7. Keep the canonical EU candidate route `run-weekly-etf-eu-routine.yml` and controlled transport route unchanged unless a test proves a defect in them.
+8. Verify protected `output/etf_eu_portfolio_state.json` and trade ledger remain unchanged.
+9. Reconcile roadmap/changelog/workpackage/claim/handover after semantic CI is green.
+10. Freeze exact PR #95 head and mark ready for independent review.
+11. Open a new assurance issue bound to exact PR #95 head; required verdict:
+
+`ETF_EU_POST_MERGE_US_DONOR_LEAK_ASSURANCE: PASS | FAIL | INDETERMINATE`
+
+12. Merge only after independent PASS and unchanged head.
+13. Exact-main validation must then prove:
+   - product-boundary PASS;
+   - workflow-authority PASS;
+   - no US donor pricing/report workflow has reactivated;
+   - no US pricing artifacts are regenerated on main;
+   - protected EU portfolio/ledger remain unchanged.
+14. Only after that evidence, close issue #94, parent issue #90 and successor claim, and reconcile central Control state.
 
 ## Separate post-release production sequence
 
-Only after PR #91 closeout:
+Only after this architecture/closeout line is complete:
 1. create a new non-main candidate for the genuinely current Weekly ETF EU report;
 2. resolve latest valid completed close;
-3. run donor discovery → UCITS mapping → exact-line pricing → current re-underwriting;
+3. run donor discovery → UCITS mapping → exact-line two-provider pricing → current re-underwriting;
 4. generate NL/EN MD/HTML/PDF from one state;
 5. independently assure the exact report candidate;
-6. merge/exact-main validate if PASS;
+6. merge/exact-main validate if required by the report release contract;
 7. guarded delivery only under separate principal send authority;
 8. delivery success only with positive receipt/attachment evidence.
 
 ## Decisions not reopened
-The assurance FAIL was an implementation/output-contract failure, not an allocation-policy decision. Do not reopen the existing allocation authority without new decision evidence.
+The post-merge leak is an operational/product-boundary defect. Do not reopen existing allocation authority without new decision evidence.
 
 ## Prohibited shortcuts
 Do not:
-- merge failed head `a9f93af...`;
-- reuse issue #92 for the repaired head;
-- mutate the candidate after fresh assurance begins;
-- treat CI/machine preflight as independent assurance;
+- treat green legacy runtime CI as proof of correct ETF EU product identity;
+- preserve the bot-generated US audit/cache as current ETF EU evidence;
+- merge PR #95 without fresh exact-head assurance;
+- reuse issue #93 PASS as assurance for PR #95;
 - send email or execute broker actions from this repair mandate.
