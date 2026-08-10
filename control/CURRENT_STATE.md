@@ -12,7 +12,7 @@ active_claim=ETF-EU-DONOR-PARITY-RECONCILIATION-V1
 working_branch=agent/etf-eu-donor-parity-reconciliation-v1
 pull_request=91
 issue=90
-state=IMPLEMENTATION_CONVERGENCE_PRE_ASSURANCE
+state=FINAL_EXACT_HEAD_VALIDATION_PRE_HANDOVER
 last_green_semantic_implementation_head=010b15152542efb931c5989584ffdea46f04363a
 principal_decision_required=false
 principal_action_required=false
@@ -22,7 +22,7 @@ report_delivery=false
 real_broker_execution=false
 ```
 
-The final assurance head is not declared in this file because administrative closeout commits follow the semantic implementation head. The independent assurance issue must bind the exact live PR head after handover freeze.
+The final assurance head is intentionally not self-referenced in this file. After the final implementation handover commit, the independent assurance issue must bind the resulting exact live PR #91 head and no further candidate mutation may occur without invalidating that review.
 
 ## Current objective
 
@@ -178,13 +178,17 @@ Transport does not re-render the approved report. Inbox delivery is not successf
 
 ## Historical workflow cleanup
 
-Nineteen historical activation/send/repair/preview workflows were renamed to `.yml.disabled`. They remain audit history but cannot execute through GitHub Actions.
+Twenty historical activation/send/repair/preview/client-like shadow workflows are retained only as `.yml.disabled` audit history and cannot execute through GitHub Actions.
+
+The twentieth retirement is the old 2026-07-27 allocator `sister report` shadow route. It consumed the historical transition allocator and rendered a parallel client-like report. The underlying donor/allocator research artifacts may remain diagnostic, but that route no longer has client-output authority.
+
+The immutable donor pin now registers exactly three active research-only donor-shadow workflows plus the disabled sister-report path as retired audit evidence.
 
 Historical transition and CAP01 allocation YAML files are explicitly `HISTORICAL_NON_EXECUTABLE`.
 
 ## Validation status
 
-On semantic implementation head `010b15152542efb931c5989584ffdea46f04363a`:
+The last fully green semantic implementation baseline before final administrative/workflow-authority closeout is `010b15152542efb931c5989584ffdea46f04363a`:
 - donor-parity regression suite: PASS;
 - funded-renderer authority regression: PASS;
 - product-boundary validation: PASS;
@@ -193,7 +197,7 @@ On semantic implementation head `010b15152542efb931c5989584ffdea46f04363a`:
 - shadow-CID transport validation: PASS;
 - release evidence machine-preflight validation: PASS.
 
-One legacy allocator-report-shadow job was still running at the last snapshot; exact final-head CI must be rechecked after administrative handover commits.
+After retiring the allocator sister-report route, its removal temporarily caused the remaining donor-shadow validators to fail because the immutable donor pin still required the retired workflow. The pin and its validator have now been reconciled to three active research-only donor consumers plus one retired audit path. A fresh exact-head CI cycle is therefore the final implementation gate before handover.
 
 ## Release boundary
 
