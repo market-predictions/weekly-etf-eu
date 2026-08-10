@@ -16,6 +16,8 @@
 - Removed a post-normalization shadow renderer that recreated a 7.50% cash reserve, strategic/phase targets and three-position copy; funded rendering is now dynamic and fail-closed on retired client copy.
 - Replaced the routine production workflow with a candidate-only non-main route that cannot self-assure, push candidate output to main or send email.
 - Disabled nineteen historical activation/send/repair/preview workflows by retaining them only as `.yml.disabled` audit evidence.
+- During final workflow audit, also retired the old 2026-07-27 allocator `sister report` workflow because it rendered a parallel client-like report from historical transition/shadow allocation state. This raises the disabled historical/parallel route count to twenty.
+- Reconciled `config/weekly_etf_donor_contract_pin.json` and its validator to exactly three active immutable-donor research-only workflows plus the disabled allocator sister-report route as retired audit evidence.
 - Made controlled transport the sole active real ETF EU delivery route and bound it to independent PASS, approved main-lineage commit, principal guarded-send authority and SHA-256 for all six approved NL/EN MD/HTML/PDF artifacts.
 - Controlled transport no longer re-renders an assured report; it sends the exact approved artifacts.
 - Added workflow-authority, guarded-delivery, candidate-request, funded-renderer and donor-parity regressions.
@@ -44,7 +46,7 @@ No protected portfolio or trade-ledger mutation, real broker execution, SMTP sen
 
 ### Release state
 
-Implementation is converged. Final exact-head CI, exact-head handover and independent assurance remain required before merge. Post-merge exact-main validation and claim/state closeout remain required after PASS.
+Implementation is converged. Final exact-head CI, final handover commit and independent assurance remain required before merge. Post-merge exact-main validation and claim/state closeout remain required after PASS.
 
 ---
 
