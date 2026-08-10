@@ -38,12 +38,14 @@ Governing rule: **port behavior, not U.S. assumptions**.
 - Position tables show current weight and re-underwriting status, not historical phase targets.
 - NL-primary and EN-companion output derive from one normalized state.
 - Renderer fails closed on retired target/fixed-reserve/three-position copy and missing funded tickers.
+- The legacy allocator `sister report` workflow is retired so historical allocator research cannot create a second client-like output surface.
 
 ### 4. Operational runbook — IMPLEMENTED
 - Canonical lifecycle is candidate build → independent assurance → merge/exact-main → separately authorized guarded delivery.
 - Candidate routine is non-main only and cannot push candidate output to main, self-assure or deliver.
 - Completed-close resolution is dynamic rather than hard-coded to a repair date.
-- Nineteen historical activation/send/repair/preview workflows are retained as `.yml.disabled` audit history and cannot execute.
+- Twenty historical activation/send/repair/preview/client-like shadow workflows are retained as `.yml.disabled` audit history and cannot execute.
+- Exactly three donor-contract synchronization workflows remain active as research-only validators; the retired sister-report route is recorded separately in the donor pin as disabled audit history.
 - Controlled transport is the sole active real delivery route and validates an exact guarded-delivery authority record plus six artifact SHA-256 hashes.
 - Controlled transport sends the approved artifacts and does not re-render them.
 
@@ -77,7 +79,9 @@ Evidence:
 - `control/ETF_EU_WORKFLOW_AUTHORITY_INDEX_V1.md`
 - candidate-only routine workflow;
 - exact-assured controlled transport;
-- historical workflow disablement;
+- twenty historical/parallel workflow routes disabled;
+- allocator sister-report route explicitly retired;
+- donor pin reduced to three active research-only consumers;
 - dynamic completed-close and macro provenance.
 
 ### Wave D — Assurance and lifecycle closeout — IN PROGRESS
@@ -109,6 +113,7 @@ Definition of done:
 | Bilingual single-state rendering | NL/EN from one normalized EU state | PARITY |
 | U.S. security identity | replaced by ISIN-first UCITS/KID/exact-line identity | INTENTIONAL EU DIVERGENCE |
 | Donor operational legacy send/state-refresh routes | not copied; EU uses stricter candidate/assurance/delivery separation | INTENTIONAL EU HARDENING |
+| Historical allocator sister report | disabled; research evidence preserved without parallel client output | INTENTIONAL EU HARDENING |
 
 ## Intentional EU divergences to preserve
 - ISIN-first identity and exact share class/trading line.
