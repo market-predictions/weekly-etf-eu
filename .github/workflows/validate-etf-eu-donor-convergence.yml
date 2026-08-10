@@ -9,10 +9,19 @@ on:
       - "runtime/build_etf_eu_production_convergence_state_v3.py"
       - "runtime/build_etf_eu_current_reunderwriting_scorecard.py"
       - "runtime/synchronize_etf_eu_current_state_surface_v2.py"
+      - "runtime/render_etf_eu_client_grade_v3_converged.py"
       - "runtime/adapt_weekly_etf_macro_for_eu.py"
+      - "tools/build_etf_eu_routine_report_package_v2.py"
       - "tools/audit_etf_eu_donor_parity.py"
       - "tools/validate_etf_eu_current_reunderwriting_scorecard.py"
+      - "tools/validate_etf_eu_client_grade_report_v3.py"
+      - "tools/write_etf_eu_routine_v3_machine_gate.py"
+      - "tools/prepare_etf_eu_routine_package_readiness_v2.py"
+      - "tools/build_etf_eu_release_assurance.py"
+      - "tools/validate_etf_eu_release_assurance.py"
+      - "tools/validate_etf_eu_macro_adapter.py"
       - "tests/test_etf_eu_donor_convergence.py"
+      - "tests/test_etf_eu_donor_convergence_v3.py"
       - ".github/workflows/run-weekly-etf-eu-routine.yml"
       - ".github/workflows/validate-etf-eu-donor-convergence.yml"
   workflow_dispatch:
@@ -44,7 +53,7 @@ jobs:
       - name: Install bounded convergence dependencies
         run: |
           python -m pip install --upgrade pip
-          python -m pip install pytest pyyaml beautifulsoup4 weasyprint
+          python -m pip install pytest pyyaml beautifulsoup4 weasyprint mistune
 
       - name: Compile convergence implementation
         run: |
@@ -52,12 +61,24 @@ jobs:
             runtime/build_etf_eu_production_convergence_state_v3.py \
             runtime/build_etf_eu_current_reunderwriting_scorecard.py \
             runtime/synchronize_etf_eu_current_state_surface_v2.py \
+            runtime/render_etf_eu_client_grade_v3_converged.py \
+            runtime/adapt_weekly_etf_macro_for_eu.py \
+            tools/build_etf_eu_routine_report_package_v2.py \
             tools/audit_etf_eu_donor_parity.py \
-            tools/validate_etf_eu_current_reunderwriting_scorecard.py
+            tools/validate_etf_eu_current_reunderwriting_scorecard.py \
+            tools/validate_etf_eu_client_grade_report_v3.py \
+            tools/write_etf_eu_routine_v3_machine_gate.py \
+            tools/prepare_etf_eu_routine_package_readiness_v2.py \
+            tools/build_etf_eu_release_assurance.py \
+            tools/validate_etf_eu_release_assurance.py \
+            tools/validate_etf_eu_macro_adapter.py
 
       - name: Run donor-convergence regression tests
         run: |
-          python -m pytest -q tests/test_etf_eu_donor_convergence.py tests/test_etf_eu_current_state_surface_v2.py
+          python -m pytest -q \
+            tests/test_etf_eu_donor_convergence.py \
+            tests/test_etf_eu_donor_convergence_v3.py \
+            tests/test_etf_eu_current_state_surface_v2.py
 
       - name: Run five-layer donor parity audit
         run: |
@@ -78,6 +99,15 @@ jobs:
             --portfolio-state output/etf_eu_portfolio_state.json \
             --report-date 2026-08-05 \
             --output output/quality/etf_eu_current_reunderwriting_validation_ci.json
+
+      - name: Prove canonical routine and V3 evidence bindings
+        run: |
+          grep -F "Run five-layer donor parity audit" .github/workflows/run-weekly-etf-eu-routine.yml
+          grep -F "Validate donor-converged current re-underwriting memory" .github/workflows/run-weekly-etf-eu-routine.yml
+          grep -F "tools.validate_etf_eu_client_grade_report_v3" .github/workflows/run-weekly-etf-eu-routine.yml
+          grep -F "tools.write_etf_eu_routine_v3_machine_gate" .github/workflows/run-weekly-etf-eu-routine.yml
+          grep -F "current_reunderwriting_scorecard" tools/build_etf_eu_routine_report_package_v2.py
+          grep -F "client_grade_v3_donor_converged" runtime/render_etf_eu_client_grade_v3_converged.py
 
       - name: Prove no portfolio mutation in convergence gate
         run: |
