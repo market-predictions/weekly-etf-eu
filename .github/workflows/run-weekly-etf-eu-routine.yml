@@ -91,12 +91,16 @@ jobs:
           set -euo pipefail
           python pricing/build_ucits_close_price_validation_basket_results.py \
             --run-id "$ETF_EU_RUN_ID" \
+            --report-date "$ETF_EU_REPORT_DATE" \
+            --require-funded-consensus \
             --pause-seconds 15 \
             --rate-limit-cooldown-seconds 600 \
             --max-attempts 2 \
             --rate-limit-mode stop
           python tools/validate_ucits_close_price_validation_basket_results.py \
-            --artifact "output/pricing/ucits_close_price_validation_basket_results_${ETF_EU_RUN_ID}.json"
+            --artifact "output/pricing/ucits_close_price_validation_basket_results_${ETF_EU_RUN_ID}.json" \
+            --portfolio-state output/etf_eu_portfolio_state.json \
+            --expected-report-date "$ETF_EU_REPORT_DATE"
 
       - name: Refresh macro context and candidate valuation history
         run: |
@@ -136,6 +140,7 @@ jobs:
           mkdir -p output/quality
           V2_STATE="output/runtime/etf_eu_client_grade_report_state_${ETF_EU_RUN_ID}.json"
           V2_VALIDATION="output/quality/etf_eu_client_grade_v2_validation_${ETF_EU_RUN_ID}.json"
+          MD_VALIDATION="output/quality/etf_eu_markdown_delivery_validation_${ETF_EU_RUN_ID}.json"
           python -m tools.validate_etf_eu_client_grade_report_v2 \
             --state "$V2_STATE" \
             --dutch-html "output/fresh_generation/weekly_etf_eu_review_nl_${ETF_EU_REPORT_SUFFIX}.html" \
@@ -143,6 +148,12 @@ jobs:
             --english-html "output/fresh_generation/weekly_etf_eu_review_${ETF_EU_REPORT_SUFFIX}.html" \
             --english-pdf "output/fresh_generation/weekly_etf_eu_review_${ETF_EU_REPORT_SUFFIX}.pdf" \
             --output "$V2_VALIDATION" \
+            --strict
+          python -m tools.validate_etf_eu_markdown_delivery_artifacts \
+            --state "$V2_STATE" \
+            --dutch-markdown "output/fresh_generation/weekly_etf_eu_review_nl_${ETF_EU_REPORT_SUFFIX}.md" \
+            --english-markdown "output/fresh_generation/weekly_etf_eu_review_${ETF_EU_REPORT_SUFFIX}.md" \
+            --output "$MD_VALIDATION" \
             --strict
           python -m tools.write_etf_eu_routine_v2_machine_gate \
             --validation "$V2_VALIDATION" \
@@ -190,6 +201,7 @@ jobs:
             "output/fresh_generation/etf_eu_fresh_generation_package_manifest_${ETF_EU_RUN_ID}.json" \
             "output/fresh_generation/etf_eu_ready_for_controlled_delivery_${ETF_EU_RUN_ID}.json" \
             "output/quality/etf_eu_client_grade_v2_validation_${ETF_EU_RUN_ID}.json" \
+            "output/quality/etf_eu_markdown_delivery_validation_${ETF_EU_RUN_ID}.json" \
             "output/quality/etf_eu_routine_pdf_client_grade_${ETF_EU_RUN_ID}_nl.json" \
             "output/quality/etf_eu_routine_pdf_client_grade_${ETF_EU_RUN_ID}_en.json" \
             "output/quality/etf_eu_routine_pdf_client_grade_${ETF_EU_RUN_ID}.json" \
@@ -217,6 +229,7 @@ jobs:
             output/fresh_generation/etf_eu_fresh_generation_package_manifest_${{ env.ETF_EU_RUN_ID }}.json
             output/runtime/etf_eu_client_grade_report_state_${{ env.ETF_EU_RUN_ID }}.json
             output/quality/etf_eu_client_grade_v2_validation_${{ env.ETF_EU_RUN_ID }}.json
+            output/quality/etf_eu_markdown_delivery_validation_${{ env.ETF_EU_RUN_ID }}.json
             output/quality/review_pages/${{ env.ETF_EU_RUN_ID }}
           if-no-files-found: error
           retention-days: 90
