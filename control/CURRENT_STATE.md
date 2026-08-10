@@ -5,17 +5,21 @@
 ```text
 date=2026-08-10
 repository=market-predictions/weekly-etf-eu
-main_sha_at_reconciliation=3d97712a9bd135192f67b8c5dd860d295adbf5fc
-operating_mode=DONOR_PARITY_RECONCILIATION_WITH_INDEPENDENT_RELEASE_ASSURANCE
+main_sha_at_reconciliation=d771bde734ffda6120a77b1f4fe0e99bd198cc96
+operating_mode=POST_MERGE_US_DONOR_EXECUTION_LEAK_REPAIR
 parent_work_package=ETF-EU-WP-DONOR-PARITY-RECONCILIATION-V1
-repair_work_package=ETF_EU_PR91_ASSURANCE_FAIL_REPAIR_V1
-active_claim=ETF-EU-DONOR-PARITY-RECONCILIATION-V1
-working_branch=agent/etf-eu-donor-parity-reconciliation-v1
-pull_request=91
+active_work_package=ETF-EU-WP-POST-MERGE-US-DONOR-LEAK-REPAIR-V1
+active_claim=ETF-EU-POST-MERGE-US-DONOR-LEAK-REPAIR-V1
+working_branch=agent/etf-eu-post-merge-us-donor-leak-repair-v1
+pull_request=95
 parent_issue=90
-failed_assurance_issue=92
-state=REPAIR_IMPLEMENTATION_COMPLETE_PRE_HANDOVER
-last_green_semantic_head=19954692ff8b33d5ffac9b09d6654210a7194997
+repair_issue=94
+prior_release_pr=91
+prior_assurance_issue=93
+prior_assurance_verdict=PASS
+prior_reviewed_head=686c658c03d5ba4cbd208e254822a73b3fb514f2
+prior_merge_commit=202b0a629af34c697c7b7cb8fdce97fbb56bddbc
+state=POST_MERGE_P0_REPAIR_ACTIVE
 principal_decision_required=false
 principal_action_required=false
 merge_authorized=false
@@ -26,70 +30,71 @@ report_delivery=false
 real_broker_execution=false
 ```
 
-## Assurance history
+## What changed after PR #91 PASS
 
-Independent issue #92 reviewed frozen PR #91 head:
+Independent issue #93 returned:
 
-`a9f93af018623011ac4b2cae742d69ea1441b4ca`
+`ETF_EU_PR91_ASSURANCE_FAIL_REPAIR_REVERIFY: PASS`
 
-and returned:
+for exact frozen PR #91 head:
 
-`ETF_EU_PR91_DONOR_PARITY_ASSURANCE: FAIL`
+`686c658c03d5ba4cbd208e254822a73b3fb514f2`
 
-Issue #92 is closed as the immutable assurance record for that failed candidate. The failed SHA has no merge or delivery authority and cannot be reused for the repaired candidate.
+The head remained unchanged and PR #91 was merged as:
 
-The review confirmed the existing donor-parity allocation/state decisions and protected boundaries. It found two executable blockers: pricing-contract incoherence and stale three-position Markdown delivery copy.
+`202b0a629af34c697c7b7cb8fdce97fbb56bddbc`
 
-## Repair outcome — COMPLETE
+That PASS and merge are valid for the reviewed candidate. They did not authorize delivery or broker execution.
 
-### Pricing v2
-Canonical candidate chain is now:
+## Post-merge P0 defect
 
-```text
-candidate request report_date
-→ provider qualification on exact report_date
-→ ucits_close_price_validation_basket_results_v2
-→ funded two-provider same-date consensus
-→ shared v2 validator
-→ v2 normalized state
-→ candidate package
-```
+Exact-main observation exposed a separate active donor-runtime leak after the merge.
 
-The candidate workflow passes the exact report date, requires funded consensus and validates against the same report date. V1 schema, report-date drift, one-provider funded evidence, missing funded lines and a failed funded pricing gate fail closed.
+Push workflow `Persist ETF pricing audit` executed retained US Weekly ETF runtime:
 
-The hidden package-level legacy `min_threshold_met`/priced-line-count release gate has been removed. Persisted normalized state carries funded v2 pricing evidence and funded-consistency metadata.
+`python -m pricing.run_pricing_pass`
 
-### Markdown/output consistency
-NL and EN Markdown are now state-derived delivery artifacts:
-- funded count is dynamic;
-- exact funded ticker set includes VWCE, EUNA, SXR8 and L0CK;
-- hard-coded three-position copy is removed;
-- retired strategic/phase targets and fixed 7.50% reserve wording fail closed;
-- mixed-language NL leakage fails closed;
-- Markdown has its own strict candidate QA artifact;
-- final HTML/PDF normalizes internal funded-status enums to client-safe labels.
+and wrote bot commit:
 
-### Real end-to-end candidate regression
-The donor-parity release regression invokes the real v2 package builder and generates/validates all six client artifacts: NL/EN MD, HTML and PDF.
+`d771bde734ffda6120a77b1f4fe0e99bd198cc96`
 
-Exact semantic-baseline evidence for `19954692ff8b33d5ffac9b09d6654210a7194997`:
-- donor parity/full package E2E `31433054217` — SUCCESS, 31 tests passed;
-- product boundary `31433053898` — SUCCESS;
-- release evidence preflight `31433054597` — SUCCESS;
-- shadow CID transport `31433054225` — SUCCESS;
-- strategy synchronization shadow `31433054231` — SUCCESS;
-- target allocator shadow `31433054316` — SUCCESS;
-- transition composition replay `31433054295` — SUCCESS.
+on top of the merge.
 
-The donor-parity job also reports:
+The bot commit added exactly two generated files:
+- `output/pricing/price_audit_2026-08-10_20260810_214841.json`;
+- `output/pricing/price_cache_2026-08-10.json`.
 
-```text
-ETF_EU_WORKFLOW_AUTHORITY=PASS
-ETF_EU_CANDIDATE_PRICING_AND_MARKDOWN_WIRING=PASS
-ETF_EU_DONOR_PARITY_STATIC_AUTHORITY_AUDIT=PASS
-```
+The artifacts contain US Weekly ETF holdings/data including GLD, GSG, PAVE, PPA, SMH, SPY and URNM rather than the protected Weekly ETF EU funded set.
 
-## Protected portfolio authority
+A second active workflow, `Validate ETF runtime changes`, also executed `pricing.run_pricing_pass` and legacy `send_report.py`. It completed green. Therefore the defect is architectural product-boundary leakage, not a failed-job problem.
+
+## Root cause
+
+`pricing/run_pricing_pass.py` is retained donor/US runtime code whose defaults/semantics include:
+- `output/etf_portfolio_state.json`;
+- `weekly_analysis_pro_*.md`;
+- U.S. completed-close timing;
+- donor report/watchlist parsing.
+
+Historical donor code may remain for provenance, but active ETF EU workflows may not execute it. The existing product-boundary validator guarded FX leakage but did not guard US Weekly ETF donor-runtime leakage.
+
+## Active repair — issue #94 / PR #95
+
+Successor branch:
+
+`agent/etf-eu-post-merge-us-donor-leak-repair-v1`
+
+Current implemented scope:
+- `persist-etf-pricing-audit.yml` retired to `.yml.disabled`;
+- `validate-etf-runtime.yml` retired to `.yml.disabled`;
+- the two erroneous US pricing artifacts removed from the repair candidate;
+- repository-boundary validation now rejects active US donor execution tokens;
+- workflow-authority validation now rejects active US donor execution tokens and requires the two newly retired routes to remain disabled;
+- planted regressions cover active donor pricing, active legacy renderer and disabled-audit-history behavior.
+
+The previous PR #91 release claim is `SUPERSEDED` after its valid merge because the post-merge defect requires a new exact-head candidate/assurance identity. Successor claim `ETF-EU-POST-MERGE-US-DONOR-LEAK-REPAIR-V1` is the only active release-integration line.
+
+## Protected portfolio authority — unchanged
 
 `output/etf_eu_portfolio_state.json`
 
@@ -107,7 +112,7 @@ model_portfolio_only=true
 real_broker_execution=false
 ```
 
-No repair commit changed protected shares, cash or the trade ledger.
+The erroneous post-merge audit did not mutate this protected state or the trade ledger.
 
 ## Allocation authority — NOT REOPENED
 
@@ -127,19 +132,20 @@ Research/shadow only unless separately adopted:
 18% AI-compute/semiconductor cap
 ```
 
-Donor cash >3%/>5% and ~40% factor thresholds remain review/disclosure triggers, not allocation caps or targets. No new stable allocation decision is required for this repair.
+The post-merge defect is an execution/product-boundary defect, not a new portfolio decision.
 
 ## Current release boundary
 
-Product implementation is complete. Remaining work is governance-only:
-
 ```text
-reconcile claim/next-actions/changelog
-→ final repair handover commit
-→ freeze resulting PR #91 SHA
-→ fresh independent assurance in a new issue
+finish PR #95 implementation validation
+→ inspect CI for any additional active donor execution route
+→ reconcile repair claim/docs
+→ freeze exact PR #95 head
+→ fresh independent governance_release_assurance
 → merge only after PASS + unchanged head
-→ exact-main validation and lifecycle closeout
+→ exact-main validation proving no donor artifact regeneration
+→ close issue #94 + parent issue #90 + successor claim
+→ reconcile central Control state
 ```
 
-No email send or broker execution is authorized by this repair mandate.
+No report email or broker execution is authorized by this repair mandate.
