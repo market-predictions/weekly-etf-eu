@@ -13,6 +13,8 @@ The EU product had strong UCITS/pricing/governance foundations but still contain
 
 A further P0 defect discovered during execution was a post-normalization funded renderer that reintroduced historical three-position, 7.50% reserve-floor and strategic/phase-target copy after the normalized state had already removed those semantics.
 
+A final operational gap was a historical 2026-07-27 allocator `sister report` workflow that still rendered a parallel client-like report from the historical transition allocator. Its research evidence was non-authoritative, but the executable report surface created ambiguity. The workflow is now retired as `.yml.disabled` and removed from the active donor pin.
+
 ## Scope completed
 1. Allocation-authority repair.
 2. Donor-parity decision/state contract.
@@ -22,7 +24,8 @@ A further P0 defect discovered during execution was a post-normalization funded 
 6. Canonical candidate/assurance/delivery runbook convergence.
 7. Historical workflow disablement and delivery hardening.
 8. Machine-preflight vs independent-assurance separation.
-9. Deterministic regressions and lifecycle documentation.
+9. Donor-pin reconciliation after retirement of the sister-report route.
+10. Deterministic regressions and lifecycle documentation.
 
 ## Protected boundaries
 Throughout implementation:
@@ -82,17 +85,21 @@ Mapping/pricing alone cannot fund a position.
 - current position count is dynamic and includes all four protected positions;
 - current-position table contains no strategic/phase target column;
 - renderer fails closed on retired reserve/target/three-position phrases and on a missing funded ticker;
-- NL/EN render from the same normalized state.
+- NL/EN render from the same normalized state;
+- the obsolete allocator sister-report workflow cannot create a second client-like output surface from historical policy.
 
 Primary evidence:
 - `runtime/render_etf_eu_client_grade_v2_funded.py`
 - `tests/test_etf_eu_funded_renderer_authority.py`
+- `.github/workflows/validate-etf-eu-allocator-report-shadow.yml.disabled`
 
 ### Runbook/workflow authority — COMPLETE
 - one candidate-only route is canonical;
 - candidate route refuses main, cannot self-assure and cannot deliver;
 - completed-close date is dynamically resolved;
-- nineteen historical mutation/send/repair/preview workflows are `.yml.disabled`;
+- twenty historical mutation/send/repair/preview/client-like shadow workflows are `.yml.disabled`;
+- exactly three immutable-donor synchronization workflows remain active as research-only validators;
+- the donor pin explicitly records the allocator sister-report workflow as retired;
 - controlled transport is the only active real delivery route;
 - delivery requires exact independent PASS, approved commit lineage, principal send authority and six artifact SHA-256 bindings;
 - controlled transport sends exact approved artifacts and does not re-render.
@@ -101,6 +108,8 @@ Primary evidence:
 - `control/ETF_EU_WORKFLOW_AUTHORITY_INDEX_V1.md`
 - `.github/workflows/run-weekly-etf-eu-routine.yml`
 - `.github/workflows/send-weekly-etf-eu-controlled-transport.yml`
+- `config/weekly_etf_donor_contract_pin.json`
+- `tools/validate_weekly_etf_donor_contract_pin.py`
 - `tools/validate_etf_eu_guarded_delivery_authority.py`
 - `tools/validate_etf_eu_workflow_authority.py`
 
@@ -115,17 +124,17 @@ Historical machine tooling named `release_assurance` is retained only for compat
 ### Governance closeout — PENDING ROLE-B
 Remaining release gates:
 - final exact-head CI green after administrative closeout commits;
-- implementation handover with exact frozen PR head;
-- independent assurance `PASS | FAIL | INDETERMINATE`;
+- implementation handover followed by an exact frozen PR-head read;
+- independent assurance `PASS | FAIL | INDETERMINATE` on that exact frozen head;
 - merge only after PASS and unchanged head;
 - exact-main validation;
 - issue/claim/project/control-plane closeout.
 
 ## Evidence contract
 Persist/reference:
-- exact frozen PR head in the implementation handover and assurance issue;
+- last validated pre-handover implementation head and exact-head workflow runs in the handover;
+- the resulting exact frozen PR head in the assurance issue;
 - PR #91 changed-file list;
-- exact-head workflow runs;
 - donor-parity matrix in the roadmap;
 - client-surface regression evidence;
 - independent assurance verdict;
@@ -133,4 +142,4 @@ Persist/reference:
 - final handover disposition.
 
 ## Handover contract
-The implementation handover must explicitly list completed scope, unresolved items, exact head, tests/evidence and disposition. Assurance may not mutate the candidate it reviews. Any semantic repair after assurance creates a fresh candidate and requires fresh assurance.
+The implementation handover is the last repository mutation on the candidate line. It must explicitly list completed scope, unresolved items, last validated pre-handover head, tests/evidence and disposition `HANDOVER_READY`. The resulting PR head containing that handover is then read live and bound by the independent assurance issue. Assurance may not mutate the candidate it reviews. Any repair after assurance creates a fresh candidate and requires fresh assurance.
