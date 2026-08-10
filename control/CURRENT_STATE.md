@@ -7,32 +7,85 @@ date=2026-08-10
 repository=market-predictions/weekly-etf-eu
 main_sha_at_reconciliation=3d97712a9bd135192f67b8c5dd860d295adbf5fc
 operating_mode=DONOR_PARITY_RECONCILIATION_WITH_INDEPENDENT_RELEASE_ASSURANCE
-current_work_package=ETF-EU-WP-DONOR-PARITY-RECONCILIATION-V1
+parent_work_package=ETF-EU-WP-DONOR-PARITY-RECONCILIATION-V1
+repair_work_package=ETF_EU_PR91_ASSURANCE_FAIL_REPAIR_V1
 active_claim=ETF-EU-DONOR-PARITY-RECONCILIATION-V1
 working_branch=agent/etf-eu-donor-parity-reconciliation-v1
 pull_request=91
-issue=90
-state=FINAL_EXACT_HEAD_VALIDATION_PRE_HANDOVER
-last_green_semantic_implementation_head=010b15152542efb931c5989584ffdea46f04363a
+parent_issue=90
+failed_assurance_issue=92
+state=ASSURANCE_FAIL_IMPLEMENTATION_REPAIR_ACTIVE
 principal_decision_required=false
 principal_action_required=false
+merge_authorized=false
+delivery_authorized=false
 portfolio_mutation=false
 ledger_write=false
 report_delivery=false
 real_broker_execution=false
 ```
 
-The final assurance head is intentionally not self-referenced in this file. After the final implementation handover commit, the independent assurance issue must bind the resulting exact live PR #91 head and no further candidate mutation may occur without invalidating that review.
+## Assurance outcome
 
-## Current objective
+Independent `governance_release_assurance` reviewed frozen PR #91 head:
 
-Close the remaining Weekly ETF EU maturity gaps relative to the current Weekly ETF donor while preserving deliberate EU-specific UCITS/PRIIPs/KID/ISIN/exact-trading-line controls.
+`a9f93af018623011ac4b2cae742d69ea1441b4ca`
 
-Parity means equivalent decision/state discipline where appropriate, not copying donor implementation weaknesses or U.S.-specific assumptions.
+and returned:
+
+`ETF_EU_PR91_DONOR_PARITY_ASSURANCE: FAIL`
+
+Issue #92 is the immutable assurance record for that failed candidate. The failed SHA must never be treated as merge- or delivery-authorized.
+
+The review confirmed the donor-parity allocation/state decisions and protected portfolio boundaries, but found two executable release blockers below.
+
+## P0 blocker A — pricing v2 execution contract
+
+The failed candidate mixed three incompatible expectations:
+- provider builder emitted `ucits_close_price_validation_basket_results_v2`;
+- validator required v1;
+- normalized state still relied on historical `min_threshold_met`.
+
+The candidate workflow also failed to bind provider pricing explicitly to `ETF_EU_REPORT_DATE` and did not require funded consensus at the provider boundary.
+
+Repair authority:
+- `pricing/ucits_close_price_validation_contract_v2.py`
+- `tools/validate_ucits_close_price_validation_basket_results.py`
+- `runtime/build_etf_eu_client_grade_report_state_v2.py`
+- `.github/workflows/run-weekly-etf-eu-routine.yml`
+
+Required current behavior:
+
+```text
+candidate request report_date
+→ provider qualification on that exact date
+→ ucits_close_price_validation_basket_results_v2
+→ funded two-provider consensus + exact-line identity gate
+→ v2 validator
+→ v2 normalized state
+→ candidate package
+```
+
+Any v1 schema, report-date drift, missing funded line, one-provider funded evidence or failed funded pricing gate must fail closed.
+
+## P0 blocker B — Markdown delivery-state consistency
+
+The failed candidate still had a hard-coded Markdown reconciliation path that could state `three funded UCITS positions`, omit L0CK and describe only VWCE/EUNA/SXR8 even though protected state contains four funded positions.
+
+Repair authority:
+- `runtime/reconcile_etf_eu_funded_markdown.py`
+- `tools/validate_etf_eu_markdown_delivery_artifacts.py`
+- `.github/workflows/run-weekly-etf-eu-routine.yml`
+
+Required current behavior:
+- NL/EN Markdown funded count is dynamic from protected/current normalized state;
+- funded ticker set is dynamic and includes L0CK;
+- retired three-position, strategic/phase-target and fixed 7.50% reserve wording fails closed;
+- Markdown is validated as a real delivery artifact, not merely an audit companion.
 
 ## Protected portfolio authority
 
-Authority:
+Authority remains:
 
 `output/etf_eu_portfolio_state.json`
 
@@ -50,25 +103,15 @@ model_portfolio_only=true
 real_broker_execution=false
 ```
 
-This repair line does not change shares, cash or the trade ledger.
+This assurance-fail repair does not reopen allocation decisions and may not change shares, cash or the trade ledger.
 
-## Allocation authority
+## Allocation authority retained from the passed scope
 
 Canonical contract:
 
 `control/ETF_EU_ALLOCATION_AUTHORITY_V1.md`
 
-Authority order:
-
-```text
-explicit current allocation decision
-> protected portfolio state + trade ledger
-> current completed-close valuation + current recommendation evidence
-> current donor opportunity state mapped to verified UCITS lines
-> historical strategy/shadow context
-```
-
-Retired as current authority:
+Still retired as current authority:
 
 ```text
 50% maximum position
@@ -77,130 +120,34 @@ Retired as current authority:
 75% as a position cap
 ```
 
-Research/shadow only unless separately adopted:
+Still research/shadow only unless separately adopted:
 
 ```text
 25% turnover
 18% AI-compute/semiconductor cap
 ```
 
-Donor numeric disciplines retained only with their correct semantics:
-- cash >3% plus a fully fundable actionable lane = deploy-or-explain review trigger, not a cash target;
-- cash >5% = material cash disclosure/classification trigger, not a cash floor;
-- roughly 40% effective single-factor exposure = concentration disclosure trigger, not a position/theme cap.
+Donor cash >3%/>5% and ~40% factor thresholds remain review/disclosure triggers, not allocation caps or target weights.
 
-Historical `strategic_target_weight_pct`, `phase_target_weight_pct` and `target_weight_pct` values are preserved only as non-current CAP01/transition audit metadata in normalized runtime state. They may not appear as current client targets or create Hold/Add/Reduce authority.
+No new stable allocation decision is needed in `DECISION_LOG.md` for this repair.
 
-## Donor-parity decision/state layer
+## Workflow/release boundary
 
-Current implementation provides per-funded-holding machine memory for:
-- fresh-cash test;
-- would-initiate-today;
-- would-initiate-at-current-weight;
-- fresh-cash implication;
-- thesis and implementation score;
-- replaceability and action clock;
-- replacement close/duel status;
-- contribution/drag;
-- factor overlap;
-- hedge/ballast validity;
-- cash-policy implication;
-- override/next-review fields;
-- required next action.
+PR #91 has been returned to draft implementation state. Any semantic repair creates a new candidate/head SHA and invalidates the earlier assurance cycle.
 
-Missing current evidence remains `UNRESOLVED`; an old `last_action=Hold`, prior purchase or historical target may not silently become a current Hold decision.
-
-`output/etf_eu_recommendation_scorecard.csv` is rebuilt per run and must contain exactly the funded ticker set, including L0CK.
-
-## Discovery/fundability layer
-
-Canonical contract:
-
-`control/ETF_EU_DISCOVERY_FUNDABILITY_CONTRACT_V1.md`
-
-Lineage:
+Required sequence:
 
 ```text
-donor broad discovery
-→ donor research proxy
-→ UCITS mapping
-→ ISIN/KID/exact trading line
-→ pricing
-→ current re-underwriting
-→ explicit allocation decision
+repair both blockers
+→ executable end-to-end candidate regression
+→ all exact-head PR gates green
+→ new implementation handover
+→ freeze new PR #91 head
+→ fresh independent assurance in a new issue
+→ merge only after PASS + unchanged head
+→ exact-main validation and lifecycle closeout
+→ separate fresh-report production cycle
+→ separate guarded delivery authority
 ```
 
-Mapping or pricing alone cannot fund a position. Unresolved identity, KID, exact-line, pricing or policy conditions fail closed.
-
-## Client/output layer
-
-A P0 shadow-renderer defect was found during the donor cross-audit: the funded renderer was rebuilding the old three-position/CAP01 surface after normalization, including a 7.50% reserve floor and strategic/phase target copy.
-
-That overlay is now removed. Current behavior:
-- allocation map comes from normalized current state;
-- funded position count is dynamic and includes L0CK;
-- historical target fields are not rendered as current targets;
-- current-position table shows current weight plus re-underwriting status, not phase target;
-- renderer fails closed on retired target/fixed-reserve/three-position phrases;
-- every funded ticker must appear on the client surface.
-
-NL and EN remain companion renders from one normalized state.
-
-## Operational workflow authority
-
-Canonical topology:
-
-`control/ETF_EU_WORKFLOW_AUTHORITY_INDEX_V1.md`
-
-### Candidate
-`.github/workflows/run-weekly-etf-eu-routine.yml`
-- non-main candidate branch only;
-- build, pricing, normalization, bilingual rendering, machine validation and review evidence;
-- may persist generated candidate evidence only to the candidate branch;
-- cannot self-assure, merge, deliver or execute a broker action.
-
-### Independent assurance
-A separate `governance_release_assurance` reviewer must review one exact frozen candidate head and return:
-
-`PASS | FAIL | INDETERMINATE`
-
-Machine preflight is supporting evidence only and cannot issue independent assurance, merge authority or delivery authority.
-
-### Delivery
-`.github/workflows/send-weekly-etf-eu-controlled-transport.yml` is the only active real delivery route. It is main-only and requires:
-- exact independently assured candidate head;
-- approved report commit in main lineage;
-- independent PASS reference;
-- principal guarded-send authorization;
-- SHA-256 binding for all six NL/EN MD/HTML/PDF artifacts.
-
-Transport does not re-render the approved report. Inbox delivery is not successful until positive receipt evidence exists.
-
-## Historical workflow cleanup
-
-Twenty historical activation/send/repair/preview/client-like shadow workflows are retained only as `.yml.disabled` audit history and cannot execute through GitHub Actions.
-
-The twentieth retirement is the old 2026-07-27 allocator `sister report` shadow route. It consumed the historical transition allocator and rendered a parallel client-like report. The underlying donor/allocator research artifacts may remain diagnostic, but that route no longer has client-output authority.
-
-The immutable donor pin now registers exactly three active research-only donor-shadow workflows plus the disabled sister-report path as retired audit evidence.
-
-Historical transition and CAP01 allocation YAML files are explicitly `HISTORICAL_NON_EXECUTABLE`.
-
-## Validation status
-
-The last fully green semantic implementation baseline before final administrative/workflow-authority closeout is `010b15152542efb931c5989584ffdea46f04363a`:
-- donor-parity regression suite: PASS;
-- funded-renderer authority regression: PASS;
-- product-boundary validation: PASS;
-- target-allocator shadow validation: PASS;
-- transition-composition replay: PASS;
-- shadow-CID transport validation: PASS;
-- release evidence machine-preflight validation: PASS.
-
-After retiring the allocator sister-report route, its removal temporarily caused the remaining donor-shadow validators to fail because the immutable donor pin still required the retired workflow. The pin and its validator have now been reconciled to three active research-only donor consumers plus one retired audit path. A fresh exact-head CI cycle is therefore the final implementation gate before handover.
-
-## Release boundary
-
-PR #91 is not independently assured yet and remains draft during implementation closeout.
-
-No merge, report delivery, portfolio mutation, ledger mutation or real broker execution is authorized by this state.
+No email send or broker execution is authorized by this repair mandate.
