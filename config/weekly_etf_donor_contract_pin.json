@@ -15,14 +15,17 @@
   "workflow_paths": [
     ".github/workflows/validate-etf-eu-strategy-sync-shadow.yml",
     ".github/workflows/validate-etf-eu-target-allocator-shadow.yml",
-    ".github/workflows/validate-etf-eu-transition-replay.yml",
-    ".github/workflows/validate-etf-eu-allocator-report-shadow.yml"
+    ".github/workflows/validate-etf-eu-transition-replay.yml"
+  ],
+  "retired_workflow_paths": [
+    ".github/workflows/validate-etf-eu-allocator-report-shadow.yml.disabled"
   ],
   "authority": {
     "portfolio_mutation": false,
     "funding_authority": false,
     "execution_authority": false,
-    "production_delivery_authority": false
+    "production_delivery_authority": false,
+    "client_report_render_authority": false
   },
   "rollback": {
     "last_accepted_donor_commit_sha": "455201b4736dda41df07644d78b6797282a29fc7",
