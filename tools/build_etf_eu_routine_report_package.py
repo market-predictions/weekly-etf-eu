@@ -8,6 +8,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
+from pricing.ucits_close_price_validation_contract_v2 import validate_artifact as validate_v2_pricing
 from runtime.render_etf_eu_client_report import render_report
 from runtime.scrub_etf_eu_client_surface import sanitize_text
 
@@ -130,7 +131,7 @@ def _markdown_nl(report_date: str, state: dict[str, Any], pricing: dict[str, Any
 - **Actie:** geen transactie; EUR 100.000 cash behouden.
 - **Reden:** de portefeuille bevat nog geen gefinancierde UCITS-posities en de huidige prijsrun levert marktobservaties, geen zelfstandige basis voor aankoop of waardering.
 - **Beste operationele kandidaat:** de geverifieerde S&P 500 UCITS-lijnen blijven het verst gevorderd voor verdere bevestiging bij de broker en van de handelslijn.
-- **Niet doen:** geen thematische of goudblootstelling financieren zolang identiteit, KID, handelslijn of productbeleid niet volledig zijn gevalideerd.
+- **Niet doen:** do not allocate capital to thematic or gold exposure until identity, KID, trading-line and product-policy checks are complete.
 
 ## 2. Portefeuille en kapitaal
 
@@ -234,14 +235,25 @@ The displayed prices are market observations from the current routine run and do
 """
 
 
+def _validate_canonical_pricing(args: argparse.Namespace) -> dict[str, Any]:
+    result = validate_v2_pricing(
+        Path(args.pricing_artifact),
+        expected_report_date=args.report_date,
+        portfolio_state_path=Path(args.portfolio_state),
+        require_funded_consensus=True,
+    )
+    if result["valid"] is not True:
+        raise SystemExit("Canonical v2 pricing contract failed for package generation: " + "; ".join(result["blockers"]))
+    return result
+
+
 def build(args: argparse.Namespace) -> dict[str, Path]:
     output_dir = Path(args.output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
     state = _load_json(Path(args.portfolio_state))
     pricing = _load_json(Path(args.pricing_artifact))
+    pricing_validation = _validate_canonical_pricing(args)
     rows = _pricing_rows(pricing)
-    if pricing.get("min_threshold_met") is not True or len([r for r in rows if r.get("close_price") is not None]) < 8:
-        raise SystemExit("Fresh pricing coverage is insufficient for routine publication")
 
     nl_md = output_dir / f"weekly_etf_eu_review_nl_{args.report_suffix}.md"
     en_md = output_dir / f"weekly_etf_eu_review_{args.report_suffix}.md"
@@ -272,6 +284,9 @@ def build(args: argparse.Namespace) -> dict[str, Path]:
         "report_date": args.report_date,
         "report_suffix": args.report_suffix,
         "pricing_as_of": latest_close,
+        "pricing_contract_schema": "ucits_close_price_validation_basket_results_v2",
+        "pricing_contract_validation": pricing_validation,
+        "funded_two_provider_consensus_required": True,
         "source_of_truth_repo": SOURCE_REPO,
         "reference_architecture_repo": DONOR_REPO,
         "upstream_pattern_adapted": UPSTREAM_PATTERN,
@@ -305,7 +320,7 @@ def build(args: argparse.Namespace) -> dict[str, Path]:
         "send_executed": False,
         "transport_attempted": False,
         "receipt_confirmed": False,
-        "valuation_grade": False,
+        "valuation_grade": pricing_validation["report_pricing_gate_passed"],
         "funding_authority": False,
         "portfolio_mutation": False,
         "production_delivery_authority": False,
@@ -337,6 +352,8 @@ def build(args: argparse.Namespace) -> dict[str, Path]:
         "report_date": args.report_date,
         "report_suffix": args.report_suffix,
         "fresh_generation_package_manifest": str(manifest_path),
+        "pricing_contract_schema": "ucits_close_price_validation_basket_results_v2",
+        "funded_two_provider_consensus_required": True,
         "client_surface_clean": False,
         "authority_metadata_absent": False,
         "raw_status_enums_absent": False,
@@ -348,7 +365,7 @@ def build(args: argparse.Namespace) -> dict[str, Path]:
         "send_executed": False,
         "transport_attempted": False,
         "receipt_confirmed": False,
-        "valuation_grade": False,
+        "valuation_grade": pricing_validation["report_pricing_gate_passed"],
         "funding_authority": False,
         "portfolio_mutation": False,
         "production_delivery_authority": False,
