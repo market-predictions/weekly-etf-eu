@@ -29,14 +29,14 @@ def build_state(args: Namespace) -> dict[str, Any]:
         )
 
     pricing_payload = json.loads(pricing_path.read_text(encoding="utf-8"))
-    # The legacy state constructor is retained as an internal layout helper only.
-    # Its historical min_threshold_met check is satisfied in an ephemeral copy;
-    # the canonical production authority is the v2 contract validated above.
+    # The legacy state constructor is retained strictly as an internal layout helper.
+    # Its historical min_threshold_met input is satisfied only in an ephemeral copy;
+    # current pricing authority is the shared v2 contract validated above and persisted below.
     compatibility_payload = dict(pricing_payload)
     compatibility_payload["min_threshold_met"] = True
 
     with tempfile.TemporaryDirectory(prefix="etf_eu_pricing_v2_") as tmpdir:
-        compatibility_path = Path(tmpdir) / "pricing_v2_compat.json"
+        compatibility_path = Path(tmpdir) / "pricing_v2_layout_compat.json"
         compatibility_path.write_text(
             json.dumps(compatibility_payload, indent=2, sort_keys=True) + "\n",
             encoding="utf-8",
@@ -58,6 +58,8 @@ def build_state(args: Namespace) -> dict[str, Any]:
             "contract_validation": pricing_validation,
             "report_date": pricing_payload.get("report_date"),
             "report_pricing_gate_passed": pricing_payload.get("report_pricing_gate_passed") is True,
+            "funded_position_count": pricing_validation["funded_position_count"],
+            "funded_evidence": pricing_validation["funded_evidence"],
             "funded_two_provider_consensus_required": True,
             "pricing_authority": "canonical_v2_completed_close_contract",
         }
@@ -66,7 +68,10 @@ def build_state(args: Namespace) -> dict[str, Any]:
         "schema_version": SCHEMA_VERSION,
         "artifact": str(pricing_path),
         "expected_report_date": args.report_date,
+        "report_date": pricing_validation["report_date"],
         "report_pricing_gate_passed": pricing_payload.get("report_pricing_gate_passed") is True,
+        "funded_position_count": pricing_validation["funded_position_count"],
+        "funded_evidence": pricing_validation["funded_evidence"],
         "funded_two_provider_consensus_required": True,
         "validation": pricing_validation,
     }
