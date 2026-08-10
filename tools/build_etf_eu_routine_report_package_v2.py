@@ -6,7 +6,7 @@ from argparse import Namespace
 from pathlib import Path
 from typing import Any
 
-from runtime.apply_etf_eu_donor_parity_contract import apply_contract
+from runtime.apply_etf_eu_donor_parity_contract import apply_contract, write_recommendation_scorecard
 from runtime.build_etf_eu_client_grade_report_state import build_state
 from runtime.inject_etf_eu_funded_identity_strip import inject_funded_identity_strip
 from runtime.polish_etf_eu_client_grade_html import polish
@@ -47,10 +47,8 @@ def build(args: argparse.Namespace) -> dict[str, Path]:
     if state.get("state_valid") is not True:
         raise RuntimeError(f"Client-grade v2 state is invalid: {state.get('blockers')}")
 
-    # Canonical post-build normalization. Legacy state builders may still contain
-    # transition-era display assumptions; this layer makes them non-authoritative
-    # before any NL/EN client rendering occurs.
     state = apply_contract(state)
+    write_recommendation_scorecard(state, Path(args.recommendation_scorecard), args.report_date, args.run_id)
     _write(state_path, state)
 
     nl_html = output_dir / f"weekly_etf_eu_review_nl_{args.report_suffix}.html"
@@ -89,6 +87,7 @@ def build(args: argparse.Namespace) -> dict[str, Path]:
         "renderer_engine": "weasyprint",
         "render_source_authority": "normalized_report_state_plus_donor_parity_contract",
         "normalized_report_state": str(state_path),
+        "recommendation_scorecard": args.recommendation_scorecard,
         "allocation_authority_contract": "control/ETF_EU_ALLOCATION_AUTHORITY_V1.md",
         "donor_parity_contract": "runtime/apply_etf_eu_donor_parity_contract.py",
         "shadow_transition_policy_current_authority": False,
@@ -121,6 +120,7 @@ def build(args: argparse.Namespace) -> dict[str, Path]:
     return {
         **legacy_outputs,
         "state": state_path,
+        "recommendation_scorecard": Path(args.recommendation_scorecard),
         "dutch_html": nl_html,
         "english_html": en_html,
         "dutch_pdf": nl_pdf,
