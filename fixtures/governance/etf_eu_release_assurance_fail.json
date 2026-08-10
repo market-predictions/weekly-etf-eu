@@ -1,14 +1,14 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
+  "artifact_type": "etf_eu_release_evidence_preflight",
   "product": "weekly_etf_eu",
-  "decision": "FAIL",
+  "machine_preflight_status": "FAIL",
   "implementation_role": "implementation_operations",
-  "assurance_role": "governance_release_assurance",
-  "separation_of_duties": {
-    "same_role": false,
-    "implementation_may_self_certify": false,
-    "assurance_may_mutate_release_candidate": false
-  },
+  "required_assurance_role": "governance_release_assurance",
+  "independent_assurance_verdict": null,
+  "independent_assurance_required": true,
+  "merge_authority": false,
+  "delivery_authority": false,
   "identity": {
     "source_sha": "de2a8b6ec2811adda674aa9ec4f7903dba1dac6d",
     "run_id": "20260805_123456",
@@ -24,7 +24,7 @@
     {"id": "manifest_identity_consistent", "passed": true, "evidence": {}},
     {"id": "visual_review_passed", "passed": false, "evidence": {"blockers": ["rendered page defect"]}},
     {"id": "delivery_queue_bound", "passed": true, "evidence": {}},
-    {"id": "roles_separated", "passed": true, "evidence": {}}
+    {"id": "independent_assurance_not_claimed", "passed": true, "evidence": {}}
   ],
   "artifact_hashes": {
     "nl_html": {"path": "output/fresh_generation/nl.html", "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"},
