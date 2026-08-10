@@ -104,3 +104,42 @@ def test_delegated_patch_path_does_not_recurse() -> None:
     assert "10.41%" not in summary
     vvsm = next(row for row in soup.select("#section-8 tbody tr") if "VVSM" in row.get_text(" ", strip=True))
     assert "Monitored / unfunded" in vvsm.get_text(" ", strip=True)
+
+
+def test_section_13_resync_accepts_canonical_l0ck_exposure_without_legacy_incumbent() -> None:
+    soup = BeautifulSoup(
+        """
+        <html><body><section id="section-13"><table class="final-alignment-table"><tbody>
+          <tr><td>AI compute</td><td>VVSM · IE00BMC38736</td><td>0.00%</td><td>14.88%</td><td>+14.88%</td><td>Review</td><td>Cash</td><td>3.92</td><td>stale</td><td>Blocked</td></tr>
+          <tr><td>Cyber</td><td>L0CK · IE00BG0J4C88</td><td>10.16%</td><td>10.16%</td><td>0.00%</td><td>Hold</td><td>No allocation</td><td>4.93</td><td>authoritative</td><td>active</td></tr>
+          <tr><td>Cash</td><td>CASH</td><td>49.95%</td><td>49.95%</td><td>0.00%</td><td>Hold</td><td>No allocation</td><td>—</td><td>stale</td><td>No change</td></tr>
+          <tr><td>VWCE</td><td>Fund</td><td>25.24%</td><td>25.24%</td><td>0.00%</td><td>Hold</td><td>No change</td><td>—</td><td>stale</td><td>No change</td></tr>
+          <tr><td>EUNA</td><td>Fund</td><td>7.46%</td><td>7.46%</td><td>0.00%</td><td>Hold</td><td>No change</td><td>—</td><td>stale</td><td>No change</td></tr>
+          <tr><td>SXR8</td><td>Fund</td><td>7.19%</td><td>7.19%</td><td>0.00%</td><td>Hold</td><td>No change</td><td>—</td><td>stale</td><td>No change</td></tr>
+        </tbody></table></section></body></html>
+        """,
+        "html.parser",
+    )
+    contract = {"cash_weight_pct": 49.95}
+    positions = {
+        "VWCE": {"client_weight_pct": 25.244729},
+        "EUNA": {"client_weight_pct": 7.456904},
+        "SXR8": {"client_weight_pct": 7.187384},
+        "L0CK": {"client_weight_pct": 10.158455},
+    }
+
+    surface._sync_13_after_client_surface_supersession(soup, contract, positions, "en")
+
+    table = soup.select_one("#section-13 table.final-alignment-table")
+    rows = table.select("tbody tr")
+    ticker_l0ck_rows = [
+        row for row in rows if row.find_all("td", recursive=False)[0].get_text(" ", strip=True).upper() == "L0CK"
+    ]
+    assert ticker_l0ck_rows == []
+    exposure_rows = [row for row in rows if surface.legacy.L0CK_ISIN in row.get_text(" ", strip=True)]
+    assert len(exposure_rows) == 1
+    exposure_text = exposure_rows[0].get_text(" ", strip=True)
+    assert "10.16% 10.16% 0.00%" in exposure_text
+    assert "Model position active; no execution" in exposure_text
+
+# CI retrigger: validate persisted V3 package lineage on exact PR head.

@@ -10,11 +10,12 @@ from weasyprint import HTML
 from runtime import synchronize_etf_eu_current_state_surface as legacy
 
 
-CLIENT_STATE_CONTRACT = "authoritative_four_position_current_state_v4"
-# Capture the v1 implementation once, before synchronize_manifest temporarily
-# replaces legacy._sync_8. Calling legacy._sync_8 from the wrapper after that
+CLIENT_STATE_CONTRACT = "authoritative_four_position_current_state_v5"
+# Capture the v1 implementations once, before synchronize_manifest temporarily
+# replaces them. Calling legacy._sync_8 or legacy._sync_13 from a wrapper after
 # replacement would recurse into the wrapper itself.
 _BASE_SYNC_8 = legacy._sync_8
+_BASE_SYNC_13 = legacy._sync_13
 
 NL_SECTION9_SENTENCE_MAP = {
     "More useful if broad equity leadership narrows further.":
@@ -27,6 +28,13 @@ NL_SECTION9_SENTENCE_MAP = {
         "Wordt relevanter als aandelenbeta verzwakt en defensieve infrastructuur relatief verbetert.",
     "The lane remains relevant, but PPA must justify itself versus ITA.":
         "Het thema blijft relevant, maar PPA moet zijn relatieve meerwaarde ten opzichte van ITA aantonen.",
+}
+
+RETIRED_SECTION14_CONTROLS = {
+    "max. nieuwe etf",
+    "max nieuwe etf",
+    "max. new etf",
+    "max new etf",
 }
 
 
@@ -54,10 +62,6 @@ def _sync_8_with_authoritative_coverage(
         summary.append(strong)
         summary.append(". This measures the same exposures; broad core funds do not count as substitutes for another thematic exposure.")
 
-    # VVSM is an exact mapped analytical line with a current close, but the
-    # authoritative Stage-1 contract keeps it monitored and unfunded because
-    # the strategy/promotion gate has not passed. Do not misdescribe the gap as
-    # missing pricing evidence.
     tables = section.find_all("table")
     if len(tables) < 2:
         raise RuntimeError("Section 8 exposure-alignment table missing")
@@ -86,6 +90,46 @@ def _sync_8_with_authoritative_coverage(
         )
 
 
+def _sync_13_after_client_surface_supersession(
+    soup: BeautifulSoup,
+    contract: dict[str, Any],
+    positions: dict[str, dict[str, Any]],
+    lang: str,
+) -> None:
+    """Keep v1 Section-13 logic idempotent after stale L0CK-row removal."""
+    table = legacy._section(soup, "13").find("table", class_="final-alignment-table")
+    if not isinstance(table, Tag):
+        raise RuntimeError("Section 13 final action table missing")
+
+    incumbent_rows = [
+        row
+        for row in table.select("tbody tr")
+        if legacy._cells(row, 1, "Section 13 row")[0].get_text(" ", strip=True).upper() == "L0CK"
+    ]
+    if len(incumbent_rows) > 1:
+        raise RuntimeError(f"Section 13 duplicate L0CK incumbent rows before synchronization: {len(incumbent_rows)}")
+
+    synthetic_row: Tag | None = None
+    if not incumbent_rows:
+        exposure_row = legacy._row(table, legacy.L0CK_ISIN)
+        clone = BeautifulSoup(str(exposure_row), "html.parser").find("tr")
+        if not isinstance(clone, Tag):
+            raise RuntimeError("Unable to clone authoritative Section 13 L0CK exposure row")
+        cells = legacy._cells(clone, 10, "Synthetic Section 13 L0CK incumbent")
+        legacy._set(cells, 0, "L0CK")
+        tbody = table.find("tbody")
+        if not isinstance(tbody, Tag):
+            raise RuntimeError("Section 13 table body missing")
+        tbody.append(clone)
+        synthetic_row = clone
+
+    try:
+        _BASE_SYNC_13(soup, contract, positions, lang)
+    finally:
+        if synthetic_row is not None and synthetic_row.parent is not None:
+            synthetic_row.decompose()
+
+
 def _sync_nl_section9_language(html_path: Path, pdf_path: Path) -> None:
     soup = BeautifulSoup(html_path.read_text(encoding="utf-8"), "html.parser")
     section = legacy._section(soup, "9")
@@ -102,6 +146,41 @@ def _sync_nl_section9_language(html_path: Path, pdf_path: Path) -> None:
     leaked = [source for source in NL_SECTION9_SENTENCE_MAP if source in section_text]
     if leaked:
         raise RuntimeError(f"Dutch Section 9 still contains English client sentences: {leaked}")
+    if changed:
+        html_path.write_text(str(soup), encoding="utf-8")
+        HTML(filename=str(html_path), base_url=str(html_path.parent.resolve())).write_pdf(str(pdf_path))
+
+
+def _sync_section14_current_controls(html_path: Path, pdf_path: Path) -> None:
+    """Remove retired max-new-ETF limits from the current client control table.
+
+    Historical/shadow allocator variants may remain explicitly labelled as alternatives;
+    this function only prevents retired allocation constraints from being presented as
+    active current controls in Section 14.
+    """
+    soup = BeautifulSoup(html_path.read_text(encoding="utf-8"), "html.parser")
+    section = legacy._section(soup, "14")
+    table = section.find("table", class_="allocator-policy-table")
+    if not isinstance(table, Tag):
+        raise RuntimeError("Section 14 current allocator policy table missing")
+
+    changed = False
+    for row in list(table.select("tbody tr")):
+        cells = row.find_all("td", recursive=False)
+        if not cells:
+            continue
+        label = " ".join(cells[0].get_text(" ", strip=True).casefold().split())
+        if label in RETIRED_SECTION14_CONTROLS:
+            row.decompose()
+            changed = True
+
+    current_text = " ".join(table.get_text(" ", strip=True).casefold().split())
+    if any(label in current_text for label in RETIRED_SECTION14_CONTROLS):
+        raise RuntimeError("Section 14 still exposes a retired max-new-ETF control")
+    for required in ("25", "18", "3.10"):
+        if required not in current_text.replace(",", "."):
+            raise RuntimeError(f"Section 14 required current control missing after supersession: {required}")
+
     if changed:
         html_path.write_text(str(soup), encoding="utf-8")
         HTML(filename=str(html_path), base_url=str(html_path.parent.resolve())).write_pdf(str(pdf_path))
@@ -146,11 +225,14 @@ def synchronize_manifest(manifest_path: Path, state_path: Path) -> None:
     state = json.loads(state_path.read_text(encoding="utf-8"))
     _, positions = legacy.contract(state)
     original_sync_8 = legacy._sync_8
+    original_sync_13 = legacy._sync_13
     legacy._sync_8 = _sync_8_with_authoritative_coverage
+    legacy._sync_13 = _sync_13_after_client_surface_supersession
     try:
         legacy.synchronize_manifest(manifest_path, state_path)
     finally:
         legacy._sync_8 = original_sync_8
+        legacy._sync_13 = original_sync_13
 
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
     for lang in ("nl", "en"):
@@ -161,6 +243,7 @@ def synchronize_manifest(manifest_path: Path, state_path: Path) -> None:
         pdf_path = Path(str(record["pdf"]))
         if lang == "nl":
             _sync_nl_section9_language(html_path, pdf_path)
+        _sync_section14_current_controls(html_path, pdf_path)
         _validate_section_8_current_state(html_path, positions, lang)
         record["activated_client_state_contract"] = CLIENT_STATE_CONTRACT
     contract = manifest.get("activated_client_state_contract")
@@ -169,8 +252,11 @@ def synchronize_manifest(manifest_path: Path, state_path: Path) -> None:
         contract["section_8_exact_donor_exposure_coverage"] = "derived_from_authoritative_l0ck_weight"
         contract["section_8_vvsm_status"] = "monitored_unfunded_current_close_available_strategy_promotion_gate_not_passed"
         contract["nl_section_9_client_language"] = "deterministic_dutch_sentences_v1"
+        contract["section_13_l0ck_incumbent_semantics"] = "canonical_exposure_row_only_after_supersession"
+        contract["section_14_retired_max_new_etf_control"] = "removed_from_current_client_control_table"
     manifest_path.write_text(json.dumps(manifest, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     print(
-        "ETF_EU_CURRENT_CLIENT_STATE_V4_OK | authority=current_L0CK_weight | "
-        "VVSM=monitored_unfunded_current_close_available | nl_section9=dutch | broad_core_substitution=false"
+        "ETF_EU_CURRENT_CLIENT_STATE_V5_OK | authority=current_L0CK_weight | "
+        "VVSM=monitored_unfunded_current_close_available | nl_section9=dutch | broad_core_substitution=false | "
+        "section13_L0CK=canonical_exposure_row_only | section14_retired_max_new_etf=removed"
     )

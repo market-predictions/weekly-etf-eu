@@ -1,0 +1,552 @@
+{
+  "failed_line_count": 1,
+  "funding_authority": false,
+  "generated_at_utc": "2026-08-09T22:45:22Z",
+  "line_count": 13,
+  "portfolio_mutation": false,
+  "priced_line_count": 12,
+  "production_delivery_authority": false,
+  "provider_configuration": {
+    "alpha_vantage": {
+      "configured": true,
+      "secret_env": "ALPHA_VANTAGE_API_KEY"
+    },
+    "eodhd": {
+      "configured": false,
+      "secret_env": "EODHD_API_TOKEN"
+    },
+    "leeway": {
+      "configured": false,
+      "secret_env": "LEEWAY_API_TOKEN"
+    },
+    "marketstack": {
+      "configured": false,
+      "secret_env": "MARKETSTACK_ACCESS_KEY"
+    },
+    "yahoo_chart": {
+      "configured": true,
+      "secret_env": null
+    }
+  },
+  "report_date": "2026-08-05",
+  "report_pricing_gate_passed": true,
+  "rows": [
+    {
+      "agreeing_providers": [
+        "alpha_vantage",
+        "yahoo_chart"
+      ],
+      "agreement_spread_pct": 4e-06,
+      "basket_id": "vwce_xetra_eur",
+      "blockers": [
+        "missing_secret:EODHD_API_TOKEN",
+        "missing_secret:LEEWAY_API_TOKEN",
+        "missing_secret:MARKETSTACK_ACCESS_KEY"
+      ],
+      "close_date": "2026-08-05",
+      "close_price": 168.03999665,
+      "completed_close_on_or_before_report_date": true,
+      "currency": "EUR",
+      "exchange": "Xetra",
+      "fund_name": "Vanguard FTSE All-World UCITS ETF USD Acc",
+      "fundable": false,
+      "instrument_type": "UCITS ETF",
+      "isin": "IE00BK5BQT80",
+      "observed_at_utc": "2026-08-09T22:45:06Z",
+      "pricing_status": "priced_non_authoritative",
+      "provider_symbols": {
+        "alpha_vantage": "VWCE.DEX",
+        "eodhd": "VWCE.XETRA",
+        "leeway": "VWCE.XETRA",
+        "marketstack": "VWCE",
+        "yahoo_chart": "VWCE.DE"
+      },
+      "requested_report_date": "2026-08-05",
+      "source_agreement_status": "qualified_development_consensus",
+      "source_id": "provider_consensus",
+      "source_name": "Development provider consensus",
+      "source_quality_status": "development_consensus",
+      "ticker": "VWCE",
+      "valuation_grade": true,
+      "venue_code": "XETR"
+    },
+    {
+      "agreeing_providers": [
+        "alpha_vantage",
+        "yahoo_chart"
+      ],
+      "agreement_spread_pct": 2e-06,
+      "basket_id": "euna_xetra_eur",
+      "blockers": [
+        "missing_secret:EODHD_API_TOKEN",
+        "missing_secret:LEEWAY_API_TOKEN",
+        "missing_secret:MARKETSTACK_ACCESS_KEY"
+      ],
+      "close_date": "2026-08-05",
+      "close_price": 4.91160006,
+      "completed_close_on_or_before_report_date": true,
+      "currency": "EUR",
+      "exchange": "Xetra",
+      "fund_name": "iShares Core Global Aggregate Bond UCITS ETF EUR Hedged Acc",
+      "fundable": false,
+      "instrument_type": "UCITS ETF",
+      "isin": "IE00BDBRDM35",
+      "observed_at_utc": "2026-08-09T22:45:07Z",
+      "pricing_status": "priced_non_authoritative",
+      "provider_symbols": {
+        "alpha_vantage": "EUNA.DEX",
+        "eodhd": "EUNA.XETRA",
+        "leeway": "EUNA.XETRA",
+        "marketstack": "EUNA",
+        "yahoo_chart": "EUNA.DE"
+      },
+      "requested_report_date": "2026-08-05",
+      "source_agreement_status": "qualified_development_consensus",
+      "source_id": "provider_consensus",
+      "source_name": "Development provider consensus",
+      "source_quality_status": "development_consensus",
+      "ticker": "EUNA",
+      "valuation_grade": true,
+      "venue_code": "XETR"
+    },
+    {
+      "agreeing_providers": [
+        "alpha_vantage",
+        "yahoo_chart"
+      ],
+      "agreement_spread_pct": 2e-06,
+      "basket_id": "sxr8_xetra_eur",
+      "blockers": [
+        "missing_secret:EODHD_API_TOKEN",
+        "missing_secret:LEEWAY_API_TOKEN",
+        "missing_secret:MARKETSTACK_ACCESS_KEY"
+      ],
+      "close_date": "2026-08-05",
+      "close_price": 722.41999145,
+      "completed_close_on_or_before_report_date": true,
+      "currency": "EUR",
+      "exchange": "Xetra",
+      "fund_name": "iShares Core S&P 500 UCITS ETF USD Acc",
+      "fundable": false,
+      "instrument_type": "UCITS ETF",
+      "isin": "IE00B5BMR087",
+      "observed_at_utc": "2026-08-09T22:45:10Z",
+      "pricing_status": "priced_non_authoritative",
+      "provider_symbols": {
+        "alpha_vantage": "SXR8.DEX",
+        "eodhd": "SXR8.XETRA",
+        "leeway": "SXR8.XETRA",
+        "marketstack": "SXR8",
+        "yahoo_chart": "SXR8.DE"
+      },
+      "requested_report_date": "2026-08-05",
+      "source_agreement_status": "qualified_development_consensus",
+      "source_id": "provider_consensus",
+      "source_name": "Development provider consensus",
+      "source_quality_status": "development_consensus",
+      "ticker": "SXR8",
+      "valuation_grade": true,
+      "venue_code": "XETR"
+    },
+    {
+      "agreeing_providers": [
+        "alpha_vantage",
+        "yahoo_chart"
+      ],
+      "agreement_spread_pct": 1e-06,
+      "basket_id": "l0ck_xetra_eur",
+      "blockers": [
+        "missing_secret:EODHD_API_TOKEN",
+        "missing_secret:LEEWAY_API_TOKEN",
+        "missing_secret:MARKETSTACK_ACCESS_KEY"
+      ],
+      "close_date": "2026-08-05",
+      "close_price": 10.93200008,
+      "completed_close_on_or_before_report_date": true,
+      "currency": "EUR",
+      "exchange": "Xetra",
+      "fund_name": "iShares Digital Security UCITS ETF USD Acc",
+      "fundable": false,
+      "instrument_type": "UCITS ETF",
+      "isin": "IE00BG0J4C88",
+      "observed_at_utc": "2026-08-09T22:45:11Z",
+      "pricing_status": "priced_non_authoritative",
+      "provider_symbols": {
+        "alpha_vantage": "L0CK.DEX",
+        "eodhd": "L0CK.XETRA",
+        "leeway": "L0CK.XETRA",
+        "marketstack": "L0CK",
+        "yahoo_chart": "L0CK.DE"
+      },
+      "requested_report_date": "2026-08-05",
+      "source_agreement_status": "qualified_development_consensus",
+      "source_id": "provider_consensus",
+      "source_name": "Development provider consensus",
+      "source_quality_status": "development_consensus",
+      "ticker": "L0CK",
+      "valuation_grade": true,
+      "venue_code": "XETR"
+    },
+    {
+      "agreeing_providers": [
+        "yahoo_chart"
+      ],
+      "agreement_spread_pct": 0.0,
+      "basket_id": "vvsm_xetra_eur",
+      "blockers": [
+        "alpha_vantage_live_close_reserved_for_funded_positions",
+        "missing_secret:EODHD_API_TOKEN",
+        "missing_secret:LEEWAY_API_TOKEN",
+        "missing_secret:MARKETSTACK_ACCESS_KEY"
+      ],
+      "close_date": "2026-08-05",
+      "close_price": 93.33999634,
+      "completed_close_on_or_before_report_date": true,
+      "currency": "EUR",
+      "exchange": "Xetra",
+      "fund_name": "VanEck Semiconductor UCITS ETF",
+      "fundable": false,
+      "instrument_type": "UCITS ETF",
+      "isin": "IE00BMC38736",
+      "observed_at_utc": "2026-08-09T22:45:13Z",
+      "pricing_status": "priced_non_authoritative",
+      "provider_symbols": {
+        "alpha_vantage": "VVSM.DEX",
+        "eodhd": "VVSM.XETRA",
+        "leeway": "VVSM.XETRA",
+        "marketstack": "VVSM",
+        "yahoo_chart": "VVSM.DE"
+      },
+      "requested_report_date": "2026-08-05",
+      "source_agreement_status": "single_source_only",
+      "source_id": "yahoo_chart",
+      "source_name": "yahoo_chart completed-close evidence",
+      "source_quality_status": "development_single_source",
+      "ticker": "VVSM",
+      "valuation_grade": false,
+      "venue_code": "XETR"
+    },
+    {
+      "agreeing_providers": [],
+      "agreement_spread_pct": null,
+      "basket_id": "cbuff_xetra_eur",
+      "blockers": [
+        "alpha_vantage_live_close_reserved_for_funded_positions",
+        "http_error:404",
+        "missing_secret:EODHD_API_TOKEN",
+        "missing_secret:LEEWAY_API_TOKEN",
+        "missing_secret:MARKETSTACK_ACCESS_KEY"
+      ],
+      "close_date": null,
+      "close_price": null,
+      "completed_close_on_or_before_report_date": false,
+      "currency": "EUR",
+      "exchange": "Xetra",
+      "fund_name": "iShares MSCI World Health Care Sector Advanced UCITS ETF USD Dist",
+      "fundable": false,
+      "instrument_type": "UCITS ETF",
+      "isin": "IE00BJ5JNZ06",
+      "observed_at_utc": "2026-08-09T22:45:22Z",
+      "pricing_status": "fetch_failed",
+      "provider_symbols": {
+        "alpha_vantage": "CBUF.DEX",
+        "eodhd": "CBUF.XETRA",
+        "leeway": "CBUF.XETRA",
+        "marketstack": "CBUF",
+        "yahoo_chart": "WHCS.DE"
+      },
+      "requested_report_date": "2026-08-05",
+      "source_agreement_status": "unpriced",
+      "source_id": "none",
+      "source_name": "No provider completed-close evidence",
+      "source_quality_status": "development_single_source",
+      "ticker": "CBUF",
+      "valuation_grade": false,
+      "venue_code": "XETR"
+    },
+    {
+      "agreeing_providers": [
+        "yahoo_chart"
+      ],
+      "agreement_spread_pct": 0.0,
+      "basket_id": "isae_xams_eur",
+      "blockers": [
+        "alpha_vantage_live_close_reserved_for_funded_positions",
+        "missing_secret:EODHD_API_TOKEN",
+        "missing_secret:LEEWAY_API_TOKEN",
+        "missing_secret:MARKETSTACK_ACCESS_KEY"
+      ],
+      "close_date": "2026-08-05",
+      "close_price": 48.06000137,
+      "completed_close_on_or_before_report_date": true,
+      "currency": "EUR",
+      "exchange": "Euronext Amsterdam",
+      "fund_name": "iShares Agribusiness UCITS ETF USD Acc",
+      "fundable": false,
+      "instrument_type": "UCITS ETF",
+      "isin": "IE00B6R52143",
+      "observed_at_utc": "2026-08-09T22:45:15Z",
+      "pricing_status": "priced_non_authoritative",
+      "provider_symbols": {
+        "alpha_vantage": "ISAE.AMS",
+        "eodhd": "ISAE.AS",
+        "leeway": "ISAE.AS",
+        "marketstack": "ISAE",
+        "yahoo_chart": "ISAE.AS"
+      },
+      "requested_report_date": "2026-08-05",
+      "source_agreement_status": "single_source_only",
+      "source_id": "yahoo_chart",
+      "source_name": "yahoo_chart completed-close evidence",
+      "source_quality_status": "development_single_source",
+      "ticker": "ISAE",
+      "valuation_grade": false,
+      "venue_code": "XAMS"
+    },
+    {
+      "agreeing_providers": [
+        "yahoo_chart"
+      ],
+      "agreement_spread_pct": 0.0,
+      "basket_id": "xmlc_xetra_eur",
+      "blockers": [
+        "alpha_vantage_live_close_reserved_for_funded_positions",
+        "missing_secret:EODHD_API_TOKEN",
+        "missing_secret:LEEWAY_API_TOKEN",
+        "missing_secret:MARKETSTACK_ACCESS_KEY"
+      ],
+      "close_date": "2026-08-05",
+      "close_price": 19.32999992,
+      "completed_close_on_or_before_report_date": true,
+      "currency": "EUR",
+      "exchange": "Xetra",
+      "fund_name": "L&G Clean Water UCITS ETF USD Acc",
+      "fundable": false,
+      "instrument_type": "UCITS ETF",
+      "isin": "IE00BK5BC891",
+      "observed_at_utc": "2026-08-09T22:45:16Z",
+      "pricing_status": "priced_non_authoritative",
+      "provider_symbols": {
+        "alpha_vantage": "XMLC.DEX",
+        "eodhd": "XMLC.XETRA",
+        "leeway": "XMLC.XETRA",
+        "marketstack": "XMLC",
+        "yahoo_chart": "XMLC.DE"
+      },
+      "requested_report_date": "2026-08-05",
+      "source_agreement_status": "single_source_only",
+      "source_id": "yahoo_chart",
+      "source_name": "yahoo_chart completed-close evidence",
+      "source_quality_status": "development_single_source",
+      "ticker": "XMLC",
+      "valuation_grade": false,
+      "venue_code": "XETR"
+    },
+    {
+      "agreeing_providers": [
+        "yahoo_chart"
+      ],
+      "agreement_spread_pct": 0.0,
+      "basket_id": "iqqq_xetra_eur",
+      "blockers": [
+        "alpha_vantage_live_close_reserved_for_funded_positions",
+        "missing_secret:EODHD_API_TOKEN",
+        "missing_secret:LEEWAY_API_TOKEN",
+        "missing_secret:MARKETSTACK_ACCESS_KEY"
+      ],
+      "close_date": "2026-08-05",
+      "close_price": 67.98000336,
+      "completed_close_on_or_before_report_date": true,
+      "currency": "EUR",
+      "exchange": "Xetra",
+      "fund_name": "iShares Global Water UCITS ETF USD Dist",
+      "fundable": false,
+      "instrument_type": "UCITS ETF",
+      "isin": "IE00B1TXK627",
+      "observed_at_utc": "2026-08-09T22:45:18Z",
+      "pricing_status": "priced_non_authoritative",
+      "provider_symbols": {
+        "alpha_vantage": "IQQQ.DEX",
+        "eodhd": "IQQQ.XETRA",
+        "leeway": "IQQQ.XETRA",
+        "marketstack": "IQQQ",
+        "yahoo_chart": "IQQQ.DE"
+      },
+      "requested_report_date": "2026-08-05",
+      "source_agreement_status": "single_source_only",
+      "source_id": "yahoo_chart",
+      "source_name": "yahoo_chart completed-close evidence",
+      "source_quality_status": "development_single_source",
+      "ticker": "IQQQ",
+      "valuation_grade": false,
+      "venue_code": "XETR"
+    },
+    {
+      "agreeing_providers": [
+        "yahoo_chart"
+      ],
+      "agreement_spread_pct": 0.0,
+      "basket_id": "dfen_xetra_eur",
+      "blockers": [
+        "alpha_vantage_live_close_reserved_for_funded_positions",
+        "missing_secret:EODHD_API_TOKEN",
+        "missing_secret:LEEWAY_API_TOKEN",
+        "missing_secret:MARKETSTACK_ACCESS_KEY"
+      ],
+      "close_date": "2026-08-05",
+      "close_price": 55.93000031,
+      "completed_close_on_or_before_report_date": true,
+      "currency": "EUR",
+      "exchange": "Xetra",
+      "fund_name": "VanEck Defense UCITS ETF",
+      "fundable": false,
+      "instrument_type": "UCITS ETF",
+      "isin": "IE000YYE6WK5",
+      "observed_at_utc": "2026-08-09T22:45:19Z",
+      "pricing_status": "priced_non_authoritative",
+      "provider_symbols": {
+        "alpha_vantage": "DFEN.DEX",
+        "eodhd": "DFEN.XETRA",
+        "leeway": "DFEN.XETRA",
+        "marketstack": "DFEN",
+        "yahoo_chart": "DFEN.DE"
+      },
+      "requested_report_date": "2026-08-05",
+      "source_agreement_status": "single_source_only",
+      "source_id": "yahoo_chart",
+      "source_name": "yahoo_chart completed-close evidence",
+      "source_quality_status": "development_single_source",
+      "ticker": "DFEN",
+      "valuation_grade": false,
+      "venue_code": "XETR"
+    },
+    {
+      "agreeing_providers": [
+        "yahoo_chart"
+      ],
+      "agreement_spread_pct": 0.0,
+      "basket_id": "cspx_lse_usd",
+      "blockers": [
+        "alpha_vantage_live_close_reserved_for_funded_positions",
+        "missing_secret:EODHD_API_TOKEN",
+        "missing_secret:LEEWAY_API_TOKEN",
+        "missing_secret:MARKETSTACK_ACCESS_KEY"
+      ],
+      "close_date": "2026-08-05",
+      "close_price": 834.15002441,
+      "completed_close_on_or_before_report_date": true,
+      "currency": "USD",
+      "exchange": "London Stock Exchange",
+      "fund_name": "iShares Core S&P 500 UCITS ETF USD Acc",
+      "fundable": false,
+      "instrument_type": "UCITS ETF",
+      "isin": "IE00B5BMR087",
+      "observed_at_utc": "2026-08-09T22:45:20Z",
+      "pricing_status": "priced_non_authoritative",
+      "provider_symbols": {
+        "alpha_vantage": "CSPX.LON",
+        "eodhd": "CSPX.LSE",
+        "leeway": "CSPX.LSE",
+        "marketstack": "CSPX",
+        "yahoo_chart": "CSPX.L"
+      },
+      "requested_report_date": "2026-08-05",
+      "source_agreement_status": "single_source_only",
+      "source_id": "yahoo_chart",
+      "source_name": "yahoo_chart completed-close evidence",
+      "source_quality_status": "development_single_source",
+      "ticker": "CSPX",
+      "valuation_grade": false,
+      "venue_code": "XLON"
+    },
+    {
+      "agreeing_providers": [
+        "yahoo_chart"
+      ],
+      "agreement_spread_pct": 0.0,
+      "basket_id": "iwda_xams_eur",
+      "blockers": [
+        "alpha_vantage_live_close_reserved_for_funded_positions",
+        "missing_secret:EODHD_API_TOKEN",
+        "missing_secret:LEEWAY_API_TOKEN",
+        "missing_secret:MARKETSTACK_ACCESS_KEY"
+      ],
+      "close_date": "2026-08-05",
+      "close_price": 128.25999451,
+      "completed_close_on_or_before_report_date": true,
+      "currency": "EUR",
+      "exchange": "Euronext Amsterdam",
+      "fund_name": "iShares Core MSCI World UCITS ETF USD Acc",
+      "fundable": false,
+      "instrument_type": "UCITS ETF",
+      "isin": "IE00B4L5Y983",
+      "observed_at_utc": "2026-08-09T22:45:21Z",
+      "pricing_status": "priced_non_authoritative",
+      "provider_symbols": {
+        "alpha_vantage": "IWDA.AMS",
+        "eodhd": "IWDA.AS",
+        "leeway": "IWDA.AS",
+        "marketstack": "IWDA",
+        "yahoo_chart": "IWDA.AS"
+      },
+      "requested_report_date": "2026-08-05",
+      "source_agreement_status": "single_source_only",
+      "source_id": "yahoo_chart",
+      "source_name": "yahoo_chart completed-close evidence",
+      "source_quality_status": "development_single_source",
+      "ticker": "IWDA",
+      "valuation_grade": false,
+      "venue_code": "XAMS"
+    },
+    {
+      "agreeing_providers": [
+        "yahoo_chart"
+      ],
+      "agreement_spread_pct": 0.0,
+      "basket_id": "cndx_lse_usd",
+      "blockers": [
+        "alpha_vantage_live_close_reserved_for_funded_positions",
+        "missing_secret:EODHD_API_TOKEN",
+        "missing_secret:LEEWAY_API_TOKEN",
+        "missing_secret:MARKETSTACK_ACCESS_KEY"
+      ],
+      "close_date": "2026-08-05",
+      "close_price": 1705.80004883,
+      "completed_close_on_or_before_report_date": true,
+      "currency": "USD",
+      "exchange": "London Stock Exchange",
+      "fund_name": "iShares NASDAQ 100 UCITS ETF USD Acc",
+      "fundable": false,
+      "instrument_type": "UCITS ETF",
+      "isin": "IE00B53SZB19",
+      "observed_at_utc": "2026-08-09T22:45:22Z",
+      "pricing_status": "priced_non_authoritative",
+      "provider_symbols": {
+        "alpha_vantage": "CNDX.LON",
+        "eodhd": "CNDX.LSE",
+        "leeway": "CNDX.LSE",
+        "marketstack": "CNDX",
+        "yahoo_chart": "CNDX.L"
+      },
+      "requested_report_date": "2026-08-05",
+      "source_agreement_status": "single_source_only",
+      "source_id": "yahoo_chart",
+      "source_name": "yahoo_chart completed-close evidence",
+      "source_quality_status": "development_single_source",
+      "ticker": "CNDX",
+      "valuation_grade": false,
+      "venue_code": "XLON"
+    }
+  ],
+  "run_id": "20260805_31340149892_1",
+  "schema_version": "ucits_close_price_validation_basket_results_v2",
+  "source_basket": "config/ucits_close_price_validation_basket.yml",
+  "source_chain": [
+    "leeway",
+    "eodhd",
+    "marketstack",
+    "alpha_vantage",
+    "yahoo_chart"
+  ],
+  "valuation_grade": true
+}
