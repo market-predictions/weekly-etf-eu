@@ -9,7 +9,7 @@ from tools.run_etf_eu_aug3_expanded_report_v5 import run_with_compact_model_prop
 ROUTES = {
     "pricing/build_current_session_close_results.py": "pricing/build_wp11a_current_session_compat.py",
     "runtime/add_etf_eu_current_close_monitor.py": "runtime/add_etf_eu_activated_allocation_surface_v2.py",
-    "runtime/build_etf_eu_production_convergence_state.py": "runtime/build_etf_eu_production_convergence_state_v2.py",
+    "runtime/build_etf_eu_production_convergence_state.py": "runtime/build_etf_eu_production_convergence_state_v3.py",
     "runtime/apply_etf_eu_routine_valuation_to_client_report.py": "runtime/apply_etf_eu_routine_valuation_to_client_report_v2.py",
     "runtime/finalize_etf_eu_sister_report_nl_language.py": "runtime/finalize_etf_eu_sister_report_nl_language_v2.py",
     "runtime/compact_etf_eu_policy_transition_surface.py": "runtime/compact_etf_eu_policy_transition_surface_v2.py",

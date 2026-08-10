@@ -19,11 +19,25 @@ Read in this order:
 3. `control/NEXT_ACTIONS.md`
 4. `control/WORK_CLAIMS.json`
 5. the active/superseding handover record referenced by the claim registry, when present
-6. `control/PROJECT_GOVERNANCE_BOOTSTRAP.md`
-7. `control/ETF_EU_TWO_ROLE_GOVERNANCE_MODEL_V1.md`
-8. the minimum relevant execution files
+6. the active roadmap/work package and current authority contract referenced by `CURRENT_STATE.md`
+7. `control/PROJECT_GOVERNANCE_BOOTSTRAP.md`
+8. `control/ETF_EU_TWO_ROLE_GOVERNANCE_MODEL_V1.md`
+9. the minimum relevant execution files
 
 Before continuing consequential work, reconcile the active claim against live GitHub branch, target, dependency, PR and handover state under the canonical control-plane lifecycle standard. Do not continue accumulating on a materially stale integration line.
+
+## Current convergence authority
+
+The active architecture-convergence line is:
+
+- `docs/roadmaps/WEEKLY_ETF_EU_DONOR_CONVERGENCE_ROADMAP_20260810.md`
+- `control/work_packages/ETF_EU_WP_DONOR_CONVERGENCE_V1_20260810.md`
+- `control/ETF_EU_ALLOCATION_AUTHORITY_CONVERGENCE_V1.md`
+- `control/decisions/ETF_EU_DONOR_CONVERGENCE_DECISION_20260810.md`
+- `control/ETF_EU_DONOR_CONVERGENCE_CHANGELOG.md`
+- `handover/ETF_EU_PR84_TO_DONOR_CONVERGENCE_V1_20260810.md`
+
+Frozen PR #84 and issue #87 PASS are inherited exact-candidate evidence only. They do not authorize the changed convergence successor.
 
 ## Five-layer operating model
 
@@ -63,6 +77,8 @@ Machine controls:
 The canonical routine workflow must run the governance gate immediately before guarded transport:
 
 - `.github/workflows/run-weekly-etf-eu-routine.yml`
+
+Date-specific repair/probe/preview workflows are diagnostic or historical evidence unless a current decision explicitly promotes one. Their existence is not routine-production authority.
 
 ## Cross-project governance authority
 
@@ -119,13 +135,18 @@ Rules:
 ## Canonical EU control files
 
 - `control/ETF_EU_PORTING_STRATEGY_DECISION_20260618.md`
+- `control/ETF_EU_ALLOCATION_AUTHORITY_CONVERGENCE_V1.md`
 - `control/UCITS_ETF_REVIEW_CONTRACT_V1.md`
 - `control/UCITS_INVESTABILITY_RULES.md`
 - `control/UCITS_SYMBOL_REGISTRY_CONTRACT.md`
 - `control/UCITS_MIGRATION_PLAN.md`
+- `control/CAPITAL_REUNDERWRITING_RULES.md`
+- `control/LANE_DISCOVERY_CONTRACT.md`
 - `control/ETF_EU_PRODUCTION_DELIVERY_CLOSEOUT_CONTRACT_V1.md`
-- `control/ETF_EU_ROUTINE_WEEKLY_PRODUCTION_RUNBOOK_V1.md`
+- `control/ETF_EU_ROUTINE_WEEKLY_PRODUCTION_RUNBOOK_V2.md`
 - `control/ETF_EU_TWO_ROLE_GOVERNANCE_MODEL_V1.md`
+
+`control/ETF_EU_ROUTINE_WEEKLY_PRODUCTION_RUNBOOK_V1.md` is retained as historical compatibility provenance. It is superseded for current routine runs by V2 and may not override V2 broker-neutrality, allocation-authority, discovery or re-underwriting rules.
 
 ## Canonical EU configuration
 
@@ -133,6 +154,8 @@ Rules:
 - `config/ucits_benchmark_proxy_map.yml`
 - `config/nl_client_investability_rules.yml`
 - `config/etf_eu_discovery_universe.yml`
+
+`config/etf_eu_transition_policy_v1.yml` is historical/shadow transition evidence and is not current allocation authority.
 
 ## Canonical EU state
 
@@ -158,6 +181,9 @@ Before creating or materially changing an EU workflow, runtime script, validator
 - Do not present U.S.-listed ETFs as Dutch/EU investable holdings.
 - Do not fund an instrument before investability and pricing gates pass.
 - Do not mutate portfolio state or ledger without explicit authority.
+- Do not let historical/shadow allocation percentages become current controls.
+- Do not treat measured lower-bound overlap as a portfolio minimum/target.
+- Model investability is broker-neutral; broker/account permission is real-execution only.
 - Do not claim production delivery from generation, validation or SMTP success alone.
 - Bind source SHA, run identity and report hashes before guarded transport.
 - Require independent receipt evidence before `DELIVERY_CONFIRMED`.
@@ -186,16 +212,18 @@ The user is not the default workflow monitor.
 ROUTINE_WEEKLY_ETF_EU_PRODUCTION_WITH_INDEPENDENT_RELEASE_ASSURANCE
 ```
 
-Current direction:
+Current implementation direction:
 
 ```text
-claim/branch reconciliation
-→ fresh pricing and immutable run identity
-→ authoritative portfolio/state contract
-→ Dutch and English report generation
-→ implementation validation
+authority convergence
+→ donor-comparable discovery and re-underwriting
+→ exact UCITS mapping and completed-close fundability
+→ authoritative normalized portfolio/state contract
+→ Dutch and English report generation from one state
+→ implementation validation + parity audit
 → independent governance reconstruction and hash binding
-→ guarded transport
+→ merge only after PASS
+→ guarded transport only as a separate authorized operation
 → independent receipt verification
 → production closeout
 ```

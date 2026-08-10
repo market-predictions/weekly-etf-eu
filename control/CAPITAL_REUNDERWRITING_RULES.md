@@ -1,249 +1,231 @@
-# ETF Capital Re-underwriting Rules
+# ETF EU Capital Re-underwriting Rules
 
 ## Purpose
 
-This file is the ETF decision-framework addendum that converts the first-principles portfolio critique into deterministic operating rules.
+This is the EU/UCITS adaptation of the mature Weekly ETF donor capital-discipline layer.
 
-It does **not** replace `etf.txt`. It tightens the decision layer between current-position scoring and the final action table.
+It answers one recurring question every run:
 
-## Core principle
+> If this position did not exist today, would the EU model initiate this exact UCITS line now, at this weight, with fresh capital?
 
-Every holding must earn capital again each run.
+The contract is behavioral decision discipline. It does **not** create new hard allocation caps and does not authorize portfolio mutation.
 
-The right question is not only:
+Authority:
 
-> Should we keep what we already bought?
+`control/ETF_EU_ALLOCATION_AUTHORITY_CONVERGENCE_V1.md`
 
-The required question is:
+## Placement
 
-> If this position did not exist today, would we initiate it now, at this weight, with fresh capital?
+Run after current portfolio valuation and broad discovery/UCITS mapping, and before any new allocation decision or final action table.
 
-## Mandatory capital re-underwriting layer
+For every funded holding assess:
 
-Run this layer after current-position scoring and before the final action table.
+1. fresh-cash test;
+2. thesis versus implementation;
+3. direct exact-UCITS alternative duel when relevant;
+4. contribution / drag;
+5. factor and holdings-overlap risk;
+6. hedge/ballast validity where relevant;
+7. cash policy;
+8. action clock / inertia;
+9. current pricing and fundability of any proposed alternative.
 
-For every current holding, assess:
+## Fresh-cash test
 
-1. Fresh cash test
-2. Thesis versus implementation split
-3. Relative alternative duel when a position is replaceable or weakening
-4. Contribution / drag test
-5. Factor-overlap test
-6. Hedge validity test where relevant
-7. Cash policy test
-8. Action-clock / inertia test
-9. Replacement pricing and duel evidence
-
-## Fresh cash test
-
-For every holding, state internally and, where decision-relevant, in Section 10:
+Required current-run fields:
 
 | Test | Allowed values |
 |---|---|
-| Would initiate today? | Yes / Smaller / No |
-| Would initiate at current weight? | Yes / No |
-| Fresh-cash implication | Add / Hold / Reduce / Replace / Close / Watch one more week |
+| Would initiate today? | Yes / Smaller / No / Unresolved |
+| Would initiate at current weight? | Yes / No / Unresolved |
+| Fresh-cash implication | Add candidate / Hold / Reduce candidate / Replace candidate / Close candidate / Monitor unresolved |
 
 Rules:
-- If a holding would not be initiated today at any size, default action cannot remain unqualified Hold.
-- If a holding would only be initiated smaller, it must be tagged Reduce candidate or Hold — under review.
-- Any override must name the reason and the maximum review window.
 
-## Thesis versus implementation split
+- `Unresolved` is allowed when current evidence is incomplete, but it cannot create a new trade.
+- If the position would not be initiated today at any size, unqualified Hold is not sufficient.
+- If it would only be initiated smaller, mark Reduce/under-review or record an explicit override.
+- An override must name the reason and next-review trigger.
 
-Separate every position into:
+## Thesis versus implementation
 
-| Score | Meaning |
-|---|---|
-| Thesis score | Is the long-term structural or macro thesis still valid? |
-| Implementation score | Is this ETF, at this price, trend, weight, and vehicle quality still the right implementation? |
+Separate:
 
-Rules:
-- A valid thesis does not automatically justify keeping the current ETF or current weight.
-- If thesis score is high but implementation score is weak, force a direct alternative duel.
-- If both thesis and implementation are weak, default action must be Reduce or Close unless portfolio-level risk logic explicitly overrides it.
+- **Thesis** — is the macro/structural/portfolio role still valid?
+- **Implementation** — is this exact UCITS ETF/share class/venue/weight still the best implementation?
 
-## Relative alternative duel
+A strong thesis does not automatically justify the current ETF or current weight.
 
-A position must be compared directly with a named alternative when any of these are true:
+If thesis is strong but implementation is weak, force a direct alternative duel where a verified UCITS candidate exists.
 
-- it is listed as Hold but replaceable
-- it is a Reduce candidate
-- it is down more than 10% from average entry
-- it has underperformed the portfolio for two consecutive runs
-- an alternative ETF is named in the Structural Opportunity Radar or Final Action Table
-- a ticker is named under `Best replacements to fund`
+## Exact-UCITS alternative duel
 
-Minimum duel fields:
+A direct replacement duel is required when a holding is replaceable, weakening or has a clearly superior mapped challenger.
 
-| Test | Current holding | Alternative | Winner |
-|---|---:|---:|---|
-| Latest verified close date | | | |
-| Latest verified close price | | | |
-| 1-month relative strength | | | |
-| 3-month relative strength | | | |
-| Liquidity / spread | | | |
-| Theme purity | | | |
-| Drawdown from recent high | | | |
-| Portfolio differentiation | | | |
-| Final verdict | | | |
+Minimum evidence where available:
 
-If data is incomplete, say so and treat the duel as unresolved, not as permission for indefinite Hold.
+| Test | Current holding | EU alternative |
+|---|---|---|
+| ISIN + exact trading line | | |
+| UCITS/KID | | |
+| Latest completed close/date | | |
+| 1m/3m relative strength | | |
+| Liquidity/spread | | |
+| Theme/role purity | | |
+| Drawdown | | |
+| Portfolio differentiation/overlap | | |
+| Implementation cost/TER | | |
+| Final verdict | | |
 
-## Replacement pricing and duel evidence
+A U.S.-listed donor ETF may be the research comparator but never the replacement instrument in the model portfolio.
 
-The report may mention a challenger as a **replacement candidate** only if it has at least a visible pricing and comparison status.
+If the EU alternative is not fully mapped/priced, the duel is `UNRESOLVED`; it is not permission for an automatic replacement.
 
-Rules:
-- `Best replacements to fund` must not imply a fundable replacement unless the challenger has a latest verified close, close date, and comparison status.
-- If the challenger has no verified close, the correct status is `Not fundable yet — pricing missing`.
-- If the challenger has a verified close but no relative-strength comparison, the correct status is `Priced but duel incomplete`.
-- If the challenger has verified close data and a completed duel, the correct status may be `Fundable replacement candidate`.
-- A same-report switch from current holding to challenger requires current holding and challenger to share the same close-date basis or a clearly disclosed exception.
-- Named alternatives in `Best replacements to fund`, `Final Action Table`, and Section 16 must be included in the pricing shortlist when ticker symbols are parseable.
+## Replacement fundability status
 
-Required compact report block when replacements are mentioned:
+Allowed states:
 
-### Replacement pricing and duel status
+```text
+fundable_replacement_candidate
+mapped_priced_reunderwriting_required
+priced_but_duel_incomplete
+mapped_but_current_pricing_missing
+mapping_required_research_only
+not_fundable_identity_or_kid_blocked
+```
 
-| Current holding | Challenger | Current close | Challenger close | Close-date basis | Duel status | Decision implication |
-|---|---|---:|---:|---|---|---|
+A same-run model switch requires compatible current completed-close evidence for both sides and a separate allocation decision.
 
-This block may be compact, but it must exist when the report names fundable challengers.
+## Contribution / drag
 
-## Factor-overlap test
+Each current position should state whether it is:
 
-Assess factor exposure, not only ticker count.
+```text
+strong_positive_contributor
+positive_contributor
+flat_or_opportunity_cost
+material_drag
+unresolved
+```
 
-Required factor map:
+Historical P&L alone is not a reason to keep or close a position; contribution must be considered with current thesis, implementation and opportunity cost.
 
-| Factor | Exposure level | Main contributors | Concern |
-|---|---|---|---|
-| U.S. tech / AI sentiment | Low / Medium / High | | |
-| U.S. equity beta | Low / Medium / High | | |
-| Real-rate sensitivity | Low / Medium / High | | |
-| Geopolitical resilience | Low / Medium / High | | |
-| Non-U.S. equity | Low / Medium / High / Zero | | |
-| Commodity / hard-asset exposure | Low / Medium / High | | |
+## Factor and holdings-overlap test
 
-Rules:
-- If a single factor exceeds roughly 40% effective exposure, the report must call it concentration, not diversification.
-- If non-U.S. equity exposure is zero, the report must say whether that is an intentional U.S. exceptionalism bet.
-- If SPY and SMH are both large weights, explicitly test whether SPY still diversifies or merely duplicates U.S. tech/AI sentiment.
+Assess economic exposure, not just ticker count.
 
-## Hedge validity test
+Relevant EU examples include:
 
-For any hedge or ballast position, assess:
+- U.S. mega-cap / AI sentiment embedded in VWCE/SXR8;
+- semiconductor exposure embedded in broad core funds plus a semiconductor satellite;
+- cybersecurity exposure embedded in broad funds plus L0CK;
+- equity beta versus EUNA ballast;
+- regional diversification and currency exposure.
 
-| Hedge test | Allowed values |
-|---|---|
-| Did it protect during equity stress? | Yes / No / Unclear |
-| Did it protect during geopolitical or inflation stress? | Yes / No / Unclear |
-| Is the current price verified? | Yes / No |
-| Is the drawdown acceptable for a hedge? | Yes / No |
-| Does it still diversify the portfolio? | Yes / No / Unclear |
-| Better hedge candidate? | Ticker / None / Unresolved |
+Incomplete holdings data produces a **measured lower bound**, never an assumed complete exposure.
 
-Rules:
-- A hedge down more than 10% with unverified current pricing must be tagged Hedge review.
-- A hedge that fails realized ballast behavior cannot remain full-size without explicit override.
-- Hedge logic must not be used as a vague reason to ignore poor implementation.
+The donor's approximately 40% factor-concentration threshold may be used as a **review/warning trigger**, not as a hard ETF EU allocation cap.
 
-## Cash policy test
+No numerical theme cap is created by this rule.
 
-Cash must be classified each run:
+## Hedge / ballast validity
 
-| Cash type | Meaning |
-|---|---|
-| Tactical reserve | Deliberately held for pullback |
-| Uninvested residual | Leftover from whole-share implementation |
-| Risk reserve | Held because regime uncertainty is elevated |
-| Deployment candidate | Should be allocated this run |
+For any ballast/hedge role, including bond stabilisers where relevant, review:
 
-Rules:
-- If cash is above 3% and at least one lane is Actionable now, explain why cash is not deployed.
-- If cash is above 5%, call it a meaningful portfolio position.
-- Do not let residual cash hide as an unexplained drag.
+- realized protection/contribution during equity stress;
+- current verified pricing;
+- drawdown and duration/rate sensitivity;
+- whether the position still diversifies the current portfolio;
+- whether a better exact UCITS alternative exists.
 
-## Action-clock / inertia test
+A ballast role is not a permanent exemption from re-underwriting.
+
+## Cash policy
+
+Cash is a meaningful active portfolio position.
+
+Behavioral review triggers ported from the donor:
+
+- cash above ~3% plus a genuinely actionable/fundable lane requires deploy-or-explain review;
+- cash above ~5% should be described as a meaningful portfolio position.
+
+These are **review triggers**, not minimum or maximum cash constraints.
+
+Do not reintroduce the retired 35% minimum cash or a fixed 50% cash-first target.
+
+If opportunities are unmapped, unpriced, KID/identity-blocked or re-underwriting-incomplete, retained cash is a legitimate governed result.
+
+## Action clock / inertia
 
 A weak or replaceable position cannot remain indefinitely in ambiguous Hold.
 
-Rules:
-- A position may not remain `Hold but replaceable` for more than two consecutive runs without a direct decision: upgrade, reduce, replace, or close.
-- A position down more than 10% and still below a 4.00 total score must be re-underwritten from scratch.
-- A position underperforming the portfolio by more than 7 percentage points for two consecutive runs must be re-underwritten.
-- Any override must include a next-review trigger and a maximum review window.
+Behavioral rules:
 
-## Deterministic action triggers
+- a position tagged replaceable/under review for two consecutive runs should receive a direct decision or explicit evidence-based override;
+- a materially loss-making position with weak implementation should be re-underwritten from scratch;
+- persistent material underperformance versus portfolio/alternative should trigger re-underwriting;
+- any override carries a next-review trigger and review-age memory.
 
-| Trigger | Required action |
-|---|---|
-| Holding underperforms portfolio by >7% for two consecutive runs | Re-underwrite |
-| Holding is down >10% and trend/implementation score is weak | Reduce or explicit override |
-| Holding is replaceable for two consecutive runs | Direct alternative duel |
-| Hedge is down >10% and fails ballast test | Reduce / replace / justify |
-| Cash >3% and an Actionable now lane exists | Deploy or explain reserve |
-| Single factor exposure >40% | Explicit concentration warning |
-| No non-U.S. exposure | Explicit U.S. exceptionalism statement |
-| Replacement challenger named without verified close | Mark not fundable yet or remove from fundable language |
+These rules guide decision quality; they do not auto-execute trades.
 
-## Required report integration
+## Current recommendation scorecard
 
-### Section 2 — Portfolio Action Snapshot
-If `Best replacements to fund` mentions challengers, include or immediately follow it with `Replacement pricing and duel status`.
+Canonical current-run memory:
 
-### Section 6 — Bottom Line
-Mention the single most important discipline issue if one exists:
-- concentration
-- cash deployment
-- hedge validity
-- replaceable holding
-- loss-making holding requiring re-underwriting
-- unpriced or incompletely priced replacement duel
+`output/etf_eu_recommendation_scorecard.csv`
 
-### Section 10 — Current Position Review
-Add, where practical:
-- Would initiate today?
-- Would initiate at current weight?
-- Thesis score
-- Implementation score
-- Best alternative
-- Required next action
-- Replacement duel status where a challenger is named
+Every funded position must appear once per current run.
 
-### Section 13 — Final Action Table
-If the fixed table cannot be extended without rendering risk, encode discipline in `Short Reason` and ensure the machine-readable scorecard stores the full fields.
+Minimum fields include:
 
-### Section 16 — Continuity Input
-Carry forward:
-- positions under review
-- replaceable timer
-- best alternative
-- hedge review status
-- factor concentration note
-- cash policy note
-- replacement duel status
+- report date;
+- ISIN and exact exchange ticker;
+- current weight/shares/price evidence status;
+- fresh-cash test;
+- would initiate today / at current weight;
+- thesis and implementation status/score when supported;
+- replaceable status and review age;
+- best exact-UCITS alternative when available;
+- contribution quality;
+- factor/overlap flag;
+- hedge/ballast status;
+- cash-policy flag;
+- required next action;
+- override reason;
+- evidence/fundability status.
 
-## Machine-readable state requirement
+Missing current evidence must be represented as `Unresolved`/`CURRENT_REVIEW_REQUIRED`, not silently copied from a stale report.
 
-Every canonical English pro report should be derivable into:
+## Allocation authority boundary
 
-`output/etf_recommendation_scorecard.csv`
+This contract can recommend review outcomes but cannot by itself create trade intents.
 
-This scorecard is the explicit memory layer for:
-- fresh cash test
-- thesis score
-- implementation score
-- replaceable status
-- action-clock timer
-- best alternative
-- contribution drag
-- factor overlap
-- hedge validity
-- required next action
-- override reason
-- replacement close status
-- replacement duel status
+Current allocation authority remains:
 
-The scorecard is report-derived for now, but it is the bridge toward independent implementation-state authority.
+```text
+explicit current allocation decision
+> protected portfolio state and trade ledger
+> current completed-close valuation and exact-line identity
+> current re-underwriting/overlap/fundability evidence
+> current donor opportunity state after EU mapping
+> historical strategy/shadow context
+```
+
+Historical Stage-1 limits and shadow percentages do not constrain current re-underwriting.
+
+## Report integration
+
+The report should surface only decision-relevant outcomes:
+
+- main discipline issue;
+- cash deploy-or-explain result;
+- positions under review;
+- best mapped alternative where material;
+- unresolved evidence and next trigger;
+- overlap/concentration warning with correct lower-bound semantics.
+
+Internal score mechanics and historical allocator scenarios stay out of the client control table.
+
+## Definition of done
+
+Re-underwriting is operational when every funded holding has a current-run scorecard row, unresolved evidence blocks new action rather than creating inertia, relevant alternatives are exact-UCITS mapped before being called fundable, cash is actively explained, and action-clock memory survives into the next run.

@@ -1,148 +1,189 @@
-# ETF Lane Discovery Contract
+# ETF EU Lane Discovery Contract
 
 ## Purpose
 
-This contract defines the discovery layer that sits before runtime state build and report rendering.
+This contract ports the mature Weekly ETF discovery behavior into the EU/UCITS product without importing U.S. investability assumptions.
 
-The Structural Opportunity Radar must not be a static prompt memory or a small manually curated watchlist. It must be produced from a broad ETF universe, scored lanes, current portfolio gaps, novelty/challenger rules, historical relative-strength evidence, targeted challenger pricing, liquidity/tradability filters, and macro/fundamental context where available.
+The Structural Opportunity Radar must come from broad internal discovery, current donor opportunity evidence, UCITS mapping status, current pricing/fundability evidence, portfolio gaps, challenger rotation and liquidity/relative-strength context where available.
 
-## Four-layer placement
+A missing exact UCITS implementation blocks **funding**, not **research coverage**.
 
-1. **Decision framework** — open discovery, score lanes, promote only the best.
-2. **Input/state contract** — `config/etf_discovery_universe.yml`, latest pricing audit, historical relative-strength metrics, targeted challenger pricing, macro/fundamental context, latest portfolio state, prior lane artifacts.
-3. **Output contract** — `output/lane_reviews/etf_lane_assessment_YYMMDD.json` with machine-readable evidence fields.
-4. **Operational runbook** — workflow runs historical relative-strength fetch, first-pass discovery, targeted challenger pricing, final discovery, quality-filter augmentation, then runtime state build.
+## Five-layer placement
 
-## Discovery authority order
+1. **Decision framework** — broad discovery and lane ranking before capital decisions.
+2. **Input/state contract** — donor lane evidence + EU discovery universe + exact UCITS mappings + pricing + portfolio state.
+3. **Output contract** — compact client radar plus machine-readable assessed/omitted lanes.
+4. **Operational runbook** — donor discovery → EU mapping → pricing/fundability → re-underwriting → report state.
+5. **Governance** — fail closed if U.S. proxy, stale shadow gate or incomplete mapping becomes funding authority.
 
-Lane discovery uses these inputs:
+## EU discovery authority order
 
-1. `config/etf_discovery_universe.yml` — broad investable ETF universe and lane metadata
-2. latest `output/pricing/price_audit_*.json` — holding closes, close data availability, pricing confidence, and top-challenger pricing after augmentation
-3. `output/market_history/etf_relative_strength.json` — 1m/3m returns, trend quality, drawdown, volatility, liquidity/tradability metrics, and relative strength versus SPY when available
-4. `config/etf_macro_fundamental_context.yml` — curated macro/fundamental context and bucket-level freshness adjustments
-5. `output/etf_portfolio_state.json` — current holdings and portfolio gaps
-6. latest prior `output/lane_reviews/etf_lane_assessment_*.json` — continuity, retained lanes, prior promotions
+Use:
 
-## Required discovery behavior
+1. current Weekly ETF donor lane/opportunity artifact as research context;
+2. `config/etf_eu_discovery_universe.yml` for persistent EU breadth/mapping memory;
+3. current exact mapping/identity evidence, including `config/ucits_symbol_registry.yml` and current mapping artifacts;
+4. current UCITS completed-close pricing evidence;
+5. `output/etf_eu_portfolio_state.json` for actual holdings/cash;
+6. current `output/etf_eu_recommendation_scorecard.csv` for re-underwriting memory;
+7. prior EU lane/report artifacts for continuity only.
 
-Each run must:
+Donor target weights and U.S.-listed tickers do not create EU allocation authority.
 
-- evaluate all configured lanes
-- represent every required breadth bucket
-- include candidates outside current holdings where available
-- include at least four challengers
-- include at least two challengers outside the prior live radar where available
-- include at least two challengers outside current held portfolio themes where available
-- use historical relative-strength metrics when available
-- use targeted challenger pricing where available
-- use liquidity/tradability filters before final promotion where available
-- use macro/fundamental context where available
-- promote 5 to 8 highest-ranked lanes to the live radar
-- publish omitted-but-assessed lanes as proof of breadth without bloating the client report
+## Required breadth behavior
 
-## Two-pass challenger pricing rule
+Each current run should assess all required breadth buckets declared in `config/etf_eu_discovery_universe.yml`, matching the mature donor breadth model:
 
-The production workflow should use this sequence:
+- ai_digital_infrastructure
+- defense_resilience
+- grid_power_electrification
+- uranium_nuclear
+- agriculture_food_security
+- water
+- china
+- india_regional_industrialization
+- biotech_healthcare_innovation
+- fintech_financial_infrastructure
+- robotics_automation
+- critical_minerals_materials
+
+The run should construct 10–15 candidate lanes where current donor evidence allows, include at least four challengers, and promote roughly 5–8 highest-ranked lanes to the live radar when evidence quality supports it.
+
+These are research/discovery completeness targets, not portfolio position-count or funding rules.
+
+## Proxy → UCITS rule
+
+For every lane distinguish:
 
 ```text
-pricing pass for current holdings and known report inputs
-→ historical relative-strength and liquidity fetch
-→ first-pass lane discovery
-→ targeted pricing for top discovery challengers
-→ final lane discovery using the augmented pricing audit
-→ lane quality-filter augmentation
-→ runtime state build
-→ render/output-contract fix/polish/linkify
-→ validation
-→ PDF/email delivery
+research proxy / donor vehicle
+EU mapping status
+exact UCITS candidate
+fundability status
 ```
 
-Targeted challenger pricing is not allowed to weaken the existing holdings pricing gate. If challenger pricing fails, the report may still proceed as long as holdings pricing coverage remains valid; failed challengers must remain non-fundable or under review.
+Allowed mapping states include:
 
-## Lane scoring fields
+```text
+funded_exact_ucits_line
+exact_ucits_mapping_available
+exact_ucits_mapping_available_but_fresh_fundability_evidence_required
+mapping_required
+policy_review_required
+```
 
-Every assessed lane must include at minimum the existing production fields:
+Rules:
+
+- a U.S. ETF can rank a research lane but can never be the funded EU instrument;
+- `mapping_required` remains visible in internal breadth evidence and is never auto-omitted merely because funding is impossible;
+- exact ISIN/share class/venue/trading line/currency must be resolved before model funding;
+- UCITS/PRIIPs/KID and completed-close gates remain independent of discovery score;
+- a priced candidate is not automatically fundable;
+- broker-specific account permission is not a model-investability discovery gate.
+
+## Challenger discipline
+
+A current run should include at least four challengers when feasible, including new or previously omitted buckets.
+
+Challengers should carry:
+
+- novelty status;
+- current mapping status;
+- current price status;
+- relative-strength/liquidity evidence where available;
+- portfolio differentiation;
+- rejection/blocker reason;
+- what would change the status.
+
+A challenger with incomplete EU mapping remains `research_only_mapping_required`, not silently dropped.
+
+## Relative-strength and liquidity behavior
+
+Port donor behavior where data exists:
+
+- 1m/3m returns;
+- trend quality;
+- drawdown;
+- volatility;
+- relative strength versus a relevant benchmark/proxy;
+- average traded value / spread / tradability evidence;
+- direct comparison versus a holding or alternative when relevant.
+
+Historical transition thresholds do not become current hard eligibility limits automatically. Current evidence may trigger a liquidity/concentration review; a numerical hard threshold requires current authority.
+
+## Two-pass pricing behavior
+
+The intended current sequence is:
+
+```text
+funded-holdings pricing
+→ broad donor discovery
+→ EU mapping status resolution
+→ targeted pricing for top mapped challengers
+→ fundability classification
+→ final lane ranking/re-underwriting
+→ normalized report state
+```
+
+Failure to price an unfunded challenger must not weaken funded-holdings valuation. It limits that challenger to research/monitoring until sufficient evidence exists.
+
+## Machine-readable lane fields
+
+Every assessed EU lane should expose at least:
 
 - lane_name
 - taxonomy_tag
 - bucket
-- primary_etf
-- alternative_etf
-- structural_strength
-- persistence
-- implementation_quality
-- macro_alignment
-- second_order_relevance
-- timing_confirmation
-- valuation_crowding
-- portfolio_differentiation
-- total_score
-- prior_run_status
+- donor_proxy_or_reference
+- proxy_authority
+- structural/persistence/macro/timing/implementation scores when available
+- current donor rank/score when available
+- challenger / novelty status
+- mapping_status
+- candidate ISIN/ticker/venue/currency when mapped
+- ucits_status
+- priips_kid_status
+- exact_line_status
+- current_price_status
+- liquidity/tradability evidence
+- fundability_status
+- portfolio_gap / differentiation
 - promoted_to_live_radar
-- challenger
-- rejection_reason
+- rejection_or_blocker_reason
 - what_would_change
 
-Additional discovery fields should include:
+Missing evidence must be explicit rather than fabricated.
 
-- discovery_source
-- novelty_status
-- portfolio_gap_score
-- pricing_confidence
-- primary_price_status
-- alternative_price_status
-- evidence_summary
-- why_now
-- freshness_note
+## Current Stage-1 boundary
 
-Historical relative-strength and liquidity fields should include when available:
+The historical Stage-1 candidate set (`ai_compute_infrastructure`, `cyber_security`) is activation provenance only.
 
-- return_1m_pct
-- return_3m_pct
-- trend_quality
-- max_drawdown_3m_pct
-- volatility_3m_pct
-- rs_vs_spy_1m_pct
-- rs_vs_spy_3m_pct
-- relative_strength_score
-- avg_volume_3m
-- avg_dollar_volume_3m
-- liquidity_score
-- tradability_status
-- liquidity_note
-- direct_rs_vs_holding
-- direct_rs_vs_holding_3m_pct
-- macro_freshness_note
-- quality_filter_adjustment
+```text
+historical_stage1_allowlist_is_current_discovery_gate=false
+historical_stage1_allowlist_is_current_allocation_gate=false
+```
 
-## Output contract guardrail
+Broad current discovery must not be filtered down to that historical set.
 
-If the runtime markdown is technically valid but the PDF renderer loses a section, the workflow may run a narrow output-contract fix layer before polish/linkify. This layer may only fix presentation shape, such as converting a table into renderer-safe subcards; it must not alter valuation arithmetic or recommendation substance.
+## Output contract
+
+The client report remains selective. Broad assessment evidence belongs primarily in machine artifacts and compact omitted/monitoring proof.
+
+Client language must distinguish:
+
+- current funded position;
+- current mapped/fundable candidate;
+- mapped but evidence-incomplete candidate;
+- research-only proxy or mapping gap.
 
 ## What this layer is not
 
-It is not a replacement for the editorial report.
-It is not a signal to automatically trade every promoted lane.
-It is not allowed to fabricate price history or claim fresh evidence when the market-history fetch does not support it.
-It is not allowed to treat a priced challenger as automatically superior; it only makes a fairer comparison possible.
+- not automatic trading;
+- not permission to fund every mapped UCITS ETF;
+- not a source of hard cash/turnover/theme caps;
+- not permission to reuse stale donor target weights;
+- not a reason to downgrade EU identity/KID/exact-line controls.
 
-## Current limitation
+## Definition of done
 
-The historical relative-strength layer uses yfinance daily history as a pragmatic public-source history layer. Targeted challenger pricing extends the persisted pricing audit but is still constrained by available public sources and API rate limits.
-
-Remaining limitations:
-
-- no full sector/factor benchmark normalization yet
-- no live news ingestion yet
-- challenger pricing is targeted, not full-universe pricing
-- macro/fundamental context is curated config, not automated official-data ingestion
-
-## Next maturity step
-
-Add:
-
-- sector/factor benchmark normalization
-- automated macro/fundamental freshness inputs
-- a separate discovery/pricing manifest for challenger augmentation
-- stricter PDF output-contract validators for Section 10 and Section 12
+Discovery is donor-comparable when broad donor research coverage can survive the EU translation step, exact UCITS mappings are tracked separately from research proxies, top mapped challengers receive current pricing/fundability review, and no missing mapping or old Stage-1 gate silently shrinks the research universe.
