@@ -6,6 +6,9 @@ from pathlib import Path
 from typing import Any
 
 
+SUPPORTED_SCHEMAS = {"etf_eu_macro_policy_pack_v1", "etf_eu_macro_policy_pack_v2"}
+
+
 def fail(code: str, **details: Any) -> None:
     payload = {"ok": False, "code": code, **details}
     print(json.dumps(payload, indent=2, sort_keys=True))
@@ -20,13 +23,13 @@ def validate(path: Path) -> dict[str, Any]:
     except Exception as exc:
         fail("ETF_EU_MACRO_ARTIFACT_INVALID_JSON", error=type(exc).__name__)
 
-    required = {
-        "schema_version": "etf_eu_macro_policy_pack_v1",
+    if payload.get("schema_version") not in SUPPORTED_SCHEMAS:
+        fail("ETF_EU_MACRO_CONTRACT_MISMATCH", field="schema_version", expected=sorted(SUPPORTED_SCHEMAS), actual=payload.get("schema_version"))
+    for key, expected in {
         "artifact_type": "etf_eu_macro_policy_pack",
         "source_of_truth_repo": "market-predictions/weekly-etf-eu",
         "reference_architecture_repo": "market-predictions/weekly-etf",
-    }
-    for key, expected in required.items():
+    }.items():
         if payload.get(key) != expected:
             fail("ETF_EU_MACRO_CONTRACT_MISMATCH", field=key, expected=expected, actual=payload.get(key))
 
@@ -49,6 +52,22 @@ def validate(path: Path) -> dict[str, Any]:
     if not donor.get("source_sha256") or len(str(donor.get("source_sha256"))) != 64:
         fail("ETF_EU_MACRO_SOURCE_DIGEST_INVALID")
 
+    if payload.get("schema_version") == "etf_eu_macro_policy_pack_v2":
+        if donor.get("freshness_passed") is not True:
+            fail("ETF_EU_MACRO_FRESHNESS_NOT_PASSED")
+        if donor.get("wrapper_generation_refreshes_underlying_evidence_date") is not False:
+            fail("ETF_EU_MACRO_WRAPPER_REFRESHED_EVIDENCE_DATE")
+        if not donor.get("source_report_date") or not donor.get("source_date_field"):
+            fail("ETF_EU_MACRO_UNDERLYING_EVIDENCE_DATE_MISSING")
+        if authority.get("broker_specific_permission_required_for_model") is not False:
+            fail("ETF_EU_MACRO_BROKER_MODEL_BOUNDARY_INVALID")
+        if authority.get("broker_permission_required_for_real_execution") is not True:
+            fail("ETF_EU_MACRO_BROKER_EXECUTION_BOUNDARY_INVALID")
+        if eu.get("broker_specific_permission_required_for_model") is not False:
+            fail("ETF_EU_MACRO_EU_MODEL_BROKER_BOUNDARY_INVALID")
+        if eu.get("broker_permission_required_for_real_execution") is not True:
+            fail("ETF_EU_MACRO_EU_EXECUTION_BROKER_BOUNDARY_INVALID")
+
     return {
         "ok": True,
         "path": str(path),
@@ -56,8 +75,10 @@ def validate(path: Path) -> dict[str, Any]:
         "report_date": payload["report_date"],
         "run_id": payload["run_id"],
         "source_report_date": donor.get("source_report_date"),
+        "source_date_field": donor.get("source_date_field"),
         "age_days": age_days,
         "decision_authority": authority.get("decision_authority"),
+        "broker_specific_permission_required_for_model": authority.get("broker_specific_permission_required_for_model"),
     }
 
 
