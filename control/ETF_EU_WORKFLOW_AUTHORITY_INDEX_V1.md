@@ -90,7 +90,7 @@ The transport workflow:
 
 ## Historical workflows
 
-Historical activation/send/repair/preview routes are retained only as files ending in `.yml.disabled`. GitHub Actions must not treat them as executable workflows.
+Twenty historical activation/send/repair/preview/client-like shadow routes are retained only as files ending in `.yml.disabled`. GitHub Actions must not treat them as executable workflows.
 
 The disabled set includes prior:
 - Stage-1/CAP01 activation;
@@ -101,9 +101,10 @@ The disabled set includes prior:
 - split-test send routes;
 - client-surface/PDF repair routes;
 - report-to-state refresh authority inversion;
-- old client-grade render/preview/export routes.
+- old client-grade render/preview/export routes;
+- the 2026-07-27 allocator `sister report` shadow route that rendered a client-like report from the historical transition allocator.
 
-Historical code is audit evidence, not current authority.
+Historical code is audit evidence, not current authority. In particular, historical allocator diagnostics may not create a second client-output surface beside the canonical candidate renderer.
 
 ## Research and validation workflows
 
@@ -112,7 +113,8 @@ Diagnostic, pricing, lab, probe and validation workflows may remain active when 
 - mutate the protected portfolio or trade ledger;
 - invoke real delivery;
 - create independent assurance;
-- turn report text into portfolio state.
+- turn report text into portfolio state;
+- render a parallel client-like report from a historical/shadow allocator.
 
 ## Enforced gate
 
@@ -121,7 +123,8 @@ Diagnostic, pricing, lab, probe and validation workflows may remain active when 
 - candidate workflow cannot send, self-assure or push candidate output to `main`;
 - controlled transport requires exact guarded-delivery authority;
 - controlled transport does not re-render approved client artifacts;
-- there is exactly one active real ETF EU delivery invocation.
+- there is exactly one active real ETF EU delivery invocation;
+- the historical allocator sister-report route remains retired.
 
 ## Authority hierarchy
 
