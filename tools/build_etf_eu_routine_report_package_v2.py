@@ -7,7 +7,7 @@ from pathlib import Path
 from typing import Any
 
 from runtime.apply_etf_eu_donor_parity_contract import apply_contract, write_recommendation_scorecard
-from runtime.build_etf_eu_client_grade_report_state import build_state
+from runtime.build_etf_eu_client_grade_report_state_v2 import build_state
 from runtime.build_etf_eu_donor_discovery_bridge import write_bridge
 from runtime.inject_etf_eu_funded_identity_strip import inject_funded_identity_strip
 from runtime.polish_etf_eu_client_grade_html import polish
@@ -115,9 +115,12 @@ def build(args: argparse.Namespace) -> dict[str, Path]:
         "discovery_fundability_contract": "control/ETF_EU_DISCOVERY_FUNDABILITY_CONTRACT_V1.md",
         "donor_discovery_bridge": str(bridge_path) if bridge_path else None,
         "donor_parity_contract": "runtime/apply_etf_eu_donor_parity_contract.py",
+        "pricing_contract": "ucits_close_price_validation_basket_results_v2",
+        "pricing_state_builder": "runtime/build_etf_eu_client_grade_report_state_v2.py",
+        "funded_two_provider_consensus_required": True,
         "shadow_transition_policy_current_authority": False,
-        "markdown_role": "funded_state_reconciled_audit_companion_not_v2_render_source",
-        "markdown_generation_status": "generated_funded_state_reconciled_audit_companion",
+        "markdown_role": "funded_state_derived_delivery_artifact",
+        "markdown_generation_status": "generated_from_normalized_funded_state",
         "macro_policy_pack": args.macro_pack,
         "macro_source_report_date": (macro_pack.get("donor_provenance") or {}).get("source_report_date"),
         "macro_freshness_authority": "donor_provenance.source_report_date",
