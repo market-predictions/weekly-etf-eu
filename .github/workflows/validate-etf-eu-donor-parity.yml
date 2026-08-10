@@ -38,7 +38,7 @@ jobs:
             tools/build_etf_eu_routine_report_package_v2.py
       - name: Run donor-parity regressions
         run: |
-          pytest -q \
+          python -m pytest -q \
             tests/test_etf_eu_donor_parity_contract.py \
             tests/test_etf_eu_donor_discovery_bridge.py \
             tests/test_resolve_etf_eu_completed_close_date.py
