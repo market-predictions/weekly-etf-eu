@@ -164,7 +164,7 @@ lanes:
 
   - lane_name: Developed ex-U.S. equity UCITS
     taxonomy_tag: non_us_developed_equities
-    bucket: india_regional_industrialization
+    bucket: regional_diversification
     benchmark_proxy: IEFA
     proxy_authority: research_only
     mapping_status: exact_ucits_mapping_available_but_fresh_fundability_evidence_required
@@ -223,7 +223,7 @@ lanes:
 
   - lane_name: Core U.S. equity UCITS
     taxonomy_tag: core_us_equity
-    bucket: ai_digital_infrastructure
+    bucket: core_equity
     benchmark_proxy: SPY
     proxy_authority: research_only
     mapping_status: funded_exact_ucits_line
@@ -235,7 +235,7 @@ lanes:
 
   - lane_name: Global core equity UCITS
     taxonomy_tag: global_core_equity
-    bucket: india_regional_industrialization
+    bucket: global_core_equity
     benchmark_proxy: null
     proxy_source: broad_core_reference
     proxy_authority: research_only
@@ -248,7 +248,7 @@ lanes:
 
   - lane_name: Aggregate bond stabiliser UCITS
     taxonomy_tag: aggregate_bonds
-    bucket: grid_power_electrification
+    bucket: fixed_income_ballast
     benchmark_proxy: null
     proxy_source: portfolio_role_reference
     proxy_authority: research_only
