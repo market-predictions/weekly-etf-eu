@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
-"""Build an independent Weekly ETF EU release-assurance evidence record.
+"""Build Weekly ETF EU machine release-evidence preflight.
 
-This script intentionally does not render reports, mutate portfolio state, or send mail.
-It reconstructs the release candidate from immutable files and records a fail-closed
-PASS/FAIL decision for the separate governance role.
+This tool is intentionally *not* independent governance assurance. It may be run by
+implementation or CI to collect deterministic evidence, hashes and blockers for a
+separate governance_release_assurance reviewer. A machine preflight PASS never grants
+merge or delivery authority.
 """
 from __future__ import annotations
 
@@ -16,7 +17,7 @@ from pathlib import Path
 from typing import Any
 
 IMPLEMENTATION_ROLE = "implementation_operations"
-ASSURANCE_ROLE = "governance_release_assurance"
+REQUIRED_ASSURANCE_ROLE = "governance_release_assurance"
 REQUIRED_CLIENT_ARTIFACTS = ("nl_html", "nl_pdf", "en_html", "en_pdf")
 
 
@@ -33,7 +34,6 @@ def load_json(path: Path) -> Any:
 
 
 def contains_identity(payload: Any, value: str) -> bool:
-    """Return True when a scalar value appears anywhere in a JSON-like payload."""
     if isinstance(payload, dict):
         return any(contains_identity(item, value) for item in payload.values())
     if isinstance(payload, list):
@@ -157,13 +157,7 @@ def main() -> int:
             identity_failures.append(f"{key}: run_id not bound")
         if not contains_identity(payload, args.report_date):
             identity_failures.append(f"{key}: report_date not bound")
-    add_check(
-        checks,
-        blockers,
-        "manifest_identity_consistent",
-        not identity_failures,
-        identity_failures,
-    )
+    add_check(checks, blockers, "manifest_identity_consistent", not identity_failures, identity_failures)
 
     visual = parsed.get("visual_review", {})
     visual_passed = (
@@ -201,28 +195,30 @@ def main() -> int:
     add_check(
         checks,
         blockers,
-        "roles_separated",
-        IMPLEMENTATION_ROLE != ASSURANCE_ROLE,
+        "independent_assurance_not_claimed",
+        True,
         {
             "implementation_role": IMPLEMENTATION_ROLE,
-            "assurance_role": ASSURANCE_ROLE,
-            "implementation_may_self_certify": False,
+            "required_assurance_role": REQUIRED_ASSURANCE_ROLE,
+            "machine_preflight_may_self_certify": False,
+            "independent_assurance_verdict": None,
+            "delivery_authority": False,
         },
     )
 
-    decision = "PASS" if not blockers else "FAIL"
+    status = "PASS" if not blockers else "FAIL"
     output = {
-        "schema_version": 1,
+        "schema_version": 2,
+        "artifact_type": "etf_eu_release_evidence_preflight",
         "product": "weekly_etf_eu",
         "generated_at_utc": datetime.now(timezone.utc).replace(microsecond=0).isoformat(),
-        "decision": decision,
+        "machine_preflight_status": status,
         "implementation_role": IMPLEMENTATION_ROLE,
-        "assurance_role": ASSURANCE_ROLE,
-        "separation_of_duties": {
-            "same_role": False,
-            "implementation_may_self_certify": False,
-            "assurance_may_mutate_release_candidate": False,
-        },
+        "required_assurance_role": REQUIRED_ASSURANCE_ROLE,
+        "independent_assurance_verdict": None,
+        "independent_assurance_required": True,
+        "merge_authority": False,
+        "delivery_authority": False,
         "identity": {
             "source_sha": args.source_sha.lower(),
             "run_id": args.run_id,
@@ -235,8 +231,8 @@ def main() -> int:
     }
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(output, indent=2, sort_keys=True) + "\n", encoding="utf-8")
-    print(f"ETF_EU_RELEASE_ASSURANCE_{decision} | output={args.output} | blockers={len(blockers)}")
-    return 0 if decision == "PASS" else 1
+    print(f"ETF_EU_RELEASE_EVIDENCE_PREFLIGHT_{status} | output={args.output} | blockers={len(blockers)}")
+    return 0 if status == "PASS" else 1
 
 
 if __name__ == "__main__":
