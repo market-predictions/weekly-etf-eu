@@ -8,7 +8,7 @@ This file is the first entry point for serious work on `market-predictions/weekl
 Dutch/EU-client ETF review using UCITS ETFs as investable instruments.
 ```
 
-The upstream `market-predictions/weekly-etf` repository is a donor for mature implementation patterns. It is not authority for EU holdings, recipients, trading lines or delivery decisions.
+The upstream `market-predictions/weekly-etf` repository is a donor for mature decision/state patterns. It is not authority for EU holdings, recipients, trading lines, allocation decisions or delivery decisions.
 
 ## Mandatory session start
 
@@ -35,6 +35,19 @@ Always distinguish:
 4. **Operational runbook** — generation, validation, persistence, transport and closeout.
 5. **Governance and release assurance** — independent proof that the complete requested outcome was achieved.
 
+## Cross-project governance authority
+
+Canonical shared governance and claim/branch standards live in:
+
+`market-predictions/control-plane`
+
+Relevant standards:
+- `control/CROSS_PROJECT_PRINCIPAL_AGENT_OPERATING_CHARTER_V1.md`
+- `control/CROSS_PROJECT_TWO_ROLE_GOVERNANCE_STANDARD_V1.md`
+- `control/WORK_CLAIM_AND_BRANCH_LIFECYCLE_STANDARD_V1.md`
+
+Local compatibility copies are migration provenance, not current shared authority.
+
 ## Two-role governance model
 
 The project has one user-facing coordinator and two internally separated roles:
@@ -44,104 +57,139 @@ implementation_operations
 governance_release_assurance
 ```
 
-Role A builds or repairs a release candidate. Role B independently reconstructs and certifies or rejects it. Role A may not self-certify. Role B may not mutate the candidate it certifies.
+Role A builds/repairs a candidate. Role B independently reviews one exact frozen candidate head. Role A may not self-certify. Role B may not mutate the reviewed candidate.
 
-Project authority files:
-
+Project governance authority:
 - `control/PROJECT_GOVERNANCE_BOOTSTRAP.md`
 - `control/ETF_EU_TWO_ROLE_GOVERNANCE_MODEL_V1.md`
-- `control/ETF_EU_GOVERNANCE_RELEASE_ASSURANCE_WORK_PACKAGE_20260805.md`
+- `control/ETF_EU_WORKFLOW_AUTHORITY_INDEX_V1.md`
 - `control/ETF_EU_GOVERNANCE_CHANGELOG.md`
 - `control/WORK_CLAIMS.json`
 
-Machine controls:
-
+Historical machine tooling retains compatibility filenames:
 - `tools/build_etf_eu_release_assurance.py`
 - `tools/validate_etf_eu_release_assurance.py`
 - `.github/workflows/validate-etf-eu-release-assurance.yml`
 
-The canonical routine workflow must run the governance gate immediately before guarded transport:
-
-- `.github/workflows/run-weekly-etf-eu-routine.yml`
-
-## Cross-project governance authority
-
-The canonical shared governance, operating-method and claim/branch lifecycle standards live in the private repository:
-
-```text
-market-predictions/control-plane
-```
-
-Canonical standards include:
-
-```text
-control/CROSS_PROJECT_PRINCIPAL_AGENT_OPERATING_CHARTER_V1.md
-control/CROSS_PROJECT_TWO_ROLE_GOVERNANCE_STANDARD_V1.md
-control/WORK_CLAIM_AND_BRANCH_LIFECYCLE_STANDARD_V1.md
-```
-
-The work-claim lifecycle standard requires proactive coordinator reconciliation, one active release-integration claim per release line, explicit claim closure/transfer/supersession through handover, and a hard stop on material branch drift.
-
-The following local files remain as migration provenance and compatibility history, not current shared authority:
-
-- `control/CROSS_PROJECT_TWO_ROLE_GOVERNANCE_STANDARD_V1.md`
-- `control/CROSS_PROJECT_GOVERNANCE_ADOPTION_REGISTER.md`
-- `control/PROJECT_GOVERNANCE_BOOTSTRAP_TEMPLATE.md`
-- `control/PROJECT_PROMPT_GOVERNANCE_CLAUSE.md`
-- `control/CROSS_PROJECT_GOVERNANCE_ROLLOUT_WORK_PACKAGE_20260805.md`
-- `control/decisions/CROSS_PROJECT_GOVERNANCE_STANDARD_ADOPTION_DECISION_20260805.md`
-
-ETF EU instrument, state, report, recipient, delivery, portfolio and project-local work-claim authority remains local to this repository.
+Their current authority is **machine release-evidence preflight only**. They cannot issue an independent assurance verdict, merge authority or delivery authority.
 
 ## Work-claim and handover authority
 
 Machine-readable claim registry:
 
-```text
-control/WORK_CLAIMS.json
-```
+`control/WORK_CLAIMS.json`
 
 Durable ownership/lineage handovers:
 
-```text
-handover/
-```
+`handover/`
 
 Rules:
+- detect stale/orphaned claims without principal prompting;
+- one active release-integration claim per release line;
+- merged/closed PRs may not leave overlapping active claims;
+- superseded branches are read-only evidence donors;
+- generated reports/CI retriggers may not prolong a materially stale line;
+- roadmap/current-state must point at the surviving claim;
+- every handover ends `CLOSE`, `TRANSFER` or `SUPERSEDE`.
 
-- the coordinator must detect orphaned/stale claims without principal prompting;
-- a merged or closed PR may not silently leave an overlapping claim active;
-- a superseded branch is read-only implementation/evidence donor material;
-- generated reports and CI retriggers may not prolong a materially stale release line;
-- roadmap/current-state records must point at the one surviving integration claim;
-- every handover must end in `CLOSE`, `TRANSFER` or `SUPERSEDE` disposition.
+## Canonical EU decision and state authority
 
-## Canonical EU control files
-
-- `control/ETF_EU_PORTING_STRATEGY_DECISION_20260618.md`
+- `control/ETF_EU_ALLOCATION_AUTHORITY_V1.md`
+- `control/ETF_EU_DISCOVERY_FUNDABILITY_CONTRACT_V1.md`
 - `control/UCITS_ETF_REVIEW_CONTRACT_V1.md`
 - `control/UCITS_INVESTABILITY_RULES.md`
 - `control/UCITS_SYMBOL_REGISTRY_CONTRACT.md`
-- `control/UCITS_MIGRATION_PLAN.md`
-- `control/ETF_EU_PRODUCTION_DELIVERY_CLOSEOUT_CONTRACT_V1.md`
-- `control/ETF_EU_ROUTINE_WEEKLY_PRODUCTION_RUNBOOK_V1.md`
-- `control/ETF_EU_TWO_ROLE_GOVERNANCE_MODEL_V1.md`
+- `output/etf_eu_portfolio_state.json`
+- `output/etf_eu_trade_ledger.csv`
+- `output/etf_eu_valuation_history.csv`
+- `output/etf_eu_recommendation_scorecard.csv`
+
+Authority order for current allocation:
+
+```text
+explicit current allocation decision
+> protected portfolio state + trade ledger
+> current completed-close valuation + current recommendation evidence
+> current donor opportunity state mapped to verified UCITS lines
+> historical strategy/shadow context
+```
+
+Historical CAP01/transition target values are audit context, not current allocation authority.
 
 ## Canonical EU configuration
 
-- `config/ucits_symbol_registry.yml`
+- `config/ucits_symbol_registry.yml` — identity/investability authority only; not funded-state authority
 - `config/ucits_benchmark_proxy_map.yml`
 - `config/nl_client_investability_rules.yml`
 - `config/etf_eu_discovery_universe.yml`
 
-## Canonical EU state
+Historical/non-executable allocation context:
+- `config/etf_eu_transition_policy_v1.yml`
+- `config/etf_eu_target_allocation.yml`
 
-- `output/etf_eu_portfolio_state.json`
-- `output/etf_eu_valuation_history.csv`
-- `output/etf_eu_trade_ledger.csv`
-- `output/etf_eu_recommendation_scorecard.csv`
+Both are explicitly non-current authority.
 
-Compatibility files from inherited repositories are not authority unless a current EU contract explicitly imports them.
+## Canonical output behavior
+
+Current state is normalized before rendering by:
+- `runtime/apply_etf_eu_donor_parity_contract.py`
+
+Funded client rendering:
+- `runtime/render_etf_eu_client_grade_v2_funded.py`
+
+Rules:
+- all funded positions must be present, including L0CK;
+- no historical strategic/phase target may appear as a current target;
+- no retired 50/35/15 or fixed-reserve policy may appear as current control;
+- missing current re-underwriting is `UNRESOLVED`, not implicit Hold;
+- NL and EN are produced from one normalized state.
+
+## Canonical operational topology
+
+Authoritative index:
+
+`control/ETF_EU_WORKFLOW_AUTHORITY_INDEX_V1.md`
+
+### Candidate build
+
+`.github/workflows/run-weekly-etf-eu-routine.yml`
+
+This workflow:
+- refuses `main`;
+- builds and machine-validates a candidate;
+- may persist generated candidate evidence only to its candidate branch;
+- cannot self-assure;
+- cannot merge;
+- cannot create delivery authority;
+- cannot send email;
+- cannot execute broker actions.
+
+### Independent assurance
+
+After the candidate is frozen, a separate `governance_release_assurance` reviewer returns:
+
+`PASS | FAIL | INDETERMINATE`
+
+on the exact head. Any semantic candidate change invalidates the verdict.
+
+### Merge / exact-main
+
+Merge is permitted only after independent PASS and unchanged reviewed head. Exact-main validation follows merge.
+
+### Guarded delivery
+
+`.github/workflows/send-weekly-etf-eu-controlled-transport.yml`
+
+This is the sole active real delivery workflow. It is main-only and requires a committed guarded-delivery authority binding:
+- exact independently assured candidate head;
+- approved report commit in main lineage;
+- independent PASS evidence reference;
+- separate principal guarded-send authorization;
+- exact NL/EN MD/HTML/PDF paths and SHA-256 hashes.
+
+It sends the approved artifacts without re-rendering. SMTP success is not inbox receipt. Delivery closes only on positive independent receipt/attachment evidence.
+
+Historical activation/send/repair/preview workflows are retained only as `.yml.disabled` audit history.
 
 ## Upstream-first reuse rule
 
@@ -150,52 +198,41 @@ Before creating or materially changing an EU workflow, runtime script, validator
 1. inspect the closest mature upstream implementation;
 2. choose port, adapt, wrap or intentional divergence;
 3. record the decision;
-4. never import U.S. state or recipient authority as EU authority.
+4. never import U.S. state or recipient authority as EU authority;
+5. do not copy a donor operational weakness merely to achieve superficial symmetry.
 
 ## Non-negotiable controls
 
 - Use ISIN-first identity; ticker alone is insufficient.
 - Do not present U.S.-listed ETFs as Dutch/EU investable holdings.
-- Do not fund an instrument before investability and pricing gates pass.
-- Do not mutate portfolio state or ledger without explicit authority.
+- Do not fund an instrument before investability, pricing, re-underwriting and explicit allocation gates pass.
+- Do not mutate protected portfolio state or ledger without explicit allocation authority.
+- Do not infer current Hold/Add/Reduce from historical targets, old actions or report prose.
+- Do not turn donor review/disclosure thresholds into allocation caps.
+- Do not claim independent assurance from machine/CI evidence.
 - Do not claim production delivery from generation, validation or SMTP success alone.
-- Bind source SHA, run identity and report hashes before guarded transport.
+- Bind exact approved artifacts before guarded transport.
 - Require independent receipt evidence before `DELIVERY_CONFIRMED`.
 - Treat missing or contradictory evidence as a blocker.
-- Do not treat legacy workflow presence as proof of production authority.
-- Do not require the user to coordinate implementation and assurance roles separately.
 - Do not continue implementation/release accumulation on a materially stale claim branch.
-
-## Run verification discipline
-
-When the coordinator triggers a GitHub Actions run, the coordinator owns the verification loop:
-
-1. resolve the run and commit SHA;
-2. inspect workflow and job status;
-3. inspect the exact failing step and logs;
-4. verify generated artifacts and manifests;
-5. run independent governance assurance;
-6. verify transport and receipt evidence;
-7. report the precise terminal state.
-
-The user is not the default workflow monitor.
 
 ## Current operating mode
 
 ```text
-ROUTINE_WEEKLY_ETF_EU_PRODUCTION_WITH_INDEPENDENT_RELEASE_ASSURANCE
+DONOR_PARITY_RECONCILIATION_WITH_INDEPENDENT_RELEASE_ASSURANCE
 ```
 
 Current direction:
 
 ```text
-claim/branch reconciliation
-→ fresh pricing and immutable run identity
-→ authoritative portfolio/state contract
-→ Dutch and English report generation
-→ implementation validation
-→ independent governance reconstruction and hash binding
-→ guarded transport
+PR91 implementation convergence
+→ final exact-head CI
+→ frozen implementation handover
+→ independent governance_release_assurance
+→ merge if PASS and unchanged
+→ exact-main validation
+→ issue/claim/project/control-plane closeout
+→ separate fresh-report production cycle
+→ separately authorized guarded transport
 → independent receipt verification
-→ production closeout
 ```
