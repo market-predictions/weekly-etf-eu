@@ -1,0 +1,20 @@
+{
+  "delivery_authority": false,
+  "donor_commit": "f61e59e6b4b8f7fc02a16eb42f01f23d8b906985",
+  "funded_position_count": 0,
+  "line_count": 13,
+  "macro_artifact": "/home/runner/work/weekly-etf-eu/weekly-etf-eu/output/macro/etf_eu_macro_policy_20260805_31342220143_2.json",
+  "portfolio_mutation": false,
+  "priced_line_count": 12,
+  "pricing_artifact": "/home/runner/work/weekly-etf-eu/weekly-etf-eu/output/pricing/ucits_close_price_validation_basket_results_20260805_31342220143_2.json",
+  "pricing_qualification": "/home/runner/work/weekly-etf-eu/weekly-etf-eu/output/pricing/ucits_price_provider_qualification_20260805_31342220143_2.json",
+  "protected_state_unchanged": true,
+  "report_date": "2026-08-05",
+  "report_suffix": "260805_01",
+  "routine_manifest": "/home/runner/work/weekly-etf-eu/weekly-etf-eu/output/run_manifests/etf_eu_routine_run_manifest_2026-08-05_20260805_31342220143_2.json",
+  "run_id": "20260805_31342220143_2",
+  "schema_version": "etf_eu_aug3_expanded_report_run_summary_v1",
+  "source_sha": "05b9b9db0d0e2c917aca2113df68aa4cb4e37ef4",
+  "state": "/home/runner/work/weekly-etf-eu/weekly-etf-eu/output/routine_preview/etf_eu_production_convergence_state_20260805_31342220143_2.json",
+  "valuation_overlay": "/home/runner/work/weekly-etf-eu/weekly-etf-eu/output/routine_preview/etf_eu_routine_valuation_overlay_20260805_31342220143_2.json"
+}
