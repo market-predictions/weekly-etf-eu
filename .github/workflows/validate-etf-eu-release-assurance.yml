@@ -1,4 +1,4 @@
-name: Validate ETF EU release assurance
+name: Validate ETF EU release evidence preflight
 
 on:
   pull_request:
@@ -13,7 +13,7 @@ on:
   workflow_dispatch:
     inputs:
       evidence_path:
-        description: "Existing release-assurance evidence JSON to validate"
+        description: "Existing machine release-evidence preflight JSON to validate"
         required: false
         default: ""
 
@@ -21,7 +21,7 @@ permissions:
   contents: read
 
 jobs:
-  governance-contract:
+  machine-evidence-contract:
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
@@ -32,32 +32,38 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Compile governance tools
+      - name: Compile machine evidence tools
         run: |
           set -euo pipefail
           python -m py_compile \
             tools/build_etf_eu_release_assurance.py \
             tools/validate_etf_eu_release_assurance.py
 
-      - name: Validate positive contract fixture
+      - name: Validate positive machine-preflight fixture
         run: |
           set -euo pipefail
           python tools/validate_etf_eu_release_assurance.py \
             --evidence fixtures/governance/etf_eu_release_assurance_pass.json
 
-      - name: Require negative fixture rejection
+      - name: Require negative machine-preflight fixture rejection
         run: |
           set -euo pipefail
           if python tools/validate_etf_eu_release_assurance.py \
             --evidence fixtures/governance/etf_eu_release_assurance_fail.json; then
-            echo "ETF_EU_NEGATIVE_GOVERNANCE_FIXTURE_UNEXPECTEDLY_PASSED" >&2
+            echo "ETF_EU_NEGATIVE_PREFLIGHT_FIXTURE_UNEXPECTEDLY_PASSED" >&2
             exit 1
           fi
-          echo "ETF_EU_NEGATIVE_GOVERNANCE_FIXTURE_REJECTED"
+          echo "ETF_EU_NEGATIVE_PREFLIGHT_FIXTURE_REJECTED"
 
-      - name: Validate supplied release evidence
+      - name: Validate supplied machine evidence
         if: ${{ github.event_name == 'workflow_dispatch' && inputs.evidence_path != '' }}
         run: |
           set -euo pipefail
           python tools/validate_etf_eu_release_assurance.py \
             --evidence "${{ inputs.evidence_path }}"
+
+      - name: State independence boundary
+        run: |
+          echo "ETF_EU_MACHINE_PREFLIGHT_IS_NOT_INDEPENDENT_ASSURANCE=true"
+          echo "ETF_EU_INDEPENDENT_ASSURANCE_REQUIRED=true"
+          echo "ETF_EU_DELIVERY_AUTHORITY=false"
