@@ -21,15 +21,8 @@
       "last_reconciled_at": "2026-08-09T21:20:00Z",
       "pull_request": 80,
       "pull_request_or_issue_reference": "PR #80",
-      "dependencies": [
-        {"pull_request": 78},
-        {"pull_request": 82}
-      ],
-      "handover": {
-        "disposition": "SUPERSEDE",
-        "successor_claim_id": "ETF-EU-RELEASE-INTEGRATION-V3",
-        "path": "handover/ETF_EU_PR80_TO_RELEASE_INTEGRATION_V3_20260809.md"
-      }
+      "dependencies": [{"pull_request": 78}, {"pull_request": 82}],
+      "handover": {"disposition": "SUPERSEDE", "successor_claim_id": "ETF-EU-RELEASE-INTEGRATION-V3", "path": "handover/ETF_EU_PR80_TO_RELEASE_INTEGRATION_V3_20260809.md"}
     },
     {
       "claim_id": "ETF-EU-RELEASE-INTEGRATION-V3",
@@ -45,19 +38,11 @@
       "current_claim_head_sha": "888a55b5bc8ae3d465691117157c616893b3addb",
       "status": "SUPERSEDED",
       "opened_at": "2026-08-09T21:20:00Z",
-      "last_reconciled_at": "2026-08-10T09:53:00Z",
+      "last_reconciled_at": "2026-08-10T10:08:32Z",
       "pull_request": 84,
       "pull_request_or_issue_reference": "PR #84; issue #87 exact-head release assurance PASS; frozen read-only evidence",
-      "dependencies": [
-        {"pull_request": 78},
-        {"pull_request": 82},
-        {"issue": 87}
-      ],
-      "handover": {
-        "disposition": "SUPERSEDE",
-        "successor_claim_id": "ETF-EU-DONOR-CONVERGENCE-V1",
-        "path": "handover/ETF_EU_PR84_TO_DONOR_CONVERGENCE_V1_20260810.md"
-      }
+      "dependencies": [{"pull_request": 78}, {"pull_request": 82}, {"issue": 87}],
+      "handover": {"disposition": "SUPERSEDE", "successor_claim_id": "ETF-EU-DONOR-CONVERGENCE-V1", "path": "handover/ETF_EU_PR84_TO_DONOR_CONVERGENCE_V1_20260810.md"}
     },
     {
       "claim_id": "ETF-EU-DONOR-CONVERGENCE-V1",
@@ -70,16 +55,13 @@
       "branch": "agent/etf-eu-donor-convergence-v1",
       "base_or_target_branch": "main",
       "last_reconciled_target_sha": "76325f60a3abcda4a059f7823c9c0b5024802870",
-      "current_claim_head_sha": "557a2a0872976e042eb26292ff01b43ec5e799ec",
+      "current_claim_head_sha": "81089bc75d83d3cf90fbde482ec709fd8c45f8eb",
       "status": "ACTIVE",
       "opened_at": "2026-08-10T09:53:00Z",
-      "last_reconciled_at": "2026-08-10T09:53:00Z",
-      "pull_request": 0,
-      "pull_request_or_issue_reference": "successor to frozen PR #84; PR to be opened after control/authority bootstrap",
-      "dependencies": [
-        {"pull_request": 84},
-        {"issue": 87}
-      ],
+      "last_reconciled_at": "2026-08-10T10:08:32Z",
+      "pull_request": 88,
+      "pull_request_or_issue_reference": "PR #88 — ETF EU donor decision/runtime authority convergence",
+      "dependencies": [{"pull_request": 84}, {"issue": 87}],
       "handover": null
     }
   ]
