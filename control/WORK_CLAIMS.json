@@ -21,8 +21,8 @@
       "last_reconciled_at": "2026-08-09T21:20:00Z",
       "pull_request": 80,
       "pull_request_or_issue_reference": "PR #80",
-      "dependencies": [{"pull_request": 78},{"pull_request": 82}],
-      "handover": {"disposition":"SUPERSEDE","successor_claim_id":"ETF-EU-RELEASE-INTEGRATION-V3","path":"handover/ETF_EU_PR80_TO_RELEASE_INTEGRATION_V3_20260809.md"}
+      "dependencies": [{"pull_request": 78}, {"pull_request": 82}],
+      "handover": {"disposition": "SUPERSEDE", "successor_claim_id": "ETF-EU-RELEASE-INTEGRATION-V3", "path": "handover/ETF_EU_PR80_TO_RELEASE_INTEGRATION_V3_20260809.md"}
     },
     {
       "claim_id": "ETF-EU-RELEASE-INTEGRATION-V3",
@@ -41,8 +41,8 @@
       "last_reconciled_at": "2026-08-10T16:05:00+02:00",
       "pull_request": 84,
       "pull_request_or_issue_reference": "PR #84 merged; assurance issue #87 PASS",
-      "dependencies": [{"pull_request":78},{"pull_request":82}],
-      "handover": {"disposition":"CLOSE","path":"handover/ETF_EU_RELEASE_INTEGRATION_V3_CLOSE_20260810.md"}
+      "dependencies": [{"pull_request": 78}, {"pull_request": 82}],
+      "handover": {"disposition": "CLOSE", "path": "handover/ETF_EU_RELEASE_INTEGRATION_V3_CLOSE_20260810.md"}
     },
     {
       "claim_id": "ETF-EU-DONOR-PARITY-RECONCILIATION-V1",
@@ -55,13 +55,13 @@
       "branch": "agent/etf-eu-donor-parity-reconciliation-v1",
       "base_or_target_branch": "main",
       "last_reconciled_target_sha": "3d97712a9bd135192f67b8c5dd860d295adbf5fc",
-      "current_claim_head_sha": "3d97712a9bd135192f67b8c5dd860d295adbf5fc",
+      "current_claim_head_sha": "010b15152542efb931c5989584ffdea46f04363a",
       "status": "ACTIVE",
       "opened_at": "2026-08-10T16:04:10+02:00",
-      "last_reconciled_at": "2026-08-10T16:05:00+02:00",
-      "pull_request": 0,
-      "pull_request_or_issue_reference": "Issue #90; PR to be opened after initial P0/P1 implementation slice",
-      "dependencies": [{"pull_request":84}],
+      "last_reconciled_at": "2026-08-10T16:50:00+02:00",
+      "pull_request": 91,
+      "pull_request_or_issue_reference": "Issue #90; draft PR #91; implementation converged, administrative closeout and exact-head assurance freeze pending",
+      "dependencies": [{"pull_request": 84}],
       "handover": null
     }
   ]
