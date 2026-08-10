@@ -55,14 +55,19 @@
       "branch": "agent/etf-eu-donor-parity-reconciliation-v1",
       "base_or_target_branch": "main",
       "last_reconciled_target_sha": "3d97712a9bd135192f67b8c5dd860d295adbf5fc",
-      "current_claim_head_sha": "010b15152542efb931c5989584ffdea46f04363a",
-      "status": "ACTIVE",
+      "current_claim_head_sha": "26836da0222b5569ac7d89f6e44fdca497c89a6a",
+      "status": "HANDOVER_READY",
       "opened_at": "2026-08-10T16:04:10+02:00",
-      "last_reconciled_at": "2026-08-10T16:50:00+02:00",
+      "last_reconciled_at": "2026-08-10T18:02:51+02:00",
       "pull_request": 91,
-      "pull_request_or_issue_reference": "Issue #90; draft PR #91; implementation converged, administrative closeout and exact-head assurance freeze pending",
+      "pull_request_or_issue_reference": "Issue #90; draft PR #91; pre-handover head 26836da0 passed all required implementation and research-shadow gates; resulting live PR head after atomic handover commit must be frozen in independent assurance issue",
       "dependencies": [{"pull_request": 84}],
-      "handover": null
+      "handover": {
+        "disposition": "HANDOVER_READY",
+        "path": "handover/ETF_EU_DONOR_PARITY_RECONCILIATION_V1_20260810.md",
+        "validated_pre_handover_head_sha": "26836da0222b5569ac7d89f6e44fdca497c89a6a",
+        "exact_assurance_head_authority": "live PR #91 head after the atomic handover commit, recorded externally in the independent assurance issue"
+      }
     }
   ]
 }
