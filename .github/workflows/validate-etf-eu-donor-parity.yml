@@ -14,13 +14,14 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-      - run: pip install pytest pyyaml
+      - run: pip install pytest pyyaml weasyprint
       - name: Compile parity and authority modules
         run: |
           python -m py_compile \
             runtime/apply_etf_eu_donor_parity_contract.py \
             runtime/build_etf_eu_donor_discovery_bridge.py \
             runtime/adapt_weekly_etf_macro_for_eu.py \
+            runtime/render_etf_eu_client_grade_v2_funded.py \
             runtime/send_etf_eu_controlled_report.py \
             tools/resolve_etf_eu_completed_close_date.py \
             tools/select_weekly_etf_donor_lane_artifact.py \
@@ -35,7 +36,8 @@ jobs:
             tests/test_etf_eu_donor_discovery_bridge.py \
             tests/test_resolve_etf_eu_completed_close_date.py \
             tests/test_etf_eu_guarded_delivery_authority.py \
-            tests/test_etf_eu_routine_request_authority.py
+            tests/test_etf_eu_routine_request_authority.py \
+            tests/test_etf_eu_funded_renderer_authority.py
       - name: Validate workflow authority topology
         run: |
           python tools/validate_etf_eu_workflow_authority.py
@@ -51,6 +53,7 @@ jobs:
           target = yaml.safe_load(Path('config/etf_eu_target_allocation.yml').read_text(encoding='utf-8'))
           assert 'broker_specific_permission_required_for_model=false' in authority
           assert 'broker_permission_required_for_real_execution=true' in authority
+          assert '~40% effective factor exposure = CONCENTRATION_DISCLOSURE_TRIGGER' in authority
           assert 'there is no universal current ETF EU cash floor' in runbook
           assert 'Transition allocator, CAP01 first-tranche activation' in runbook
           assert transition['authority_status'] == 'HISTORICAL_NON_EXECUTABLE'
