@@ -31,7 +31,7 @@ def _load_source(source: str) -> tuple[dict[str, Any], str, str]:
         raw = source_path.read_bytes()
         resolved_source = source_path.resolve().as_uri()
     else:
-        request = urllib.request.Request(source, headers={"User-Agent": "weekly-etf-eu-macro-adapter/1.1"})
+        request = urllib.request.Request(source, headers={"User-Agent": "weekly-etf-eu-macro-adapter/1.2"})
         with urllib.request.urlopen(request, timeout=30) as response:
             raw = response.read()
         resolved_source = source
@@ -45,10 +45,10 @@ def adapt(donor: dict[str, Any], *, report_date: str, run_id: str, source_url: s
         raise RuntimeError("Could not resolve report date or donor macro date")
     age_days = (target_date - donor_date).days
     if age_days < 0 or age_days > 3:
-        raise RuntimeError(f"Donor macro pack is not current enough for EU shadow run: age_days={age_days}")
+        raise RuntimeError(f"Donor macro pack is not current enough for EU routine run: age_days={age_days}")
 
     payload = copy.deepcopy(donor)
-    payload["schema_version"] = "etf_eu_macro_policy_pack_v1"
+    payload["schema_version"] = "etf_eu_macro_policy_pack_v2"
     payload["artifact_type"] = "etf_eu_macro_policy_pack"
     payload["generated_at_utc"] = _utc_now()
     payload["report_date"] = report_date
@@ -63,6 +63,8 @@ def adapt(donor: dict[str, Any], *, report_date: str, run_id: str, source_url: s
         "source_report_date": donor.get("report_date"),
         "source_generated_at_utc": donor.get("generated_at_utc"),
         "age_days_at_eu_report_date": age_days,
+        "freshness_limit_days": 3,
+        "freshness_passed": True,
     }
     payload["authority"] = {
         "authority_class": "eu_descriptive_macro_context",
@@ -70,29 +72,32 @@ def adapt(donor: dict[str, Any], *, report_date: str, run_id: str, source_url: s
         "client_surface_allowed": True,
         "decision_authority": "descriptive_only",
         "shadow_only": True,
-        "input_state_contract": "Current weekly-etf macro pack is donor context; EU portfolio, UCITS registry and EU pricing remain authoritative.",
+        "input_state_contract": "Current weekly-etf macro pack is donor context; EU portfolio, UCITS registry, current pricing and current re-underwriting remain authoritative.",
         "output_contract": "Only client-safe descriptive regime, central-bank and policy context may enter the EU report.",
-        "operational_runbook": "Refresh from the current donor pack, record provenance, adapt implications to EU/UCITS, and never create funding or trade authority.",
+        "operational_runbook": "Refresh from the current donor pack, bind content hash and evidence date, adapt implications to EU/UCITS, and never create funding or trade authority.",
+        "broker_specific_permission_required_for_model": False,
+        "broker_permission_required_for_real_execution": True,
     }
 
     banks = payload.get("central_banks") if isinstance(payload.get("central_banks"), dict) else {}
     fed = banks.get("fed") if isinstance(banks.get("fed"), dict) else {}
     ecb = banks.get("ecb") if isinstance(banks.get("ecb"), dict) else {}
-    fed["etf_implication"] = "Maintain quality and cash discipline; any allocation still requires a verified UCITS instrument, current pricing and a separate capital decision."
-    ecb["etf_implication"] = "European equity or bond exposure remains conditional on UCITS identity, trading-line verification, current pricing and relative-strength confirmation."
+    fed["etf_implication"] = "Maintain quality and cash discipline; any model allocation still requires a verified UCITS instrument, current pricing, current re-underwriting and a separate capital decision."
+    ecb["etf_implication"] = "European equity or bond exposure remains conditional on UCITS identity, exact trading-line verification, current pricing, relative-strength evidence where relevant and a separate allocation decision."
     banks["fed"] = fed
     banks["ecb"] = ecb
     payload["central_banks"] = banks
 
     payload["portfolio_implications"] = [
-        "Retain cash until the selected UCITS trading line, broker availability and current pricing are jointly verified.",
-        "Broad U.S. core equity through verified UCITS lines remains the most mature implementation lane; thematic exposure still requires concentration discipline.",
-        "Macro context is descriptive and cannot by itself authorize funding, valuation or portfolio mutation.",
+        "Retain or deploy cash only after current UCITS identity, exact trading-line pricing, fundability and re-underwriting evidence support a separate allocation decision; there is no fixed cash minimum from historical transition policy.",
+        "Broad U.S. core equity through verified UCITS lines remains a mature implementation lane; thematic exposure still requires current concentration and overlap review.",
+        "Macro context is descriptive and cannot by itself authorize funding, valuation, portfolio mutation or real broker execution.",
     ]
     payload["eu_adaptation"] = {
         "isin_first": True,
         "us_etfs_research_only": True,
-        "valuation_grade": False,
+        "broker_specific_permission_required_for_model": False,
+        "broker_permission_required_for_real_execution": True,
         "funding_authority": False,
         "portfolio_mutation": False,
         "production_delivery_authority": False,
@@ -107,7 +112,7 @@ def adapt(donor: dict[str, Any], *, report_date: str, run_id: str, source_url: s
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Adapt the current Weekly ETF donor macro pack for EU/UCITS shadow reporting.")
+    parser = argparse.ArgumentParser(description="Adapt the current Weekly ETF donor macro pack for EU/UCITS routine reporting.")
     source_group = parser.add_mutually_exclusive_group(required=True)
     source_group.add_argument("--source-url")
     source_group.add_argument("--source", help="Backward-compatible local file path or URL")
@@ -141,8 +146,10 @@ def main() -> None:
         "source_sha256": source_sha256,
         "source_report_date": donor.get("report_date"),
         "eu_report_date": args.report_date,
+        "age_days_at_eu_report_date": payload["donor_provenance"]["age_days_at_eu_report_date"],
         "run_id": args.run_id,
         "authority": "descriptive_only",
+        "broker_specific_permission_required_for_model": False,
     }, indent=2, sort_keys=True))
 
 
