@@ -8,6 +8,7 @@ from typing import Any
 
 from runtime.apply_etf_eu_donor_parity_contract import apply_contract, write_recommendation_scorecard
 from runtime.build_etf_eu_client_grade_report_state import build_state
+from runtime.build_etf_eu_donor_discovery_bridge import write_bridge
 from runtime.inject_etf_eu_funded_identity_strip import inject_funded_identity_strip
 from runtime.polish_etf_eu_client_grade_html import polish
 from runtime.reconcile_etf_eu_funded_markdown import reconcile_funded_markdown
@@ -48,6 +49,27 @@ def build(args: argparse.Namespace) -> dict[str, Path]:
         raise RuntimeError(f"Client-grade v2 state is invalid: {state.get('blockers')}")
 
     state = apply_contract(state)
+    bridge_path: Path | None = None
+    if getattr(args, "donor_lane_artifact", None):
+        bridge_path = Path("output/runtime") / f"etf_eu_donor_discovery_bridge_{args.run_id}.json"
+        bridge = write_bridge(
+            Path(args.donor_lane_artifact),
+            Path(args.proxy_map),
+            Path(args.pricing_artifact),
+            Path(args.portfolio_state),
+            bridge_path,
+        )
+        state["donor_discovery_bridge"] = bridge
+        state["discovery_parity"] = {
+            "contract": "control/ETF_EU_DISCOVERY_FUNDABILITY_CONTRACT_V1.md",
+            "donor_lane_artifact": str(args.donor_lane_artifact),
+            "bridge_artifact": str(bridge_path),
+            "assessed_lane_count": bridge.get("assessed_lane_count"),
+            "assessed_buckets": bridge.get("assessed_buckets"),
+            "required_breadth_buckets": bridge.get("required_breadth_buckets"),
+            "funding_authority": False,
+        }
+
     write_recommendation_scorecard(state, Path(args.recommendation_scorecard), args.report_date, args.run_id)
     _write(state_path, state)
 
@@ -89,6 +111,8 @@ def build(args: argparse.Namespace) -> dict[str, Path]:
         "normalized_report_state": str(state_path),
         "recommendation_scorecard": args.recommendation_scorecard,
         "allocation_authority_contract": "control/ETF_EU_ALLOCATION_AUTHORITY_V1.md",
+        "discovery_fundability_contract": "control/ETF_EU_DISCOVERY_FUNDABILITY_CONTRACT_V1.md",
+        "donor_discovery_bridge": str(bridge_path) if bridge_path else None,
         "donor_parity_contract": "runtime/apply_etf_eu_donor_parity_contract.py",
         "shadow_transition_policy_current_authority": False,
         "markdown_role": "funded_state_reconciled_audit_companion_not_v2_render_source",
@@ -102,7 +126,7 @@ def build(args: argparse.Namespace) -> dict[str, Path]:
         "equity_surface": "chart" if funded_state["equity_curve"]["show_chart"] else "cash_preservation_callout",
         "funded_position_count": funded_state["portfolio"]["position_count"],
         "full_generation_status": "client_grade_v2_generated_pending_quality_gates",
-        "upstream_pattern_adapted": "weekly-etf normalized report state, capital re-underwriting memory, investor/analyst hierarchy, macro surface, conditional equity curve and component renderer adapted for EU/UCITS production",
+        "upstream_pattern_adapted": "weekly-etf discovery breadth, normalized report state and capital re-underwriting memory adapted to EU/UCITS identity, pricing and fundability gates",
     }
     manifest.update(promotion_fields)
     manifest["renderer"] = "runtime/render_etf_eu_client_grade_v2_funded.py"
@@ -117,7 +141,7 @@ def build(args: argparse.Namespace) -> dict[str, Path]:
     _write(manifest_path, manifest)
     _write(ready_path, ready)
     _write(routine_path, routine)
-    return {
+    outputs = {
         **legacy_outputs,
         "state": state_path,
         "recommendation_scorecard": Path(args.recommendation_scorecard),
@@ -126,6 +150,9 @@ def build(args: argparse.Namespace) -> dict[str, Path]:
         "dutch_pdf": nl_pdf,
         "english_pdf": en_pdf,
     }
+    if bridge_path:
+        outputs["donor_discovery_bridge"] = bridge_path
+    return outputs
 
 
 def main() -> None:
@@ -136,6 +163,8 @@ def main() -> None:
     parser.add_argument("--pricing-artifact", required=True)
     parser.add_argument("--macro-pack", required=True)
     parser.add_argument("--registry", default="config/ucits_symbol_registry.yml")
+    parser.add_argument("--proxy-map", default="config/ucits_benchmark_proxy_map.yml")
+    parser.add_argument("--donor-lane-artifact")
     parser.add_argument("--output-dir", default="output/fresh_generation")
     parser.add_argument("--portfolio-state", default="output/etf_eu_portfolio_state.json")
     parser.add_argument("--valuation-history", default="output/etf_eu_valuation_history.csv")
