@@ -190,7 +190,7 @@ def test_full_candidate_package_builds_and_validates_all_six_client_artifacts(tm
     assert state["pricing_contract"]["funded_position_count"] == 4
 
     markdown_result = validate_markdown(Path(state_path), nl_md, en_md)
-    assert markdown_result["passed"] is True
+    assert markdown_result["passed"] is True, markdown_result["blockers"]
     assert markdown_result["funded_tickers"] == ["EUNA", "L0CK", "SXR8", "VWCE"]
 
     nl_text = nl_md.read_text(encoding="utf-8")
@@ -212,4 +212,4 @@ def test_full_candidate_package_builds_and_validates_all_six_client_artifacts(tm
             strict=True,
         )
     )
-    assert validation["client_grade_v2_passed"] is True
+    assert validation["client_grade_v2_passed"] is True, validation["blockers"]
