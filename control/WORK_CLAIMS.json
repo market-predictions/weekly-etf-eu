@@ -54,31 +54,55 @@
       "scope": "Remove transition/shadow authority leaks and close donor-parity gaps across decision, state, output, runbook and governance layers while preserving EU-specific UCITS controls; includes repair of PR #91 assurance FAIL blockers.",
       "branch": "agent/etf-eu-donor-parity-reconciliation-v1",
       "base_or_target_branch": "main",
-      "last_reconciled_target_sha": "3d97712a9bd135192f67b8c5dd860d295adbf5fc",
-      "current_claim_head_sha": "a9f7906df5abdaf00751552d4f950b3e13f0b778",
-      "status": "HANDOVER_READY",
+      "last_reconciled_target_sha": "202b0a629af34c697c7b7cb8fdce97fbb56bddbc",
+      "current_claim_head_sha": "686c658c03d5ba4cbd208e254822a73b3fb514f2",
+      "status": "SUPERSEDED",
       "opened_at": "2026-08-10T16:04:10+02:00",
-      "last_reconciled_at": "2026-08-10T23:22:00+02:00",
+      "last_reconciled_at": "2026-08-10T23:58:00+02:00",
       "pull_request": 91,
-      "pull_request_or_issue_reference": "Issue #90; PR #91 repaired after issue #92 FAIL; semantic baseline 19954692ff8b33d5ffac9b09d6654210a7194997 fully green; fresh exact-head assurance pending after atomic repair handover",
+      "pull_request_or_issue_reference": "Issue #90; PR #91 independently PASSed in issue #93 and merged as 202b0a629af34c697c7b7cb8fdce97fbb56bddbc; post-merge push exposed a separate US donor execution leak now owned by successor issue #94 / PR #95.",
       "dependencies": [{"pull_request": 84}],
       "last_assurance": {
-        "issue": 92,
-        "reviewed_head_sha": "a9f93af018623011ac4b2cae742d69ea1441b4ca",
-        "verdict": "FAIL",
-        "merge_authority": false,
+        "issue": 93,
+        "reviewed_head_sha": "686c658c03d5ba4cbd208e254822a73b3fb514f2",
+        "verdict": "PASS",
+        "merge_authority": true,
         "delivery_authority": false,
-        "blockers": [
-          "canonical pricing builder-validator-normalized-state v2 contract incoherent",
-          "Markdown delivery artifacts hard-coded to three funded positions and omitted L0CK"
-        ]
+        "evidence_comment_id": 5246389680
       },
       "handover": {
-        "disposition": "HANDOVER_READY",
-        "path": "handover/ETF_EU_PR91_ASSURANCE_FAIL_REPAIR_V1_20260810.md",
-        "validated_semantic_head_sha": "19954692ff8b33d5ffac9b09d6654210a7194997",
-        "pre_handover_governance_head_sha": "a9f7906df5abdaf00751552d4f950b3e13f0b778",
-        "exact_assurance_head_authority": "live PR #91 head after the atomic claim+handover commit; any subsequent head change invalidates assurance"
+        "disposition": "SUPERSEDE",
+        "path": "handover/ETF_EU_PR91_TO_POST_MERGE_US_DONOR_LEAK_REPAIR_V1_20260810.md",
+        "successor_claim_id": "ETF-EU-POST-MERGE-US-DONOR-LEAK-REPAIR-V1",
+        "merged_commit_sha": "202b0a629af34c697c7b7cb8fdce97fbb56bddbc",
+        "post_merge_defect_main_sha": "d771bde734ffda6120a77b1f4fe0e99bd198cc96"
+      }
+    },
+    {
+      "claim_id": "ETF-EU-POST-MERGE-US-DONOR-LEAK-REPAIR-V1",
+      "workpackage_id": "ETF-EU-WP-POST-MERGE-US-DONOR-LEAK-REPAIR-V1",
+      "repository": "market-predictions/weekly-etf-eu",
+      "release_line": "weekly-etf-eu-current-release",
+      "integration_claim": true,
+      "owner_role": "implementation_operations",
+      "scope": "Remove post-merge executable US Weekly ETF donor pricing/report paths from Weekly ETF EU, remove leaked generated US pricing artifacts, and make workflow/product-boundary gates fail closed on future donor-runtime reactivation.",
+      "branch": "agent/etf-eu-post-merge-us-donor-leak-repair-v1",
+      "base_or_target_branch": "main",
+      "last_reconciled_target_sha": "d771bde734ffda6120a77b1f4fe0e99bd198cc96",
+      "current_claim_head_sha": "cd532d81efff0cc6608313fac7dd6b28285bcccf",
+      "status": "ACTIVE",
+      "opened_at": "2026-08-10T23:54:33+02:00",
+      "last_reconciled_at": "2026-08-10T23:58:00+02:00",
+      "pull_request": 95,
+      "pull_request_or_issue_reference": "Issue #94; draft PR #95",
+      "dependencies": [{"pull_request": 91}],
+      "protected_boundaries": {
+        "portfolio_mutation": false,
+        "trade_ledger_write": false,
+        "real_broker_execution": false,
+        "report_delivery": false,
+        "smtp_send": false,
+        "allocation_decision_reopened": false
       }
     }
   ]
