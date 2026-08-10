@@ -55,12 +55,12 @@
       "branch": "agent/etf-eu-donor-parity-reconciliation-v1",
       "base_or_target_branch": "main",
       "last_reconciled_target_sha": "3d97712a9bd135192f67b8c5dd860d295adbf5fc",
-      "current_claim_head_sha": "2e1b8af622ac222fdcf8c99e80ef2992d1c6e460",
-      "status": "ACTIVE",
+      "current_claim_head_sha": "a9f7906df5abdaf00751552d4f950b3e13f0b778",
+      "status": "HANDOVER_READY",
       "opened_at": "2026-08-10T16:04:10+02:00",
-      "last_reconciled_at": "2026-08-10T22:58:00+02:00",
+      "last_reconciled_at": "2026-08-10T23:22:00+02:00",
       "pull_request": 91,
-      "pull_request_or_issue_reference": "Issue #90; PR #91 draft; issue #92 FAIL on frozen head a9f93af018623011ac4b2cae742d69ea1441b4ca; implementation repair active under ETF_EU_PR91_ASSURANCE_FAIL_REPAIR_V1",
+      "pull_request_or_issue_reference": "Issue #90; PR #91 repaired after issue #92 FAIL; semantic baseline 19954692ff8b33d5ffac9b09d6654210a7194997 fully green; fresh exact-head assurance pending after atomic repair handover",
       "dependencies": [{"pull_request": 84}],
       "last_assurance": {
         "issue": 92,
@@ -73,7 +73,13 @@
           "Markdown delivery artifacts hard-coded to three funded positions and omitted L0CK"
         ]
       },
-      "handover": null
+      "handover": {
+        "disposition": "HANDOVER_READY",
+        "path": "handover/ETF_EU_PR91_ASSURANCE_FAIL_REPAIR_V1_20260810.md",
+        "validated_semantic_head_sha": "19954692ff8b33d5ffac9b09d6654210a7194997",
+        "pre_handover_governance_head_sha": "a9f7906df5abdaf00751552d4f950b3e13f0b778",
+        "exact_assurance_head_authority": "live PR #91 head after the atomic claim+handover commit; any subsequent head change invalidates assurance"
+      }
     }
   ]
 }
