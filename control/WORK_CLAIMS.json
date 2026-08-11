@@ -88,13 +88,13 @@
       "scope": "Remove post-merge executable US Weekly ETF donor pricing/report paths, remove leaked US pricing artifacts, and fail closed on future donor-runtime/report reactivation.",
       "branch": "agent/etf-eu-post-merge-us-donor-leak-repair-v1",
       "base_or_target_branch": "main",
-      "last_reconciled_target_sha": "d771bde734ffda6120a77b1f4fe0e99bd198cc96",
-      "current_claim_head_sha": "d9b5731bbd0b125e2df9b778282116f9d8c32314",
-      "status": "HANDOVER_READY",
+      "last_reconciled_target_sha": "856b6fbe8600257eaaaa7d0b32a4d6f4beb2f72c",
+      "current_claim_head_sha": "e5d3470e1e1ab7f402a02cb31b775f3f902d4928",
+      "status": "CLOSED",
       "opened_at": "2026-08-10T23:54:33+02:00",
-      "last_reconciled_at": "2026-08-11T00:06:00+02:00",
+      "last_reconciled_at": "2026-08-11T10:24:52+02:00",
       "pull_request": 95,
-      "pull_request_or_issue_reference": "Issue #94; draft PR #95; semantic baseline d9b5731b green; fresh independent assurance required on exact live head after atomic handover commit.",
+      "pull_request_or_issue_reference": "Issue #94; PR #95 independently PASSed in issue #96 comment 5246954887 and merged unchanged as 10823b7c457a253e409a768f52ee95b1522c363f; exact-main product boundary run 31472717495 PASS; no donor artifact regeneration.",
       "dependencies": [{"pull_request": 91}],
       "protected_boundaries": {
         "portfolio_mutation": false,
@@ -104,20 +104,40 @@
         "smtp_send": false,
         "allocation_decision_reopened": false
       },
+      "last_assurance": {
+        "issue": 96,
+        "reviewed_head_sha": "e5d3470e1e1ab7f402a02cb31b775f3f902d4928",
+        "verdict": "PASS",
+        "merge_authority": true,
+        "delivery_authority": false,
+        "evidence_comment_id": 5246954887
+      },
       "validation": {
         "semantic_baseline_sha": "d9b5731bbd0b125e2df9b778282116f9d8c32314",
-        "product_boundary_run": 31436751783,
-        "donor_parity_run": 31436751773,
+        "pr_product_boundary_run": 31437212612,
+        "pr_donor_parity_run": 31437212611,
         "full_package_tests_passed": 31,
         "active_workflows": 32,
         "retired_disabled_workflows": 23,
-        "us_donor_execution_routes": 0
+        "candidate_routes": 1,
+        "delivery_routes": 1,
+        "us_donor_execution_routes": 0,
+        "merged_commit_sha": "10823b7c457a253e409a768f52ee95b1522c363f",
+        "merged_tree_sha": "71a614575bdc1d675ece53684d14601ce76fde90",
+        "synthetic_merge_sha": "d19c7de3c965703de28247fe54dbef05938e80be",
+        "synthetic_merge_tree_sha": "71a614575bdc1d675ece53684d14601ce76fde90",
+        "exact_main_product_boundary_run": 31472717495,
+        "exact_main_product_boundary_verdict": "PASS",
+        "bad_pricing_artifacts_regenerated": false,
+        "portfolio_blob_sha": "df710b5fbe4172506b67b7f591030a8c6a098c64",
+        "trade_ledger_blob_sha": "c6765ba380fe0c40272688a017dc0dc99b46d571"
       },
       "handover": {
-        "disposition": "HANDOVER_READY",
-        "path": "handover/ETF_EU_POST_MERGE_US_DONOR_LEAK_REPAIR_V1_20260810.md",
-        "semantic_baseline_sha": "d9b5731bbd0b125e2df9b778282116f9d8c32314",
-        "exact_assurance_head_authority": "live PR #95 head after the atomic claim+handover commit; any subsequent head change invalidates assurance"
+        "disposition": "CLOSE",
+        "path": "handover/ETF_EU_POST_MERGE_US_DONOR_LEAK_REPAIR_V1_CLOSE_20260811.md",
+        "merged_commit_sha": "10823b7c457a253e409a768f52ee95b1522c363f",
+        "exact_main_validation_run": 31472717495,
+        "next_action": "new separate current Weekly ETF EU report candidate cycle"
       }
     }
   ]
