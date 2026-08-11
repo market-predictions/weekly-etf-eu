@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import csv
+import json
 from datetime import date
 from pathlib import Path
 from typing import Any
@@ -45,7 +46,46 @@ def _parse_date(value: Any) -> date | None:
 
 def _clean_choice(value: Any, allowed: set[str], unresolved: str = "Unresolved") -> str:
     raw = str(value or "").strip()
-    return raw if raw in allowed else unresolved
+    if raw in allowed:
+        return raw
+    # Current allocation decisions may retain an explanatory suffix while the
+    # canonical decision itself is still Yes/No/Smaller.
+    for prefix in sorted(allowed, key=len, reverse=True):
+        if raw.startswith(prefix + " ") or raw.startswith(prefix + "—") or raw.startswith(prefix + " –"):
+            return prefix
+    return unresolved
+
+
+def _fresh_cash_choice(value: Any) -> str:
+    raw = str(value or "").strip()
+    if raw in FRESH_CASH_ACTIONS:
+        return raw
+    if raw.casefold().startswith("fund from") or raw.casefold().startswith("deploy"):
+        return "Add"
+    return "Review required"
+
+
+def _load_current_allocation_decision(portfolio: dict[str, Any], report_date: Any) -> dict[str, Any] | None:
+    activation = portfolio.get("last_model_capital_activation")
+    if not isinstance(activation, dict):
+        return None
+    path_raw = str(activation.get("decision") or "").strip()
+    if not path_raw:
+        return None
+    path = Path(path_raw)
+    if not path.exists():
+        return None
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return None
+    if not isinstance(payload, dict):
+        return None
+    if str(payload.get("report_date") or "") != str(report_date or ""):
+        return None
+    if payload.get("schema_version") != "etf_eu_current_allocation_decision_v1":
+        return None
+    return payload
 
 
 def _sanitize_position(row: dict[str, Any]) -> dict[str, Any]:
@@ -62,9 +102,12 @@ def _sanitize_position(row: dict[str, Any]) -> dict[str, Any]:
 
 
 def _position_decision_memory(row: dict[str, Any], cash_material: bool) -> dict[str, Any]:
-    would_today = _clean_choice(row.get("would_initiate_today"), YES_NO_SMALLER)
-    would_weight = _clean_choice(row.get("would_initiate_at_current_weight"), YES_NO)
-    implication = _clean_choice(row.get("fresh_cash_implication"), FRESH_CASH_ACTIONS, "Review required")
+    raw_would_today = str(row.get("would_initiate_today") or "").strip()
+    raw_would_weight = str(row.get("would_initiate_at_current_weight") or "").strip()
+    raw_implication = str(row.get("fresh_cash_implication") or "").strip()
+    would_today = _clean_choice(raw_would_today, YES_NO_SMALLER)
+    would_weight = _clean_choice(raw_would_weight, YES_NO)
+    implication = _fresh_cash_choice(raw_implication)
     thesis_score = row.get("thesis_score")
     implementation_score = row.get("implementation_score")
     complete = (
@@ -108,13 +151,18 @@ def _position_decision_memory(row: dict[str, Any], cash_material: bool) -> dict[
         "shares": int(_num(row.get("shares"))),
         "current_weight_pct": round(_num(row.get("current_weight_pct")), 6),
         "would_initiate_today": would_today,
+        "would_initiate_today_detail": raw_would_today or None,
         "would_initiate_at_current_weight": would_weight,
+        "would_initiate_at_current_weight_detail": raw_would_weight or None,
         "fresh_cash_implication": implication,
+        "fresh_cash_implication_detail": raw_implication or None,
         "fresh_cash_test": row.get("fresh_cash_test") or "Current-run re-underwriting evidence required",
         "reunderwriting_complete": complete,
         "reunderwriting_status": "COMPLETE" if complete else "UNRESOLVED",
         "thesis_score": thesis_score,
+        "thesis_assessment": row.get("thesis_assessment"),
         "implementation_score": implementation_score,
+        "implementation_assessment": row.get("implementation_assessment"),
         "replaceable_status": replaceable,
         "weeks_replaceable": weeks,
         "action_clock_status": action_clock,
@@ -132,6 +180,9 @@ def _position_decision_memory(row: dict[str, Any], cash_material: bool) -> dict[
         "next_review_trigger": row.get("next_review_trigger") or ("Complete unresolved re-underwriting" if not complete else "Current decision trigger"),
         "maximum_review_window_runs": row.get("maximum_review_window_runs"),
         "required_next_action": required_action,
+        "current_allocation_decision": row.get("current_allocation_decision"),
+        "action_executed_this_run": row.get("action_executed_this_run"),
+        "source_run_id": row.get("source_run_id"),
         "source_authority": "current_protected_portfolio_plus_current_run_evidence",
     }
 
@@ -143,16 +194,22 @@ def apply_contract(state: dict[str, Any], macro_pack: dict[str, Any] | None = No
     portfolio["positions"] = positions
     result["portfolio"] = portfolio
 
+    report_date_raw = result.get("report_date") or (macro_pack or {}).get("report_date")
+    current_decision = _load_current_allocation_decision(portfolio, report_date_raw)
+    decision_framework = current_decision.get("decision_framework") if isinstance(current_decision, dict) and isinstance(current_decision.get("decision_framework"), dict) else {}
+
     nav, cash = _num(portfolio.get("nav_eur")), _num(portfolio.get("cash_eur"))
     cash_weight = round(cash / nav * 100.0, 6) if nav else 0.0
     raw_cash_classification = str(
-        portfolio.get("cash_classification")
+        decision_framework.get("cash_after_classification")
+        or portfolio.get("cash_classification")
         or result.get("cash_classification")
         or ""
     ).strip()
     allowed_cash_classes = {"Tactical reserve", "Uninvested residual", "Risk reserve", "Deployment candidate"}
     cash_classification = raw_cash_classification if raw_cash_classification in allowed_cash_classes else "Unresolved — explicit classification required"
     cash_classification_complete = cash_classification in allowed_cash_classes
+    cash_after_explanation = str(decision_framework.get("cash_after_explanation") or "").strip() or None
 
     allocation_map: list[dict[str, Any]] = [{
         "segment_nl": "Cash",
@@ -182,11 +239,37 @@ def apply_contract(state: dict[str, Any], macro_pack: dict[str, Any] | None = No
         "cash_weight_pct": cash_weight,
         "cash_classification": cash_classification,
         "cash_classification_complete": cash_classification_complete,
+        "cash_after_explanation": cash_after_explanation,
+        "cash_classification_source": "current_explicit_allocation_decision" if current_decision else "current_portfolio_state",
         "material_position": cash_weight > 5.0,
         "deploy_or_explain_review_required_if_actionable_fundable_lane_exists": cash_weight > 3.0,
+        "deploy_or_explain_explained": bool(cash_after_explanation) if cash_weight > 3.0 else True,
         "fixed_minimum_cash_pct": None,
         "automatic_trade_authority": False,
     }
+
+    if current_decision:
+        activation_id = str(current_decision.get("activation_id") or "")
+        decision_run_id = str(current_decision.get("run_id") or "")
+        additions = [
+            _ticker(row)
+            for row in positions
+            if str(row.get("source_run_id") or "") == decision_run_id
+            and str(row.get("action_executed_this_run") or "").casefold() == "model buy"
+        ]
+        result["current_allocation_decision"] = {
+            "activation_id": activation_id,
+            "run_id": decision_run_id,
+            "report_date": current_decision.get("report_date"),
+            "status": current_decision.get("allocation_status"),
+            "added_tickers": additions,
+            "trade_count": len(current_decision.get("decisions") or []),
+            "cash_after_classification": cash_classification,
+            "cash_after_explanation": cash_after_explanation,
+            "model_portfolio_only": True,
+            "real_broker_execution": False,
+            "source_path": str((portfolio.get("last_model_capital_activation") or {}).get("decision") or ""),
+        }
 
     authority = dict(result.get("authority") or {})
     authority.update({
@@ -228,13 +311,14 @@ def apply_contract(state: dict[str, Any], macro_pack: dict[str, Any] | None = No
         result["macro"] = macro
 
     result["donor_parity_contract"] = {
-        "version": "v1.1",
+        "version": "v1.2",
         "fresh_cash_reunderwriting": True,
         "replacement_duel_memory": True,
         "action_clock_memory": True,
         "factor_overlap_review": True,
         "hedge_validity_review": True,
         "cash_policy_review": True,
+        "current_allocation_decision_ingested": current_decision is not None,
         "donor_cash_thresholds_are_review_rules_not_allocation_caps": True,
         "donor_factor_40pct_is_concentration_disclosure_not_position_cap": True,
         "shadow_allocation_caps_are_current_authority": False,
@@ -248,6 +332,7 @@ def apply_contract(state: dict[str, Any], macro_pack: dict[str, Any] | None = No
         "all_funded_positions_have_current_reunderwriting": unresolved_count == 0,
         "cash_classification": cash_classification,
         "cash_classification_complete": cash_classification_complete,
+        "cash_deploy_or_explain_complete": (cash_weight <= 3.0) or bool(cash_after_explanation),
         "allocation_target_metadata_sanitized": all(
             all(field not in row for field in LEGACY_TARGET_FIELDS) for row in positions
         ),
@@ -273,13 +358,14 @@ def write_recommendation_scorecard(state: dict[str, Any], path: Path, report_dat
         )
     fields = [
         "report_date", "run_id", "ticker", "isin", "shares", "current_weight_pct",
-        "would_initiate_today", "would_initiate_at_current_weight", "fresh_cash_implication", "fresh_cash_test",
-        "reunderwriting_complete", "reunderwriting_status", "thesis_score", "implementation_score",
+        "would_initiate_today", "would_initiate_today_detail", "would_initiate_at_current_weight", "would_initiate_at_current_weight_detail",
+        "fresh_cash_implication", "fresh_cash_implication_detail", "fresh_cash_test",
+        "reunderwriting_complete", "reunderwriting_status", "thesis_score", "thesis_assessment", "implementation_score", "implementation_assessment",
         "replaceable_status", "weeks_replaceable", "action_clock_status", "best_alternative",
         "replacement_close_status", "replacement_duel_status", "portfolio_contribution_eur", "unrealized_pnl_pct",
         "contribution_quality", "factor_overlap_level", "factor_overlap_flag", "hedge_validity_status",
         "cash_policy_flag", "override_reason", "next_review_trigger", "maximum_review_window_runs",
-        "required_next_action", "source_authority",
+        "required_next_action", "current_allocation_decision", "action_executed_this_run", "source_run_id", "source_authority",
     ]
     path.parent.mkdir(parents=True, exist_ok=True)
     with path.open("w", encoding="utf-8", newline="") as handle:
