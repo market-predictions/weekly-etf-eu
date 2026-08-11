@@ -15,7 +15,7 @@
   "decision_framework": {
     "fresh_cash_test": "Material cash is present and fully fundable actionable lanes exist; deploy-or-explain review requires deployment into the qualified distinct exposures or an explicit reason not to deploy.",
     "allocation_principle": "Allocate only to distinct EU-local exposures that pass exact identity, KID/UCITS, completed-close and two-provider consensus. Do not force ticker count and do not treat donor U.S. portfolio fundability labels as EU authority.",
-    "cash_after_classification": "Material retained opportunity cash",
+    "cash_after_classification": "Deployment candidate",
     "cash_after_explanation": "After funding one defense and one water implementation, remaining cash is retained because healthcare, semiconductors and agriculture lack two-provider consensus and grid/critical-minerals/India lack complete current exact-line evidence. No fixed cash floor is applied.",
     "retired_shadow_rules_used": false,
     "position_count_target_used": false,
