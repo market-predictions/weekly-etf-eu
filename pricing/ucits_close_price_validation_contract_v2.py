@@ -74,16 +74,31 @@ def validate_payload(
         if not funded_positions:
             blockers.append("protected portfolio has no funded positions")
 
-    rows_by_isin = {_isin(row): row for row in rows if _isin(row)}
+    # ISIN identifies the fund/share class, not the exchange trading line. One
+    # UCITS share class can legitimately have multiple venue/ticker rows (e.g.
+    # SXR8/Xetra and CSPX/LSE share IE00B5BMR087). Pricing authority therefore
+    # resolves the protected holding by exact (ISIN, trading-line ticker). Never
+    # let a sibling venue row overwrite the funded line merely because ISIN is
+    # shared.
+    rows_by_exact_identity = {
+        (_isin(row), _ticker(row)): row
+        for row in rows
+        if _isin(row) and _ticker(row)
+    }
     rows_by_ticker = {_ticker(row): row for row in rows if _ticker(row)}
     funded_evidence: list[dict[str, Any]] = []
 
     for position in funded_positions:
         ticker = _ticker(position)
         isin = _isin(position)
-        row = rows_by_isin.get(isin) or rows_by_ticker.get(ticker)
+        row = rows_by_exact_identity.get((isin, ticker)) or rows_by_ticker.get(ticker)
         if row is None:
             blockers.append(f"funded position missing from pricing artifact: {ticker or isin}")
+            continue
+        if isin and _isin(row) != isin:
+            blockers.append(
+                f"funded exact-line identity mismatch for {ticker}: expected_isin={isin} actual_isin={_isin(row) or 'missing'}"
+            )
             continue
 
         row_blockers: list[str] = []
