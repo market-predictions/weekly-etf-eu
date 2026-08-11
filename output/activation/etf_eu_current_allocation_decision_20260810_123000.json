@@ -6,6 +6,7 @@
   "report_date": "2026-08-10",
   "allocation_status": "ready_for_guarded_model_activation",
   "allocation_authority_contract": "control/ETF_EU_ALLOCATION_AUTHORITY_V1.md",
+  "state_contract_lineage_required": true,
   "source_pricing_artifact": "output/pricing/ucits_close_price_validation_basket_results_20260810_120500.json",
   "source_discovery_bridge": "output/runtime/etf_eu_donor_discovery_bridge_20260810_120500.json",
   "source_donor_lane_artifact": "output/runtime/etf_eu_donor_lane_source_20260810_120500.json",
