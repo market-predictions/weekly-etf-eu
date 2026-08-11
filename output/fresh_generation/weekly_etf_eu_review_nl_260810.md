@@ -6,7 +6,7 @@
 
 - **Actie:** DFEN en IQQQ deze run toegevoegd; huidige modelportefeuille: L0CK, DFEN, VWCE, EUNA, SXR8 en IQQQ. Resterende liquiditeit EUR 28.101,01.
 - **Reden:** de modelportefeuille bevat 6 gefinancierde UCITS-posities (L0CK, DFEN, VWCE, EUNA, SXR8 en IQQQ); de review gebruikt actuele state, exact-line completed-close prijsbewijs en current re-underwriting.
-- **Beste operationele kandidaat:** de geverifieerde S&P 500 UCITS-lijnen blijven het verst gevorderd voor verdere bevestiging bij de broker en van de handelslijn.
+- **Nieuwe funded implementaties:** DFEN en IQQQ zijn deze run toegevoegd na EU-lokale re-underwriting, exact-line UCITS/KID-validatie en two-provider completed-close consensus.
 - **Niet doen:** geen nieuw kapitaal toewijzen uitsluitend op basis van proxy, mapping of prijsbeschikbaarheid; identiteit, KID, exacte handelslijn, re-underwriting en expliciet allocatiebesluit blijven verplicht.
 
 ## 2. Portefeuille en kapitaal
@@ -57,7 +57,7 @@ Voor de 6 gefinancierde lijnen vormt two-provider exact-line completed-close con
 
 ## 6. Risico- en kwaliteitsgrenzen
 
-1. Een prijsobservatie is geen zelfstandige waarderingsbasis.
+1. Een enkele marktprijs of research-only prijsobservatie is geen zelfstandige waarderingsbasis; actuele funded waardering vereist exact-line completed-close consensus uit minimaal twee providers.
 2. Een ticker is geen canonieke identiteit; ISIN blijft leidend.
 3. Geen portefeuillewijziging zonder een afzonderlijk besluit over inzet van kapitaal.
 4. Vorige rapporten zijn historische strategiecontext, niet actuele prijswaarheid.

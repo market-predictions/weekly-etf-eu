@@ -1089,7 +1089,7 @@
     "opportunity_radar_reconciled": true,
     "position_count": 6
   },
-  "generated_at_utc": "2026-08-11T10:23:04Z",
+  "generated_at_utc": "2026-08-11T14:42:44Z",
   "macro": {
     "age_days": 3,
     "catalysts": [
@@ -1142,7 +1142,7 @@
   "next_run_input": {
     "macro_refresh_required": false,
     "portfolio_state": "output/etf_eu_portfolio_state.json",
-    "pricing_artifact": "/tmp/etf_eu_pricing_v2_gtc0tmbq/pricing_v2_layout_compat.json",
+    "pricing_artifact": "/tmp/etf_eu_pricing_v2_8enxaks6/pricing_v2_layout_compat.json",
     "priority_candidates": [
       "L0CK",
       "DFEN",

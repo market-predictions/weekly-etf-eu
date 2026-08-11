@@ -6,7 +6,7 @@
 
 - **Action:** added DFEN and IQQQ this run; current model portfolio: L0CK, DFEN, VWCE, EUNA, SXR8 and IQQQ. Remaining liquidity is EUR 28,101.01.
 - **Reason:** the model portfolio contains 6 funded UCITS positions (L0CK, DFEN, VWCE, EUNA, SXR8 and IQQQ); the review uses current state, exact-line completed-close pricing evidence and current re-underwriting.
-- **Most advanced operational candidate:** the verified S&P 500 UCITS lines remain furthest advanced for broker and trading-line confirmation.
+- **New funded implementations:** DFEN and IQQQ were added this run after EU-local re-underwriting, exact-line UCITS/KID validation and two-provider completed-close consensus.
 - **Avoid:** do not allocate capital to thematic or gold exposure until identity, KID, trading-line and product-policy checks are complete.
 
 ## 2. Portfolio and capital
@@ -57,7 +57,7 @@ For the 6 funded lines, two-provider exact-line completed-close consensus forms 
 
 ## 6. Risk and quality boundaries
 
-1. A price observation is not an independent valuation basis.
+1. A single market price or research-only observation is not an independent valuation basis; current funded valuation requires exact-line completed-close consensus from at least two providers.
 2. A ticker is not canonical identity; ISIN remains authoritative.
 3. No portfolio change without a separate capital-allocation decision.
 4. Previous reports are historical strategy context, not current-price truth.
