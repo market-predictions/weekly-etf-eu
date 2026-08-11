@@ -6,6 +6,15 @@ on:
       request_path:
         description: "Prepared v2 candidate request path"
         required: true
+  # TEMPORARY execution bridge for issue #97 only. The connector available to the
+  # controller cannot create workflow_dispatch events. This branch-scoped push
+  # trigger is removed before the candidate is frozen for assurance.
+  push:
+    branches:
+      - agent/etf-eu-fresh-260810-v1
+    paths:
+      - "control/run_queue/etf_eu_routine_report_request_20260810_104500.txt"
+      - ".github/workflows/run-weekly-etf-eu-routine.yml"
 
 permissions:
   contents: write
@@ -28,6 +37,14 @@ jobs:
         with:
           fetch-depth: 0
           ref: ${{ github.ref_name }}
+
+      - name: Check out donor research repository
+        uses: actions/checkout@v4
+        with:
+          repository: market-predictions/weekly-etf
+          ref: main
+          fetch-depth: 1
+          path: _donor_weekly_etf
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -56,7 +73,7 @@ jobs:
 
       - name: Resolve and validate candidate request
         env:
-          ETF_EU_REQUEST_PATH: ${{ inputs.request_path }}
+          ETF_EU_REQUEST_PATH: ${{ github.event_name == 'workflow_dispatch' && inputs.request_path || 'control/run_queue/etf_eu_routine_report_request_20260810_104500.txt' }}
         run: |
           set -euo pipefail
           python tools/validate_etf_eu_routine_report_request.py --request "$ETF_EU_REQUEST_PATH"
@@ -79,6 +96,39 @@ jobs:
                   handle.write(f"{key}={value}\n")
           PY
           cat env.out >> "$GITHUB_ENV"
+
+      - name: Select current donor breadth evidence
+        run: |
+          set -euo pipefail
+          mkdir -p output/runtime
+          SELECTED=$(python tools/select_weekly_etf_donor_lane_artifact.py \
+            --donor-root _donor_weekly_etf \
+            --report-date "$ETF_EU_REPORT_DATE")
+          DONOR_SHA=$(git -C _donor_weekly_etf rev-parse HEAD)
+          DONOR_COPY="output/runtime/etf_eu_donor_lane_source_${ETF_EU_RUN_ID}.json"
+          DONOR_PROVENANCE="output/runtime/etf_eu_donor_lane_provenance_${ETF_EU_RUN_ID}.json"
+          cp "$SELECTED" "$DONOR_COPY"
+          python - "$SELECTED" "$DONOR_COPY" "$DONOR_PROVENANCE" "$DONOR_SHA" <<'PY'
+          import json, sys
+          from pathlib import Path
+          source, copied, provenance, sha = sys.argv[1:]
+          payload = json.loads(Path(copied).read_text(encoding="utf-8"))
+          Path(provenance).write_text(json.dumps({
+              "schema_version": "etf_eu_donor_lane_provenance_v1",
+              "source_repository": "market-predictions/weekly-etf",
+              "source_commit_sha": sha,
+              "source_path": source.replace("_donor_weekly_etf/", ""),
+              "copied_candidate_path": copied,
+              "source_report_date": payload.get("report_date"),
+              "discovery_engine_version": payload.get("discovery_engine_version"),
+              "required_breadth_buckets": payload.get("required_breadth_buckets"),
+              "funding_authority": False,
+          }, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+          PY
+          echo "ETF_EU_DONOR_LANE_ARTIFACT=$DONOR_COPY" >> "$GITHUB_ENV"
+          echo "ETF_EU_DONOR_LANE_PROVENANCE=$DONOR_PROVENANCE" >> "$GITHUB_ENV"
+          echo "ETF_EU_DONOR_SOURCE_SHA=$DONOR_SHA" >> "$GITHUB_ENV"
+          echo "ETF_EU_DONOR_LANE_SELECTED=$SELECTED"
 
       - name: Validate routine implementation preflight
         run: |
@@ -121,7 +171,7 @@ jobs:
             --output output/etf_eu_valuation_history.csv
           echo "ETF_EU_MACRO_ARTIFACT=$MACRO_ARTIFACT" >> "$GITHUB_ENV"
 
-      - name: Build client-grade v2 candidate package
+      - name: Build client-grade v2 candidate package with broad discovery
         run: |
           set -euo pipefail
           python -m tools.build_etf_eu_routine_report_package_v2 \
@@ -131,6 +181,8 @@ jobs:
             --pricing-artifact "output/pricing/ucits_close_price_validation_basket_results_${ETF_EU_RUN_ID}.json" \
             --macro-pack "$ETF_EU_MACRO_ARTIFACT" \
             --registry config/ucits_symbol_registry.yml \
+            --proxy-map config/ucits_benchmark_proxy_map.yml \
+            --donor-lane-artifact "$ETF_EU_DONOR_LANE_ARTIFACT" \
             --previous-routine-manifest "$ETF_EU_PREVIOUS_ROUTINE_MANIFEST" \
             --previous-delivery-closeout-manifest "$ETF_EU_PREVIOUS_CLOSEOUT"
 
@@ -191,6 +243,9 @@ jobs:
             output/macro/latest.json \
             output/etf_eu_valuation_history.csv \
             output/etf_eu_recommendation_scorecard.csv \
+            "$ETF_EU_DONOR_LANE_ARTIFACT" \
+            "$ETF_EU_DONOR_LANE_PROVENANCE" \
+            "output/runtime/etf_eu_donor_discovery_bridge_${ETF_EU_RUN_ID}.json" \
             "output/runtime/etf_eu_client_grade_report_state_${ETF_EU_RUN_ID}.json" \
             "output/fresh_generation/weekly_etf_eu_review_nl_${ETF_EU_REPORT_SUFFIX}.md" \
             "output/fresh_generation/weekly_etf_eu_review_${ETF_EU_REPORT_SUFFIX}.md" \
@@ -227,6 +282,9 @@ jobs:
             output/fresh_generation/weekly_etf_eu_review_nl_${{ env.ETF_EU_REPORT_SUFFIX }}.pdf
             output/fresh_generation/weekly_etf_eu_review_${{ env.ETF_EU_REPORT_SUFFIX }}.pdf
             output/fresh_generation/etf_eu_fresh_generation_package_manifest_${{ env.ETF_EU_RUN_ID }}.json
+            output/runtime/etf_eu_donor_lane_source_${{ env.ETF_EU_RUN_ID }}.json
+            output/runtime/etf_eu_donor_lane_provenance_${{ env.ETF_EU_RUN_ID }}.json
+            output/runtime/etf_eu_donor_discovery_bridge_${{ env.ETF_EU_RUN_ID }}.json
             output/runtime/etf_eu_client_grade_report_state_${{ env.ETF_EU_RUN_ID }}.json
             output/quality/etf_eu_client_grade_v2_validation_${{ env.ETF_EU_RUN_ID }}.json
             output/quality/etf_eu_markdown_delivery_validation_${{ env.ETF_EU_RUN_ID }}.json
