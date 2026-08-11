@@ -1,25 +1,25 @@
 # Weekly ETF EU — Donor Parity Reconciliation Roadmap
 
-Date: 2026-08-10
+Date opened: 2026-08-10
+Date closed: 2026-08-11
 Parent issue: #90
-Prior PR: #91 — MERGED
+PR #91: merged
 Post-merge repair issue: #94
-Active repair PR: #95
-Branch: `agent/etf-eu-post-merge-us-donor-leak-repair-v1`
-Status: `POST_MERGE_REPAIR_HANDOVER_READY_FRESH_ASSURANCE_REQUIRED`
+PR #95: merged
+Status: `COMPLETE`
 
 ## Goal
-Bring `weekly-etf-eu` to behavioral parity with mature `weekly-etf` where behavior should match, while preserving EU-specific UCITS/ISIN/KID/exact-line controls and preventing US donor operational state from becoming ETF EU authority.
+Bring `weekly-etf-eu` to behavioral parity with mature `weekly-etf` where behavior should match, while preserving EU-specific UCITS/ISIN/KID/exact-line controls and preventing U.S. donor operational state from becoming ETF EU authority.
 
 Governing rule: **port behavior, not U.S. assumptions, filenames, state or execution routes**.
 
-## Completed waves
+## Final outcome
 
 ### Wave A — Allocation/authority repair — COMPLETE
-- 50% maximum position, 35% minimum cash, 15% maximum new ETF retired;
+- 50% maximum position, 35% minimum cash and 15% maximum new ETF retired as current authority;
 - 75% is pricing coverage only;
-- 25% turnover and 18% semiconductor/theme values research-only;
-- donor >3%/>5% cash and ~40% factor thresholds review/disclosure triggers only.
+- 25% turnover and 18% semiconductor/theme values remain research/shadow only;
+- donor cash/factor thresholds remain review/disclosure triggers rather than allocation caps.
 
 ### Wave B — Donor-parity state/decision layer — COMPLETE
 - protected funded state VWCE/EUNA/SXR8/L0CK;
@@ -28,58 +28,61 @@ Governing rule: **port behavior, not U.S. assumptions, filenames, state or execu
 - missing current evidence remains unresolved rather than implicit Hold.
 
 ### Wave C — Canonical EU candidate/output/delivery topology — COMPLETE
-- EU/UCITS v2 pricing contract;
-- report-date-bound funded two-provider consensus;
+- one coherent EU/UCITS v2 pricing contract;
+- exact report-date funded two-provider consensus;
 - one normalized state for NL/EN MD/HTML/PDF;
 - dynamic four-position output including L0CK;
 - candidate-only non-main build;
 - independent assurance separated from implementation;
-- one guarded real delivery route;
+- one separately guarded real delivery route;
 - historical activation/send/repair/shadow routes non-executable.
 
 ### Wave D1 — PR #91 assurance FAIL repair — COMPLETE
-Issue #92 correctly found pricing-v2 and Markdown defects. They were repaired and package-level regression coverage added.
+Issue #92 found two real implementation defects: pricing-contract incoherence and stale Markdown/L0CK output. Both were repaired and full package-level regression coverage was added.
 
-### Wave D2 — PR #91 independent re-assurance and merge — COMPLETE
-- issue #93 verdict: PASS;
+### Wave D2 — PR #91 re-assurance and merge — COMPLETE
+- issue #93: PASS;
 - reviewed head: `686c658c03d5ba4cbd208e254822a73b3fb514f2`;
 - merge: `202b0a629af34c697c7b7cb8fdce97fbb56bddbc`.
 
-### Wave D3 — Post-merge US donor execution leak repair — IMPLEMENTATION COMPLETE
-Post-merge bot commit `d771bde734ffda6120a77b1f4fe0e99bd198cc96` proved three legacy donor/report routes still sat in the active ETF EU workflow topology.
+### Wave D3 — Post-merge US donor execution leak repair — COMPLETE
+Exact-main observation after PR #91 exposed three still-active U.S. donor operational/report paths. Issue #94 / PR #95:
+- retired `persist-etf-pricing-audit.yml`;
+- retired `validate-etf-runtime.yml`;
+- retired `validate-etf-lane-breadth.yml`;
+- removed two leaked U.S. pricing artifacts;
+- hardened product-boundary and workflow-authority gates against active donor execution/report tokens.
 
-Retired in PR #95:
-1. `persist-etf-pricing-audit.yml` — wrote US donor pricing artifacts to main;
-2. `validate-etf-runtime.yml` — ran donor pricing plus legacy `send_report.py`;
-3. `validate-etf-lane-breadth.yml` — validated donor `weekly_analysis_pro_*` report files.
+### Wave D4 — Fresh PR #95 assurance and final closeout — COMPLETE
+Independent issue #96 returned:
 
-Their audit copies remain as `.yml.disabled`. The two leaked US pricing artifacts are deleted in the repaired candidate.
+`ETF_EU_POST_MERGE_US_DONOR_LEAK_ASSURANCE: PASS`
 
-Preventive gates now reject active donor execution/report tokens across all `.yml/.yaml` workflows.
+Reviewed head:
 
-Semantic baseline:
+`e5d3470e1e1ab7f402a02cb31b775f3f902d4928`
 
-`d9b5731bbd0b125e2df9b778282116f9d8c32314`
+PR #95 merged unchanged as:
 
-Evidence:
-- product boundary `31436751783`: SUCCESS;
-- donor parity/full-package `31436751773`: SUCCESS;
-- 31 package/blocker regressions passed;
-- topology: `32 active | 23 retired-disabled | candidate=1 | delivery=1 | US donor execution=0`.
+`10823b7c457a253e409a768f52ee95b1522c363f`
 
-## Next wave
+Exact-main push run `31472717495` returned product-boundary PASS with 6 planted tests, 32 active workflows scanned and no blockers. The real merge tree equals the assurance synthetic merge tree:
 
-### Wave D4 — Fresh PR #95 assurance and final closeout — PENDING INDEPENDENT ROLE-B
-1. freeze exact live PR #95 head after atomic handover commit;
-2. independent `ETF_EU_POST_MERGE_US_DONOR_LEAK_ASSURANCE: PASS | FAIL | INDETERMINATE`;
-3. merge only on PASS + unchanged head;
-4. exact-main product/workflow boundary validation;
-5. prove no US donor pricing artifact regenerates;
-6. verify protected EU state/ledger unchanged;
-7. close issue #94, parent issue #90 and successor claim;
-8. reconcile central Control state.
+`71a614575bdc1d675ece53684d14601ce76fde90`
 
-## Parity matrix
+Thus the workflow-authority evidence applies to exact merged code content:
+
+```text
+active_workflows=32
+retired_disabled=23
+candidate_route=1
+delivery_route=1
+us_donor_execution_routes=0
+```
+
+No retired donor workflow re-executed and no erroneous U.S. pricing artifact regenerated.
+
+## Final parity matrix
 
 | Donor behavior | ETF EU implementation | Status |
 |---|---|---|
@@ -93,11 +96,33 @@ Evidence:
 | Pricing evidence | exact report date + funded two-provider consensus | PARITY WITH EU GATES |
 | Bilingual output | NL/EN MD/HTML/PDF from one state | PARITY |
 | Identity | ISIN-first UCITS/KID/exact-line | INTENTIONAL EU DIVERGENCE |
-| US donor operational runtime | not executable in ETF EU | INTENTIONAL EU HARDENING |
+| U.S. donor operational runtime | non-executable in ETF EU | INTENTIONAL EU HARDENING |
 | Real delivery | separately guarded exact-artifact transport | INTENTIONAL EU HARDENING |
 
-## Decisions not reopened
-The post-merge incident is an operational/product-boundary defect. It creates no new allocation decision, position cap, cash floor or execution authority.
+## Protected portfolio at closeout
 
-## Stop/escalation criteria
-No principal decision is required for this repair. The only remaining gate is independent assurance of the frozen PR #95 candidate. Delivery and broker execution remain outside this roadmap wave.
+```text
+VWCE=151
+EUNA=1526
+SXR8=10
+L0CK=934
+cash_eur=50208.40
+portfolio_blob=df710b5fbe4172506b67b7f591030a8c6a098c64
+trade_ledger_blob=c6765ba380fe0c40272688a017dc0dc99b46d571
+```
+
+No allocation decision was reopened by the post-merge repair.
+
+## Lifecycle closeout
+
+Successor claim `ETF-EU-POST-MERGE-US-DONOR-LEAK-REPAIR-V1` is CLOSED.
+
+Closeout handover:
+
+`handover/ETF_EU_POST_MERGE_US_DONOR_LEAK_REPAIR_V1_CLOSE_20260811.md`
+
+Parent issue #90 and repair issue #94 may close after this repository-backed closeout record and corresponding issue closeout comments are present.
+
+## Next roadmap boundary
+
+The next genuinely current Weekly ETF EU report is a separate production cycle, not an extension of this reconciliation roadmap. It requires a new candidate/work claim, current completed-close pricing, current re-underwriting, fresh independent assurance and separate guarded delivery authority.
