@@ -138,13 +138,12 @@ jobs:
           assert '6 of 6 funded lines' in en_md
           assert '**Nieuwe funded implementaties:** DFEN en IQQQ' in nl_md
           assert '**New funded implementations:** DFEN and IQQQ' in en_md
-
           assert 'Deze run: DFEN en IQQQ als modelposities toegevoegd' in nl_html
           assert 'This run: added DFEN and IQQQ as model positions' in en_html
           assert 'Gefinancierde exact-line waardering: 6 van 6' in nl_html
           assert 'Funded exact-line valuation: 6 of 6' in en_html
 
-          stale = [
+          common_stale = [
               'Volledig geverifieerde lijnen: 0',
               'Fully verified lines: 0',
               'Beste operationele kandidaat: de geverifieerde S&P 500',
@@ -157,13 +156,19 @@ jobs:
               '0 verified UCITS trading lines',
               '13 lijnen zijn nog niet volledig geverifieerd of geprijsd',
               '13 lines are not yet fully verified or priced',
+          ]
+          all_surfaces = '\n'.join([nl_md, en_md, nl_html, en_html]).casefold()
+          residual = [token for token in common_stale if token.casefold() in all_surfaces]
+          assert not residual, residual
+
+          nl_surfaces = '\n'.join([nl_md, nl_html]).casefold()
+          nl_leakage = [
               'any allocation still requires',
               'afhankelijk on UCITS identity',
               'No material regime change was recorded',
           ]
-          joined = '\n'.join([nl_md, en_md, nl_html, en_html]).casefold()
-          residual = [token for token in stale if token.casefold() in joined]
-          assert not residual, residual
+          residual_nl = [token for token in nl_leakage if token.casefold() in nl_surfaces]
+          assert not residual_nl, residual_nl
           print('ETF_EU_CLIENT_CHANGE_DISCLOSURE=PASS')
           PY
 
