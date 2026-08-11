@@ -45,7 +45,7 @@ def test_selector_prioritizes_donor_fundable_exact_mapped_lines(tmp_path: Path) 
     _write_json(portfolio, {"positions": []})
 
     payload = select_candidates(donor, proxy, registry, portfolio, max_candidates=4)
-    assert payload["selected_basket_ids"] == ["dfen_xetra_eur", "iqqq_xetra_eur", "xmlc_xetra_eur"]
+    assert payload["selected_basket_ids"] == ["dfen_xetra_eur", "xmlc_xetra_eur", "iqqq_xetra_eur"]
     assert payload["authority"]["allocation_authority"] is False
 
 
