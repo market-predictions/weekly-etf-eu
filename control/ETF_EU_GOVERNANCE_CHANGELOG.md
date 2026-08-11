@@ -1,5 +1,28 @@
 # Weekly ETF EU — Governance Changelog
 
+## 2026-08-11 — Donor-parity reconciliation fully closed
+
+### Final governance result
+
+- Issue #96 returned independent `ETF_EU_POST_MERGE_US_DONOR_LEAK_ASSURANCE: PASS` on frozen PR #95 head `e5d3470e1e1ab7f402a02cb31b775f3f902d4928`.
+- PR #95 merged unchanged as `10823b7c457a253e409a768f52ee95b1522c363f`.
+- Exact-main product-boundary run `31472717495` checked out that exact SHA and returned PASS with 6 planted tests, 32 active workflows scanned and no blockers.
+- The real merge tree and the assurance synthetic merge tree are identical: `71a614575bdc1d675ece53684d14601ce76fde90`.
+- Therefore the frozen-tree workflow-authority evidence applies to exact merged code content: `32 active | 23 retired-disabled | candidate=1 | delivery=1 | US donor execution=0`.
+- The three retired U.S. donor workflows did not execute on the merge push.
+- The two erroneous U.S. pricing artifact paths remained absent after merge.
+- Protected portfolio and trade-ledger blobs remained `df710b5f...` and `c6765ba3...` respectively.
+- Successor claim `ETF-EU-POST-MERGE-US-DONOR-LEAK-REPAIR-V1` closed with explicit handover `handover/ETF_EU_POST_MERGE_US_DONOR_LEAK_REPAIR_V1_CLOSE_20260811.md`.
+- No report delivery, SMTP send, portfolio mutation, ledger write, allocation reopening or broker execution occurred in this closeout.
+
+### Durable outcome
+
+The Weekly ETF EU environment now treats `weekly-etf` as a strategy/behavior donor only. U.S. donor runtime, U.S. report filenames and U.S. portfolio state cannot become active ETF EU operational authority through GitHub Actions without failing the product/workflow boundary gates.
+
+The next current Weekly ETF EU report is a separate production candidate cycle with fresh completed-close data, current re-underwriting, fresh independent assurance and separately authorized guarded delivery.
+
+---
+
 ## 2026-08-10 — Post-merge US donor execution leak repair
 
 ### Trigger
@@ -19,35 +42,27 @@ The repository retained donor/US runtime and report-validation modules for histo
 
 - Opened issue #94 and draft PR #95.
 - Created successor claim `ETF-EU-POST-MERGE-US-DONOR-LEAK-REPAIR-V1`.
-- Marked merged PR #91 claim `ETF-EU-DONOR-PARITY-RECONCILIATION-V1` `SUPERSEDED` with explicit handover; parent issue #90 remains open until successor exact-main closeout.
+- Marked merged PR #91 claim `ETF-EU-DONOR-PARITY-RECONCILIATION-V1` `SUPERSEDED` with explicit handover.
 - Retired `.github/workflows/persist-etf-pricing-audit.yml` to `.yml.disabled` audit history.
 - Retired `.github/workflows/validate-etf-runtime.yml` to `.yml.disabled` audit history.
-- Retired `.github/workflows/validate-etf-lane-breadth.yml` to `.yml.disabled` audit history; its desired discovery-breadth behavior remains represented through the current donor-discovery → UCITS mapping/fundability bridge.
+- Retired `.github/workflows/validate-etf-lane-breadth.yml` to `.yml.disabled` audit history.
 - Removed `output/pricing/price_audit_2026-08-10_20260810_214841.json` and `output/pricing/price_cache_2026-08-10.json` from the repaired candidate.
 - Extended `tools/validate_etf_eu_repository_boundary.py` to reject active FX and US donor execution/report tokens in `.yml/.yaml` workflows while ignoring `.yml.disabled` audit history.
 - Extended `tools/validate_etf_eu_workflow_authority.py` to scan `.yml` + `.yaml`, reject active US donor tokens and require all retired routes to retain non-executable `.disabled` evidence.
 - Added planted regressions proving donor pricing/report invocations fail when active but are allowed as disabled audit history.
-- Updated workflow-authority index, roadmap, work package, current state, next actions and handovers around the successor line.
 
 ### Exact semantic validation
 
-Semantic baseline:
-
-`d9b5731bbd0b125e2df9b778282116f9d8c32314`
-
-Evidence:
+Semantic baseline `d9b5731bbd0b125e2df9b778282116f9d8c32314`:
 - product-boundary run `31436751783` — SUCCESS;
-- product-boundary planted tests — 6 passed;
-- full active-workflow product-boundary scan — PASS;
+- planted tests — 6 passed;
 - donor-parity/full-package run `31436751773` — SUCCESS;
-- package/blocker regression suite — 31 passed;
-- workflow authority — `PASS | active_workflows=32 | retired_disabled=23 | candidate_route=1 | delivery_route=1 | us_donor_execution_routes=0`;
+- package/blocker suite — 31 passed;
+- workflow authority — `32 active | 23 retired | candidate=1 | delivery=1 | US donor execution=0`;
 - candidate pricing/Markdown wiring — PASS;
 - allocation-authority audit — PASS.
 
 ### Authority correction
-
-The post-merge incident establishes an explicit additional rule:
 
 ```text
 green CI != product identity
@@ -67,8 +82,6 @@ smtp_send=false
 allocation_decision_reopened=false
 ```
 
-PR #95 requires fresh exact-head independent assurance before merge. The PASS from issue #93 does not transfer to the successor candidate.
-
 ---
 
 ## 2026-08-10 — Donor-parity authority reconciliation and release-topology hardening
@@ -86,18 +99,13 @@ PR #95 requires fresh exact-head independent assurance before merge. The PASS fr
 - Bound macro freshness to donor source provenance and added dynamic completed-close date resolution.
 - Removed a post-normalization shadow renderer that recreated a 7.50% cash reserve, strategic/phase targets and three-position copy; funded rendering is dynamic and fail-closed on retired client copy.
 - Replaced the routine production workflow with a candidate-only non-main route that cannot self-assure, push candidate output to main or send email.
-- Disabled nineteen historical activation/send/repair/preview workflows by retaining them only as `.yml.disabled` audit evidence.
-- During final workflow audit, also retired the old 2026-07-27 allocator `sister report` workflow because it rendered a parallel client-like report from historical transition/shadow allocation state. This raised the disabled historical/parallel route count to twenty before the later post-merge donor-runtime correction above.
-- Reconciled `config/weekly_etf_donor_contract_pin.json` and its validator to exactly three active immutable-donor research-only workflows plus the disabled allocator sister-report route as retired audit evidence.
+- Disabled nineteen historical activation/send/repair/preview workflows, then retired the allocator sister-report route, and finally retired the three active U.S. donor workflows during the post-merge correction.
 - Made controlled transport the sole active real ETF EU delivery route and bound it to independent PASS, approved main-lineage commit, principal guarded-send authority and SHA-256 for all six approved NL/EN MD/HTML/PDF artifacts.
-- Controlled transport no longer re-renders an assured report; it sends the exact approved artifacts.
 - Added workflow-authority, guarded-delivery, candidate-request, funded-renderer and donor-parity regressions.
 
 ### Assurance correction
 
-The 2026-08-05 implementation described machine-generated JSON as `independent release assurance`. That terminology and authority were too strong because deterministic tooling run inside implementation/CI cannot satisfy the independent `governance_release_assurance` role by itself.
-
-The historical filenames are retained for compatibility, but their schema/semantics are corrected:
+Machine-generated release evidence is preflight/supporting evidence only:
 
 ```text
 artifact_type=etf_eu_release_evidence_preflight
@@ -108,15 +116,11 @@ merge_authority=false
 delivery_authority=false
 ```
 
-A separate role-B reviewer on one exact frozen PR head is mandatory. The candidate workflow cannot create that verdict.
+A separate role-B reviewer on one exact frozen PR head is mandatory.
 
-### Protected boundaries
+### Release outcome
 
-No protected portfolio or trade-ledger mutation, real broker execution, SMTP send or delivery claim occurred as part of PR #91 implementation.
-
-### Release outcome update
-
-PR #91 later received independent PASS in issue #93 and was merged as `202b0a629af34c697c7b7cb8fdce97fbb56bddbc`. The subsequent post-merge donor-runtime defect is handled by issue #94 / PR #95.
+PR #91 received independent PASS in issue #93 and merged as `202b0a629af34c697c7b7cb8fdce97fbb56bddbc`. Its post-merge donor-runtime defect was subsequently repaired and closed through issue #94 / PR #95 / issue #96.
 
 ---
 
@@ -126,20 +130,16 @@ PR #91 later received independent PASS in issue #93 and was merged as `202b0a629
 
 - Established one user-facing coordinator with two internally separated roles: `implementation_operations` and `governance_release_assurance`.
 - Prohibited implementation self-certification and governance mutation of the candidate under review.
-- Added `tools/build_etf_eu_release_assurance.py` to reconstruct release evidence from immutable source, manifest, report, visual-review and delivery-queue evidence.
-- Added `tools/validate_etf_eu_release_assurance.py` to enforce the evidence contract.
-- Added positive and negative governance fixtures.
-- Added `.github/workflows/validate-etf-eu-release-assurance.yml` for contract testing.
-- Added pre-send artifact persistence concepts.
-- Updated README, system index and next actions to describe the intended production and governance model.
+- Added machine release-evidence preflight tooling and negative fixtures.
+- Added GitHub Actions contract testing and pre-send artifact persistence concepts.
 
 ### Historical note corrected on 2026-08-10
 
-The original 2026-08-05 implementation incorrectly allowed machine evidence produced in implementation/CI to be described as independent release assurance. PR #91 corrects this: machine evidence is now preflight/supporting evidence only and cannot grant an assurance verdict, merge authority or delivery authority.
+The original 2026-08-05 implementation incorrectly allowed machine evidence produced in implementation/CI to be described as independent release assurance. PR #91 corrected this: machine evidence is supporting evidence only and cannot grant assurance, merge or delivery authority.
 
 ### Validation and activation evidence
 
-- Python compilation passed for both governance tools.
+- Python compilation passed for the governance tools.
 - Synthetic machine evidence could be validated and negative fixtures rejected.
 - GitHub Actions run `31011973728` completed successfully.
 - PR #73 was squash-merged into `main` as `30ae248c9eb61045cec8e963ebb9ac84dbf1e476`.
