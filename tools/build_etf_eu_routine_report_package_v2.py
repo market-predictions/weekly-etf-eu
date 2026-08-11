@@ -9,6 +9,7 @@ from typing import Any
 from runtime.apply_etf_eu_donor_parity_contract import apply_contract, write_recommendation_scorecard
 from runtime.build_etf_eu_client_grade_report_state_v2 import build_state
 from runtime.build_etf_eu_donor_discovery_bridge import write_bridge
+from runtime.finalize_etf_eu_markdown_semantics import finalize_markdown_semantics
 from runtime.inject_etf_eu_funded_identity_strip import inject_funded_identity_strip
 from runtime.polish_etf_eu_client_grade_html import polish
 from runtime.reconcile_etf_eu_funded_markdown import reconcile_funded_markdown
@@ -140,8 +141,10 @@ def build(args: argparse.Namespace) -> dict[str, Path]:
 
     nl_md = Path(str(manifest["dutch_primary_markdown"]))
     en_md = Path(str(manifest["english_companion_markdown"]))
-    nl_md.write_text(reconcile_funded_markdown(nl_md.read_text(encoding="utf-8"), funded_state, language="nl"), encoding="utf-8")
-    en_md.write_text(reconcile_funded_markdown(en_md.read_text(encoding="utf-8"), funded_state, language="en"), encoding="utf-8")
+    nl_text = reconcile_funded_markdown(nl_md.read_text(encoding="utf-8"), funded_state, language="nl")
+    en_text = reconcile_funded_markdown(en_md.read_text(encoding="utf-8"), funded_state, language="en")
+    nl_md.write_text(finalize_markdown_semantics(nl_text, funded_state, language="nl"), encoding="utf-8")
+    en_md.write_text(finalize_markdown_semantics(en_text, funded_state, language="en"), encoding="utf-8")
 
     promotion_fields = {
         "client_renderer_mode": "client_grade_v2_funded_aware_donor_parity_v1",
