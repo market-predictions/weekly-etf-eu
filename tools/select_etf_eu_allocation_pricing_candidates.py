@@ -53,7 +53,7 @@ def select_candidates(
 
     ranked: list[dict[str, Any]] = []
     for lane in donor.get("assessed_lanes") or []:
-        if not isinstance(lane, dict) or not bool(lane.get("is_fundable_candidate")):
+        if not isinstance(lane, dict):
             continue
         proxies = {
             str(lane.get("primary_etf") or "").strip().upper(),
@@ -92,21 +92,32 @@ def select_candidates(
                     "donor_primary_etf": lane.get("primary_etf"),
                     "donor_alternative_etf": lane.get("alternative_etf"),
                     "donor_total_score": score,
+                    "donor_promoted_to_live_radar": bool(lane.get("promoted_to_live_radar")),
+                    "donor_challenger": bool(lane.get("challenger")),
                     "donor_fundability_status": lane.get("fundability_status"),
+                    "donor_is_fundable_candidate": bool(lane.get("is_fundable_candidate")),
                     "mapping_exposure_id": mapping.get("exposure_id"),
                     "mapping_status": status,
                     "candidate_order": order,
-                    "selection_authority": "pricing_capacity_only_not_allocation_authority",
+                    "selection_authority": "pricing_capacity_only_ranked_by_donor_strength_with_eu_local_funding_decision",
                 })
 
     dedup: dict[str, dict[str, Any]] = {}
-    for row in sorted(ranked, key=lambda item: (-item["donor_total_score"], item["candidate_order"], item["basket_id"])):
+    for row in sorted(
+        ranked,
+        key=lambda item: (
+            -item["donor_total_score"],
+            not item["donor_promoted_to_live_radar"],
+            item["candidate_order"],
+            item["basket_id"],
+        ),
+    ):
         basket_id = str(row.get("basket_id") or "")
         if basket_id and basket_id not in dedup:
             dedup[basket_id] = row
     selected = list(dedup.values())[: max(0, max_candidates)]
     return {
-        "schema_version": "etf_eu_allocation_pricing_candidate_selection_v1",
+        "schema_version": "etf_eu_allocation_pricing_candidate_selection_v2",
         "donor_report_date": donor.get("report_date"),
         "donor_discovery_engine_version": donor.get("discovery_engine_version"),
         "max_candidates": max_candidates,
@@ -116,6 +127,8 @@ def select_candidates(
         "selected": selected,
         "authority": {
             "pricing_capacity_only": True,
+            "donor_us_fundability_flag_is_eu_authority": False,
+            "eu_local_overlap_and_reunderwriting_required": True,
             "funding_authority": False,
             "allocation_authority": False,
             "portfolio_mutation": False,
