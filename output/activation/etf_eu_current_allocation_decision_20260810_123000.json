@@ -10,7 +10,7 @@
   "source_discovery_bridge": "output/runtime/etf_eu_donor_discovery_bridge_20260810_120500.json",
   "source_donor_lane_artifact": "output/runtime/etf_eu_donor_lane_source_20260810_120500.json",
   "portfolio_state_before": "output/etf_eu_portfolio_state.json",
-  "pre_allocation_nav_eur": 100738.74,
+  "pre_allocation_nav_eur": 100738.73,
   "pre_allocation_cash_eur": 50208.40,
   "decision_framework": {
     "fresh_cash_test": "Material cash is present and fully fundable actionable lanes exist; deploy-or-explain review requires deployment into the qualified distinct exposures or an explicit reason not to deploy.",
@@ -46,7 +46,7 @@
       "close_price_eur": 58.31999984,
       "close_date": "2026-08-10",
       "trade_value_eur": 12072.24,
-      "allocation_weight_pct": 11.983712,
+      "allocation_weight_pct": 11.983713,
       "strategic_target_weight_pct": null,
       "phase_target_weight_pct": null,
       "pricing_status": "qualified_two_provider_completed_close",
@@ -87,7 +87,7 @@
       "close_price_eur": 67.34999923,
       "close_date": "2026-08-10",
       "trade_value_eur": 10035.15,
-      "allocation_weight_pct": 9.961560,
+      "allocation_weight_pct": 9.961561,
       "strategic_target_weight_pct": null,
       "phase_target_weight_pct": null,
       "pricing_status": "qualified_two_provider_completed_close",
@@ -118,9 +118,9 @@
   "expected_post_allocation": {
     "position_count": 6,
     "cash_eur": 28101.01,
-    "cash_weight_pct": 27.89494,
-    "invested_eur": 72637.73,
-    "nav_eur": 100738.74
+    "cash_weight_pct": 27.894942,
+    "invested_eur": 72637.72,
+    "nav_eur": 100738.73
   },
   "authority": {
     "explicit_current_allocation_decision": true,
