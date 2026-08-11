@@ -5,79 +5,74 @@
 ```text
 date=2026-08-11
 repository=market-predictions/weekly-etf-eu
-state=DONOR_PARITY_RECONCILIATION_CLOSED
-parent_issue=90
-post_merge_repair_issue=94
-assurance_issue=96
-repair_pr=95
-reviewed_head=e5d3470e1e1ab7f402a02cb31b775f3f902d4928
-code_merge_sha=10823b7c457a253e409a768f52ee95b1522c363f
-code_merge_tree=71a614575bdc1d675ece53684d14601ce76fde90
-exact_main_product_boundary_run=31472717495
-active_release_integration_claim=NONE
+state=FRESH_20260810_CANDIDATE_READY_FOR_ASSURANCE
+parent_issue=97
+branch=agent/etf-eu-fresh-260810-v1
+run_id=20260810_123000
+report_date=2026-08-10
+active_release_integration_claim=ETF-EU-FRESH-REPORT-260810-V1
 principal_decision_required=false
 delivery_authorized=false
-portfolio_mutation=false
-trade_ledger_write=false
 real_broker_execution=false
 report_delivery=false
 smtp_send=false
 ```
 
-## Outcome
-The donor-parity, allocation-authority, pricing-contract, bilingual-output, workflow-topology and post-merge US donor-leak reconciliation program is closed.
+## Current outcome
+A genuinely fresh Weekly ETF EU candidate has been produced for completed close 2026-08-10. The cycle uses broad donor discovery as research input, EU-local UCITS mapping/fundability, exact trading-line pricing and an explicit model-only allocation decision.
 
-PR #91 first established the corrected decision/state/output/runbook architecture. Its independent issue #93 PASS was valid and PR #91 merged unchanged. Exact-main observation then exposed a separate legacy operational defect: retained US Weekly ETF donor pricing/report workflows could still execute inside Weekly ETF EU and one of them wrote US pricing artifacts to `main`.
+The candidate moved from four to six funded model positions because two distinct opportunities passed the current evidence gates. This was not a position-count target.
 
-Issue #94 / PR #95 repaired that post-merge defect. Independent issue #96 returned:
+## Current model portfolio candidate
 
-`ETF_EU_POST_MERGE_US_DONOR_LEAK_ASSURANCE: PASS`
-
-on exact frozen head `e5d3470e1e1ab7f402a02cb31b775f3f902d4928`. PR #95 then merged unchanged as `10823b7c457a253e409a768f52ee95b1522c363f`.
-
-## Exact-main closeout evidence
-
-Push run `31472717495` checked out exact merge SHA `10823b7c...` and returned:
-
-```text
-product_boundary=PASS
-planted_boundary_tests=6 passed
-active_workflows_scanned=32
-blockers=[]
-```
-
-No retired donor workflow executed on the merge push. The two erroneous US pricing artifact paths remain absent.
-
-The real merge and the assurance synthetic merge have the identical Git tree:
-
-`71a614575bdc1d675ece53684d14601ce76fde90`
-
-Therefore the frozen PR workflow-authority evidence applies to exact merged code content:
+| Ticker | Shares | Current role |
+|---|---:|---|
+| VWCE | 151 | Global core equity |
+| EUNA | 1,526 | Stabilising aggregate bonds |
+| SXR8 | 10 | U.S. equity overweight |
+| L0CK | 934 | Cybersecurity satellite |
+| DFEN | 207 | Defense resilience satellite — added this run |
+| IQQQ | 149 | Water infrastructure satellite — added this run |
 
 ```text
-active_workflows=32
-retired_disabled=23
-candidate_route=1
-delivery_route=1
-us_donor_execution_routes=0
+cash_eur=28101.01
+invested_market_value_eur=72637.72
+nav_eur=100738.73
+position_count=6
+real_broker_execution=false
 ```
 
-## Current protected portfolio
+Model activation authority is the explicit current decision:
 
-| Ticker | Shares |
-|---|---:|
-| VWCE | 151 |
-| EUNA | 1,526 |
-| SXR8 | 10 |
-| L0CK | 934 |
+`output/activation/etf_eu_current_allocation_decision_20260810_123000.json`
+
+The decision funded DFEN and IQQQ from cash after EU-local re-underwriting and two-provider completed-close evidence. XMLC remains the water implementation alternative. CBUF, VVSM, ISAE and incompletely mapped lanes remain unfunded because their current evidence does not meet the same gate.
+
+## Fresh discovery and pricing state
+
+- donor breadth research: 12 required buckets / 25 assessed lanes;
+- current pricing date: 2026-08-10;
+- funded exact-line valuation: 6/6 two-provider completed-close consensus;
+- nonfunded pricing remains research/comparison evidence and has no automatic funding authority;
+- remaining cash is classified through deploy-or-explain logic, not a fixed 35% floor.
+
+## Output-contract state
+NL/EN Markdown, HTML and PDF now derive their current decision semantics from one normalized state.
+
+The cycle repaired a P0 stale-output defect where legacy renderer copy could still say no portfolio change / zero verified lines despite the six-position state. The permanent v2 builder now applies a fail-closed client-surface semantics finalizer before HTML is persisted and before PDF rendering.
+
+Final semantic rerender Actions run:
 
 ```text
-cash_eur=50208.40
-portfolio_blob=df710b5fbe4172506b67b7f591030a8c6a098c64
-trade_ledger_blob=c6765ba380fe0c40272688a017dc0dc99b46d571
+run=31502986816
+verdict=PASS
+six_position_state=PASS
+normalized_allocation_cash_state=PASS
+strict_nl_en_html_pdf_validation=PASS
+strict_nl_en_markdown_validation=PASS
+fresh_change_and_6_of_6_semantics=PASS
+pdf_review_pages=PASS
 ```
-
-Protected state and ledger are unchanged.
 
 ## Stable authority retained
 
@@ -86,29 +81,40 @@ Protected state and ledger are unchanged.
 - 15% maximum new ETF: retired as current authority;
 - 75%: pricing-coverage context only, not a position cap;
 - 25% turnover / 18% semiconductor-theme values: research/shadow only unless separately adopted;
-- donor cash/factor thresholds: review/disclosure triggers, not allocation caps;
+- donor U.S.-portfolio funding labels are not EU funding authority;
 - model investability remains broker-neutral;
+- exact trading line remains distinct even where ISIN is shared across venues/tickers;
 - missing current evidence remains unresolved rather than implicit Hold.
 
-## Operational topology
+## Operational topology at assurance boundary
 
-- one non-main candidate route: `run-weekly-etf-eu-routine.yml`;
-- one real guarded delivery route: `send-weekly-etf-eu-controlled-transport.yml`;
-- 23 retired historical/legacy routes retained only as non-executable `.disabled` audit evidence;
-- retained donor source/research logic does not imply donor operational authority.
+- one canonical non-main candidate route: `.github/workflows/run-weekly-etf-eu-routine.yml`;
+- broad donor discovery and quota-aware allocation-candidate pricing are integrated in that route;
+- the issue-#97 push trigger has been removed;
+- the temporary rerender workflow has been removed;
+- one guarded delivery route remains separate: `send-weekly-etf-eu-controlled-transport.yml`;
+- candidate generation has no delivery authority.
 
-## Claim and handover
+## Claim and lifecycle
 
-Successor claim `ETF-EU-POST-MERGE-US-DONOR-LEAK-REPAIR-V1` is `CLOSED`.
+Active claim:
 
-Closeout handover:
+`ETF-EU-FRESH-REPORT-260810-V1`
 
-`handover/ETF_EU_POST_MERGE_US_DONOR_LEAK_REPAIR_V1_CLOSE_20260811.md`
+Work package:
 
-There is no active release-integration claim left from this reconciliation program.
+`control/work_packages/ETF_EU_FRESH_REPORT_260810_V1_20260811.md`
+
+Issue: `#97`.
 
 ## Next lifecycle
 
-A genuinely current Weekly ETF EU report is a **new separate production candidate cycle**. It must resolve the latest valid completed close, run current donor discovery → EU UCITS mapping/fundability → exact-line v2 pricing → current re-underwriting, generate NL/EN MD/HTML/PDF from one normalized state, obtain fresh independent report assurance, and use separately authorized guarded delivery if sending is requested.
-
-This closeout itself creates no report-delivery or broker-execution authority.
+1. open the fresh candidate PR against `main`;
+2. validate exact PR head and freeze it;
+3. obtain independent `governance_release_assurance` verdict;
+4. merge only on PASS with unchanged head;
+5. run exact-main verification;
+6. build/validate the delivery package against the assured main lineage;
+7. use the sole guarded transport route;
+8. claim successful delivery only after positive receipt/attachment evidence;
+9. close claim/work package and reconcile control state.
