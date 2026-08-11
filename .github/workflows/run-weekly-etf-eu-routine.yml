@@ -6,15 +6,6 @@ on:
       request_path:
         description: "Prepared v2 candidate request path"
         required: true
-  # TEMPORARY execution bridge for issue #97 only. The connector available to the
-  # controller cannot create workflow_dispatch events. This branch-scoped push
-  # trigger is removed before the candidate is frozen for assurance.
-  push:
-    branches:
-      - agent/etf-eu-fresh-260810-v1
-    paths:
-      - "control/run_queue/etf_eu_routine_report_request_20260810_104500.txt"
-      - ".github/workflows/run-weekly-etf-eu-routine.yml"
 
 permissions:
   contents: write
@@ -73,7 +64,7 @@ jobs:
 
       - name: Resolve and validate candidate request
         env:
-          ETF_EU_REQUEST_PATH: ${{ github.event_name == 'workflow_dispatch' && inputs.request_path || 'control/run_queue/etf_eu_routine_report_request_20260810_104500.txt' }}
+          ETF_EU_REQUEST_PATH: ${{ inputs.request_path }}
         run: |
           set -euo pipefail
           python tools/validate_etf_eu_routine_report_request.py --request "$ETF_EU_REQUEST_PATH"
