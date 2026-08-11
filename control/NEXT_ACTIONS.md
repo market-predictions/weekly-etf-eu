@@ -3,78 +3,70 @@
 ## Current priority
 
 ```text
-START_NEW_CURRENT_REPORT_CYCLE_WHEN_REQUESTED
+FREEZE_AND_INDEPENDENTLY_ASSURE_FRESH_20260810_CANDIDATE
 ```
 
-Current authoritative release status:
+Current authoritative candidate status:
 
 ```text
-donor_parity_reconciliation=CLOSED
-post_merge_us_donor_leak_repair=CLOSED
-repair_pr=95
-reviewed_head=e5d3470e1e1ab7f402a02cb31b775f3f902d4928
-merge_sha=10823b7c457a253e409a768f52ee95b1522c363f
-assurance_issue=96
-assurance_verdict=PASS
-exact_main_product_boundary_run=31472717495
-active_release_integration_claim=NONE
+issue=97
+branch=agent/etf-eu-fresh-260810-v1
+run_id=20260810_123000
+report_date=2026-08-10
+active_claim=ETF-EU-FRESH-REPORT-260810-V1
+funded_positions=6
+added_positions=DFEN,IQQQ
+cash_eur=28101.01
+nav_eur=100738.73
+semantic_rerender_run=31502986816
+semantic_rerender_verdict=PASS
 delivery_authorized=false
+real_broker_execution=false
 principal_decision_required=false
 ```
 
-## Completed — do not reopen without new contradictory evidence
+## Completed in this current report cycle — do not reopen without contradictory evidence
 
-1. Unsupported allocation controls are removed from current authority:
-   - 50% maximum position;
-   - 35% minimum cash;
-   - 15% maximum new ETF;
-   - 75% as a position cap.
-2. 25% turnover and 18% semiconductor/theme values remain research/shadow only unless separately adopted.
-3. Pricing uses one coherent v2 funded two-provider completed-close contract.
-4. NL/EN Markdown, HTML and PDF are state-derived and include all funded positions including L0CK.
-5. Candidate generation, independent assurance and delivery are separate authorities.
-6. Three US Weekly ETF donor execution/report workflows are retired as `.yml.disabled` audit history.
-7. The two erroneous US donor pricing artifacts are absent from `main`.
-8. Product-boundary exact-main push validation is PASS on code merge `10823b7c...`.
-9. Workflow-authority merge-compatibility evidence is exact-content equivalent to the real merge tree and records:
+1. Broad donor discovery is integrated into the canonical non-main candidate workflow.
+2. Donor U.S.-portfolio `is_fundable_candidate` is not used as EU funding authority; EU-local mapping/fundability owns the decision.
+3. Allocation-candidate second-source pricing can use quota-aware Alpha Vantage capacity before funding, preventing the old circular deadlock.
+4. The Alpha Vantage secret is correctly wired into the current pricing workflow.
+5. Exact-line validation distinguishes trading lines even when they share an ISIN; SXR8/CSPX no longer overwrite each other.
+6. Current completed-close revaluation precedes allocation sizing.
+7. An explicit current allocation decision added DFEN 207 and IQQQ 149 to the model-only portfolio; no real broker order exists.
+8. The final model candidate has six funded positions and EUR 28,101.01 cash on NAV EUR 100,738.73.
+9. Funded valuation is 6/6 two-provider completed-close consensus for 2026-08-10.
+10. NL/EN Markdown, HTML and PDF current semantics are derived from one normalized state and passed strict machine validation.
+11. Legacy stale HTML/PDF wording and Dutch/English leakage are blocked by permanent fail-closed semantics finalizers.
+12. Semantic rerender run `31502986816` is PASS through PDF review and branch persist.
+13. The temporary rerender workflow is removed.
+14. The temporary issue-#97 push trigger is removed from the canonical candidate workflow while broad-discovery wiring is retained.
+15. The fresh work claim is ACTIVE and bound to issue #97 / the fresh work package.
 
-```text
-active_workflows=32
-retired_disabled=23
-candidate_route=1
-delivery_route=1
-us_donor_execution_routes=0
-```
+## Next execution sequence
 
-10. Protected portfolio and trade ledger are unchanged.
-11. Successor integration claim is CLOSED with an explicit closeout handover.
-
-## Next execution cycle — separate from this repair
-
-When a fresh Weekly ETF EU report is requested:
-
-1. create a new non-main candidate/work claim from current `main`;
-2. resolve the latest valid completed European close;
-3. obtain current donor broad-discovery/opportunity evidence;
-4. map opportunities through verified UCITS/ISIN/KID/exact trading lines;
-5. obtain same-date funded two-provider v2 pricing;
-6. perform current re-underwriting and explicit allocation decision logic without resurrecting retired shadow caps;
-7. generate NL/EN MD/HTML/PDF from one normalized state;
-8. run full candidate validations including product/workflow boundary;
-9. freeze exact candidate head and obtain fresh independent `governance_release_assurance`;
-10. merge only on PASS + unchanged head;
-11. run exact-main verification;
-12. guarded delivery only under separate send authority;
-13. delivery success only after positive receipt/attachment evidence.
+1. Open the fresh candidate pull request against `main`.
+2. Let PR-triggered CI validate workflow/product boundaries and exact candidate content.
+3. Repair any genuine PR-head failure; do not waive gates.
+4. Once green, freeze the exact PR head and record the implementation handover/evidence bundle.
+5. Obtain a fresh independent `governance_release_assurance` verdict `PASS | FAIL | INDETERMINATE` on the frozen head.
+6. If FAIL, repair on a new head and repeat assurance. If PASS, verify the head is unchanged.
+7. Merge only the independently PASSed unchanged head.
+8. Run exact-main validation and confirm candidate/delivery/product-boundary topology.
+9. Build a delivery-package manifest bound to exact assured/merged artifacts and hashes.
+10. Invoke only `send-weekly-etf-eu-controlled-transport.yml` under separate guarded-send authority.
+11. Verify transport result plus receipt/attachment evidence; only then state that email delivery succeeded.
+12. Close issue #97, work package and active claim, and reconcile `CURRENT_STATE.md`, `NEXT_ACTIONS.md`, `DECISION_LOG.md` and the control-plane cache.
 
 ## Protected boundaries
 
-Do not infer from this closeout:
+Until the independent assurance and delivery stages explicitly grant their separate authorities:
 
-- report-delivery authority;
-- SMTP authority;
-- real broker execution;
-- portfolio or trade-ledger mutation;
-- a new allocation decision.
+- delivery authority = false;
+- SMTP authority = false;
+- real broker execution = false;
+- no additional portfolio mutation is implied;
+- no ticker is added merely to increase position count;
+- research-only prices or mappings do not create funding authority.
 
-No principal decision is currently required for the closed reconciliation program.
+No principal decision is currently required.
