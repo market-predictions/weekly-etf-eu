@@ -4,9 +4,9 @@
 
 ## 1. Decision at a glance
 
-- **Action:** review L0CK, DFEN, VWCE, EUNA, SXR8 and IQQQ as the current model positions; remaining liquidity is EUR 28,101.01.
-- **Reason:** the model portfolio contains 6 funded UCITS positions (L0CK, DFEN, VWCE, EUNA, SXR8 and IQQQ); the review uses current state, completed-close pricing evidence and re-underwriting.
-- **Current position structure:** L0CK, DFEN, VWCE, EUNA, SXR8 and IQQQ; roles, contribution, overlap and re-underwriting are derived from the current normalized state.
+- **Action:** added DFEN and IQQQ this run; current model portfolio: L0CK, DFEN, VWCE, EUNA, SXR8 and IQQQ. Remaining liquidity is EUR 28,101.01.
+- **Reason:** the model portfolio contains 6 funded UCITS positions (L0CK, DFEN, VWCE, EUNA, SXR8 and IQQQ); the review uses current state, exact-line completed-close pricing evidence and current re-underwriting.
+- **Most advanced operational candidate:** the verified S&P 500 UCITS lines remain furthest advanced for broker and trading-line confirmation.
 - **Avoid:** do not allocate capital to thematic or gold exposure until identity, KID, trading-line and product-policy checks are complete.
 
 ## 2. Portfolio and capital
@@ -37,13 +37,13 @@
 | CBUF · Xetra | IE00BJ5JNZ06 | 2026-08-10 | 7.10 | EUR | Market price available |
 | CNDX · London Stock Exchange | IE00B53SZB19 | 2026-08-10 | 1,702.60 | USD | Market price available |
 
-The displayed prices are market observations from the current routine run and do not independently authorize valuation or purchase.
+For the 6 funded lines, two-provider exact-line completed-close consensus forms the current valuation basis. Other pricing rows are research/comparison observations and create no funding authority.
 
 ## 4. Coverage and decision quality
 
-- **Pricing coverage:** 13 of 13 trading lines priced.
-- **Fully verified lines:** 0.
-- **Priced but identity or trading-line verification still pending:** 13.
+- **Pricing coverage:** 13 of 13 trading lines have a market observation on the pricing date.
+- **Funded exact-line valuation:** 6 of 6 funded lines have two-provider completed-close consensus and form the current valuation basis.
+- **Research/comparison lines:** 7 unfunded pricing rows remain research-only; market-price availability creates no funding authority.
 - **Unresolved:** 0.
 - **Portfolio decision:** existing positions remain subject to current re-underwriting; mapping or pricing alone creates no Add/Hold/Reduce or funding authority.
 
@@ -67,4 +67,4 @@ The displayed prices are market observations from the current routine run and do
 
 - Re-underwrite L0CK, DFEN, VWCE, EUNA, SXR8 and IQQQ on fresh cash, contribution, overlap, invalidation conditions and best alternative.
 - Require fresh exact-line completed-close evidence with two-provider consensus for every funded line before current valuation/re-underwriting.
-- Classify material cash through donor cash discipline; only a separate explicit allocation decision may change funding.
+- Reassess the remaining material cash against newly fully fundable lanes; current cash is explicitly explained by still-open fundability blockers.

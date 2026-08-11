@@ -4,9 +4,9 @@
 
 ## 1. Besluit in één oogopslag
 
-- **Actie:** L0CK, DFEN, VWCE, EUNA, SXR8 en IQQQ als huidige modelposities beoordelen; resterende liquiditeit EUR 28.101,01.
-- **Reden:** de modelportefeuille bevat 6 gefinancierde UCITS-posities (L0CK, DFEN, VWCE, EUNA, SXR8 en IQQQ); de review gebruikt actuele state, completed-close prijsbewijs en re-underwriting.
-- **Huidige positiegrondslag:** L0CK, DFEN, VWCE, EUNA, SXR8 en IQQQ; rollen, bijdrage, overlap en re-underwriting komen uit de actuele genormaliseerde state.
+- **Actie:** DFEN en IQQQ deze run toegevoegd; huidige modelportefeuille: L0CK, DFEN, VWCE, EUNA, SXR8 en IQQQ. Resterende liquiditeit EUR 28.101,01.
+- **Reden:** de modelportefeuille bevat 6 gefinancierde UCITS-posities (L0CK, DFEN, VWCE, EUNA, SXR8 en IQQQ); de review gebruikt actuele state, exact-line completed-close prijsbewijs en current re-underwriting.
+- **Beste operationele kandidaat:** de geverifieerde S&P 500 UCITS-lijnen blijven het verst gevorderd voor verdere bevestiging bij de broker en van de handelslijn.
 - **Niet doen:** geen nieuw kapitaal toewijzen uitsluitend op basis van proxy, mapping of prijsbeschikbaarheid; identiteit, KID, exacte handelslijn, re-underwriting en expliciet allocatiebesluit blijven verplicht.
 
 ## 2. Portefeuille en kapitaal
@@ -37,13 +37,13 @@
 | CBUF · Xetra | IE00BJ5JNZ06 | 2026-08-10 | 7.10 | EUR | Marktprijs beschikbaar |
 | CNDX · London Stock Exchange | IE00B53SZB19 | 2026-08-10 | 1,702.60 | USD | Marktprijs beschikbaar |
 
-De getoonde prijzen zijn marktobservaties uit de huidige routine-run en vormen geen zelfstandige basis voor waardering of aankoop.
+Voor de 6 gefinancierde lijnen vormt two-provider exact-line completed-close consensus de actuele waarderingsbasis. Overige prijsregels zijn research-/vergelijkingsobservaties en creëren geen funding-authority.
 
 ## 4. Dekking en besliskwaliteit
 
-- **Prijsdekking:** 13 van 13 handelslijnen geprijsd.
-- **Volledig geverifieerde lijnen:** 0.
-- **Geprijsd maar identiteit of handelslijn nog te verifiëren:** 13.
+- **Prijsdekking:** 13 van 13 handelslijnen hebben een marktobservatie op de peildatum.
+- **Gefinancierde exact-line waardering:** 6 van 6 gefinancierde lijnen hebben two-provider completed-close consensus en vormen de actuele waarderingsbasis.
+- **Research-/vergelijkingslijnen:** 7 niet-gefinancierde prijsregels blijven research-only; marktprijsbeschikbaarheid creëert geen funding-authority.
 - **Niet opgelost:** 0.
 - **Portefeuillebesluit:** bestaande posities blijven uitsluitend onder actuele re-underwriting; mapping of pricing alleen creëert geen Add/Hold/Reduce- of funding-authority.
 
@@ -66,5 +66,5 @@ De getoonde prijzen zijn marktobservaties uit de huidige routine-run en vormen g
 ## 7. Volgende routineactie
 
 - Herbeoordeel L0CK, DFEN, VWCE, EUNA, SXR8 en IQQQ op fresh-cash, bijdrage, overlap, invalidatievoorwaarden en beste alternatief.
-- Vereis voor iedere gefinancierde lijn verse exact-line completed-close evidence met twee-provider consensus vóór current valuation/re-underwriting.
-- Classificeer materiële cash via de donor cash-discipline; alleen een afzonderlijk expliciet allocatiebesluit mag funding wijzigen.
+- Vereis voor iedere gefinancierde lijn verse exact-line completed-close evidence met two-provider consensus vóór current valuation/re-underwriting.
+- Herbeoordeel de resterende materiële cash tegen nieuwe volledig fundable lanes; de huidige cash is expliciet verklaard door nog open fundability-blockers.

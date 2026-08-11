@@ -88,10 +88,13 @@
   "blockers": [],
   "cash_policy": {
     "automatic_trade_authority": false,
-    "cash_classification": "Unresolved — explicit classification required",
-    "cash_classification_complete": false,
+    "cash_after_explanation": "After funding one defense and one water implementation, remaining cash is retained because healthcare, semiconductors and agriculture lack two-provider consensus and grid/critical-minerals/India lack complete current exact-line evidence. No fixed cash floor is applied.",
+    "cash_classification": "Deployment candidate",
+    "cash_classification_complete": true,
+    "cash_classification_source": "current_explicit_allocation_decision",
     "cash_eur": 28101.01,
     "cash_weight_pct": 27.894942,
+    "deploy_or_explain_explained": true,
     "deploy_or_explain_review_required_if_actionable_fundable_lane_exists": true,
     "fixed_minimum_cash_pct": null,
     "material_position": true
@@ -102,6 +105,22 @@
     "portfolio_curve": true,
     "replacement_analysis": true,
     "rotation_plan": true
+  },
+  "current_allocation_decision": {
+    "activation_id": "ETF-EU-CURRENT-20260810_123000",
+    "added_tickers": [
+      "DFEN",
+      "IQQQ"
+    ],
+    "cash_after_classification": "Deployment candidate",
+    "cash_after_explanation": "After funding one defense and one water implementation, remaining cash is retained because healthcare, semiconductors and agriculture lack two-provider consensus and grid/critical-minerals/India lack complete current exact-line evidence. No fixed cash floor is applied.",
+    "model_portfolio_only": true,
+    "real_broker_execution": false,
+    "report_date": "2026-08-10",
+    "run_id": "20260810_123000",
+    "source_path": "output/activation/etf_eu_current_allocation_decision_20260810_123000.json",
+    "status": "ready_for_guarded_model_activation",
+    "trade_count": 2
   },
   "discovery_parity": {
     "assessed_buckets": [
@@ -1010,6 +1029,7 @@
   "donor_parity_contract": {
     "action_clock_memory": true,
     "cash_policy_review": true,
+    "current_allocation_decision_ingested": true,
     "donor_cash_thresholds_are_review_rules_not_allocation_caps": true,
     "donor_factor_40pct_is_concentration_disclosure_not_position_cap": true,
     "execution_authority": false,
@@ -1020,7 +1040,7 @@
     "portfolio_mutation": false,
     "replacement_duel_memory": true,
     "shadow_allocation_caps_are_current_authority": false,
-    "version": "v1.1"
+    "version": "v1.2"
   },
   "equity_curve": {
     "activation_rule": "show after at least two meaningful validated NAV observations or a funded position",
@@ -1069,7 +1089,7 @@
     "opportunity_radar_reconciled": true,
     "position_count": 6
   },
-  "generated_at_utc": "2026-08-11T10:09:49Z",
+  "generated_at_utc": "2026-08-11T10:23:04Z",
   "macro": {
     "age_days": 3,
     "catalysts": [
@@ -1122,7 +1142,7 @@
   "next_run_input": {
     "macro_refresh_required": false,
     "portfolio_state": "output/etf_eu_portfolio_state.json",
-    "pricing_artifact": "/tmp/etf_eu_pricing_v2_5hg68cz9/pricing_v2_layout_compat.json",
+    "pricing_artifact": "/tmp/etf_eu_pricing_v2_gtc0tmbq/pricing_v2_layout_compat.json",
     "priority_candidates": [
       "L0CK",
       "DFEN",
@@ -1481,11 +1501,12 @@
   "parity_completeness": {
     "all_funded_positions_have_current_reunderwriting": false,
     "allocation_target_metadata_sanitized": true,
-    "cash_classification": "Unresolved — explicit classification required",
-    "cash_classification_complete": false,
+    "cash_classification": "Deployment candidate",
+    "cash_classification_complete": true,
+    "cash_deploy_or_explain_complete": true,
     "funded_position_count": 6,
     "historical_target_metadata_preserved_non_authoritatively": true,
-    "unresolved_reunderwriting_count": 6
+    "unresolved_reunderwriting_count": 4
   },
   "portfolio": {
     "base_currency": "EUR",
@@ -1493,6 +1514,79 @@
     "cash_weight_pct": 27.89494169720027,
     "inception_date": "2026-05-30",
     "invested_market_value_eur": 72637.72,
+    "last_broker_neutral_allocation_activation": {
+      "activation_id": "ETF-EU-BROKER-NEUTRAL-20260716_205500",
+      "portfolio_mutation": true,
+      "real_broker_execution": false,
+      "review": "output/runtime/etf_eu_broker_neutral_allocation_review_20260716_205500.json",
+      "run_id": "20260716_205500",
+      "validation": "output/quality/etf_eu_broker_neutral_allocation_review_validation_20260716_205500.json"
+    },
+    "last_model_capital_activation": {
+      "activation_id": "ETF-EU-CURRENT-20260810_123000",
+      "applied_at_utc": "2026-08-11T10:09:47Z",
+      "decision": "output/activation/etf_eu_current_allocation_decision_20260810_123000.json",
+      "report_date": "2026-08-10",
+      "run_id": "20260810_123000",
+      "trade_count": 2,
+      "validation": "output/activation/etf_eu_current_allocation_validation_20260810_123000.json"
+    },
+    "last_valuation_refresh": {
+      "capital_mutation": false,
+      "cash_changed": false,
+      "evidence": [
+        {
+          "agreeing_providers": [
+            "alpha_vantage",
+            "yahoo_chart"
+          ],
+          "close_date": "2026-08-10",
+          "close_price": 11.11600009,
+          "isin": "IE00BG0J4C88",
+          "market_value_eur": 10382.34,
+          "ticker": "L0CK"
+        },
+        {
+          "agreeing_providers": [
+            "alpha_vantage",
+            "yahoo_chart"
+          ],
+          "close_date": "2026-08-10",
+          "close_price": 168.47999787,
+          "isin": "IE00BK5BQT80",
+          "market_value_eur": 25440.48,
+          "ticker": "VWCE"
+        },
+        {
+          "agreeing_providers": [
+            "alpha_vantage",
+            "yahoo_chart"
+          ],
+          "close_date": "2026-08-10",
+          "close_price": 4.89470003,
+          "isin": "IE00BDBRDM35",
+          "market_value_eur": 7469.31,
+          "ticker": "EUNA"
+        },
+        {
+          "agreeing_providers": [
+            "alpha_vantage",
+            "yahoo_chart"
+          ],
+          "close_date": "2026-08-10",
+          "close_price": 723.82000366,
+          "isin": "IE00B5BMR087",
+          "market_value_eur": 7238.2,
+          "ticker": "SXR8"
+        }
+      ],
+      "funded_position_count": 4,
+      "pricing_artifact": "output/pricing/ucits_close_price_validation_basket_results_20260810_120500.json",
+      "real_broker_execution": false,
+      "report_date": "2026-08-10",
+      "shares_changed": false,
+      "trade_ledger_write": false
+    },
     "nav_eur": 100738.73,
     "portfolio_mode": "dutch_eu_ucits_model_active",
     "position_count": 6,
@@ -1851,7 +1945,8 @@
       }
     ],
     "since_inception_return_pct": 0.7387299999999986,
-    "starting_capital_eur": 100000.0
+    "starting_capital_eur": 100000.0,
+    "valuation_source": "guarded_model_capital_activation_v1"
   },
   "pricing": {
     "as_of": "2026-08-10",
@@ -2485,15 +2580,19 @@
   "recommendation_memory": [
     {
       "action_clock_status": "UNRESOLVED_REUNDERWRITING_REQUIRED",
+      "action_executed_this_run": "Model buy",
       "best_alternative": null,
       "cash_policy_flag": "Material cash position; classification and deploy-or-explain test required",
       "contribution_quality": "Review required",
+      "current_allocation_decision": null,
       "current_weight_pct": 10.306205,
       "factor_overlap_flag": "",
       "factor_overlap_level": "Unresolved",
       "fresh_cash_implication": "Review required",
+      "fresh_cash_implication_detail": null,
       "fresh_cash_test": "Current-run re-underwriting evidence required",
       "hedge_validity_status": "Not a designated hedge sleeve",
+      "implementation_assessment": null,
       "implementation_score": null,
       "isin": "IE00BG0J4C88",
       "maximum_review_window_runs": null,
@@ -2508,56 +2607,72 @@
       "reunderwriting_status": "UNRESOLVED",
       "shares": 934,
       "source_authority": "current_protected_portfolio_plus_current_run_evidence",
+      "source_run_id": "20260804_STAGE1_30947965670_1",
+      "thesis_assessment": null,
       "thesis_score": null,
       "ticker": "L0CK",
       "unrealized_pnl_pct": 0.0,
       "weeks_replaceable": 0,
       "would_initiate_at_current_weight": "Unresolved",
-      "would_initiate_today": "Unresolved"
+      "would_initiate_at_current_weight_detail": null,
+      "would_initiate_today": "Unresolved",
+      "would_initiate_today_detail": null
     },
     {
-      "action_clock_status": "UNRESOLVED_REUNDERWRITING_REQUIRED",
+      "action_clock_status": "MONITOR_CURRENT_DECISION",
+      "action_executed_this_run": "Model buy",
       "best_alternative": "Donor ITA/PPA remain U.S. research proxies; no equally mature second exact EU line is currently promoted.",
       "cash_policy_flag": "Material cash position; classification and deploy-or-explain test required",
       "contribution_quality": "Adds distinct defense/resilience exposure funded from cash.",
+      "current_allocation_decision": "initiate",
       "current_weight_pct": 11.983713,
       "factor_overlap_flag": "Some cybersecurity/technology overlap with L0CK; defense mandate is broader and separately justified.",
       "factor_overlap_level": "Moderate",
-      "fresh_cash_implication": "Review required",
+      "fresh_cash_implication": "Add",
+      "fresh_cash_implication_detail": "Fund from material cash",
       "fresh_cash_test": "Current-run re-underwriting evidence required",
       "hedge_validity_status": "Not a hedge; thematic resilience satellite",
+      "implementation_assessment": "Exact Xetra UCITS line, KID/identity verified, two-provider completed-close consensus; VanEck reports a large established UCITS vehicle.",
       "implementation_score": 4.7,
       "isin": "IE000YYE6WK5",
       "maximum_review_window_runs": null,
-      "next_review_trigger": "Complete unresolved re-underwriting",
+      "next_review_trigger": "Current decision trigger",
       "override_reason": null,
       "portfolio_contribution_eur": null,
       "replaceable_status": "Unresolved",
       "replacement_close_status": "Unresolved",
       "replacement_duel_status": "Unresolved",
       "required_next_action": "Review relative strength, factor overlap and implementation quality next weekly run.",
-      "reunderwriting_complete": false,
-      "reunderwriting_status": "UNRESOLVED",
+      "reunderwriting_complete": true,
+      "reunderwriting_status": "COMPLETE",
       "shares": 207,
       "source_authority": "current_protected_portfolio_plus_current_run_evidence",
+      "source_run_id": "20260810_123000",
+      "thesis_assessment": "Strong current donor defense/resilience lane with positive 1m and 3m momentum and challenger status.",
       "thesis_score": 4.59,
       "ticker": "DFEN",
       "unrealized_pnl_pct": null,
       "weeks_replaceable": 0,
-      "would_initiate_at_current_weight": "Unresolved",
-      "would_initiate_today": "Yes"
+      "would_initiate_at_current_weight": "Yes",
+      "would_initiate_at_current_weight_detail": "Yes — initial run-specific weight ~12%",
+      "would_initiate_today": "Yes",
+      "would_initiate_today_detail": "Yes"
     },
     {
       "action_clock_status": "UNRESOLVED_REUNDERWRITING_REQUIRED",
+      "action_executed_this_run": "Routine revaluation and hold",
       "best_alternative": null,
       "cash_policy_flag": "Material cash position; classification and deploy-or-explain test required",
       "contribution_quality": "Review required",
+      "current_allocation_decision": null,
       "current_weight_pct": 25.253922,
       "factor_overlap_flag": "Core-equity overlap review",
       "factor_overlap_level": "Unresolved",
       "fresh_cash_implication": "Review required",
+      "fresh_cash_implication_detail": null,
       "fresh_cash_test": "Current-run re-underwriting evidence required",
       "hedge_validity_status": "Not a designated hedge sleeve",
+      "implementation_assessment": null,
       "implementation_score": null,
       "isin": "IE00BK5BQT80",
       "maximum_review_window_runs": null,
@@ -2572,24 +2687,32 @@
       "reunderwriting_status": "UNRESOLVED",
       "shares": 151,
       "source_authority": "current_protected_portfolio_plus_current_run_evidence",
+      "source_run_id": "20260716_205500",
+      "thesis_assessment": null,
       "thesis_score": null,
       "ticker": "VWCE",
       "unrealized_pnl_pct": -0.629084,
       "weeks_replaceable": 0,
       "would_initiate_at_current_weight": "Unresolved",
-      "would_initiate_today": "Unresolved"
+      "would_initiate_at_current_weight_detail": null,
+      "would_initiate_today": "Unresolved",
+      "would_initiate_today_detail": null
     },
     {
       "action_clock_status": "UNRESOLVED_REUNDERWRITING_REQUIRED",
+      "action_executed_this_run": "Routine revaluation and hold",
       "best_alternative": null,
       "cash_policy_flag": "Material cash position; classification and deploy-or-explain test required",
       "contribution_quality": "Review required",
+      "current_allocation_decision": null,
       "current_weight_pct": 7.414537,
       "factor_overlap_flag": "",
       "factor_overlap_level": "Unresolved",
       "fresh_cash_implication": "Review required",
+      "fresh_cash_implication_detail": null,
       "fresh_cash_test": "Current-run re-underwriting evidence required",
       "hedge_validity_status": "Unresolved — role/ballast review required",
+      "implementation_assessment": null,
       "implementation_score": null,
       "isin": "IE00BDBRDM35",
       "maximum_review_window_runs": null,
@@ -2604,24 +2727,32 @@
       "reunderwriting_status": "UNRESOLVED",
       "shares": 1526,
       "source_authority": "current_protected_portfolio_plus_current_run_evidence",
+      "source_run_id": "20260716_205500",
+      "thesis_assessment": null,
       "thesis_score": null,
       "ticker": "EUNA",
       "unrealized_pnl_pct": -0.429472,
       "weeks_replaceable": 0,
       "would_initiate_at_current_weight": "Unresolved",
-      "would_initiate_today": "Unresolved"
+      "would_initiate_at_current_weight_detail": null,
+      "would_initiate_today": "Unresolved",
+      "would_initiate_today_detail": null
     },
     {
       "action_clock_status": "UNRESOLVED_REUNDERWRITING_REQUIRED",
+      "action_executed_this_run": "Routine revaluation and hold",
       "best_alternative": null,
       "cash_policy_flag": "Material cash position; classification and deploy-or-explain test required",
       "contribution_quality": "Review required",
+      "current_allocation_decision": null,
       "current_weight_pct": 7.185121,
       "factor_overlap_flag": "Core-equity overlap review",
       "factor_overlap_level": "Unresolved",
       "fresh_cash_implication": "Review required",
+      "fresh_cash_implication_detail": null,
       "fresh_cash_test": "Current-run re-underwriting evidence required",
       "hedge_validity_status": "Not a designated hedge sleeve",
+      "implementation_assessment": null,
       "implementation_score": null,
       "isin": "IE00B5BMR087",
       "maximum_review_window_runs": null,
@@ -2636,44 +2767,56 @@
       "reunderwriting_status": "UNRESOLVED",
       "shares": 10,
       "source_authority": "current_protected_portfolio_plus_current_run_evidence",
+      "source_run_id": "20260716_012900",
+      "thesis_assessment": null,
       "thesis_score": null,
       "ticker": "SXR8",
       "unrealized_pnl_pct": -0.760567,
       "weeks_replaceable": 0,
       "would_initiate_at_current_weight": "Unresolved",
-      "would_initiate_today": "Unresolved"
+      "would_initiate_at_current_weight_detail": null,
+      "would_initiate_today": "Unresolved",
+      "would_initiate_today_detail": null
     },
     {
-      "action_clock_status": "UNRESOLVED_REUNDERWRITING_REQUIRED",
+      "action_clock_status": "MONITOR_CURRENT_DECISION",
+      "action_executed_this_run": "Model buy",
       "best_alternative": "XMLC — lower TER and accumulating; retained as first implementation alternative.",
       "cash_policy_flag": "Material cash position; classification and deploy-or-explain test required",
       "contribution_quality": "Adds a distinct infrastructure/defensive thematic sleeve with low direct overlap to current funded exposures.",
+      "current_allocation_decision": "initiate",
       "current_weight_pct": 9.961561,
       "factor_overlap_flag": "No material direct overlap identified with current cybersecurity/core/bond sleeves; monitor broad equity beta.",
       "factor_overlap_level": "Low",
-      "fresh_cash_implication": "Review required",
+      "fresh_cash_implication": "Add",
+      "fresh_cash_implication_detail": "Fund from material cash",
       "fresh_cash_test": "Current-run re-underwriting evidence required",
       "hedge_validity_status": "Not a hedge; thematic infrastructure satellite",
+      "implementation_assessment": "Exact Xetra UCITS line with two-provider completed-close consensus; long live history, large fund scale and broad physical implementation.",
       "implementation_score": 4.8,
       "isin": "IE00B1TXK627",
       "maximum_review_window_runs": null,
-      "next_review_trigger": "Complete unresolved re-underwriting",
+      "next_review_trigger": "Current decision trigger",
       "override_reason": null,
       "portfolio_contribution_eur": null,
       "replaceable_status": "Unresolved",
       "replacement_close_status": "Unresolved",
       "replacement_duel_status": "Unresolved",
       "required_next_action": "Maintain IQQQ vs XMLC implementation duel and re-underwrite water-lane strength weekly.",
-      "reunderwriting_complete": false,
-      "reunderwriting_status": "UNRESOLVED",
+      "reunderwriting_complete": true,
+      "reunderwriting_status": "COMPLETE",
       "shares": 149,
       "source_authority": "current_protected_portfolio_plus_current_run_evidence",
+      "source_run_id": "20260810_123000",
+      "thesis_assessment": "Promoted water infrastructure/treatment lane with positive 1m and 3m momentum and challenger status.",
       "thesis_score": 4.34,
       "ticker": "IQQQ",
       "unrealized_pnl_pct": null,
       "weeks_replaceable": 0,
-      "would_initiate_at_current_weight": "Unresolved",
-      "would_initiate_today": "Yes"
+      "would_initiate_at_current_weight": "Yes",
+      "would_initiate_at_current_weight_detail": "Yes — initial run-specific weight ~10%",
+      "would_initiate_today": "Yes",
+      "would_initiate_today_detail": "Yes"
     }
   ],
   "reference_architecture_repo": "market-predictions/weekly-etf",
