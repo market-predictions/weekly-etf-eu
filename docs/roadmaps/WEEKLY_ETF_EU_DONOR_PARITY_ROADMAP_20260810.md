@@ -1,158 +1,103 @@
 # Weekly ETF EU — Donor Parity Reconciliation Roadmap
 
 Date: 2026-08-10
-Issue: #90
-PR: #91
-Branch: `agent/etf-eu-donor-parity-reconciliation-v1`
-Status: `REPAIR_IMPLEMENTATION_COMPLETE_PRE_HANDOVER`
+Parent issue: #90
+Prior PR: #91 — MERGED
+Post-merge repair issue: #94
+Active repair PR: #95
+Branch: `agent/etf-eu-post-merge-us-donor-leak-repair-v1`
+Status: `POST_MERGE_REPAIR_HANDOVER_READY_FRESH_ASSURANCE_REQUIRED`
 
 ## Goal
-Bring `weekly-etf-eu` to behavioral parity with the mature `weekly-etf` donor wherever product behavior should match, while preserving deliberate EU-specific UCITS/ISIN/KID/exact-trading-line requirements.
+Bring `weekly-etf-eu` to behavioral parity with mature `weekly-etf` where behavior should match, while preserving EU-specific UCITS/ISIN/KID/exact-line controls and preventing US donor operational state from becoming ETF EU authority.
 
-Governing rule: **port behavior, not U.S. assumptions**.
+Governing rule: **port behavior, not U.S. assumptions, filenames, state or execution routes**.
 
-## Assurance history
+## Completed waves
 
-Independent issue #92 reviewed frozen head:
+### Wave A — Allocation/authority repair — COMPLETE
+- 50% maximum position, 35% minimum cash, 15% maximum new ETF retired;
+- 75% is pricing coverage only;
+- 25% turnover and 18% semiconductor/theme values research-only;
+- donor >3%/>5% cash and ~40% factor thresholds review/disclosure triggers only.
 
-`a9f93af018623011ac4b2cae742d69ea1441b4ca`
+### Wave B — Donor-parity state/decision layer — COMPLETE
+- protected funded state VWCE/EUNA/SXR8/L0CK;
+- current fresh-cash/re-underwriting memory;
+- thesis/implementation, replacement duel, action clock, contribution, factor overlap, hedge validity and cash classification;
+- missing current evidence remains unresolved rather than implicit Hold.
 
-and returned:
+### Wave C — Canonical EU candidate/output/delivery topology — COMPLETE
+- EU/UCITS v2 pricing contract;
+- report-date-bound funded two-provider consensus;
+- one normalized state for NL/EN MD/HTML/PDF;
+- dynamic four-position output including L0CK;
+- candidate-only non-main build;
+- independent assurance separated from implementation;
+- one guarded real delivery route;
+- historical activation/send/repair/shadow routes non-executable.
 
-`ETF_EU_PR91_DONOR_PARITY_ASSURANCE: FAIL`
+### Wave D1 — PR #91 assurance FAIL repair — COMPLETE
+Issue #92 correctly found pricing-v2 and Markdown defects. They were repaired and package-level regression coverage added.
 
-That failed candidate remains historical evidence only and has no merge or delivery authority.
+### Wave D2 — PR #91 independent re-assurance and merge — COMPLETE
+- issue #93 verdict: PASS;
+- reviewed head: `686c658c03d5ba4cbd208e254822a73b3fb514f2`;
+- merge: `202b0a629af34c697c7b7cb8fdce97fbb56bddbc`.
 
-The reviewer accepted the decision/allocation authority work and identified two executable blockers:
-1. incoherent pricing v2 builder → validator → normalized-state contract plus missing exact report-date/funded-consensus binding;
-2. hard-coded three-position Markdown delivery copy omitting L0CK.
+### Wave D3 — Post-merge US donor execution leak repair — IMPLEMENTATION COMPLETE
+Post-merge bot commit `d771bde734ffda6120a77b1f4fe0e99bd198cc96` proved three legacy donor/report routes still sat in the active ETF EU workflow topology.
 
-Repair package:
+Retired in PR #95:
+1. `persist-etf-pricing-audit.yml` — wrote US donor pricing artifacts to main;
+2. `validate-etf-runtime.yml` — ran donor pricing plus legacy `send_report.py`;
+3. `validate-etf-lane-breadth.yml` — validated donor `weekly_analysis_pro_*` report files.
 
-`control/work_packages/ETF_EU_PR91_ASSURANCE_FAIL_REPAIR_V1_20260810.md`
+Their audit copies remain as `.yml.disabled`. The two leaked US pricing artifacts are deleted in the repaired candidate.
 
-## Five-layer status
+Preventive gates now reject active donor execution/report tokens across all `.yml/.yaml` workflows.
 
-### 1. Decision framework — COMPLETE / NOT REOPENED
-- retired 50% maximum position, 35% minimum cash and 15% maximum new ETF remain non-executable;
-- 75% remains pricing coverage, not a position cap;
-- 25% turnover and 18% semiconductor/theme values remain research/shadow only;
-- embedded thematic exposure remains descriptive lower-bound evidence;
-- donor cash >3%/>5% and ~40% factor thresholds remain review/disclosure triggers, not allocation caps;
-- fresh-cash, replacement-duel, action-clock, contribution, hedge and factor-overlap concepts remain represented.
+Semantic baseline:
 
-### 2. Input/state contract — COMPLETE AFTER FAIL REPAIR
-Canonical pricing path is now:
+`d9b5731bbd0b125e2df9b778282116f9d8c32314`
 
-```text
-candidate request report_date
-→ provider qualification on exact report_date
-→ ucits_close_price_validation_basket_results_v2
-→ funded two-provider same-date consensus
-→ shared v2 validator
-→ v2 normalized state
-→ candidate package
-```
+Evidence:
+- product boundary `31436751783`: SUCCESS;
+- donor parity/full-package `31436751773`: SUCCESS;
+- 31 package/blocker regressions passed;
+- topology: `32 active | 23 retired-disabled | candidate=1 | delivery=1 | US donor execution=0`.
 
-Negative cases fail closed: v1 schema, report-date drift, missing funded line, one-provider funded evidence and failed funded consensus.
+## Next wave
 
-The hidden legacy package-level `min_threshold_met`/priced-line-count release gate is removed. Historical compatibility data is not current pricing authority.
+### Wave D4 — Fresh PR #95 assurance and final closeout — PENDING INDEPENDENT ROLE-B
+1. freeze exact live PR #95 head after atomic handover commit;
+2. independent `ETF_EU_POST_MERGE_US_DONOR_LEAK_ASSURANCE: PASS | FAIL | INDETERMINATE`;
+3. merge only on PASS + unchanged head;
+4. exact-main product/workflow boundary validation;
+5. prove no US donor pricing artifact regenerates;
+6. verify protected EU state/ledger unchanged;
+7. close issue #94, parent issue #90 and successor claim;
+8. reconcile central Control state.
 
-Funded reconciliation metadata is persisted in normalized state so renderer and validator use the same four-position authority.
-
-### 3. Output contract — COMPLETE AFTER FAIL REPAIR
-NL/EN Markdown is now a first-class state-derived delivery artifact:
-- dynamic funded count;
-- exact current funded ticker set including L0CK;
-- no hard-coded VWCE/EUNA/SXR8-only current-position surface;
-- three-position wording fails closed;
-- retired strategic/phase targets and fixed 7.50% reserve wording fail closed;
-- discovered mixed-language NL leakage fails closed;
-- Markdown is validated alongside HTML/PDF;
-- internal machine enum `funded_model_position_active` is normalized to client-safe language before final HTML/PDF persistence.
-
-### 4. Operational runbook — COMPLETE
-- candidate → independent assurance → merge/exact-main → separately authorized guarded delivery;
-- candidate route remains non-main and cannot self-assure/merge/deliver;
-- 20 historical/parallel routes remain disabled;
-- three donor-shadow workflows remain research-only;
-- controlled transport remains the sole real delivery route;
-- candidate pricing is explicitly bound to `ETF_EU_REPORT_DATE` and funded consensus;
-- Markdown QA is persisted with candidate evidence.
-
-### 5. Governance/release assurance — READY FOR NEW HANDOVER CYCLE
-- issue #92 = immutable historical FAIL record;
-- repair implementation is complete;
-- semantic implementation baseline `19954692ff8b33d5ffac9b09d6654210a7194997` is fully green;
-- a new final handover commit will produce the fresh frozen assurance SHA;
-- a new independent assurance issue distinct from #92 is mandatory.
-
-## Execution waves
-
-### Wave A — Authority repair — COMPLETE
-### Wave B — Donor-parity state and decision layer — COMPLETE
-### Wave C — Canonical routine convergence — COMPLETE
-### Wave D1 — Assurance-fail repair — COMPLETE
-
-Evidence on semantic baseline `19954692ff8b33d5ffac9b09d6654210a7194997`:
-- donor parity/full six-artifact package regression run `31433054217` — SUCCESS, `31 passed`;
-- product boundary `31433053898` — SUCCESS;
-- release evidence preflight `31433054597` — SUCCESS;
-- shadow CID transport validation `31433054225` — SUCCESS;
-- strategy synchronization shadow `31433054231` — SUCCESS;
-- target allocator shadow `31433054316` — SUCCESS;
-- transition composition replay `31433054295` — SUCCESS.
-
-Additional donor-parity job evidence:
-
-```text
-ETF_EU_WORKFLOW_AUTHORITY=PASS
-ETF_EU_CANDIDATE_PRICING_AND_MARKDOWN_WIRING=PASS
-ETF_EU_DONOR_PARITY_STATIC_AUTHORITY_AUDIT=PASS
-```
-
-### Wave D2 — Fresh assurance and lifecycle closeout — NEXT
-Definition of done:
-1. governance/current-state/claim files reconciled around the completed repair;
-2. repair handover written as final candidate mutation;
-3. resulting live PR #91 head frozen;
-4. fresh independent assurance issue returns `PASS`;
-5. reviewed head remains unchanged;
-6. PR #91 merged;
-7. exact-main validation green;
-8. issue #90 and integration claim closed;
-9. project and central Control state reconciled;
-10. no report delivery claimed from this repair line.
-
-## Donor-parity matrix
+## Parity matrix
 
 | Donor behavior | ETF EU implementation | Status |
 |---|---|---|
-| State outranks Markdown | protected/current normalized state governs MD/HTML/PDF | PARITY |
-| Fresh-cash re-underwriting | current per-funded-position memory; missing evidence unresolved | PARITY |
-| Thesis vs implementation | explicit separate fields | PARITY |
-| Direct alternative duel | replacement close/duel memory | PARITY |
-| Action clock | replaceability timer/escalation | PARITY |
-| Contribution/drag | current contribution fields | PARITY |
-| Factor overlap | ~40% disclosure trigger, not cap | PARITY |
-| Hedge validity | explicit ballast/hedge validity review | PARITY |
-| Cash policy | >3% deploy-or-explain conditional; >5% material disclosure | PARITY |
-| Broad discovery before runtime | donor-lane → UCITS bridge before fundability | PARITY WITH EU GATES |
-| Pricing evidence boundary | exact report-date funded two-provider consensus under one v2 contract | PARITY |
-| Challenger pricing is not funding | fundability + explicit allocation boundary | PARITY |
-| Bilingual single-state output | NL/EN MD/HTML/PDF from one normalized state | PARITY |
-| U.S. security identity | ISIN-first UCITS/KID/exact-line identity | INTENTIONAL EU DIVERGENCE |
-| Legacy operational routes | stricter candidate/assurance/delivery separation | INTENTIONAL EU HARDENING |
+| State outranks Markdown | protected/current normalized state governs all client surfaces | PARITY |
+| Fresh-cash re-underwriting | current per-funded-position memory | PARITY |
+| Thesis vs implementation | separate fields | PARITY |
+| Replacement duel/action clock | current decision memory | PARITY |
+| Contribution/factor/hedge review | explicit current fields | PARITY |
+| Cash policy | deploy-or-explain/material disclosure triggers only | PARITY |
+| Broad discovery | donor behavior bridged into EU UCITS mapping/fundability | PARITY WITH EU GATES |
+| Pricing evidence | exact report date + funded two-provider consensus | PARITY WITH EU GATES |
+| Bilingual output | NL/EN MD/HTML/PDF from one state | PARITY |
+| Identity | ISIN-first UCITS/KID/exact-line | INTENTIONAL EU DIVERGENCE |
+| US donor operational runtime | not executable in ETF EU | INTENTIONAL EU HARDENING |
+| Real delivery | separately guarded exact-artifact transport | INTENTIONAL EU HARDENING |
 
-## Intentional EU divergences to preserve
-- ISIN-first identity and exact share class/trading line;
-- UCITS + PRIIPs/KID model-investability gates;
-- U.S.-listed ETFs as research proxies only;
-- EUR trading-line preference where practical;
-- Dutch-primary client output;
-- broker-neutral model portfolio;
-- no real broker execution from report workflow;
-- stricter independent release/delivery role separation.
+## Decisions not reopened
+The post-merge incident is an operational/product-boundary defect. It creates no new allocation decision, position cap, cash floor or execution authority.
 
 ## Stop/escalation criteria
-Escalate to the principal only for a genuine strategic choice that cannot be derived from donor behavior or existing EU authority. No principal decision is required for the current fresh-assurance handover.
+No principal decision is required for this repair. The only remaining gate is independent assurance of the frozen PR #95 candidate. Delivery and broker execution remain outside this roadmap wave.

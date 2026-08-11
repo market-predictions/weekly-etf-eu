@@ -1,3 +1,7 @@
+# RETIRED 2026-08-10 after post-merge product-boundary leakage.
+# Historical donor/US workflow retained for audit only; non-executable in Weekly ETF EU.
+# Canonical EU pricing authority is the candidate v2 UCITS pricing path in run-weekly-etf-eu-routine.yml.
+
 name: Persist ETF pricing audit
 
 on:

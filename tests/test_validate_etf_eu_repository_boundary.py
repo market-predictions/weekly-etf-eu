@@ -29,3 +29,47 @@ def test_fx_workflow_token_is_blocked(tmp_path: Path) -> None:
     result = validate(tmp_path)
     assert result["verdict"] == "FAIL"
     assert any(item["type"] == "fx_token_in_active_workflow" for item in result["blockers"])
+
+
+def test_us_donor_pricing_runtime_is_blocked_in_active_workflow(tmp_path: Path) -> None:
+    workflows = tmp_path / ".github" / "workflows"
+    workflows.mkdir(parents=True)
+    (workflows / "legacy-us-pricing.yml").write_text(
+        "steps:\n  - run: python -m pricing.run_pricing_pass\n",
+        encoding="utf-8",
+    )
+    result = validate(tmp_path)
+    assert result["verdict"] == "FAIL"
+    assert any(
+        item["type"] == "us_donor_token_in_active_workflow"
+        and item["token"] == "pricing.run_pricing_pass"
+        for item in result["blockers"]
+    )
+
+
+def test_us_donor_runtime_is_allowed_only_as_disabled_audit_history(tmp_path: Path) -> None:
+    workflows = tmp_path / ".github" / "workflows"
+    workflows.mkdir(parents=True)
+    (workflows / "legacy-us-pricing.yml.disabled").write_text(
+        "steps:\n  - run: python -m pricing.run_pricing_pass\n",
+        encoding="utf-8",
+    )
+    result = validate(tmp_path)
+    assert result["verdict"] == "PASS"
+    assert result["disabled_workflows_are_non_executable_audit_history"] is True
+
+
+def test_legacy_us_report_renderer_is_blocked_in_active_workflow(tmp_path: Path) -> None:
+    workflows = tmp_path / ".github" / "workflows"
+    workflows.mkdir(parents=True)
+    (workflows / "legacy-render.yml").write_text(
+        "steps:\n  - run: python send_report.py\n",
+        encoding="utf-8",
+    )
+    result = validate(tmp_path)
+    assert result["verdict"] == "FAIL"
+    assert any(
+        item["type"] == "us_donor_token_in_active_workflow"
+        and item["token"] == "send_report.py"
+        for item in result["blockers"]
+    )

@@ -1,3 +1,7 @@
+# RETIRED 2026-08-10 during post-merge product-boundary repair.
+# Historical donor/US report-breadth validator retained for audit only.
+# Current ETF EU breadth behavior is enforced through donor discovery -> UCITS mapping/fundability contracts, not weekly_analysis_pro_* execution.
+
 name: Validate ETF lane breadth
 
 on:
