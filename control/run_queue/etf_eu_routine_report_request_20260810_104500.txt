@@ -1,6 +1,6 @@
 schema_version=etf_eu_routine_report_request_v2
 artifact_type=etf_eu_routine_report_request
-run_id=20260810_113500
+run_id=20260810_115000
 report_date=2026-08-10
 report_suffix=260810
 previous_routine_manifest=output/run_manifests/etf_eu_routine_run_manifest_2026-08-05_20260805_31342220143_2.json
