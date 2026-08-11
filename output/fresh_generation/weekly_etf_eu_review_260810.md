@@ -4,9 +4,9 @@
 
 ## 1. Decision at a glance
 
-- **Action:** review L0CK, VWCE, EUNA and SXR8 as the current model positions; remaining liquidity is EUR 50,208.40.
-- **Reason:** the model portfolio contains 4 funded UCITS positions (L0CK, VWCE, EUNA and SXR8); the review uses current state, completed-close pricing evidence and re-underwriting.
-- **Current position structure:** L0CK, VWCE, EUNA and SXR8; roles, contribution, overlap and re-underwriting are derived from the current normalized state.
+- **Action:** review L0CK, DFEN, VWCE, EUNA, SXR8 and IQQQ as the current model positions; remaining liquidity is EUR 28,101.01.
+- **Reason:** the model portfolio contains 6 funded UCITS positions (L0CK, DFEN, VWCE, EUNA, SXR8 and IQQQ); the review uses current state, completed-close pricing evidence and re-underwriting.
+- **Current position structure:** L0CK, DFEN, VWCE, EUNA, SXR8 and IQQQ; roles, contribution, overlap and re-underwriting are derived from the current normalized state.
 - **Avoid:** do not allocate capital to thematic or gold exposure until identity, KID, trading-line and product-policy checks are complete.
 
 ## 2. Portfolio and capital
@@ -14,10 +14,10 @@
 | Component | Value |
 |---|---:|
 | Starting capital | EUR 100,000.00 |
-| Cash | EUR 50,208.40 |
-| Invested market value | EUR 49,548.36 |
-| Total portfolio value | EUR 99,756.76 |
-| Funded positions | 4 |
+| Cash | EUR 28,101.01 |
+| Invested market value | EUR 72,637.72 |
+| Total portfolio value | EUR 100,738.73 |
+| Funded positions | 6 |
 
 ## 3. Current UCITS pricing snapshot
 
@@ -65,6 +65,6 @@ The displayed prices are market observations from the current routine run and do
 
 ## 7. Next routine action
 
-- Re-underwrite L0CK, VWCE, EUNA and SXR8 on fresh cash, contribution, overlap, invalidation conditions and best alternative.
+- Re-underwrite L0CK, DFEN, VWCE, EUNA, SXR8 and IQQQ on fresh cash, contribution, overlap, invalidation conditions and best alternative.
 - Require fresh exact-line completed-close evidence with two-provider consensus for every funded line before current valuation/re-underwriting.
 - Classify material cash through donor cash discipline; only a separate explicit allocation decision may change funding.

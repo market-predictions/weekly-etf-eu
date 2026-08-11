@@ -1,0 +1,35 @@
+{
+  "schema_version": "etf_eu_current_allocation_validation_v1",
+  "allocation_decision_valid": true,
+  "passed": true,
+  "report_date": "2026-08-10",
+  "activation_id": "ETF-EU-CURRENT-20260810_123000",
+  "trade_count": 2,
+  "checked_trades": [
+    {
+      "ticker": "DFEN",
+      "exposure_id": "defense_resilience",
+      "trade_value_eur": 12072.24,
+      "passed": true,
+      "blockers": []
+    },
+    {
+      "ticker": "IQQQ",
+      "exposure_id": "water_infrastructure",
+      "trade_value_eur": 10035.15,
+      "passed": true,
+      "blockers": []
+    }
+  ],
+  "pre_nav_eur": 100738.73,
+  "pre_cash_eur": 50208.4,
+  "trade_value_total_eur": 22107.39,
+  "post_cash_eur": 28101.01,
+  "post_cash_weight_pct": 27.894942,
+  "blockers": [],
+  "authority": {
+    "model_portfolio_only": true,
+    "real_broker_execution": false,
+    "report_delivery_authority": false
+  }
+}

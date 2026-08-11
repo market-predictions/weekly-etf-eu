@@ -4,9 +4,9 @@
 
 ## 1. Besluit in één oogopslag
 
-- **Actie:** L0CK, VWCE, EUNA en SXR8 als huidige modelposities beoordelen; resterende liquiditeit EUR 50.208,40.
-- **Reden:** de modelportefeuille bevat 4 gefinancierde UCITS-posities (L0CK, VWCE, EUNA en SXR8); de review gebruikt actuele state, completed-close prijsbewijs en re-underwriting.
-- **Huidige positiegrondslag:** L0CK, VWCE, EUNA en SXR8; rollen, bijdrage, overlap en re-underwriting komen uit de actuele genormaliseerde state.
+- **Actie:** L0CK, DFEN, VWCE, EUNA, SXR8 en IQQQ als huidige modelposities beoordelen; resterende liquiditeit EUR 28.101,01.
+- **Reden:** de modelportefeuille bevat 6 gefinancierde UCITS-posities (L0CK, DFEN, VWCE, EUNA, SXR8 en IQQQ); de review gebruikt actuele state, completed-close prijsbewijs en re-underwriting.
+- **Huidige positiegrondslag:** L0CK, DFEN, VWCE, EUNA, SXR8 en IQQQ; rollen, bijdrage, overlap en re-underwriting komen uit de actuele genormaliseerde state.
 - **Niet doen:** geen nieuw kapitaal toewijzen uitsluitend op basis van proxy, mapping of prijsbeschikbaarheid; identiteit, KID, exacte handelslijn, re-underwriting en expliciet allocatiebesluit blijven verplicht.
 
 ## 2. Portefeuille en kapitaal
@@ -14,10 +14,10 @@
 | Component | Waarde |
 |---|---:|
 | Startkapitaal | EUR 100,000.00 |
-| Cash | EUR 50,208.40 |
-| Belegde marktwaarde | EUR 49,548.36 |
-| Totale portefeuillewaarde | EUR 99,756.76 |
-| Gefinancierde posities | 4 |
+| Cash | EUR 28,101.01 |
+| Belegde marktwaarde | EUR 72,637.72 |
+| Totale portefeuillewaarde | EUR 100,738.73 |
+| Gefinancierde posities | 6 |
 
 ## 3. Actuele UCITS-prijssnapshot
 
@@ -65,6 +65,6 @@ De getoonde prijzen zijn marktobservaties uit de huidige routine-run en vormen g
 
 ## 7. Volgende routineactie
 
-- Herbeoordeel L0CK, VWCE, EUNA en SXR8 op fresh-cash, bijdrage, overlap, invalidatievoorwaarden en beste alternatief.
+- Herbeoordeel L0CK, DFEN, VWCE, EUNA, SXR8 en IQQQ op fresh-cash, bijdrage, overlap, invalidatievoorwaarden en beste alternatief.
 - Vereis voor iedere gefinancierde lijn verse exact-line completed-close evidence met twee-provider consensus vóór current valuation/re-underwriting.
 - Classificeer materiële cash via de donor cash-discipline; alleen een afzonderlijk expliciet allocatiebesluit mag funding wijzigen.
