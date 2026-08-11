@@ -130,6 +130,28 @@ jobs:
           echo "ETF_EU_DONOR_SOURCE_SHA=$DONOR_SHA" >> "$GITHUB_ENV"
           echo "ETF_EU_DONOR_LANE_SELECTED=$SELECTED"
 
+      - name: Select quota-aware allocation pricing candidates
+        run: |
+          set -euo pipefail
+          SELECTION="output/runtime/etf_eu_allocation_pricing_candidate_selection_${ETF_EU_RUN_ID}.json"
+          python tools/select_etf_eu_allocation_pricing_candidates.py \
+            --donor-lane-artifact "$ETF_EU_DONOR_LANE_ARTIFACT" \
+            --proxy-map config/ucits_benchmark_proxy_map.yml \
+            --provider-registry config/ucits_price_provider_registry.yml \
+            --portfolio-state output/etf_eu_portfolio_state.json \
+            --max-candidates 4 \
+            --output "$SELECTION"
+          CANDIDATES=$(python - "$SELECTION" <<'PY'
+          import json, sys
+          from pathlib import Path
+          payload = json.loads(Path(sys.argv[1]).read_text(encoding="utf-8"))
+          print(",".join(payload.get("selected_basket_ids") or []))
+          PY
+          )
+          echo "ETF_EU_ALLOCATION_PRICING_SELECTION=$SELECTION" >> "$GITHUB_ENV"
+          echo "ETF_EU_ALLOCATION_PRICING_CANDIDATES=$CANDIDATES" >> "$GITHUB_ENV"
+          echo "ETF_EU_ALLOCATION_PRICING_CANDIDATES_SELECTED=$CANDIDATES"
+
       - name: Validate routine implementation preflight
         run: |
           set -euo pipefail
@@ -142,6 +164,7 @@ jobs:
           python pricing/build_ucits_close_price_validation_basket_results.py \
             --run-id "$ETF_EU_RUN_ID" \
             --report-date "$ETF_EU_REPORT_DATE" \
+            --allocation-candidate-basket-ids "$ETF_EU_ALLOCATION_PRICING_CANDIDATES" \
             --require-funded-consensus \
             --pause-seconds 15 \
             --rate-limit-cooldown-seconds 600 \
@@ -239,12 +262,15 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -f \
             "output/pricing/ucits_close_price_validation_basket_results_${ETF_EU_RUN_ID}.json" \
+            "output/pricing/ucits_price_provider_qualification_${ETF_EU_RUN_ID}.json" \
+            "output/pricing/ucits_price_provider_registry_resolved_${ETF_EU_RUN_ID}.yml" \
             "$ETF_EU_MACRO_ARTIFACT" \
             output/macro/latest.json \
             output/etf_eu_valuation_history.csv \
             output/etf_eu_recommendation_scorecard.csv \
             "$ETF_EU_DONOR_LANE_ARTIFACT" \
             "$ETF_EU_DONOR_LANE_PROVENANCE" \
+            "$ETF_EU_ALLOCATION_PRICING_SELECTION" \
             "output/runtime/etf_eu_donor_discovery_bridge_${ETF_EU_RUN_ID}.json" \
             "output/runtime/etf_eu_client_grade_report_state_${ETF_EU_RUN_ID}.json" \
             "output/fresh_generation/weekly_etf_eu_review_nl_${ETF_EU_REPORT_SUFFIX}.md" \
@@ -282,6 +308,8 @@ jobs:
             output/fresh_generation/weekly_etf_eu_review_nl_${{ env.ETF_EU_REPORT_SUFFIX }}.pdf
             output/fresh_generation/weekly_etf_eu_review_${{ env.ETF_EU_REPORT_SUFFIX }}.pdf
             output/fresh_generation/etf_eu_fresh_generation_package_manifest_${{ env.ETF_EU_RUN_ID }}.json
+            output/pricing/ucits_price_provider_qualification_${{ env.ETF_EU_RUN_ID }}.json
+            output/runtime/etf_eu_allocation_pricing_candidate_selection_${{ env.ETF_EU_RUN_ID }}.json
             output/runtime/etf_eu_donor_lane_source_${{ env.ETF_EU_RUN_ID }}.json
             output/runtime/etf_eu_donor_lane_provenance_${{ env.ETF_EU_RUN_ID }}.json
             output/runtime/etf_eu_donor_discovery_bridge_${{ env.ETF_EU_RUN_ID }}.json
