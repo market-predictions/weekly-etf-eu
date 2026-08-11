@@ -56,14 +56,21 @@ def finalize_markdown_semantics(text: str, state: dict[str, Any], *, language: s
                 replacement=decision_line,
             )
             required.append(f"**Nieuwe funded implementaties:** {names}")
-        text = text.replace(
-            "1. Een prijsobservatie is geen zelfstandige waarderingsbasis.",
-            "1. Een enkele marktprijs of research-only prijsobservatie is geen zelfstandige waarderingsbasis; actuele funded waardering vereist exact-line completed-close consensus uit minimaal twee providers.",
-        )
+        replacements = {
+            "1. Een prijsobservatie is geen zelfstandige waarderingsbasis.": "1. Een enkele marktprijs of research-only prijsobservatie is geen zelfstandige waarderingsbasis; actuele funded waardering vereist exact-line completed-close consensus uit minimaal twee providers.",
+            "Behoud kwaliteit en kasdiscipline; any allocation still requires a verified UCITS instrument, current pricing, re-underwriting and a separate capital decision.": "Behoud kwaliteit en kasdiscipline; iedere allocatie vereist een geverifieerd UCITS-instrument, actuele pricing, re-underwriting en een afzonderlijk kapitaalbesluit.",
+            "Europese aandelen- of obligatieblootstelling blijft afhankelijk on UCITS identity, exact-line verification, current pricing, re-underwriting and a separate capital decision.": "Europese aandelen- of obligatieblootstelling blijft afhankelijk van UCITS-identiteit, exact-line verificatie, actuele pricing, re-underwriting en een afzonderlijk kapitaalbesluit.",
+            "No material regime change was recorded versus the prior review; the Risk-on growth backdrop remained intact, market breadth is mixed, and cross-asset confirmation is mixed.": "Ten opzichte van de vorige review is geen materiële regimewijziging vastgesteld; de risk-on-groeiomgeving bleef intact, terwijl marktbreedte en cross-asset bevestiging gemengd zijn.",
+        }
+        for old, new in replacements.items():
+            text = text.replace(old, new)
         forbidden = [
             "Beste operationele kandidaat: de geverifieerde S&P 500",
             "Meest volwassen operationele kandidaat: de geverifieerde S&P 500",
             "Een prijsobservatie is geen zelfstandige waarderingsbasis.",
+            "any allocation still requires",
+            "afhankelijk on UCITS identity",
+            "No material regime change was recorded",
         ]
     else:
         if additions:
