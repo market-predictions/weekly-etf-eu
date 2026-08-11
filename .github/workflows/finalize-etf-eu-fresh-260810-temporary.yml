@@ -11,6 +11,7 @@ on:
       - "runtime/apply_etf_eu_donor_parity_contract.py"
       - "runtime/build_etf_eu_client_grade_report_state_v2.py"
       - "runtime/finalize_etf_eu_markdown_semantics.py"
+      - "runtime/finalize_etf_eu_client_surface_semantics.py"
       - "tools/build_etf_eu_routine_report_package_v2.py"
       - "output/activation/etf_eu_current_allocation_decision_20260810_123000.json"
 
@@ -61,11 +62,11 @@ jobs:
           print('ETF_EU_APPLIED_SIX_POSITION_STATE=PASS')
           PY
 
-      - name: Run current discovery and Markdown regressions
+      - name: Run current discovery and semantic regressions
         run: |
           set -euo pipefail
           python -m pytest -q tests/test_etf_eu_broad_discovery_allocation_pricing.py
-          python -m py_compile runtime/apply_etf_eu_donor_parity_contract.py runtime/reconcile_etf_eu_funded_markdown.py runtime/finalize_etf_eu_markdown_semantics.py
+          python -m py_compile runtime/apply_etf_eu_donor_parity_contract.py runtime/reconcile_etf_eu_funded_markdown.py runtime/finalize_etf_eu_markdown_semantics.py runtime/finalize_etf_eu_client_surface_semantics.py tools/build_etf_eu_routine_report_package_v2.py
 
       - name: Build final client package from applied state and persisted evidence
         run: |
@@ -126,20 +127,43 @@ jobs:
           set -euo pipefail
           python - <<'PY'
           from pathlib import Path
-          nl = Path('output/fresh_generation/weekly_etf_eu_review_nl_260810.md').read_text(encoding='utf-8')
-          en = Path('output/fresh_generation/weekly_etf_eu_review_260810.md').read_text(encoding='utf-8')
-          assert 'DFEN en IQQQ deze run toegevoegd' in nl
-          assert 'added DFEN and IQQQ this run' in en
-          assert '6 van 6 gefinancierde lijnen' in nl
-          assert '6 of 6 funded lines' in en
-          assert 'Volledig geverifieerde lijnen: 0' not in nl
-          assert 'Fully verified lines: 0' not in en
-          assert 'Beste operationele kandidaat: de geverifieerde S&P 500' not in nl
-          assert 'Best operational candidate: the verified S&P 500' not in en
-          assert 'Een prijsobservatie is geen zelfstandige waarderingsbasis.' not in nl
-          assert 'A price observation is not an independent valuation basis.' not in en
-          assert 'Nieuwe funded implementaties: DFEN en IQQQ' in nl
-          assert 'New funded implementations: DFEN and IQQQ' in en
+          nl_md = Path('output/fresh_generation/weekly_etf_eu_review_nl_260810.md').read_text(encoding='utf-8')
+          en_md = Path('output/fresh_generation/weekly_etf_eu_review_260810.md').read_text(encoding='utf-8')
+          nl_html = Path('output/fresh_generation/weekly_etf_eu_review_nl_260810.html').read_text(encoding='utf-8')
+          en_html = Path('output/fresh_generation/weekly_etf_eu_review_260810.html').read_text(encoding='utf-8')
+
+          assert 'DFEN en IQQQ deze run toegevoegd' in nl_md
+          assert 'added DFEN and IQQQ this run' in en_md
+          assert '6 van 6 gefinancierde lijnen' in nl_md
+          assert '6 of 6 funded lines' in en_md
+          assert '**Nieuwe funded implementaties:** DFEN en IQQQ' in nl_md
+          assert '**New funded implementations:** DFEN and IQQQ' in en_md
+
+          assert 'Deze run: DFEN en IQQQ als modelposities toegevoegd' in nl_html
+          assert 'This run: added DFEN and IQQQ as model positions' in en_html
+          assert 'Gefinancierde exact-line waardering: 6 van 6' in nl_html
+          assert 'Funded exact-line valuation: 6 of 6' in en_html
+
+          stale = [
+              'Volledig geverifieerde lijnen: 0',
+              'Fully verified lines: 0',
+              'Beste operationele kandidaat: de geverifieerde S&P 500',
+              'Best operational candidate: the verified S&P 500',
+              'Een prijsobservatie is geen zelfstandige waarderingsbasis.',
+              'A price observation is not an independent valuation basis.',
+              'geen portefeuillewijziging geautoriseerd',
+              'no portfolio change is authorised',
+              '0 geverifieerde UCITS-handelslijnen',
+              '0 verified UCITS trading lines',
+              '13 lijnen zijn nog niet volledig geverifieerd of geprijsd',
+              '13 lines are not yet fully verified or priced',
+              'any allocation still requires',
+              'afhankelijk on UCITS identity',
+              'No material regime change was recorded',
+          ]
+          joined = '\n'.join([nl_md, en_md, nl_html, en_html]).casefold()
+          residual = [token for token in stale if token.casefold() in joined]
+          assert not residual, residual
           print('ETF_EU_CLIENT_CHANGE_DISCLOSURE=PASS')
           PY
 
@@ -180,7 +204,7 @@ jobs:
           if git diff --cached --quiet; then
             echo "ETF_EU_RERENDER_UNCHANGED"
           else
-            git commit -m "Rerender final ETF EU 260810 client candidate [skip ci]"
+            git commit -m "Persist semantically aligned ETF EU 260810 candidate [skip ci]"
             git push origin "HEAD:${GITHUB_REF_NAME}"
           fi
 
