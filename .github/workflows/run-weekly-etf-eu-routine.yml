@@ -159,14 +159,17 @@ jobs:
             --request "$ETF_EU_REQUEST_PATH"
 
       - name: Build current UCITS pricing evidence
+        env:
+          ALPHA_VANTAGE_API_KEY: ${{ secrets.ALPHA_VANTAGE_API_KEY }}
         run: |
           set -euo pipefail
           python pricing/build_ucits_close_price_validation_basket_results.py \
             --run-id "$ETF_EU_RUN_ID" \
             --report-date "$ETF_EU_REPORT_DATE" \
+            --providers alpha_vantage,yahoo_chart \
             --allocation-candidate-basket-ids "$ETF_EU_ALLOCATION_PRICING_CANDIDATES" \
             --require-funded-consensus \
-            --pause-seconds 15 \
+            --pause-seconds 8 \
             --rate-limit-cooldown-seconds 600 \
             --max-attempts 2 \
             --rate-limit-mode stop
