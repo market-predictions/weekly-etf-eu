@@ -1,0 +1,202 @@
+name: TEMP Finalize ETF EU fresh 260810 candidate
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - agent/etf-eu-fresh-260810-v1
+    paths:
+      - ".github/workflows/finalize-etf-eu-fresh-260810-temporary.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  finalize-candidate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Require fresh candidate branch
+        run: |
+          set -euo pipefail
+          test "${GITHUB_REF_NAME}" = "agent/etf-eu-fresh-260810-v1"
+          test "${GITHUB_REF_NAME}" != "main"
+
+      - name: Check out exact branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install system PDF packages
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libcairo2 libpango-1.0-0 libgdk-pixbuf-2.0-0 libffi-dev shared-mime-info fonts-liberation fonts-dejavu-core fonts-lato poppler-utils
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pyyaml mistune weasyprint pytest
+
+      - name: Run fresh allocation and exact-line regressions
+        run: |
+          set -euo pipefail
+          python -m py_compile \
+            runtime/revalue_etf_eu_portfolio_from_pricing.py \
+            runtime/validate_etf_eu_current_allocation_decision.py \
+            runtime/apply_etf_eu_guarded_capital_activation.py \
+            pricing/ucits_close_price_validation_contract_v2.py
+          python -m pytest -q tests/test_etf_eu_broad_discovery_allocation_pricing.py
+
+      - name: Revalue protected model state from persisted 10-Aug completed closes
+        run: |
+          set -euo pipefail
+          python -m runtime.revalue_etf_eu_portfolio_from_pricing \
+            --portfolio-state output/etf_eu_portfolio_state.json \
+            --pricing-artifact output/pricing/ucits_close_price_validation_basket_results_20260810_120500.json \
+            --output output/activation/etf_eu_revalued_portfolio_state_20260810_123000.json
+          cp output/activation/etf_eu_revalued_portfolio_state_20260810_123000.json output/etf_eu_portfolio_state.json
+
+      - name: Validate explicit current allocation decision
+        run: |
+          set -euo pipefail
+          python -m runtime.validate_etf_eu_current_allocation_decision \
+            --decision output/activation/etf_eu_current_allocation_decision_20260810_123000.json \
+            --pricing-artifact output/pricing/ucits_close_price_validation_basket_results_20260810_120500.json \
+            --discovery-bridge output/runtime/etf_eu_donor_discovery_bridge_20260810_120500.json \
+            --portfolio-state output/etf_eu_portfolio_state.json \
+            --output output/activation/etf_eu_current_allocation_validation_20260810_123000.json
+
+      - name: Apply guarded model-only allocation
+        run: |
+          set -euo pipefail
+          python -m runtime.apply_etf_eu_guarded_capital_activation \
+            --decision output/activation/etf_eu_current_allocation_decision_20260810_123000.json \
+            --validation output/activation/etf_eu_current_allocation_validation_20260810_123000.json \
+            --portfolio-state output/etf_eu_portfolio_state.json \
+            --trade-ledger output/etf_eu_trade_ledger.csv \
+            --confirmation CONFIRM_ETF_EU_MODEL_CAPITAL_ACTIVATION \
+            --output output/activation/etf_eu_guarded_capital_activation_result_20260810_123000.json
+
+      - name: Replace 10-Aug valuation history with current six-position model state
+        run: |
+          set -euo pipefail
+          python tools/update_etf_eu_valuation_history.py \
+            --portfolio-state output/etf_eu_portfolio_state.json \
+            --history output/etf_eu_valuation_history.csv \
+            --report-date 2026-08-10 \
+            --source-report allocation:etf_eu_current_allocation_decision_20260810_123000.json \
+            --comment "Current 2026-08-10 completed-close valuation after explicit model-only DFEN and IQQQ allocation; no broker order" \
+            --output output/etf_eu_valuation_history.csv
+
+      - name: Build final six-position client package from persisted evidence
+        run: |
+          set -euo pipefail
+          python -m tools.build_etf_eu_routine_report_package_v2 \
+            --run-id 20260810_123000 \
+            --report-date 2026-08-10 \
+            --report-suffix 260810 \
+            --pricing-artifact output/pricing/ucits_close_price_validation_basket_results_20260810_120500.json \
+            --macro-pack output/macro/etf_eu_macro_policy_pack_20260810_120500.json \
+            --registry config/ucits_symbol_registry.yml \
+            --proxy-map config/ucits_benchmark_proxy_map.yml \
+            --donor-lane-artifact output/runtime/etf_eu_donor_lane_source_20260810_120500.json \
+            --previous-routine-manifest output/run_manifests/etf_eu_routine_run_manifest_2026-08-05_20260805_31342220143_2.json \
+            --previous-delivery-closeout-manifest output/run_manifests/etf_eu_delivery_closeout_manifest_20260710_1755.json
+
+      - name: Validate all final client artifacts
+        run: |
+          set -euo pipefail
+          python -m tools.validate_etf_eu_client_grade_report_v2 \
+            --state output/runtime/etf_eu_client_grade_report_state_20260810_123000.json \
+            --dutch-html output/fresh_generation/weekly_etf_eu_review_nl_260810.html \
+            --dutch-pdf output/fresh_generation/weekly_etf_eu_review_nl_260810.pdf \
+            --english-html output/fresh_generation/weekly_etf_eu_review_260810.html \
+            --english-pdf output/fresh_generation/weekly_etf_eu_review_260810.pdf \
+            --output output/quality/etf_eu_client_grade_v2_validation_20260810_123000.json \
+            --strict
+          python -m tools.validate_etf_eu_markdown_delivery_artifacts \
+            --state output/runtime/etf_eu_client_grade_report_state_20260810_123000.json \
+            --dutch-markdown output/fresh_generation/weekly_etf_eu_review_nl_260810.md \
+            --english-markdown output/fresh_generation/weekly_etf_eu_review_260810.md \
+            --output output/quality/etf_eu_markdown_delivery_validation_20260810_123000.json \
+            --strict
+          python -m tools.write_etf_eu_routine_v2_machine_gate \
+            --validation output/quality/etf_eu_client_grade_v2_validation_20260810_123000.json \
+            --run-id 20260810_123000 \
+            --output-dir output/quality
+
+      - name: Render final PDF review pages
+        run: |
+          set -euo pipefail
+          REVIEW_ROOT=output/quality/review_pages/20260810_123000
+          mkdir -p "$REVIEW_ROOT/nl/all" "$REVIEW_ROOT/en/all"
+          python tools/render_etf_eu_pdf_review_pages.py --pdf output/fresh_generation/weekly_etf_eu_review_nl_260810.pdf --output-dir "$REVIEW_ROOT/nl" --write-index "$REVIEW_ROOT/nl/index.json"
+          python tools/render_etf_eu_pdf_review_pages.py --pdf output/fresh_generation/weekly_etf_eu_review_260810.pdf --output-dir "$REVIEW_ROOT/en" --write-index "$REVIEW_ROOT/en/index.json"
+          pdftoppm -png -r 120 output/fresh_generation/weekly_etf_eu_review_nl_260810.pdf "$REVIEW_ROOT/nl/all/page"
+          pdftoppm -png -r 120 output/fresh_generation/weekly_etf_eu_review_260810.pdf "$REVIEW_ROOT/en/all/page"
+
+      - name: Persist final model candidate to branch only
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -f \
+            output/etf_eu_portfolio_state.json \
+            output/etf_eu_trade_ledger.csv \
+            output/etf_eu_valuation_history.csv \
+            output/etf_eu_recommendation_scorecard.csv \
+            output/activation/etf_eu_revalued_portfolio_state_20260810_123000.json \
+            output/activation/etf_eu_current_allocation_decision_20260810_123000.json \
+            output/activation/etf_eu_current_allocation_validation_20260810_123000.json \
+            output/activation/etf_eu_guarded_capital_activation_result_20260810_123000.json \
+            output/runtime/etf_eu_donor_discovery_bridge_20260810_123000.json \
+            output/runtime/etf_eu_client_grade_report_state_20260810_123000.json \
+            output/fresh_generation/weekly_etf_eu_review_nl_260810.md \
+            output/fresh_generation/weekly_etf_eu_review_260810.md \
+            output/fresh_generation/weekly_etf_eu_review_nl_260810.html \
+            output/fresh_generation/weekly_etf_eu_review_260810.html \
+            output/fresh_generation/weekly_etf_eu_review_nl_260810.pdf \
+            output/fresh_generation/weekly_etf_eu_review_260810.pdf \
+            output/fresh_generation/etf_eu_fresh_generation_package_manifest_20260810_123000.json \
+            output/fresh_generation/etf_eu_ready_for_controlled_delivery_20260810_123000.json \
+            output/quality/etf_eu_client_grade_v2_validation_20260810_123000.json \
+            output/quality/etf_eu_markdown_delivery_validation_20260810_123000.json \
+            output/quality/etf_eu_routine_pdf_client_grade_20260810_123000_nl.json \
+            output/quality/etf_eu_routine_pdf_client_grade_20260810_123000_en.json \
+            output/quality/etf_eu_routine_pdf_client_grade_20260810_123000.json \
+            output/run_manifests/etf_eu_routine_run_manifest_2026-08-10_20260810_123000.json
+          git commit -m "Persist final ETF EU 260810 six-position candidate [skip ci]"
+          git push origin "HEAD:${GITHUB_REF_NAME}"
+
+      - name: Upload final review bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: etf-eu-final-candidate-20260810-123000
+          path: |
+            output/fresh_generation/weekly_etf_eu_review_nl_260810.md
+            output/fresh_generation/weekly_etf_eu_review_260810.md
+            output/fresh_generation/weekly_etf_eu_review_nl_260810.html
+            output/fresh_generation/weekly_etf_eu_review_260810.html
+            output/fresh_generation/weekly_etf_eu_review_nl_260810.pdf
+            output/fresh_generation/weekly_etf_eu_review_260810.pdf
+            output/fresh_generation/etf_eu_fresh_generation_package_manifest_20260810_123000.json
+            output/activation/etf_eu_current_allocation_decision_20260810_123000.json
+            output/activation/etf_eu_current_allocation_validation_20260810_123000.json
+            output/activation/etf_eu_guarded_capital_activation_result_20260810_123000.json
+            output/runtime/etf_eu_client_grade_report_state_20260810_123000.json
+            output/quality/review_pages/20260810_123000
+          if-no-files-found: error
+          retention-days: 90
+
+      - name: State governance boundary
+        run: |
+          echo "ETF_EU_FINAL_MODEL_CANDIDATE_BUILT=true"
+          echo "ETF_EU_FUNDED_POSITION_COUNT_EXPECTED=6"
+          echo "ETF_EU_REAL_BROKER_EXECUTION=false"
+          echo "ETF_EU_INDEPENDENT_ASSURANCE_REQUIRED=true"
+          echo "ETF_EU_DELIVERY_AUTHORITY=false"
