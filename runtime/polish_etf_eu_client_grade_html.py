@@ -23,6 +23,12 @@ NL_REPLACEMENTS = {
     "Do not rotate aggressively unless a regime shift persists for at least two runs or cross-asset confirmation becomes broad.": "Roteer niet agressief tenzij een regimeverschuiving minstens twee runs aanhoudt of de bevestiging over meerdere activaklassen breed wordt.",
     "Maintain quality and cash discipline; any allocation still requires a verified UCITS instrument, current pricing and a separate capital decision.": "Behoud kwaliteit en kasdiscipline; iedere allocatie vereist nog steeds een geverifieerd UCITS-instrument, actuele prijzen en een afzonderlijk kapitaalbesluit.",
     "European equity or bond exposure remains conditional on UCITS identity, trading-line verification, current pricing and relative-strength confirmation.": "Blootstelling aan Europese aandelen of obligaties blijft afhankelijk van UCITS-identiteit, verificatie van de handelslijn, actuele prijzen en bevestiging van relatieve sterkte.",
+    # Short semantic variants used by current donor state. Keep these after the
+    # longer exact sentences above so evolving sentence composition still lands
+    # on a Dutch client-safe surface and the forbidden-residual gate remains
+    # meaningful rather than being relaxed.
+    "Maintain quality and cash discipline": "Behoud kwaliteit en kasdiscipline",
+    "European equity or bond exposure remains conditional": "Europese aandelen- of obligatieblootstelling blijft afhankelijk",
     "Historical context; no allocation authority.": "Beschrijvende macrocontext; geen allocatiebevoegdheid.",
     "Historische context; geen allocatiebevoegdheid.": "Beschrijvende macrocontext; geen allocatiebevoegdheid.",
     "Initial cash-only EU/UCITS bootstrap state": "Initiële EU/UCITS-modelportefeuille volledig in cash",
