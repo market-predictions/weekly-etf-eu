@@ -9,6 +9,9 @@ on:
       - ".github/workflows/finalize-etf-eu-fresh-260810-temporary.yml"
       - "runtime/reconcile_etf_eu_funded_markdown.py"
       - "runtime/apply_etf_eu_donor_parity_contract.py"
+      - "runtime/build_etf_eu_client_grade_report_state_v2.py"
+      - "runtime/finalize_etf_eu_markdown_semantics.py"
+      - "tools/build_etf_eu_routine_report_package_v2.py"
       - "output/activation/etf_eu_current_allocation_decision_20260810_123000.json"
 
 permissions:
@@ -62,7 +65,7 @@ jobs:
         run: |
           set -euo pipefail
           python -m pytest -q tests/test_etf_eu_broad_discovery_allocation_pricing.py
-          python -m py_compile runtime/apply_etf_eu_donor_parity_contract.py runtime/reconcile_etf_eu_funded_markdown.py
+          python -m py_compile runtime/apply_etf_eu_donor_parity_contract.py runtime/reconcile_etf_eu_funded_markdown.py runtime/finalize_etf_eu_markdown_semantics.py
 
       - name: Build final client package from applied state and persisted evidence
         run: |
@@ -131,6 +134,12 @@ jobs:
           assert '6 of 6 funded lines' in en
           assert 'Volledig geverifieerde lijnen: 0' not in nl
           assert 'Fully verified lines: 0' not in en
+          assert 'Beste operationele kandidaat: de geverifieerde S&P 500' not in nl
+          assert 'Best operational candidate: the verified S&P 500' not in en
+          assert 'Een prijsobservatie is geen zelfstandige waarderingsbasis.' not in nl
+          assert 'A price observation is not an independent valuation basis.' not in en
+          assert 'Nieuwe funded implementaties: DFEN en IQQQ' in nl
+          assert 'New funded implementations: DFEN and IQQQ' in en
           print('ETF_EU_CLIENT_CHANGE_DISCLOSURE=PASS')
           PY
 
