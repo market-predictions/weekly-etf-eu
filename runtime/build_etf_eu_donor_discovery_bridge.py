@@ -48,6 +48,18 @@ def _portfolio_identities(portfolio: dict[str, Any]) -> set[tuple[str, str]]:
     }
 
 
+def _two_provider_consensus(pricing: dict[str, Any] | None) -> bool:
+    if not pricing:
+        return False
+    providers = pricing.get("agreeing_providers") or []
+    return (
+        pricing.get("completed_close_on_or_before_report_date") is True
+        and pricing.get("close_price") not in (None, "")
+        and str(pricing.get("source_agreement_status") or "") == "qualified_development_consensus"
+        and len(providers) >= 2
+    )
+
+
 def _fundability(candidate: dict[str, Any], mapping_status: str, pricing: dict[str, Any] | None, funded: bool) -> str:
     if funded:
         return "FUNDED_MODEL_POSITION"
@@ -57,8 +69,10 @@ def _fundability(candidate: dict[str, Any], mapping_status: str, pricing: dict[s
         return "MAPPING_REQUIRED"
     if "incomplete" in str(candidate.get("identity_status") or "").lower() or "unresolved" in str(candidate.get("exchange") or "").lower():
         return "IDENTITY_OR_KID_INCOMPLETE"
-    if not pricing or pricing.get("completed_close") is not True or not pricing.get("close_price"):
+    if not pricing or pricing.get("completed_close_on_or_before_report_date") is not True or not pricing.get("close_price"):
         return "PRICING_REQUIRED"
+    if not _two_provider_consensus(pricing):
+        return "PRICING_CONSENSUS_REQUIRED"
     return "FUNDABLE_REQUIRES_ALLOCATION_DECISION"
 
 
@@ -106,6 +120,9 @@ def build_bridge(
                     "pricing_close_date": price.get("close_date") if price else None,
                     "pricing_close": price.get("close_price") if price else None,
                     "pricing_status": price.get("pricing_status") if price else None,
+                    "pricing_source_agreement_status": price.get("source_agreement_status") if price else None,
+                    "pricing_agreeing_providers": price.get("agreeing_providers") if price else [],
+                    "pricing_two_provider_consensus": _two_provider_consensus(price),
                     "fundability_status": _fundability(candidate, mapping_status, price, funded),
                 })
         if not candidate_rows:
@@ -123,6 +140,8 @@ def build_bridge(
             "donor_total_score": lane.get("total_score"),
             "donor_promoted_to_live_radar": lane.get("promoted_to_live_radar"),
             "donor_challenger": lane.get("challenger"),
+            "donor_fundability_status": lane.get("fundability_status"),
+            "donor_is_fundable_candidate": bool(lane.get("is_fundable_candidate")),
             "donor_return_1m_pct": lane.get("return_1m_pct"),
             "donor_return_3m_pct": lane.get("return_3m_pct"),
             "donor_relative_strength_score": lane.get("relative_strength_score"),
@@ -132,7 +151,7 @@ def build_bridge(
 
     buckets = sorted({str(row.get("bucket") or "") for row in assessed if row.get("bucket")})
     return {
-        "schema_version": "etf_eu_donor_discovery_bridge_v1",
+        "schema_version": "etf_eu_donor_discovery_bridge_v2",
         "donor_report_date": donor.get("report_date"),
         "donor_discovery_engine_version": donor.get("discovery_engine_version"),
         "assessed_lane_count": len(assessed),
@@ -142,6 +161,7 @@ def build_bridge(
         "authority": {
             "mapping_is_funding_authority": False,
             "pricing_is_funding_authority": False,
+            "new_allocation_requires_two_provider_consensus": True,
             "explicit_allocation_decision_required": True,
             "portfolio_mutation": False,
             "execution_authority": False,

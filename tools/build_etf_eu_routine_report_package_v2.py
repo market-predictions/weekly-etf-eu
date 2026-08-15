@@ -9,6 +9,8 @@ from typing import Any
 from runtime.apply_etf_eu_donor_parity_contract import apply_contract, write_recommendation_scorecard
 from runtime.build_etf_eu_client_grade_report_state_v2 import build_state
 from runtime.build_etf_eu_donor_discovery_bridge import write_bridge
+from runtime.finalize_etf_eu_client_surface_semantics import finalize_client_html_semantics
+from runtime.finalize_etf_eu_markdown_semantics import finalize_markdown_semantics
 from runtime.inject_etf_eu_funded_identity_strip import inject_funded_identity_strip
 from runtime.polish_etf_eu_client_grade_html import polish
 from runtime.reconcile_etf_eu_funded_markdown import reconcile_funded_markdown
@@ -126,6 +128,11 @@ def build(args: argparse.Namespace) -> dict[str, Path]:
     en_polished = _client_safe_status_text(en_polished, language="en")
     nl_polished = inject_funded_identity_strip(nl_polished, language="nl")
     en_polished = inject_funded_identity_strip(en_polished, language="en")
+    # Final client semantics are derived from the same normalized state before
+    # HTML is persisted or PDFs are rendered. This prevents legacy layout-helper
+    # copy from diverging from current allocation/pricing authority.
+    nl_polished = finalize_client_html_semantics(nl_polished, funded_state, language="nl")
+    en_polished = finalize_client_html_semantics(en_polished, funded_state, language="en")
     nl_html.write_text(nl_polished, encoding="utf-8")
     en_html.write_text(en_polished, encoding="utf-8")
     HTML(string=nl_polished, base_url=str(nl_html.parent.resolve())).write_pdf(str(nl_pdf))
@@ -140,8 +147,10 @@ def build(args: argparse.Namespace) -> dict[str, Path]:
 
     nl_md = Path(str(manifest["dutch_primary_markdown"]))
     en_md = Path(str(manifest["english_companion_markdown"]))
-    nl_md.write_text(reconcile_funded_markdown(nl_md.read_text(encoding="utf-8"), funded_state, language="nl"), encoding="utf-8")
-    en_md.write_text(reconcile_funded_markdown(en_md.read_text(encoding="utf-8"), funded_state, language="en"), encoding="utf-8")
+    nl_text = reconcile_funded_markdown(nl_md.read_text(encoding="utf-8"), funded_state, language="nl")
+    en_text = reconcile_funded_markdown(en_md.read_text(encoding="utf-8"), funded_state, language="en")
+    nl_md.write_text(finalize_markdown_semantics(nl_text, funded_state, language="nl"), encoding="utf-8")
+    en_md.write_text(finalize_markdown_semantics(en_text, funded_state, language="en"), encoding="utf-8")
 
     promotion_fields = {
         "client_renderer_mode": "client_grade_v2_funded_aware_donor_parity_v1",
@@ -154,6 +163,7 @@ def build(args: argparse.Namespace) -> dict[str, Path]:
         "discovery_fundability_contract": "control/ETF_EU_DISCOVERY_FUNDABILITY_CONTRACT_V1.md",
         "donor_discovery_bridge": str(bridge_path) if bridge_path else None,
         "donor_parity_contract": "runtime/apply_etf_eu_donor_parity_contract.py",
+        "client_surface_semantics_finalizer": "runtime/finalize_etf_eu_client_surface_semantics.py",
         "pricing_contract": "ucits_close_price_validation_basket_results_v2",
         "pricing_state_builder": "runtime/build_etf_eu_client_grade_report_state_v2.py",
         "funded_two_provider_consensus_required": True,
@@ -175,7 +185,7 @@ def build(args: argparse.Namespace) -> dict[str, Path]:
     }
     manifest.update(promotion_fields)
     manifest["renderer"] = "runtime/render_etf_eu_client_grade_v2_funded.py"
-    manifest["client_surface_sanitizer"] = "runtime/polish_etf_eu_client_grade_html.py+funded_status_label_normalization"
+    manifest["client_surface_sanitizer"] = "runtime/polish_etf_eu_client_grade_html.py+runtime/finalize_etf_eu_client_surface_semantics.py"
     manifest["html_generation_status"] = "client_grade_v2_generated"
     manifest["pdf_generation_status"] = "client_grade_v2_generated_pending_quality_gates"
     ready.update(promotion_fields)

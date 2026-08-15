@@ -30,6 +30,7 @@ def build_state(args: Namespace) -> dict[str, Any]:
         )
 
     pricing_payload = json.loads(pricing_path.read_text(encoding="utf-8"))
+    protected_portfolio = json.loads(portfolio_path.read_text(encoding="utf-8"))
     # The v1 state constructor is retained strictly as an internal layout helper.
     # Its historical min_threshold_met input is satisfied only in an ephemeral copy;
     # current pricing authority is the shared v2 contract validated above and persisted below.
@@ -45,6 +46,24 @@ def build_state(args: Namespace) -> dict[str, Any]:
         legacy_args = Namespace(**vars(args))
         legacy_args.pricing_artifact = str(compatibility_path)
         state = build_legacy_state(legacy_args)
+
+    # The legacy layout helper intentionally summarizes portfolio state, but a
+    # client-grade v2 state must retain current allocation/valuation lineage.
+    # Without this, an explicit current allocation can be applied to protected
+    # state yet disappear before donor-parity normalization, causing cash and
+    # current-run action semantics to fall back to "unresolved". Copy only
+    # authority metadata; positions/shares/cash remain those already produced
+    # from the exact protected state.
+    state_portfolio = state.get("portfolio") if isinstance(state.get("portfolio"), dict) else {}
+    for key in (
+        "last_model_capital_activation",
+        "last_valuation_refresh",
+        "valuation_source",
+        "last_broker_neutral_allocation_activation",
+    ):
+        if key in protected_portfolio:
+            state_portfolio[key] = protected_portfolio[key]
+    state["portfolio"] = state_portfolio
 
     blockers = [
         blocker
@@ -101,6 +120,7 @@ def build_state(args: Namespace) -> dict[str, Any]:
                 "opportunity_radar_reconciled": True,
                 "broker_neutral_model_language": True,
                 "normalized_state_authority": True,
+                "current_model_activation_lineage_preserved": "last_model_capital_activation" in (state.get("portfolio") or {}),
             }
         )
         state["funded_consistency"] = consistency

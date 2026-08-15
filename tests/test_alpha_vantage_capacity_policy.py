@@ -7,7 +7,7 @@ from unittest.mock import patch
 
 from pricing import ucits_price_provider_engine as engine
 from pricing.alpha_vantage_capacity_policy import (
-    FundedOnlyAlphaVantageAdapter,
+    GovernedAlphaVantageAdapter,
     install_funded_only_alpha_policy,
 )
 
@@ -51,10 +51,13 @@ def make_line(*, funded: bool, ticker: str = "VWCE") -> engine.InstrumentLine:
 
 
 class AlphaVantageCapacityPolicyTests(unittest.TestCase):
+    def tearDown(self):
+        install_funded_only_alpha_policy([])
+
     def test_bulk_identity_discovery_uses_zero_alpha_calls(self):
         session = FakeSession()
         with patch.dict(os.environ, {"ALPHA_VANTAGE_API_KEY": "secret"}, clear=False):
-            adapter = FundedOnlyAlphaVantageAdapter(session=session)
+            adapter = GovernedAlphaVantageAdapter(session=session)
             results = adapter.bulk_discover(
                 [make_line(funded=True), make_line(funded=False, ticker="VVSM")],
                 date(2026, 8, 5),
@@ -65,22 +68,44 @@ class AlphaVantageCapacityPolicyTests(unittest.TestCase):
             for row in results.values()
         ))
 
-    def test_unfunded_line_uses_zero_alpha_close_calls(self):
+    def test_unfunded_non_candidate_uses_zero_alpha_close_calls(self):
         session = FakeSession()
+        install_funded_only_alpha_policy([])
         with patch.dict(os.environ, {"ALPHA_VANTAGE_API_KEY": "secret"}, clear=False):
-            result = FundedOnlyAlphaVantageAdapter(session=session).fetch_close(
+            result = GovernedAlphaVantageAdapter(session=session).fetch_close(
                 make_line(funded=False, ticker="VVSM"), date(2026, 8, 5)
             )
         self.assertEqual(session.calls, [])
         self.assertEqual(result.pricing_status, "skipped_unfunded_capacity_preservation")
-        self.assertIn("alpha_vantage_live_close_reserved_for_funded_positions", result.blockers)
+        self.assertIn(
+            "alpha_vantage_live_close_reserved_for_funded_or_explicit_allocation_candidates",
+            result.blockers,
+        )
+
+    def test_explicit_unfunded_allocation_candidate_makes_one_alpha_call(self):
+        line = make_line(funded=False, ticker="VVSM")
+        session = FakeSession([
+            {"Time Series (Daily)": {"2026-08-05": {"4. close": "92.50"}}}
+        ])
+        install_funded_only_alpha_policy([line.basket_id])
+        with patch.dict(os.environ, {"ALPHA_VANTAGE_API_KEY": "secret"}, clear=False):
+            result = GovernedAlphaVantageAdapter(session=session).fetch_close(line, date(2026, 8, 5))
+        self.assertEqual(len(session.calls), 1)
+        self.assertEqual(session.calls[0][1]["function"], "TIME_SERIES_DAILY")
+        self.assertEqual(result.pricing_status, "priced")
+        self.assertEqual(result.close_price, 92.50)
+        self.assertNotIn(
+            "alpha_vantage_live_close_reserved_for_funded_positions",
+            result.blockers,
+        )
 
     def test_funded_line_makes_one_alpha_close_call(self):
         session = FakeSession([
             {"Time Series (Daily)": {"2026-08-05": {"4. close": "168.04"}}}
         ])
+        install_funded_only_alpha_policy([])
         with patch.dict(os.environ, {"ALPHA_VANTAGE_API_KEY": "secret"}, clear=False):
-            result = FundedOnlyAlphaVantageAdapter(session=session).fetch_close(
+            result = GovernedAlphaVantageAdapter(session=session).fetch_close(
                 make_line(funded=True), date(2026, 8, 5)
             )
         self.assertEqual(len(session.calls), 1)
@@ -91,8 +116,8 @@ class AlphaVantageCapacityPolicyTests(unittest.TestCase):
     def test_install_replaces_shared_alpha_adapter(self):
         original = engine.ADAPTERS["alpha_vantage"]
         try:
-            install_funded_only_alpha_policy()
-            self.assertIs(engine.ADAPTERS["alpha_vantage"], FundedOnlyAlphaVantageAdapter)
+            install_funded_only_alpha_policy([])
+            self.assertIs(engine.ADAPTERS["alpha_vantage"], GovernedAlphaVantageAdapter)
         finally:
             engine.ADAPTERS["alpha_vantage"] = original
 

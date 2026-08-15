@@ -37,6 +37,11 @@ def main() -> None:
     parser.add_argument("--max-close-age-days", type=int, default=7)
     parser.add_argument("--agreement-tolerance-pct", type=float, default=1.0)
     parser.add_argument("--require-funded-consensus", action="store_true")
+    parser.add_argument(
+        "--allocation-candidate-basket-ids",
+        default="",
+        help="Comma-separated nonfunded basket IDs allowed to consume Alpha Vantage close capacity for pre-allocation two-provider qualification.",
+    )
     # Retained compatibility arguments; provider-specific throttling now lives in adapters.
     parser.add_argument("--rate-limit-cooldown-seconds", type=float, default=600.0)
     parser.add_argument("--max-attempts", type=int, default=1)
@@ -44,7 +49,10 @@ def main() -> None:
     args = parser.parse_args()
 
     secret_safety = enforce_provider_secret_safety()
-    install_funded_only_alpha_policy()
+    allocation_candidate_basket_ids = [
+        item.strip() for item in args.allocation_candidate_basket_ids.split(",") if item.strip()
+    ]
+    install_funded_only_alpha_policy(allocation_candidate_basket_ids)
     report_date = date.fromisoformat(args.report_date or os.environ.get("REPORT_DATE") or date.today().isoformat())
     providers = [item.strip() for item in args.providers.split(",") if item.strip()] or None
     output_dir = Path(args.output_dir)
@@ -76,8 +84,11 @@ def main() -> None:
     qualification["provider_secret_safety"] = secret_safety
     qualification["alpha_vantage_capacity_policy"] = {
         "identity_search_calls": 0,
-        "live_close_scope": "authoritative_funded_positions_only",
+        "live_close_scope": "authoritative_funded_positions_plus_explicit_allocation_candidates",
+        "allocation_candidate_basket_ids": allocation_candidate_basket_ids,
         "identity_anchor_authority": "independent_exact_line_provider_required_by_wp11a_policy",
+        "funding_authority": False,
+        "portfolio_mutation": False,
     }
     qualification_path.write_text(json.dumps(qualification, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     build_legacy_validation_artifact(
@@ -94,6 +105,7 @@ def main() -> None:
         f" | report_date={report_date}"
         f" | funded_consensus={qualification['funded_consensus_count']}/{qualification['funded_line_count']}"
         f" | identity_anchors={qualification['funded_identity_anchor_count']}/{qualification['funded_line_count']}"
+        f" | allocation_candidates={allocation_candidate_basket_ids}"
         f" | cache_used={qualification.get('provider_cache_used_count', 0)}"
         f" | stale_registry_flags={funded_authority['stale_registry_funded_flags_overridden']}"
         f" | alpha_live={secret_safety['alpha_vantage_live_enabled']}"

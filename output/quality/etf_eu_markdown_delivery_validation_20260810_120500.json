@@ -1,0 +1,18 @@
+{
+  "artifact_type": "etf_eu_markdown_delivery_validation",
+  "blockers": [],
+  "delivery_authority": false,
+  "dutch_markdown": "output/fresh_generation/weekly_etf_eu_review_nl_260810.md",
+  "english_markdown": "output/fresh_generation/weekly_etf_eu_review_260810.md",
+  "funded_position_count": 4,
+  "funded_tickers": [
+    "EUNA",
+    "L0CK",
+    "SXR8",
+    "VWCE"
+  ],
+  "passed": true,
+  "schema_version": "etf_eu_markdown_delivery_validation_v1",
+  "send_executed": false,
+  "state": "output/runtime/etf_eu_client_grade_report_state_20260810_120500.json"
+}

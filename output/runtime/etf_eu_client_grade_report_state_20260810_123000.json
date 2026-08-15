@@ -1,0 +1,3002 @@
+{
+  "allocation_map": [
+    {
+      "note_en": "Cash is an active position. Above 3%, a fully fundable actionable opportunity requires an explicit deploy-or-explain review; above 5%, cash is material. These are review rules, not fixed cash targets.",
+      "note_nl": "Cash is een actieve positie. Boven 3% vereist een volledig fundable en actionable kans een expliciete deploy-or-explain review; boven 5% is cash materieel. Dit zijn reviewregels, geen vaste cashdoelen.",
+      "segment_en": "Cash",
+      "segment_nl": "Cash",
+      "stance_en": "Current 27.89% · no fixed cash floor",
+      "stance_nl": "Actueel 27.89% · geen vaste cashvloer"
+    },
+    {
+      "note_en": "Current protected model position. Any add or reduction requires current re-underwriting evidence and a separate allocation decision.",
+      "note_nl": "Huidige beschermde modelpositie. Extra inzet of reductie vereist actuele re-underwriting evidence en een afzonderlijk allocatiebesluit.",
+      "segment_en": "Cybersecurity satellite",
+      "segment_nl": "Cybersecurity satellite",
+      "stance_en": "Current 10.31% · 934 shares",
+      "stance_nl": "Actueel 10.31% · 934 stuks"
+    },
+    {
+      "note_en": "Current protected model position. Any add or reduction requires current re-underwriting evidence and a separate allocation decision.",
+      "note_nl": "Huidige beschermde modelpositie. Extra inzet of reductie vereist actuele re-underwriting evidence en een afzonderlijk allocatiebesluit.",
+      "segment_en": "Defense resilience satellite",
+      "segment_nl": "Defense resilience satellite",
+      "stance_en": "Current 11.98% · 207 shares",
+      "stance_nl": "Actueel 11.98% · 207 stuks"
+    },
+    {
+      "note_en": "Current protected model position. Any add or reduction requires current re-underwriting evidence and a separate allocation decision.",
+      "note_nl": "Huidige beschermde modelpositie. Extra inzet of reductie vereist actuele re-underwriting evidence en een afzonderlijk allocatiebesluit.",
+      "segment_en": "Global core equity",
+      "segment_nl": "Global core equity",
+      "stance_en": "Current 25.25% · 151 shares",
+      "stance_nl": "Actueel 25.25% · 151 stuks"
+    },
+    {
+      "note_en": "Current protected model position. Any add or reduction requires current re-underwriting evidence and a separate allocation decision.",
+      "note_nl": "Huidige beschermde modelpositie. Extra inzet of reductie vereist actuele re-underwriting evidence en een afzonderlijk allocatiebesluit.",
+      "segment_en": "Stabilising aggregate bonds",
+      "segment_nl": "Stabilising aggregate bonds",
+      "stance_en": "Current 7.41% · 1526 shares",
+      "stance_nl": "Actueel 7.41% · 1526 stuks"
+    },
+    {
+      "note_en": "Current protected model position. Any add or reduction requires current re-underwriting evidence and a separate allocation decision.",
+      "note_nl": "Huidige beschermde modelpositie. Extra inzet of reductie vereist actuele re-underwriting evidence en een afzonderlijk allocatiebesluit.",
+      "segment_en": "U.S. equity overweight",
+      "segment_nl": "U.S. equity overweight",
+      "stance_en": "Current 7.19% · 10 shares",
+      "stance_nl": "Actueel 7.19% · 10 stuks"
+    },
+    {
+      "note_en": "Current protected model position. Any add or reduction requires current re-underwriting evidence and a separate allocation decision.",
+      "note_nl": "Huidige beschermde modelpositie. Extra inzet of reductie vereist actuele re-underwriting evidence en een afzonderlijk allocatiebesluit.",
+      "segment_en": "Water infrastructure satellite",
+      "segment_nl": "Water infrastructure satellite",
+      "stance_en": "Current 9.96% · 149 shares",
+      "stance_nl": "Actueel 9.96% · 149 stuks"
+    }
+  ],
+  "artifact_type": "etf_eu_client_grade_report_state",
+  "authority": {
+    "allocation_authority_contract": "control/ETF_EU_ALLOCATION_AUTHORITY_V1.md",
+    "broker_permission_required_for_real_execution": true,
+    "broker_specific_permission_required_for_model": false,
+    "canonical_identity": "isin_first",
+    "embedded_exposure_semantics": "measured_lower_bound_descriptive_not_required_minimum",
+    "funding_authority": false,
+    "legacy_target_fields_current_authority": false,
+    "model_position_present": true,
+    "portfolio_mutation": false,
+    "production_delivery_authority": false,
+    "real_broker_execution": false,
+    "research_only_transition_values": {
+      "ai_compute_semiconductor_cap_pct_nav": 18.0,
+      "maximum_gross_turnover_pct_nav": 25.0
+    },
+    "research_only_transition_values_executable": false,
+    "retired_shadow_rules": {
+      "maximum_new_etf_pct": 15.0,
+      "maximum_position_pct": 50.0,
+      "minimum_cash_pct": 35.0
+    },
+    "retired_shadow_rules_executable": false,
+    "trade_ledger_mutation": false,
+    "us_etfs_research_only": true,
+    "valuation_grade": false
+  },
+  "blockers": [],
+  "cash_policy": {
+    "automatic_trade_authority": false,
+    "cash_after_explanation": "After funding one defense and one water implementation, remaining cash is retained because healthcare, semiconductors and agriculture lack two-provider consensus and grid/critical-minerals/India lack complete current exact-line evidence. No fixed cash floor is applied.",
+    "cash_classification": "Deployment candidate",
+    "cash_classification_complete": true,
+    "cash_classification_source": "current_explicit_allocation_decision",
+    "cash_eur": 28101.01,
+    "cash_weight_pct": 27.894942,
+    "deploy_or_explain_explained": true,
+    "deploy_or_explain_review_required_if_actionable_fundable_lane_exists": true,
+    "fixed_minimum_cash_pct": null,
+    "material_position": true
+  },
+  "conditional_sections": {
+    "cash_preservation_callout": false,
+    "current_positions": true,
+    "portfolio_curve": true,
+    "replacement_analysis": true,
+    "rotation_plan": true
+  },
+  "current_allocation_decision": {
+    "activation_id": "ETF-EU-CURRENT-20260810_123000",
+    "added_tickers": [
+      "DFEN",
+      "IQQQ"
+    ],
+    "cash_after_classification": "Deployment candidate",
+    "cash_after_explanation": "After funding one defense and one water implementation, remaining cash is retained because healthcare, semiconductors and agriculture lack two-provider consensus and grid/critical-minerals/India lack complete current exact-line evidence. No fixed cash floor is applied.",
+    "model_portfolio_only": true,
+    "real_broker_execution": false,
+    "report_date": "2026-08-10",
+    "run_id": "20260810_123000",
+    "source_path": "output/activation/etf_eu_current_allocation_decision_20260810_123000.json",
+    "status": "ready_for_guarded_model_activation",
+    "trade_count": 2
+  },
+  "discovery_parity": {
+    "assessed_buckets": [
+      "agriculture_food_security",
+      "ai_digital_infrastructure",
+      "biotech_healthcare_innovation",
+      "china",
+      "critical_minerals_materials",
+      "defense_resilience",
+      "fintech_financial_infrastructure",
+      "grid_power_electrification",
+      "india_regional_industrialization",
+      "robotics_automation",
+      "uranium_nuclear",
+      "water"
+    ],
+    "assessed_lane_count": 25,
+    "bridge_artifact": "output/runtime/etf_eu_donor_discovery_bridge_20260810_123000.json",
+    "contract": "control/ETF_EU_DISCOVERY_FUNDABILITY_CONTRACT_V1.md",
+    "donor_lane_artifact": "output/runtime/etf_eu_donor_lane_source_20260810_120500.json",
+    "funding_authority": false,
+    "required_breadth_buckets": [
+      "ai_digital_infrastructure",
+      "defense_resilience",
+      "grid_power_electrification",
+      "uranium_nuclear",
+      "agriculture_food_security",
+      "water",
+      "china",
+      "india_regional_industrialization",
+      "biotech_healthcare_innovation",
+      "fintech_financial_infrastructure",
+      "robotics_automation",
+      "critical_minerals_materials"
+    ]
+  },
+  "donor_discovery_bridge": {
+    "assessed_buckets": [
+      "agriculture_food_security",
+      "ai_digital_infrastructure",
+      "biotech_healthcare_innovation",
+      "china",
+      "critical_minerals_materials",
+      "defense_resilience",
+      "fintech_financial_infrastructure",
+      "grid_power_electrification",
+      "india_regional_industrialization",
+      "robotics_automation",
+      "uranium_nuclear",
+      "water"
+    ],
+    "assessed_lane_count": 25,
+    "assessed_lanes": [
+      {
+        "bucket": "ai_digital_infrastructure",
+        "donor_alternative_etf": "BUG",
+        "donor_challenger": false,
+        "donor_fundability_status": "held_or_overlap_not_new_funding_candidate",
+        "donor_is_fundable_candidate": false,
+        "donor_primary_etf": "CIBR",
+        "donor_promoted_to_live_radar": true,
+        "donor_relative_strength_score": 1.25,
+        "donor_return_1m_pct": 3.81,
+        "donor_return_3m_pct": 33.9,
+        "donor_total_score": 4.97,
+        "donor_tradability_status": "pass",
+        "lane_name": "Cybersecurity resilience",
+        "taxonomy_tag": "cyber_security",
+        "ucits_candidates": [
+          {
+            "exchange": "Xetra",
+            "exchange_ticker": "L0CK",
+            "exposure_id": "cyber_security",
+            "fund_name": "iShares Digital Security UCITS ETF USD Acc",
+            "fundability_status": "FUNDED_MODEL_POSITION",
+            "identity_status": "verified",
+            "isin": "IE00BG0J4C88",
+            "mapping_status": "mapped_verified_line",
+            "pricing_agreeing_providers": [
+              "alpha_vantage",
+              "yahoo_chart"
+            ],
+            "pricing_close": 11.11600009,
+            "pricing_close_date": "2026-08-10",
+            "pricing_source_agreement_status": "qualified_development_consensus",
+            "pricing_status": "priced_non_authoritative",
+            "pricing_two_provider_consensus": true,
+            "trading_currency": "EUR"
+          }
+        ]
+      },
+      {
+        "bucket": "defense_resilience",
+        "donor_alternative_etf": "ITA",
+        "donor_challenger": true,
+        "donor_fundability_status": "funding_candidate_valuation_grade",
+        "donor_is_fundable_candidate": true,
+        "donor_primary_etf": "PPA",
+        "donor_promoted_to_live_radar": true,
+        "donor_relative_strength_score": 1.03,
+        "donor_return_1m_pct": 5.07,
+        "donor_return_3m_pct": 10.35,
+        "donor_total_score": 4.59,
+        "donor_tradability_status": "pass",
+        "lane_name": "Defense innovation / sovereign resilience",
+        "taxonomy_tag": "defense_resilience",
+        "ucits_candidates": [
+          {
+            "exchange": "Xetra",
+            "exchange_ticker": "DFEN",
+            "exposure_id": "defense_resilience",
+            "fund_name": "VanEck Defense UCITS ETF",
+            "fundability_status": "FUNDED_MODEL_POSITION",
+            "identity_status": "verified",
+            "isin": "IE000YYE6WK5",
+            "mapping_status": "mapped_verified_line_watch_only_until_current_decision",
+            "pricing_agreeing_providers": [
+              "alpha_vantage",
+              "yahoo_chart"
+            ],
+            "pricing_close": 58.31999984,
+            "pricing_close_date": "2026-08-10",
+            "pricing_source_agreement_status": "qualified_development_consensus",
+            "pricing_status": "priced_non_authoritative",
+            "pricing_two_provider_consensus": true,
+            "trading_currency": "EUR"
+          }
+        ]
+      },
+      {
+        "bucket": "grid_power_electrification",
+        "donor_alternative_etf": "GRID",
+        "donor_challenger": false,
+        "donor_fundability_status": "held_or_overlap_not_new_funding_candidate",
+        "donor_is_fundable_candidate": false,
+        "donor_primary_etf": "PAVE",
+        "donor_promoted_to_live_radar": true,
+        "donor_relative_strength_score": 0.47,
+        "donor_return_1m_pct": 4.02,
+        "donor_return_3m_pct": 3.49,
+        "donor_total_score": 4.44,
+        "donor_tradability_status": "pass",
+        "lane_name": "Grid buildout / electrification",
+        "taxonomy_tag": "grid_power",
+        "ucits_candidates": [
+          {
+            "exchange": "unresolved",
+            "exchange_ticker": "unresolved",
+            "exposure_id": "grid_power_electrification",
+            "fund_name": "First Trust Nasdaq Clean Edge Smart Grid Infrastructure UCITS ETF",
+            "fundability_status": "MAPPING_REQUIRED",
+            "identity_status": "exact_official_isin_and_european_line_required",
+            "isin": "unresolved",
+            "mapping_status": "mapping_incomplete",
+            "pricing_agreeing_providers": [],
+            "pricing_close": null,
+            "pricing_close_date": null,
+            "pricing_source_agreement_status": null,
+            "pricing_status": null,
+            "pricing_two_provider_consensus": false,
+            "trading_currency": "unresolved"
+          }
+        ]
+      },
+      {
+        "bucket": "biotech_healthcare_innovation",
+        "donor_alternative_etf": "VHT",
+        "donor_challenger": true,
+        "donor_fundability_status": "held_or_overlap_not_new_funding_candidate",
+        "donor_is_fundable_candidate": false,
+        "donor_primary_etf": "XLV",
+        "donor_promoted_to_live_radar": true,
+        "donor_relative_strength_score": 1.25,
+        "donor_return_1m_pct": 2.16,
+        "donor_return_3m_pct": 14.99,
+        "donor_total_score": 4.42,
+        "donor_tradability_status": "pass",
+        "lane_name": "Healthcare quality and defensive growth",
+        "taxonomy_tag": "healthcare_quality",
+        "ucits_candidates": [
+          {
+            "exchange": "Xetra",
+            "exchange_ticker": "CBUF",
+            "exposure_id": "healthcare_quality",
+            "fund_name": "iShares MSCI World Health Care Sector Advanced UCITS ETF USD Dist",
+            "fundability_status": "PRICING_CONSENSUS_REQUIRED",
+            "identity_status": "verified",
+            "isin": "IE00BJ5JNZ06",
+            "mapping_status": "mapped_verified_line_market_evidence_required",
+            "pricing_agreeing_providers": [
+              "alpha_vantage"
+            ],
+            "pricing_close": 7.097,
+            "pricing_close_date": "2026-08-10",
+            "pricing_source_agreement_status": "single_source_only",
+            "pricing_status": "priced_non_authoritative",
+            "pricing_two_provider_consensus": false,
+            "trading_currency": "EUR"
+          }
+        ]
+      },
+      {
+        "bucket": "water",
+        "donor_alternative_etf": "PHO",
+        "donor_challenger": true,
+        "donor_fundability_status": "funding_candidate_valuation_grade",
+        "donor_is_fundable_candidate": true,
+        "donor_primary_etf": "FIW",
+        "donor_promoted_to_live_radar": true,
+        "donor_relative_strength_score": 1.16,
+        "donor_return_1m_pct": 6.03,
+        "donor_return_3m_pct": 6.74,
+        "donor_total_score": 4.34,
+        "donor_tradability_status": "pass",
+        "lane_name": "Water infrastructure / treatment",
+        "taxonomy_tag": "water_infrastructure",
+        "ucits_candidates": [
+          {
+            "exchange": "Xetra",
+            "exchange_ticker": "XMLC",
+            "exposure_id": "water_infrastructure",
+            "fund_name": "L&G Clean Water UCITS ETF USD Acc",
+            "fundability_status": "FUNDABLE_REQUIRES_ALLOCATION_DECISION",
+            "identity_status": "verified",
+            "isin": "IE00BK5BC891",
+            "mapping_status": "mapped_verified_lines_market_evidence_required",
+            "pricing_agreeing_providers": [
+              "alpha_vantage",
+              "yahoo_chart"
+            ],
+            "pricing_close": 18.98399963,
+            "pricing_close_date": "2026-08-10",
+            "pricing_source_agreement_status": "qualified_development_consensus",
+            "pricing_status": "priced_non_authoritative",
+            "pricing_two_provider_consensus": true,
+            "trading_currency": "EUR"
+          },
+          {
+            "exchange": "Xetra",
+            "exchange_ticker": "IQQQ",
+            "exposure_id": "water_infrastructure",
+            "fund_name": "iShares Global Water UCITS ETF USD Dist",
+            "fundability_status": "FUNDED_MODEL_POSITION",
+            "identity_status": "verified",
+            "isin": "IE00B1TXK627",
+            "mapping_status": "mapped_verified_lines_market_evidence_required",
+            "pricing_agreeing_providers": [
+              "alpha_vantage",
+              "yahoo_chart"
+            ],
+            "pricing_close": 67.34999923,
+            "pricing_close_date": "2026-08-10",
+            "pricing_source_agreement_status": "qualified_development_consensus",
+            "pricing_status": "priced_non_authoritative",
+            "pricing_two_provider_consensus": true,
+            "trading_currency": "EUR"
+          }
+        ]
+      },
+      {
+        "bucket": "india_regional_industrialization",
+        "donor_alternative_etf": "EFA",
+        "donor_challenger": true,
+        "donor_fundability_status": "held_or_overlap_not_new_funding_candidate",
+        "donor_is_fundable_candidate": false,
+        "donor_primary_etf": "IEFA",
+        "donor_promoted_to_live_radar": true,
+        "donor_relative_strength_score": 1.06,
+        "donor_return_1m_pct": 4.5,
+        "donor_return_3m_pct": 6.7,
+        "donor_total_score": 4.3,
+        "donor_tradability_status": "pass",
+        "lane_name": "Non-U.S. developed market diversification",
+        "taxonomy_tag": "non_us_developed_equities",
+        "ucits_candidates": [
+          {
+            "exchange": "unresolved_in_current_evidence",
+            "exchange_ticker": "IXUA",
+            "exposure_id": "developed_ex_us_equities",
+            "fund_name": "iShares MSCI World ex-USA UCITS ETF",
+            "fundability_status": "IDENTITY_OR_KID_INCOMPLETE",
+            "identity_status": "official_identity_and_exact_line_pass_but_current_market_evidence_incomplete",
+            "isin": "IE000R4ZNTN3",
+            "mapping_status": "mapped_market_evidence_incomplete",
+            "pricing_agreeing_providers": [],
+            "pricing_close": null,
+            "pricing_close_date": null,
+            "pricing_source_agreement_status": null,
+            "pricing_status": null,
+            "pricing_two_provider_consensus": false,
+            "trading_currency": "unresolved_in_current_evidence"
+          }
+        ]
+      },
+      {
+        "bucket": "ai_digital_infrastructure",
+        "donor_alternative_etf": "SOXX",
+        "donor_challenger": false,
+        "donor_fundability_status": "held_or_overlap_not_new_funding_candidate",
+        "donor_is_fundable_candidate": false,
+        "donor_primary_etf": "SMH",
+        "donor_promoted_to_live_radar": false,
+        "donor_relative_strength_score": -0.29,
+        "donor_return_1m_pct": -4.12,
+        "donor_return_3m_pct": 7.89,
+        "donor_total_score": 4.27,
+        "donor_tradability_status": "pass",
+        "lane_name": "AI compute infrastructure",
+        "taxonomy_tag": "ai_compute_infrastructure",
+        "ucits_candidates": [
+          {
+            "exchange": "Xetra",
+            "exchange_ticker": "VVSM",
+            "exposure_id": "ai_compute_infrastructure",
+            "fund_name": "VanEck Semiconductor UCITS ETF",
+            "fundability_status": "PRICING_CONSENSUS_REQUIRED",
+            "identity_status": "verified",
+            "isin": "IE00BMC38736",
+            "mapping_status": "mapped_verified_line",
+            "pricing_agreeing_providers": [
+              "yahoo_chart"
+            ],
+            "pricing_close": 93.08999634,
+            "pricing_close_date": "2026-08-10",
+            "pricing_source_agreement_status": "single_source_only",
+            "pricing_status": "priced_non_authoritative",
+            "pricing_two_provider_consensus": false,
+            "trading_currency": "EUR"
+          }
+        ]
+      },
+      {
+        "bucket": "water",
+        "donor_alternative_etf": "CGW",
+        "donor_challenger": true,
+        "donor_fundability_status": "funding_candidate_valuation_grade",
+        "donor_is_fundable_candidate": true,
+        "donor_primary_etf": "PHO",
+        "donor_promoted_to_live_radar": false,
+        "donor_relative_strength_score": 1.25,
+        "donor_return_1m_pct": 6.98,
+        "donor_return_3m_pct": 7.64,
+        "donor_total_score": 4.17,
+        "donor_tradability_status": "pass",
+        "lane_name": "Water utilities / defensive infrastructure",
+        "taxonomy_tag": "water_utilities",
+        "ucits_candidates": [
+          {
+            "exchange": "Xetra",
+            "exchange_ticker": "XMLC",
+            "exposure_id": "water_infrastructure",
+            "fund_name": "L&G Clean Water UCITS ETF USD Acc",
+            "fundability_status": "FUNDABLE_REQUIRES_ALLOCATION_DECISION",
+            "identity_status": "verified",
+            "isin": "IE00BK5BC891",
+            "mapping_status": "mapped_verified_lines_market_evidence_required",
+            "pricing_agreeing_providers": [
+              "alpha_vantage",
+              "yahoo_chart"
+            ],
+            "pricing_close": 18.98399963,
+            "pricing_close_date": "2026-08-10",
+            "pricing_source_agreement_status": "qualified_development_consensus",
+            "pricing_status": "priced_non_authoritative",
+            "pricing_two_provider_consensus": true,
+            "trading_currency": "EUR"
+          },
+          {
+            "exchange": "Xetra",
+            "exchange_ticker": "IQQQ",
+            "exposure_id": "water_infrastructure",
+            "fund_name": "iShares Global Water UCITS ETF USD Dist",
+            "fundability_status": "FUNDED_MODEL_POSITION",
+            "identity_status": "verified",
+            "isin": "IE00B1TXK627",
+            "mapping_status": "mapped_verified_lines_market_evidence_required",
+            "pricing_agreeing_providers": [
+              "alpha_vantage",
+              "yahoo_chart"
+            ],
+            "pricing_close": 67.34999923,
+            "pricing_close_date": "2026-08-10",
+            "pricing_source_agreement_status": "qualified_development_consensus",
+            "pricing_status": "priced_non_authoritative",
+            "pricing_two_provider_consensus": true,
+            "trading_currency": "EUR"
+          }
+        ]
+      },
+      {
+        "bucket": "critical_minerals_materials",
+        "donor_alternative_etf": "PICK",
+        "donor_challenger": true,
+        "donor_fundability_status": "funding_candidate_valuation_grade",
+        "donor_is_fundable_candidate": true,
+        "donor_primary_etf": "COPX",
+        "donor_promoted_to_live_radar": false,
+        "donor_relative_strength_score": 0.73,
+        "donor_return_1m_pct": 16.75,
+        "donor_return_3m_pct": 6.92,
+        "donor_total_score": 4.13,
+        "donor_tradability_status": "pass",
+        "lane_name": "Copper and electrification materials",
+        "taxonomy_tag": "copper_electrification",
+        "ucits_candidates": [
+          {
+            "exposure_id": "critical_minerals_materials",
+            "fundability_status": "MAPPING_REQUIRED",
+            "mapping_status": "mapping_required",
+            "pricing_agreeing_providers": [],
+            "pricing_close": null,
+            "pricing_close_date": null,
+            "pricing_source_agreement_status": null,
+            "pricing_status": null,
+            "pricing_two_provider_consensus": false
+          }
+        ]
+      },
+      {
+        "bucket": "biotech_healthcare_innovation",
+        "donor_alternative_etf": "IBB",
+        "donor_challenger": true,
+        "donor_fundability_status": "held_or_overlap_not_new_funding_candidate",
+        "donor_is_fundable_candidate": false,
+        "donor_primary_etf": "XBI",
+        "donor_promoted_to_live_radar": false,
+        "donor_relative_strength_score": 0.88,
+        "donor_return_1m_pct": -4.21,
+        "donor_return_3m_pct": 17.85,
+        "donor_total_score": 3.96,
+        "donor_tradability_status": "pass",
+        "lane_name": "Biotech innovation / therapeutic platforms",
+        "taxonomy_tag": "biotech_innovation",
+        "ucits_candidates": [
+          {
+            "exchange": "unresolved_in_current_evidence",
+            "exchange_ticker": "2B70",
+            "exposure_id": "biotech_innovation",
+            "fund_name": "iShares Nasdaq US Biotechnology UCITS ETF",
+            "fundability_status": "IDENTITY_OR_KID_INCOMPLETE",
+            "identity_status": "official_identity_and_exact_line_pass_but_current_market_evidence_incomplete",
+            "isin": "IE00BYXG2H39",
+            "mapping_status": "mapped_market_evidence_incomplete",
+            "pricing_agreeing_providers": [],
+            "pricing_close": null,
+            "pricing_close_date": null,
+            "pricing_source_agreement_status": null,
+            "pricing_status": null,
+            "pricing_two_provider_consensus": false,
+            "trading_currency": "unresolved_in_current_evidence"
+          }
+        ]
+      },
+      {
+        "bucket": "defense_resilience",
+        "donor_alternative_etf": "EUAD",
+        "donor_challenger": true,
+        "donor_fundability_status": "funding_candidate_valuation_grade",
+        "donor_is_fundable_candidate": true,
+        "donor_primary_etf": "NATO",
+        "donor_promoted_to_live_radar": false,
+        "donor_relative_strength_score": 1.25,
+        "donor_return_1m_pct": 6.63,
+        "donor_return_3m_pct": 10.63,
+        "donor_total_score": 3.94,
+        "donor_tradability_status": "watch",
+        "lane_name": "Europe defense and security rearmament",
+        "taxonomy_tag": "europe_defense_industry",
+        "ucits_candidates": [
+          {
+            "exposure_id": "europe_defense_industry",
+            "fundability_status": "MAPPING_REQUIRED",
+            "mapping_status": "mapping_required"
+          }
+        ]
+      },
+      {
+        "bucket": "fintech_financial_infrastructure",
+        "donor_alternative_etf": "IAI",
+        "donor_challenger": true,
+        "donor_fundability_status": "funding_candidate_valuation_grade",
+        "donor_is_fundable_candidate": true,
+        "donor_primary_etf": "KCE",
+        "donor_promoted_to_live_radar": false,
+        "donor_relative_strength_score": 1.1,
+        "donor_return_1m_pct": 4.89,
+        "donor_return_3m_pct": 8.05,
+        "donor_total_score": 3.75,
+        "donor_tradability_status": "watch",
+        "lane_name": "Financial infrastructure and market plumbing",
+        "taxonomy_tag": "financial_market_plumbing",
+        "ucits_candidates": [
+          {
+            "exposure_id": "financial_market_plumbing",
+            "fundability_status": "MAPPING_REQUIRED",
+            "mapping_status": "mapping_required"
+          }
+        ]
+      },
+      {
+        "bucket": "india_regional_industrialization",
+        "donor_alternative_etf": "EPI",
+        "donor_challenger": true,
+        "donor_fundability_status": "pricing_missing_for_funding_candidate",
+        "donor_is_fundable_candidate": false,
+        "donor_primary_etf": "INDA",
+        "donor_promoted_to_live_radar": false,
+        "donor_relative_strength_score": 0.57,
+        "donor_return_1m_pct": 2.75,
+        "donor_return_3m_pct": 1.1,
+        "donor_total_score": 3.72,
+        "donor_tradability_status": "pass",
+        "lane_name": "India industrialization / capex",
+        "taxonomy_tag": "india_industrialization",
+        "ucits_candidates": [
+          {
+            "exposure_id": "india_regional_industrialization",
+            "fundability_status": "MAPPING_REQUIRED",
+            "mapping_status": "mapping_required",
+            "pricing_agreeing_providers": [],
+            "pricing_close": null,
+            "pricing_close_date": null,
+            "pricing_source_agreement_status": null,
+            "pricing_status": null,
+            "pricing_two_provider_consensus": false
+          }
+        ]
+      },
+      {
+        "bucket": "agriculture_food_security",
+        "donor_alternative_etf": "VEGI",
+        "donor_challenger": true,
+        "donor_fundability_status": "funding_candidate_valuation_grade",
+        "donor_is_fundable_candidate": true,
+        "donor_primary_etf": "MOO",
+        "donor_promoted_to_live_radar": false,
+        "donor_relative_strength_score": 0.31,
+        "donor_return_1m_pct": 0.92,
+        "donor_return_3m_pct": -0.62,
+        "donor_total_score": 3.54,
+        "donor_tradability_status": "pass",
+        "lane_name": "Food security / agriculture inputs",
+        "taxonomy_tag": "agri_food_security",
+        "ucits_candidates": [
+          {
+            "exchange": "Euronext Amsterdam",
+            "exchange_ticker": "ISAE",
+            "exposure_id": "agriculture_food_security",
+            "fund_name": "iShares Agribusiness UCITS ETF USD Acc",
+            "fundability_status": "PRICING_CONSENSUS_REQUIRED",
+            "identity_status": "verified",
+            "isin": "IE00B6R52143",
+            "mapping_status": "mapped_verified_line_market_evidence_required",
+            "pricing_agreeing_providers": [
+              "yahoo_chart"
+            ],
+            "pricing_close": 48.26499939,
+            "pricing_close_date": "2026-08-10",
+            "pricing_source_agreement_status": "single_source_only",
+            "pricing_status": "priced_non_authoritative",
+            "pricing_two_provider_consensus": false,
+            "trading_currency": "EUR"
+          }
+        ]
+      },
+      {
+        "bucket": "china",
+        "donor_alternative_etf": "FXI",
+        "donor_challenger": true,
+        "donor_fundability_status": "pricing_missing_for_funding_candidate",
+        "donor_is_fundable_candidate": false,
+        "donor_primary_etf": "MCHI",
+        "donor_promoted_to_live_radar": false,
+        "donor_relative_strength_score": 0.62,
+        "donor_return_1m_pct": 6.35,
+        "donor_return_3m_pct": -2.37,
+        "donor_total_score": 3.39,
+        "donor_tradability_status": "pass",
+        "lane_name": "China hard-asset demand recovery",
+        "taxonomy_tag": "china_materials_recovery",
+        "ucits_candidates": [
+          {
+            "exposure_id": "china",
+            "fundability_status": "MAPPING_REQUIRED",
+            "mapping_status": "mapping_required",
+            "pricing_agreeing_providers": [],
+            "pricing_close": null,
+            "pricing_close_date": null,
+            "pricing_source_agreement_status": null,
+            "pricing_status": null,
+            "pricing_two_provider_consensus": false
+          }
+        ]
+      },
+      {
+        "bucket": "critical_minerals_materials",
+        "donor_alternative_etf": "DBC",
+        "donor_challenger": true,
+        "donor_fundability_status": "held_or_overlap_not_new_funding_candidate",
+        "donor_is_fundable_candidate": false,
+        "donor_primary_etf": "GSG",
+        "donor_promoted_to_live_radar": false,
+        "donor_relative_strength_score": 0.03,
+        "donor_return_1m_pct": 5.25,
+        "donor_return_3m_pct": -5.47,
+        "donor_total_score": 3.39,
+        "donor_tradability_status": "pass",
+        "lane_name": "Broad commodity inflation hedge",
+        "taxonomy_tag": "broad_commodities",
+        "ucits_candidates": [
+          {
+            "exposure_id": "broad_commodities",
+            "fundability_status": "MAPPING_REQUIRED",
+            "mapping_status": "mapping_required"
+          }
+        ]
+      },
+      {
+        "bucket": "critical_minerals_materials",
+        "donor_alternative_etf": "PICK",
+        "donor_challenger": true,
+        "donor_fundability_status": "pricing_missing_for_funding_candidate",
+        "donor_is_fundable_candidate": false,
+        "donor_primary_etf": "REMX",
+        "donor_promoted_to_live_radar": false,
+        "donor_relative_strength_score": -0.75,
+        "donor_return_1m_pct": -3.74,
+        "donor_return_3m_pct": -27.7,
+        "donor_total_score": 3.35,
+        "donor_tradability_status": "pass",
+        "lane_name": "Critical minerals / copper / refining",
+        "taxonomy_tag": "critical_minerals",
+        "ucits_candidates": [
+          {
+            "exposure_id": "critical_minerals_materials",
+            "fundability_status": "MAPPING_REQUIRED",
+            "mapping_status": "mapping_required",
+            "pricing_agreeing_providers": [],
+            "pricing_close": null,
+            "pricing_close_date": null,
+            "pricing_source_agreement_status": null,
+            "pricing_status": null,
+            "pricing_two_provider_consensus": false
+          }
+        ]
+      },
+      {
+        "bucket": "robotics_automation",
+        "donor_alternative_etf": "IRBO",
+        "donor_challenger": true,
+        "donor_fundability_status": "funding_candidate_valuation_grade",
+        "donor_is_fundable_candidate": true,
+        "donor_primary_etf": "ROBO",
+        "donor_promoted_to_live_radar": false,
+        "donor_relative_strength_score": 0.22,
+        "donor_return_1m_pct": 2.24,
+        "donor_return_3m_pct": 0.75,
+        "donor_total_score": 3.14,
+        "donor_tradability_status": "pass",
+        "lane_name": "Industrial automation and factory software",
+        "taxonomy_tag": "factory_automation",
+        "ucits_candidates": [
+          {
+            "exposure_id": "robotics_automation",
+            "fundability_status": "MAPPING_REQUIRED",
+            "mapping_status": "mapping_required",
+            "pricing_agreeing_providers": [],
+            "pricing_close": null,
+            "pricing_close_date": null,
+            "pricing_source_agreement_status": null,
+            "pricing_status": null,
+            "pricing_two_provider_consensus": false
+          }
+        ]
+      },
+      {
+        "bucket": "uranium_nuclear",
+        "donor_alternative_etf": "URA",
+        "donor_challenger": false,
+        "donor_fundability_status": "held_or_overlap_not_new_funding_candidate",
+        "donor_is_fundable_candidate": false,
+        "donor_primary_etf": "URNM",
+        "donor_promoted_to_live_radar": false,
+        "donor_relative_strength_score": -0.56,
+        "donor_return_1m_pct": 4.44,
+        "donor_return_3m_pct": -18.62,
+        "donor_total_score": 3.14,
+        "donor_tradability_status": "pass",
+        "lane_name": "Uranium / nuclear fuel cycle",
+        "taxonomy_tag": "uranium_nuclear",
+        "ucits_candidates": [
+          {
+            "exchange": "unresolved_in_current_evidence",
+            "exchange_ticker": "NUKL",
+            "exposure_id": "uranium_nuclear",
+            "fund_name": "VanEck Uranium and Nuclear Technologies UCITS ETF",
+            "fundability_status": "IDENTITY_OR_KID_INCOMPLETE",
+            "identity_status": "official_identity_and_exact_line_pass_but_current_market_evidence_incomplete",
+            "isin": "IE000M7V94E1",
+            "mapping_status": "mapped_market_evidence_incomplete",
+            "pricing_agreeing_providers": [],
+            "pricing_close": null,
+            "pricing_close_date": null,
+            "pricing_source_agreement_status": null,
+            "pricing_status": null,
+            "pricing_two_provider_consensus": false,
+            "trading_currency": "unresolved_in_current_evidence"
+          }
+        ]
+      },
+      {
+        "bucket": "china",
+        "donor_alternative_etf": "MCHI",
+        "donor_challenger": true,
+        "donor_fundability_status": "pricing_missing_for_funding_candidate",
+        "donor_is_fundable_candidate": false,
+        "donor_primary_etf": "KWEB",
+        "donor_promoted_to_live_radar": false,
+        "donor_relative_strength_score": 0.52,
+        "donor_return_1m_pct": 8.23,
+        "donor_return_3m_pct": -2.91,
+        "donor_total_score": 3.04,
+        "donor_tradability_status": "pass",
+        "lane_name": "China platform / policy reset",
+        "taxonomy_tag": "china_policy_recovery",
+        "ucits_candidates": [
+          {
+            "exposure_id": "china",
+            "fundability_status": "MAPPING_REQUIRED",
+            "mapping_status": "mapping_required",
+            "pricing_agreeing_providers": [],
+            "pricing_close": null,
+            "pricing_close_date": null,
+            "pricing_source_agreement_status": null,
+            "pricing_status": null,
+            "pricing_two_provider_consensus": false
+          }
+        ]
+      },
+      {
+        "bucket": "agriculture_food_security",
+        "donor_alternative_etf": "CORN",
+        "donor_challenger": true,
+        "donor_fundability_status": "pricing_missing_for_funding_candidate",
+        "donor_is_fundable_candidate": false,
+        "donor_primary_etf": "DBA",
+        "donor_promoted_to_live_radar": false,
+        "donor_relative_strength_score": 0.14,
+        "donor_return_1m_pct": -0.32,
+        "donor_return_3m_pct": -0.65,
+        "donor_total_score": 3.04,
+        "donor_tradability_status": "pass",
+        "lane_name": "Agricultural commodities",
+        "taxonomy_tag": "agriculture_commodities",
+        "ucits_candidates": [
+          {
+            "exposure_id": "agriculture_commodities",
+            "fundability_status": "MAPPING_REQUIRED",
+            "mapping_status": "mapping_required"
+          }
+        ]
+      },
+      {
+        "bucket": "uranium_nuclear",
+        "donor_alternative_etf": "NUCL",
+        "donor_challenger": true,
+        "donor_fundability_status": "funding_candidate_valuation_grade",
+        "donor_is_fundable_candidate": true,
+        "donor_primary_etf": "NLR",
+        "donor_promoted_to_live_radar": false,
+        "donor_relative_strength_score": -0.57,
+        "donor_return_1m_pct": 4.2,
+        "donor_return_3m_pct": -18.26,
+        "donor_total_score": 3.03,
+        "donor_tradability_status": "pass",
+        "lane_name": "Nuclear utilities and clean baseload",
+        "taxonomy_tag": "nuclear_utilities",
+        "ucits_candidates": [
+          {
+            "exchange": "unresolved_in_current_evidence",
+            "exchange_ticker": "NUKL",
+            "exposure_id": "uranium_nuclear",
+            "fund_name": "VanEck Uranium and Nuclear Technologies UCITS ETF",
+            "fundability_status": "IDENTITY_OR_KID_INCOMPLETE",
+            "identity_status": "official_identity_and_exact_line_pass_but_current_market_evidence_incomplete",
+            "isin": "IE000M7V94E1",
+            "mapping_status": "mapped_market_evidence_incomplete",
+            "pricing_agreeing_providers": [],
+            "pricing_close": null,
+            "pricing_close_date": null,
+            "pricing_source_agreement_status": null,
+            "pricing_status": null,
+            "pricing_two_provider_consensus": false,
+            "trading_currency": "unresolved_in_current_evidence"
+          }
+        ]
+      },
+      {
+        "bucket": "grid_power_electrification",
+        "donor_alternative_etf": "VPU",
+        "donor_challenger": true,
+        "donor_fundability_status": "held_or_overlap_not_new_funding_candidate",
+        "donor_is_fundable_candidate": false,
+        "donor_primary_etf": "XLU",
+        "donor_promoted_to_live_radar": false,
+        "donor_relative_strength_score": -0.3,
+        "donor_return_1m_pct": -3.37,
+        "donor_return_3m_pct": -2.73,
+        "donor_total_score": 2.92,
+        "donor_tradability_status": "pass",
+        "lane_name": "Power infrastructure and utilities capex",
+        "taxonomy_tag": "power_utilities_capex",
+        "ucits_candidates": [
+          {
+            "exposure_id": "power_utilities_capex",
+            "fundability_status": "MAPPING_REQUIRED",
+            "mapping_status": "mapping_required"
+          }
+        ]
+      },
+      {
+        "bucket": "robotics_automation",
+        "donor_alternative_etf": "ROBO",
+        "donor_challenger": true,
+        "donor_fundability_status": "funding_candidate_valuation_grade",
+        "donor_is_fundable_candidate": true,
+        "donor_primary_etf": "BOTZ",
+        "donor_promoted_to_live_radar": false,
+        "donor_relative_strength_score": -0.25,
+        "donor_return_1m_pct": 2.68,
+        "donor_return_3m_pct": -5.53,
+        "donor_total_score": 2.89,
+        "donor_tradability_status": "pass",
+        "lane_name": "Robotics / automation",
+        "taxonomy_tag": "robotics_automation",
+        "ucits_candidates": [
+          {
+            "exposure_id": "robotics_automation",
+            "fundability_status": "MAPPING_REQUIRED",
+            "mapping_status": "mapping_required",
+            "pricing_agreeing_providers": [],
+            "pricing_close": null,
+            "pricing_close_date": null,
+            "pricing_source_agreement_status": null,
+            "pricing_status": null,
+            "pricing_two_provider_consensus": false
+          }
+        ]
+      },
+      {
+        "bucket": "fintech_financial_infrastructure",
+        "donor_alternative_etf": "ARKF",
+        "donor_challenger": true,
+        "donor_fundability_status": "pricing_missing_for_funding_candidate",
+        "donor_is_fundable_candidate": false,
+        "donor_primary_etf": "FINX",
+        "donor_promoted_to_live_radar": false,
+        "donor_relative_strength_score": 0.45,
+        "donor_return_1m_pct": 1.58,
+        "donor_return_3m_pct": 0.81,
+        "donor_total_score": 2.78,
+        "donor_tradability_status": "watch",
+        "lane_name": "Fintech / payments rails",
+        "taxonomy_tag": "fintech_infrastructure",
+        "ucits_candidates": [
+          {
+            "exposure_id": "fintech_financial_infrastructure",
+            "fundability_status": "MAPPING_REQUIRED",
+            "mapping_status": "mapping_required",
+            "pricing_agreeing_providers": [],
+            "pricing_close": null,
+            "pricing_close_date": null,
+            "pricing_source_agreement_status": null,
+            "pricing_status": null,
+            "pricing_two_provider_consensus": false
+          }
+        ]
+      }
+    ],
+    "authority": {
+      "execution_authority": false,
+      "explicit_allocation_decision_required": true,
+      "mapping_is_funding_authority": false,
+      "new_allocation_requires_two_provider_consensus": true,
+      "portfolio_mutation": false,
+      "pricing_is_funding_authority": false
+    },
+    "donor_discovery_engine_version": "lane_discovery_v5_instrument_eligibility+direct_replacement_rs_v1",
+    "donor_report_date": "2026-08-07",
+    "required_breadth_buckets": [
+      "ai_digital_infrastructure",
+      "defense_resilience",
+      "grid_power_electrification",
+      "uranium_nuclear",
+      "agriculture_food_security",
+      "water",
+      "china",
+      "india_regional_industrialization",
+      "biotech_healthcare_innovation",
+      "fintech_financial_infrastructure",
+      "robotics_automation",
+      "critical_minerals_materials"
+    ],
+    "schema_version": "etf_eu_donor_discovery_bridge_v2"
+  },
+  "donor_parity_contract": {
+    "action_clock_memory": true,
+    "cash_policy_review": true,
+    "current_allocation_decision_ingested": true,
+    "donor_cash_thresholds_are_review_rules_not_allocation_caps": true,
+    "donor_factor_40pct_is_concentration_disclosure_not_position_cap": true,
+    "execution_authority": false,
+    "factor_overlap_review": true,
+    "fresh_cash_reunderwriting": true,
+    "hedge_validity_review": true,
+    "legacy_allocation_target_metadata_current_authority": false,
+    "portfolio_mutation": false,
+    "replacement_duel_memory": true,
+    "shadow_allocation_caps_are_current_authority": false,
+    "version": "v1.2"
+  },
+  "equity_curve": {
+    "activation_rule": "show after at least two meaningful validated NAV observations or a funded position",
+    "fallback_en": "The EU model portfolio has remained fully in cash since inception; no investment return has been generated yet.",
+    "fallback_nl": "De EU-modelportefeuille staat sinds de start volledig in cash; er is nog geen beleggingsrendement opgebouwd.",
+    "latest_nav_matches_state": true,
+    "point_count": 5,
+    "points": [
+      {
+        "date": "2026-05-30",
+        "nav_eur": 100000.0
+      },
+      {
+        "date": "2026-07-16",
+        "nav_eur": 100016.6
+      },
+      {
+        "date": "2026-07-17",
+        "nav_eur": 100016.6
+      },
+      {
+        "date": "2026-07-27",
+        "nav_eur": 99756.76
+      },
+      {
+        "date": "2026-08-10",
+        "nav_eur": 100738.73
+      }
+    ],
+    "show_chart": true
+  },
+  "funded_consistency": {
+    "allocation_map_reconciled": true,
+    "allocation_map_source": "donor_parity_normalized_current_state",
+    "broker_neutral_model_language": true,
+    "funded_tickers": [
+      "L0CK",
+      "DFEN",
+      "VWCE",
+      "EUNA",
+      "SXR8",
+      "IQQQ"
+    ],
+    "historical_target_copy_rendered": false,
+    "normalized_state_authority": true,
+    "opportunity_radar_reconciled": true,
+    "position_count": 6
+  },
+  "generated_at_utc": "2026-08-11T14:42:44Z",
+  "macro": {
+    "age_days": 3,
+    "catalysts": [
+      {
+        "area": "AI infrastructure and semiconductor supply chains",
+        "confidence": 0.72,
+        "direction": "supportive",
+        "horizon": "3-12 months",
+        "signal": "Capital spending and strategic supply-chain policy continue to support semiconductor and infrastructure lanes."
+      },
+      {
+        "area": "Defense and sovereign resilience",
+        "confidence": 0.65,
+        "direction": "supportive but implementation-sensitive",
+        "horizon": "6-18 months",
+        "signal": "Defense-budget durability remains a structural support, but ETF vehicle choice still matters."
+      }
+    ],
+    "confidence_pct": 66.0,
+    "decision_rule": "Do not rotate aggressively unless a regime shift persists across at least two distinct report dates or cross-asset confirmation becomes broad.",
+    "ecb": {
+      "implication": "European equity or bond exposure remains conditional on UCITS identity, exact-line verification, current pricing, re-underwriting and a separate capital decision.",
+      "main_risk": "Renewed inflation pressure or weaker growth can change the relative-strength hurdle for developed-market exposure outside the United States.",
+      "stance": "On hold after June tightening / data-dependent",
+      "stance_nl": "On hold after June tightening / data-dependent"
+    },
+    "fed": {
+      "implication": "Maintain quality and cash discipline; any allocation still requires a verified UCITS instrument, current pricing, re-underwriting and a separate capital decision.",
+      "main_risk": "Real-rate repricing or delayed easing can pressure duration and speculative beta.",
+      "stance": "Restrictive / data-dependent",
+      "stance_nl": "Restrictief / datagedreven"
+    },
+    "fresh_for_report": true,
+    "freshness_authority": "donor_provenance.source_report_date",
+    "freshness_status": "current",
+    "memory_summary": "Risk-on growth has persisted across 1 weekly observation(s); transition state is newly confirmed, breadth is mixed, and cross-asset confirmation is mixed.",
+    "portfolio_implications": [
+      "Retain or deploy cash only through current re-underwriting and a separate allocation decision after UCITS identity and current pricing are verified.",
+      "Broad U.S. core equity through verified UCITS lines remains a mature implementation lane; thematic exposure still requires concentration and overlap review.",
+      "Macro context is descriptive and cannot by itself authorize funding, valuation or portfolio mutation."
+    ],
+    "regime": "Risk-on growth",
+    "regime_nl": "Risk-on groei",
+    "source_generated_at_utc": "2026-08-09T00:45:29.171260Z",
+    "source_report_date": "2026-08-07",
+    "what_changed": [
+      "No material regime change was recorded versus the prior review; the Risk-on growth backdrop remained intact, market breadth is mixed, and cross-asset confirmation is mixed."
+    ]
+  },
+  "next_run_input": {
+    "macro_refresh_required": false,
+    "portfolio_state": "output/etf_eu_portfolio_state.json",
+    "pricing_artifact": "/tmp/etf_eu_pricing_v2_8enxaks6/pricing_v2_layout_compat.json",
+    "priority_candidates": [
+      "L0CK",
+      "DFEN",
+      "VWCE",
+      "EUNA",
+      "SXR8",
+      "IQQQ",
+      "CSPX",
+      "IWDA",
+      "EUNL"
+    ],
+    "required_actions": [
+      "re-underwrite every funded position (L0CK, DFEN, VWCE, EUNA, SXR8, IQQQ) from current evidence rather than historical target metadata",
+      "obtain fresh exact-line completed closes before any add, reduction or new position",
+      "run direct replacement duels for any replaceable or weakening holding",
+      "classify material cash and apply deploy-or-explain only when a fully fundable actionable lane exists"
+    ],
+    "valuation_history": "output/etf_eu_valuation_history.csv"
+  },
+  "opportunity_radar": [
+    {
+      "allocation_authority": false,
+      "candidate_tickers": [
+        "CSPX",
+        "SXR8"
+      ],
+      "funded_count": 1,
+      "funded_tickers": [
+        "SXR8"
+      ],
+      "horizon": "3–12 months",
+      "implementation_score": 3,
+      "lane_id": "core_us_equity",
+      "member_count": 2,
+      "members": [
+        {
+          "blockers": [
+            "alpha_vantage_live_close_reserved_for_funded_or_explicit_allocation_candidates"
+          ],
+          "close_date": "2026-08-10",
+          "close_price": 835.69000244,
+          "currency": "USD",
+          "exchange": "London Stock Exchange",
+          "fund_name": "iShares Core S&P 500 UCITS ETF USD Acc",
+          "instrument_type": "UCITS ETF",
+          "isin": "IE00B5BMR087",
+          "priced": true,
+          "pricing_status": "priced_non_authoritative",
+          "research_reference": null,
+          "source_name": "yahoo_chart completed-close evidence",
+          "source_quality_status": "development_single_source",
+          "ticker": "CSPX",
+          "venue_code": "XLON",
+          "verification_status": null,
+          "verified": false
+        },
+        {
+          "blockers": [],
+          "close_date": "2026-08-10",
+          "close_price": 723.82000366,
+          "currency": "EUR",
+          "exchange": "Xetra",
+          "fund_name": "iShares Core S&P 500 UCITS ETF USD Acc",
+          "instrument_type": "UCITS ETF",
+          "isin": "IE00B5BMR087",
+          "priced": true,
+          "pricing_status": "priced_non_authoritative",
+          "research_reference": null,
+          "source_name": "Development provider consensus",
+          "source_quality_status": "development_consensus",
+          "ticker": "SXR8",
+          "venue_code": "XETR",
+          "verification_status": null,
+          "verified": false
+        }
+      ],
+      "name_en": "Core U.S. equity through UCITS",
+      "name_nl": "Amerikaanse kernaandelen via UCITS",
+      "next_confirmation_en": "Monitor role, contribution, overlap and current re-underwriting; no change without fresh evidence and a separate allocation decision.",
+      "next_confirmation_nl": "Bewaak rol, bijdrage, overlap en actuele re-underwriting; geen wijziging zonder verse evidence en afzonderlijk allocatiebesluit.",
+      "priced_count": 2,
+      "registry_candidates": [],
+      "research_reference": "SPY",
+      "status": "funded_model_position_active",
+      "structural_score": 5,
+      "tickers": [
+        "CSPX",
+        "SXR8"
+      ],
+      "verified_count": 0,
+      "why_en": "Broad U.S. earnings exposure and liquidity make this the most mature implementation lane.",
+      "why_nl": "Brede Amerikaanse winstgroei en liquiditeit maken dit de meest volwassen implementatielijn."
+    },
+    {
+      "allocation_authority": false,
+      "candidate_tickers": [
+        "VWCE",
+        "IWDA"
+      ],
+      "funded_count": 1,
+      "funded_tickers": [
+        "VWCE"
+      ],
+      "horizon": "3–12 months",
+      "implementation_score": 3,
+      "lane_id": "global_equity",
+      "member_count": 2,
+      "members": [
+        {
+          "blockers": [],
+          "close_date": "2026-08-10",
+          "close_price": 168.47999787,
+          "currency": "EUR",
+          "exchange": "Xetra",
+          "fund_name": "Vanguard FTSE All-World UCITS ETF USD Acc",
+          "instrument_type": "UCITS ETF",
+          "isin": "IE00BK5BQT80",
+          "priced": true,
+          "pricing_status": "priced_non_authoritative",
+          "research_reference": null,
+          "source_name": "Development provider consensus",
+          "source_quality_status": "development_consensus",
+          "ticker": "VWCE",
+          "venue_code": "XETR",
+          "verification_status": null,
+          "verified": false
+        },
+        {
+          "blockers": [
+            "alpha_vantage_live_close_reserved_for_funded_or_explicit_allocation_candidates"
+          ],
+          "close_date": "2026-08-10",
+          "close_price": 128.75,
+          "currency": "EUR",
+          "exchange": "Euronext Amsterdam",
+          "fund_name": "iShares Core MSCI World UCITS ETF USD Acc",
+          "instrument_type": "UCITS ETF",
+          "isin": "IE00B4L5Y983",
+          "priced": true,
+          "pricing_status": "priced_non_authoritative",
+          "research_reference": null,
+          "source_name": "yahoo_chart completed-close evidence",
+          "source_quality_status": "development_single_source",
+          "ticker": "IWDA",
+          "venue_code": "XAMS",
+          "verification_status": null,
+          "verified": false
+        }
+      ],
+      "name_en": "Global equity",
+      "name_nl": "Wereldwijde aandelen",
+      "next_confirmation_en": "Monitor role, contribution, overlap and current re-underwriting; no change without fresh evidence and a separate allocation decision.",
+      "next_confirmation_nl": "Bewaak rol, bijdrage, overlap en actuele re-underwriting; geen wijziging zonder verse evidence en afzonderlijk allocatiebesluit.",
+      "priced_count": 2,
+      "registry_candidates": [],
+      "research_reference": "VT",
+      "status": "funded_model_position_active",
+      "structural_score": 4,
+      "tickers": [
+        "IWDA",
+        "EUNL",
+        "VWCE"
+      ],
+      "verified_count": 0,
+      "why_en": "Broad global diversification reduces dependence on one region or factor.",
+      "why_nl": "Brede wereldwijde spreiding verlaagt de afhankelijkheid van één regio of factor."
+    },
+    {
+      "allocation_authority": false,
+      "candidate_tickers": [
+        "EMIM"
+      ],
+      "funded_count": 0,
+      "funded_tickers": [],
+      "horizon": "6–18 months",
+      "implementation_score": 1,
+      "lane_id": "emerging_equity",
+      "member_count": 0,
+      "members": [],
+      "name_en": "Emerging-market equity",
+      "name_nl": "Opkomende markten",
+      "next_confirmation_en": "Complete registry and pricing coverage before comparison is decision-useful.",
+      "next_confirmation_nl": "Voltooi register- en prijsdekking voordat vergelijking zinvol is.",
+      "priced_count": 0,
+      "registry_candidates": [],
+      "research_reference": "EEM",
+      "status": "research_only_not_priced",
+      "structural_score": 3,
+      "tickers": [
+        "EMIM"
+      ],
+      "verified_count": 0,
+      "why_en": "Additional growth and valuation diversification, with higher currency and policy risk.",
+      "why_nl": "Aanvullende groeibronnen en waarderingsspreiding, maar met hogere valuta- en beleidsrisico’s."
+    },
+    {
+      "allocation_authority": false,
+      "candidate_tickers": [
+        "CNDX"
+      ],
+      "funded_count": 0,
+      "funded_tickers": [],
+      "horizon": "3–12 months",
+      "implementation_score": 3,
+      "lane_id": "technology_semiconductors",
+      "member_count": 1,
+      "members": [
+        {
+          "blockers": [
+            "alpha_vantage_live_close_reserved_for_funded_or_explicit_allocation_candidates"
+          ],
+          "close_date": "2026-08-10",
+          "close_price": 1702.59997559,
+          "currency": "USD",
+          "exchange": "London Stock Exchange",
+          "fund_name": "iShares NASDAQ 100 UCITS ETF USD Acc",
+          "instrument_type": "UCITS ETF",
+          "isin": "IE00B53SZB19",
+          "priced": true,
+          "pricing_status": "priced_non_authoritative",
+          "research_reference": null,
+          "source_name": "yahoo_chart completed-close evidence",
+          "source_quality_status": "development_single_source",
+          "ticker": "CNDX",
+          "venue_code": "XLON",
+          "verification_status": null,
+          "verified": false
+        }
+      ],
+      "name_en": "Technology and semiconductors",
+      "name_nl": "Technologie en halfgeleiders",
+      "next_confirmation_en": "Complete identity, KID, trading-line and source-agreement checks.",
+      "next_confirmation_nl": "Rond identiteit, KID, handelslijn en bronovereenkomst af.",
+      "priced_count": 1,
+      "registry_candidates": [],
+      "research_reference": "QQQ / SMH",
+      "status": "watchlist_verification_required",
+      "structural_score": 5,
+      "tickers": [
+        "CNDX",
+        "SXRV",
+        "SMH"
+      ],
+      "verified_count": 0,
+      "why_en": "AI infrastructure and compute remain structural growth drivers, but concentration risk is high.",
+      "why_nl": "AI-infrastructuur en rekenkracht blijven structurele groeidrijvers, maar concentratierisico is hoog."
+    },
+    {
+      "allocation_authority": false,
+      "candidate_tickers": [
+        "EUNA"
+      ],
+      "funded_count": 1,
+      "funded_tickers": [
+        "EUNA"
+      ],
+      "horizon": "3–12 months",
+      "implementation_score": 3,
+      "lane_id": "aggregate_bonds",
+      "member_count": 1,
+      "members": [
+        {
+          "blockers": [],
+          "close_date": "2026-08-10",
+          "close_price": 4.89470003,
+          "currency": "EUR",
+          "exchange": "Xetra",
+          "fund_name": "iShares Core Global Aggregate Bond UCITS ETF EUR Hedged Acc",
+          "instrument_type": "UCITS ETF",
+          "isin": "IE00BDBRDM35",
+          "priced": true,
+          "pricing_status": "priced_non_authoritative",
+          "research_reference": null,
+          "source_name": "Development provider consensus",
+          "source_quality_status": "development_consensus",
+          "ticker": "EUNA",
+          "venue_code": "XETR",
+          "verification_status": null,
+          "verified": false
+        }
+      ],
+      "name_en": "Global aggregate bonds",
+      "name_nl": "Wereldwijde obligaties",
+      "next_confirmation_en": "Monitor role, contribution, overlap and current re-underwriting; no change without fresh evidence and a separate allocation decision.",
+      "next_confirmation_nl": "Bewaak rol, bijdrage, overlap en actuele re-underwriting; geen wijziging zonder verse evidence en afzonderlijk allocatiebesluit.",
+      "priced_count": 1,
+      "registry_candidates": [],
+      "research_reference": "AGG",
+      "status": "funded_model_position_active",
+      "structural_score": 3,
+      "tickers": [
+        "EUNA",
+        "AGGH"
+      ],
+      "verified_count": 0,
+      "why_en": "May later add stability and duration diversification once trading lines and pricing are confirmed.",
+      "why_nl": "Kan later stabiliteit en renterisicospreiding bieden zodra handelslijnen en prijsbasis zijn bevestigd."
+    },
+    {
+      "allocation_authority": false,
+      "candidate_tickers": [
+        "INFR"
+      ],
+      "funded_count": 0,
+      "funded_tickers": [],
+      "horizon": "6–18 months",
+      "implementation_score": 1,
+      "lane_id": "infrastructure",
+      "member_count": 0,
+      "members": [],
+      "name_en": "Infrastructure and electrification",
+      "name_nl": "Infrastructuur en elektrificatie",
+      "next_confirmation_en": "Complete registry and pricing coverage before comparison is decision-useful.",
+      "next_confirmation_nl": "Voltooi register- en prijsdekking voordat vergelijking zinvol is.",
+      "priced_count": 0,
+      "registry_candidates": [],
+      "research_reference": "PAVE / GRID",
+      "status": "research_only_not_priced",
+      "structural_score": 4,
+      "tickers": [
+        "INFR"
+      ],
+      "verified_count": 0,
+      "why_en": "Grid investment, data centres and electrification support the structural case.",
+      "why_nl": "Netuitbreiding, datacenters en elektrificatie ondersteunen de structurele investeringscase."
+    },
+    {
+      "allocation_authority": false,
+      "candidate_tickers": [
+        "SGLN"
+      ],
+      "funded_count": 0,
+      "funded_tickers": [],
+      "horizon": "6–18 months",
+      "implementation_score": 1,
+      "lane_id": "gold_policy",
+      "member_count": 0,
+      "members": [],
+      "name_en": "Gold and hard assets",
+      "name_nl": "Goud en harde activa",
+      "next_confirmation_en": "Decide explicitly whether ETC structures are permitted by product policy.",
+      "next_confirmation_nl": "Beslis expliciet of ETC-structuren binnen het productbeleid zijn toegestaan.",
+      "priced_count": 0,
+      "registry_candidates": [],
+      "research_reference": "GLD",
+      "status": "policy_blocked",
+      "structural_score": 2,
+      "tickers": [
+        "SGLN"
+      ],
+      "verified_count": 0,
+      "why_en": "Diversification potential exists, but the European ETC structure requires an explicit policy decision.",
+      "why_nl": "Diversificatiepotentieel bestaat, maar de Europese ETC-structuur vereist een expliciete beleidsbeslissing."
+    }
+  ],
+  "parity_completeness": {
+    "all_funded_positions_have_current_reunderwriting": false,
+    "allocation_target_metadata_sanitized": true,
+    "cash_classification": "Deployment candidate",
+    "cash_classification_complete": true,
+    "cash_deploy_or_explain_complete": true,
+    "funded_position_count": 6,
+    "historical_target_metadata_preserved_non_authoritatively": true,
+    "unresolved_reunderwriting_count": 4
+  },
+  "portfolio": {
+    "base_currency": "EUR",
+    "cash_eur": 28101.01,
+    "cash_weight_pct": 27.89494169720027,
+    "inception_date": "2026-05-30",
+    "invested_market_value_eur": 72637.72,
+    "last_broker_neutral_allocation_activation": {
+      "activation_id": "ETF-EU-BROKER-NEUTRAL-20260716_205500",
+      "portfolio_mutation": true,
+      "real_broker_execution": false,
+      "review": "output/runtime/etf_eu_broker_neutral_allocation_review_20260716_205500.json",
+      "run_id": "20260716_205500",
+      "validation": "output/quality/etf_eu_broker_neutral_allocation_review_validation_20260716_205500.json"
+    },
+    "last_model_capital_activation": {
+      "activation_id": "ETF-EU-CURRENT-20260810_123000",
+      "applied_at_utc": "2026-08-11T10:09:47Z",
+      "decision": "output/activation/etf_eu_current_allocation_decision_20260810_123000.json",
+      "report_date": "2026-08-10",
+      "run_id": "20260810_123000",
+      "trade_count": 2,
+      "validation": "output/activation/etf_eu_current_allocation_validation_20260810_123000.json"
+    },
+    "last_valuation_refresh": {
+      "capital_mutation": false,
+      "cash_changed": false,
+      "evidence": [
+        {
+          "agreeing_providers": [
+            "alpha_vantage",
+            "yahoo_chart"
+          ],
+          "close_date": "2026-08-10",
+          "close_price": 11.11600009,
+          "isin": "IE00BG0J4C88",
+          "market_value_eur": 10382.34,
+          "ticker": "L0CK"
+        },
+        {
+          "agreeing_providers": [
+            "alpha_vantage",
+            "yahoo_chart"
+          ],
+          "close_date": "2026-08-10",
+          "close_price": 168.47999787,
+          "isin": "IE00BK5BQT80",
+          "market_value_eur": 25440.48,
+          "ticker": "VWCE"
+        },
+        {
+          "agreeing_providers": [
+            "alpha_vantage",
+            "yahoo_chart"
+          ],
+          "close_date": "2026-08-10",
+          "close_price": 4.89470003,
+          "isin": "IE00BDBRDM35",
+          "market_value_eur": 7469.31,
+          "ticker": "EUNA"
+        },
+        {
+          "agreeing_providers": [
+            "alpha_vantage",
+            "yahoo_chart"
+          ],
+          "close_date": "2026-08-10",
+          "close_price": 723.82000366,
+          "isin": "IE00B5BMR087",
+          "market_value_eur": 7238.2,
+          "ticker": "SXR8"
+        }
+      ],
+      "funded_position_count": 4,
+      "pricing_artifact": "output/pricing/ucits_close_price_validation_basket_results_20260810_120500.json",
+      "real_broker_execution": false,
+      "report_date": "2026-08-10",
+      "shares_changed": false,
+      "trade_ledger_write": false
+    },
+    "nav_eur": 100738.73,
+    "portfolio_mode": "dutch_eu_ucits_model_active",
+    "position_count": 6,
+    "positions": [
+      {
+        "action_executed_this_run": "Model buy",
+        "avg_entry_local": 10.954004,
+        "base_currency": "USD",
+        "conviction_tier": "Satellite",
+        "current_allocation_target_authority": "none_without_explicit_current_allocation_decision",
+        "current_price_local": 11.11600009,
+        "current_weight_pct": 10.306205,
+        "distribution_policy": "accumulating",
+        "domicile": "Ireland",
+        "exchange_ticker": "L0CK",
+        "fund_name": "iShares Digital Security UCITS ETF USD (Acc)",
+        "historical_allocation_metadata": {
+          "phase_target_weight_pct": 10.15861,
+          "strategic_target_weight_pct": 10.15861,
+          "target_weight_pct": 10.15861
+        },
+        "historical_allocation_metadata_authority": "non_current_cap01_or_transition_context",
+        "investability_status": "funded_model_position",
+        "isin": "IE00BG0J4C88",
+        "last_action": "Buy",
+        "market_value_eur": 10382.34,
+        "market_value_local": 10382.34,
+        "model_execution_price_basis": "timestamped_exact_line_ask_quote_model_only_no_real_broker_order",
+        "model_portfolio_only": true,
+        "portfolio_contribution_eur": 0.0,
+        "portfolio_contribution_pct_nav": 0.0,
+        "portfolio_role": "Cybersecurity satellite",
+        "previous_market_value_eur": 10382.34,
+        "previous_market_value_local": 10382.34,
+        "previous_price_local": 11.11600009,
+        "previous_weight_pct": 10.306205,
+        "price_date": "2026-08-10",
+        "pricing_completed_close": true,
+        "pricing_source": "Deutsche Boerse exact-line ask quote with two-source completed-close qualification",
+        "pricing_source_quality": "development_exact_line_quote_and_completed_close_consensus",
+        "pricing_status": "qualified_two_provider_completed_close",
+        "priips_kid_status": "available",
+        "primary_exchange": "Xetra",
+        "provider": "iShares / BlackRock",
+        "quote_ask_eur": 10.954,
+        "quote_ask_size": 2636,
+        "quote_bid_eur": 10.914,
+        "quote_bid_size": 2645,
+        "quote_evidence": "output/activation/etf_eu_stage1_quote_evidence_20260804_STAGE1_30947965670_1.json",
+        "quote_spread_pct_mid": 0.36583135,
+        "quote_timestamp_utc": "2026-08-04T19:48:58Z",
+        "real_broker_execution": false,
+        "shares": 934,
+        "shares_delta_this_run": 934,
+        "source_run_id": "20260804_STAGE1_30947965670_1",
+        "ticker": "L0CK",
+        "trading_currency": "EUR",
+        "ucits_status": "confirmed",
+        "unrealized_pnl_eur": 0.0,
+        "unrealized_pnl_pct": 0.0,
+        "valuation_source": "canonical_v2_completed_close_contract",
+        "verification_status": "two_provider_consensus",
+        "weight_inherited_pct": 10.306205
+      },
+      {
+        "action_clock": "Weekly re-underwriting",
+        "action_executed_this_run": "Model buy",
+        "avg_entry_local": 58.32,
+        "base_currency": "USD",
+        "best_alternative": "Donor ITA/PPA remain U.S. research proxies; no equally mature second exact EU line is currently promoted.",
+        "cash_policy_implication": "Deploy material cash into a fully fundable actionable lane.",
+        "contribution_quality": "Adds distinct defense/resilience exposure funded from cash.",
+        "conviction_tier": "High",
+        "current_allocation_decision": "initiate",
+        "current_allocation_target_authority": "none_without_explicit_current_allocation_decision",
+        "current_price_local": 58.31999984,
+        "current_weight_pct": 11.983713,
+        "exchange_ticker": "DFEN",
+        "factor_overlap_flag": "Some cybersecurity/technology overlap with L0CK; defense mandate is broader and separately justified.",
+        "factor_overlap_level": "Moderate",
+        "fresh_cash_implication": "Fund from material cash",
+        "fund_name": "VanEck Defense UCITS ETF",
+        "hedge_validity_status": "Not a hedge; thematic resilience satellite",
+        "historical_allocation_metadata": {
+          "phase_target_weight_pct": null,
+          "strategic_target_weight_pct": null,
+          "target_weight_pct": null
+        },
+        "historical_allocation_metadata_authority": "non_current_cap01_or_transition_context",
+        "implementation_assessment": "Exact Xetra UCITS line, KID/identity verified, two-provider completed-close consensus; VanEck reports a large established UCITS vehicle.",
+        "implementation_score": 4.7,
+        "investability_status": "funded_model_position",
+        "isin": "IE000YYE6WK5",
+        "last_action": "Buy",
+        "market_value_eur": 12072.24,
+        "market_value_local": 12072.24,
+        "model_execution_price_basis": "2026-08-10 completed-close provider consensus; model-only, no broker order",
+        "model_portfolio_only": true,
+        "portfolio_role": "Defense resilience satellite",
+        "previous_market_value_eur": 12072.24,
+        "previous_market_value_local": 12072.24,
+        "previous_price_local": 58.31999984,
+        "previous_weight_pct": 11.983713,
+        "price_date": "2026-08-10",
+        "pricing_status": "qualified_two_provider_completed_close",
+        "priips_kid_status": "available",
+        "primary_exchange": "Xetra",
+        "provider": "VanEck",
+        "real_broker_execution": false,
+        "replaceability": "Medium",
+        "required_next_action": "Review relative strength, factor overlap and implementation quality next weekly run.",
+        "reunderwriting_complete": true,
+        "shares": 207,
+        "shares_delta_this_run": 207,
+        "source_run_id": "20260810_123000",
+        "thesis_assessment": "Strong current donor defense/resilience lane with positive 1m and 3m momentum and challenger status.",
+        "thesis_score": 4.59,
+        "ticker": "DFEN",
+        "trading_currency": "EUR",
+        "ucits_status": "confirmed",
+        "verification_status": "alpha_vantage_yahoo_consensus",
+        "weight_inherited_pct": 11.983713,
+        "would_initiate_at_current_weight": "Yes — initial run-specific weight ~12%",
+        "would_initiate_today": "Yes"
+      },
+      {
+        "action_executed_this_run": "Routine revaluation and hold",
+        "avg_entry_local": 165.32,
+        "base_currency": "USD",
+        "conviction_tier": "Core",
+        "current_allocation_target_authority": "none_without_explicit_current_allocation_decision",
+        "current_price_local": 168.47999787,
+        "current_weight_pct": 25.253922,
+        "exchange_ticker": "VWCE",
+        "fund_name": "Vanguard FTSE All-World UCITS ETF USD Acc",
+        "historical_allocation_metadata": {
+          "phase_target_weight_pct": 25.0,
+          "strategic_target_weight_pct": 50.0,
+          "target_weight_pct": 25.0
+        },
+        "historical_allocation_metadata_authority": "non_current_cap01_or_transition_context",
+        "investability_status": "funded_model_position",
+        "isin": "IE00BK5BQT80",
+        "last_action": "Hold",
+        "last_valuation_report_date": "2026-07-27",
+        "last_valuation_run_id": "20260727_123001",
+        "market_value_eur": 25440.48,
+        "market_value_local": 25440.48,
+        "model_execution_price_basis": "latest_exact_line_completed_close_model_valuation_only",
+        "model_portfolio_only": true,
+        "portfolio_contribution_eur": -157.04,
+        "portfolio_contribution_pct_nav": 0.0,
+        "portfolio_role": "Global core equity",
+        "previous_market_value_eur": 25440.48,
+        "previous_market_value_local": 25440.48,
+        "previous_price_local": 168.47999787,
+        "previous_weight_pct": 25.253922,
+        "price_date": "2026-08-10",
+        "pricing_completed_close": true,
+        "pricing_source": "Yahoo/yfinance completed-close connectivity evidence",
+        "pricing_source_quality": "non_authoritative_connectivity_only",
+        "pricing_status": "qualified_two_provider_completed_close",
+        "priips_kid_status": "available",
+        "primary_exchange": "Xetra",
+        "provider": "Vanguard",
+        "real_broker_execution": false,
+        "review_run_id": "20260727_123001",
+        "shares": 151,
+        "shares_delta_this_run": 0,
+        "source_run_id": "20260716_205500",
+        "ticker": "VWCE",
+        "trading_currency": "EUR",
+        "ucits_status": "confirmed",
+        "unrealized_pnl_eur": -157.04,
+        "unrealized_pnl_pct": -0.629084,
+        "valuation_source": "canonical_v2_completed_close_contract",
+        "verification_status": "two_provider_consensus",
+        "weight_inherited_pct": 25.253922
+      },
+      {
+        "action_executed_this_run": "Routine revaluation and hold",
+        "avg_entry_local": 4.913,
+        "base_currency": "USD",
+        "conviction_tier": "Stabiliser",
+        "current_allocation_target_authority": "none_without_explicit_current_allocation_decision",
+        "current_price_local": 4.89470003,
+        "current_weight_pct": 7.414537,
+        "exchange_ticker": "EUNA",
+        "fund_name": "iShares Core Global Aggregate Bond UCITS ETF EUR Hedged Acc",
+        "historical_allocation_metadata": {
+          "phase_target_weight_pct": 7.5,
+          "strategic_target_weight_pct": 15.0,
+          "target_weight_pct": 7.5
+        },
+        "historical_allocation_metadata_authority": "non_current_cap01_or_transition_context",
+        "investability_status": "funded_model_position",
+        "isin": "IE00BDBRDM35",
+        "last_action": "Hold",
+        "last_valuation_report_date": "2026-07-27",
+        "last_valuation_run_id": "20260727_123001",
+        "market_value_eur": 7469.31,
+        "market_value_local": 7469.31,
+        "model_execution_price_basis": "latest_exact_line_completed_close_model_valuation_only",
+        "model_portfolio_only": true,
+        "portfolio_contribution_eur": -32.2,
+        "portfolio_contribution_pct_nav": 0.0,
+        "portfolio_role": "Stabilising aggregate bonds",
+        "previous_market_value_eur": 7469.31,
+        "previous_market_value_local": 7469.31,
+        "previous_price_local": 4.89470003,
+        "previous_weight_pct": 7.414537,
+        "price_date": "2026-08-10",
+        "pricing_completed_close": true,
+        "pricing_source": "Yahoo/yfinance completed-close connectivity evidence",
+        "pricing_source_quality": "non_authoritative_connectivity_only",
+        "pricing_status": "qualified_two_provider_completed_close",
+        "priips_kid_status": "available",
+        "primary_exchange": "Xetra",
+        "provider": "iShares / BlackRock",
+        "real_broker_execution": false,
+        "review_run_id": "20260727_123001",
+        "shares": 1526,
+        "shares_delta_this_run": 0,
+        "source_run_id": "20260716_205500",
+        "ticker": "EUNA",
+        "trading_currency": "EUR",
+        "ucits_status": "confirmed",
+        "unrealized_pnl_eur": -32.2,
+        "unrealized_pnl_pct": -0.429472,
+        "valuation_source": "canonical_v2_completed_close_contract",
+        "verification_status": "two_provider_consensus",
+        "weight_inherited_pct": 7.414537
+      },
+      {
+        "action_executed_this_run": "Routine revaluation and hold",
+        "avg_entry_local": 710.0,
+        "base_currency": "USD",
+        "benchmark_index": "S&P 500 Index",
+        "conviction_tier": "Core satellite",
+        "current_allocation_target_authority": "none_without_explicit_current_allocation_decision",
+        "current_price_local": 723.82000366,
+        "current_weight_pct": 7.185121,
+        "distribution_policy": "accumulating",
+        "domicile": "Ireland",
+        "exchange_ticker": "SXR8",
+        "fund_name": "iShares Core S&P 500 UCITS ETF USD (Acc)",
+        "historical_allocation_metadata": {
+          "phase_target_weight_pct": 7.5,
+          "strategic_target_weight_pct": 15.0,
+          "target_weight_pct": 7.1
+        },
+        "historical_allocation_metadata_authority": "non_current_cap01_or_transition_context",
+        "investability_status": "funded_model_position",
+        "isin": "IE00B5BMR087",
+        "last_action": "Hold",
+        "last_valuation_report_date": "2026-07-27",
+        "last_valuation_run_id": "20260727_123001",
+        "market_value_eur": 7238.2,
+        "market_value_local": 7238.2,
+        "model_execution_price_basis": "latest_exact_line_completed_close_model_valuation_only",
+        "model_portfolio_only": true,
+        "portfolio_contribution_eur": -70.6,
+        "portfolio_contribution_pct_nav": 0.016597,
+        "portfolio_role": "U.S. equity overweight",
+        "previous_market_value_eur": 7238.2,
+        "previous_market_value_local": 7238.2,
+        "previous_price_local": 723.82000366,
+        "previous_weight_pct": 7.185121,
+        "price_date": "2026-08-10",
+        "pricing_completed_close": true,
+        "pricing_source": "Yahoo/yfinance completed-close connectivity evidence",
+        "pricing_source_quality": "non_authoritative_connectivity_only",
+        "pricing_status": "qualified_two_provider_completed_close",
+        "priips_kid_status": "available",
+        "primary_exchange": "Xetra",
+        "provider": "iShares / BlackRock",
+        "real_broker_execution": false,
+        "relative_strength_status": "insufficient_post_entry_window",
+        "replication_method": "physical_replication",
+        "review_run_id": "20260727_123001",
+        "role_validity": "pass",
+        "second_tranche_authorized": false,
+        "shares": 10,
+        "shares_delta_this_run": 0,
+        "source_run_id": "20260716_012900",
+        "ter_pct": 0.07,
+        "ticker": "SXR8",
+        "trading_currency": "EUR",
+        "ucits_status": "confirmed",
+        "unrealized_pnl_eur": -54.0,
+        "unrealized_pnl_pct": -0.760567,
+        "valuation_source": "canonical_v2_completed_close_contract",
+        "verification_status": "two_provider_consensus",
+        "weight_inherited_pct": 7.185121
+      },
+      {
+        "action_clock": "Weekly re-underwriting",
+        "action_executed_this_run": "Model buy",
+        "avg_entry_local": 67.35,
+        "base_currency": "USD",
+        "best_alternative": "XMLC — lower TER and accumulating; retained as first implementation alternative.",
+        "cash_policy_implication": "Deploy material cash into a fully fundable actionable lane.",
+        "contribution_quality": "Adds a distinct infrastructure/defensive thematic sleeve with low direct overlap to current funded exposures.",
+        "conviction_tier": "High",
+        "current_allocation_decision": "initiate",
+        "current_allocation_target_authority": "none_without_explicit_current_allocation_decision",
+        "current_price_local": 67.34999923,
+        "current_weight_pct": 9.961561,
+        "exchange_ticker": "IQQQ",
+        "factor_overlap_flag": "No material direct overlap identified with current cybersecurity/core/bond sleeves; monitor broad equity beta.",
+        "factor_overlap_level": "Low",
+        "fresh_cash_implication": "Fund from material cash",
+        "fund_name": "iShares Global Water UCITS ETF USD Dist",
+        "hedge_validity_status": "Not a hedge; thematic infrastructure satellite",
+        "historical_allocation_metadata": {
+          "phase_target_weight_pct": null,
+          "strategic_target_weight_pct": null,
+          "target_weight_pct": null
+        },
+        "historical_allocation_metadata_authority": "non_current_cap01_or_transition_context",
+        "implementation_assessment": "Exact Xetra UCITS line with two-provider completed-close consensus; long live history, large fund scale and broad physical implementation.",
+        "implementation_score": 4.8,
+        "investability_status": "funded_model_position",
+        "isin": "IE00B1TXK627",
+        "last_action": "Buy",
+        "market_value_eur": 10035.15,
+        "market_value_local": 10035.15,
+        "model_execution_price_basis": "2026-08-10 completed-close provider consensus; model-only, no broker order",
+        "model_portfolio_only": true,
+        "portfolio_role": "Water infrastructure satellite",
+        "previous_market_value_eur": 10035.15,
+        "previous_market_value_local": 10035.15,
+        "previous_price_local": 67.34999923,
+        "previous_weight_pct": 9.961561,
+        "price_date": "2026-08-10",
+        "pricing_status": "qualified_two_provider_completed_close",
+        "priips_kid_status": "available",
+        "primary_exchange": "Xetra",
+        "provider": "iShares",
+        "real_broker_execution": false,
+        "replaceability": "High",
+        "required_next_action": "Maintain IQQQ vs XMLC implementation duel and re-underwrite water-lane strength weekly.",
+        "reunderwriting_complete": true,
+        "shares": 149,
+        "shares_delta_this_run": 149,
+        "source_run_id": "20260810_123000",
+        "thesis_assessment": "Promoted water infrastructure/treatment lane with positive 1m and 3m momentum and challenger status.",
+        "thesis_score": 4.34,
+        "ticker": "IQQQ",
+        "trading_currency": "EUR",
+        "ucits_status": "confirmed",
+        "verification_status": "alpha_vantage_yahoo_consensus",
+        "weight_inherited_pct": 9.961561,
+        "would_initiate_at_current_weight": "Yes — initial run-specific weight ~10%",
+        "would_initiate_today": "Yes"
+      }
+    ],
+    "since_inception_return_pct": 0.7387299999999986,
+    "starting_capital_eur": 100000.0,
+    "valuation_source": "guarded_model_capital_activation_v1"
+  },
+  "pricing": {
+    "as_of": "2026-08-10",
+    "contract_schema": "ucits_close_price_validation_basket_results_v2",
+    "contract_validation": {
+      "artifact": "output/pricing/ucits_close_price_validation_basket_results_20260810_120500.json",
+      "blockers": [],
+      "expected_report_date": "2026-08-10",
+      "funded_evidence": [
+        {
+          "agreeing_providers": [
+            "alpha_vantage",
+            "yahoo_chart"
+          ],
+          "blockers": [],
+          "close_date": "2026-08-10",
+          "isin": "IE00BG0J4C88",
+          "passed": true,
+          "source_agreement_status": "qualified_development_consensus",
+          "ticker": "L0CK",
+          "valuation_grade": true
+        },
+        {
+          "agreeing_providers": [
+            "alpha_vantage",
+            "yahoo_chart"
+          ],
+          "blockers": [],
+          "close_date": "2026-08-10",
+          "isin": "IE000YYE6WK5",
+          "passed": true,
+          "source_agreement_status": "qualified_development_consensus",
+          "ticker": "DFEN",
+          "valuation_grade": true
+        },
+        {
+          "agreeing_providers": [
+            "alpha_vantage",
+            "yahoo_chart"
+          ],
+          "blockers": [],
+          "close_date": "2026-08-10",
+          "isin": "IE00BK5BQT80",
+          "passed": true,
+          "source_agreement_status": "qualified_development_consensus",
+          "ticker": "VWCE",
+          "valuation_grade": true
+        },
+        {
+          "agreeing_providers": [
+            "alpha_vantage",
+            "yahoo_chart"
+          ],
+          "blockers": [],
+          "close_date": "2026-08-10",
+          "isin": "IE00BDBRDM35",
+          "passed": true,
+          "source_agreement_status": "qualified_development_consensus",
+          "ticker": "EUNA",
+          "valuation_grade": true
+        },
+        {
+          "agreeing_providers": [
+            "alpha_vantage",
+            "yahoo_chart"
+          ],
+          "blockers": [],
+          "close_date": "2026-08-10",
+          "isin": "IE00B5BMR087",
+          "passed": true,
+          "source_agreement_status": "qualified_development_consensus",
+          "ticker": "SXR8",
+          "valuation_grade": true
+        },
+        {
+          "agreeing_providers": [
+            "alpha_vantage",
+            "yahoo_chart"
+          ],
+          "blockers": [],
+          "close_date": "2026-08-10",
+          "isin": "IE00B1TXK627",
+          "passed": true,
+          "source_agreement_status": "qualified_development_consensus",
+          "ticker": "IQQQ",
+          "valuation_grade": true
+        }
+      ],
+      "funded_position_count": 6,
+      "portfolio_state": "output/etf_eu_portfolio_state.json",
+      "pricing_schema": "ucits_close_price_validation_basket_results_v2",
+      "report_date": "2026-08-10",
+      "report_pricing_gate_passed": true,
+      "require_funded_consensus": true,
+      "schema_version": "etf_eu_pricing_contract_validation_v2",
+      "valid": true
+    },
+    "funded_evidence": [
+      {
+        "agreeing_providers": [
+          "alpha_vantage",
+          "yahoo_chart"
+        ],
+        "blockers": [],
+        "close_date": "2026-08-10",
+        "isin": "IE00BG0J4C88",
+        "passed": true,
+        "source_agreement_status": "qualified_development_consensus",
+        "ticker": "L0CK",
+        "valuation_grade": true
+      },
+      {
+        "agreeing_providers": [
+          "alpha_vantage",
+          "yahoo_chart"
+        ],
+        "blockers": [],
+        "close_date": "2026-08-10",
+        "isin": "IE000YYE6WK5",
+        "passed": true,
+        "source_agreement_status": "qualified_development_consensus",
+        "ticker": "DFEN",
+        "valuation_grade": true
+      },
+      {
+        "agreeing_providers": [
+          "alpha_vantage",
+          "yahoo_chart"
+        ],
+        "blockers": [],
+        "close_date": "2026-08-10",
+        "isin": "IE00BK5BQT80",
+        "passed": true,
+        "source_agreement_status": "qualified_development_consensus",
+        "ticker": "VWCE",
+        "valuation_grade": true
+      },
+      {
+        "agreeing_providers": [
+          "alpha_vantage",
+          "yahoo_chart"
+        ],
+        "blockers": [],
+        "close_date": "2026-08-10",
+        "isin": "IE00BDBRDM35",
+        "passed": true,
+        "source_agreement_status": "qualified_development_consensus",
+        "ticker": "EUNA",
+        "valuation_grade": true
+      },
+      {
+        "agreeing_providers": [
+          "alpha_vantage",
+          "yahoo_chart"
+        ],
+        "blockers": [],
+        "close_date": "2026-08-10",
+        "isin": "IE00B5BMR087",
+        "passed": true,
+        "source_agreement_status": "qualified_development_consensus",
+        "ticker": "SXR8",
+        "valuation_grade": true
+      },
+      {
+        "agreeing_providers": [
+          "alpha_vantage",
+          "yahoo_chart"
+        ],
+        "blockers": [],
+        "close_date": "2026-08-10",
+        "isin": "IE00B1TXK627",
+        "passed": true,
+        "source_agreement_status": "qualified_development_consensus",
+        "ticker": "IQQQ",
+        "valuation_grade": true
+      }
+    ],
+    "funded_position_count": 6,
+    "funded_two_provider_consensus_required": true,
+    "line_count": 13,
+    "priced_line_count": 13,
+    "pricing_authority": "canonical_v2_completed_close_contract",
+    "report_date": "2026-08-10",
+    "report_pricing_gate_passed": true,
+    "rows": [
+      {
+        "blockers": [],
+        "close_date": "2026-08-10",
+        "close_price": 18.98399963,
+        "currency": "EUR",
+        "exchange": "Xetra",
+        "fund_name": "L&G Clean Water UCITS ETF USD Acc",
+        "instrument_type": "UCITS ETF",
+        "isin": "IE00BK5BC891",
+        "priced": true,
+        "pricing_status": "priced_non_authoritative",
+        "research_reference": null,
+        "source_name": "Development provider consensus",
+        "source_quality_status": "development_consensus",
+        "ticker": "XMLC",
+        "venue_code": "XETR",
+        "verification_status": null,
+        "verified": false
+      },
+      {
+        "blockers": [],
+        "close_date": "2026-08-10",
+        "close_price": 58.31999984,
+        "currency": "EUR",
+        "exchange": "Xetra",
+        "fund_name": "VanEck Defense UCITS ETF",
+        "instrument_type": "UCITS ETF",
+        "isin": "IE000YYE6WK5",
+        "priced": true,
+        "pricing_status": "priced_non_authoritative",
+        "research_reference": null,
+        "source_name": "Development provider consensus",
+        "source_quality_status": "development_consensus",
+        "ticker": "DFEN",
+        "venue_code": "XETR",
+        "verification_status": null,
+        "verified": false
+      },
+      {
+        "blockers": [
+          "alpha_vantage_live_close_reserved_for_funded_or_explicit_allocation_candidates"
+        ],
+        "close_date": "2026-08-10",
+        "close_price": 93.08999634,
+        "currency": "EUR",
+        "exchange": "Xetra",
+        "fund_name": "VanEck Semiconductor UCITS ETF",
+        "instrument_type": "UCITS ETF",
+        "isin": "IE00BMC38736",
+        "priced": true,
+        "pricing_status": "priced_non_authoritative",
+        "research_reference": null,
+        "source_name": "yahoo_chart completed-close evidence",
+        "source_quality_status": "development_single_source",
+        "ticker": "VVSM",
+        "venue_code": "XETR",
+        "verification_status": null,
+        "verified": false
+      },
+      {
+        "blockers": [],
+        "close_date": "2026-08-10",
+        "close_price": 168.47999787,
+        "currency": "EUR",
+        "exchange": "Xetra",
+        "fund_name": "Vanguard FTSE All-World UCITS ETF USD Acc",
+        "instrument_type": "UCITS ETF",
+        "isin": "IE00BK5BQT80",
+        "priced": true,
+        "pricing_status": "priced_non_authoritative",
+        "research_reference": null,
+        "source_name": "Development provider consensus",
+        "source_quality_status": "development_consensus",
+        "ticker": "VWCE",
+        "venue_code": "XETR",
+        "verification_status": null,
+        "verified": false
+      },
+      {
+        "blockers": [
+          "alpha_vantage_live_close_reserved_for_funded_or_explicit_allocation_candidates"
+        ],
+        "close_date": "2026-08-10",
+        "close_price": 48.26499939,
+        "currency": "EUR",
+        "exchange": "Euronext Amsterdam",
+        "fund_name": "iShares Agribusiness UCITS ETF USD Acc",
+        "instrument_type": "UCITS ETF",
+        "isin": "IE00B6R52143",
+        "priced": true,
+        "pricing_status": "priced_non_authoritative",
+        "research_reference": null,
+        "source_name": "yahoo_chart completed-close evidence",
+        "source_quality_status": "development_single_source",
+        "ticker": "ISAE",
+        "venue_code": "XAMS",
+        "verification_status": null,
+        "verified": false
+      },
+      {
+        "blockers": [],
+        "close_date": "2026-08-10",
+        "close_price": 4.89470003,
+        "currency": "EUR",
+        "exchange": "Xetra",
+        "fund_name": "iShares Core Global Aggregate Bond UCITS ETF EUR Hedged Acc",
+        "instrument_type": "UCITS ETF",
+        "isin": "IE00BDBRDM35",
+        "priced": true,
+        "pricing_status": "priced_non_authoritative",
+        "research_reference": null,
+        "source_name": "Development provider consensus",
+        "source_quality_status": "development_consensus",
+        "ticker": "EUNA",
+        "venue_code": "XETR",
+        "verification_status": null,
+        "verified": false
+      },
+      {
+        "blockers": [
+          "alpha_vantage_live_close_reserved_for_funded_or_explicit_allocation_candidates"
+        ],
+        "close_date": "2026-08-10",
+        "close_price": 128.75,
+        "currency": "EUR",
+        "exchange": "Euronext Amsterdam",
+        "fund_name": "iShares Core MSCI World UCITS ETF USD Acc",
+        "instrument_type": "UCITS ETF",
+        "isin": "IE00B4L5Y983",
+        "priced": true,
+        "pricing_status": "priced_non_authoritative",
+        "research_reference": null,
+        "source_name": "yahoo_chart completed-close evidence",
+        "source_quality_status": "development_single_source",
+        "ticker": "IWDA",
+        "venue_code": "XAMS",
+        "verification_status": null,
+        "verified": false
+      },
+      {
+        "blockers": [
+          "alpha_vantage_live_close_reserved_for_funded_or_explicit_allocation_candidates"
+        ],
+        "close_date": "2026-08-10",
+        "close_price": 835.69000244,
+        "currency": "USD",
+        "exchange": "London Stock Exchange",
+        "fund_name": "iShares Core S&P 500 UCITS ETF USD Acc",
+        "instrument_type": "UCITS ETF",
+        "isin": "IE00B5BMR087",
+        "priced": true,
+        "pricing_status": "priced_non_authoritative",
+        "research_reference": null,
+        "source_name": "yahoo_chart completed-close evidence",
+        "source_quality_status": "development_single_source",
+        "ticker": "CSPX",
+        "venue_code": "XLON",
+        "verification_status": null,
+        "verified": false
+      },
+      {
+        "blockers": [],
+        "close_date": "2026-08-10",
+        "close_price": 723.82000366,
+        "currency": "EUR",
+        "exchange": "Xetra",
+        "fund_name": "iShares Core S&P 500 UCITS ETF USD Acc",
+        "instrument_type": "UCITS ETF",
+        "isin": "IE00B5BMR087",
+        "priced": true,
+        "pricing_status": "priced_non_authoritative",
+        "research_reference": null,
+        "source_name": "Development provider consensus",
+        "source_quality_status": "development_consensus",
+        "ticker": "SXR8",
+        "venue_code": "XETR",
+        "verification_status": null,
+        "verified": false
+      },
+      {
+        "blockers": [],
+        "close_date": "2026-08-10",
+        "close_price": 11.11600009,
+        "currency": "EUR",
+        "exchange": "Xetra",
+        "fund_name": "iShares Digital Security UCITS ETF USD Acc",
+        "instrument_type": "UCITS ETF",
+        "isin": "IE00BG0J4C88",
+        "priced": true,
+        "pricing_status": "priced_non_authoritative",
+        "research_reference": null,
+        "source_name": "Development provider consensus",
+        "source_quality_status": "development_consensus",
+        "ticker": "L0CK",
+        "venue_code": "XETR",
+        "verification_status": null,
+        "verified": false
+      },
+      {
+        "blockers": [],
+        "close_date": "2026-08-10",
+        "close_price": 67.34999923,
+        "currency": "EUR",
+        "exchange": "Xetra",
+        "fund_name": "iShares Global Water UCITS ETF USD Dist",
+        "instrument_type": "UCITS ETF",
+        "isin": "IE00B1TXK627",
+        "priced": true,
+        "pricing_status": "priced_non_authoritative",
+        "research_reference": null,
+        "source_name": "Development provider consensus",
+        "source_quality_status": "development_consensus",
+        "ticker": "IQQQ",
+        "venue_code": "XETR",
+        "verification_status": null,
+        "verified": false
+      },
+      {
+        "blockers": [
+          "http_error:404"
+        ],
+        "close_date": "2026-08-10",
+        "close_price": 7.097,
+        "currency": "EUR",
+        "exchange": "Xetra",
+        "fund_name": "iShares MSCI World Health Care Sector Advanced UCITS ETF USD Dist",
+        "instrument_type": "UCITS ETF",
+        "isin": "IE00BJ5JNZ06",
+        "priced": true,
+        "pricing_status": "priced_non_authoritative",
+        "research_reference": null,
+        "source_name": "alpha_vantage completed-close evidence",
+        "source_quality_status": "development_single_source",
+        "ticker": "CBUF",
+        "venue_code": "XETR",
+        "verification_status": null,
+        "verified": false
+      },
+      {
+        "blockers": [
+          "alpha_vantage_live_close_reserved_for_funded_or_explicit_allocation_candidates"
+        ],
+        "close_date": "2026-08-10",
+        "close_price": 1702.59997559,
+        "currency": "USD",
+        "exchange": "London Stock Exchange",
+        "fund_name": "iShares NASDAQ 100 UCITS ETF USD Acc",
+        "instrument_type": "UCITS ETF",
+        "isin": "IE00B53SZB19",
+        "priced": true,
+        "pricing_status": "priced_non_authoritative",
+        "research_reference": null,
+        "source_name": "yahoo_chart completed-close evidence",
+        "source_quality_status": "development_single_source",
+        "ticker": "CNDX",
+        "venue_code": "XLON",
+        "verification_status": null,
+        "verified": false
+      }
+    ],
+    "unresolved_line_count": 0,
+    "verified_line_count": 0
+  },
+  "pricing_contract": {
+    "artifact": "output/pricing/ucits_close_price_validation_basket_results_20260810_120500.json",
+    "expected_report_date": "2026-08-10",
+    "funded_evidence": [
+      {
+        "agreeing_providers": [
+          "alpha_vantage",
+          "yahoo_chart"
+        ],
+        "blockers": [],
+        "close_date": "2026-08-10",
+        "isin": "IE00BG0J4C88",
+        "passed": true,
+        "source_agreement_status": "qualified_development_consensus",
+        "ticker": "L0CK",
+        "valuation_grade": true
+      },
+      {
+        "agreeing_providers": [
+          "alpha_vantage",
+          "yahoo_chart"
+        ],
+        "blockers": [],
+        "close_date": "2026-08-10",
+        "isin": "IE000YYE6WK5",
+        "passed": true,
+        "source_agreement_status": "qualified_development_consensus",
+        "ticker": "DFEN",
+        "valuation_grade": true
+      },
+      {
+        "agreeing_providers": [
+          "alpha_vantage",
+          "yahoo_chart"
+        ],
+        "blockers": [],
+        "close_date": "2026-08-10",
+        "isin": "IE00BK5BQT80",
+        "passed": true,
+        "source_agreement_status": "qualified_development_consensus",
+        "ticker": "VWCE",
+        "valuation_grade": true
+      },
+      {
+        "agreeing_providers": [
+          "alpha_vantage",
+          "yahoo_chart"
+        ],
+        "blockers": [],
+        "close_date": "2026-08-10",
+        "isin": "IE00BDBRDM35",
+        "passed": true,
+        "source_agreement_status": "qualified_development_consensus",
+        "ticker": "EUNA",
+        "valuation_grade": true
+      },
+      {
+        "agreeing_providers": [
+          "alpha_vantage",
+          "yahoo_chart"
+        ],
+        "blockers": [],
+        "close_date": "2026-08-10",
+        "isin": "IE00B5BMR087",
+        "passed": true,
+        "source_agreement_status": "qualified_development_consensus",
+        "ticker": "SXR8",
+        "valuation_grade": true
+      },
+      {
+        "agreeing_providers": [
+          "alpha_vantage",
+          "yahoo_chart"
+        ],
+        "blockers": [],
+        "close_date": "2026-08-10",
+        "isin": "IE00B1TXK627",
+        "passed": true,
+        "source_agreement_status": "qualified_development_consensus",
+        "ticker": "IQQQ",
+        "valuation_grade": true
+      }
+    ],
+    "funded_position_count": 6,
+    "funded_two_provider_consensus_required": true,
+    "report_date": "2026-08-10",
+    "report_pricing_gate_passed": true,
+    "schema_version": "ucits_close_price_validation_basket_results_v2",
+    "validation": {
+      "artifact": "output/pricing/ucits_close_price_validation_basket_results_20260810_120500.json",
+      "blockers": [],
+      "expected_report_date": "2026-08-10",
+      "funded_evidence": [
+        {
+          "agreeing_providers": [
+            "alpha_vantage",
+            "yahoo_chart"
+          ],
+          "blockers": [],
+          "close_date": "2026-08-10",
+          "isin": "IE00BG0J4C88",
+          "passed": true,
+          "source_agreement_status": "qualified_development_consensus",
+          "ticker": "L0CK",
+          "valuation_grade": true
+        },
+        {
+          "agreeing_providers": [
+            "alpha_vantage",
+            "yahoo_chart"
+          ],
+          "blockers": [],
+          "close_date": "2026-08-10",
+          "isin": "IE000YYE6WK5",
+          "passed": true,
+          "source_agreement_status": "qualified_development_consensus",
+          "ticker": "DFEN",
+          "valuation_grade": true
+        },
+        {
+          "agreeing_providers": [
+            "alpha_vantage",
+            "yahoo_chart"
+          ],
+          "blockers": [],
+          "close_date": "2026-08-10",
+          "isin": "IE00BK5BQT80",
+          "passed": true,
+          "source_agreement_status": "qualified_development_consensus",
+          "ticker": "VWCE",
+          "valuation_grade": true
+        },
+        {
+          "agreeing_providers": [
+            "alpha_vantage",
+            "yahoo_chart"
+          ],
+          "blockers": [],
+          "close_date": "2026-08-10",
+          "isin": "IE00BDBRDM35",
+          "passed": true,
+          "source_agreement_status": "qualified_development_consensus",
+          "ticker": "EUNA",
+          "valuation_grade": true
+        },
+        {
+          "agreeing_providers": [
+            "alpha_vantage",
+            "yahoo_chart"
+          ],
+          "blockers": [],
+          "close_date": "2026-08-10",
+          "isin": "IE00B5BMR087",
+          "passed": true,
+          "source_agreement_status": "qualified_development_consensus",
+          "ticker": "SXR8",
+          "valuation_grade": true
+        },
+        {
+          "agreeing_providers": [
+            "alpha_vantage",
+            "yahoo_chart"
+          ],
+          "blockers": [],
+          "close_date": "2026-08-10",
+          "isin": "IE00B1TXK627",
+          "passed": true,
+          "source_agreement_status": "qualified_development_consensus",
+          "ticker": "IQQQ",
+          "valuation_grade": true
+        }
+      ],
+      "funded_position_count": 6,
+      "portfolio_state": "output/etf_eu_portfolio_state.json",
+      "pricing_schema": "ucits_close_price_validation_basket_results_v2",
+      "report_date": "2026-08-10",
+      "report_pricing_gate_passed": true,
+      "require_funded_consensus": true,
+      "schema_version": "etf_eu_pricing_contract_validation_v2",
+      "valid": true
+    }
+  },
+  "recommendation_memory": [
+    {
+      "action_clock_status": "UNRESOLVED_REUNDERWRITING_REQUIRED",
+      "action_executed_this_run": "Model buy",
+      "best_alternative": null,
+      "cash_policy_flag": "Material cash position; classification and deploy-or-explain test required",
+      "contribution_quality": "Review required",
+      "current_allocation_decision": null,
+      "current_weight_pct": 10.306205,
+      "factor_overlap_flag": "",
+      "factor_overlap_level": "Unresolved",
+      "fresh_cash_implication": "Review required",
+      "fresh_cash_implication_detail": null,
+      "fresh_cash_test": "Current-run re-underwriting evidence required",
+      "hedge_validity_status": "Not a designated hedge sleeve",
+      "implementation_assessment": null,
+      "implementation_score": null,
+      "isin": "IE00BG0J4C88",
+      "maximum_review_window_runs": null,
+      "next_review_trigger": "Complete unresolved re-underwriting",
+      "override_reason": null,
+      "portfolio_contribution_eur": 0.0,
+      "replaceable_status": "Unresolved",
+      "replacement_close_status": "Unresolved",
+      "replacement_duel_status": "Unresolved",
+      "required_next_action": "Complete fresh-cash, thesis/implementation and alternative review before treating Hold as current authority",
+      "reunderwriting_complete": false,
+      "reunderwriting_status": "UNRESOLVED",
+      "shares": 934,
+      "source_authority": "current_protected_portfolio_plus_current_run_evidence",
+      "source_run_id": "20260804_STAGE1_30947965670_1",
+      "thesis_assessment": null,
+      "thesis_score": null,
+      "ticker": "L0CK",
+      "unrealized_pnl_pct": 0.0,
+      "weeks_replaceable": 0,
+      "would_initiate_at_current_weight": "Unresolved",
+      "would_initiate_at_current_weight_detail": null,
+      "would_initiate_today": "Unresolved",
+      "would_initiate_today_detail": null
+    },
+    {
+      "action_clock_status": "MONITOR_CURRENT_DECISION",
+      "action_executed_this_run": "Model buy",
+      "best_alternative": "Donor ITA/PPA remain U.S. research proxies; no equally mature second exact EU line is currently promoted.",
+      "cash_policy_flag": "Material cash position; classification and deploy-or-explain test required",
+      "contribution_quality": "Adds distinct defense/resilience exposure funded from cash.",
+      "current_allocation_decision": "initiate",
+      "current_weight_pct": 11.983713,
+      "factor_overlap_flag": "Some cybersecurity/technology overlap with L0CK; defense mandate is broader and separately justified.",
+      "factor_overlap_level": "Moderate",
+      "fresh_cash_implication": "Add",
+      "fresh_cash_implication_detail": "Fund from material cash",
+      "fresh_cash_test": "Current-run re-underwriting evidence required",
+      "hedge_validity_status": "Not a hedge; thematic resilience satellite",
+      "implementation_assessment": "Exact Xetra UCITS line, KID/identity verified, two-provider completed-close consensus; VanEck reports a large established UCITS vehicle.",
+      "implementation_score": 4.7,
+      "isin": "IE000YYE6WK5",
+      "maximum_review_window_runs": null,
+      "next_review_trigger": "Current decision trigger",
+      "override_reason": null,
+      "portfolio_contribution_eur": null,
+      "replaceable_status": "Unresolved",
+      "replacement_close_status": "Unresolved",
+      "replacement_duel_status": "Unresolved",
+      "required_next_action": "Review relative strength, factor overlap and implementation quality next weekly run.",
+      "reunderwriting_complete": true,
+      "reunderwriting_status": "COMPLETE",
+      "shares": 207,
+      "source_authority": "current_protected_portfolio_plus_current_run_evidence",
+      "source_run_id": "20260810_123000",
+      "thesis_assessment": "Strong current donor defense/resilience lane with positive 1m and 3m momentum and challenger status.",
+      "thesis_score": 4.59,
+      "ticker": "DFEN",
+      "unrealized_pnl_pct": null,
+      "weeks_replaceable": 0,
+      "would_initiate_at_current_weight": "Yes",
+      "would_initiate_at_current_weight_detail": "Yes — initial run-specific weight ~12%",
+      "would_initiate_today": "Yes",
+      "would_initiate_today_detail": "Yes"
+    },
+    {
+      "action_clock_status": "UNRESOLVED_REUNDERWRITING_REQUIRED",
+      "action_executed_this_run": "Routine revaluation and hold",
+      "best_alternative": null,
+      "cash_policy_flag": "Material cash position; classification and deploy-or-explain test required",
+      "contribution_quality": "Review required",
+      "current_allocation_decision": null,
+      "current_weight_pct": 25.253922,
+      "factor_overlap_flag": "Core-equity overlap review",
+      "factor_overlap_level": "Unresolved",
+      "fresh_cash_implication": "Review required",
+      "fresh_cash_implication_detail": null,
+      "fresh_cash_test": "Current-run re-underwriting evidence required",
+      "hedge_validity_status": "Not a designated hedge sleeve",
+      "implementation_assessment": null,
+      "implementation_score": null,
+      "isin": "IE00BK5BQT80",
+      "maximum_review_window_runs": null,
+      "next_review_trigger": "Complete unresolved re-underwriting",
+      "override_reason": null,
+      "portfolio_contribution_eur": -157.04,
+      "replaceable_status": "Unresolved",
+      "replacement_close_status": "Unresolved",
+      "replacement_duel_status": "Unresolved",
+      "required_next_action": "Complete fresh-cash, thesis/implementation and alternative review before treating Hold as current authority",
+      "reunderwriting_complete": false,
+      "reunderwriting_status": "UNRESOLVED",
+      "shares": 151,
+      "source_authority": "current_protected_portfolio_plus_current_run_evidence",
+      "source_run_id": "20260716_205500",
+      "thesis_assessment": null,
+      "thesis_score": null,
+      "ticker": "VWCE",
+      "unrealized_pnl_pct": -0.629084,
+      "weeks_replaceable": 0,
+      "would_initiate_at_current_weight": "Unresolved",
+      "would_initiate_at_current_weight_detail": null,
+      "would_initiate_today": "Unresolved",
+      "would_initiate_today_detail": null
+    },
+    {
+      "action_clock_status": "UNRESOLVED_REUNDERWRITING_REQUIRED",
+      "action_executed_this_run": "Routine revaluation and hold",
+      "best_alternative": null,
+      "cash_policy_flag": "Material cash position; classification and deploy-or-explain test required",
+      "contribution_quality": "Review required",
+      "current_allocation_decision": null,
+      "current_weight_pct": 7.414537,
+      "factor_overlap_flag": "",
+      "factor_overlap_level": "Unresolved",
+      "fresh_cash_implication": "Review required",
+      "fresh_cash_implication_detail": null,
+      "fresh_cash_test": "Current-run re-underwriting evidence required",
+      "hedge_validity_status": "Unresolved — role/ballast review required",
+      "implementation_assessment": null,
+      "implementation_score": null,
+      "isin": "IE00BDBRDM35",
+      "maximum_review_window_runs": null,
+      "next_review_trigger": "Complete unresolved re-underwriting",
+      "override_reason": null,
+      "portfolio_contribution_eur": -32.2,
+      "replaceable_status": "Unresolved",
+      "replacement_close_status": "Unresolved",
+      "replacement_duel_status": "Unresolved",
+      "required_next_action": "Complete fresh-cash, thesis/implementation and alternative review before treating Hold as current authority",
+      "reunderwriting_complete": false,
+      "reunderwriting_status": "UNRESOLVED",
+      "shares": 1526,
+      "source_authority": "current_protected_portfolio_plus_current_run_evidence",
+      "source_run_id": "20260716_205500",
+      "thesis_assessment": null,
+      "thesis_score": null,
+      "ticker": "EUNA",
+      "unrealized_pnl_pct": -0.429472,
+      "weeks_replaceable": 0,
+      "would_initiate_at_current_weight": "Unresolved",
+      "would_initiate_at_current_weight_detail": null,
+      "would_initiate_today": "Unresolved",
+      "would_initiate_today_detail": null
+    },
+    {
+      "action_clock_status": "UNRESOLVED_REUNDERWRITING_REQUIRED",
+      "action_executed_this_run": "Routine revaluation and hold",
+      "best_alternative": null,
+      "cash_policy_flag": "Material cash position; classification and deploy-or-explain test required",
+      "contribution_quality": "Review required",
+      "current_allocation_decision": null,
+      "current_weight_pct": 7.185121,
+      "factor_overlap_flag": "Core-equity overlap review",
+      "factor_overlap_level": "Unresolved",
+      "fresh_cash_implication": "Review required",
+      "fresh_cash_implication_detail": null,
+      "fresh_cash_test": "Current-run re-underwriting evidence required",
+      "hedge_validity_status": "Not a designated hedge sleeve",
+      "implementation_assessment": null,
+      "implementation_score": null,
+      "isin": "IE00B5BMR087",
+      "maximum_review_window_runs": null,
+      "next_review_trigger": "Complete unresolved re-underwriting",
+      "override_reason": null,
+      "portfolio_contribution_eur": -70.6,
+      "replaceable_status": "Unresolved",
+      "replacement_close_status": "Unresolved",
+      "replacement_duel_status": "Unresolved",
+      "required_next_action": "Complete fresh-cash, thesis/implementation and alternative review before treating Hold as current authority",
+      "reunderwriting_complete": false,
+      "reunderwriting_status": "UNRESOLVED",
+      "shares": 10,
+      "source_authority": "current_protected_portfolio_plus_current_run_evidence",
+      "source_run_id": "20260716_012900",
+      "thesis_assessment": null,
+      "thesis_score": null,
+      "ticker": "SXR8",
+      "unrealized_pnl_pct": -0.760567,
+      "weeks_replaceable": 0,
+      "would_initiate_at_current_weight": "Unresolved",
+      "would_initiate_at_current_weight_detail": null,
+      "would_initiate_today": "Unresolved",
+      "would_initiate_today_detail": null
+    },
+    {
+      "action_clock_status": "MONITOR_CURRENT_DECISION",
+      "action_executed_this_run": "Model buy",
+      "best_alternative": "XMLC — lower TER and accumulating; retained as first implementation alternative.",
+      "cash_policy_flag": "Material cash position; classification and deploy-or-explain test required",
+      "contribution_quality": "Adds a distinct infrastructure/defensive thematic sleeve with low direct overlap to current funded exposures.",
+      "current_allocation_decision": "initiate",
+      "current_weight_pct": 9.961561,
+      "factor_overlap_flag": "No material direct overlap identified with current cybersecurity/core/bond sleeves; monitor broad equity beta.",
+      "factor_overlap_level": "Low",
+      "fresh_cash_implication": "Add",
+      "fresh_cash_implication_detail": "Fund from material cash",
+      "fresh_cash_test": "Current-run re-underwriting evidence required",
+      "hedge_validity_status": "Not a hedge; thematic infrastructure satellite",
+      "implementation_assessment": "Exact Xetra UCITS line with two-provider completed-close consensus; long live history, large fund scale and broad physical implementation.",
+      "implementation_score": 4.8,
+      "isin": "IE00B1TXK627",
+      "maximum_review_window_runs": null,
+      "next_review_trigger": "Current decision trigger",
+      "override_reason": null,
+      "portfolio_contribution_eur": null,
+      "replaceable_status": "Unresolved",
+      "replacement_close_status": "Unresolved",
+      "replacement_duel_status": "Unresolved",
+      "required_next_action": "Maintain IQQQ vs XMLC implementation duel and re-underwrite water-lane strength weekly.",
+      "reunderwriting_complete": true,
+      "reunderwriting_status": "COMPLETE",
+      "shares": 149,
+      "source_authority": "current_protected_portfolio_plus_current_run_evidence",
+      "source_run_id": "20260810_123000",
+      "thesis_assessment": "Promoted water infrastructure/treatment lane with positive 1m and 3m momentum and challenger status.",
+      "thesis_score": 4.34,
+      "ticker": "IQQQ",
+      "unrealized_pnl_pct": null,
+      "weeks_replaceable": 0,
+      "would_initiate_at_current_weight": "Yes",
+      "would_initiate_at_current_weight_detail": "Yes — initial run-specific weight ~10%",
+      "would_initiate_today": "Yes",
+      "would_initiate_today_detail": "Yes"
+    }
+  ],
+  "reference_architecture_repo": "market-predictions/weekly-etf",
+  "report_contract": {
+    "analyst_sections": [
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15
+    ],
+    "client_grade_v2": true,
+    "investor_sections": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "target_page_range": [
+      6,
+      12
+    ]
+  },
+  "report_date": "2026-08-10",
+  "report_suffix": "260810",
+  "risks": [
+    {
+      "invalidation_en": "Promote only after source agreement and pricing lineage are sufficiently strong.",
+      "invalidation_nl": "Promoveer pas wanneer bronovereenkomst en prijslineage voldoende sterk zijn.",
+      "risk_en": "Price observations are not yet valuation-grade.",
+      "risk_nl": "Prijsobservaties zijn nog niet waarderingswaardig."
+    },
+    {
+      "invalidation_en": "No funding before identity, KID, trading line and broker availability are confirmed.",
+      "invalidation_nl": "Geen financiering vóór identiteit, KID, handelslijn en brokerbeschikbaarheid zijn bevestigd.",
+      "risk_en": "13 trading lines still require full verification.",
+      "risk_nl": "13 handelslijnen wachten nog op volledige verificatie."
+    },
+    {
+      "invalidation_en": "Keep unresolved lines outside comparison and allocation.",
+      "invalidation_nl": "Laat onopgeloste lijnen buiten vergelijking en allocatie.",
+      "risk_en": "0 line has no usable price in this run.",
+      "risk_nl": "0 lijn heeft geen bruikbare prijs in deze run."
+    },
+    {
+      "invalidation_en": "Cap satellite weight and always compare with broad core exposure.",
+      "invalidation_nl": "Beperk satellietgewicht en vergelijk altijd met brede kernblootstelling.",
+      "risk_en": "Technology candidates may create overly narrow factor exposure.",
+      "risk_nl": "Technologiekandidaten kunnen een te smalle factorblootstelling creëren."
+    },
+    {
+      "invalidation_en": "No inclusion without an explicit product-policy decision.",
+      "invalidation_nl": "Geen opname zonder expliciete productbeleidsbeslissing.",
+      "risk_en": "Gold exposure often uses ETC structures outside the current policy.",
+      "risk_nl": "Goudblootstelling gebruikt vaak ETC-structuren buiten het huidige beleid."
+    }
+  ],
+  "run_id": "20260810_123000",
+  "schema_version": "etf_eu_client_grade_report_state_v2",
+  "second_order_effects": [
+    {
+      "driver_en": "6 funded model positions",
+      "driver_nl": "6 gefinancierde modelposities",
+      "first_en": "The protected model portfolio contains L0CK, DFEN, VWCE, EUNA, SXR8 and IQQQ.",
+      "first_nl": "De beschermde modelportefeuille bevat L0CK, DFEN, VWCE, EUNA, SXR8 en IQQQ.",
+      "implication_en": "A historical purchase or target weight creates no current Hold, Add or Reduce authority.",
+      "implication_nl": "Een historische aankoop of doelweging geeft geen actuele Hold-, Add- of Reduce-authority.",
+      "second_en": "Every position must re-earn capital each run through fresh-cash and implementation re-underwriting.",
+      "second_nl": "Iedere positie moet kapitaal per run opnieuw verdienen via fresh-cash en implementation re-underwriting."
+    },
+    {
+      "driver_en": "VWCE plus direct SXR8 overweight",
+      "driver_nl": "VWCE plus directe SXR8-overweging",
+      "first_en": "Broad global exposure already contains U.S. mega-cap exposure alongside the direct SXR8 position.",
+      "first_nl": "Brede werelddekking bevat al Amerikaanse mega-capblootstelling naast de directe SXR8-positie.",
+      "implication_en": "Measure factor overlap before further deployment; the donor 40% rule is a concentration warning, not a position cap.",
+      "implication_nl": "Meet factoroverlap vóór verdere inzet; de donor-40%-regel is een concentratiewaarschuwing, geen position cap.",
+      "second_en": "Ticker diversification can therefore contain more factor overlap than the position count suggests.",
+      "second_nl": "Tickerdiversificatie kan daardoor meer factoroverlap bevatten dan de positietelling suggereert."
+    },
+    {
+      "driver_en": "EUNA as bond stabiliser",
+      "driver_nl": "EUNA als obligatiestabilisator",
+      "first_en": "The EUR-hedged aggregate-bond position can add duration diversification.",
+      "first_nl": "De EUR-gehedgede aggregate-bondpositie kan renterisicospreiding toevoegen.",
+      "implication_en": "Hedge/ballast validity must be explicitly re-underwritten.",
+      "implication_nl": "Hedge-/ballastvaliditeit moet expliciet worden herbeoordeeld.",
+      "second_en": "Ballast behaviour is empirical and not guaranteed.",
+      "second_nl": "Ballastwerking is empirisch te toetsen en niet gegarandeerd."
+    },
+    {
+      "driver_en": "L0CK cybersecurity satellite",
+      "driver_nl": "L0CK cybersecurity-satelliet",
+      "first_en": "The portfolio has an explicit cybersecurity satellite alongside core exposures.",
+      "first_nl": "De portefeuille heeft een expliciete cybersecurity-satelliet naast kernblootstellingen.",
+      "implication_en": "A valid thesis does not automatically justify the current instrument or weight.",
+      "implication_nl": "Een geldige thesis rechtvaardigt niet automatisch het huidige instrument of gewicht.",
+      "second_en": "Satellite contribution and overlap must be measured separately from the structural cybersecurity thesis.",
+      "second_nl": "Satellietbijdrage en overlap moeten afzonderlijk van de structurele cybersecurity-thesis worden gemeten."
+    }
+  ],
+  "source_of_truth_repo": "market-predictions/weekly-etf-eu",
+  "source_run_id": "20260810_123000",
+  "sources": {
+    "macro_pack": "output/macro/etf_eu_macro_policy_pack_20260810_120500.json",
+    "portfolio_state": "output/etf_eu_portfolio_state.json",
+    "pricing_artifact": "output/pricing/ucits_close_price_validation_basket_results_20260810_120500.json",
+    "ucits_registry": "config/ucits_symbol_registry.yml",
+    "valuation_history": "output/etf_eu_valuation_history.csv"
+  },
+  "state_valid": true,
+  "upstream_pattern_adapted": "normalized runtime report state, macro client surface, deterministic conditional equity curve and component renderer",
+  "valuation_history": [
+    {
+      "cash_eur": 100000.0,
+      "comment": "Initial cash-only EU/UCITS bootstrap state",
+      "date": "2026-05-30",
+      "drawdown_pct": 0.0,
+      "invested_market_value_eur": 0.0,
+      "nav_eur": 100000.0,
+      "since_inception_return_pct": 0.0,
+      "source_report": "bootstrap"
+    },
+    {
+      "cash_eur": 60439.44,
+      "comment": "Three-position funded-aware non-delivery preview",
+      "date": "2026-07-16",
+      "drawdown_pct": 0.0,
+      "invested_market_value_eur": 39577.16,
+      "nav_eur": 100016.6,
+      "since_inception_return_pct": 0.0166,
+      "source_report": "routine-client-grade-v2-20260716_214500"
+    },
+    {
+      "cash_eur": 60439.44,
+      "comment": "Three-position funded-aware non-delivery preview",
+      "date": "2026-07-17",
+      "drawdown_pct": 0.0,
+      "invested_market_value_eur": 39577.16,
+      "nav_eur": 100016.6,
+      "since_inception_return_pct": 0.0166,
+      "source_report": "routine-client-grade-v2-20260717_141500"
+    },
+    {
+      "cash_eur": 60439.44,
+      "comment": "Three-position funded-aware non-delivery preview",
+      "date": "2026-07-27",
+      "drawdown_pct": -0.259797,
+      "invested_market_value_eur": 39317.32,
+      "nav_eur": 99756.76,
+      "since_inception_return_pct": -0.24324,
+      "source_report": "routine-client-grade-v2-20260727_123001"
+    },
+    {
+      "cash_eur": 28101.01,
+      "comment": "Current 2026-08-10 completed-close valuation after explicit model-only DFEN and IQQQ allocation; no broker order",
+      "date": "2026-08-10",
+      "drawdown_pct": 0.0,
+      "invested_market_value_eur": 72637.72,
+      "nav_eur": 100738.73,
+      "since_inception_return_pct": 0.73873,
+      "source_report": "allocation:etf_eu_current_allocation_decision_20260810_123000.json"
+    }
+  ],
+  "verification_funnel": {
+    "cash_eur": 28101.01,
+    "decision": "preserve_protected_funded_state_pending_current_reunderwriting_and_explicit_allocation_decision",
+    "funded_positions": 6,
+    "model_investability_requires_broker_permission": false,
+    "observed_lines": 13,
+    "priced_lines": 13,
+    "real_execution_may_require_broker_permission": true,
+    "unresolved_lines": 0,
+    "verified_lines": 0
+  },
+  "warnings": []
+}

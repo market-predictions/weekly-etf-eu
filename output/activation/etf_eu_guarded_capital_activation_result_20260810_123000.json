@@ -1,0 +1,51 @@
+{
+  "schema_version": "etf_eu_guarded_capital_activation_result_v1",
+  "activation_id": "ETF-EU-CURRENT-20260810_123000",
+  "status": "applied",
+  "portfolio_state_written": true,
+  "trade_ledger_written": true,
+  "model_portfolio_only": true,
+  "real_broker_execution": false,
+  "portfolio_state": "output/etf_eu_portfolio_state.json",
+  "trade_ledger": "output/etf_eu_trade_ledger.csv",
+  "post_activation_portfolio": {
+    "cash_eur": 28101.01,
+    "invested_market_value_eur": 72637.72,
+    "nav_eur": 100738.73,
+    "position_count": 6
+  },
+  "ledger_rows_appended": [
+    {
+      "trade_id": "model-eu-2026-08-10-20260810_123000-01-DFEN-BUY",
+      "trade_date": "2026-08-10",
+      "source_report": "allocation:etf_eu_current_allocation_decision_20260810_123000.json",
+      "isin": "IE000YYE6WK5",
+      "exchange_ticker": "DFEN",
+      "action": "Buy",
+      "shares_delta": "207",
+      "previous_weight_pct": "0.000000",
+      "new_weight_pct": "11.983713",
+      "weight_change_pct": "11.983713",
+      "target_weight_pct": "0.000000",
+      "conviction_tier": "High",
+      "portfolio_role": "Defense resilience satellite",
+      "funding_source_note": "Guarded Weekly ETF EU model activation funded from cash; no real broker order was placed."
+    },
+    {
+      "trade_id": "model-eu-2026-08-10-20260810_123000-02-IQQQ-BUY",
+      "trade_date": "2026-08-10",
+      "source_report": "allocation:etf_eu_current_allocation_decision_20260810_123000.json",
+      "isin": "IE00B1TXK627",
+      "exchange_ticker": "IQQQ",
+      "action": "Buy",
+      "shares_delta": "149",
+      "previous_weight_pct": "0.000000",
+      "new_weight_pct": "9.961561",
+      "weight_change_pct": "9.961561",
+      "target_weight_pct": "0.000000",
+      "conviction_tier": "High",
+      "portfolio_role": "Water infrastructure satellite",
+      "funding_source_note": "Guarded Weekly ETF EU model activation funded from cash; no real broker order was placed."
+    }
+  ]
+}

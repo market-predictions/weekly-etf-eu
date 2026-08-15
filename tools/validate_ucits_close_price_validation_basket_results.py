@@ -2,7 +2,16 @@ from __future__ import annotations
 
 import argparse
 import json
+import sys
 from pathlib import Path
+
+# Support both `python -m tools...` and direct `python tools/...py` execution
+# from the repository root. Direct execution otherwise puts tools/ rather than
+# the repository root on sys.path and makes the sibling pricing package
+# unreachable.
+ROOT = Path(__file__).resolve().parents[1]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
 
 from pricing.ucits_close_price_validation_contract_v2 import validate_artifact
 

@@ -1,0 +1,23 @@
+# RETIRED / DISABLED — historical transition-era validation only
+#
+# Former workflow: Validate ETF EU target allocator shadow
+# Retired: 2026-08-11
+# Authority: control/ETF_EU_ALLOCATION_AUTHORITY_V1.md
+#
+# Reason:
+# This workflow built the historical transition-policy v3 shadow allocator and
+# validated it against the current protected portfolio. That made retired
+# transition assumptions (including the old 35% minimum-cash rule, frozen
+# Stage-1 exposure selection and legacy position set) act as current PR gates.
+# Those assumptions are explicitly non-authoritative for current allocation.
+#
+# Historical builders, validators, policy files and Git history are retained for
+# reproducibility/research. They MUST NOT block, size or mutate the current model
+# portfolio. Current allocation authority is:
+#   explicit current allocation decision
+#   > protected portfolio + ledger
+#   > current completed-close/re-underwriting evidence
+#   > current donor opportunity state mapped to verified UCITS lines
+#   > historical/shadow scenarios.
+#
+# No workflow trigger is intentionally present in this .disabled evidence file.
