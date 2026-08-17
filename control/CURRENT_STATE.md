@@ -24,7 +24,7 @@ PR #98, the fresh 2026-08-10 six-position candidate, received independent exact-
 
 The predecessor 2026-08-10 report was **not delivered**. Its candidate/merge evidence remains historical strategy and model-state provenance only. Delivery authority and delivery receipt were never established for that lineage.
 
-The prior project control files incorrectly remained at the pre-merge `READY_FOR_ASSURANCE` state after PR #98 merged. In addition, branch `agent/etf-eu-fresh-260814-v1` existed at the merged base without a durable production request. Those stale lifecycle defects are being repaired in issue #100.
+The prior project control files incorrectly remained at the pre-merge `READY_FOR_ASSURANCE` state after PR #98 merged. In addition, branch `agent/etf-eu-fresh-260814-v1` existed at the merged base without a durable production request. Those stale lifecycle defects are repaired under issue #100.
 
 ## Predecessor model state entering the fresh cycle
 
@@ -58,6 +58,10 @@ Routine request:
 
 `control/run_queue/etf_eu_routine_report_request_20260814_235900.json`
 
+Control runtime intake:
+
+`control-runtime-state:control/project-intake/WEEKLY_ETF_EU_100_FRESH_260814.json`
+
 The request is explicitly bound to:
 
 - previous routine manifest: `output/run_manifests/etf_eu_routine_run_manifest_2026-08-10_20260810_123000.json`;
@@ -88,7 +92,8 @@ issue_100=OPEN
 workpackage=MATERIALIZED
 routine_request=MATERIALIZED
 branch=ACTIVE
-control_intake=PENDING_MATERIALIZATION
+control_intake=MATERIALIZED
+control_queue=PENDING_MATERIALIZATION
 candidate_run=PENDING
 candidate_pr=PENDING
 independent_assurance=PENDING
@@ -97,12 +102,11 @@ receipt=PENDING
 ```
 
 ## Next lifecycle
-1. Complete claim reconciliation: predecessor `ETF-EU-FRESH-REPORT-260810-V1` becomes `SUPERSEDED`/undelivered and successor `ETF-EU-FRESH-REPORT-260814-V1` becomes active.
-2. Materialize explicit `PROJECT_INTAKE_V1` on Control runtime state for issue #100.
-3. Execute `.github/workflows/run-weekly-etf-eu-routine.yml` against the non-main successor branch and exact request path.
-4. Re-underwrite from current 2026-08-14 completed-close evidence; repair only genuine failures.
-5. Persist and validate the bilingual client-grade candidate.
-6. Open/freeze PR and obtain fresh independent exact-head `governance_release_assurance`.
-7. Merge only unchanged PASSed head, exact-main validate, and enter separate guarded delivery.
-8. Claim successful email delivery only after positive transport plus receipt/attachment evidence.
-9. Close issue/work package/claim and reconcile project + Control state.
+1. Allow the canonical worker reconciliation to materialize task `WEEKLY_ETF_EU_100_FRESH_260814_IMPLEMENTATION` into `control/DISPATCH_QUEUE.json`; the current queue did not yet contain it immediately after intake creation.
+2. The claimed `implementation_operations` worker executes `.github/workflows/run-weekly-etf-eu-routine.yml` against the non-main successor branch and exact request path.
+3. Re-underwrite from current 2026-08-14 completed-close evidence; repair only genuine failures.
+4. Persist and validate the bilingual client-grade candidate.
+5. Open/freeze PR and obtain fresh independent exact-head `governance_release_assurance`.
+6. Merge only unchanged PASSed head, exact-main validate, and enter separate guarded delivery.
+7. Claim successful email delivery only after positive transport plus receipt/attachment evidence.
+8. Close issue/work package/claim and reconcile project + Control state.
