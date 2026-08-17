@@ -35,6 +35,21 @@ def _replace_prefixed_line(text: str, prefix: str, replacement: str) -> str:
     return "\n".join(lines) + suffix
 
 
+def _replace_table_value(text: str, label: str, value: str) -> str:
+    lines = text.splitlines()
+    replaced = False
+    for index, line in enumerate(lines):
+        if replaced or not line.lstrip().startswith("|"):
+            continue
+        cells = [cell.strip() for cell in line.strip().strip("|").split("|")]
+        if len(cells) >= 2 and cells[0] == label:
+            cells[1] = value
+            lines[index] = "| " + " | ".join(cells) + " |"
+            replaced = True
+    suffix = "\n" if text.endswith("\n") else ""
+    return "\n".join(lines) + suffix
+
+
 def _pricing_table_row_count(text: str) -> int:
     marker = "## 3."
     start = text.find(marker)
@@ -168,6 +183,9 @@ def reconcile_funded_markdown(text: str, state: dict[str, Any], *, language: str
         return text
 
     cash = _money(portfolio.get("cash_eur"), language)
+    invested = _money(portfolio.get("invested_market_value_eur"), language)
+    nav = _money(portfolio.get("nav_eur"), language)
+    starting_capital = _money(portfolio.get("starting_capital_eur"), language)
     tickers = [_ticker(row) for row in positions if _ticker(row)]
     additions = _current_additions(state, positions)
     position_names = _join_tickers(tickers, language)
@@ -178,6 +196,14 @@ def reconcile_funded_markdown(text: str, state: dict[str, Any], *, language: str
     research_rows = max(total_pricing_rows - count, 0)
 
     if language == "nl":
+        for label, value in (
+            ("Startkapitaal", starting_capital),
+            ("Cash", cash),
+            ("Belegde marktwaarde", invested),
+            ("Totale portefeuillewaarde", nav),
+            ("Gefinancierde posities", str(count)),
+        ):
+            text = _replace_table_value(text, label, value)
         action = (
             f"- **Actie:** {addition_names} deze run toegevoegd; huidige modelportefeuille: {position_names}. Resterende liquiditeit {cash}."
             if additions
@@ -207,6 +233,14 @@ def reconcile_funded_markdown(text: str, state: dict[str, Any], *, language: str
             "- Herbeoordeel pas daarna of cash gedeeltelijk mag worden ingezet.": "- Herbeoordeel de resterende materiële cash tegen nieuwe volledig fundable lanes; de huidige cash is expliciet verklaard door nog open fundability-blockers.",
         }
     else:
+        for label, value in (
+            ("Starting capital", starting_capital),
+            ("Cash", cash),
+            ("Invested market value", invested),
+            ("Total portfolio value", nav),
+            ("Funded positions", str(count)),
+        ):
+            text = _replace_table_value(text, label, value)
         action = (
             f"- **Action:** added {addition_names} this run; current model portfolio: {position_names}. Remaining liquidity is {cash}."
             if additions
