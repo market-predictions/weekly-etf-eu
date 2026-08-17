@@ -6,6 +6,8 @@ import json
 from pathlib import Path
 from typing import Any
 
+from runtime.revalue_etf_eu_model_portfolio import revalue_from_files
+
 
 FIELDNAMES = [
     "date",
@@ -86,8 +88,17 @@ def update_history(
     source_report: str,
     comment: str,
     output_path: Path,
+    pricing_path: Path | None = None,
 ) -> dict[str, Any]:
-    state = _load_state(state_path)
+    state = (
+        revalue_from_files(
+            portfolio_path=state_path,
+            pricing_path=pricing_path,
+            report_date=report_date,
+        )
+        if pricing_path is not None
+        else _load_state(state_path)
+    )
     rows = _read_rows(history_path)
     existing = [row for row in rows if row.get("date") == report_date]
     new_row = build_row(
@@ -118,6 +129,9 @@ def update_history(
         "latest_nav_eur": float(new_row["nav_eur"]),
         "latest_cash_eur": float(new_row["cash_eur"]),
         "latest_invested_market_value_eur": float(new_row["invested_market_value_eur"]),
+        "pricing_artifact": str(pricing_path) if pricing_path is not None else None,
+        "derived_valuation": pricing_path is not None,
+        "protected_portfolio_mutated": False,
         "equity_curve_meaningful": len(rows) >= 2 and (
             bool(state.get("positions")) or len({round(_f(row.get("nav_eur")), 2) for row in rows}) > 1
         ),
@@ -128,6 +142,7 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="Append or replace a validated Weekly ETF EU valuation-history observation.")
     parser.add_argument("--portfolio-state", default="output/etf_eu_portfolio_state.json")
     parser.add_argument("--history", default="output/etf_eu_valuation_history.csv")
+    parser.add_argument("--pricing-artifact", help="Canonical v2 completed-close artifact used for derived report valuation")
     parser.add_argument("--report-date", required=True)
     parser.add_argument("--source-report", required=True)
     parser.add_argument("--comment", default="Validated routine Weekly ETF EU valuation observation")
@@ -136,6 +151,7 @@ def main() -> None:
     result = update_history(
         state_path=Path(args.portfolio_state),
         history_path=Path(args.history),
+        pricing_path=Path(args.pricing_artifact) if args.pricing_artifact else None,
         report_date=args.report_date,
         source_report=args.source_report,
         comment=args.comment,
