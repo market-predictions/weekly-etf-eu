@@ -1,0 +1,311 @@
+schema_version: ucits_price_provider_registry_v1
+status: development_provider_qualification
+provider_order:
+- leeway
+- eodhd
+- marketstack
+- alpha_vantage
+- yahoo_chart
+authority:
+  development_only: true
+  production_or_redistribution_authority: false
+  portfolio_mutation: false
+  delivery_authority: false
+qualification_rules:
+  max_close_age_days: 7
+  agreement_tolerance_pct: 1.0
+  funded_positions_require_same_date_provider_count: 2
+trading_lines:
+- basket_id: vwce_xetra_eur
+  funded: true
+  fund_name: Vanguard FTSE All-World UCITS ETF USD Acc
+  isin: IE00BK5BQT80
+  instrument_type: UCITS ETF
+  exchange: Xetra
+  venue_code: XETR
+  ticker: VWCE
+  currency: EUR
+  provider_symbols:
+    leeway: VWCE.XETRA
+    eodhd: VWCE.XETRA
+    marketstack: VWCE
+    alpha_vantage: VWCE.DEX
+    yahoo_chart: VWCE.DE
+  provider_exchange_codes:
+    leeway: XETRA
+    eodhd: XETRA
+    marketstack: XETR
+    alpha_vantage: DEX
+    yahoo_chart: GER
+- basket_id: euna_xetra_eur
+  funded: true
+  fund_name: iShares Core Global Aggregate Bond UCITS ETF EUR Hedged Acc
+  isin: IE00BDBRDM35
+  instrument_type: UCITS ETF
+  exchange: Xetra
+  venue_code: XETR
+  ticker: EUNA
+  currency: EUR
+  provider_symbols:
+    leeway: EUNA.XETRA
+    eodhd: EUNA.XETRA
+    marketstack: EUNA
+    alpha_vantage: EUNA.DEX
+    yahoo_chart: EUNA.DE
+  provider_exchange_codes:
+    leeway: XETRA
+    eodhd: XETRA
+    marketstack: XETR
+    alpha_vantage: DEX
+    yahoo_chart: GER
+- basket_id: sxr8_xetra_eur
+  funded: true
+  fund_name: iShares Core S&P 500 UCITS ETF USD Acc
+  isin: IE00B5BMR087
+  instrument_type: UCITS ETF
+  exchange: Xetra
+  venue_code: XETR
+  ticker: SXR8
+  currency: EUR
+  provider_symbols:
+    leeway: SXR8.XETRA
+    eodhd: SXR8.XETRA
+    marketstack: SXR8
+    alpha_vantage: SXR8.DEX
+    yahoo_chart: SXR8.DE
+  provider_exchange_codes:
+    leeway: XETRA
+    eodhd: XETRA
+    marketstack: XETR
+    alpha_vantage: DEX
+    yahoo_chart: GER
+- basket_id: l0ck_xetra_eur
+  funded: true
+  fund_name: iShares Digital Security UCITS ETF USD Acc
+  isin: IE00BG0J4C88
+  instrument_type: UCITS ETF
+  exchange: Xetra
+  venue_code: XETR
+  ticker: L0CK
+  currency: EUR
+  provider_symbols:
+    leeway: L0CK.XETRA
+    eodhd: L0CK.XETRA
+    marketstack: L0CK
+    alpha_vantage: L0CK.DEX
+    yahoo_chart: L0CK.DE
+  provider_exchange_codes:
+    leeway: XETRA
+    eodhd: XETRA
+    marketstack: XETR
+    alpha_vantage: DEX
+    yahoo_chart: GER
+- basket_id: vvsm_xetra_eur
+  funded: false
+  fund_name: VanEck Semiconductor UCITS ETF
+  isin: IE00BMC38736
+  instrument_type: UCITS ETF
+  exchange: Xetra
+  venue_code: XETR
+  ticker: VVSM
+  currency: EUR
+  provider_symbols:
+    leeway: VVSM.XETRA
+    eodhd: VVSM.XETRA
+    marketstack: VVSM
+    alpha_vantage: VVSM.DEX
+    yahoo_chart: VVSM.DE
+  provider_exchange_codes:
+    leeway: XETRA
+    eodhd: XETRA
+    marketstack: XETR
+    alpha_vantage: DEX
+    yahoo_chart: GER
+- basket_id: cbuff_xetra_eur
+  funded: false
+  fund_name: iShares MSCI World Health Care Sector Advanced UCITS ETF USD Dist
+  isin: IE00BJ5JNZ06
+  instrument_type: UCITS ETF
+  exchange: Xetra
+  venue_code: XETR
+  ticker: CBUF
+  currency: EUR
+  provider_symbols:
+    leeway: CBUF.XETRA
+    eodhd: CBUF.XETRA
+    marketstack: CBUF
+    alpha_vantage: CBUF.DEX
+    yahoo_chart: WHCS.DE
+  provider_exchange_codes:
+    leeway: XETRA
+    eodhd: XETRA
+    marketstack: XETR
+    alpha_vantage: DEX
+    yahoo_chart: GER
+- basket_id: isae_xams_eur
+  funded: false
+  fund_name: iShares Agribusiness UCITS ETF USD Acc
+  isin: IE00B6R52143
+  instrument_type: UCITS ETF
+  exchange: Euronext Amsterdam
+  venue_code: XAMS
+  ticker: ISAE
+  currency: EUR
+  provider_symbols:
+    leeway: ISAE.AS
+    eodhd: ISAE.AS
+    marketstack: ISAE
+    alpha_vantage: ISAE.AMS
+    yahoo_chart: ISAE.AS
+  provider_exchange_codes:
+    leeway: AS
+    eodhd: AS
+    marketstack: XAMS
+    alpha_vantage: AMS
+    yahoo_chart: AMS
+- basket_id: xmlc_xetra_eur
+  funded: false
+  fund_name: L&G Clean Water UCITS ETF USD Acc
+  isin: IE00BK5BC891
+  instrument_type: UCITS ETF
+  exchange: Xetra
+  venue_code: XETR
+  ticker: XMLC
+  currency: EUR
+  provider_symbols:
+    leeway: XMLC.XETRA
+    eodhd: XMLC.XETRA
+    marketstack: XMLC
+    alpha_vantage: XMLC.DEX
+    yahoo_chart: XMLC.DE
+  provider_exchange_codes:
+    leeway: XETRA
+    eodhd: XETRA
+    marketstack: XETR
+    alpha_vantage: DEX
+    yahoo_chart: GER
+- basket_id: iqqq_xetra_eur
+  funded: true
+  fund_name: iShares Global Water UCITS ETF USD Dist
+  isin: IE00B1TXK627
+  instrument_type: UCITS ETF
+  exchange: Xetra
+  venue_code: XETR
+  ticker: IQQQ
+  currency: EUR
+  provider_symbols:
+    leeway: IQQQ.XETRA
+    eodhd: IQQQ.XETRA
+    marketstack: IQQQ
+    alpha_vantage: IQQQ.DEX
+    yahoo_chart: IQQQ.DE
+  provider_exchange_codes:
+    leeway: XETRA
+    eodhd: XETRA
+    marketstack: XETR
+    alpha_vantage: DEX
+    yahoo_chart: GER
+- basket_id: dfen_xetra_eur
+  funded: true
+  fund_name: VanEck Defense UCITS ETF
+  isin: IE000YYE6WK5
+  instrument_type: UCITS ETF
+  exchange: Xetra
+  venue_code: XETR
+  ticker: DFEN
+  currency: EUR
+  provider_symbols:
+    leeway: DFEN.XETRA
+    eodhd: DFEN.XETRA
+    marketstack: DFEN
+    alpha_vantage: DFEN.DEX
+    yahoo_chart: DFEN.DE
+  provider_exchange_codes:
+    leeway: XETRA
+    eodhd: XETRA
+    marketstack: XETR
+    alpha_vantage: DEX
+    yahoo_chart: GER
+- basket_id: cspx_lse_usd
+  funded: false
+  fund_name: iShares Core S&P 500 UCITS ETF USD Acc
+  isin: IE00B5BMR087
+  instrument_type: UCITS ETF
+  exchange: London Stock Exchange
+  venue_code: XLON
+  ticker: CSPX
+  currency: USD
+  provider_symbols:
+    leeway: CSPX.LSE
+    eodhd: CSPX.LSE
+    marketstack: CSPX
+    alpha_vantage: CSPX.LON
+    yahoo_chart: CSPX.L
+  provider_exchange_codes:
+    leeway: LSE
+    eodhd: LSE
+    marketstack: XLON
+    alpha_vantage: LON
+    yahoo_chart: LSE
+- basket_id: iwda_xams_eur
+  funded: false
+  fund_name: iShares Core MSCI World UCITS ETF USD Acc
+  isin: IE00B4L5Y983
+  instrument_type: UCITS ETF
+  exchange: Euronext Amsterdam
+  venue_code: XAMS
+  ticker: IWDA
+  currency: EUR
+  provider_symbols:
+    leeway: IWDA.AS
+    eodhd: IWDA.AS
+    marketstack: IWDA
+    alpha_vantage: IWDA.AMS
+    yahoo_chart: IWDA.AS
+  provider_exchange_codes:
+    leeway: AS
+    eodhd: AS
+    marketstack: XAMS
+    alpha_vantage: AMS
+    yahoo_chart: AMS
+- basket_id: cndx_lse_usd
+  funded: false
+  fund_name: iShares NASDAQ 100 UCITS ETF USD Acc
+  isin: IE00B53SZB19
+  instrument_type: UCITS ETF
+  exchange: London Stock Exchange
+  venue_code: XLON
+  ticker: CNDX
+  currency: USD
+  provider_symbols:
+    leeway: CNDX.LSE
+    eodhd: CNDX.LSE
+    marketstack: CNDX
+    alpha_vantage: CNDX.LON
+    yahoo_chart: CNDX.L
+  provider_exchange_codes:
+    leeway: LSE
+    eodhd: LSE
+    marketstack: XLON
+    alpha_vantage: LON
+    yahoo_chart: LSE
+funded_universe_authority:
+  authority: output/etf_eu_portfolio_state.json
+  portfolio_state_path: output/etf_eu_portfolio_state.json
+  portfolio_schema_version: etf_eu_portfolio_state_v2
+  portfolio_mode: dutch_eu_ucits_model_active
+  model_portfolio_only: true
+  real_broker_execution: false
+  funded_position_count: 6
+  funded_basket_ids:
+  - dfen_xetra_eur
+  - euna_xetra_eur
+  - iqqq_xetra_eur
+  - l0ck_xetra_eur
+  - sxr8_xetra_eur
+  - vwce_xetra_eur
+  stale_registry_funded_flags_overridden:
+  - dfen_xetra_eur
+  - iqqq_xetra_eur
+  - l0ck_xetra_eur
+  match_contract: isin+ticker+primary_exchange+trading_currency
