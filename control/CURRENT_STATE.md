@@ -3,14 +3,15 @@
 ## Snapshot
 
 ```text
-date=2026-08-11
+date=2026-08-17
 repository=market-predictions/weekly-etf-eu
-state=FRESH_20260810_CANDIDATE_READY_FOR_ASSURANCE
-parent_issue=97
-branch=agent/etf-eu-fresh-260810-v1
-run_id=20260810_123000
-report_date=2026-08-10
-active_release_integration_claim=ETF-EU-FRESH-REPORT-260810-V1
+state=FRESH_20260814_PRODUCTION_MATERIALIZED
+parent_issue=100
+branch=agent/etf-eu-fresh-260814-v1
+base_main_sha=427fb2e7213d997b571e0c55371086fbddd598ce
+run_id=20260814_235900
+report_date=2026-08-14
+active_release_integration_claim=ETF-EU-FRESH-REPORT-260814-V1
 principal_decision_required=false
 delivery_authorized=false
 real_broker_execution=false
@@ -18,103 +19,94 @@ report_delivery=false
 smtp_send=false
 ```
 
-## Current outcome
-A genuinely fresh Weekly ETF EU candidate has been produced for completed close 2026-08-10. The cycle uses broad donor discovery as research input, EU-local UCITS mapping/fundability, exact trading-line pricing and an explicit model-only allocation decision.
+## Live reconciliation
+PR #98, the fresh 2026-08-10 six-position candidate, received independent exact-head PASS in issue #99 and was merged unchanged on 2026-08-15. Current merged main/base for this successor cycle is `427fb2e7213d997b571e0c55371086fbddd598ce`.
 
-The candidate moved from four to six funded model positions because two distinct opportunities passed the current evidence gates. This was not a position-count target.
+The predecessor 2026-08-10 report was **not delivered**. Its candidate/merge evidence remains historical strategy and model-state provenance only. Delivery authority and delivery receipt were never established for that lineage.
 
-## Current model portfolio candidate
+The prior project control files incorrectly remained at the pre-merge `READY_FOR_ASSURANCE` state after PR #98 merged. In addition, branch `agent/etf-eu-fresh-260814-v1` existed at the merged base without a durable production request. Those stale lifecycle defects are repaired under issue #100.
 
-| Ticker | Shares | Current role |
+## Predecessor model state entering the fresh cycle
+
+| Ticker | Shares | Entering role |
 |---|---:|---|
 | VWCE | 151 | Global core equity |
 | EUNA | 1,526 | Stabilising aggregate bonds |
 | SXR8 | 10 | U.S. equity overweight |
 | L0CK | 934 | Cybersecurity satellite |
-| DFEN | 207 | Defense resilience satellite — added this run |
-| IQQQ | 149 | Water infrastructure satellite — added this run |
+| DFEN | 207 | Defense resilience satellite |
+| IQQQ | 149 | Water infrastructure satellite |
 
 ```text
-cash_eur=28101.01
-invested_market_value_eur=72637.72
-nav_eur=100738.73
-position_count=6
+predecessor_cash_eur=28101.01
+predecessor_invested_market_value_eur=72637.72
+predecessor_nav_eur=100738.73
+predecessor_position_count=6
+predecessor_report_date=2026-08-10
 real_broker_execution=false
 ```
 
-Model activation authority is the explicit current decision:
+These values are the authoritative predecessor model state. They are **not** current 2026-08-14 prices, not an instruction to retain six positions and not a position-count target. The 2026-08-14 cycle must revalue and re-underwrite the whole portfolio using fresh completed-close evidence.
 
-`output/activation/etf_eu_current_allocation_decision_20260810_123000.json`
-
-The decision funded DFEN and IQQQ from cash after EU-local re-underwriting and two-provider completed-close evidence. XMLC remains the water implementation alternative. CBUF, VVSM, ISAE and incompletely mapped lanes remain unfunded because their current evidence does not meet the same gate.
-
-## Fresh discovery and pricing state
-
-- donor breadth research: 12 required buckets / 25 assessed lanes;
-- current pricing date: 2026-08-10;
-- funded exact-line valuation: 6/6 two-provider completed-close consensus;
-- nonfunded pricing remains research/comparison evidence and has no automatic funding authority;
-- remaining cash is classified through deploy-or-explain logic, not a fixed 35% floor.
-
-## Output-contract state
-NL/EN Markdown, HTML and PDF now derive their current decision semantics from one normalized state.
-
-The cycle repaired a P0 stale-output defect where legacy renderer copy could still say no portfolio change / zero verified lines despite the six-position state. The permanent v2 builder now applies a fail-closed client-surface semantics finalizer before HTML is persisted and before PDF rendering.
-
-Final semantic rerender Actions run:
-
-```text
-run=31502986816
-verdict=PASS
-six_position_state=PASS
-normalized_allocation_cash_state=PASS
-strict_nl_en_html_pdf_validation=PASS
-strict_nl_en_markdown_validation=PASS
-fresh_change_and_6_of_6_semantics=PASS
-pdf_review_pages=PASS
-```
-
-## Stable authority retained
-
-- 50% maximum position: retired as current authority;
-- 35% minimum cash: retired as current authority;
-- 15% maximum new ETF: retired as current authority;
-- 75%: pricing-coverage context only, not a position cap;
-- 25% turnover / 18% semiconductor-theme values: research/shadow only unless separately adopted;
-- donor U.S.-portfolio funding labels are not EU funding authority;
-- model investability remains broker-neutral;
-- exact trading line remains distinct even where ISIN is shared across venues/tickers;
-- missing current evidence remains unresolved rather than implicit Hold.
-
-## Operational topology at assurance boundary
-
-- one canonical non-main candidate route: `.github/workflows/run-weekly-etf-eu-routine.yml`;
-- broad donor discovery and quota-aware allocation-candidate pricing are integrated in that route;
-- the issue-#97 push trigger has been removed;
-- the temporary rerender workflow has been removed;
-- one guarded delivery route remains separate: `send-weekly-etf-eu-controlled-transport.yml`;
-- candidate generation has no delivery authority.
-
-## Claim and lifecycle
-
-Active claim:
-
-`ETF-EU-FRESH-REPORT-260810-V1`
+## Fresh 2026-08-14 production contract
 
 Work package:
 
-`control/work_packages/ETF_EU_FRESH_REPORT_260810_V1_20260811.md`
+`control/work_packages/ETF_EU_FRESH_REPORT_260814_V1_20260817.md`
 
-Issue: `#97`.
+Routine request:
+
+`control/run_queue/etf_eu_routine_report_request_20260814_235900.json`
+
+Control runtime intake:
+
+`control-runtime-state:control/project-intake/WEEKLY_ETF_EU_100_FRESH_260814.json`
+
+The request is explicitly bound to:
+
+- previous routine manifest: `output/run_manifests/etf_eu_routine_run_manifest_2026-08-10_20260810_123000.json`;
+- previous confirmed delivery closeout: `output/run_manifests/etf_eu_delivery_closeout_manifest_20260710_1755.json`.
+
+The stale helper pointer that still referenced 2026-07-12 has been repaired on this branch to the actual 2026-08-10 routine manifest.
+
+## Decision framework retained
+
+- full weekly portfolio re-underwrite; no ticker-count target;
+- broad donor discovery is research input only;
+- EU-local UCITS mapping/fundability owns funding eligibility;
+- current exact trading-line pricing is distinct from historical report context;
+- funded exact lines require the existing two-provider completed-close consensus gate;
+- 50% maximum position, 35% minimum cash and 15% maximum new ETF remain retired as current authority;
+- 75% remains pricing-coverage context only, not a position cap;
+- 25% turnover / 18% semiconductor-theme values remain research/shadow unless separately adopted;
+- any model share/cash mutation requires an explicit current allocation-decision artifact;
+- real broker execution remains false.
+
+## Output contract
+The fresh cycle must derive Dutch and English Markdown, HTML and PDF from one normalized current state and pass deterministic semantic, pricing, portfolio, product-boundary and visual/PDF gates. Candidate generation has no delivery authority.
+
+## Operational state
+
+```text
+issue_100=OPEN
+workpackage=MATERIALIZED
+routine_request=MATERIALIZED
+branch=ACTIVE
+control_intake=MATERIALIZED
+control_queue=PENDING_MATERIALIZATION
+candidate_run=PENDING
+candidate_pr=PENDING
+independent_assurance=PENDING
+guarded_delivery=PENDING
+receipt=PENDING
+```
 
 ## Next lifecycle
-
-1. open the fresh candidate PR against `main`;
-2. validate exact PR head and freeze it;
-3. obtain independent `governance_release_assurance` verdict;
-4. merge only on PASS with unchanged head;
-5. run exact-main verification;
-6. build/validate the delivery package against the assured main lineage;
-7. use the sole guarded transport route;
-8. claim successful delivery only after positive receipt/attachment evidence;
-9. close claim/work package and reconcile control state.
+1. Allow the canonical worker reconciliation to materialize task `WEEKLY_ETF_EU_100_FRESH_260814_IMPLEMENTATION` into `control/DISPATCH_QUEUE.json`; the current queue did not yet contain it immediately after intake creation.
+2. The claimed `implementation_operations` worker executes `.github/workflows/run-weekly-etf-eu-routine.yml` against the non-main successor branch and exact request path.
+3. Re-underwrite from current 2026-08-14 completed-close evidence; repair only genuine failures.
+4. Persist and validate the bilingual client-grade candidate.
+5. Open/freeze PR and obtain fresh independent exact-head `governance_release_assurance`.
+6. Merge only unchanged PASSed head, exact-main validate, and enter separate guarded delivery.
+7. Claim successful email delivery only after positive transport plus receipt/attachment evidence.
+8. Close issue/work package/claim and reconcile project + Control state.

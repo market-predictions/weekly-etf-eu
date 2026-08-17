@@ -185,11 +185,12 @@ def reconcile_funded_markdown(text: str, state: dict[str, Any], *, language: str
         )
         reason = f"- **Reden:** de modelportefeuille bevat {count} gefinancierde UCITS-posities ({position_names}); de review gebruikt actuele state, exact-line completed-close prijsbewijs en current re-underwriting."
         structure = f"- **Huidige positiegrondslag:** {position_names}; rollen, bijdrage, overlap en re-underwriting komen uit de actuele genormaliseerde state."
+        quality = f"- **Gefinancierde exact-line waardering:** {funded_grade} van {count} gefinancierde lijnen hebben two-provider completed-close consensus en vormen de actuele waarderingsbasis."
         text = _replace_prefixed_line(text, "- **Actie:**", action)
         text = _replace_prefixed_line(text, "- **Reden:**", reason)
         text = _replace_prefixed_line(text, "- **Huidige positiegrondslag:**", structure)
         text = _replace_prefixed_line(text, "- **Prijsdekking:**", f"- **Prijsdekking:** {total_pricing_rows} van {total_pricing_rows} handelslijnen hebben een marktobservatie op de peildatum.")
-        text = _replace_prefixed_line(text, "- **Volledig geverifieerde lijnen:**", f"- **Gefinancierde exact-line waardering:** {funded_grade} van {count} gefinancierde lijnen hebben two-provider completed-close consensus en vormen de actuele waarderingsbasis.")
+        text = _replace_prefixed_line(text, "- **Volledig geverifieerde lijnen:**", quality)
         text = _replace_prefixed_line(text, "- **Geprijsd maar identiteit of handelslijn nog te verifiëren:**", f"- **Research-/vergelijkingslijnen:** {research_rows} niet-gefinancierde prijsregels blijven research-only; marktprijsbeschikbaarheid creëert geen funding-authority.")
         old_note = "De getoonde prijzen zijn marktobservaties uit de huidige routine-run en vormen geen zelfstandige basis voor waardering of aankoop."
         new_note = f"Voor de {count} gefinancierde lijnen vormt two-provider exact-line completed-close consensus de actuele waarderingsbasis. Overige prijsregels zijn research-/vergelijkingsobservaties en creëren geen funding-authority."
@@ -213,11 +214,12 @@ def reconcile_funded_markdown(text: str, state: dict[str, Any], *, language: str
         )
         reason = f"- **Reason:** the model portfolio contains {count} funded UCITS positions ({position_names}); the review uses current state, exact-line completed-close pricing evidence and current re-underwriting."
         structure = f"- **Current position structure:** {position_names}; roles, contribution, overlap and re-underwriting are derived from the current normalized state."
+        quality = f"- **Funded exact-line valuation:** {funded_grade} of {count} funded lines have two-provider completed-close consensus and form the current valuation basis."
         text = _replace_prefixed_line(text, "- **Action:**", action)
         text = _replace_prefixed_line(text, "- **Reason:**", reason)
         text = _replace_prefixed_line(text, "- **Current position structure:**", structure)
         text = _replace_prefixed_line(text, "- **Pricing coverage:**", f"- **Pricing coverage:** {total_pricing_rows} of {total_pricing_rows} trading lines have a market observation on the pricing date.")
-        text = _replace_prefixed_line(text, "- **Fully verified lines:**", f"- **Funded exact-line valuation:** {funded_grade} of {count} funded lines have two-provider completed-close consensus and form the current valuation basis.")
+        text = _replace_prefixed_line(text, "- **Fully verified lines:**", quality)
         text = _replace_prefixed_line(text, "- **Priced but identity or trading-line verification still pending:**", f"- **Research/comparison lines:** {research_rows} unfunded pricing rows remain research-only; market-price availability creates no funding authority.")
         old_note = "The displayed prices are market observations from the current routine run and do not independently authorize valuation or purchase."
         new_note = f"For the {count} funded lines, two-provider exact-line completed-close consensus forms the current valuation basis. Other pricing rows are research/comparison observations and create no funding authority."
@@ -234,6 +236,18 @@ def reconcile_funded_markdown(text: str, state: dict[str, Any], *, language: str
 
     for old, new in replacements.items():
         text = text.replace(old, new)
+
+    # Sparse historical/test Markdown may not contain the legacy quality line that
+    # _replace_prefixed_line upgrades. Preserve the strict validator by inserting the
+    # canonical funded-quality disclosure when all funded lines are valuation-grade.
+    required_quality = (
+        f"{funded_grade} van {count} gefinancierde lijnen"
+        if language == "nl"
+        else f"{funded_grade} of {count} funded lines"
+    )
+    if funded_grade == count and required_quality.casefold() not in text.casefold():
+        separator = "" if not text or text.endswith("\n") else "\n"
+        text = text + separator + quality + "\n"
 
     blockers = validate_funded_markdown(text, state, language=language)
     if blockers:

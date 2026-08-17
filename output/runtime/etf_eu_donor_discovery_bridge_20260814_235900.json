@@ -1,0 +1,871 @@
+{
+  "assessed_buckets": [
+    "agriculture_food_security",
+    "ai_digital_infrastructure",
+    "biotech_healthcare_innovation",
+    "china",
+    "critical_minerals_materials",
+    "defense_resilience",
+    "fintech_financial_infrastructure",
+    "grid_power_electrification",
+    "india_regional_industrialization",
+    "robotics_automation",
+    "uranium_nuclear",
+    "water"
+  ],
+  "assessed_lane_count": 25,
+  "assessed_lanes": [
+    {
+      "bucket": "ai_digital_infrastructure",
+      "donor_alternative_etf": "BUG",
+      "donor_challenger": false,
+      "donor_fundability_status": "held_or_overlap_not_new_funding_candidate",
+      "donor_is_fundable_candidate": false,
+      "donor_primary_etf": "CIBR",
+      "donor_promoted_to_live_radar": true,
+      "donor_relative_strength_score": 1.25,
+      "donor_return_1m_pct": 3.81,
+      "donor_return_3m_pct": 33.9,
+      "donor_total_score": 4.97,
+      "donor_tradability_status": "pass",
+      "lane_name": "Cybersecurity resilience",
+      "taxonomy_tag": "cyber_security",
+      "ucits_candidates": [
+        {
+          "exchange": "Xetra",
+          "exchange_ticker": "L0CK",
+          "exposure_id": "cyber_security",
+          "fund_name": "iShares Digital Security UCITS ETF USD Acc",
+          "fundability_status": "FUNDED_MODEL_POSITION",
+          "identity_status": "verified",
+          "isin": "IE00BG0J4C88",
+          "mapping_status": "mapped_verified_line",
+          "pricing_agreeing_providers": [
+            "alpha_vantage",
+            "yahoo_chart"
+          ],
+          "pricing_close": 11.22799984,
+          "pricing_close_date": "2026-08-14",
+          "pricing_source_agreement_status": "qualified_development_consensus",
+          "pricing_status": "priced_non_authoritative",
+          "pricing_two_provider_consensus": true,
+          "trading_currency": "EUR"
+        }
+      ]
+    },
+    {
+      "bucket": "defense_resilience",
+      "donor_alternative_etf": "ITA",
+      "donor_challenger": true,
+      "donor_fundability_status": "funding_candidate_valuation_grade",
+      "donor_is_fundable_candidate": true,
+      "donor_primary_etf": "PPA",
+      "donor_promoted_to_live_radar": true,
+      "donor_relative_strength_score": 1.03,
+      "donor_return_1m_pct": 5.07,
+      "donor_return_3m_pct": 10.35,
+      "donor_total_score": 4.59,
+      "donor_tradability_status": "pass",
+      "lane_name": "Defense innovation / sovereign resilience",
+      "taxonomy_tag": "defense_resilience",
+      "ucits_candidates": [
+        {
+          "exchange": "Xetra",
+          "exchange_ticker": "DFEN",
+          "exposure_id": "defense_resilience",
+          "fund_name": "VanEck Defense UCITS ETF",
+          "fundability_status": "FUNDED_MODEL_POSITION",
+          "identity_status": "verified",
+          "isin": "IE000YYE6WK5",
+          "mapping_status": "mapped_verified_line_watch_only_until_current_decision",
+          "pricing_agreeing_providers": [
+            "alpha_vantage",
+            "yahoo_chart"
+          ],
+          "pricing_close": 58.74000084,
+          "pricing_close_date": "2026-08-14",
+          "pricing_source_agreement_status": "qualified_development_consensus",
+          "pricing_status": "priced_non_authoritative",
+          "pricing_two_provider_consensus": true,
+          "trading_currency": "EUR"
+        }
+      ]
+    },
+    {
+      "bucket": "grid_power_electrification",
+      "donor_alternative_etf": "GRID",
+      "donor_challenger": false,
+      "donor_fundability_status": "held_or_overlap_not_new_funding_candidate",
+      "donor_is_fundable_candidate": false,
+      "donor_primary_etf": "PAVE",
+      "donor_promoted_to_live_radar": true,
+      "donor_relative_strength_score": 0.47,
+      "donor_return_1m_pct": 4.02,
+      "donor_return_3m_pct": 3.49,
+      "donor_total_score": 4.44,
+      "donor_tradability_status": "pass",
+      "lane_name": "Grid buildout / electrification",
+      "taxonomy_tag": "grid_power",
+      "ucits_candidates": [
+        {
+          "exchange": "unresolved",
+          "exchange_ticker": "unresolved",
+          "exposure_id": "grid_power_electrification",
+          "fund_name": "First Trust Nasdaq Clean Edge Smart Grid Infrastructure UCITS ETF",
+          "fundability_status": "MAPPING_REQUIRED",
+          "identity_status": "exact_official_isin_and_european_line_required",
+          "isin": "unresolved",
+          "mapping_status": "mapping_incomplete",
+          "pricing_agreeing_providers": [],
+          "pricing_close": null,
+          "pricing_close_date": null,
+          "pricing_source_agreement_status": null,
+          "pricing_status": null,
+          "pricing_two_provider_consensus": false,
+          "trading_currency": "unresolved"
+        }
+      ]
+    },
+    {
+      "bucket": "biotech_healthcare_innovation",
+      "donor_alternative_etf": "VHT",
+      "donor_challenger": true,
+      "donor_fundability_status": "held_or_overlap_not_new_funding_candidate",
+      "donor_is_fundable_candidate": false,
+      "donor_primary_etf": "XLV",
+      "donor_promoted_to_live_radar": true,
+      "donor_relative_strength_score": 1.25,
+      "donor_return_1m_pct": 2.16,
+      "donor_return_3m_pct": 14.99,
+      "donor_total_score": 4.42,
+      "donor_tradability_status": "pass",
+      "lane_name": "Healthcare quality and defensive growth",
+      "taxonomy_tag": "healthcare_quality",
+      "ucits_candidates": [
+        {
+          "exchange": "Xetra",
+          "exchange_ticker": "CBUF",
+          "exposure_id": "healthcare_quality",
+          "fund_name": "iShares MSCI World Health Care Sector Advanced UCITS ETF USD Dist",
+          "fundability_status": "PRICING_CONSENSUS_REQUIRED",
+          "identity_status": "verified",
+          "isin": "IE00BJ5JNZ06",
+          "mapping_status": "mapped_verified_line_market_evidence_required",
+          "pricing_agreeing_providers": [
+            "alpha_vantage"
+          ],
+          "pricing_close": 6.997,
+          "pricing_close_date": "2026-08-14",
+          "pricing_source_agreement_status": "single_source_only",
+          "pricing_status": "priced_non_authoritative",
+          "pricing_two_provider_consensus": false,
+          "trading_currency": "EUR"
+        }
+      ]
+    },
+    {
+      "bucket": "water",
+      "donor_alternative_etf": "PHO",
+      "donor_challenger": true,
+      "donor_fundability_status": "funding_candidate_valuation_grade",
+      "donor_is_fundable_candidate": true,
+      "donor_primary_etf": "FIW",
+      "donor_promoted_to_live_radar": true,
+      "donor_relative_strength_score": 1.16,
+      "donor_return_1m_pct": 6.03,
+      "donor_return_3m_pct": 6.74,
+      "donor_total_score": 4.34,
+      "donor_tradability_status": "pass",
+      "lane_name": "Water infrastructure / treatment",
+      "taxonomy_tag": "water_infrastructure",
+      "ucits_candidates": [
+        {
+          "exchange": "Xetra",
+          "exchange_ticker": "XMLC",
+          "exposure_id": "water_infrastructure",
+          "fund_name": "L&G Clean Water UCITS ETF USD Acc",
+          "fundability_status": "FUNDABLE_REQUIRES_ALLOCATION_DECISION",
+          "identity_status": "verified",
+          "isin": "IE00BK5BC891",
+          "mapping_status": "mapped_verified_lines_market_evidence_required",
+          "pricing_agreeing_providers": [
+            "alpha_vantage",
+            "yahoo_chart"
+          ],
+          "pricing_close": 18.88599984,
+          "pricing_close_date": "2026-08-14",
+          "pricing_source_agreement_status": "qualified_development_consensus",
+          "pricing_status": "priced_non_authoritative",
+          "pricing_two_provider_consensus": true,
+          "trading_currency": "EUR"
+        },
+        {
+          "exchange": "Xetra",
+          "exchange_ticker": "IQQQ",
+          "exposure_id": "water_infrastructure",
+          "fund_name": "iShares Global Water UCITS ETF USD Dist",
+          "fundability_status": "FUNDED_MODEL_POSITION",
+          "identity_status": "verified",
+          "isin": "IE00B1TXK627",
+          "mapping_status": "mapped_verified_lines_market_evidence_required",
+          "pricing_agreeing_providers": [
+            "alpha_vantage",
+            "yahoo_chart"
+          ],
+          "pricing_close": 66.3899997,
+          "pricing_close_date": "2026-08-14",
+          "pricing_source_agreement_status": "qualified_development_consensus",
+          "pricing_status": "priced_non_authoritative",
+          "pricing_two_provider_consensus": true,
+          "trading_currency": "EUR"
+        }
+      ]
+    },
+    {
+      "bucket": "india_regional_industrialization",
+      "donor_alternative_etf": "EFA",
+      "donor_challenger": true,
+      "donor_fundability_status": "held_or_overlap_not_new_funding_candidate",
+      "donor_is_fundable_candidate": false,
+      "donor_primary_etf": "IEFA",
+      "donor_promoted_to_live_radar": true,
+      "donor_relative_strength_score": 1.06,
+      "donor_return_1m_pct": 4.5,
+      "donor_return_3m_pct": 6.7,
+      "donor_total_score": 4.3,
+      "donor_tradability_status": "pass",
+      "lane_name": "Non-U.S. developed market diversification",
+      "taxonomy_tag": "non_us_developed_equities",
+      "ucits_candidates": [
+        {
+          "exchange": "unresolved_in_current_evidence",
+          "exchange_ticker": "IXUA",
+          "exposure_id": "developed_ex_us_equities",
+          "fund_name": "iShares MSCI World ex-USA UCITS ETF",
+          "fundability_status": "IDENTITY_OR_KID_INCOMPLETE",
+          "identity_status": "official_identity_and_exact_line_pass_but_current_market_evidence_incomplete",
+          "isin": "IE000R4ZNTN3",
+          "mapping_status": "mapped_market_evidence_incomplete",
+          "pricing_agreeing_providers": [],
+          "pricing_close": null,
+          "pricing_close_date": null,
+          "pricing_source_agreement_status": null,
+          "pricing_status": null,
+          "pricing_two_provider_consensus": false,
+          "trading_currency": "unresolved_in_current_evidence"
+        }
+      ]
+    },
+    {
+      "bucket": "ai_digital_infrastructure",
+      "donor_alternative_etf": "SOXX",
+      "donor_challenger": false,
+      "donor_fundability_status": "held_or_overlap_not_new_funding_candidate",
+      "donor_is_fundable_candidate": false,
+      "donor_primary_etf": "SMH",
+      "donor_promoted_to_live_radar": false,
+      "donor_relative_strength_score": -0.29,
+      "donor_return_1m_pct": -4.12,
+      "donor_return_3m_pct": 7.89,
+      "donor_total_score": 4.27,
+      "donor_tradability_status": "pass",
+      "lane_name": "AI compute infrastructure",
+      "taxonomy_tag": "ai_compute_infrastructure",
+      "ucits_candidates": [
+        {
+          "exchange": "Xetra",
+          "exchange_ticker": "VVSM",
+          "exposure_id": "ai_compute_infrastructure",
+          "fund_name": "VanEck Semiconductor UCITS ETF",
+          "fundability_status": "FUNDABLE_REQUIRES_ALLOCATION_DECISION",
+          "identity_status": "verified",
+          "isin": "IE00BMC38736",
+          "mapping_status": "mapped_verified_line",
+          "pricing_agreeing_providers": [
+            "alpha_vantage",
+            "yahoo_chart"
+          ],
+          "pricing_close": 94.66999909,
+          "pricing_close_date": "2026-08-14",
+          "pricing_source_agreement_status": "qualified_development_consensus",
+          "pricing_status": "priced_non_authoritative",
+          "pricing_two_provider_consensus": true,
+          "trading_currency": "EUR"
+        }
+      ]
+    },
+    {
+      "bucket": "water",
+      "donor_alternative_etf": "CGW",
+      "donor_challenger": true,
+      "donor_fundability_status": "funding_candidate_valuation_grade",
+      "donor_is_fundable_candidate": true,
+      "donor_primary_etf": "PHO",
+      "donor_promoted_to_live_radar": false,
+      "donor_relative_strength_score": 1.25,
+      "donor_return_1m_pct": 6.98,
+      "donor_return_3m_pct": 7.64,
+      "donor_total_score": 4.17,
+      "donor_tradability_status": "pass",
+      "lane_name": "Water utilities / defensive infrastructure",
+      "taxonomy_tag": "water_utilities",
+      "ucits_candidates": [
+        {
+          "exchange": "Xetra",
+          "exchange_ticker": "XMLC",
+          "exposure_id": "water_infrastructure",
+          "fund_name": "L&G Clean Water UCITS ETF USD Acc",
+          "fundability_status": "FUNDABLE_REQUIRES_ALLOCATION_DECISION",
+          "identity_status": "verified",
+          "isin": "IE00BK5BC891",
+          "mapping_status": "mapped_verified_lines_market_evidence_required",
+          "pricing_agreeing_providers": [
+            "alpha_vantage",
+            "yahoo_chart"
+          ],
+          "pricing_close": 18.88599984,
+          "pricing_close_date": "2026-08-14",
+          "pricing_source_agreement_status": "qualified_development_consensus",
+          "pricing_status": "priced_non_authoritative",
+          "pricing_two_provider_consensus": true,
+          "trading_currency": "EUR"
+        },
+        {
+          "exchange": "Xetra",
+          "exchange_ticker": "IQQQ",
+          "exposure_id": "water_infrastructure",
+          "fund_name": "iShares Global Water UCITS ETF USD Dist",
+          "fundability_status": "FUNDED_MODEL_POSITION",
+          "identity_status": "verified",
+          "isin": "IE00B1TXK627",
+          "mapping_status": "mapped_verified_lines_market_evidence_required",
+          "pricing_agreeing_providers": [
+            "alpha_vantage",
+            "yahoo_chart"
+          ],
+          "pricing_close": 66.3899997,
+          "pricing_close_date": "2026-08-14",
+          "pricing_source_agreement_status": "qualified_development_consensus",
+          "pricing_status": "priced_non_authoritative",
+          "pricing_two_provider_consensus": true,
+          "trading_currency": "EUR"
+        }
+      ]
+    },
+    {
+      "bucket": "critical_minerals_materials",
+      "donor_alternative_etf": "PICK",
+      "donor_challenger": true,
+      "donor_fundability_status": "funding_candidate_valuation_grade",
+      "donor_is_fundable_candidate": true,
+      "donor_primary_etf": "COPX",
+      "donor_promoted_to_live_radar": false,
+      "donor_relative_strength_score": 0.73,
+      "donor_return_1m_pct": 16.75,
+      "donor_return_3m_pct": 6.92,
+      "donor_total_score": 4.13,
+      "donor_tradability_status": "pass",
+      "lane_name": "Copper and electrification materials",
+      "taxonomy_tag": "copper_electrification",
+      "ucits_candidates": [
+        {
+          "exposure_id": "critical_minerals_materials",
+          "fundability_status": "MAPPING_REQUIRED",
+          "mapping_status": "mapping_required",
+          "pricing_agreeing_providers": [],
+          "pricing_close": null,
+          "pricing_close_date": null,
+          "pricing_source_agreement_status": null,
+          "pricing_status": null,
+          "pricing_two_provider_consensus": false
+        }
+      ]
+    },
+    {
+      "bucket": "biotech_healthcare_innovation",
+      "donor_alternative_etf": "IBB",
+      "donor_challenger": true,
+      "donor_fundability_status": "held_or_overlap_not_new_funding_candidate",
+      "donor_is_fundable_candidate": false,
+      "donor_primary_etf": "XBI",
+      "donor_promoted_to_live_radar": false,
+      "donor_relative_strength_score": 0.88,
+      "donor_return_1m_pct": -4.21,
+      "donor_return_3m_pct": 17.85,
+      "donor_total_score": 3.96,
+      "donor_tradability_status": "pass",
+      "lane_name": "Biotech innovation / therapeutic platforms",
+      "taxonomy_tag": "biotech_innovation",
+      "ucits_candidates": [
+        {
+          "exchange": "unresolved_in_current_evidence",
+          "exchange_ticker": "2B70",
+          "exposure_id": "biotech_innovation",
+          "fund_name": "iShares Nasdaq US Biotechnology UCITS ETF",
+          "fundability_status": "IDENTITY_OR_KID_INCOMPLETE",
+          "identity_status": "official_identity_and_exact_line_pass_but_current_market_evidence_incomplete",
+          "isin": "IE00BYXG2H39",
+          "mapping_status": "mapped_market_evidence_incomplete",
+          "pricing_agreeing_providers": [],
+          "pricing_close": null,
+          "pricing_close_date": null,
+          "pricing_source_agreement_status": null,
+          "pricing_status": null,
+          "pricing_two_provider_consensus": false,
+          "trading_currency": "unresolved_in_current_evidence"
+        }
+      ]
+    },
+    {
+      "bucket": "defense_resilience",
+      "donor_alternative_etf": "EUAD",
+      "donor_challenger": true,
+      "donor_fundability_status": "funding_candidate_valuation_grade",
+      "donor_is_fundable_candidate": true,
+      "donor_primary_etf": "NATO",
+      "donor_promoted_to_live_radar": false,
+      "donor_relative_strength_score": 1.25,
+      "donor_return_1m_pct": 6.63,
+      "donor_return_3m_pct": 10.63,
+      "donor_total_score": 3.94,
+      "donor_tradability_status": "watch",
+      "lane_name": "Europe defense and security rearmament",
+      "taxonomy_tag": "europe_defense_industry",
+      "ucits_candidates": [
+        {
+          "exposure_id": "europe_defense_industry",
+          "fundability_status": "MAPPING_REQUIRED",
+          "mapping_status": "mapping_required"
+        }
+      ]
+    },
+    {
+      "bucket": "fintech_financial_infrastructure",
+      "donor_alternative_etf": "IAI",
+      "donor_challenger": true,
+      "donor_fundability_status": "funding_candidate_valuation_grade",
+      "donor_is_fundable_candidate": true,
+      "donor_primary_etf": "KCE",
+      "donor_promoted_to_live_radar": false,
+      "donor_relative_strength_score": 1.1,
+      "donor_return_1m_pct": 4.89,
+      "donor_return_3m_pct": 8.05,
+      "donor_total_score": 3.75,
+      "donor_tradability_status": "watch",
+      "lane_name": "Financial infrastructure and market plumbing",
+      "taxonomy_tag": "financial_market_plumbing",
+      "ucits_candidates": [
+        {
+          "exposure_id": "financial_market_plumbing",
+          "fundability_status": "MAPPING_REQUIRED",
+          "mapping_status": "mapping_required"
+        }
+      ]
+    },
+    {
+      "bucket": "india_regional_industrialization",
+      "donor_alternative_etf": "EPI",
+      "donor_challenger": true,
+      "donor_fundability_status": "pricing_missing_for_funding_candidate",
+      "donor_is_fundable_candidate": false,
+      "donor_primary_etf": "INDA",
+      "donor_promoted_to_live_radar": false,
+      "donor_relative_strength_score": 0.57,
+      "donor_return_1m_pct": 2.75,
+      "donor_return_3m_pct": 1.1,
+      "donor_total_score": 3.72,
+      "donor_tradability_status": "pass",
+      "lane_name": "India industrialization / capex",
+      "taxonomy_tag": "india_industrialization",
+      "ucits_candidates": [
+        {
+          "exposure_id": "india_regional_industrialization",
+          "fundability_status": "MAPPING_REQUIRED",
+          "mapping_status": "mapping_required",
+          "pricing_agreeing_providers": [],
+          "pricing_close": null,
+          "pricing_close_date": null,
+          "pricing_source_agreement_status": null,
+          "pricing_status": null,
+          "pricing_two_provider_consensus": false
+        }
+      ]
+    },
+    {
+      "bucket": "agriculture_food_security",
+      "donor_alternative_etf": "VEGI",
+      "donor_challenger": true,
+      "donor_fundability_status": "funding_candidate_valuation_grade",
+      "donor_is_fundable_candidate": true,
+      "donor_primary_etf": "MOO",
+      "donor_promoted_to_live_radar": false,
+      "donor_relative_strength_score": 0.31,
+      "donor_return_1m_pct": 0.92,
+      "donor_return_3m_pct": -0.62,
+      "donor_total_score": 3.54,
+      "donor_tradability_status": "pass",
+      "lane_name": "Food security / agriculture inputs",
+      "taxonomy_tag": "agri_food_security",
+      "ucits_candidates": [
+        {
+          "exchange": "Euronext Amsterdam",
+          "exchange_ticker": "ISAE",
+          "exposure_id": "agriculture_food_security",
+          "fund_name": "iShares Agribusiness UCITS ETF USD Acc",
+          "fundability_status": "FUNDABLE_REQUIRES_ALLOCATION_DECISION",
+          "identity_status": "verified",
+          "isin": "IE00B6R52143",
+          "mapping_status": "mapped_verified_line_market_evidence_required",
+          "pricing_agreeing_providers": [
+            "alpha_vantage",
+            "yahoo_chart"
+          ],
+          "pricing_close": 48.13000054,
+          "pricing_close_date": "2026-08-14",
+          "pricing_source_agreement_status": "qualified_development_consensus",
+          "pricing_status": "priced_non_authoritative",
+          "pricing_two_provider_consensus": true,
+          "trading_currency": "EUR"
+        }
+      ]
+    },
+    {
+      "bucket": "china",
+      "donor_alternative_etf": "FXI",
+      "donor_challenger": true,
+      "donor_fundability_status": "pricing_missing_for_funding_candidate",
+      "donor_is_fundable_candidate": false,
+      "donor_primary_etf": "MCHI",
+      "donor_promoted_to_live_radar": false,
+      "donor_relative_strength_score": 0.62,
+      "donor_return_1m_pct": 6.35,
+      "donor_return_3m_pct": -2.37,
+      "donor_total_score": 3.39,
+      "donor_tradability_status": "pass",
+      "lane_name": "China hard-asset demand recovery",
+      "taxonomy_tag": "china_materials_recovery",
+      "ucits_candidates": [
+        {
+          "exposure_id": "china",
+          "fundability_status": "MAPPING_REQUIRED",
+          "mapping_status": "mapping_required",
+          "pricing_agreeing_providers": [],
+          "pricing_close": null,
+          "pricing_close_date": null,
+          "pricing_source_agreement_status": null,
+          "pricing_status": null,
+          "pricing_two_provider_consensus": false
+        }
+      ]
+    },
+    {
+      "bucket": "critical_minerals_materials",
+      "donor_alternative_etf": "DBC",
+      "donor_challenger": true,
+      "donor_fundability_status": "held_or_overlap_not_new_funding_candidate",
+      "donor_is_fundable_candidate": false,
+      "donor_primary_etf": "GSG",
+      "donor_promoted_to_live_radar": false,
+      "donor_relative_strength_score": 0.03,
+      "donor_return_1m_pct": 5.25,
+      "donor_return_3m_pct": -5.47,
+      "donor_total_score": 3.39,
+      "donor_tradability_status": "pass",
+      "lane_name": "Broad commodity inflation hedge",
+      "taxonomy_tag": "broad_commodities",
+      "ucits_candidates": [
+        {
+          "exposure_id": "broad_commodities",
+          "fundability_status": "MAPPING_REQUIRED",
+          "mapping_status": "mapping_required"
+        }
+      ]
+    },
+    {
+      "bucket": "critical_minerals_materials",
+      "donor_alternative_etf": "PICK",
+      "donor_challenger": true,
+      "donor_fundability_status": "pricing_missing_for_funding_candidate",
+      "donor_is_fundable_candidate": false,
+      "donor_primary_etf": "REMX",
+      "donor_promoted_to_live_radar": false,
+      "donor_relative_strength_score": -0.75,
+      "donor_return_1m_pct": -3.74,
+      "donor_return_3m_pct": -27.7,
+      "donor_total_score": 3.35,
+      "donor_tradability_status": "pass",
+      "lane_name": "Critical minerals / copper / refining",
+      "taxonomy_tag": "critical_minerals",
+      "ucits_candidates": [
+        {
+          "exposure_id": "critical_minerals_materials",
+          "fundability_status": "MAPPING_REQUIRED",
+          "mapping_status": "mapping_required",
+          "pricing_agreeing_providers": [],
+          "pricing_close": null,
+          "pricing_close_date": null,
+          "pricing_source_agreement_status": null,
+          "pricing_status": null,
+          "pricing_two_provider_consensus": false
+        }
+      ]
+    },
+    {
+      "bucket": "robotics_automation",
+      "donor_alternative_etf": "IRBO",
+      "donor_challenger": true,
+      "donor_fundability_status": "funding_candidate_valuation_grade",
+      "donor_is_fundable_candidate": true,
+      "donor_primary_etf": "ROBO",
+      "donor_promoted_to_live_radar": false,
+      "donor_relative_strength_score": 0.22,
+      "donor_return_1m_pct": 2.24,
+      "donor_return_3m_pct": 0.75,
+      "donor_total_score": 3.14,
+      "donor_tradability_status": "pass",
+      "lane_name": "Industrial automation and factory software",
+      "taxonomy_tag": "factory_automation",
+      "ucits_candidates": [
+        {
+          "exposure_id": "robotics_automation",
+          "fundability_status": "MAPPING_REQUIRED",
+          "mapping_status": "mapping_required",
+          "pricing_agreeing_providers": [],
+          "pricing_close": null,
+          "pricing_close_date": null,
+          "pricing_source_agreement_status": null,
+          "pricing_status": null,
+          "pricing_two_provider_consensus": false
+        }
+      ]
+    },
+    {
+      "bucket": "uranium_nuclear",
+      "donor_alternative_etf": "URA",
+      "donor_challenger": false,
+      "donor_fundability_status": "held_or_overlap_not_new_funding_candidate",
+      "donor_is_fundable_candidate": false,
+      "donor_primary_etf": "URNM",
+      "donor_promoted_to_live_radar": false,
+      "donor_relative_strength_score": -0.56,
+      "donor_return_1m_pct": 4.44,
+      "donor_return_3m_pct": -18.62,
+      "donor_total_score": 3.14,
+      "donor_tradability_status": "pass",
+      "lane_name": "Uranium / nuclear fuel cycle",
+      "taxonomy_tag": "uranium_nuclear",
+      "ucits_candidates": [
+        {
+          "exchange": "unresolved_in_current_evidence",
+          "exchange_ticker": "NUKL",
+          "exposure_id": "uranium_nuclear",
+          "fund_name": "VanEck Uranium and Nuclear Technologies UCITS ETF",
+          "fundability_status": "IDENTITY_OR_KID_INCOMPLETE",
+          "identity_status": "official_identity_and_exact_line_pass_but_current_market_evidence_incomplete",
+          "isin": "IE000M7V94E1",
+          "mapping_status": "mapped_market_evidence_incomplete",
+          "pricing_agreeing_providers": [],
+          "pricing_close": null,
+          "pricing_close_date": null,
+          "pricing_source_agreement_status": null,
+          "pricing_status": null,
+          "pricing_two_provider_consensus": false,
+          "trading_currency": "unresolved_in_current_evidence"
+        }
+      ]
+    },
+    {
+      "bucket": "china",
+      "donor_alternative_etf": "MCHI",
+      "donor_challenger": true,
+      "donor_fundability_status": "pricing_missing_for_funding_candidate",
+      "donor_is_fundable_candidate": false,
+      "donor_primary_etf": "KWEB",
+      "donor_promoted_to_live_radar": false,
+      "donor_relative_strength_score": 0.52,
+      "donor_return_1m_pct": 8.23,
+      "donor_return_3m_pct": -2.91,
+      "donor_total_score": 3.04,
+      "donor_tradability_status": "pass",
+      "lane_name": "China platform / policy reset",
+      "taxonomy_tag": "china_policy_recovery",
+      "ucits_candidates": [
+        {
+          "exposure_id": "china",
+          "fundability_status": "MAPPING_REQUIRED",
+          "mapping_status": "mapping_required",
+          "pricing_agreeing_providers": [],
+          "pricing_close": null,
+          "pricing_close_date": null,
+          "pricing_source_agreement_status": null,
+          "pricing_status": null,
+          "pricing_two_provider_consensus": false
+        }
+      ]
+    },
+    {
+      "bucket": "agriculture_food_security",
+      "donor_alternative_etf": "CORN",
+      "donor_challenger": true,
+      "donor_fundability_status": "pricing_missing_for_funding_candidate",
+      "donor_is_fundable_candidate": false,
+      "donor_primary_etf": "DBA",
+      "donor_promoted_to_live_radar": false,
+      "donor_relative_strength_score": 0.14,
+      "donor_return_1m_pct": -0.32,
+      "donor_return_3m_pct": -0.65,
+      "donor_total_score": 3.04,
+      "donor_tradability_status": "pass",
+      "lane_name": "Agricultural commodities",
+      "taxonomy_tag": "agriculture_commodities",
+      "ucits_candidates": [
+        {
+          "exposure_id": "agriculture_commodities",
+          "fundability_status": "MAPPING_REQUIRED",
+          "mapping_status": "mapping_required"
+        }
+      ]
+    },
+    {
+      "bucket": "uranium_nuclear",
+      "donor_alternative_etf": "NUCL",
+      "donor_challenger": true,
+      "donor_fundability_status": "funding_candidate_valuation_grade",
+      "donor_is_fundable_candidate": true,
+      "donor_primary_etf": "NLR",
+      "donor_promoted_to_live_radar": false,
+      "donor_relative_strength_score": -0.57,
+      "donor_return_1m_pct": 4.2,
+      "donor_return_3m_pct": -18.26,
+      "donor_total_score": 3.03,
+      "donor_tradability_status": "pass",
+      "lane_name": "Nuclear utilities and clean baseload",
+      "taxonomy_tag": "nuclear_utilities",
+      "ucits_candidates": [
+        {
+          "exchange": "unresolved_in_current_evidence",
+          "exchange_ticker": "NUKL",
+          "exposure_id": "uranium_nuclear",
+          "fund_name": "VanEck Uranium and Nuclear Technologies UCITS ETF",
+          "fundability_status": "IDENTITY_OR_KID_INCOMPLETE",
+          "identity_status": "official_identity_and_exact_line_pass_but_current_market_evidence_incomplete",
+          "isin": "IE000M7V94E1",
+          "mapping_status": "mapped_market_evidence_incomplete",
+          "pricing_agreeing_providers": [],
+          "pricing_close": null,
+          "pricing_close_date": null,
+          "pricing_source_agreement_status": null,
+          "pricing_status": null,
+          "pricing_two_provider_consensus": false,
+          "trading_currency": "unresolved_in_current_evidence"
+        }
+      ]
+    },
+    {
+      "bucket": "grid_power_electrification",
+      "donor_alternative_etf": "VPU",
+      "donor_challenger": true,
+      "donor_fundability_status": "held_or_overlap_not_new_funding_candidate",
+      "donor_is_fundable_candidate": false,
+      "donor_primary_etf": "XLU",
+      "donor_promoted_to_live_radar": false,
+      "donor_relative_strength_score": -0.3,
+      "donor_return_1m_pct": -3.37,
+      "donor_return_3m_pct": -2.73,
+      "donor_total_score": 2.92,
+      "donor_tradability_status": "pass",
+      "lane_name": "Power infrastructure and utilities capex",
+      "taxonomy_tag": "power_utilities_capex",
+      "ucits_candidates": [
+        {
+          "exposure_id": "power_utilities_capex",
+          "fundability_status": "MAPPING_REQUIRED",
+          "mapping_status": "mapping_required"
+        }
+      ]
+    },
+    {
+      "bucket": "robotics_automation",
+      "donor_alternative_etf": "ROBO",
+      "donor_challenger": true,
+      "donor_fundability_status": "funding_candidate_valuation_grade",
+      "donor_is_fundable_candidate": true,
+      "donor_primary_etf": "BOTZ",
+      "donor_promoted_to_live_radar": false,
+      "donor_relative_strength_score": -0.25,
+      "donor_return_1m_pct": 2.68,
+      "donor_return_3m_pct": -5.53,
+      "donor_total_score": 2.89,
+      "donor_tradability_status": "pass",
+      "lane_name": "Robotics / automation",
+      "taxonomy_tag": "robotics_automation",
+      "ucits_candidates": [
+        {
+          "exposure_id": "robotics_automation",
+          "fundability_status": "MAPPING_REQUIRED",
+          "mapping_status": "mapping_required",
+          "pricing_agreeing_providers": [],
+          "pricing_close": null,
+          "pricing_close_date": null,
+          "pricing_source_agreement_status": null,
+          "pricing_status": null,
+          "pricing_two_provider_consensus": false
+        }
+      ]
+    },
+    {
+      "bucket": "fintech_financial_infrastructure",
+      "donor_alternative_etf": "ARKF",
+      "donor_challenger": true,
+      "donor_fundability_status": "pricing_missing_for_funding_candidate",
+      "donor_is_fundable_candidate": false,
+      "donor_primary_etf": "FINX",
+      "donor_promoted_to_live_radar": false,
+      "donor_relative_strength_score": 0.45,
+      "donor_return_1m_pct": 1.58,
+      "donor_return_3m_pct": 0.81,
+      "donor_total_score": 2.78,
+      "donor_tradability_status": "watch",
+      "lane_name": "Fintech / payments rails",
+      "taxonomy_tag": "fintech_infrastructure",
+      "ucits_candidates": [
+        {
+          "exposure_id": "fintech_financial_infrastructure",
+          "fundability_status": "MAPPING_REQUIRED",
+          "mapping_status": "mapping_required",
+          "pricing_agreeing_providers": [],
+          "pricing_close": null,
+          "pricing_close_date": null,
+          "pricing_source_agreement_status": null,
+          "pricing_status": null,
+          "pricing_two_provider_consensus": false
+        }
+      ]
+    }
+  ],
+  "authority": {
+    "execution_authority": false,
+    "explicit_allocation_decision_required": true,
+    "mapping_is_funding_authority": false,
+    "new_allocation_requires_two_provider_consensus": true,
+    "portfolio_mutation": false,
+    "pricing_is_funding_authority": false
+  },
+  "donor_discovery_engine_version": "lane_discovery_v5_instrument_eligibility+direct_replacement_rs_v1",
+  "donor_report_date": "2026-08-07",
+  "required_breadth_buckets": [
+    "ai_digital_infrastructure",
+    "defense_resilience",
+    "grid_power_electrification",
+    "uranium_nuclear",
+    "agriculture_food_security",
+    "water",
+    "china",
+    "india_regional_industrialization",
+    "biotech_healthcare_innovation",
+    "fintech_financial_infrastructure",
+    "robotics_automation",
+    "critical_minerals_materials"
+  ],
+  "schema_version": "etf_eu_donor_discovery_bridge_v2"
+}

@@ -6,6 +6,10 @@ from argparse import Namespace
 from pathlib import Path
 from typing import Any
 
+from runtime.apply_etf_eu_current_reunderwriting import (
+    apply_cash_reunderwriting_to_contract_state,
+    apply_current_reunderwriting,
+)
 from runtime.apply_etf_eu_donor_parity_contract import apply_contract, write_recommendation_scorecard
 from runtime.build_etf_eu_client_grade_report_state_v2 import build_state
 from runtime.build_etf_eu_donor_discovery_bridge import write_bridge
@@ -82,7 +86,21 @@ def build(args: argparse.Namespace) -> dict[str, Path]:
     if state.get("state_valid") is not True:
         raise RuntimeError(f"Client-grade v2 state is invalid: {state.get('blockers')}")
 
+    reunderwriting_path: Path | None = None
+    if getattr(args, "donor_lane_artifact", None):
+        donor_lane = _load(Path(args.donor_lane_artifact))
+        reunderwriting_path = Path("output/runtime") / f"etf_eu_current_reunderwriting_{args.run_id}.json"
+        state = apply_current_reunderwriting(
+            state,
+            donor_lane=donor_lane,
+            macro_pack=macro_pack,
+            report_date=args.report_date,
+            run_id=args.run_id,
+            output_path=reunderwriting_path,
+        )
+
     state = apply_contract(state, macro_pack=macro_pack)
+    state = apply_cash_reunderwriting_to_contract_state(state)
     state = _restore_normalized_funded_consistency(state)
     bridge_path: Path | None = None
     if getattr(args, "donor_lane_artifact", None):
@@ -159,6 +177,7 @@ def build(args: argparse.Namespace) -> dict[str, Path]:
         "render_source_authority": "normalized_report_state_plus_donor_parity_contract",
         "normalized_report_state": str(state_path),
         "recommendation_scorecard": args.recommendation_scorecard,
+        "current_reunderwriting": str(reunderwriting_path) if reunderwriting_path else None,
         "allocation_authority_contract": "control/ETF_EU_ALLOCATION_AUTHORITY_V1.md",
         "discovery_fundability_contract": "control/ETF_EU_DISCOVERY_FUNDABILITY_CONTRACT_V1.md",
         "donor_discovery_bridge": str(bridge_path) if bridge_path else None,
@@ -167,6 +186,9 @@ def build(args: argparse.Namespace) -> dict[str, Path]:
         "pricing_contract": "ucits_close_price_validation_basket_results_v2",
         "pricing_state_builder": "runtime/build_etf_eu_client_grade_report_state_v2.py",
         "funded_two_provider_consensus_required": True,
+        "full_current_reunderwriting_required": True,
+        "full_current_reunderwriting_complete": bool((funded_state.get("parity_completeness") or {}).get("all_funded_positions_have_current_reunderwriting")),
+        "cash_deploy_or_explain_complete": bool((funded_state.get("parity_completeness") or {}).get("cash_deploy_or_explain_complete")),
         "shadow_transition_policy_current_authority": False,
         "markdown_role": "funded_state_derived_delivery_artifact",
         "markdown_generation_status": "generated_from_normalized_funded_state",
@@ -207,6 +229,8 @@ def build(args: argparse.Namespace) -> dict[str, Path]:
     }
     if bridge_path:
         outputs["donor_discovery_bridge"] = bridge_path
+    if reunderwriting_path:
+        outputs["current_reunderwriting"] = reunderwriting_path
     return outputs
 
 
