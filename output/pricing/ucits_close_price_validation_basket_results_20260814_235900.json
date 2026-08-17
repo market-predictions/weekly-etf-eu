@@ -1,7 +1,7 @@
 {
   "failed_line_count": 0,
   "funding_authority": false,
-  "generated_at_utc": "2026-08-17T18:32:59Z",
+  "generated_at_utc": "2026-08-17T18:54:28Z",
   "line_count": 13,
   "portfolio_mutation": false,
   "priced_line_count": 13,
@@ -36,7 +36,7 @@
       "fundable": false,
       "instrument_type": "UCITS ETF",
       "isin": "IE00BK5BQT80",
-      "observed_at_utc": "2026-08-17T18:29:36Z",
+      "observed_at_utc": "2026-08-17T18:51:01Z",
       "pricing_status": "priced_non_authoritative",
       "provider_symbols": {
         "alpha_vantage": "VWCE.DEX",
@@ -68,7 +68,7 @@
       "fundable": false,
       "instrument_type": "UCITS ETF",
       "isin": "IE00BDBRDM35",
-      "observed_at_utc": "2026-08-17T18:29:52Z",
+      "observed_at_utc": "2026-08-17T18:51:17Z",
       "pricing_status": "priced_non_authoritative",
       "provider_symbols": {
         "alpha_vantage": "EUNA.DEX",
@@ -100,7 +100,7 @@
       "fundable": false,
       "instrument_type": "UCITS ETF",
       "isin": "IE00B5BMR087",
-      "observed_at_utc": "2026-08-17T18:30:08Z",
+      "observed_at_utc": "2026-08-17T18:51:34Z",
       "pricing_status": "priced_non_authoritative",
       "provider_symbols": {
         "alpha_vantage": "SXR8.DEX",
@@ -132,7 +132,7 @@
       "fundable": false,
       "instrument_type": "UCITS ETF",
       "isin": "IE00BG0J4C88",
-      "observed_at_utc": "2026-08-17T18:30:25Z",
+      "observed_at_utc": "2026-08-17T18:51:51Z",
       "pricing_status": "priced_non_authoritative",
       "provider_symbols": {
         "alpha_vantage": "L0CK.DEX",
@@ -164,7 +164,7 @@
       "fundable": false,
       "instrument_type": "UCITS ETF",
       "isin": "IE00BMC38736",
-      "observed_at_utc": "2026-08-17T18:30:41Z",
+      "observed_at_utc": "2026-08-17T18:52:08Z",
       "pricing_status": "priced_non_authoritative",
       "provider_symbols": {
         "alpha_vantage": "VVSM.DEX",
@@ -197,7 +197,7 @@
       "fundable": false,
       "instrument_type": "UCITS ETF",
       "isin": "IE00BJ5JNZ06",
-      "observed_at_utc": "2026-08-17T18:30:57Z",
+      "observed_at_utc": "2026-08-17T18:52:25Z",
       "pricing_status": "priced_non_authoritative",
       "provider_symbols": {
         "alpha_vantage": "CBUF.DEX",
@@ -229,7 +229,7 @@
       "fundable": false,
       "instrument_type": "UCITS ETF",
       "isin": "IE00B6R52143",
-      "observed_at_utc": "2026-08-17T18:31:14Z",
+      "observed_at_utc": "2026-08-17T18:52:41Z",
       "pricing_status": "priced_non_authoritative",
       "provider_symbols": {
         "alpha_vantage": "ISAE.AMS",
@@ -261,7 +261,7 @@
       "fundable": false,
       "instrument_type": "UCITS ETF",
       "isin": "IE00BK5BC891",
-      "observed_at_utc": "2026-08-17T18:31:30Z",
+      "observed_at_utc": "2026-08-17T18:52:58Z",
       "pricing_status": "priced_non_authoritative",
       "provider_symbols": {
         "alpha_vantage": "XMLC.DEX",
@@ -293,7 +293,7 @@
       "fundable": false,
       "instrument_type": "UCITS ETF",
       "isin": "IE00B1TXK627",
-      "observed_at_utc": "2026-08-17T18:31:46Z",
+      "observed_at_utc": "2026-08-17T18:53:14Z",
       "pricing_status": "priced_non_authoritative",
       "provider_symbols": {
         "alpha_vantage": "IQQQ.DEX",
@@ -325,7 +325,7 @@
       "fundable": false,
       "instrument_type": "UCITS ETF",
       "isin": "IE000YYE6WK5",
-      "observed_at_utc": "2026-08-17T18:32:02Z",
+      "observed_at_utc": "2026-08-17T18:53:30Z",
       "pricing_status": "priced_non_authoritative",
       "provider_symbols": {
         "alpha_vantage": "DFEN.DEX",
@@ -358,7 +358,7 @@
       "fundable": false,
       "instrument_type": "UCITS ETF",
       "isin": "IE00B5BMR087",
-      "observed_at_utc": "2026-08-17T18:32:27Z",
+      "observed_at_utc": "2026-08-17T18:53:55Z",
       "pricing_status": "priced_non_authoritative",
       "provider_symbols": {
         "alpha_vantage": "CSPX.LON",
@@ -391,7 +391,7 @@
       "fundable": false,
       "instrument_type": "UCITS ETF",
       "isin": "IE00B4L5Y983",
-      "observed_at_utc": "2026-08-17T18:32:43Z",
+      "observed_at_utc": "2026-08-17T18:54:11Z",
       "pricing_status": "priced_non_authoritative",
       "provider_symbols": {
         "alpha_vantage": "IWDA.AMS",
@@ -424,7 +424,7 @@
       "fundable": false,
       "instrument_type": "UCITS ETF",
       "isin": "IE00B53SZB19",
-      "observed_at_utc": "2026-08-17T18:32:59Z",
+      "observed_at_utc": "2026-08-17T18:54:27Z",
       "pricing_status": "priced_non_authoritative",
       "provider_symbols": {
         "alpha_vantage": "CNDX.LON",

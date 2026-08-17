@@ -4,7 +4,7 @@
 
 ## 1. Decision at a glance
 
-- **Action:** added DFEN and IQQQ this run; current model portfolio: L0CK, DFEN, VWCE, EUNA, SXR8 and IQQQ. Remaining liquidity is EUR 28,101.01.
+- **Action:** review L0CK, DFEN, VWCE, EUNA, SXR8 and IQQQ as the current model positions; remaining liquidity is EUR 28,101.01.
 - **Reason:** the model portfolio contains 6 funded UCITS positions (L0CK, DFEN, VWCE, EUNA, SXR8 and IQQQ); the review uses current state, exact-line completed-close pricing evidence and current re-underwriting.
 - **Most advanced operational candidate:** the verified S&P 500 UCITS lines remain furthest advanced for broker and trading-line confirmation.
 - **Avoid:** do not allocate capital to thematic or gold exposure until identity, KID, trading-line and product-policy checks are complete.

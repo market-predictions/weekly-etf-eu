@@ -90,10 +90,10 @@
       ],
       "source": "yfinance_exact_completed_close"
     },
-    "source_generated_at_utc": "2026-08-17T18:33:04.353697Z",
+    "source_generated_at_utc": "2026-08-17T18:54:33.335737Z",
     "source_repo": "market-predictions/weekly-etf",
     "source_report_date": "2026-08-14",
-    "source_sha256": "89c70d19944ab5960e086dba527c36bdcbf64c306c7fe29cf434dffa494c9a8c",
+    "source_sha256": "b931785771ed8c57c6444f729e69f74daa1449a23db59dc43e4dc951757f312a",
     "source_url": "file:///home/runner/work/weekly-etf-eu/weekly-etf-eu/_donor_weekly_etf/output/macro/etf_macro_policy_pack_20260814_20260814_235900.json"
   },
   "eu_adaptation": {
@@ -211,7 +211,7 @@
     ],
     "source": "yfinance_exact_completed_close"
   },
-  "generated_at_utc": "2026-08-17T18:33:04Z",
+  "generated_at_utc": "2026-08-17T18:54:33Z",
   "lane_adjustments": {
     "AI compute infrastructure": {
       "reason": "Regime and price leadership still support AI compute exposure, but concentration discipline applies.",
@@ -379,7 +379,7 @@
       "summary": "Risk-on growth has persisted across 2 weekly observation(s); transition state is stable, breadth is improving, and cross-asset confirmation is mixed."
     },
     "transition_state": "stable",
-    "updated_at_utc": "2026-08-17T18:33:04.353748Z",
+    "updated_at_utc": "2026-08-17T18:54:33.335810Z",
     "weeks_in_regime": 2
   },
   "report_date": "2026-08-14",

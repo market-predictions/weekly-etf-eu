@@ -4,7 +4,7 @@
 
 ## 1. Besluit in één oogopslag
 
-- **Actie:** DFEN en IQQQ deze run toegevoegd; huidige modelportefeuille: L0CK, DFEN, VWCE, EUNA, SXR8 en IQQQ. Resterende liquiditeit EUR 28.101,01.
+- **Actie:** L0CK, DFEN, VWCE, EUNA, SXR8 en IQQQ als huidige modelposities beoordelen; resterende liquiditeit EUR 28.101,01.
 - **Reden:** de modelportefeuille bevat 6 gefinancierde UCITS-posities (L0CK, DFEN, VWCE, EUNA, SXR8 en IQQQ); de review gebruikt actuele state, exact-line completed-close prijsbewijs en current re-underwriting.
 - **Beste operationele kandidaat:** de geverifieerde S&P 500 UCITS-lijnen blijven het verst gevorderd voor verdere bevestiging bij de broker en van de handelslijn.
 - **Niet doen:** geen nieuw kapitaal toewijzen uitsluitend op basis van proxy, mapping of prijsbeschikbaarheid; identiteit, KID, exacte handelslijn, re-underwriting en expliciet allocatiebesluit blijven verplicht.
