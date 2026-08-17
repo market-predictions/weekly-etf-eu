@@ -23,6 +23,27 @@ def _replace_list_item(text: str, prefix: str, replacement: str) -> str:
     return pattern.sub("<li>" + replacement + "</li>", text, count=1)
 
 
+def _replace_english_no_regime_change_sentence(text: str) -> str:
+    """Normalize donor English macro summary leakage on the Dutch client surface.
+
+    The donor macro builder may vary the clause after the stable lead-in as fresh
+    breadth/cross-asset evidence changes. Match only the complete English sentence
+    beginning with the canonical lead-in, leaving the actual regime conclusion
+    unchanged while preventing English donor copy from reaching the NL report.
+    """
+
+    pattern = re.compile(
+        r"No material regime change was recorded[^.<]*(?:\.[^<]*)?\.",
+        flags=re.IGNORECASE,
+    )
+    replacement = (
+        "Ten opzichte van de vorige review is geen materiële regimewijziging vastgesteld; "
+        "de actuele marktbreedte en cross-asset bevestiging blijven onderdeel van de "
+        "beschrijvende macrocontext en vormen op zichzelf geen allocatie-authority."
+    )
+    return pattern.sub(replacement, text)
+
+
 def _funded_grade_count(positions: list[dict[str, Any]]) -> int:
     total = 0
     for row in positions:
@@ -89,6 +110,7 @@ def finalize_client_html_semantics(text: str, state: dict[str, Any], *, language
         }
         for old, new in replacements.items():
             text = text.replace(old, new)
+        text = _replace_english_no_regime_change_sentence(text)
 
         required = [
             f"Gefinancierde exact-line waardering: {funded_grade} van {funded_count}",
