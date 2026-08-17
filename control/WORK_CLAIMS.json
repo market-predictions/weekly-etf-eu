@@ -150,13 +150,13 @@
       "scope": "Fresh 2026-08-10 Weekly ETF EU cycle with broad donor discovery, EU-local fundability/pricing, explicit model-only allocation, six-position NL/EN client package, independent assurance and guarded delivery.",
       "branch": "agent/etf-eu-fresh-260810-v1",
       "base_or_target_branch": "main",
-      "last_reconciled_target_sha": "f4fa67cd5b3395d5c46815011dcc1c7a96e1f63c",
-      "current_claim_head_sha": "5fb8f76906c1a9b5a16b9d23ee8f023fbce0f94e",
-      "status": "ACTIVE",
+      "last_reconciled_target_sha": "427fb2e7213d997b571e0c55371086fbddd598ce",
+      "current_claim_head_sha": "0d7e0c237ba46583b381f0342cb6fcef135e687c",
+      "status": "SUPERSEDED",
       "opened_at": "2026-08-11T10:00:00+02:00",
-      "last_reconciled_at": "2026-08-11T16:44:00+02:00",
-      "pull_request": null,
-      "pull_request_or_issue_reference": "Issue #97; fresh candidate run 20260810_123000; semantic rerender run 31502986816 PASS before cleanup.",
+      "last_reconciled_at": "2026-08-17T09:05:00+02:00",
+      "pull_request": 98,
+      "pull_request_or_issue_reference": "Issue #97; fresh candidate run 20260810_123000; semantic rerender run 31502986816 PASS; independent exact-head PASS in issue #99; PR #98 merged unchanged on 2026-08-15. No delivery authority or delivery receipt existed for this lineage.",
       "dependencies": [{"pull_request": 95}],
       "protected_boundaries": {
         "model_portfolio_mutation": "explicit allocation decision only",
@@ -164,6 +164,14 @@
         "report_delivery": false,
         "smtp_send": false,
         "independent_assurance_required": true
+      },
+      "last_assurance": {
+        "issue": 99,
+        "reviewed_head_sha": "0d7e0c237ba46583b381f0342cb6fcef135e687c",
+        "verdict": "PASS",
+        "merge_authority": true,
+        "delivery_authority": false,
+        "evidence_comment_id": 5296901614
       },
       "validation": {
         "report_date": "2026-08-10",
@@ -174,7 +182,50 @@
         "nav_eur": 100738.73,
         "semantic_rerender_run": 31502986816,
         "semantic_rerender_verdict": "PASS",
-        "candidate_delivery_authority": false
+        "candidate_delivery_authority": false,
+        "merged_commit_sha": "427fb2e7213d997b571e0c55371086fbddd598ce",
+        "report_delivery": false,
+        "smtp_send": false
+      },
+      "handover": {
+        "disposition": "SUPERSEDE",
+        "successor_claim_id": "ETF-EU-FRESH-REPORT-260814-V1",
+        "successor_issue": 100,
+        "reason": "Merged candidate lineage completed without delivery; superseded by the next genuinely fresh completed-close report cycle."
+      }
+    },
+    {
+      "claim_id": "ETF-EU-FRESH-REPORT-260814-V1",
+      "workpackage_id": "ETF-EU-FRESH-REPORT-260814-V1",
+      "repository": "market-predictions/weekly-etf-eu",
+      "release_line": "weekly-etf-eu-current-release",
+      "integration_claim": true,
+      "owner_role": "implementation_operations",
+      "scope": "Fresh 2026-08-14 Weekly ETF EU cycle: recover the stalled post-PR98 transition, perform broad discovery and EU-local full portfolio re-underwrite on current completed-close evidence, produce the bilingual client-grade candidate, obtain fresh assurance and use guarded delivery only with receipt evidence.",
+      "branch": "agent/etf-eu-fresh-260814-v1",
+      "base_or_target_branch": "main",
+      "last_reconciled_target_sha": "427fb2e7213d997b571e0c55371086fbddd598ce",
+      "current_claim_head_sha": "603c54a6c47790b4b9ad9fc3c5d46736a1d54990",
+      "status": "ACTIVE",
+      "opened_at": "2026-08-17T09:01:54+02:00",
+      "last_reconciled_at": "2026-08-17T09:05:00+02:00",
+      "pull_request": null,
+      "pull_request_or_issue_reference": "Issue #100; work package ETF_EU_FRESH_REPORT_260814_V1_20260817; request etf_eu_routine_report_request_20260814_235900.json.",
+      "dependencies": [{"pull_request": 98}],
+      "protected_boundaries": {
+        "model_portfolio_mutation": "explicit current allocation decision only",
+        "real_broker_execution": false,
+        "report_delivery": false,
+        "smtp_send": false,
+        "independent_assurance_required": true
+      },
+      "validation": {
+        "report_date": "2026-08-14",
+        "run_id": "20260814_235900",
+        "predecessor_routine_manifest": "output/run_manifests/etf_eu_routine_run_manifest_2026-08-10_20260810_123000.json",
+        "predecessor_delivery_closeout_manifest": "output/run_manifests/etf_eu_delivery_closeout_manifest_20260710_1755.json",
+        "candidate_delivery_authority": false,
+        "real_broker_execution": false
       }
     }
   ]
