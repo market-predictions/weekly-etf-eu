@@ -84,7 +84,13 @@ def revalue_portfolio(
                 f"Funded close date mismatch for {ticker}: "
                 f"{evidence.get('close_date')} != {report_date}"
             )
-        trading_currency = str(position.get("trading_currency") or "").strip().upper()
+        # Historical portfolio fixtures predate the explicit per-position trading_currency
+        # field. For those EUR-only model states, the portfolio base currency is the
+        # authoritative compatibility fallback. A present per-position currency always
+        # wins, and any mismatch or non-EUR funded line still fails closed below.
+        trading_currency = str(
+            position.get("trading_currency") or portfolio.get("base_currency") or ""
+        ).strip().upper()
         pricing_currency = str(evidence.get("currency") or "").strip().upper()
         if trading_currency != pricing_currency:
             raise RuntimeError(
