@@ -3,70 +3,66 @@
 ## Current priority
 
 ```text
-FREEZE_AND_INDEPENDENTLY_ASSURE_FRESH_20260810_CANDIDATE
+EXECUTE_FRESH_20260814_PRODUCTION_CYCLE
 ```
 
-Current authoritative candidate status:
+Current authoritative execution identity:
 
 ```text
-issue=97
-branch=agent/etf-eu-fresh-260810-v1
-run_id=20260810_123000
-report_date=2026-08-10
-active_claim=ETF-EU-FRESH-REPORT-260810-V1
-funded_positions=6
-added_positions=DFEN,IQQQ
-cash_eur=28101.01
-nav_eur=100738.73
-semantic_rerender_run=31502986816
-semantic_rerender_verdict=PASS
+issue=100
+branch=agent/etf-eu-fresh-260814-v1
+base_main_sha=427fb2e7213d997b571e0c55371086fbddd598ce
+run_id=20260814_235900
+report_date=2026-08-14
+active_claim=ETF-EU-FRESH-REPORT-260814-V1
+workpackage=control/work_packages/ETF_EU_FRESH_REPORT_260814_V1_20260817.md
+request=control/run_queue/etf_eu_routine_report_request_20260814_235900.json
 delivery_authorized=false
 real_broker_execution=false
 principal_decision_required=false
 ```
 
-## Completed in this current report cycle — do not reopen without contradictory evidence
+## Reconciled predecessor — do not misstate
 
-1. Broad donor discovery is integrated into the canonical non-main candidate workflow.
-2. Donor U.S.-portfolio `is_fundable_candidate` is not used as EU funding authority; EU-local mapping/fundability owns the decision.
-3. Allocation-candidate second-source pricing can use quota-aware Alpha Vantage capacity before funding, preventing the old circular deadlock.
-4. The Alpha Vantage secret is correctly wired into the current pricing workflow.
-5. Exact-line validation distinguishes trading lines even when they share an ISIN; SXR8/CSPX no longer overwrite each other.
-6. Current completed-close revaluation precedes allocation sizing.
-7. An explicit current allocation decision added DFEN 207 and IQQQ 149 to the model-only portfolio; no real broker order exists.
-8. The final model candidate has six funded positions and EUR 28,101.01 cash on NAV EUR 100,738.73.
-9. Funded valuation is 6/6 two-provider completed-close consensus for 2026-08-10.
-10. NL/EN Markdown, HTML and PDF current semantics are derived from one normalized state and passed strict machine validation.
-11. Legacy stale HTML/PDF wording and Dutch/English leakage are blocked by permanent fail-closed semantics finalizers.
-12. Semantic rerender run `31502986816` is PASS through PDF review and branch persist.
-13. The temporary rerender workflow is removed.
-14. The temporary issue-#97 push trigger is removed from the canonical candidate workflow while broad-discovery wiring is retained.
-15. The fresh work claim is ACTIVE and bound to issue #97 / the fresh work package.
+The 2026-08-10 candidate was independently PASSed in issue #99 and merged unchanged through PR #98 on 2026-08-15. Its predecessor model state is six funded positions with EUR 28,101.01 cash and NAV EUR 100,738.73 at the 2026-08-10 valuation.
 
-## Next execution sequence
+That report lineage was **not delivered**. Do not rewrite merge as delivery and do not treat 2026-08-10 prices as current 2026-08-14 truth. The old claim is to be superseded by the current cycle, with delivery remaining false.
 
-1. Open the fresh candidate pull request against `main`.
-2. Let PR-triggered CI validate workflow/product boundaries and exact candidate content.
-3. Repair any genuine PR-head failure; do not waive gates.
-4. Once green, freeze the exact PR head and record the implementation handover/evidence bundle.
-5. Obtain a fresh independent `governance_release_assurance` verdict `PASS | FAIL | INDETERMINATE` on the frozen head.
-6. If FAIL, repair on a new head and repeat assurance. If PASS, verify the head is unchanged.
-7. Merge only the independently PASSed unchanged head.
-8. Run exact-main validation and confirm candidate/delivery/product-boundary topology.
-9. Build a delivery-package manifest bound to exact assured/merged artifacts and hashes.
-10. Invoke only `send-weekly-etf-eu-controlled-transport.yml` under separate guarded-send authority.
-11. Verify transport result plus receipt/attachment evidence; only then state that email delivery succeeded.
-12. Close issue #97, work package and active claim, and reconcile `CURRENT_STATE.md`, `NEXT_ACTIONS.md`, `DECISION_LOG.md` and the control-plane cache.
+## Completed recovery work in issue #100
+
+1. Reconciled live PR #98 merge/base identity.
+2. Reused the already-created successor branch rather than creating a competing release line.
+3. Created the fresh-cycle work package.
+4. Created a schema-v2 fresh routine request for report date 2026-08-14.
+5. Bound the request to the real 2026-08-10 predecessor routine manifest and the last confirmed delivery closeout.
+6. Repaired the stale latest-routine pointer that incorrectly referenced 2026-07-12.
+7. Replaced the stale pre-merge human-readable current-state narrative on the active successor branch.
+
+## Immediate execution sequence
+
+1. Reconcile `control/WORK_CLAIMS.json`: mark `ETF-EU-FRESH-REPORT-260810-V1` `SUPERSEDED`/undelivered and establish `ETF-EU-FRESH-REPORT-260814-V1` as the sole active current release-line claim.
+2. Materialize explicit validated `PROJECT_INTAKE_V1` for issue #100 on Control `control-runtime-state` so work no longer depends on chat relay.
+3. Execute the canonical `.github/workflows/run-weekly-etf-eu-routine.yml` on `agent/etf-eu-fresh-260814-v1` with request path `control/run_queue/etf_eu_routine_report_request_20260814_235900.json`.
+4. Require fresh completed-close evidence for 2026-08-14. Do not fall back to historical/current-live mismatches.
+5. Run broad discovery -> EU-local mapping/fundability -> exact-line pricing -> full current revaluation -> explicit allocation decision -> normalized bilingual render.
+6. Repair genuine machine/client-surface failures without weakening gates.
+7. Persist candidate artifacts; run deterministic and visual/PDF validation.
+8. Open candidate PR to `main`; freeze exact head.
+9. Obtain fresh independent `governance_release_assurance`. A previous PASS cannot authorize a changed 2026-08-14 candidate.
+10. Merge only the exact unchanged PASSed head; run exact-main verification.
+11. Build the hash-bound delivery package and invoke only the separately guarded controlled-transport route.
+12. Verify transport + receipt/attachment evidence before stating that delivery succeeded.
+13. Close issue #100, work package and claim; reconcile `CURRENT_STATE.md`, `NEXT_ACTIONS.md`, stable decision/defect history and Control cache.
 
 ## Protected boundaries
 
-Until the independent assurance and delivery stages explicitly grant their separate authorities:
+- no real broker execution;
+- no share/cash mutation without explicit current allocation-decision authority;
+- no hard position-count target;
+- no retired 50%/35%/15% allocation limits;
+- no research-only mapping/price becomes funding authority automatically;
+- candidate generation has no SMTP/delivery authority;
+- no delivery success claim without a real receipt/manifest.
 
-- delivery authority = false;
-- SMTP authority = false;
-- real broker execution = false;
-- no additional portfolio mutation is implied;
-- no ticker is added merely to increase position count;
-- research-only prices or mappings do not create funding authority.
-
-No principal decision is currently required.
+## Autonomy invariant added by this recovery
+A statement that no principal decision is required is insufficient unless the next executable step is also durably materialized. Every future transition that requires autonomous continuation must leave either an executable project intake/queue state, an active worker/run identity, or an explicit blocker with next owner/action. A branch, narrative next action or chat intention alone is not progress authority.
