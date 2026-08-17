@@ -1,0 +1,27 @@
+name: Temporary ETF EU 260814 candidate launcher
+
+on:
+  push:
+    branches:
+      - agent/etf-eu-fresh-260814-v1
+    paths:
+      - "control/run_queue/etf_eu_candidate_launch_20260817.md"
+
+permissions:
+  contents: read
+  actions: write
+
+jobs:
+  launch-canonical-candidate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Dispatch canonical ETF EU candidate workflow
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          gh workflow run run-weekly-etf-eu-routine.yml \
+            --repo "$GITHUB_REPOSITORY" \
+            --ref "$GITHUB_REF_NAME" \
+            -f request_path=control/run_queue/etf_eu_routine_report_request_20260814_235900.json
+          echo "ETF_EU_CANONICAL_CANDIDATE_DISPATCHED=PASS"
