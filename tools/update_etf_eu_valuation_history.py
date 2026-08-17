@@ -45,6 +45,17 @@ def _f(value: Any) -> float:
     return float(value or 0)
 
 
+def _candidate_pricing_path(source_report: str) -> Path | None:
+    prefix = "routine-candidate-"
+    if not source_report.startswith(prefix):
+        return None
+    run_id = source_report[len(prefix):].strip()
+    if not run_id:
+        return None
+    path = Path("output/pricing") / f"ucits_close_price_validation_basket_results_{run_id}.json"
+    return path if path.exists() else None
+
+
 def build_row(
     *,
     state: dict[str, Any],
@@ -90,13 +101,14 @@ def update_history(
     output_path: Path,
     pricing_path: Path | None = None,
 ) -> dict[str, Any]:
+    effective_pricing = pricing_path or _candidate_pricing_path(source_report)
     state = (
         revalue_from_files(
             portfolio_path=state_path,
-            pricing_path=pricing_path,
+            pricing_path=effective_pricing,
             report_date=report_date,
         )
-        if pricing_path is not None
+        if effective_pricing is not None
         else _load_state(state_path)
     )
     rows = _read_rows(history_path)
@@ -129,8 +141,8 @@ def update_history(
         "latest_nav_eur": float(new_row["nav_eur"]),
         "latest_cash_eur": float(new_row["cash_eur"]),
         "latest_invested_market_value_eur": float(new_row["invested_market_value_eur"]),
-        "pricing_artifact": str(pricing_path) if pricing_path is not None else None,
-        "derived_valuation": pricing_path is not None,
+        "pricing_artifact": str(effective_pricing) if effective_pricing is not None else None,
+        "derived_valuation": effective_pricing is not None,
         "protected_portfolio_mutated": False,
         "equity_curve_meaningful": len(rows) >= 2 and (
             bool(state.get("positions")) or len({round(_f(row.get("nav_eur")), 2) for row in rows}) > 1
