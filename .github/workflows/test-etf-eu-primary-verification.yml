@@ -5,6 +5,7 @@ on:
     branches:
       - agent/etf-eu-primary-verification-111
     paths:
+      - control/work_packages/ETF_EU_PRIMARY_VERIFICATION_111_20260818.md
       - pricing/ucits_provider_identity_binding.py
       - pricing/ucits_price_qualification_policy.py
       - pricing/ucits_primary_verification_legacy.py
@@ -20,6 +21,7 @@ on:
       - .github/workflows/test-etf-eu-primary-verification.yml
   pull_request:
     paths:
+      - control/work_packages/ETF_EU_PRIMARY_VERIFICATION_111_20260818.md
       - pricing/ucits_provider_identity_binding.py
       - pricing/ucits_price_qualification_policy.py
       - pricing/ucits_primary_verification_legacy.py
