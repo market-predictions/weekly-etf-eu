@@ -81,6 +81,7 @@ def build_state(args: Namespace) -> dict[str, Any]:
         for blocker in state.get("blockers") or []
         if blocker != "pricing coverage threshold not met"
     ]
+    pricing_policy = pricing_payload.get("pricing_authority_policy") or {}
     state["schema_version"] = "etf_eu_client_grade_report_state_v2"
     state["sources"]["pricing_artifact"] = str(pricing_path)
     state["sources"]["protected_portfolio_state"] = str(portfolio_path)
@@ -92,8 +93,12 @@ def build_state(args: Namespace) -> dict[str, Any]:
             "report_pricing_gate_passed": pricing_payload.get("report_pricing_gate_passed") is True,
             "funded_position_count": pricing_validation["funded_position_count"],
             "funded_evidence": pricing_validation["funded_evidence"],
-            "funded_two_provider_consensus_required": True,
-            "pricing_authority": "canonical_v2_completed_close_contract",
+            "funded_exact_primary_pricing_required": True,
+            "second_provider_required_for_liveness": pricing_policy.get("second_provider_required_for_liveness") is True,
+            # Backward-readable semantic field: explicitly false under the donor-aligned contract.
+            "funded_two_provider_consensus_required": False,
+            "pricing_authority_mode": pricing_policy.get("mode"),
+            "pricing_authority": "canonical_v2_completed_close_primary_plus_verification_contract",
             "derived_portfolio_valuation": derived_portfolio.get("derived_valuation"),
         }
     )
@@ -105,7 +110,10 @@ def build_state(args: Namespace) -> dict[str, Any]:
         "report_pricing_gate_passed": pricing_payload.get("report_pricing_gate_passed") is True,
         "funded_position_count": pricing_validation["funded_position_count"],
         "funded_evidence": pricing_validation["funded_evidence"],
-        "funded_two_provider_consensus_required": True,
+        "funded_exact_primary_pricing_required": True,
+        "second_provider_required_for_liveness": pricing_policy.get("second_provider_required_for_liveness") is True,
+        "funded_two_provider_consensus_required": False,
+        "pricing_authority_mode": pricing_policy.get("mode"),
         "validation": pricing_validation,
         "derived_valuation_nav_eur": derived_portfolio.get("nav_eur"),
         "protected_portfolio_mutated": False,
@@ -119,27 +127,47 @@ def build_state(args: Namespace) -> dict[str, Any]:
     state = funded_overlay(state)
     positions = [
         row
-        for row in (state.get("portfolio") or {}).get("positions") or []
+        for row in (state.get("portfolio") or {}).get("positions", [])
         if isinstance(row, dict)
     ]
-    if positions:
-        consistency = dict(state.get("funded_consistency") or {})
-        consistency.update(
-            {
-                "position_count": len(positions),
-                "funded_tickers": [
-                    str(row.get("exchange_ticker") or row.get("ticker") or "").strip().upper()
-                    for row in positions
-                ],
-                "allocation_map_reconciled": True,
-                "opportunity_radar_reconciled": True,
-                "broker_neutral_model_language": True,
-                "normalized_state_authority": True,
-                "current_model_activation_lineage_preserved": "last_model_capital_activation" in (state.get("portfolio") or {}),
-                "fresh_completed_close_valuation_applied": all(
-                    str(row.get("price_date") or "") == args.report_date for row in positions
-                ),
-            }
-        )
-        state["funded_consistency"] = consistency
+    state["funded_position_count"] = len(positions)
+    state["funded_tickers"] = sorted(
+        str(row.get("ticker") or row.get("exchange_ticker") or "").strip().upper()
+        for row in positions
+        if str(row.get("ticker") or row.get("exchange_ticker") or "").strip()
+    )
+    state["protected_portfolio_state_mutated"] = False
     return state
+
+
+def main() -> None:
+    import argparse
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--portfolio-state", required=True)
+    parser.add_argument("--valuation-history", required=True)
+    parser.add_argument("--pricing-artifact", required=True)
+    parser.add_argument("--macro-pack", required=True)
+    parser.add_argument("--registry", required=True)
+    parser.add_argument("--run-id", required=True)
+    parser.add_argument("--source-run-id", required=True)
+    parser.add_argument("--report-date", required=True)
+    parser.add_argument("--report-suffix", required=True)
+    parser.add_argument("--output", required=True)
+    args = parser.parse_args()
+
+    state = build_state(args)
+    output = Path(args.output)
+    output.parent.mkdir(parents=True, exist_ok=True)
+    output.write_text(json.dumps(state, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    print(
+        "ETF_EU_CLIENT_GRADE_REPORT_STATE_V2_OK"
+        f" | output={output}"
+        f" | funded_positions={state['funded_position_count']}"
+        f" | pricing_gate={state['pricing_contract']['report_pricing_gate_passed']}"
+        " | protected_portfolio_mutated=false"
+    )
+
+
+if __name__ == "__main__":
+    main()
