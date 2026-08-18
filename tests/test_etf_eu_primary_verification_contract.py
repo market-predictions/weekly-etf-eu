@@ -23,6 +23,7 @@ class PrimaryVerificationLegacyContractTests(unittest.TestCase):
             "valuation_grade": authorized,
             "pricing_authority_policy": {
                 "mode": "donor_aligned_primary_plus_verification_v1",
+                "primary_provider_symbol_binding_required": True,
                 "second_provider_required_for_liveness": False,
                 "same_date_disagreement_blocks": True,
             },
@@ -36,6 +37,7 @@ class PrimaryVerificationLegacyContractTests(unittest.TestCase):
                     "valuation_grade": authorized,
                     "static_identity_binding": True,
                     "identity_assurance_status": "static_registry_verified_exact_line",
+                    "static_primary_provider_symbol_binding": authorized,
                     "completed_close_on_requested_report_date": authorized,
                     "requested_report_date": "2026-08-17",
                     "close_date": close_date if authorized else None,
@@ -77,6 +79,18 @@ class PrimaryVerificationLegacyContractTests(unittest.TestCase):
         )
         self.assertFalse(result["valid"])
         self.assertTrue(any("close_date_not_exact_requested_date" in item for item in result["blockers"]))
+
+    def test_unbound_primary_provider_symbol_is_rejected(self) -> None:
+        artifact = self._artifact()
+        artifact["rows"][0]["static_primary_provider_symbol_binding"] = False
+        result = validate_payload(
+            artifact,
+            expected_report_date="2026-08-17",
+            portfolio_state=self._portfolio(),
+            require_funded_consensus=True,
+        )
+        self.assertFalse(result["valid"])
+        self.assertTrue(any("static_primary_provider_symbol_not_bound" in item for item in result["blockers"]))
 
 
 if __name__ == "__main__":
