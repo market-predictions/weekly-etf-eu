@@ -73,6 +73,8 @@ def validate_payload(
     policy = payload.get("pricing_authority_policy") or {}
     if policy.get("mode") != "donor_aligned_primary_plus_verification_v1":
         blockers.append("primary+verification pricing authority policy missing")
+    if policy.get("primary_provider_symbol_binding_required") is not True:
+        blockers.append("primary provider static symbol binding must be required")
     if policy.get("second_provider_required_for_liveness") is not False:
         blockers.append("second provider must not be a universal liveness dependency")
     if policy.get("same_date_disagreement_blocks") is not True:
@@ -122,6 +124,8 @@ def validate_payload(
             row_blockers.append("static_exact_line_identity_not_bound")
         if row.get("identity_assurance_status") != "static_registry_verified_exact_line":
             row_blockers.append("static_identity_assurance_missing")
+        if row.get("static_primary_provider_symbol_binding") is not True:
+            row_blockers.append("static_primary_provider_symbol_not_bound")
         if row.get("completed_close_on_requested_report_date") is not True:
             row_blockers.append("exact_requested_date_close_gate_missing")
         if str(row.get("requested_report_date") or "") != report_date_raw:
@@ -160,6 +164,7 @@ def validate_payload(
                 "verification_providers": row.get("verification_providers") or [],
                 "source_agreement_status": authority_status,
                 "static_identity_binding": row.get("static_identity_binding") is True,
+                "static_primary_provider_symbol_binding": row.get("static_primary_provider_symbol_binding") is True,
                 "valuation_grade": row.get("valuation_grade"),
                 "passed": not row_blockers,
                 "blockers": row_blockers,
