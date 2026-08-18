@@ -102,8 +102,8 @@ def _materialize_email_equity_curve(html_body: str, *, language: str) -> tuple[s
     if not has_curve_marker:
         return html_body, None, None
 
-    _require("equity-curve-image" in html_body, "equity curve marker exists without donor PNG image element")
     _require("equity-curve-svg" not in html_body and "<svg" not in html_body, "inline equity SVG reached controlled transport")
+    _require("equity-curve-image" in html_body, "equity curve marker exists without donor PNG image element")
     matches = list(EQUITY_DATA_URI_RE.finditer(html_body))
     _require(len(matches) == 1, f"expected exactly one embedded equity PNG data URI, found {len(matches)}")
 
