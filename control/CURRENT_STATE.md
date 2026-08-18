@@ -5,92 +5,60 @@
 ```text
 date=2026-08-18
 repository=market-predictions/weekly-etf-eu
-state=FRESH_20260814_DELIVERY_CONFIRMED_CLOSED
-parent_issue=100
+state=ROUTINE_IDLE_EMAIL_EQUITY_PARITY_REPAIRED
+report_cycle=2026-08-14 CLOSED
 report_run_id=20260814_235900
-report_date=2026-08-14
-assured_candidate_head=f230a17fb6504ff1513ade0f4cb0b6ac0e1a0b5b
-approved_report_merge_commit=7e20340eca82bfb9aad0b63ffeaae7291e7f14e6
-controlled_transport_workflow_run=32105981988
-controlled_transport_attempt=2
-controlled_transport_run_id=20260818_061712
-principal_decision_required=false
-delivery_authorized=true
-machine_delivery_authority=true
-controlled_transport=true
+report_delivery_confirmed=true
 recipient_inbox_observed=true
 attachment_hash_confirmation=true
-report_delivery=true
-receipt_confirmed=true
-work_claim_closed=true
-workpackage_closed=true
-temporary_delivery_bridges_removed=true
+email_equity_parity_issue=105 CLOSED
+email_equity_parity_pr=106 MERGED
+email_equity_parity_assurance=issue_108 PASS
+email_equity_parity_candidate=57fef69626951f2a33bc63ced25253bcc4e84df0
+email_equity_parity_merge=1fb7168f7ba433e138503c68aa9447c5f7ebbc65
+email_equity_parity_workpackage=CLOSED
+principal_decision_required=false
 real_broker_execution=false
 portfolio_mutation_from_delivery=false
+corrected_resend_authorized=false
+corrected_resend_executed=false
 ```
 
 ## Current outcome
 
-The fresh Weekly ETF EU report for completed close `2026-08-14` is fully closed through delivery. The exact independently assured six-artifact client package was merged unchanged through PR #101, bound to a machine-readable guarded-delivery authority, sent only through the sole controlled transport workflow, observed in the recipient inbox in both NL and EN, and both received PDF attachments were byte-verified against the approved artifacts.
+The fresh Weekly ETF EU report cycle for completed close `2026-08-14` remains fully closed and delivery-confirmed. The exact independently assured six-artifact client package from PR #101 was previously delivered through the controlled transport path, directly observed in the recipient inbox in both NL and EN, and both received PDF attachments were byte-verified against the approved artifacts.
 
-Final delivery closeout:
+That historical delivery is not reopened by the later email-rendering repair.
 
-`output/run_manifests/etf_eu_delivery_closeout_manifest_20260818_061712.json`
+## Email equity-curve defect — closed
 
-Recipient-side receipt evidence:
+A post-delivery defect was confirmed: the approved PDF visibly rendered the portfolio equity curve, while Gmail did not render the same graph from the delivered HTML email because the delivery representation used inline SVG.
 
-`output/delivery/etf_eu_delivery_receipt_evidence_20260818_061712.json`
-
-Controlled transport evidence:
-
-- `output/delivery/etf_eu_transport_result_20260818_061712.json`
-- `output/delivery/etf_eu_delivery_evidence_20260818_061712.json`
-- `output/delivery/etf_eu_receipt_check_20260818_061712.json`
-- `output/delivery_package/etf_eu_delivery_package_manifest_20260818_061712.json`
-
-The workflow-generated receipt checker remains preserved with `receipt_confirmed=false` because it performs static artifact inspection and cannot inspect the recipient mailbox. It was not overwritten. Final confirmation is separately evidenced by direct connected-mailbox observation plus SHA-256 verification of the received NL/EN attachments.
-
-## Exact report lineage
+Issue #105 / PR #106 repaired the representation by converging on the established Weekly ETF donor architecture:
 
 ```text
-issue=100
-issue_status=CLOSED
-workpackage_status=CLOSED
-work_claim=ETF-EU-FRESH-REPORT-260814-V1
-work_claim_status=CLOSED
-pr=101
-report_run_id=20260814_235900
-report_date=2026-08-14
-candidate_actions_run=32056976044
-assured_candidate_head=f230a17fb6504ff1513ade0f4cb0b6ac0e1a0b5b
-independent_assurance_issue=102
-independent_assurance_verdict=PASS
-merged_report_commit=7e20340eca82bfb9aad0b63ffeaae7291e7f14e6
-principal_guarded_send_authorization=issue_100_comment_5318850166
-delivery_authority=output/delivery_authorization/etf_eu_guarded_delivery_authority_20260814_235900.json
-controlled_transport_workflow_run=32105981988
-controlled_transport_attempt=2
-controlled_transport_run_id=20260818_061712
+portfolio/equity state
+-> deterministic PNG before SMTP
+-> final standalone HTML embeds PNG as data URI
+-> final PDF regenerated from that final HTML
+-> controlled email reuses identical approved PNG bytes as cid:equitycurve
+-> no chart redraw/rasterization in transport
+-> fail closed on residual SVG or invalid/missing/ambiguous PNG
 ```
 
-## Delivery integrity
+Independent `governance_release_assurance` issue #108 returned `PASS` on exact candidate `57fef69626951f2a33bc63ced25253bcc4e84df0`. All required exact-head CI gates were green. The unchanged candidate was merged as `1fb7168f7ba433e138503c68aa9447c5f7ebbc65`.
 
-Approved and received PDF hashes:
+The repair changed no portfolio, pricing, allocation, trade-ledger or broker-execution behavior and created no report-send authority.
 
-```text
-NL=sha256:0593e106b74a6c2704cb8f9f2184a2d880db25e05b2c966e35c33b98bedb10eb
-EN=sha256:ac5c0543b47f6845aad49d8eb29b5a7af40c76427b4aefe665307beb5414e778
-```
+## Stable delivery architecture
 
-Both inbox attachments matched exactly. Recipient plaintext values are not stored in project evidence; only the existing redacted recipient hash is retained.
-
-## Delivery incident resolved
-
-Controlled transport attempt 1 failed before SMTP because the guarded-delivery authority writer omitted four explicit client-surface safety fields required by the existing delivery-package validator. No email was sent during that failed attempt.
-
-The delivery-layer contract was repaired without changing any report artifact bytes. The authority now carries the already-established client-grade safety assertions and the package writer propagates them into the package manifest. Attempt 2 of the same controlled workflow then passed authority, lineage, package, pre-transport, SMTP transport, post-transport and evidence persistence.
-
-Stable rule: guarded delivery package construction must carry explicit client-surface safety assertions from independently validated evidence; missing booleans must fail closed rather than be inferred. This rule is recorded in `control/DECISION_LOG.md`.
+- Candidate generation remains non-delivery authority.
+- Final client HTML/PDF are completed before guarded delivery authority.
+- When an equity chart is required, the final HTML contains one validated embedded PNG representation.
+- Controlled transport does not redraw or rasterize that graph; it only translates the already-approved PNG bytes to MIME CID form.
+- Guarded-delivery authority, artifact-hash binding and explicit send confirmations remain separate requirements.
+- Delivery success still requires real recipient-side receipt/closeout evidence.
+- No prior report may be resent merely because a delivery-surface defect was repaired.
 
 ## Decision framework retained
 
@@ -107,24 +75,17 @@ Stable rule: guarded delivery package construction must carry explicit client-su
 ## Operational state
 
 ```text
-issue_100=CLOSED
-workpackage=CLOSED
-work_claim=CLOSED
-candidate_run=PASS
-candidate_pr=MERGED
-independent_assurance=PASS
-exact_main_validation=PASS
-principal_guarded_send_authority=APPROVED
-machine_delivery_authority=APPROVED
-controlled_transport=SUCCESS
-recipient_inbox_receipt=CONFIRMED
-attachment_integrity=CONFIRMED
-delivery_closeout_manifest=PERSISTED
-temporary_dispatch_bridge=REMOVED
-temporary_observer_bridge=REMOVED
-delivery_contract_decision_log=RECORDED
+2026_08_14_report_cycle=CLOSED_CONFIRMED
+issue_105=CLOSED
+pr_106=MERGED
+issue_108=CLOSED_PASS
+email_equity_parity_workpackage=CLOSED
+donor_aligned_email_graph_contract=ACTIVE
+corrected_resend=NOT_AUTHORIZED_NOT_EXECUTED
+routine_state=IDLE_READY_FOR_NEXT_FRESH_CYCLE
+principal_decision_required=false
 ```
 
 ## Next lifecycle
 
-No report, assurance, delivery or closeout action remains for the 2026-08-14 cycle. The project returns to the normal next fresh Weekly ETF EU cycle. Any future report must start from fresh completed-close evidence rather than reusing the 2026-08-14 prices as current truth.
+No report, resend, assurance or closeout action remains for the 2026-08-14 cycle or for issue #105. The next production action is only the next normal fresh Weekly ETF EU cycle based on a new completed-close date and fresh evidence.
