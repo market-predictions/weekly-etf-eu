@@ -6,61 +6,43 @@
 ROUTINE_IDLE_READY_FOR_NEXT_FRESH_CYCLE
 ```
 
-Current authoritative closed-cycle identity:
+## Closed maintenance repair
+
+The post-delivery email equity-curve parity defect is closed.
 
 ```text
-issue=100
-issue_status=CLOSED
-workpackage_status=CLOSED
-work_claim=ETF-EU-FRESH-REPORT-260814-V1
-work_claim_status=CLOSED
-report_run_id=20260814_235900
-report_date=2026-08-14
-assured_candidate_head=f230a17fb6504ff1513ade0f4cb0b6ac0e1a0b5b
-merged_report_commit=7e20340eca82bfb9aad0b63ffeaae7291e7f14e6
-controlled_transport_workflow_run=32105981988
-controlled_transport_attempt=2
-controlled_transport_run_id=20260818_061712
-delivery_closeout=output/run_manifests/etf_eu_delivery_closeout_manifest_20260818_061712.json
-delivery_success=true
-receipt_confirmed=true
-attachment_hash_confirmation=true
-temporary_delivery_bridges_removed=true
-real_broker_execution=false
+issue=105 CLOSED
+pull_request=106 MERGED
+assured_candidate_head=57fef69626951f2a33bc63ced25253bcc4e84df0
+merge_commit=1fb7168f7ba433e138503c68aa9447c5f7ebbc65
+independent_assurance_issue=108 CLOSED
+independent_assurance_verdict=PASS
+workpackage=ETF-EU-EMAIL-EQUITY-PARITY-105 CLOSED
+corrected_resend_authorized=false
+corrected_resend_executed=false
 principal_decision_required=false
 ```
 
-## Completed in the 2026-08-14 cycle — do not reopen without contradictory evidence
+The active graph-delivery contract now follows the established Weekly ETF donor pattern: deterministic PNG before SMTP, embedded PNG in final standalone HTML, final PDF regenerated from that HTML, and the identical approved PNG bytes reused through MIME `cid:equitycurve`. Controlled transport performs no chart redraw/rasterization and fails closed on residual SVG or missing/ambiguous/malformed PNG media.
 
-1. Fresh completed-close production was performed for `2026-08-14` using the canonical Weekly ETF EU decision framework.
-2. NL/EN Markdown, HTML and PDF were produced from one normalized current state.
-3. Client-grade deterministic and visual/PDF QA passed.
-4. PR #101 candidate head `f230a17fb6504ff1513ade0f4cb0b6ac0e1a0b5b` received independent `governance_release_assurance` PASS in issue #102.
-5. The unchanged PASSed candidate was merged as report commit `7e20340eca82bfb9aad0b63ffeaae7291e7f14e6`.
-6. The six approved client artifacts were byte-verified unchanged on `main` and bound by SHA-256 in `output/delivery_authorization/etf_eu_guarded_delivery_authority_20260814_235900.json`.
-7. Principal guarded-send authority was preserved in issue #100.
-8. Controlled transport run `32105981988` attempt 1 failed before SMTP on a fail-closed package-contract mismatch; no report email was sent by that attempt.
-9. The delivery-layer contract mismatch was repaired without changing report bytes.
-10. Attempt 2 of the same controlled transport workflow succeeded through SMTP and evidence persistence.
-11. Both NL and EN messages were directly observed in the recipient INBOX.
-12. Both received PDF attachments matched the approved report artifacts exactly by SHA-256.
-13. Final recipient-side receipt evidence and a delivery closeout manifest are persisted.
-14. Work package and work claim are CLOSED.
-15. Temporary one-shot workflow-dispatch/observation bridges are removed; their durable evidence markers remain.
-16. The stable explicit client-surface-safety binding rule is recorded in `control/DECISION_LOG.md`.
-17. No real broker execution occurred and delivery did not mutate portfolio state.
+## No remaining action for the 2026-08-14 cycle
 
-## No remaining action for this cycle
+The previously delivered 2026-08-14 report remains closed and receipt-confirmed. The rendering repair does not reopen that report cycle and does not authorize a resend.
 
-There is no remaining report production, assurance, merge, delivery, receipt or governance-closeout step for the `2026-08-14` report.
+There is no remaining report production, assurance, merge, delivery, receipt or governance-closeout step for that historical cycle.
 
-The next action is only the next normal fresh Weekly ETF EU cycle when a new completed-close date is due. That cycle must:
+## Next normal fresh cycle
+
+The next Weekly ETF EU production cycle must begin only when a new completed-close date is due. It must:
 
 - start from fresh completed-close evidence;
-- treat the 2026-08-14 report only as historical strategy/model context;
-- run a full current portfolio re-underwrite rather than mechanically roll positions forward;
-- preserve the same independent assurance → merge → exact-main → hash-bound authority → controlled transport → recipient receipt chain;
-- claim delivery success only from positive recipient-side receipt/attachment evidence or an equivalent real delivery receipt.
+- treat prior reports only as historical strategy/model context;
+- perform a full current portfolio re-underwrite rather than mechanically rolling positions forward;
+- use the current donor-aligned equity graph contract for HTML/PDF/email parity;
+- preserve independent assurance before merge;
+- preserve exact approved-artifact/hash binding before any controlled transport;
+- require a separate current guarded-send authority for any actual email delivery;
+- claim delivery success only from positive recipient-side receipt/attachment evidence or equivalent real delivery receipt/manifest.
 
 ## Protected boundaries
 
@@ -71,4 +53,9 @@ The next action is only the next normal fresh Weekly ETF EU cycle when a new com
 - no research-only mapping/price becomes funding authority automatically;
 - candidate generation has no SMTP/delivery authority;
 - no rerender after artifact approval;
+- no resend of historical reports from architecture/maintenance authority;
 - no delivery success claim without a real receipt/manifest.
+
+## Controller housekeeping
+
+The project-local state is reconciled through the completed email-parity merge. Central `market-predictions/control-plane` cache/narrative entries may still be stale until their next portfolio-control reconciliation; project-local/live GitHub evidence remains authoritative.
