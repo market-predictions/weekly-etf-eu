@@ -12,6 +12,8 @@ report_date=2026-08-14
 run_id=20260814_235900
 owner_role=implementation_operations
 principal_decision_required=false
+status=CLOSED
+delivery_status=DELIVERED_CONFIRMED
 ```
 
 ## Current issue
@@ -57,3 +59,38 @@ Produce normalized Dutch and English Markdown, HTML and PDF from one current sta
 - no broker execution;
 - delivery claim requires real receipt evidence;
 - future cycle cannot silently idle merely because a chat request was not converted to durable work.
+
+## Final closeout — 2026-08-18
+
+All acceptance criteria are satisfied.
+
+```text
+candidate_actions_run=32056976044
+candidate_head=f230a17fb6504ff1513ade0f4cb0b6ac0e1a0b5b
+independent_assurance=PASS
+assurance_issue=102
+pr=101
+merged_report_commit=7e20340eca82bfb9aad0b63ffeaae7291e7f14e6
+machine_delivery_authority=APPROVED
+controlled_transport_workflow_run=32105981988
+controlled_transport_attempt=2
+controlled_transport_run_id=20260818_061712
+transport_success=true
+recipient_inbox_observed=true
+receipt_confirmed=true
+attachment_hash_confirmation=true
+portfolio_mutation_from_delivery=false
+real_broker_execution=false
+```
+
+Attempt 1 of controlled transport failed before SMTP because the delivery-package writer did not propagate four explicit client-surface safety fields required by the package validator. The defect was repaired only in the delivery contract; none of the six independently assured report artifacts changed. Attempt 2 succeeded.
+
+Final evidence:
+
+- `output/delivery_authorization/etf_eu_guarded_delivery_authority_20260814_235900.json`
+- `output/delivery/etf_eu_transport_result_20260818_061712.json`
+- `output/delivery/etf_eu_delivery_receipt_evidence_20260818_061712.json`
+- `output/delivery_package/etf_eu_delivery_package_manifest_20260818_061712.json`
+- `output/run_manifests/etf_eu_delivery_closeout_manifest_20260818_061712.json`
+
+Final disposition: `CLOSE`.
