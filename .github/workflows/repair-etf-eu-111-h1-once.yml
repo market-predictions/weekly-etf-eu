@@ -1,0 +1,70 @@
+name: Repair ETF EU 111 H1 finding once
+
+on:
+  push:
+    branches:
+      - ops/repair-etf-eu-111-h1-once
+    paths:
+      - .github/workflows/repair-etf-eu-111-h1-once.yml
+
+permissions:
+  contents: write
+
+jobs:
+  repair:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Apply bounded H1 repair to exact candidate branch
+        env:
+          TARGET_BRANCH: agent/etf-eu-primary-verification-111
+          EXPECTED_HEAD: 73be79b233ff634d167732de1ee381af054011fb
+        run: |
+          set -euo pipefail
+          git fetch origin "$TARGET_BRANCH"
+          actual="$(git rev-parse "origin/$TARGET_BRANCH")"
+          test "$actual" = "$EXPECTED_HEAD" || { echo "candidate moved: $actual"; exit 1; }
+          git checkout -B "$TARGET_BRANCH" "origin/$TARGET_BRANCH"
+
+          python - <<'PY'
+          from pathlib import Path
+
+          builder = Path('tools/build_etf_eu_routine_report_package_v2.py')
+          text = builder.read_text(encoding='utf-8')
+          anchor = '''    promotion_fields = {\n'''
+          replacement = '''    pricing_contract = dict(funded_state.get("pricing_contract") or {})\n    promotion_fields = {\n'''
+          if text.count(anchor) != 1:
+              raise SystemExit(f'unexpected promotion_fields anchor count: {text.count(anchor)}')
+          text = text.replace(anchor, replacement, 1)
+
+          old = '''        "pricing_state_builder": "runtime/build_etf_eu_client_grade_report_state_v2.py",\n        "funded_two_provider_consensus_required": True,\n        "full_current_reunderwriting_required": True,\n'''
+          new = '''        "pricing_state_builder": "runtime/build_etf_eu_client_grade_report_state_v2.py",\n        "funded_exact_primary_pricing_required": pricing_contract.get("funded_exact_primary_pricing_required") is True,\n        "second_provider_required_for_liveness": pricing_contract.get("second_provider_required_for_liveness") is True,\n        "funded_two_provider_consensus_required": pricing_contract.get("funded_two_provider_consensus_required") is True,\n        "pricing_authority_mode": pricing_contract.get("pricing_authority_mode"),\n        "full_current_reunderwriting_required": True,\n'''
+          if text.count(old) != 1:
+              raise SystemExit(f'unexpected stale promotion block count: {text.count(old)}')
+          text = text.replace(old, new, 1)
+          builder.write_text(text, encoding='utf-8')
+
+          test_path = Path('tests/test_etf_eu_full_candidate_package_end_to_end.py')
+          test_text = test_path.read_text(encoding='utf-8')
+          test_anchor = '''    assert state["pricing_contract"]["funded_exact_primary_pricing_required"] is True\n    assert state["pricing_contract"]["second_provider_required_for_liveness"] is False\n\n    markdown_result = validate_markdown(Path(state_path), nl_md, en_md)\n'''
+          test_replacement = '''    assert state["pricing_contract"]["funded_exact_primary_pricing_required"] is True\n    assert state["pricing_contract"]["second_provider_required_for_liveness"] is False\n    assert state["pricing_contract"]["funded_two_provider_consensus_required"] is False\n\n    # Regression for H1 assurance finding: the actual promoted v2 package path\n    # must preserve the primary-plus-optional-verification authority in every\n    # final machine contract, rather than reintroducing the retired universal\n    # two-provider liveness requirement after the normalized state is built.\n    for artifact_key in ("manifest", "ready", "routine"):\n        payload = json.loads(Path(outputs[artifact_key]).read_text(encoding="utf-8"))\n        assert payload["funded_exact_primary_pricing_required"] is True\n        assert payload["second_provider_required_for_liveness"] is False\n        assert payload["funded_two_provider_consensus_required"] is False\n        assert payload["pricing_authority_mode"] == "donor_aligned_primary_plus_verification_v1"\n\n    markdown_result = validate_markdown(Path(state_path), nl_md, en_md)\n'''
+          if test_text.count(test_anchor) != 1:
+              raise SystemExit(f'unexpected test insertion anchor count: {test_text.count(test_anchor)}')
+          test_text = test_text.replace(test_anchor, test_replacement, 1)
+          test_path.write_text(test_text, encoding='utf-8')
+          PY
+
+          python -m py_compile tools/build_etf_eu_routine_report_package_v2.py tests/test_etf_eu_full_candidate_package_end_to_end.py
+          test "$(git diff --name-only | sort)" = $'tests/test_etf_eu_full_candidate_package_end_to_end.py\ntools/build_etf_eu_routine_report_package_v2.py'
+          git diff --check
+          git diff -- tools/build_etf_eu_routine_report_package_v2.py tests/test_etf_eu_full_candidate_package_end_to_end.py
+
+          git config user.name "market-predictions"
+          git config user.email "darko.desktop@gmail.com"
+          git add tools/build_etf_eu_routine_report_package_v2.py tests/test_etf_eu_full_candidate_package_end_to_end.py
+          git commit -m "Repair v2 pricing authority promotion metadata"
+          git push origin "HEAD:$TARGET_BRANCH"
