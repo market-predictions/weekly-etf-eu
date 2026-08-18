@@ -1,0 +1,57 @@
+{
+  "approved_report_commit_sha": "7e20340eca82bfb9aad0b63ffeaae7291e7f14e6",
+  "artifact_type": "etf_eu_guarded_delivery_authority",
+  "artifacts": {
+    "en_html": {
+      "path": "output/fresh_generation/weekly_etf_eu_review_260814.html",
+      "sha256": "sha256:f58425d625e15fbf8c8afc836e78616690fec5c4617b8f4d20ba256e372cc2c2"
+    },
+    "en_md": {
+      "path": "output/fresh_generation/weekly_etf_eu_review_260814.md",
+      "sha256": "sha256:ddcc00f7afbe471daf3b6f0b78487eb19c93b368e8a120c98ddecb3181e92461"
+    },
+    "en_pdf": {
+      "path": "output/fresh_generation/weekly_etf_eu_review_260814.pdf",
+      "sha256": "sha256:ac5c0543b47f6845aad49d8eb29b5a7af40c76427b4aefe665307beb5414e778"
+    },
+    "nl_html": {
+      "path": "output/fresh_generation/weekly_etf_eu_review_nl_260814.html",
+      "sha256": "sha256:9d7b7d1c86e136f904aedb9114e8fed2d1d9b403e80cb7c07d0459b38de3ae49"
+    },
+    "nl_md": {
+      "path": "output/fresh_generation/weekly_etf_eu_review_nl_260814.md",
+      "sha256": "sha256:c54cdf8f1a6c522ff70ff9b15b2efc2c2c907e6029394173e5c3b9a44d870691"
+    },
+    "nl_pdf": {
+      "path": "output/fresh_generation/weekly_etf_eu_review_nl_260814.pdf",
+      "sha256": "sha256:0593e106b74a6c2704cb8f9f2184a2d880db25e05b2c966e35c33b98bedb10eb"
+    }
+  },
+  "assured_candidate_head_sha": "f230a17fb6504ff1513ade0f4cb0b6ac0e1a0b5b",
+  "broker_execution": false,
+  "delivery_authority": true,
+  "independent_assurance": {
+    "evidence_ref": "https://github.com/market-predictions/weekly-etf-eu/issues/102#issuecomment-5319158410",
+    "implementation_role_separate": true,
+    "reviewed_head_sha": "f230a17fb6504ff1513ade0f4cb0b6ac0e1a0b5b",
+    "reviewer_role": "governance_release_assurance",
+    "verdict": "PASS"
+  },
+  "portfolio_mutation": false,
+  "principal_guarded_send_authorization": {
+    "approved": true,
+    "reference": "https://github.com/market-predictions/weekly-etf-eu/issues/100#issuecomment-5318850166"
+  },
+  "product": "weekly_etf_eu",
+  "provenance": {
+    "artifact_action_name": "etf-eu-candidate-20260814_235900",
+    "artifact_action_run_id": 32056976044,
+    "byte_identity_verified_against_current_main": true,
+    "merged_main_commit_sha": "7e20340eca82bfb9aad0b63ffeaae7291e7f14e6"
+  },
+  "report_date": "2026-08-14",
+  "report_run_id": "20260814_235900",
+  "report_suffix": "260814",
+  "schema_version": "etf_eu_guarded_delivery_authority_v1",
+  "status": "APPROVED_FOR_GUARDED_DELIVERY"
+}
