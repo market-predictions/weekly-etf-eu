@@ -170,6 +170,7 @@ def build(args: argparse.Namespace) -> dict[str, Path]:
     nl_md.write_text(finalize_markdown_semantics(nl_text, funded_state, language="nl"), encoding="utf-8")
     en_md.write_text(finalize_markdown_semantics(en_text, funded_state, language="en"), encoding="utf-8")
 
+    pricing_contract = dict(funded_state.get("pricing_contract") or {})
     promotion_fields = {
         "client_renderer_mode": "client_grade_v2_funded_aware_donor_parity_v1",
         "production_renderer": "runtime/render_etf_eu_client_grade_v2_funded.py",
@@ -185,7 +186,10 @@ def build(args: argparse.Namespace) -> dict[str, Path]:
         "client_surface_semantics_finalizer": "runtime/finalize_etf_eu_client_surface_semantics.py",
         "pricing_contract": "ucits_close_price_validation_basket_results_v2",
         "pricing_state_builder": "runtime/build_etf_eu_client_grade_report_state_v2.py",
-        "funded_two_provider_consensus_required": True,
+        "funded_exact_primary_pricing_required": pricing_contract.get("funded_exact_primary_pricing_required") is True,
+        "second_provider_required_for_liveness": pricing_contract.get("second_provider_required_for_liveness") is True,
+        "funded_two_provider_consensus_required": pricing_contract.get("funded_two_provider_consensus_required") is True,
+        "pricing_authority_mode": pricing_contract.get("pricing_authority_mode"),
         "full_current_reunderwriting_required": True,
         "full_current_reunderwriting_complete": bool((funded_state.get("parity_completeness") or {}).get("all_funded_positions_have_current_reunderwriting")),
         "cash_deploy_or_explain_complete": bool((funded_state.get("parity_completeness") or {}).get("cash_deploy_or_explain_complete")),
