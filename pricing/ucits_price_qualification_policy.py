@@ -54,7 +54,7 @@ def _live_metadata_anchor(row: dict[str, Any]) -> bool:
     )
 
 
-def _provider_price_accepted(row: dict[str, Any]) -> bool:
+def _runtime_price_fields_valid(row: dict[str, Any]) -> bool:
     if row.get("pricing_status") != "priced":
         return False
     if row.get("close_price") in (None, "") or not _text(row.get("close_date")):
@@ -75,15 +75,21 @@ def _binding_map(identity_binding: dict[str, Any]) -> dict[str, dict[str, Any]]:
     }
 
 
+def _provider_symbol_bound(binding: dict[str, Any], provider: str) -> bool:
+    provider_binding = (binding.get("provider_symbol_bindings") or {}).get(provider)
+    return isinstance(provider_binding, dict) and provider_binding.get("matched") is True
+
+
 def apply_primary_verification_policy_payload(
     payload: dict[str, Any],
     identity_binding: dict[str, Any],
 ) -> dict[str, Any]:
     """Apply donor-aligned primary-close + optional verification authority.
 
-    Stable instrument identity comes from the canonical UCITS symbol registry.
-    A second live price source increases confidence but is not a universal
-    liveness dependency. Genuine same-date disagreement still fails closed.
+    Stable trading-line identity is source-independent. A provider can contribute
+    a price only when its own provider-symbol mapping is statically bound to that
+    line. A broken/stale verifier therefore cannot invalidate a correctly bound
+    exact primary source, while genuine same-date price disagreement still blocks.
     """
 
     provider_order = [_text(item) for item in payload.get("provider_order") or [] if _text(item)]
@@ -95,20 +101,33 @@ def apply_primary_verification_policy_payload(
     for line in lines:
         basket_id = _text(line.get("basket_id"))
         binding = bindings.get(basket_id, {})
-        static_bound = binding.get("static_identity_binding") is True
+        static_line_bound = binding.get("static_identity_binding") is True
         provider_rows = [row for row in line.get("provider_results") or [] if isinstance(row, dict)]
 
         live_anchor_providers: list[str] = []
         accepted_exact: list[dict[str, Any]] = []
         stale_or_other_date: list[str] = []
         rejected_providers: list[str] = []
+        provider_symbol_binding_failures: list[str] = []
 
         for provider_row in provider_rows:
             _sanitize_provider_row(provider_row)
+            provider = _text(provider_row.get("provider"))
             provider_row["symbol_match"] = _symbol_match(provider_row)
             provider_row["live_metadata_identity_anchor"] = _live_metadata_anchor(provider_row)
-            provider_row["primary_verification_accepted"] = _provider_price_accepted(provider_row)
-            provider = _text(provider_row.get("provider"))
+            provider_row["static_provider_symbol_binding"] = _provider_symbol_bound(binding, provider)
+            rejection_reasons: list[str] = []
+            if not static_line_bound:
+                rejection_reasons.append("static_trading_line_identity_not_bound")
+            if not provider_row["static_provider_symbol_binding"]:
+                rejection_reasons.append("static_provider_symbol_not_bound")
+                if provider_row.get("pricing_status") == "priced":
+                    provider_symbol_binding_failures.append(provider)
+            if not _runtime_price_fields_valid(provider_row):
+                rejection_reasons.append("runtime_price_or_returned_identity_invalid")
+            provider_row["primary_verification_rejection_reasons"] = sorted(set(rejection_reasons))
+            provider_row["primary_verification_accepted"] = not rejection_reasons
+
             if provider_row["live_metadata_identity_anchor"]:
                 live_anchor_providers.append(provider)
             if not provider_row["primary_verification_accepted"]:
@@ -130,7 +149,7 @@ def apply_primary_verification_policy_payload(
         if primary_price and exact_prices:
             spread_pct = (max(exact_prices) - min(exact_prices)) / primary_price * 100.0
 
-        if not static_bound:
+        if not static_line_bound:
             status = "identity_binding_failed"
             selected_price = None
             verification_status = "blocked_static_identity_not_bound"
@@ -164,6 +183,9 @@ def apply_primary_verification_policy_payload(
         line["consensus_close_price"] = line["selected_close_price"]
         line["primary_provider"] = primary_provider
         line["primary_close_price"] = round(primary_price, 8) if primary_price is not None else None
+        line["static_primary_provider_symbol_binding"] = (
+            _provider_symbol_bound(binding, primary_provider) if primary_provider else False
+        )
         line["verification_status"] = verification_status
         line["verification_providers"] = verification_providers
         line["same_date_provider_count"] = len(accepted_exact)
@@ -173,27 +195,37 @@ def apply_primary_verification_policy_payload(
             else []
         )
         line["agreement_spread_pct"] = round(float(spread_pct), 6) if spread_pct is not None else None
-        line["static_identity_binding"] = static_bound
+        line["static_identity_binding"] = static_line_bound
         line["static_identity_binding_status"] = binding.get("binding_status")
         line["static_identity_registry_id"] = binding.get("registry_id")
         line["static_identity_blockers"] = list(binding.get("blockers") or [])
         line["identity_assurance_status"] = (
-            "static_registry_verified_exact_line" if static_bound else "static_registry_identity_failed"
+            "static_registry_verified_exact_line" if static_line_bound else "static_registry_identity_failed"
         )
         line["identity_anchor_providers"] = sorted(set(live_anchor_providers))
         line["identity_anchor_provider_count"] = len(set(live_anchor_providers))
         line["stale_or_other_date_providers"] = sorted(set(stale_or_other_date))
         line["rejected_provider_prices"] = sorted(set(rejected_providers))
-        line["valuation_grade"] = status in AUTHORIZED_EXACT_STATUSES and static_bound
+        line["provider_symbol_binding_failures"] = sorted(set(provider_symbol_binding_failures))
+        line["valuation_grade"] = (
+            status in AUTHORIZED_EXACT_STATUSES
+            and static_line_bound
+            and line["static_primary_provider_symbol_binding"] is True
+        )
 
     funded = [line for line in lines if line.get("funded")]
-    authorized = [line for line in funded if line.get("qualification_status") in AUTHORIZED_EXACT_STATUSES]
-    verified = [line for line in funded if line.get("qualification_status") == "fresh_exact_verified"]
-    unverified = [line for line in funded if line.get("qualification_status") == "fresh_exact_unverified"]
+    authorized = [
+        line
+        for line in funded
+        if line.get("qualification_status") in AUTHORIZED_EXACT_STATUSES and line.get("valuation_grade") is True
+    ]
+    verified = [line for line in authorized if line.get("qualification_status") == "fresh_exact_verified"]
+    unverified = [line for line in authorized if line.get("qualification_status") == "fresh_exact_unverified"]
     static_bound_funded = [line for line in funded if line.get("static_identity_binding") is True]
 
     payload["qualified_line_count"] = sum(
-        line.get("qualification_status") in AUTHORIZED_EXACT_STATUSES for line in lines
+        line.get("qualification_status") in AUTHORIZED_EXACT_STATUSES and line.get("valuation_grade") is True
+        for line in lines
     )
     payload["funded_pricing_authorized_count"] = len(authorized)
     payload["funded_verified_count"] = len(verified)
@@ -208,7 +240,9 @@ def apply_primary_verification_policy_payload(
         "mode": "donor_aligned_primary_plus_verification_v1",
         "static_identity_authority": "config/ucits_symbol_registry.yml",
         "exact_requested_date_primary_required": True,
+        "primary_provider_symbol_binding_required": True,
         "second_provider_required_for_liveness": False,
+        "verifier_provider_symbol_failure_blocks_primary": False,
         "same_date_verifier_within_tolerance_upgrades_confidence": True,
         "same_date_disagreement_blocks": True,
         "stale_verifier_blocks": False,
@@ -217,7 +251,8 @@ def apply_primary_verification_policy_payload(
     }
     payload["identity_policy"] = {
         "static_exact_line_binding_required": True,
-        "binding_identity": "isin+ticker+exchange+mic+currency+provider_symbol",
+        "binding_identity": "isin+ticker+exchange+mic+currency",
+        "provider_symbol_binding": "required_per_provider_used_for_price_authority_or_verification",
         "live_metadata_anchor_required_each_run": False,
         "returned_symbol_mismatch_rejects_provider": True,
         "returned_venue_mismatch_rejects_provider": True,
@@ -237,8 +272,8 @@ def apply_primary_verification_policy(path: Path, identity_binding: dict[str, An
     return payload
 
 
-# Backward-compatible import name. Callers should migrate to
-# apply_primary_verification_policy with explicit static identity evidence.
+# Backward-compatible import name. Stale callers fail closed instead of silently
+# applying the retired live-identity-anchor semantics.
 def apply_identity_anchor_policy(path: Path) -> dict[str, Any]:
     raise RuntimeError(
         "apply_identity_anchor_policy is retired; static UCITS identity binding is required by primary+verification policy"
