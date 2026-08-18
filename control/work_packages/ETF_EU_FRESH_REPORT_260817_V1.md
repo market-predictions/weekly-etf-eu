@@ -9,11 +9,13 @@ repository=market-predictions/weekly-etf-eu
 branch=agent/etf-eu-fresh-260817-v1
 base_main_sha=0ea61c349b99dcd23f61fed1e72b46326d516914
 owner_role=implementation_operations
-status=ACTIVE
+status=BLOCKED
 opened_at=2026-08-18T15:17:09+02:00
+blocked_at=2026-08-18T15:34:00+02:00
 report_date=2026-08-17
 report_suffix=260817
 run_id=20260817_151400
+candidate_workflow_run=32141729593
 principal_decision_required=false
 ```
 
@@ -52,17 +54,51 @@ Produce one normalized-state bilingual candidate package:
 
 The active donor-aligned graph contract must apply: deterministic PNG before SMTP; final standalone HTML contains embedded PNG; PDF is generated from the same final HTML. Candidate generation has no SMTP authority.
 
+## Current blocker — external second-provider freshness lag
+Canonical candidate workflow run `32141729593` passed request validation, donor breadth selection, quota-aware candidate selection and routine preflight, then failed closed at funded completed-close pricing.
+
+Exact funded result for report date `2026-08-17`:
+```text
+funded_lines=6
+funded_consensus=0/6
+funded_identity_anchors=0/6
+pricing_gate=false
+```
+
+A separate non-authoritative diagnostic replay using the same candidate code and provider configuration proved the cause for every funded line:
+- Alpha Vantage returned a valid `2026-08-17` exact configured-line close;
+- Yahoo Chart returned only `2026-08-14` for the same line;
+- therefore same-date provider count is 1, not 2;
+- no ticker/ISIN/venue/currency mismatch was observed in Yahoo metadata;
+- `stale_registry_funded_flags_overridden=[dfen_xetra_eur,iqqq_xetra_eur,l0ck_xetra_eur]` is normal protected-portfolio reconciliation and was also present in the prior successful 2026-08-14 qualification; it is not the cause.
+
+Non-secret provider-availability evidence additionally proves:
+```text
+alpha_vantage_configured=true
+yahoo_chart_configured=true
+leeway_configured=false
+eodhd_configured=false
+marketstack_configured=false
+```
+
+The repository's Börse Frankfurt/Xetra adapter is explicitly `diagnostic_candidate_source` with unknown license status and no valuation/funding authority, so it is not promoted as an emergency second provider.
+
+### Consequence
+No client-grade 2026-08-17 report may be generated until either:
+1. Yahoo Chart publishes the 2026-08-17 close for the funded lines and the existing two-provider gate passes on retry; or
+2. a separately governed already-qualified second provider becomes configured and passes the same exact-line/same-date/identity contract.
+
+Using Alpha alone, reusing 2026-08-14 closes, or promoting a diagnostic-only source would weaken the current authority contract and is prohibited.
+
 ## Operational runbook
-1. Create candidate-only request for run `20260817_151400`.
-2. Validate request/preflight.
-3. Run canonical `.github/workflows/run-weekly-etf-eu-routine.yml` on this branch only.
-4. Require funded exact-line same-date pricing consensus.
-5. Build broad donor discovery bridge and current full re-underwriting.
-6. Generate NL/EN client surfaces.
-7. Run strict machine and PDF visual gates.
-8. Persist candidate output to this branch and Actions artifact only.
-9. Freeze exact candidate head and prepare independent assurance handover.
-10. Do not merge or send within implementation authority.
+1. Keep the current candidate branch/request intact.
+2. Treat workflow run `32141729593` as a valid fail-closed attempt, not a report candidate.
+3. On external provider freshness recovery, rerun the canonical candidate workflow with the same report-date contract if `2026-08-17` remains the correct completed close.
+4. If later evidence establishes a different latest common completed close, create a new run identity rather than relabel stale prices.
+5. After pricing passes, continue macro/discovery/re-underwriting, NL/EN generation, strict machine and PDF visual gates.
+6. Persist candidate output to this branch and Actions artifact only.
+7. Freeze exact candidate head and prepare independent assurance handover.
+8. Do not merge or send within implementation authority.
 
 ## Protected boundaries
 ```text
@@ -73,7 +109,10 @@ real_broker_execution=false
 portfolio_mutation_without_explicit_current_allocation_authority=false
 self_assurance=false
 merge_before_independent_PASS=false
+single_provider_fallback=false
+stale_close_reuse=false
+diagnostic_source_promotion=false
 ```
 
-## Definition of done for this work package phase
-`ASSURANCE_READY`: fresh candidate artifacts exist on one exact frozen head with all required implementation gates green and no delivery action executed.
+## Current status
+`IMPLEMENTATION_BLOCKED` — external Yahoo completed-close freshness lag. No client report was generated and no delivery action occurred.
