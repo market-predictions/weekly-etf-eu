@@ -19,6 +19,12 @@ REQUIRED_ARTIFACT_KEYS = (
     "nl_pdf",
     "en_pdf",
 )
+REQUIRED_CLIENT_SURFACE_FALSE_FLAGS = (
+    "stale_delivery_wording_present",
+    "main_surface_us_proxy_exposure",
+    "main_surface_tbd_candidate_exposure",
+    "nan_price_in_client_surface",
+)
 SHA_RE = re.compile(r"^[0-9a-f]{40}$")
 SHA256_RE = re.compile(r"^(?:sha256:)?[0-9a-f]{64}$")
 
@@ -80,6 +86,14 @@ def validate(path: Path) -> dict[str, Any]:
     _require(principal.get("approved") is True, "principal guarded-send authorization is not approved")
     _require(bool(str(principal.get("reference", "")).strip()), "principal authorization reference required")
 
+    safety = payload.get("client_surface_safety")
+    _require(isinstance(safety, dict), "client_surface_safety object required")
+    for flag in REQUIRED_CLIENT_SURFACE_FALSE_FLAGS:
+        _require(safety.get(flag) is False, f"client surface safety assertion failed: {flag}")
+    safety_evidence = Path(str(safety.get("evidence_ref", "")))
+    _require(str(safety_evidence).startswith("output/"), "client surface safety evidence must be under output/")
+    _require(safety_evidence.exists(), f"client surface safety evidence missing: {safety_evidence}")
+
     artifacts = payload.get("artifacts")
     _require(isinstance(artifacts, dict), "artifacts object required")
     _require(set(REQUIRED_ARTIFACT_KEYS) <= set(artifacts), "six approved client artifacts required")
@@ -109,6 +123,7 @@ def validate(path: Path) -> dict[str, Any]:
 
 def write_delivery_package_manifest(payload: dict[str, Any], output: Path, transport_run_id: str) -> None:
     artifacts = payload["artifacts"]
+    safety = payload["client_surface_safety"]
     manifest = {
         "schema_version": "etf_eu_delivery_package_manifest_v1",
         "run_id": transport_run_id,
@@ -123,6 +138,11 @@ def write_delivery_package_manifest(payload: dict[str, Any], output: Path, trans
         "dutch_primary": True,
         "english_companion": True,
         "client_grade_package_ready": True,
+        "stale_delivery_wording_present": safety["stale_delivery_wording_present"],
+        "main_surface_us_proxy_exposure": safety["main_surface_us_proxy_exposure"],
+        "main_surface_tbd_candidate_exposure": safety["main_surface_tbd_candidate_exposure"],
+        "nan_price_in_client_surface": safety["nan_price_in_client_surface"],
+        "client_surface_safety_evidence_ref": safety["evidence_ref"],
         "source_is_independently_assured": True,
         "assured_candidate_head_sha": payload["assured_candidate_head_sha"],
         "approved_report_commit_sha": payload["approved_report_commit_sha"],
