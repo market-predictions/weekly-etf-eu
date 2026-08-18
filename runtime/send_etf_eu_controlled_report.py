@@ -1,9 +1,11 @@
 from __future__ import annotations
 
 import argparse
+import base64
 import hashlib
 import json
 import os
+import re
 import smtplib
 import ssl
 from datetime import datetime, timezone
@@ -20,6 +22,10 @@ CONFIG_ALIASES = {
     "recipient_nl": ("ETF_EU_TO_NL", "ETF_EU_RECIPIENT_NL"),
     "recipient_en": ("ETF_EU_TO_EN", "ETF_EU_RECIPIENT_EN"),
 }
+
+EQUITY_DATA_URI_RE = re.compile(r"data:image/png;base64,([A-Za-z0-9+/=]+)")
+EQUITY_CID = "equitycurve"
+PNG_SIGNATURE = b"\x89PNG\r\n\x1a\n"
 
 
 def _utc_now() -> str:
@@ -84,6 +90,37 @@ def _package_paths(manifest_path: Path | None) -> dict[str, Path]:
     return paths
 
 
+def _materialize_email_equity_curve(html_body: str, *, language: str) -> tuple[str, bytes | None, str | None]:
+    """Translate the assured donor-standard embedded PNG to MIME CID form.
+
+    The graph bytes are already part of the independently approved standalone
+    HTML. Controlled transport is not allowed to redraw or rasterize the chart;
+    it may only move those identical PNG bytes from data-URI representation to a
+    related MIME image part.
+    """
+    has_curve_marker = "equity-curve-block" in html_body or "equity-curve-image" in html_body
+    if not has_curve_marker:
+        return html_body, None, None
+
+    _require("equity-curve-svg" not in html_body and "<svg" not in html_body, "inline equity SVG reached controlled transport")
+    _require("equity-curve-image" in html_body, "equity curve marker exists without donor PNG image element")
+    matches = list(EQUITY_DATA_URI_RE.finditer(html_body))
+    _require(len(matches) == 1, f"expected exactly one embedded equity PNG data URI, found {len(matches)}")
+
+    try:
+        png_bytes = base64.b64decode(matches[0].group(1), validate=True)
+    except Exception as exc:
+        raise RuntimeError("failed to decode assured embedded equity PNG") from exc
+    _require(png_bytes.startswith(PNG_SIGNATURE), "embedded equity curve payload is not PNG")
+
+    cid = EQUITY_CID
+    email_html = EQUITY_DATA_URI_RE.sub(f"cid:{cid}", html_body, count=1)
+    _require(email_html.count(f"cid:{cid}") == 1, "email equity curve CID reference must occur exactly once")
+    _require("data:image/png;base64," not in email_html, "embedded equity data URI remained in outgoing email HTML")
+    _require("equity-curve-svg" not in email_html, "inline equity SVG remained in email HTML")
+    return email_html, png_bytes, cid
+
+
 def _build_message(
     *,
     language: str,
@@ -106,7 +143,22 @@ def _build_message(
     msg["To"] = recipient
     msg.set_content(text)
     if html_path is not None and html_path.exists():
-        msg.add_alternative(html_path.read_text(encoding="utf-8"), subtype="html")
+        email_html, curve_png, curve_cid = _materialize_email_equity_curve(
+            html_path.read_text(encoding="utf-8"),
+            language=language,
+        )
+        msg.add_alternative(email_html, subtype="html")
+        if curve_png is not None:
+            _require(curve_cid is not None, "equity curve PNG missing CID")
+            html_part = msg.get_payload()[-1]
+            html_part.add_related(
+                curve_png,
+                maintype="image",
+                subtype="png",
+                cid=f"<{curve_cid}>",
+                filename=f"weekly_etf_eu_equity_curve_{language}.png",
+                disposition="inline",
+            )
     if pdf_path is not None and pdf_path.exists():
         msg.add_attachment(pdf_path.read_bytes(), maintype="application", subtype="pdf", filename=pdf_path.name)
     elif not require_pdf_package:
@@ -180,6 +232,7 @@ def build_result(
         "completion_claimed": False,
         "require_pdf_package": require_pdf_package,
         "pdf_package_used": bool(package),
+        "email_equity_curve_transport": "donor_embedded_png_to_mime_cid_when_present",
         "recipient_data_policy": "redacted_hash_only",
         "languages": languages,
         "secret_values_exposed": False,

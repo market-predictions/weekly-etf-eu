@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import re
+from pathlib import Path
+from tempfile import TemporaryDirectory
 from typing import Any
 
 
@@ -24,14 +26,7 @@ def _replace_list_item(text: str, prefix: str, replacement: str) -> str:
 
 
 def _replace_english_no_regime_change_sentence(text: str) -> str:
-    """Normalize donor English macro summary leakage on the Dutch client surface.
-
-    The donor macro builder may vary the clause after the stable lead-in as fresh
-    breadth/cross-asset evidence changes. Match only the complete English sentence
-    beginning with the canonical lead-in, leaving the actual regime conclusion
-    unchanged while preventing English donor copy from reaching the NL report.
-    """
-
+    """Normalize donor English macro summary leakage on the Dutch client surface."""
     pattern = re.compile(
         r"No material regime change was recorded[^.<]*(?:\.[^<]*)?\.",
         flags=re.IGNORECASE,
@@ -61,6 +56,29 @@ def _observed_line_count(state: dict[str, Any], funded_count: int) -> int:
     except (TypeError, ValueError):
         observed = 0
     return max(observed, funded_count)
+
+
+def _apply_donor_equity_surface(text: str, state: dict[str, Any], language: str) -> str:
+    """Materialize the final assured HTML equity surface using the donor PNG contract."""
+    curve = state.get("equity_curve") if isinstance(state.get("equity_curve"), dict) else {}
+    if curve.get("show_chart") is not True:
+        return text
+
+    from runtime.standalone_html_equity_embed import (
+        materialize_standalone_equity_html,
+        validate_standalone_html_equity,
+    )
+
+    with TemporaryDirectory(prefix="etf-eu-equity-") as tmp:
+        chart_path = Path(tmp) / f"equity_curve_{language}.png"
+        text = materialize_standalone_equity_html(
+            text,
+            state,
+            language=language,
+            chart_path=chart_path,
+        )
+    validate_standalone_html_equity(text, state)
+    return text
 
 
 def finalize_client_html_semantics(text: str, state: dict[str, Any], *, language: str) -> str:
@@ -171,4 +189,4 @@ def finalize_client_html_semantics(text: str, state: dict[str, Any], *, language
             "ETF EU final client HTML semantics failed: "
             + f"missing={missing}; residual_stale={residuals}"
         )
-    return text
+    return _apply_donor_equity_surface(text, state, language)

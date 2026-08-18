@@ -60,7 +60,7 @@ jobs:
         run: |
           set -euo pipefail
           python -m pip install --upgrade pip
-          pip install pyyaml yfinance mistune weasyprint
+          pip install pyyaml yfinance mistune weasyprint matplotlib==3.9.2
 
       - name: Resolve and validate candidate request
         env:

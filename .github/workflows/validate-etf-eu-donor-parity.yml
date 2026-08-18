@@ -18,7 +18,7 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y poppler-utils fonts-liberation fonts-dejavu-core fonts-lato
-          pip install pytest pyyaml weasyprint requests mistune
+          pip install pytest pyyaml weasyprint requests mistune matplotlib==3.9.2
       - name: Compile parity and authority modules
         run: |
           python -m py_compile \
@@ -28,6 +28,9 @@ jobs:
             runtime/build_etf_eu_donor_discovery_bridge.py \
             runtime/adapt_weekly_etf_macro_for_eu.py \
             runtime/reconcile_etf_eu_funded_markdown.py \
+            runtime/equity_curve_png_contract.py \
+            runtime/standalone_html_equity_embed.py \
+            runtime/finalize_etf_eu_client_surface_semantics.py \
             runtime/render_etf_eu_client_grade_v2_funded.py \
             runtime/send_etf_eu_controlled_report.py \
             tools/resolve_etf_eu_completed_close_date.py \
@@ -50,7 +53,8 @@ jobs:
             tests/test_etf_eu_funded_renderer_authority.py \
             tests/test_etf_eu_pricing_v2_and_markdown_delivery.py \
             tests/test_etf_eu_candidate_build_end_to_end.py \
-            tests/test_etf_eu_full_candidate_package_end_to_end.py
+            tests/test_etf_eu_full_candidate_package_end_to_end.py \
+            tests/test_etf_eu_email_equity_parity.py
       - name: Validate workflow authority topology
         run: |
           python tools/validate_etf_eu_workflow_authority.py
