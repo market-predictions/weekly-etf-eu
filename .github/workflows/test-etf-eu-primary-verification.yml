@@ -12,6 +12,9 @@ on:
       - pricing/ucits_close_price_validation_contract_v2.py
       - tools/validate_ucits_close_price_validation_basket_results.py
       - tests/test_etf_eu_primary_verification_policy.py
+      - tests/test_etf_eu_current_identity_binding.py
+      - tests/test_ucits_price_qualification_policy.py
+      - tests/test_ucits_price_evidence_redaction.py
       - .github/workflows/test-etf-eu-primary-verification.yml
   pull_request:
     paths:
@@ -22,6 +25,9 @@ on:
       - pricing/ucits_close_price_validation_contract_v2.py
       - tools/validate_ucits_close_price_validation_basket_results.py
       - tests/test_etf_eu_primary_verification_policy.py
+      - tests/test_etf_eu_current_identity_binding.py
+      - tests/test_ucits_price_qualification_policy.py
+      - tests/test_ucits_price_evidence_redaction.py
       - .github/workflows/test-etf-eu-primary-verification.yml
 
 permissions:
@@ -37,8 +43,14 @@ jobs:
           python-version: '3.11'
       - name: Install focused dependencies
         run: python -m pip install --disable-pip-version-check pyyaml requests
-      - name: Run primary verification policy tests
-        run: python -m unittest discover -s tests -p 'test_etf_eu_primary_verification_policy.py' -v
+      - name: Run primary verification policy and identity tests
+        run: |
+          python -m unittest \
+            tests.test_etf_eu_primary_verification_policy \
+            tests.test_etf_eu_current_identity_binding \
+            tests.test_ucits_price_qualification_policy \
+            tests.test_ucits_price_evidence_redaction \
+            -v
       - name: Compile touched pricing modules
         run: |
           python -m py_compile \
