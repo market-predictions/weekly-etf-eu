@@ -1,0 +1,50 @@
+{
+  "artifact_type": "etf_eu_delivery_closeout_manifest",
+  "attachment_hash_confirmation": true,
+  "broker_execution": false,
+  "client_grade_package_ready": true,
+  "controlled_transport_run_id": "20260818_061712",
+  "delivery_authority_path": "output/delivery_authorization/etf_eu_guarded_delivery_authority_20260814_235900.json",
+  "delivery_claim": "DELIVERED_CONFIRMED",
+  "delivery_success": true,
+  "independent_assurance": {
+    "evidence_ref": "https://github.com/market-predictions/weekly-etf-eu/issues/102#issuecomment-5319158410",
+    "reviewed_head_sha": "f230a17fb6504ff1513ade0f4cb0b6ac0e1a0b5b",
+    "verdict": "PASS"
+  },
+  "mailbox_receipt_evidence_path": "output/delivery/etf_eu_delivery_receipt_evidence_20260818_061712.json",
+  "package_manifest_path": "output/delivery_package/etf_eu_delivery_package_manifest_20260818_061712.json",
+  "portfolio_mutation": false,
+  "principal_guarded_send_authorization_ref": "https://github.com/market-predictions/weekly-etf-eu/issues/100#issuecomment-5318850166",
+  "recipient_address_values_logged": false,
+  "recipient_address_values_stored": false,
+  "recipient_inbox_observed": true,
+  "receipt_confirmed": true,
+  "report_artifacts": {
+    "en_html": "output/fresh_generation/weekly_etf_eu_review_260814.html",
+    "en_md": "output/fresh_generation/weekly_etf_eu_review_260814.md",
+    "en_pdf": {
+      "path": "output/fresh_generation/weekly_etf_eu_review_260814.pdf",
+      "sha256": "sha256:ac5c0543b47f6845aad49d8eb29b5a7af40c76427b4aefe665307beb5414e778"
+    },
+    "nl_html": "output/fresh_generation/weekly_etf_eu_review_nl_260814.html",
+    "nl_md": "output/fresh_generation/weekly_etf_eu_review_nl_260814.md",
+    "nl_pdf": {
+      "path": "output/fresh_generation/weekly_etf_eu_review_nl_260814.pdf",
+      "sha256": "sha256:0593e106b74a6c2704cb8f9f2184a2d880db25e05b2c966e35c33b98bedb10eb"
+    }
+  },
+  "report_date": "2026-08-14",
+  "report_run_id": "20260814_235900",
+  "report_suffix": "260814",
+  "schema_version": "etf_eu_delivery_closeout_manifest_v1",
+  "static_receipt_check_path": "output/delivery/etf_eu_receipt_check_20260818_061712.json",
+  "static_receipt_check_superseded_for_final_mailbox_confirmation": true,
+  "transport_result_path": "output/delivery/etf_eu_transport_result_20260818_061712.json",
+  "transport_success": true,
+  "workflow_run": {
+    "attempt": 2,
+    "run_id": 32105981988,
+    "status": "success"
+  }
+}
