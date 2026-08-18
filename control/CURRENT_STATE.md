@@ -3,71 +3,87 @@
 ## Snapshot
 
 ```text
-date=2026-08-17
+date=2026-08-18
 repository=market-predictions/weekly-etf-eu
-state=FRESH_20260814_PRODUCTION_MATERIALIZED
+state=FRESH_20260814_DELIVERY_CONFIRMED
 parent_issue=100
-branch=agent/etf-eu-fresh-260814-v1
-base_main_sha=427fb2e7213d997b571e0c55371086fbddd598ce
-run_id=20260814_235900
+report_run_id=20260814_235900
 report_date=2026-08-14
-active_release_integration_claim=ETF-EU-FRESH-REPORT-260814-V1
+assured_candidate_head=f230a17fb6504ff1513ade0f4cb0b6ac0e1a0b5b
+approved_report_merge_commit=7e20340eca82bfb9aad0b63ffeaae7291e7f14e6
+controlled_transport_workflow_run=32105981988
+controlled_transport_attempt=2
+controlled_transport_run_id=20260818_061712
 principal_decision_required=false
-delivery_authorized=false
+delivery_authorized=true
+machine_delivery_authority=true
+controlled_transport=true
+recipient_inbox_observed=true
+attachment_hash_confirmation=true
+report_delivery=true
+receipt_confirmed=true
 real_broker_execution=false
-report_delivery=false
-smtp_send=false
+portfolio_mutation_from_delivery=false
 ```
 
-## Live reconciliation
-PR #98, the fresh 2026-08-10 six-position candidate, received independent exact-head PASS in issue #99 and was merged unchanged on 2026-08-15. Current merged main/base for this successor cycle is `427fb2e7213d997b571e0c55371086fbddd598ce`.
+## Current outcome
 
-The predecessor 2026-08-10 report was **not delivered**. Its candidate/merge evidence remains historical strategy and model-state provenance only. Delivery authority and delivery receipt were never established for that lineage.
+The fresh Weekly ETF EU report for completed close `2026-08-14` is fully closed through delivery. The exact independently assured six-artifact client package was merged unchanged through PR #101, bound to a machine-readable guarded-delivery authority, sent only through the sole controlled transport workflow, observed in the recipient inbox in both NL and EN, and both received PDF attachments were byte-verified against the approved artifacts.
 
-The prior project control files incorrectly remained at the pre-merge `READY_FOR_ASSURANCE` state after PR #98 merged. In addition, branch `agent/etf-eu-fresh-260814-v1` existed at the merged base without a durable production request. Those stale lifecycle defects are repaired under issue #100.
+Final delivery closeout:
 
-## Predecessor model state entering the fresh cycle
+`output/run_manifests/etf_eu_delivery_closeout_manifest_20260818_061712.json`
 
-| Ticker | Shares | Entering role |
-|---|---:|---|
-| VWCE | 151 | Global core equity |
-| EUNA | 1,526 | Stabilising aggregate bonds |
-| SXR8 | 10 | U.S. equity overweight |
-| L0CK | 934 | Cybersecurity satellite |
-| DFEN | 207 | Defense resilience satellite |
-| IQQQ | 149 | Water infrastructure satellite |
+Recipient-side receipt evidence:
+
+`output/delivery/etf_eu_delivery_receipt_evidence_20260818_061712.json`
+
+Controlled transport evidence:
+
+- `output/delivery/etf_eu_transport_result_20260818_061712.json`
+- `output/delivery/etf_eu_delivery_evidence_20260818_061712.json`
+- `output/delivery/etf_eu_receipt_check_20260818_061712.json`
+- `output/delivery_package/etf_eu_delivery_package_manifest_20260818_061712.json`
+
+The workflow-generated receipt checker remains preserved with `receipt_confirmed=false` because it performs static artifact inspection and cannot inspect the recipient mailbox. It was not overwritten. Final confirmation is separately evidenced by direct connected-mailbox observation plus SHA-256 verification of the received NL/EN attachments.
+
+## Exact report lineage
 
 ```text
-predecessor_cash_eur=28101.01
-predecessor_invested_market_value_eur=72637.72
-predecessor_nav_eur=100738.73
-predecessor_position_count=6
-predecessor_report_date=2026-08-10
-real_broker_execution=false
+issue=100
+pr=101
+report_run_id=20260814_235900
+report_date=2026-08-14
+candidate_actions_run=32056976044
+assured_candidate_head=f230a17fb6504ff1513ade0f4cb0b6ac0e1a0b5b
+independent_assurance_issue=102
+independent_assurance_verdict=PASS
+merged_report_commit=7e20340eca82bfb9aad0b63ffeaae7291e7f14e6
+principal_guarded_send_authorization=issue_100_comment_5318850166
+delivery_authority=output/delivery_authorization/etf_eu_guarded_delivery_authority_20260814_235900.json
+controlled_transport_workflow_run=32105981988
+controlled_transport_attempt=2
+controlled_transport_run_id=20260818_061712
 ```
 
-These values are the authoritative predecessor model state. They are **not** current 2026-08-14 prices, not an instruction to retain six positions and not a position-count target. The 2026-08-14 cycle must revalue and re-underwrite the whole portfolio using fresh completed-close evidence.
+## Delivery integrity
 
-## Fresh 2026-08-14 production contract
+Approved and received PDF hashes:
 
-Work package:
+```text
+NL=sha256:0593e106b74a6c2704cb8f9f2184a2d880db25e05b2c966e35c33b98bedb10eb
+EN=sha256:ac5c0543b47f6845aad49d8eb29b5a7af40c76427b4aefe665307beb5414e778
+```
 
-`control/work_packages/ETF_EU_FRESH_REPORT_260814_V1_20260817.md`
+Both inbox attachments matched exactly. Recipient plaintext values are not stored in project evidence; only the existing redacted recipient hash is retained.
 
-Routine request:
+## Delivery incident resolved
 
-`control/run_queue/etf_eu_routine_report_request_20260814_235900.json`
+Controlled transport attempt 1 failed before SMTP because the guarded-delivery authority writer omitted four explicit client-surface safety fields required by the existing delivery-package validator. No email was sent during that failed attempt.
 
-Control runtime intake:
+The delivery-layer contract was repaired without changing any report artifact bytes. The authority now carries the already-established client-grade safety assertions and the package writer propagates them into the package manifest. Attempt 2 of the same controlled workflow then passed authority, lineage, package, pre-transport, SMTP transport, post-transport and evidence persistence.
 
-`control-runtime-state:control/project-intake/WEEKLY_ETF_EU_100_FRESH_260814.json`
-
-The request is explicitly bound to:
-
-- previous routine manifest: `output/run_manifests/etf_eu_routine_run_manifest_2026-08-10_20260810_123000.json`;
-- previous confirmed delivery closeout: `output/run_manifests/etf_eu_delivery_closeout_manifest_20260710_1755.json`.
-
-The stale helper pointer that still referenced 2026-07-12 has been repaired on this branch to the actual 2026-08-10 routine manifest.
+Stable rule: guarded delivery package construction must carry explicit client-surface safety assertions from independently validated evidence; missing booleans must fail closed rather than be inferred.
 
 ## Decision framework retained
 
@@ -78,35 +94,26 @@ The stale helper pointer that still referenced 2026-07-12 has been repaired on t
 - funded exact lines require the existing two-provider completed-close consensus gate;
 - 50% maximum position, 35% minimum cash and 15% maximum new ETF remain retired as current authority;
 - 75% remains pricing-coverage context only, not a position cap;
-- 25% turnover / 18% semiconductor-theme values remain research/shadow unless separately adopted;
-- any model share/cash mutation requires an explicit current allocation-decision artifact;
-- real broker execution remains false.
-
-## Output contract
-The fresh cycle must derive Dutch and English Markdown, HTML and PDF from one normalized current state and pass deterministic semantic, pricing, portfolio, product-boundary and visual/PDF gates. Candidate generation has no delivery authority.
+- model portfolio decisions remain distinct from real broker execution;
+- delivery may not mutate portfolio state.
 
 ## Operational state
 
 ```text
-issue_100=OPEN
-workpackage=MATERIALIZED
-routine_request=MATERIALIZED
-branch=ACTIVE
-control_intake=MATERIALIZED
-control_queue=PENDING_MATERIALIZATION
-candidate_run=PENDING
-candidate_pr=PENDING
-independent_assurance=PENDING
-guarded_delivery=PENDING
-receipt=PENDING
+issue_100=READY_TO_CLOSE
+workpackage=READY_TO_CLOSE
+candidate_run=PASS
+candidate_pr=MERGED
+independent_assurance=PASS
+exact_main_validation=PASS
+principal_guarded_send_authority=APPROVED
+machine_delivery_authority=APPROVED
+controlled_transport=SUCCESS
+recipient_inbox_receipt=CONFIRMED
+attachment_integrity=CONFIRMED
+delivery_closeout_manifest=PERSISTED
 ```
 
 ## Next lifecycle
-1. Allow the canonical worker reconciliation to materialize task `WEEKLY_ETF_EU_100_FRESH_260814_IMPLEMENTATION` into `control/DISPATCH_QUEUE.json`; the current queue did not yet contain it immediately after intake creation.
-2. The claimed `implementation_operations` worker executes `.github/workflows/run-weekly-etf-eu-routine.yml` against the non-main successor branch and exact request path.
-3. Re-underwrite from current 2026-08-14 completed-close evidence; repair only genuine failures.
-4. Persist and validate the bilingual client-grade candidate.
-5. Open/freeze PR and obtain fresh independent exact-head `governance_release_assurance`.
-6. Merge only unchanged PASSed head, exact-main validate, and enter separate guarded delivery.
-7. Claim successful email delivery only after positive transport plus receipt/attachment evidence.
-8. Close issue/work package/claim and reconcile project + Control state.
+
+This 2026-08-14 cycle requires no further report, assurance or delivery work. Close the issue/work claim and return to the normal next fresh Weekly ETF EU cycle. Any future report must start from fresh completed-close evidence rather than reusing the 2026-08-14 prices as current truth.
