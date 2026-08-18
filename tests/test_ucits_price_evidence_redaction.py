@@ -43,6 +43,14 @@ class ProviderEvidenceRedactionTests(unittest.TestCase):
                 "registry_id": "global_core",
                 "static_identity_binding": True,
                 "binding_status": "verified_static_exact_line",
+                "provider_symbol_bindings": {
+                    "alpha_vantage": {
+                        "matched": True,
+                        "provider_registry_symbol": "VWCE.DEX",
+                        "canonical_registry_symbol": "VWCE.DEX",
+                        "blockers": [],
+                    }
+                },
                 "blockers": [],
             }]
         }
