@@ -9,108 +9,130 @@ issue=105
 pull_request=106
 repository=market-predictions/weekly-etf-eu
 branch=agent/etf-eu-email-equity-parity-105
-base_main_sha=d9b4ecac4f49417fd7430b01303d1c3425b7074a
+trusted_base_main_sha=d9b4ecac4f49417fd7430b01303d1c3425b7074a
+assured_candidate_head_sha=57fef69626951f2a33bc63ced25253bcc4e84df0
+merge_commit_sha=1fb7168f7ba433e138503c68aa9447c5f7ebbc65
 owner_role=implementation_operations
-status=HANDOVER_READY
+status=CLOSED
 opened_at=2026-08-18T06:52:23Z
-last_reconciled_at=2026-08-18T11:40:00Z
-last_reconciled_claim_head_sha=ade3d9b3c59d1b68502fa54c85692886f31dc8eb
+closed_at=2026-08-18T13:03:59Z
+independent_assurance_issue=108
+independent_assurance_comment=5328420726
+independent_assurance_verdict=PASS
 principal_decision_required=false
 ```
 
-`last_reconciled_claim_head_sha` is the live PR head observed at the final implementation reconciliation immediately before this metadata-only handover update; it is not a self-referential promise. Independent assurance must reconstruct and freeze the live PR #106 head again before review. Previous assurance request #107 is terminal and was withdrawn before any review because the first implementation was superseded by donor alignment.
-
 ## Current issue
-The canonical 2026-08-14 HTML and delivered RFC822 MIME both contained the equity curve as inline SVG, while the recipient Gmail HTML surface did not render it. The corresponding PDF rendered the same curve correctly.
+
+The delivered 2026-08-14 Weekly ETF EU PDF rendered the portfolio equity curve, while Gmail did not render the same curve from the delivered HTML email. The delivered MIME contained the curve as inline SVG.
 
 ## Root cause
-The EU client surface had regressed from the established donor delivery contract. The active EU renderer produced an inline SVG and the controlled sender passed that representation through to the HTML MIME alternative. Gmail did not reliably render that representation.
 
-This was not a novel design problem. The authoritative donor repository already separates graph rendering from delivery-surface representation:
-- `market-predictions/weekly-etf@3ffff5e6104fcc2b72ce6553718a59be2905d3af/runtime/equity_curve_png_contract.py` materializes and validates a PNG graph asset;
-- `runtime/standalone_html_equity_embed.py` uses an embedded PNG data URI for standalone HTML and `cid:equitycurve` for MIME email;
-- `control/decisions/REPORT_FRESHNESS_AND_STANDALONE_HTML_EQUITY_DECISION_20260716.md` records that split as an explicit product decision;
-- this EU repository itself retains historical precedent in `runtime/send_etf_eu_shadow_cid_delivery.py`, which converts one embedded PNG data URI into one CID-related `image/png` part and fails closed on ambiguity.
+The EU delivery surface had diverged from the established `market-predictions/weekly-etf` donor contract. The report renderer produced inline SVG and the controlled sender passed that representation through as email HTML, while Gmail did not reliably render it.
 
 ## Decision framework
-Adopt the established donor delivery contract rather than maintain an EU-specific transport invention.
 
-The implemented architecture is:
-1. deterministic portfolio-curve PNG materialization before SMTP transport;
-2. final standalone/client HTML is self-contained and carries the graph as an embedded PNG data URI;
-3. final PDF is rendered from that same final client HTML;
-4. MIME email replaces exactly that one approved data URI with `cid:equitycurve` and attaches the identical PNG bytes as `image/png` under `multipart/related`;
-5. controlled transport does not redraw or rasterize the graph;
-6. ambiguous, absent, malformed or residual-SVG graph representations fail closed when a graph is expected.
-
-The superseded first PR implementation that rasterized inline SVG with CairoSVG inside the controlled sender remains diagnostic history only and is not the final design.
-
-## Input/state contract
-- exact current base/main observed at final implementation reconciliation: `d9b4ecac4f49417fd7430b01303d1c3425b7074a`;
-- current portfolio/equity-curve state remains authoritative; no historical report is current-price authority;
-- no portfolio, pricing, allocation, trade-ledger or broker state is changed by this repair;
-- donor architecture is design precedent; EU/UCITS identity, pricing, allocation and guarded-delivery authority remain local to this repository.
-
-## Output contract
-When `equity_curve.show_chart=true`:
-- final assured standalone NL/EN HTML contains exactly one embedded `data:image/png;base64,...` portfolio curve;
-- final PDF is regenerated from the same final HTML and therefore consumes that same PNG surface;
-- controlled email HTML contains exactly one `cid:equitycurve` reference and no embedded data URI for that graph;
-- the MIME message contains exactly one matching inline `image/png` related part;
-- MIME PNG bytes equal the PNG bytes embedded in the approved HTML;
-- graph bytes are not generated or mutated after delivery authority is established;
-- residual inline SVG, missing PNG, ambiguous PNG or malformed base64/PNG blocks message construction.
-
-When the equity-curve contract says no chart is required, no graph image is invented.
-
-## Implemented files
-- `runtime/equity_curve_png_contract.py` — donor-derived deterministic PNG rendering and visual integrity validation.
-- `runtime/standalone_html_equity_embed.py` — final standalone HTML data-URI materialization and fail-closed validation.
-- `runtime/finalize_etf_eu_client_surface_semantics.py` — invokes PNG materialization before final HTML is persisted and before final PDF regeneration.
-- `runtime/equity_curve_eu_contract.py` — distinguishes intermediate SVG from final embedded-PNG surface.
-- `runtime/send_etf_eu_controlled_report.py` — translates the approved embedded PNG bytes to `cid:equitycurve`; no send-time rasterization.
-- `.github/workflows/run-weekly-etf-eu-routine.yml` — installs the already-pinned donor-compatible `matplotlib==3.9.2` during candidate generation.
-- `.github/workflows/send-weekly-etf-eu-controlled-transport.yml` — no rasterizer dependency; authority and double-confirmation controls remain intact.
-- `tests/test_etf_eu_email_equity_parity.py` — NL/EN standalone PNG, byte-identical MIME CID reuse and fail-closed regressions.
-- `.github/workflows/test-etf-eu-email-equity-parity.yml` — dedicated graph-delivery parity gate.
-- `.github/workflows/validate-etf-eu-donor-parity.yml` — exercises the donor-aligned graph contract inside the broad/full-package suite.
-- `tests/test_etf_eu_guarded_delivery_authority.py` — earlier stale fixture alignment to the already-authoritative `client_surface_safety` contract; no product behavior change.
-
-## Exact implementation validation evidence
+Adopt the established donor graph-delivery architecture rather than maintain a separate EU-specific transport design.
 
 ```text
-validated_implementation_head=ade3d9b3c59d1b68502fa54c85692886f31dc8eb
-base_main_sha=d9b4ecac4f49417fd7430b01303d1c3425b7074a
-email_equity_parity_run=32132804210 result=SUCCESS
-product_boundary_run=32132804084 result=SUCCESS
-release_evidence_preflight_run=32132804146 result=SUCCESS
-donor_parity_full_package_run=32132804121 result=SUCCESS
+portfolio/equity state
+-> deterministic PNG before SMTP transport
+-> standalone NL/EN HTML embeds the PNG as data:image/png;base64
+-> final PDF is regenerated from that final HTML
+-> controlled sender reuses the identical approved PNG bytes as cid:equitycurve
+-> no redraw/rasterization in SMTP transport
+-> fail closed on residual SVG, absent/ambiguous PNG, malformed base64 or non-PNG payload
+```
+
+Donor authority used as design precedent:
+
+```text
+market-predictions/weekly-etf@3ffff5e6104fcc2b72ce6553718a59be2905d3af
+runtime/equity_curve_png_contract.py
+runtime/standalone_html_equity_embed.py
+control/decisions/REPORT_FRESHNESS_AND_STANDALONE_HTML_EQUITY_DECISION_20260716.md
+```
+
+EU historical precedent `runtime/send_etf_eu_shadow_cid_delivery.py` remains historical only; the disabled shadow workflow was not reactivated.
+
+## Input/state contract
+
+- Current EU/UCITS portfolio/equity state remains authoritative.
+- Historical reports are context only, not current-price authority.
+- No portfolio, pricing, allocation, trade-ledger or broker state was changed by this repair.
+- Guarded-delivery authority remains separate from merge authority.
+
+## Output contract
+
+When `equity_curve.show_chart=true`:
+
+- final standalone NL/EN HTML contains exactly one embedded PNG equity curve;
+- final PDF consumes the same final HTML surface;
+- controlled email HTML contains exactly one `cid:equitycurve` reference;
+- MIME contains exactly one matching inline `image/png` related part;
+- MIME PNG bytes equal the PNG bytes embedded in the approved HTML;
+- residual SVG, missing/ambiguous PNG or malformed/non-PNG data fails closed.
+
+When no chart is required, no graph is invented.
+
+## Implemented files
+
+- `runtime/equity_curve_png_contract.py`
+- `runtime/standalone_html_equity_embed.py`
+- `runtime/finalize_etf_eu_client_surface_semantics.py`
+- `runtime/equity_curve_eu_contract.py`
+- `runtime/send_etf_eu_controlled_report.py`
+- `.github/workflows/run-weekly-etf-eu-routine.yml`
+- `.github/workflows/test-etf-eu-email-equity-parity.yml`
+- `.github/workflows/validate-etf-eu-donor-parity.yml`
+- `tests/test_etf_eu_email_equity_parity.py`
+- `tests/test_etf_eu_guarded_delivery_authority.py` fixture alignment only
+
+The active controlled transport workflow retained its existing main-only, independently assured authority, artifact-hash binding and two explicit send-confirmation controls.
+
+## Exact-head validation and assurance
+
+```text
+candidate_head_sha=57fef69626951f2a33bc63ced25253bcc4e84df0
+email_equity_parity_run=32133189274 result=SUCCESS
+donor_parity_full_package_run=32133189340 result=SUCCESS
+product_boundary_run=32133189275 result=SUCCESS
+release_evidence_preflight_run=32133189278 result=SUCCESS
+independent_assurance_issue=108
+independent_assurance_comment=5328420726
+independent_assurance_verdict=PASS
+findings=[]
+```
+
+Immediately before merge, live PR head remained the assured candidate and live `main` remained the trusted base. PR #106 was merged with expected-head protection.
+
+## Integration result
+
+```text
+pr_106=MERGED
+merge_commit_sha=1fb7168f7ba433e138503c68aa9447c5f7ebbc65
+issue_105=CLOSED
+issue_108=CLOSED
 portfolio_mutation=false
 pricing_mutation=false
 allocation_mutation=false
 trade_ledger_mutation=false
 broker_execution=false
-resend_executed=false
+report_resend=false
+smtp_delivery_authority=false
 ```
 
-The final work-package update is metadata-only. Its descendant live PR head still requires exact-head CI reconstruction by assurance before review.
+## Stable boundary
 
-## Operational runbook remaining
-1. Reconstruct live PR #106 head and current base/main from GitHub.
-2. Require all relevant exact-head PR gates green on that live head.
-3. Perform a fresh blind-first independent `governance_release_assurance`; do not reuse #107.
-4. Merge only the unchanged independently PASSed exact head.
-5. After merge, reconcile `control/CURRENT_STATE.md`, `control/NEXT_ACTIONS.md` and the stable decision/defect history.
-6. Do not resend the already-delivered report without a separate governed send authorization and real delivery receipt/manifest.
+The PASS and merge repair future delivery representation only. They do not authorize retransmission of the already-delivered 2026-08-14 report. Any future send remains subject to the normal guarded-delivery authority, controlled transport and real receipt/closeout chain.
 
-## Current acceptance status
-- demonstrated root cause: CONFIRMED;
-- donor precedent reconstructed: CONFIRMED;
-- EU-local historical CID precedent reconstructed: CONFIRMED;
-- donor-aligned implementation: COMPLETE;
-- validated implementation head gates: ALL SUCCESS;
-- PR #106: HANDOVER_READY / awaiting fresh exact-head assurance;
-- previous assurance #107: CLOSED / SUPERSEDED BEFORE REVIEW;
-- independent exact-head assurance on final live head: PENDING;
-- merge: NOT AUTHORIZED;
-- corrected resend: NOT AUTHORIZED / NOT EXECUTED.
+## Final status
+
+```text
+donor_aligned_repair=COMPLETE
+exact_head_assurance=PASS
+merge=COMPLETE
+claim=CLOSED
+corrected_resend=NOT_AUTHORIZED_NOT_EXECUTED
+next_state=ROUTINE_IDLE_READY_FOR_NEXT_FRESH_CYCLE
+```
