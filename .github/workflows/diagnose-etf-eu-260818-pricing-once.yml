@@ -1,0 +1,64 @@
+name: Diagnose ETF EU fresh 260818 pricing once
+
+on:
+  push:
+    branches:
+      - ops/dispatch-etf-eu-260818-once
+    paths:
+      - .github/workflows/diagnose-etf-eu-260818-pricing-once.yml
+
+permissions:
+  contents: write
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: agent/etf-eu-fresh-260818-v1
+          fetch-depth: 1
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install pricing dependencies
+        run: pip install pyyaml yfinance
+      - name: Run exact pricing diagnostic and persist evidence
+        env:
+          ALPHA_VANTAGE_API_KEY: ${{ secrets.ALPHA_VANTAGE_API_KEY }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -u
+          python pricing/build_ucits_close_price_validation_basket_results.py \
+            --run-id 20260818_235900 \
+            --report-date 2026-08-18 \
+            --providers alpha_vantage,yahoo_chart \
+            --allocation-candidate-basket-ids cbuff_xetra_eur,xmlc_xetra_eur,vvsm_xetra_eur,isae_xams_eur \
+            --require-funded-consensus \
+            --pause-seconds 8 \
+            --rate-limit-cooldown-seconds 600 \
+            --max-attempts 2 \
+            --rate-limit-mode stop
+          rc=$?
+          export PRICING_RC="$rc"
+          python - <<'PY'
+          import base64, json, os, urllib.request
+          from pathlib import Path
+          names = {
+            'basket':'output/pricing/ucits_close_price_validation_basket_results_20260818_235900.json',
+            'qualification':'output/pricing/ucits_price_provider_qualification_20260818_235900.json',
+            'identity_binding':'output/pricing/ucits_provider_identity_binding_20260818_235900.json',
+          }
+          payload={'pricing_exit_code':int(os.environ['PRICING_RC']),'files':{}}
+          for key,path in names.items():
+              p=Path(path)
+              payload['files'][key]=json.loads(p.read_text(encoding='utf-8')) if p.exists() else {'missing':path}
+          raw=(json.dumps(payload,indent=2,sort_keys=True)+'\n').encode()
+          repo=os.environ['GITHUB_REPOSITORY']; token=os.environ['GH_TOKEN']; branch='ops/dispatch-etf-eu-260818-once'
+          headers={'Authorization':f'Bearer {token}','Accept':'application/vnd.github+json','X-GitHub-Api-Version':'2022-11-28','Content-Type':'application/json'}
+          body={'message':'Persist ETF EU 260818 pricing diagnostic','content':base64.b64encode(raw).decode(),'branch':branch}
+          req=urllib.request.Request(f'https://api.github.com/repos/{repo}/contents/ops/evidence/ETF_EU_FRESH_260818_PRICING_DIAG.json',data=json.dumps(body).encode(),headers=headers,method='PUT')
+          with urllib.request.urlopen(req) as r: print(r.read().decode())
+          print(json.dumps(payload,indent=2,sort_keys=True))
+          PY
+          exit 0
