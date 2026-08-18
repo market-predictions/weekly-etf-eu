@@ -60,11 +60,11 @@ def build_provider_identity_binding(
     provider_registry_path: Path,
     provider_scope: list[str],
 ) -> dict[str, Any]:
-    """Bind provider symbols to the canonical static UCITS trading-line registry.
+    """Bind runtime provider symbols to the canonical static UCITS identity.
 
-    This is identity evidence only. It never creates pricing, funding, portfolio,
-    execution or delivery authority. Live price providers may verify a close, but
-    they do not need to re-prove stable ISIN/MIC/ticker/currency identity each run.
+    Exact trading-line identity is independent from any one market-data source.
+    Provider-symbol bindings are recorded per provider so a broken verifier
+    mapping rejects that provider without invalidating a correctly bound primary.
     """
 
     symbol_registry = _load_yaml(symbol_registry_path)
@@ -92,16 +92,16 @@ def build_provider_identity_binding(
             and row["currency"] == currency
             and row["exchange"].casefold() == exchange.casefold()
         ]
-        blockers: list[str] = []
+        line_blockers: list[str] = []
         provider_symbol_bindings: dict[str, dict[str, Any]] = {}
 
         if len(matches) != 1:
-            blockers.append(f"canonical_trading_line_match_count:{len(matches)}")
+            line_blockers.append(f"canonical_trading_line_match_count:{len(matches)}")
             matched = None
         else:
             matched = matches[0]
             if matched["line_verification_status"] != VERIFIED_LINE_STATUS:
-                blockers.append("canonical_trading_line_not_verified")
+                line_blockers.append("canonical_trading_line_not_verified")
 
         configured_symbols = provider_line.get("provider_symbols") or {}
         for provider in provider_scope:
@@ -123,9 +123,11 @@ def build_provider_identity_binding(
                 "matched": not symbol_blockers,
                 "blockers": symbol_blockers,
             }
-            blockers.extend(f"{provider}:{item}" for item in symbol_blockers)
 
-        bound = not blockers
+        line_bound = not line_blockers
+        provider_scope_fully_bound = bool(provider_scope) and all(
+            binding.get("matched") is True for binding in provider_symbol_bindings.values()
+        )
         rows.append(
             {
                 "basket_id": basket_id,
@@ -138,9 +140,10 @@ def build_provider_identity_binding(
                 "registry_id": (matched or {}).get("registry_id"),
                 "line_verification_status": (matched or {}).get("line_verification_status"),
                 "provider_symbol_bindings": provider_symbol_bindings,
-                "static_identity_binding": bound,
-                "binding_status": "verified_static_exact_line" if bound else "identity_binding_failed",
-                "blockers": sorted(set(blockers)),
+                "static_identity_binding": line_bound,
+                "binding_status": "verified_static_exact_line" if line_bound else "identity_binding_failed",
+                "provider_scope_fully_bound": provider_scope_fully_bound,
+                "blockers": sorted(set(line_blockers)),
             }
         )
 
@@ -153,9 +156,12 @@ def build_provider_identity_binding(
         "provider_scope": provider_scope,
         "line_count": len(rows),
         "bound_line_count": sum(bool(row["static_identity_binding"]) for row in rows),
+        "provider_scope_fully_bound_line_count": sum(bool(row["provider_scope_fully_bound"]) for row in rows),
         "funded_line_count": len(funded_rows),
         "funded_bound_line_count": sum(bool(row["static_identity_binding"]) for row in funded_rows),
+        "funded_provider_scope_fully_bound_line_count": sum(bool(row["provider_scope_fully_bound"]) for row in funded_rows),
         "all_funded_identity_bound": bool(funded_rows) and all(bool(row["static_identity_binding"]) for row in funded_rows),
+        "all_funded_provider_scope_bound": bool(funded_rows) and all(bool(row["provider_scope_fully_bound"]) for row in funded_rows),
         "funding_authority": False,
         "portfolio_mutation": False,
         "real_broker_execution": False,
