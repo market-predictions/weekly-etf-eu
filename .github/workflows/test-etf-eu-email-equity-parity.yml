@@ -11,6 +11,8 @@ on:
       - ".github/workflows/send-weekly-etf-eu-controlled-transport.yml"
       - "tests/test_etf_eu_email_equity_parity.py"
       - ".github/workflows/test-etf-eu-email-equity-parity.yml"
+      - "control/work_packages/ETF_EU_EMAIL_EQUITY_PARITY_105_20260818.md"
+      - "handover/HANDOVER_ETF_EU_EMAIL_EQUITY_PARITY_105_20260818.md"
   workflow_dispatch:
 
 permissions:
