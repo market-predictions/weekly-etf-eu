@@ -88,12 +88,7 @@ def _status_label(row: dict[str, Any], *, language: str) -> str:
     authority_status = str(row.get("source_agreement_status") or "").strip()
     verification_status = str(row.get("verification_status") or "").strip()
     mapping = STATUS_LABELS[language]
-
-    # Primary+verification authority is the client-relevant status. It tells the
-    # reader whether the exact close had an independent current verifier; stable
-    # UCITS line identity is a separate static contract and must not be conflated
-    # with missing second-source price verification.
-    candidates = []
+    candidates: list[str] = []
     if authority_status in PRIMARY_VERIFICATION_STATUSES:
         candidates.append(authority_status)
     if pricing_status == "fetch_failed":
@@ -232,22 +227,28 @@ De getoonde prijzen zijn marktobservaties uit de huidige routine-run en vormen g
 3. Geen portefeuillewijziging zonder een afzonderlijk besluit over inzet van kapitaal.
 4. Vorige rapporten zijn historische strategiecontext, niet actuele prijswaarheid.
 5. Onopgeloste lijnen blijven buiten de besluitvorming voor de cliënt.
+
+## 7. Volgende routineactie
+
+- Rond verificatie van brokerbeschikbaarheid en EUR-handelslijnen af.
+- Voeg waar beschikbaar onafhankelijke prijsverificatie toe; het tijdelijk ontbreken van een tweede actuele verifier blokkeert een exact aan de geverifieerde handelslijn gekoppelde slotkoers niet.
+- Herbeoordeel portefeuille- of cashinzet alleen vanuit het afzonderlijke allocatie- en re-underwritingkader.
 """
 
 
 def _markdown_en(report_date: str, state: dict[str, Any], pricing: dict[str, Any]) -> str:
     rows = _pricing_rows(pricing)
     latest = _latest_close_date(rows) or "unavailable"
-    return f"""# Weekly ETF EU Review | English | {report_date}
+    return f"""# Weekly ETF EU Review | English Companion | {report_date}
 
-> **Routine production review.** Pricing date: {latest}. The EU portfolio remains ISIN-first. U.S. ETF symbols are research references only and are not investable within this model.
+> **Routine production review.** Pricing date: {latest}. The EU portfolio remains ISIN-first. U.S. ETF symbols are research references only and are not investable in this model.
 
 ## 1. Decision at a glance
 
-- **Action:** no transaction; retain EUR 100,000 cash.
+- **Action:** no trade; retain EUR 100,000 cash.
 - **Reason:** the portfolio still has no funded UCITS positions and the current pricing run provides market observations, not an independent basis for purchase or valuation.
 - **Most advanced operational candidate:** the verified S&P 500 UCITS lines remain furthest advanced for broker and trading-line confirmation.
-- **Do not:** allocate capital to thematic or gold exposure until identity, KID, trading-line and product-policy checks are complete.
+- **Avoid:** do not allocate capital to thematic or gold exposure until identity, KID, trading-line and product-policy checks are complete.
 
 ## 2. Portfolio and capital
 
@@ -263,49 +264,55 @@ def _markdown_en(report_date: str, state: dict[str, Any], pricing: dict[str, Any
 
 {_table(rows, dutch=False)}
 
-The displayed prices are market observations from the current routine run and do not by themselves create purchase, allocation or portfolio authority.
+The displayed prices are market observations from the current routine run and do not independently authorize valuation or purchase.
 
 ## 4. Coverage and decision quality
 
 {_lane_summary(rows, dutch=False)}
 
-## 5. Lane view
+## 5. Lane assessment
 
-- **Core equity:** operationally the most mature; SXR8 and CSPX remain research candidates and are not funded.
-- **Global equity:** IWDA, EUNL and VWCE remain interesting for broad diversification, but trading-line and source verification is not yet complete for all research lines.
-- **Technology and semiconductors:** SXRV, CNDX and SMH carry higher beta and concentration risk; no capital deployment before full verification.
-- **Bonds:** EUNA and AGGH may later add stability; their current role in this broad table remains research context unless already present in the protected funded portfolio.
-- **Gold:** European exposure is often implemented through ETC structures and remains blocked under the UCITS-fund-only policy unless an explicit policy decision changes that boundary.
+- **Core equity:** operationally most mature; SXR8 and CSPX remain research candidates and are not funded.
+- **Global equity:** IWDA, EUNL and VWCE remain relevant for broad diversification, but trading-line and source verification is incomplete.
+- **Technology and semiconductors:** SXRV, CNDX and SMH carry higher beta and concentration risk; no capital allocation before full verification.
+- **Bonds:** EUNA and AGGH may later provide stability; their current role remains that of research candidates.
+- **Gold:** European exposure often uses ETC structures and remains blocked under the UCITS-only policy until an explicit policy decision exists.
 
 ## 6. Risk and quality boundaries
 
-1. A price observation does not by itself create portfolio or allocation authority.
+1. A price observation is not an independent valuation basis.
 2. A ticker is not canonical identity; ISIN remains authoritative.
 3. No portfolio change without a separate capital-allocation decision.
-4. Prior reports are historical strategy context, not current-price truth.
-5. Unresolved lines stay outside client decision authority.
+4. Previous reports are historical strategy context, not current-price truth.
+5. Unresolved lines remain outside the client decision.
+
+## 7. Next routine action
+
+- Complete broker availability and EUR trading-line verification.
+- Add independent price verification where available; temporary absence of a second current verifier does not block an exact close bound to the verified trading line.
+- Reassess portfolio or cash deployment only through the separate allocation and re-underwriting framework.
 """
 
 
-def build(args: argparse.Namespace) -> dict[str, Path]:
-    pricing_path = Path(args.pricing_artifact)
-    portfolio_state_path = Path(args.portfolio_state)
-    pricing_validation = validate_v2_pricing(
-        pricing_path,
+def _validate_canonical_pricing(args: argparse.Namespace) -> dict[str, Any]:
+    result = validate_v2_pricing(
+        Path(args.pricing_artifact),
         expected_report_date=args.report_date,
-        portfolio_state_path=portfolio_state_path,
+        portfolio_state_path=Path(args.portfolio_state),
         require_funded_consensus=True,
     )
-    if pricing_validation["valid"] is not True:
-        raise SystemExit(
-            "Canonical v2 pricing contract failed before report package build: "
-            + "; ".join(pricing_validation["blockers"])
-        )
+    if result["valid"] is not True:
+        raise SystemExit("Canonical v2 pricing contract failed for package generation: " + "; ".join(result["blockers"]))
+    return result
 
-    pricing = _load_json(pricing_path)
-    state = _load_json(portfolio_state_path)
+
+def build(args: argparse.Namespace) -> dict[str, Path]:
     output_dir = Path(args.output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
+    state = _load_json(Path(args.portfolio_state))
+    pricing = _load_json(Path(args.pricing_artifact))
+    pricing_validation = _validate_canonical_pricing(args)
+    rows = _pricing_rows(pricing)
 
     nl_md = output_dir / f"weekly_etf_eu_review_nl_{args.report_suffix}.md"
     en_md = output_dir / f"weekly_etf_eu_review_{args.report_suffix}.md"
@@ -313,68 +320,153 @@ def build(args: argparse.Namespace) -> dict[str, Path]:
     en_html = output_dir / f"weekly_etf_eu_review_{args.report_suffix}.html"
     nl_pdf = output_dir / f"weekly_etf_eu_review_nl_{args.report_suffix}.pdf"
     en_pdf = output_dir / f"weekly_etf_eu_review_{args.report_suffix}.pdf"
+    manifest_path = output_dir / f"etf_eu_fresh_generation_package_manifest_{args.run_id}.json"
+    ready_path = output_dir / f"etf_eu_ready_for_controlled_delivery_{args.run_id}.json"
+    routine_path = Path("output/run_manifests") / f"etf_eu_routine_run_manifest_{args.report_date}_{args.run_id}.json"
 
     nl_text, nl_sanitization = sanitize_text(_markdown_nl(args.report_date, state, pricing), language="nl")
     en_text, en_sanitization = sanitize_text(_markdown_en(args.report_date, state, pricing), language="en")
+    if nl_sanitization["client_surface_sanitized"] is not True or en_sanitization["client_surface_sanitized"] is not True:
+        raise SystemExit("Native client-surface sanitization guard failed")
     nl_md.write_text(nl_text, encoding="utf-8")
     en_md.write_text(en_text, encoding="utf-8")
 
-    render_report(
-        markdown_path=nl_md,
-        html_output=nl_html,
-        pdf_output=nl_pdf,
-        language="nl",
-        title=f"Weekly ETF EU Review — {args.report_date}",
-    )
-    render_report(
-        markdown_path=en_md,
-        html_output=en_html,
-        pdf_output=en_pdf,
-        language="en",
-        title=f"Weekly ETF EU Review — {args.report_date}",
-    )
+    render_report(markdown_path=nl_md, html_output=nl_html, pdf_output=nl_pdf, language="nl", title=f"Weekly ETF EU Review | Nederlands | {args.report_date}")
+    render_report(markdown_path=en_md, html_output=en_html, pdf_output=en_pdf, language="en", title=f"Weekly ETF EU Review | English Companion | {args.report_date}")
 
+    latest_close = _latest_close_date(rows)
+    pricing_policy = pricing.get("pricing_authority_policy") or {}
     manifest = {
-        "schema_version": "etf_eu_routine_report_package_v1",
+        "schema_version": "etf_eu_fresh_generation_package_v1",
+        "artifact_type": "etf_eu_fresh_generation_package_manifest",
         "generated_at_utc": _utc_now(),
         "run_id": args.run_id,
         "report_date": args.report_date,
         "report_suffix": args.report_suffix,
-        "pricing_artifact": str(pricing_path),
+        "pricing_as_of": latest_close,
+        "pricing_contract_schema": "ucits_close_price_validation_basket_results_v2",
         "pricing_contract_validation": pricing_validation,
-        "portfolio_state": str(portfolio_state_path),
+        "funded_exact_primary_pricing_required": True,
+        "second_provider_required_for_liveness": pricing_policy.get("second_provider_required_for_liveness") is True,
+        "funded_two_provider_consensus_required": False,
+        "pricing_authority_mode": pricing_policy.get("mode"),
+        "source_of_truth_repo": SOURCE_REPO,
+        "reference_architecture_repo": DONOR_REPO,
+        "upstream_pattern_adapted": UPSTREAM_PATTERN,
+        "fresh_generation_status": "full_package_generated",
+        "full_generation_status": "client_grade_renderer_integrated",
+        "markdown_generation_status": "generated_client_safe",
+        "html_generation_status": "generated",
+        "pdf_generation_status": "generated_pending_quality_gates",
+        "renderer": "runtime/render_etf_eu_client_report.py",
+        "renderer_engine": "weasyprint",
+        "markdown_engine": "mistune_table",
+        "client_surface_sanitizer": "runtime/scrub_etf_eu_client_surface.py",
+        "client_surface_sanitized": True,
+        "authority_metadata_absent_from_client_surface": True,
+        "raw_status_enums_absent_from_client_surface": True,
+        "pdf_machine_gate_passed": False,
+        "pdf_visual_gate_passed": False,
+        "client_output_valid": False,
+        "markdown_output_available": True,
+        "html_output_available": True,
+        "pdf_output_available": True,
+        "dutch_primary": True,
+        "english_companion": True,
+        "isin_first_identity": True,
+        "us_etfs_proxy_only": True,
+        "main_surface_us_holdings_exposure": False,
+        "nan_price_in_client_surface": False,
+        "stale_delivery_wording_present": False,
+        "ready_for_controlled_delivery": False,
+        "delivery_authorized": False,
+        "send_executed": False,
+        "transport_attempted": False,
+        "receipt_confirmed": False,
+        "valuation_grade": pricing_validation["report_pricing_gate_passed"],
+        "funding_authority": False,
         "portfolio_mutation": False,
-        "real_broker_execution": False,
-        "smtp_send": False,
-        "delivery_authority": False,
-        "artifacts": {
-            "nl_markdown": str(nl_md),
-            "en_markdown": str(en_md),
-            "nl_html": str(nl_html),
-            "en_html": str(en_html),
-            "nl_pdf": str(nl_pdf),
-            "en_pdf": str(en_pdf),
-        },
-        "sanitization": {
-            "nl": nl_sanitization,
-            "en": en_sanitization,
-        },
-        "upstream_pattern": UPSTREAM_PATTERN,
-        "donor_repository": DONOR_REPO,
-        "source_repository": SOURCE_REPO,
+        "production_delivery_authority": False,
+        "portfolio_state_path": args.portfolio_state,
+        "valuation_history_path": args.valuation_history,
+        "trade_ledger_path": args.trade_ledger,
+        "recommendation_scorecard_path": args.recommendation_scorecard,
+        "pricing_artifact_path": args.pricing_artifact,
+        "previous_routine_run_manifest": args.previous_routine_manifest,
+        "previous_delivery_closeout_manifest": args.previous_delivery_closeout_manifest,
+        "routine_run_manifest": str(routine_path),
+        "dutch_primary_markdown": str(nl_md),
+        "english_companion_markdown": str(en_md),
+        "dutch_primary_html": str(nl_html),
+        "english_companion_html": str(en_html),
+        "dutch_primary_pdf": str(nl_pdf),
+        "english_companion_pdf": str(en_pdf),
+        "ready_artifact": str(ready_path),
+        "next_action": "RUN_ROUTINE_CLIENT_SURFACE_AND_PDF_QUALITY_GATES",
+        "next_package": None,
     }
-    manifest_path = output_dir / f"etf_eu_routine_report_package_manifest_{args.run_id}.json"
     manifest_path.write_text(json.dumps(manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8")
 
-    return {
-        "nl_markdown": nl_md,
-        "en_markdown": en_md,
-        "nl_html": nl_html,
-        "en_html": en_html,
-        "nl_pdf": nl_pdf,
-        "en_pdf": en_pdf,
-        "manifest": manifest_path,
+    ready = {
+        "schema_version": "etf_eu_ready_for_controlled_delivery_v1",
+        "artifact_type": "etf_eu_ready_for_controlled_delivery",
+        "generated_at_utc": _utc_now(),
+        "run_id": args.run_id,
+        "report_date": args.report_date,
+        "report_suffix": args.report_suffix,
+        "fresh_generation_package_manifest": str(manifest_path),
+        "pricing_contract_schema": "ucits_close_price_validation_basket_results_v2",
+        "funded_exact_primary_pricing_required": True,
+        "second_provider_required_for_liveness": pricing_policy.get("second_provider_required_for_liveness") is True,
+        "funded_two_provider_consensus_required": False,
+        "pricing_authority_mode": pricing_policy.get("mode"),
+        "client_surface_clean": False,
+        "authority_metadata_absent": False,
+        "raw_status_enums_absent": False,
+        "pdf_machine_gate_passed": False,
+        "pdf_visual_gate_passed": False,
+        "client_output_valid": False,
+        "ready_for_controlled_delivery": False,
+        "delivery_authorized": False,
+        "send_executed": False,
+        "transport_attempted": False,
+        "receipt_confirmed": False,
+        "valuation_grade": pricing_validation["report_pricing_gate_passed"],
+        "funding_authority": False,
+        "portfolio_mutation": False,
+        "production_delivery_authority": False,
+        "next_action": "RUN_ROUTINE_CLIENT_SURFACE_AND_PDF_QUALITY_GATES",
     }
+    ready_path.write_text(json.dumps(ready, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+
+    subprocess.run(
+        [
+            sys.executable,
+            "tools/write_etf_eu_routine_run_manifest.py",
+            "--run-id", args.run_id,
+            "--report-date", args.report_date,
+            "--report-suffix", args.report_suffix,
+            "--routine-stage", "routine_fresh_generation_completed_pending_client_surface_and_pdf_qa",
+            "--workflow-status", "routine_fresh_generation_completed_pending_client_surface_and_pdf_qa",
+            "--previous-delivery-closeout-manifest", args.previous_delivery_closeout_manifest,
+            "--portfolio-state", args.portfolio_state,
+            "--valuation-history", args.valuation_history,
+            "--trade-ledger", args.trade_ledger,
+            "--recommendation-scorecard", args.recommendation_scorecard,
+            "--pricing-artifact", args.pricing_artifact,
+            "--delivery-package-manifest", str(manifest_path),
+            "--ready-artifact", str(ready_path),
+            "--dutch-primary-markdown", str(nl_md),
+            "--english-companion-markdown", str(en_md),
+            "--dutch-primary-html", str(nl_html),
+            "--english-companion-html", str(en_html),
+            "--dutch-primary-pdf", str(nl_pdf),
+            "--english-companion-pdf", str(en_pdf),
+            "--next-package", "RUN_ROUTINE_CLIENT_SURFACE_AND_PDF_QUALITY_GATES",
+        ],
+        check=True,
+    )
+    return {"manifest": manifest_path, "ready": ready_path, "routine": routine_path}
 
 
 def main() -> None:
@@ -383,16 +475,16 @@ def main() -> None:
     parser.add_argument("--report-date", required=True)
     parser.add_argument("--report-suffix", required=True)
     parser.add_argument("--pricing-artifact", required=True)
-    parser.add_argument("--portfolio-state", required=True)
-    parser.add_argument("--output-dir", required=True)
+    parser.add_argument("--output-dir", default="output/fresh_generation")
+    parser.add_argument("--portfolio-state", default="output/etf_eu_portfolio_state.json")
+    parser.add_argument("--valuation-history", default="output/etf_eu_valuation_history.csv")
+    parser.add_argument("--trade-ledger", default="output/etf_eu_trade_ledger.csv")
+    parser.add_argument("--recommendation-scorecard", default="output/etf_eu_recommendation_scorecard.csv")
+    parser.add_argument("--previous-routine-manifest", required=True)
+    parser.add_argument("--previous-delivery-closeout-manifest", required=True)
     args = parser.parse_args()
     outputs = build(args)
-    print(
-        "ETF_EU_ROUTINE_REPORT_PACKAGE_OK"
-        f" | nl_pdf={outputs['nl_pdf']}"
-        f" | en_pdf={outputs['en_pdf']}"
-        " | portfolio_mutation=false | smtp_send=false"
-    )
+    print("ETF_EU_ROUTINE_REPORT_PACKAGE_OK | " + " | ".join(f"{key}={value}" for key, value in outputs.items()))
 
 
 if __name__ == "__main__":
