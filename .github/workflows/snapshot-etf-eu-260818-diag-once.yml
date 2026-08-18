@@ -21,6 +21,7 @@ jobs:
           REPO: ${{ github.repository }}
         run: |
           set -euo pipefail
+          # Refresh after the repaired diagnostic wrapper rerun.
           python - <<'PY'
           import base64,json,os,urllib.request
           repo=os.environ['REPO']; token=os.environ['GH_TOKEN']
@@ -31,7 +32,14 @@ jobs:
           out={'total_count':data.get('total_count'), 'runs':[{k:x.get(k) for k in ['id','name','status','conclusion','html_url','head_sha','created_at','updated_at','run_attempt']} for x in data.get('workflow_runs',[])]}
           raw=(json.dumps(out,indent=2)+'\n').encode()
           path='ops/evidence/ETF_EU_FRESH_260818_DIAG_SNAPSHOT.json'
-          payload={'message':'Persist ETF EU 260818 diagnostic snapshot','content':base64.b64encode(raw).decode(),'branch':'ops/dispatch-etf-eu-260818-once'}
+          existing_sha=None
+          try:
+              req=urllib.request.Request(f'https://api.github.com/repos/{repo}/contents/{path}?ref=ops/dispatch-etf-eu-260818-once',headers=headers)
+              with urllib.request.urlopen(req) as r: existing_sha=json.loads(r.read().decode())['sha']
+          except Exception:
+              pass
+          payload={'message':'Refresh ETF EU 260818 diagnostic snapshot','content':base64.b64encode(raw).decode(),'branch':'ops/dispatch-etf-eu-260818-once'}
+          if existing_sha: payload['sha']=existing_sha
           req=urllib.request.Request(f'https://api.github.com/repos/{repo}/contents/{path}',data=json.dumps(payload).encode(),headers={**headers,'Content-Type':'application/json'},method='PUT')
           with urllib.request.urlopen(req) as r: print(r.read().decode())
           print(json.dumps(out,indent=2))
