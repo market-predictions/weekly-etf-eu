@@ -1,0 +1,9 @@
+{
+  "schema_version": "etf_eu_provider_secret_availability_v1",
+  "secret_values_exposed": false,
+  "leeway_configured": false,
+  "eodhd_configured": false,
+  "marketstack_configured": false,
+  "alpha_vantage_configured": true,
+  "yahoo_chart_configured": true
+}
