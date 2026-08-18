@@ -1,0 +1,163 @@
+{
+  "found": true,
+  "run": {
+    "id": 32191937804,
+    "name": "Weekly ETF EU candidate build",
+    "status": "completed",
+    "conclusion": "failure",
+    "html_url": "https://github.com/market-predictions/weekly-etf-eu/actions/runs/32191937804",
+    "head_sha": "ca403c12ebed091e8c7bca52df5931685063c16c",
+    "created_at": "2026-08-18T22:16:31Z",
+    "updated_at": "2026-08-18T22:20:54Z",
+    "run_attempt": 1
+  },
+  "jobs": [
+    {
+      "id": 95887931945,
+      "name": "candidate-build",
+      "status": "completed",
+      "conclusion": "failure",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1
+        },
+        {
+          "name": "Require non-main candidate branch",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2
+        },
+        {
+          "name": "Check out exact candidate branch",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3
+        },
+        {
+          "name": "Check out donor research repository",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4
+        },
+        {
+          "name": "Set up Python",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5
+        },
+        {
+          "name": "Install system PDF packages",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 6
+        },
+        {
+          "name": "Install candidate dependencies",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 7
+        },
+        {
+          "name": "Resolve and validate candidate request",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 8
+        },
+        {
+          "name": "Select current donor breadth evidence",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 9
+        },
+        {
+          "name": "Select quota-aware allocation pricing candidates",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 10
+        },
+        {
+          "name": "Validate routine implementation preflight",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 11
+        },
+        {
+          "name": "Build current UCITS pricing evidence",
+          "status": "completed",
+          "conclusion": "failure",
+          "number": 12
+        },
+        {
+          "name": "Refresh macro context and candidate valuation history",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 13
+        },
+        {
+          "name": "Build client-grade v2 candidate package with broad discovery",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 14
+        },
+        {
+          "name": "Validate candidate machine contract",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 15
+        },
+        {
+          "name": "Render complete candidate PDF review pages",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 16
+        },
+        {
+          "name": "Persist generated candidate outputs to candidate branch only",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 17
+        },
+        {
+          "name": "Upload frozen candidate review bundle",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 18
+        },
+        {
+          "name": "State assurance boundary",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 19
+        },
+        {
+          "name": "Post Set up Python",
+          "status": "completed",
+          "conclusion": "skipped",
+          "number": 36
+        },
+        {
+          "name": "Post Check out donor research repository",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 37
+        },
+        {
+          "name": "Post Check out exact candidate branch",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 38
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 39
+        }
+      ],
+      "log_fetch_error": "<HTTPError 401: 'Server failed to authenticate the request. Please refer to the information in the www-authenticate header.'>"
+    }
+  ]
+}
