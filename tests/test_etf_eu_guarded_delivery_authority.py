@@ -31,6 +31,10 @@ def _build_authority(root: Path) -> Path:
         path.write_bytes((key + "\n").encode("utf-8"))
         rel = path.relative_to(root)
         artifacts[key] = {"path": str(rel), "sha256": _sha(path)}
+
+    safety_evidence = root / "output" / "quality" / "client_surface_safety_test.json"
+    safety_evidence.parent.mkdir(parents=True)
+    safety_evidence.write_text('{"status":"PASS"}\n', encoding="utf-8")
     payload = {
         "schema_version": "etf_eu_guarded_delivery_authority_v1",
         "artifact_type": "etf_eu_guarded_delivery_authority",
@@ -54,6 +58,13 @@ def _build_authority(root: Path) -> Path:
         "principal_guarded_send_authorization": {
             "approved": True,
             "reference": "principal-command-2026-08-10",
+        },
+        "client_surface_safety": {
+            "stale_delivery_wording_present": False,
+            "main_surface_us_proxy_exposure": False,
+            "main_surface_tbd_candidate_exposure": False,
+            "nan_price_in_client_surface": False,
+            "evidence_ref": str(safety_evidence.relative_to(root)),
         },
         "artifacts": artifacts,
     }
