@@ -50,6 +50,12 @@ def _select_tick_indices(
 
 
 def render_equity_curve_svg(state: dict[str, Any], *, language: str = "nl") -> str:
+    """Legacy/intermediate vector renderer.
+
+    Final client HTML is materialized to the donor-standard embedded PNG before
+    delivery authority is established. This SVG remains the deterministic
+    intermediate representation used by the existing renderer pipeline.
+    """
     curve = state.get("equity_curve") if isinstance(state.get("equity_curve"), dict) else {}
     if curve.get("show_chart") is not True:
         return ""
@@ -135,11 +141,17 @@ def validate_equity_curve_contract(state: dict[str, Any], rendered_html: str) ->
     blockers: list[str] = []
     curve = state.get("equity_curve") if isinstance(state.get("equity_curve"), dict) else {}
     show_chart = curve.get("show_chart") is True
-    has_svg = "class=\"equity-curve-svg\"" in rendered_html
-    if show_chart and not has_svg:
-        blockers.append("equity curve should be visible but SVG is missing")
-    if not show_chart and has_svg:
-        blockers.append("equity curve SVG is visible despite cash-only/insufficient history rule")
+    lowered = rendered_html.lower()
+    has_svg = 'class="equity-curve-svg"' in lowered
+    has_embedded_png = (
+        'class="equity-curve-image"' in lowered
+        and "data:image/png;base64," in lowered
+    )
+    surface_count = int(has_svg) + int(has_embedded_png)
+    if show_chart and surface_count != 1:
+        blockers.append("equity curve should have exactly one SVG-intermediate or embedded-PNG surface")
+    if not show_chart and surface_count:
+        blockers.append("equity curve is visible despite cash-only/insufficient history rule")
     if show_chart and curve.get("latest_nav_matches_state") is not True:
         blockers.append("latest equity-curve point does not reconcile to current NAV")
     return blockers
