@@ -1,0 +1,16 @@
+{
+  "total_count": 1,
+  "runs": [
+    {
+      "id": 32192358154,
+      "name": "Diagnose ETF EU fresh 260818 pricing once",
+      "status": "in_progress",
+      "conclusion": null,
+      "html_url": "https://github.com/market-predictions/weekly-etf-eu/actions/runs/32192358154",
+      "head_sha": "2aec3a99f3c65fe33324e26cde2357858b0b838e",
+      "created_at": "2026-08-18T22:21:55Z",
+      "updated_at": "2026-08-18T22:21:59Z",
+      "run_attempt": 1
+    }
+  ]
+}
