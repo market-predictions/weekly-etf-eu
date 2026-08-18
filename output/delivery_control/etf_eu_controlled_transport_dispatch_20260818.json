@@ -1,0 +1,10 @@
+{
+  "schema_version": "etf_eu_transport_dispatch_marker_v1",
+  "status": "DISPATCH_ACCEPTED_BY_GITHUB_API",
+  "source_sha": "f6ca296f6d16cba9e633a44715ca35145a37b474",
+  "authority_path": "output/delivery_authorization/etf_eu_guarded_delivery_authority_20260814_235900.json",
+  "workflow": "send-weekly-etf-eu-controlled-transport.yml",
+  "delivery_mode": "send",
+  "send_confirmation": "confirm_guarded_send",
+  "second_confirmation": "confirm_guarded_send_second"
+}
