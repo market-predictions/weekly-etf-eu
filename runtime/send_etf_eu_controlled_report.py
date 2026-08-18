@@ -4,12 +4,15 @@ import argparse
 import hashlib
 import json
 import os
+import re
 import smtplib
 import ssl
 from datetime import datetime, timezone
 from email.message import EmailMessage
 from pathlib import Path
 from typing import Any
+
+import cairosvg
 
 CONFIG_ALIASES = {
     "host": ("ETF_EU_TRANSPORT_HOST", "ETF_EU_SMTP_HOST"),
@@ -20,6 +23,12 @@ CONFIG_ALIASES = {
     "recipient_nl": ("ETF_EU_TO_NL", "ETF_EU_RECIPIENT_NL"),
     "recipient_en": ("ETF_EU_TO_EN", "ETF_EU_RECIPIENT_EN"),
 }
+
+EQUITY_CURVE_SVG_PATTERN = re.compile(
+    r'(<svg\b[^>]*class=["\'][^"\']*\bequity-curve-svg\b[^"\']*["\'][^>]*>.*?</svg>)',
+    re.IGNORECASE | re.DOTALL,
+)
+PNG_SIGNATURE = b"\x89PNG\r\n\x1a\n"
 
 
 def _utc_now() -> str:
@@ -84,6 +93,44 @@ def _package_paths(manifest_path: Path | None) -> dict[str, Path]:
     return paths
 
 
+def _materialize_email_equity_curve(html_body: str, *, language: str) -> tuple[str, bytes | None, str | None]:
+    """Replace the canonical inline equity SVG with a mail-safe related PNG.
+
+    The canonical HTML remains untouched on disk. If it declares an equity-curve
+    surface, message construction fails closed unless exactly one curve SVG can
+    be converted and referenced by exactly one CID URL.
+    """
+    has_curve_marker = "equity-curve-block" in html_body or "equity-curve-svg" in html_body
+    matches = list(EQUITY_CURVE_SVG_PATTERN.finditer(html_body))
+    if not has_curve_marker:
+        _require(not matches, "equity curve SVG found without canonical curve marker")
+        return html_body, None, None
+
+    _require(len(matches) == 1, f"expected exactly one equity curve SVG, found {len(matches)}")
+    match = matches[0]
+    svg_text = match.group(1)
+    try:
+        png_bytes = cairosvg.svg2png(
+            bytestring=svg_text.encode("utf-8"),
+            output_width=920,
+            output_height=390,
+        )
+    except Exception as exc:
+        raise RuntimeError("failed to materialize mail-safe equity curve PNG") from exc
+
+    _require(png_bytes.startswith(PNG_SIGNATURE), "mail-safe equity curve conversion did not produce PNG")
+    cid = f"etf-eu-equity-curve-{language}@weekly-etf-eu"
+    alt = "Portefeuillecurve (EUR)" if language == "nl" else "Portfolio equity curve (EUR)"
+    replacement = (
+        f'<img class="equity-curve-email-img" src="cid:{cid}" alt="{alt}" '
+        'width="920" style="display:block;width:100%;max-width:920px;height:auto;border:0;" />'
+    )
+    email_html = html_body[: match.start()] + replacement + html_body[match.end() :]
+    _require("equity-curve-svg" not in email_html, "inline equity SVG remained in email HTML")
+    _require(email_html.count(f"cid:{cid}") == 1, "email equity curve CID reference must occur exactly once")
+    return email_html, png_bytes, cid
+
+
 def _build_message(
     *,
     language: str,
@@ -106,7 +153,22 @@ def _build_message(
     msg["To"] = recipient
     msg.set_content(text)
     if html_path is not None and html_path.exists():
-        msg.add_alternative(html_path.read_text(encoding="utf-8"), subtype="html")
+        email_html, curve_png, curve_cid = _materialize_email_equity_curve(
+            html_path.read_text(encoding="utf-8"),
+            language=language,
+        )
+        msg.add_alternative(email_html, subtype="html")
+        if curve_png is not None:
+            _require(curve_cid is not None, "equity curve PNG missing CID")
+            html_part = msg.get_payload()[-1]
+            html_part.add_related(
+                curve_png,
+                maintype="image",
+                subtype="png",
+                cid=f"<{curve_cid}>",
+                filename=f"weekly_etf_eu_equity_curve_{language}.png",
+                disposition="inline",
+            )
     if pdf_path is not None and pdf_path.exists():
         msg.add_attachment(pdf_path.read_bytes(), maintype="application", subtype="pdf", filename=pdf_path.name)
     elif not require_pdf_package:
@@ -180,6 +242,7 @@ def build_result(
         "completion_claimed": False,
         "require_pdf_package": require_pdf_package,
         "pdf_package_used": bool(package),
+        "email_equity_curve_transport": "cid_png_when_present",
         "recipient_data_policy": "redacted_hash_only",
         "languages": languages,
         "secret_values_exposed": False,
