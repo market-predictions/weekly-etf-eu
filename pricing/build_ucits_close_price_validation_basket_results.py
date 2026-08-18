@@ -83,7 +83,16 @@ def main() -> None:
     )
 
     preliminary = json.loads(qualification_path.read_text(encoding="utf-8"))
-    provider_scope = [str(item) for item in preliminary.get("provider_order") or []]
+    if providers:
+        provider_scope = list(providers)
+    else:
+        provider_scope = [
+            str(name)
+            for name, config in (preliminary.get("provider_configuration") or {}).items()
+            if isinstance(config, dict) and config.get("configured") is True
+        ]
+    if not provider_scope:
+        raise SystemExit("No configured provider exists for static identity binding; pricing is blocked.")
     identity_binding = build_provider_identity_binding(
         symbol_registry_path=Path(args.symbol_registry),
         provider_registry_path=resolved_registry_path,
@@ -100,6 +109,7 @@ def main() -> None:
     qualification["symbol_registry_source"] = args.symbol_registry
     qualification["resolved_provider_registry"] = str(resolved_registry_path)
     qualification["static_identity_binding_artifact"] = str(identity_binding_path)
+    qualification["static_identity_provider_scope"] = provider_scope
     qualification["provider_secret_safety"] = secret_safety
     qualification["alpha_vantage_capacity_policy"] = {
         "identity_search_calls": 0,
