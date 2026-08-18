@@ -12,8 +12,6 @@ from email.message import EmailMessage
 from pathlib import Path
 from typing import Any
 
-import cairosvg
-
 CONFIG_ALIASES = {
     "host": ("ETF_EU_TRANSPORT_HOST", "ETF_EU_SMTP_HOST"),
     "port": ("ETF_EU_TRANSPORT_PORT", "ETF_EU_SMTP_PORT"),
@@ -110,6 +108,8 @@ def _materialize_email_equity_curve(html_body: str, *, language: str) -> tuple[s
     match = matches[0]
     svg_text = match.group(1)
     try:
+        import cairosvg
+
         png_bytes = cairosvg.svg2png(
             bytestring=svg_text.encode("utf-8"),
             output_width=920,
