@@ -3,13 +3,17 @@
 ## Current priority
 
 ```text
-CLOSE_20260814_CYCLE_AND_RETURN_TO_ROUTINE
+ROUTINE_IDLE_READY_FOR_NEXT_FRESH_CYCLE
 ```
 
-Current authoritative execution identity:
+Current authoritative closed-cycle identity:
 
 ```text
 issue=100
+issue_status=CLOSED
+workpackage_status=CLOSED
+work_claim=ETF-EU-FRESH-REPORT-260814-V1
+work_claim_status=CLOSED
 report_run_id=20260814_235900
 report_date=2026-08-14
 assured_candidate_head=f230a17fb6504ff1513ade0f4cb0b6ac0e1a0b5b
@@ -21,6 +25,7 @@ delivery_closeout=output/run_manifests/etf_eu_delivery_closeout_manifest_2026081
 delivery_success=true
 receipt_confirmed=true
 attachment_hash_confirmation=true
+temporary_delivery_bridges_removed=true
 real_broker_execution=false
 principal_decision_required=false
 ```
@@ -40,21 +45,18 @@ principal_decision_required=false
 11. Both NL and EN messages were directly observed in the recipient INBOX.
 12. Both received PDF attachments matched the approved report artifacts exactly by SHA-256.
 13. Final recipient-side receipt evidence and a delivery closeout manifest are persisted.
-14. No real broker execution occurred and delivery did not mutate portfolio state.
+14. Work package and work claim are CLOSED.
+15. Temporary one-shot workflow-dispatch/observation bridges are removed; their durable evidence markers remain.
+16. The stable explicit client-surface-safety binding rule is recorded in `control/DECISION_LOG.md`.
+17. No real broker execution occurred and delivery did not mutate portfolio state.
 
-## Immediate closeout actions
+## No remaining action for this cycle
 
-1. Mark work claim `ETF-EU-FRESH-REPORT-260814-V1` CLOSED with the delivery closeout manifest as evidence.
-2. Close issue #100 as completed with the exact transport/receipt evidence references.
-3. Remove temporary one-shot workflow-dispatch/observation bridges introduced only because the connected GitHub surface did not expose new `workflow_dispatch` creation directly. Preserve their durable dispatch/run markers.
-4. Record the stable delivery-contract rule in the decision/defect history: missing client-surface safety fields must fail closed, and the guarded-delivery authority/package writer must propagate explicit validated assertions rather than infer them.
-5. Reconcile Control cache/state if its next refresh has not already incorporated this project-local live evidence.
+There is no remaining report production, assurance, merge, delivery, receipt or governance-closeout step for the `2026-08-14` report.
 
-## Next routine cycle
+The next action is only the next normal fresh Weekly ETF EU cycle when a new completed-close date is due. That cycle must:
 
-After closeout, there is no remaining action for the 2026-08-14 report. The next report cycle must:
-
-- start from the next appropriate fresh completed-close date;
+- start from fresh completed-close evidence;
 - treat the 2026-08-14 report only as historical strategy/model context;
 - run a full current portfolio re-underwrite rather than mechanically roll positions forward;
 - preserve the same independent assurance → merge → exact-main → hash-bound authority → controlled transport → recipient receipt chain;
