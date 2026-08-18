@@ -1,0 +1,68 @@
+name: One-shot diagnose Weekly ETF EU 260817 pricing
+
+on:
+  push:
+    branches:
+      - ops/dispatch-etf-eu-fresh-260817-once
+    paths:
+      - .github/workflows/diagnose-etf-eu-pricing-260817-once.yml
+
+permissions:
+  contents: write
+
+jobs:
+  diagnose-pricing:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: agent/etf-eu-fresh-260817-v1
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install pricing dependencies
+        run: pip install pyyaml requests
+      - name: Run exact candidate pricing without terminal fail gate
+        env:
+          ALPHA_VANTAGE_API_KEY: ${{ secrets.ALPHA_VANTAGE_API_KEY }}
+        run: |
+          set -euo pipefail
+          python pricing/build_ucits_close_price_validation_basket_results.py \
+            --run-id 20260817_151400_diag \
+            --report-date 2026-08-17 \
+            --providers alpha_vantage,yahoo_chart \
+            --allocation-candidate-basket-ids cbuff_xetra_eur,xmlc_xetra_eur,vvsm_xetra_eur,isae_xams_eur \
+            --pause-seconds 8 \
+            --rate-limit-cooldown-seconds 600 \
+            --max-attempts 2 \
+            --rate-limit-mode stop
+          jq '{
+            report_date:.report_date,
+            funded_line_count:.funded_line_count,
+            funded_consensus_count:.funded_consensus_count,
+            funded_identity_anchor_count:.funded_identity_anchor_count,
+            report_pricing_gate_passed:.report_pricing_gate_passed,
+            funded_universe_authority:.funded_universe_authority,
+            lines:[.lines[] | select(.funded==true) | {
+              basket_id,ticker,qualification_status,selected_close_date,same_date_provider_count,
+              identity_assurance_status,identity_anchor_provider_count,agreeing_providers,
+              agreement_spread_pct,consensus_close_price,
+              provider_results:[.provider_results[] | {provider,provider_symbol,pricing_status,close_date,close_price,close_age_days,http_status,returned_symbol,returned_exchange,returned_mic,returned_currency,symbol_match,venue_match,currency_match,identity_anchor,identity_status,blockers}]
+            }]
+          }' output/pricing/ucits_price_provider_qualification_20260817_151400_diag.json > /tmp/summary.json
+          cat /tmp/summary.json
+      - name: Persist diagnostic summary to isolated ops branch
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          path='output/ops/etf_eu_pricing_diagnostic_20260817_151400.json'
+          encoded="$(base64 -w0 /tmp/summary.json)"
+          payload="$(jq -n --arg message 'Record ETF EU 260817 pricing diagnostic' --arg content "$encoded" --arg branch 'ops/dispatch-etf-eu-fresh-260817-once' '{message:$message,content:$content,branch:$branch}')"
+          code="$(curl -sS -o /tmp/resp.json -w '%{http_code}' -X PUT \
+            -H 'Accept: application/vnd.github+json' \
+            -H "Authorization: Bearer ${GH_TOKEN}" \
+            -H 'X-GitHub-Api-Version: 2022-11-28' \
+            "https://api.github.com/repos/${GITHUB_REPOSITORY}/contents/${path}" \
+            -d "$payload")"
+          if [ "$code" != '201' ]; then cat /tmp/resp.json >&2; exit 1; fi
