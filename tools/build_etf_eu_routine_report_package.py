@@ -319,8 +319,20 @@ def build(args: argparse.Namespace) -> dict[str, Path]:
     nl_md.write_text(nl_text, encoding="utf-8")
     en_md.write_text(en_text, encoding="utf-8")
 
-    render_report(nl_md, nl_html, nl_pdf, language="nl")
-    render_report(en_md, en_html, en_pdf, language="en")
+    render_report(
+        markdown_path=nl_md,
+        html_output=nl_html,
+        pdf_output=nl_pdf,
+        language="nl",
+        title=f"Weekly ETF EU Review — {args.report_date}",
+    )
+    render_report(
+        markdown_path=en_md,
+        html_output=en_html,
+        pdf_output=en_pdf,
+        language="en",
+        title=f"Weekly ETF EU Review — {args.report_date}",
+    )
 
     manifest = {
         "schema_version": "etf_eu_routine_report_package_v1",
