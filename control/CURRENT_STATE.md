@@ -5,7 +5,7 @@
 ```text
 date=2026-08-18
 repository=market-predictions/weekly-etf-eu
-state=FRESH_20260814_DELIVERY_CONFIRMED
+state=FRESH_20260814_DELIVERY_CONFIRMED_CLOSED
 parent_issue=100
 report_run_id=20260814_235900
 report_date=2026-08-14
@@ -22,6 +22,9 @@ recipient_inbox_observed=true
 attachment_hash_confirmation=true
 report_delivery=true
 receipt_confirmed=true
+work_claim_closed=true
+workpackage_closed=true
+temporary_delivery_bridges_removed=true
 real_broker_execution=false
 portfolio_mutation_from_delivery=false
 ```
@@ -51,6 +54,10 @@ The workflow-generated receipt checker remains preserved with `receipt_confirmed
 
 ```text
 issue=100
+issue_status=CLOSED
+workpackage_status=CLOSED
+work_claim=ETF-EU-FRESH-REPORT-260814-V1
+work_claim_status=CLOSED
 pr=101
 report_run_id=20260814_235900
 report_date=2026-08-14
@@ -83,7 +90,7 @@ Controlled transport attempt 1 failed before SMTP because the guarded-delivery a
 
 The delivery-layer contract was repaired without changing any report artifact bytes. The authority now carries the already-established client-grade safety assertions and the package writer propagates them into the package manifest. Attempt 2 of the same controlled workflow then passed authority, lineage, package, pre-transport, SMTP transport, post-transport and evidence persistence.
 
-Stable rule: guarded delivery package construction must carry explicit client-surface safety assertions from independently validated evidence; missing booleans must fail closed rather than be inferred.
+Stable rule: guarded delivery package construction must carry explicit client-surface safety assertions from independently validated evidence; missing booleans must fail closed rather than be inferred. This rule is recorded in `control/DECISION_LOG.md`.
 
 ## Decision framework retained
 
@@ -100,8 +107,9 @@ Stable rule: guarded delivery package construction must carry explicit client-su
 ## Operational state
 
 ```text
-issue_100=READY_TO_CLOSE
-workpackage=READY_TO_CLOSE
+issue_100=CLOSED
+workpackage=CLOSED
+work_claim=CLOSED
 candidate_run=PASS
 candidate_pr=MERGED
 independent_assurance=PASS
@@ -112,8 +120,11 @@ controlled_transport=SUCCESS
 recipient_inbox_receipt=CONFIRMED
 attachment_integrity=CONFIRMED
 delivery_closeout_manifest=PERSISTED
+temporary_dispatch_bridge=REMOVED
+temporary_observer_bridge=REMOVED
+delivery_contract_decision_log=RECORDED
 ```
 
 ## Next lifecycle
 
-This 2026-08-14 cycle requires no further report, assurance or delivery work. Close the issue/work claim and return to the normal next fresh Weekly ETF EU cycle. Any future report must start from fresh completed-close evidence rather than reusing the 2026-08-14 prices as current truth.
+No report, assurance, delivery or closeout action remains for the 2026-08-14 cycle. The project returns to the normal next fresh Weekly ETF EU cycle. Any future report must start from fresh completed-close evidence rather than reusing the 2026-08-14 prices as current truth.
