@@ -31,7 +31,12 @@ def apply_primary_verification_to_legacy(
         if line is None:
             continue
         status = _text(line.get("qualification_status"))
-        authorized = status in AUTHORIZED_EXACT_STATUSES and line.get("static_identity_binding") is True
+        authorized = (
+            status in AUTHORIZED_EXACT_STATUSES
+            and line.get("static_identity_binding") is True
+            and line.get("static_primary_provider_symbol_binding") is True
+            and line.get("valuation_grade") is True
+        )
         primary_provider = _text(line.get("primary_provider")) or None
         verification_providers = [
             _text(item) for item in line.get("verification_providers") or [] if _text(item)
@@ -52,12 +57,14 @@ def apply_primary_verification_to_legacy(
         row["completed_close_on_requested_report_date"] = authorized
         row["valuation_grade"] = authorized
         row["primary_provider"] = primary_provider
+        row["static_primary_provider_symbol_binding"] = line.get("static_primary_provider_symbol_binding") is True
         row["verification_status"] = line.get("verification_status")
         row["verification_providers"] = verification_providers
         row["static_identity_binding"] = line.get("static_identity_binding") is True
         row["static_identity_binding_status"] = line.get("static_identity_binding_status")
         row["static_identity_registry_id"] = line.get("static_identity_registry_id")
         row["static_identity_blockers"] = list(line.get("static_identity_blockers") or [])
+        row["provider_symbol_binding_failures"] = list(line.get("provider_symbol_binding_failures") or [])
         row["agreeing_providers"] = list(line.get("agreeing_providers") or [])
         row["agreement_spread_pct"] = line.get("agreement_spread_pct")
         row["same_date_provider_count"] = int(line.get("same_date_provider_count") or 0)
