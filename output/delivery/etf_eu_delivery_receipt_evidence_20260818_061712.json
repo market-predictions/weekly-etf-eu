@@ -1,0 +1,47 @@
+{
+  "artifact_type": "etf_eu_delivery_receipt_evidence",
+  "attachment_hash_confirmation": true,
+  "broker_execution": false,
+  "delivery_authority_path": "output/delivery_authorization/etf_eu_guarded_delivery_authority_20260814_235900.json",
+  "delivery_claim": "DELIVERED_CONFIRMED",
+  "delivery_receipt_confirmed": true,
+  "en_exact": {
+    "approved_artifact_sha256": "sha256:ac5c0543b47f6845aad49d8eb29b5a7af40c76427b4aefe665307beb5414e778",
+    "attachment_filename": "weekly_etf_eu_review_260814.pdf",
+    "attachment_hash_matches_approved_artifact": true,
+    "attachment_size_bytes": 65099,
+    "mailbox_final_delivery_visible": true,
+    "received_attachment_sha256": "sha256:ac5c0543b47f6845aad49d8eb29b5a7af40c76427b4aefe665307beb5414e778",
+    "received_at_utc": "2026-08-18T06:17:14Z",
+    "subject": "Weekly ETF EU UCITS Review EN — 2026-08-14"
+  },
+  "inspection_mode": "recipient_mailbox_final_delivery_plus_attachment_hash",
+  "nl_exact": {
+    "approved_artifact_sha256": "sha256:0593e106b74a6c2704cb8f9f2184a2d880db25e05b2c966e35c33b98bedb10eb",
+    "attachment_filename": "weekly_etf_eu_review_nl_260814.pdf",
+    "attachment_hash_matches_approved_artifact": true,
+    "attachment_size_bytes": 67845,
+    "mailbox_final_delivery_visible": true,
+    "received_attachment_sha256": "sha256:0593e106b74a6c2704cb8f9f2184a2d880db25e05b2c966e35c33b98bedb10eb",
+    "received_at_utc": "2026-08-18T06:17:13Z",
+    "subject": "Weekly ETF EU UCITS Review NL — 2026-08-14"
+  },
+  "notes": [
+    "The workflow-generated static receipt check is preserved unchanged and cannot inspect the connected recipient mailbox.",
+    "Final receipt confirmation was established by direct connected-mailbox observation of both messages in INBOX plus byte-level SHA-256 verification of both received PDF attachments against the independently assured artifacts."
+  ],
+  "original_static_receipt_check_overwritten": false,
+  "package_manifest_path": "output/delivery_package/etf_eu_delivery_package_manifest_20260818_061712.json",
+  "portfolio_state_mutated": false,
+  "recipient_address_hash": "sha256:602badb30fe408fccf59e816bc5666ad80064d8436a7431767b7bc98b8234ad3",
+  "recipient_address_values_logged": false,
+  "recipient_address_values_stored": false,
+  "recipient_inbox_observed": true,
+  "report_date": "2026-08-14",
+  "report_run_id": "20260814_235900",
+  "report_suffix": "260814",
+  "run_id": "20260818_061712",
+  "schema_version": "etf_eu_delivery_receipt_evidence_v1",
+  "static_receipt_check_path": "output/delivery/etf_eu_receipt_check_20260818_061712.json",
+  "transport_result_path": "output/delivery/etf_eu_transport_result_20260818_061712.json"
+}
