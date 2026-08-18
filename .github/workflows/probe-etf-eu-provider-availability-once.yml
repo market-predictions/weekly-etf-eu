@@ -1,0 +1,36 @@
+name: One-shot probe ETF EU provider availability
+
+on:
+  push:
+    branches:
+      - ops/dispatch-etf-eu-fresh-260817-once
+    paths:
+      - .github/workflows/probe-etf-eu-provider-availability-once.yml
+
+permissions:
+  contents: write
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Build non-secret availability record
+        env:
+          GH_TOKEN: ${{ github.token }}
+          LEEWAY: ${{ secrets.LEEWAY_API_TOKEN }}
+          EODHD: ${{ secrets.EODHD_API_TOKEN }}
+          MARKETSTACK: ${{ secrets.MARKETSTACK_ACCESS_KEY }}
+          ALPHA: ${{ secrets.ALPHA_VANTAGE_API_KEY }}
+        run: |
+          set -euo pipefail
+          jq -n \
+            --argjson leeway "$([ -n "$LEEWAY" ] && echo true || echo false)" \
+            --argjson eodhd "$([ -n "$EODHD" ] && echo true || echo false)" \
+            --argjson marketstack "$([ -n "$MARKETSTACK" ] && echo true || echo false)" \
+            --argjson alpha "$([ -n "$ALPHA" ] && echo true || echo false)" \
+            '{schema_version:"etf_eu_provider_secret_availability_v1",secret_values_exposed:false,leeway_configured:$leeway,eodhd_configured:$eodhd,marketstack_configured:$marketstack,alpha_vantage_configured:$alpha,yahoo_chart_configured:true}' > /tmp/availability.json
+          path='output/ops/etf_eu_provider_availability_20260818.json'
+          encoded="$(base64 -w0 /tmp/availability.json)"
+          payload="$(jq -n --arg message 'Record ETF EU provider availability probe' --arg content "$encoded" --arg branch 'ops/dispatch-etf-eu-fresh-260817-once' '{message:$message,content:$content,branch:$branch}')"
+          code="$(curl -sS -o /tmp/resp.json -w '%{http_code}' -X PUT -H 'Accept: application/vnd.github+json' -H "Authorization: Bearer ${GH_TOKEN}" -H 'X-GitHub-Api-Version: 2022-11-28' "https://api.github.com/repos/${GITHUB_REPOSITORY}/contents/${path}" -d "$payload")"
+          if [ "$code" != '201' ]; then cat /tmp/resp.json >&2; exit 1; fi
