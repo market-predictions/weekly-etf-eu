@@ -3,56 +3,62 @@
 ## Current priority
 
 ```text
-EXECUTE_FRESH_20260814_PRODUCTION_CYCLE
+CLOSE_20260814_CYCLE_AND_RETURN_TO_ROUTINE
 ```
 
 Current authoritative execution identity:
 
 ```text
 issue=100
-branch=agent/etf-eu-fresh-260814-v1
-base_main_sha=427fb2e7213d997b571e0c55371086fbddd598ce
-run_id=20260814_235900
+report_run_id=20260814_235900
 report_date=2026-08-14
-active_claim=ETF-EU-FRESH-REPORT-260814-V1
-workpackage=control/work_packages/ETF_EU_FRESH_REPORT_260814_V1_20260817.md
-request=control/run_queue/etf_eu_routine_report_request_20260814_235900.json
-delivery_authorized=false
+assured_candidate_head=f230a17fb6504ff1513ade0f4cb0b6ac0e1a0b5b
+merged_report_commit=7e20340eca82bfb9aad0b63ffeaae7291e7f14e6
+controlled_transport_workflow_run=32105981988
+controlled_transport_attempt=2
+controlled_transport_run_id=20260818_061712
+delivery_closeout=output/run_manifests/etf_eu_delivery_closeout_manifest_20260818_061712.json
+delivery_success=true
+receipt_confirmed=true
+attachment_hash_confirmation=true
 real_broker_execution=false
 principal_decision_required=false
 ```
 
-## Reconciled predecessor — do not misstate
+## Completed in the 2026-08-14 cycle — do not reopen without contradictory evidence
 
-The 2026-08-10 candidate was independently PASSed in issue #99 and merged unchanged through PR #98 on 2026-08-15. Its predecessor model state is six funded positions with EUR 28,101.01 cash and NAV EUR 100,738.73 at the 2026-08-10 valuation.
+1. Fresh completed-close production was performed for `2026-08-14` using the canonical Weekly ETF EU decision framework.
+2. NL/EN Markdown, HTML and PDF were produced from one normalized current state.
+3. Client-grade deterministic and visual/PDF QA passed.
+4. PR #101 candidate head `f230a17fb6504ff1513ade0f4cb0b6ac0e1a0b5b` received independent `governance_release_assurance` PASS in issue #102.
+5. The unchanged PASSed candidate was merged as report commit `7e20340eca82bfb9aad0b63ffeaae7291e7f14e6`.
+6. The six approved client artifacts were byte-verified unchanged on `main` and bound by SHA-256 in `output/delivery_authorization/etf_eu_guarded_delivery_authority_20260814_235900.json`.
+7. Principal guarded-send authority was preserved in issue #100.
+8. Controlled transport run `32105981988` attempt 1 failed before SMTP on a fail-closed package-contract mismatch; no report email was sent by that attempt.
+9. The delivery-layer contract mismatch was repaired without changing report bytes.
+10. Attempt 2 of the same controlled transport workflow succeeded through SMTP and evidence persistence.
+11. Both NL and EN messages were directly observed in the recipient INBOX.
+12. Both received PDF attachments matched the approved report artifacts exactly by SHA-256.
+13. Final recipient-side receipt evidence and a delivery closeout manifest are persisted.
+14. No real broker execution occurred and delivery did not mutate portfolio state.
 
-That report lineage was **not delivered**. Do not rewrite merge as delivery and do not treat 2026-08-10 prices as current 2026-08-14 truth. The old claim is to be superseded by the current cycle, with delivery remaining false.
+## Immediate closeout actions
 
-## Completed recovery work in issue #100
+1. Mark work claim `ETF-EU-FRESH-REPORT-260814-V1` CLOSED with the delivery closeout manifest as evidence.
+2. Close issue #100 as completed with the exact transport/receipt evidence references.
+3. Remove temporary one-shot workflow-dispatch/observation bridges introduced only because the connected GitHub surface did not expose new `workflow_dispatch` creation directly. Preserve their durable dispatch/run markers.
+4. Record the stable delivery-contract rule in the decision/defect history: missing client-surface safety fields must fail closed, and the guarded-delivery authority/package writer must propagate explicit validated assertions rather than infer them.
+5. Reconcile Control cache/state if its next refresh has not already incorporated this project-local live evidence.
 
-1. Reconciled live PR #98 merge/base identity.
-2. Reused the already-created successor branch rather than creating a competing release line.
-3. Created the fresh-cycle work package.
-4. Created a schema-v2 fresh routine request for report date 2026-08-14.
-5. Bound the request to the real 2026-08-10 predecessor routine manifest and the last confirmed delivery closeout.
-6. Repaired the stale latest-routine pointer that incorrectly referenced 2026-07-12.
-7. Replaced the stale pre-merge human-readable current-state narrative on the active successor branch.
+## Next routine cycle
 
-## Immediate execution sequence
+After closeout, there is no remaining action for the 2026-08-14 report. The next report cycle must:
 
-1. Reconcile `control/WORK_CLAIMS.json`: mark `ETF-EU-FRESH-REPORT-260810-V1` `SUPERSEDED`/undelivered and establish `ETF-EU-FRESH-REPORT-260814-V1` as the sole active current release-line claim.
-2. Materialize explicit validated `PROJECT_INTAKE_V1` for issue #100 on Control `control-runtime-state` so work no longer depends on chat relay.
-3. Execute the canonical `.github/workflows/run-weekly-etf-eu-routine.yml` on `agent/etf-eu-fresh-260814-v1` with request path `control/run_queue/etf_eu_routine_report_request_20260814_235900.json`.
-4. Require fresh completed-close evidence for 2026-08-14. Do not fall back to historical/current-live mismatches.
-5. Run broad discovery -> EU-local mapping/fundability -> exact-line pricing -> full current revaluation -> explicit allocation decision -> normalized bilingual render.
-6. Repair genuine machine/client-surface failures without weakening gates.
-7. Persist candidate artifacts; run deterministic and visual/PDF validation.
-8. Open candidate PR to `main`; freeze exact head.
-9. Obtain fresh independent `governance_release_assurance`. A previous PASS cannot authorize a changed 2026-08-14 candidate.
-10. Merge only the exact unchanged PASSed head; run exact-main verification.
-11. Build the hash-bound delivery package and invoke only the separately guarded controlled-transport route.
-12. Verify transport + receipt/attachment evidence before stating that delivery succeeded.
-13. Close issue #100, work package and claim; reconcile `CURRENT_STATE.md`, `NEXT_ACTIONS.md`, stable decision/defect history and Control cache.
+- start from the next appropriate fresh completed-close date;
+- treat the 2026-08-14 report only as historical strategy/model context;
+- run a full current portfolio re-underwrite rather than mechanically roll positions forward;
+- preserve the same independent assurance → merge → exact-main → hash-bound authority → controlled transport → recipient receipt chain;
+- claim delivery success only from positive recipient-side receipt/attachment evidence or an equivalent real delivery receipt.
 
 ## Protected boundaries
 
@@ -62,7 +68,5 @@ That report lineage was **not delivered**. Do not rewrite merge as delivery and 
 - no retired 50%/35%/15% allocation limits;
 - no research-only mapping/price becomes funding authority automatically;
 - candidate generation has no SMTP/delivery authority;
+- no rerender after artifact approval;
 - no delivery success claim without a real receipt/manifest.
-
-## Autonomy invariant added by this recovery
-A statement that no principal decision is required is insufficient unless the next executable step is also durably materialized. Every future transition that requires autonomous continuation must leave either an executable project intake/queue state, an active worker/run identity, or an explicit blocker with next owner/action. A branch, narrative next action or chat intention alone is not progress authority.
