@@ -57,7 +57,12 @@ def payload(rows: list[dict]) -> dict:
     }
 
 
-def binding(bound: bool = True) -> dict:
+def binding(
+    bound: bool = True,
+    *,
+    alpha_bound: bool = True,
+    yahoo_bound: bool = True,
+) -> dict:
     return {
         "schema_version": "ucits_provider_identity_binding_v1",
         "rows": [
@@ -67,7 +72,21 @@ def binding(bound: bool = True) -> dict:
                 "registry_id": "global_core",
                 "static_identity_binding": bound,
                 "binding_status": "verified_static_exact_line" if bound else "identity_binding_failed",
-                "blockers": [] if bound else ["alpha_vantage:provider_symbol_mismatch"],
+                "provider_symbol_bindings": {
+                    "alpha_vantage": {
+                        "matched": alpha_bound,
+                        "provider_registry_symbol": "VWCE.DEX",
+                        "canonical_registry_symbol": "VWCE.DEX",
+                        "blockers": [] if alpha_bound else ["provider_symbol_mismatch"],
+                    },
+                    "yahoo_chart": {
+                        "matched": yahoo_bound,
+                        "provider_registry_symbol": "VWCE.DE",
+                        "canonical_registry_symbol": "VWCE.DE",
+                        "blockers": [] if yahoo_bound else ["provider_symbol_mismatch"],
+                    },
+                },
+                "blockers": [] if bound else ["canonical_trading_line_match_count:0"],
             }
         ],
     }
@@ -95,6 +114,7 @@ class PrimaryVerificationPolicyTests(unittest.TestCase):
         self.assertEqual(line["qualification_status"], "fresh_exact_unverified")
         self.assertEqual(line["primary_provider"], "alpha_vantage")
         self.assertEqual(line["selected_close_price"], 169.06)
+        self.assertTrue(line["static_primary_provider_symbol_binding"])
         self.assertEqual(line["stale_or_other_date_providers"], ["yahoo_chart"])
         self.assertTrue(line["valuation_grade"])
         self.assertTrue(result["report_pricing_gate_passed"])
@@ -197,12 +217,57 @@ class PrimaryVerificationPolicyTests(unittest.TestCase):
         self.assertEqual(line["rejected_provider_prices"], ["alpha_vantage"])
         self.assertFalse(result["report_pricing_gate_passed"])
 
-    def test_static_identity_binding_is_mandatory(self) -> None:
+    def test_static_line_identity_binding_is_mandatory(self) -> None:
         result = apply_primary_verification_policy_payload(
             payload([provider_row("alpha_vantage", REPORT_DATE, 169.06, symbol="VWCE.DEX")]),
             binding(False),
         )
         self.assertEqual(result["lines"][0]["qualification_status"], "identity_binding_failed")
+        self.assertFalse(result["report_pricing_gate_passed"])
+
+    def test_broken_verifier_symbol_binding_does_not_block_bound_primary(self) -> None:
+        result = apply_primary_verification_policy_payload(
+            payload(
+                [
+                    provider_row("alpha_vantage", REPORT_DATE, 169.06, symbol="VWCE.DEX"),
+                    provider_row(
+                        "yahoo_chart",
+                        REPORT_DATE,
+                        169.07,
+                        symbol="VWCE.DE",
+                        venue_match=True,
+                        currency_match=True,
+                    ),
+                ]
+            ),
+            binding(yahoo_bound=False),
+        )
+        line = result["lines"][0]
+        self.assertEqual(line["qualification_status"], "fresh_exact_unverified")
+        self.assertEqual(line["primary_provider"], "alpha_vantage")
+        self.assertEqual(line["provider_symbol_binding_failures"], ["yahoo_chart"])
+        self.assertTrue(result["report_pricing_gate_passed"])
+
+    def test_unbound_primary_symbol_is_rejected(self) -> None:
+        result = apply_primary_verification_policy_payload(
+            payload(
+                [
+                    provider_row("alpha_vantage", REPORT_DATE, 169.06, symbol="VWCE.DEX"),
+                    provider_row(
+                        "yahoo_chart",
+                        "2026-08-14",
+                        168.88,
+                        symbol="VWCE.DE",
+                        venue_match=True,
+                        currency_match=True,
+                    ),
+                ]
+            ),
+            binding(alpha_bound=False),
+        )
+        line = result["lines"][0]
+        self.assertEqual(line["qualification_status"], "no_exact_close")
+        self.assertEqual(line["provider_symbol_binding_failures"], ["alpha_vantage"])
         self.assertFalse(result["report_pricing_gate_passed"])
 
 
@@ -261,9 +326,10 @@ class StaticIdentityBindingTests(unittest.TestCase):
                 provider_scope=["alpha_vantage", "yahoo_chart"],
             )
         self.assertTrue(result["all_funded_identity_bound"])
+        self.assertTrue(result["all_funded_provider_scope_bound"])
         self.assertTrue(result["rows"][0]["static_identity_binding"])
 
-    def test_provider_symbol_drift_fails_static_binding(self) -> None:
+    def test_provider_symbol_drift_does_not_invalidate_static_line_identity(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             symbol_path, provider_path = self._write(Path(tmp), "WRONG.DEX")
             result = build_provider_identity_binding(
@@ -271,8 +337,12 @@ class StaticIdentityBindingTests(unittest.TestCase):
                 provider_registry_path=provider_path,
                 provider_scope=["alpha_vantage", "yahoo_chart"],
             )
-        self.assertFalse(result["all_funded_identity_bound"])
-        self.assertIn("alpha_vantage:provider_symbol_mismatch", result["rows"][0]["blockers"])
+        self.assertTrue(result["all_funded_identity_bound"])
+        self.assertFalse(result["all_funded_provider_scope_bound"])
+        row = result["rows"][0]
+        self.assertTrue(row["static_identity_binding"])
+        self.assertFalse(row["provider_symbol_bindings"]["alpha_vantage"]["matched"])
+        self.assertIn("provider_symbol_mismatch", row["provider_symbol_bindings"]["alpha_vantage"]["blockers"])
 
 
 if __name__ == "__main__":
