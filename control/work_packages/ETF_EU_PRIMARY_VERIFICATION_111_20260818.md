@@ -9,9 +9,14 @@ repository=market-predictions/weekly-etf-eu
 branch=agent/etf-eu-primary-verification-111
 base_main_sha=0ea61c349b99dcd23f61fed1e72b46326d516914
 owner_role=implementation_operations
-status=HANDOVER_READY
+status=REPAIR_VALIDATION
 opened_at=2026-08-18T16:52:00+02:00
 handover_ready_at=2026-08-18T17:31:00+02:00
+h1_assurance=FAIL
+h1_result=control-runtime-state:control/worker-results/ETF-EU-111-PR112-H1.json
+h2_repair_request=control-runtime-state:control/handovers/ETF-EU-111-PR112-H2.json
+repair_started_at=2026-08-18T21:34:55+02:00
+repair_parent_candidate=e5329910d3364db97688c785d105a1a2d46f9db4
 depends_on_report_issue=109
 principal_decision_required=false
 ```
@@ -56,7 +61,7 @@ Both exact verified and exact unverified may be valuation-grade. No stale close 
 9. Permit an exact bound primary without verifier as `fresh_exact_unverified`.
 10. Preserve candidate-only/no-SMTP/no-broker boundaries.
 11. Obtain independent exact-head assurance before merge.
-12. After merge, resume report issue #109 and rerun the canonical 2026-08-17 candidate if that remains the correct requested completed-close date.
+12. After merge, resume report issue #109 using a new canonical run identity for the latest applicable completed-close date.
 
 ## Implementation summary
 - added `pricing/ucits_provider_identity_binding.py` for source-independent exact-line identity plus per-provider symbol bindings;
@@ -68,8 +73,18 @@ Both exact verified and exact unverified may be valuation-grade. No stale close 
 - client-facing NL/EN status labels now distinguish exact independently verified closes from exact closes without a current second verifier;
 - preserved secret redaction, product boundary, donor boundary and no-delivery/no-broker authority.
 
+## H1 independent assurance and repair
+Independent H1 assurance accepted the core primary-plus-verification pricing semantics but returned formal `FAIL` because the actual promoted v2 package builder reintroduced `funded_two_provider_consensus_required=true` after normalized state had already established `second_provider_required_for_liveness=false`.
+
+H2 therefore requires exactly this bounded repair:
+- make the final v2 promotion metadata derive the pricing-authority fields from normalized `pricing_contract` state rather than hard-code the retired universal two-provider requirement;
+- prove through the actual v2 package path that the final package manifest, ready artifact and routine run manifest all retain `funded_exact_primary_pricing_required=true`, `second_provider_required_for_liveness=false`, `funded_two_provider_consensus_required=false` and the donor-aligned pricing-authority mode;
+- rerun all required exact-head gates and obtain fresh independent assurance on the repaired frozen head.
+
+Repair commit `e5329910d3364db97688c785d105a1a2d46f9db4` changes only `tools/build_etf_eu_routine_report_package_v2.py` and `tests/test_etf_eu_full_candidate_package_end_to_end.py`. It derives final promotion fields from the normalized state contract and adds the required three-artifact regression. This work package remains in `REPAIR_VALIDATION` until the new exact-head CI is green.
+
 ## Regression evidence
-The implementation parent `ac21efb97badedf227bd58718f1260c0a5b01cf7` passed all required broad gates before this metadata-only handover commit:
+The implementation parent `ac21efb97badedf227bd58718f1260c0a5b01cf7` passed all required broad gates before the original handover commit:
 
 ```text
 focused_primary_verification_run=32154779246 SUCCESS
@@ -90,9 +105,10 @@ Deterministic coverage includes:
 - current six funded lines bind to canonical Alpha Vantage and Yahoo symbols;
 - legacy v2 contract accepts exact unverified primary but rejects non-exact or unbound-primary evidence;
 - exact 2026-08-17 incident regression reproduces the six observed Alpha-exact/Yahoo-stale lines and requires 6/6 `fresh_exact_unverified` pricing authorization;
-- client labels do not conflate missing independent price verification with uncertain UCITS trading-line identity.
+- client labels do not conflate missing independent price verification with uncertain UCITS trading-line identity;
+- repaired v2 package path must inspect final manifest, ready artifact and routine run manifest so a later promotion overwrite cannot silently restore the old two-provider liveness contract.
 
-The live assurance candidate head must be reconstructed from GitHub after this metadata commit and must itself pass the applicable exact-head gates before independent B1 review.
+The live repaired assurance candidate head must be reconstructed from GitHub after this metadata commit and must itself pass the applicable exact-head gates before a fresh independent B1 review.
 
 ## Protected boundaries
 ```text
@@ -107,7 +123,7 @@ merge_before_independent_PASS=false
 ```
 
 ## Report dependency status
-Issue #109 remains blocked pending integration of this architecture repair. The 2026-08-17 report has not been regenerated, merged or sent under this work package. No allocation or portfolio action has occurred.
+Issue #109 remains blocked pending integration of this architecture repair. No new report has been regenerated, merged or sent under this repair. No allocation or portfolio action has occurred.
 
 ## Definition of done for this phase
-`ASSURANCE_READY`: donor-aligned primary+verification contract is implemented on one frozen live PR head, exact-head implementation gates are green, and the candidate is ready for a fresh independent `governance_release_assurance` verdict. Merge, report rerun and any delivery remain separate later steps.
+`ASSURANCE_READY`: donor-aligned primary+verification contract including the final v2 package metadata is implemented on one frozen live PR head, exact-head implementation gates are green, and a new immutable assurance handover is ready for a fresh independent `governance_release_assurance` verdict. Merge, report rerun and any delivery remain separate later steps.
