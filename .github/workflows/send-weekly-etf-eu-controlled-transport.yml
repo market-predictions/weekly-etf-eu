@@ -58,11 +58,6 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Install deterministic email image dependency
-        run: |
-          set -euo pipefail
-          python -m pip install --disable-pip-version-check CairoSVG==2.7.1
-
       - name: Validate explicit transport confirmations
         run: |
           set -euo pipefail
