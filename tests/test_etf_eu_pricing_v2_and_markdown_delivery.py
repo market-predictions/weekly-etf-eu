@@ -60,20 +60,29 @@ def _pricing() -> dict:
                 "pricing_status": "priced_non_authoritative",
                 "close_date": "2026-08-07",
                 "close_price": 100.0 + index,
-                "source_id": "provider_consensus",
-                "source_name": "Development provider consensus",
-                "source_quality_status": "development_consensus",
-                "source_agreement_status": "qualified_development_consensus",
+                "source_id": "provider_a",
+                "source_name": "provider_a exact completed close",
+                "source_quality_status": "fresh_exact_verified",
+                "source_agreement_status": "fresh_exact_verified",
                 "observed_at_utc": "2026-08-08T00:00:00Z",
                 "requested_report_date": "2026-08-07",
                 "completed_close_on_or_before_report_date": True,
+                "completed_close_on_requested_report_date": True,
                 "valuation_grade": True,
                 "fundable": False,
                 "blockers": [],
+                "primary_provider": "provider_a",
+                "static_identity_binding": True,
+                "static_identity_binding_status": "verified_static_exact_line",
+                "static_identity_registry_id": f"funded-{index}",
+                "identity_assurance_status": "static_registry_verified_exact_line",
+                "static_primary_provider_symbol_binding": True,
+                "verification_status": "verified_same_date_within_tolerance",
+                "verification_providers": ["provider_b"],
                 "provider_symbols": {"provider_a": ticker, "provider_b": ticker},
                 "agreeing_providers": ["provider_a", "provider_b"],
+                "same_date_provider_count": 2,
                 "agreement_spread_pct": 0.1,
-                "verification_status": "verified_ucits_trading_line",
             }
         )
     return {
@@ -92,11 +101,17 @@ def _pricing() -> dict:
         "funding_authority": False,
         "portfolio_mutation": False,
         "production_delivery_authority": False,
+        "pricing_authority_policy": {
+            "mode": "donor_aligned_primary_plus_verification_v1",
+            "primary_provider_symbol_binding_required": True,
+            "second_provider_required_for_liveness": False,
+            "same_date_disagreement_blocks": True,
+        },
         "rows": rows,
     }
 
 
-def test_v2_pricing_contract_accepts_four_funded_consensus_lines() -> None:
+def test_v2_pricing_contract_accepts_four_funded_verified_lines() -> None:
     result = validate_payload(
         _pricing(),
         expected_report_date="2026-08-07",
@@ -108,10 +123,27 @@ def test_v2_pricing_contract_accepts_four_funded_consensus_lines() -> None:
     assert all(row["passed"] for row in result["funded_evidence"])
 
 
-def test_v2_pricing_contract_rejects_v1_schema_and_one_provider() -> None:
+def test_v2_pricing_contract_accepts_single_exact_primary_as_unverified() -> None:
+    payload = _pricing()
+    row = payload["rows"][0]
+    row["source_quality_status"] = "fresh_exact_unverified"
+    row["source_agreement_status"] = "fresh_exact_unverified"
+    row["verification_status"] = "unverified_no_same_date_verifier"
+    row["verification_providers"] = []
+    row["agreeing_providers"] = ["provider_a"]
+    row["same_date_provider_count"] = 1
+    result = validate_payload(
+        payload,
+        expected_report_date="2026-08-07",
+        portfolio_state=_portfolio(),
+        require_funded_consensus=True,
+    )
+    assert result["valid"] is True
+
+
+def test_v2_pricing_contract_rejects_v1_schema() -> None:
     payload = _pricing()
     payload["schema_version"] = "ucits_close_price_validation_basket_results_v1"
-    payload["rows"][0]["agreeing_providers"] = ["provider_a"]
     result = validate_payload(
         payload,
         expected_report_date="2026-08-07",
@@ -120,7 +152,6 @@ def test_v2_pricing_contract_rejects_v1_schema_and_one_provider() -> None:
     )
     assert result["valid"] is False
     assert any("pricing schema" in blocker for blocker in result["blockers"])
-    assert any("fewer_than_two_agreeing_providers" in blocker for blocker in result["blockers"])
 
 
 def test_v2_pricing_contract_rejects_report_date_drift() -> None:
@@ -198,7 +229,9 @@ def test_normalized_state_builder_requires_v2_gate(tmp_path: Path) -> None:
     assert state["state_valid"] is True
     assert state["schema_version"] == "etf_eu_client_grade_report_state_v2"
     assert state["pricing_contract"]["report_pricing_gate_passed"] is True
-    assert state["pricing_contract"]["funded_two_provider_consensus_required"] is True
+    assert state["pricing_contract"]["funded_exact_primary_pricing_required"] is True
+    assert state["pricing_contract"]["second_provider_required_for_liveness"] is False
+    assert state["pricing_contract"]["funded_two_provider_consensus_required"] is False
 
     payload = _pricing()
     payload["report_pricing_gate_passed"] = False

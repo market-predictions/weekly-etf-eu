@@ -22,17 +22,37 @@ UPSTREAM_PATTERN = (
 
 STATUS_LABELS = {
     "nl": {
+        "fresh_exact_verified": "Exacte slotkoers, onafhankelijk geverifieerd",
+        "fresh_exact_unverified": "Exacte slotkoers, niet onafhankelijk geverifieerd",
+        "provider_disagreement": "Prijsconflict tussen bronnen",
+        "no_exact_close": "Exacte slotkoers niet beschikbaar",
+        "identity_binding_failed": "Handelslijnidentiteit niet geverifieerd",
         "verified_ucits_trading_line": "UCITS-handelslijn geverifieerd",
         "candidate_requires_verification": "Handelslijn nog te verifiëren",
         "fetch_failed": "Prijs niet beschikbaar",
+        "blocked": "Prijs geblokkeerd",
         "priced_non_authoritative": "Marktprijs beschikbaar",
     },
     "en": {
+        "fresh_exact_verified": "Exact close, independently verified",
+        "fresh_exact_unverified": "Exact close, not independently verified",
+        "provider_disagreement": "Price disagreement between sources",
+        "no_exact_close": "Exact close unavailable",
+        "identity_binding_failed": "Trading-line identity not verified",
         "verified_ucits_trading_line": "Verified UCITS trading line",
         "candidate_requires_verification": "Trading line requires verification",
         "fetch_failed": "Price unavailable",
+        "blocked": "Price blocked",
         "priced_non_authoritative": "Market price available",
     },
+}
+
+PRIMARY_VERIFICATION_STATUSES = {
+    "fresh_exact_verified",
+    "fresh_exact_unverified",
+    "provider_disagreement",
+    "no_exact_close",
+    "identity_binding_failed",
 }
 
 
@@ -65,12 +85,20 @@ def _latest_close_date(rows: list[dict[str, Any]]) -> str | None:
 
 def _status_label(row: dict[str, Any], *, language: str) -> str:
     pricing_status = str(row.get("pricing_status") or "").strip()
+    authority_status = str(row.get("source_agreement_status") or "").strip()
     verification_status = str(row.get("verification_status") or "").strip()
-    source = "fetch_failed" if pricing_status == "fetch_failed" else verification_status or pricing_status
     mapping = STATUS_LABELS[language]
-    if source not in mapping:
-        raise SystemExit(f"Unknown client-surface status enum: {source or 'missing'}")
-    return mapping[source]
+    candidates: list[str] = []
+    if authority_status in PRIMARY_VERIFICATION_STATUSES:
+        candidates.append(authority_status)
+    if pricing_status == "fetch_failed":
+        candidates.append("fetch_failed")
+    candidates.extend([verification_status, pricing_status])
+    for source in candidates:
+        if source in mapping:
+            return mapping[source]
+    source = next((item for item in candidates if item), "missing")
+    raise SystemExit(f"Unknown client-surface status enum: {source}")
 
 
 def _table(rows: list[dict[str, Any]], *, dutch: bool) -> str:
@@ -98,25 +126,56 @@ def _table(rows: list[dict[str, Any]], *, dutch: bool) -> str:
 
 
 def _lane_summary(rows: list[dict[str, Any]], *, dutch: bool) -> str:
-    priced = [row for row in rows if row.get("pricing_status") == "priced_non_authoritative" and row.get("close_price") is not None]
-    verified = [row for row in priced if row.get("verification_status") == "verified_ucits_trading_line"]
-    pending = [row for row in priced if row.get("verification_status") != "verified_ucits_trading_line"]
-    failed = [row for row in rows if row.get("pricing_status") == "fetch_failed"]
+    priced = [
+        row
+        for row in rows
+        if row.get("pricing_status") == "priced_non_authoritative" and row.get("close_price") is not None
+    ]
+    verified = [row for row in priced if row.get("source_agreement_status") == "fresh_exact_verified"]
+    unverified = [row for row in priced if row.get("source_agreement_status") == "fresh_exact_unverified"]
+    legacy_verified = [
+        row
+        for row in priced
+        if row.get("source_agreement_status") not in PRIMARY_VERIFICATION_STATUSES
+        and row.get("verification_status") == "verified_ucits_trading_line"
+    ]
+    other_priced = [
+        row for row in priced if row not in verified and row not in unverified and row not in legacy_verified
+    ]
+    unresolved = [row for row in rows if row not in priced]
     if dutch:
-        return (
-            f"- **Prijsdekking:** {len(priced)} van {len(rows)} handelslijnen geprijsd.\n"
-            f"- **Volledig geverifieerde lijnen:** {len(verified)}.\n"
-            f"- **Geprijsd maar identiteit of handelslijn nog te verifiëren:** {len(pending)}.\n"
-            f"- **Niet opgelost:** {len(failed)}.\n"
-            "- **Portefeuillebesluit:** cash behouden; geen instrument is door deze prijsrun automatisch geschikt geworden voor opname in de portefeuille."
+        lines = [
+            f"- **Prijsdekking:** {len(priced)} van {len(rows)} handelslijnen geprijsd.",
+            f"- **Exacte slotkoersen met onafhankelijke actuele verificatie:** {len(verified)}.",
+            f"- **Exacte slotkoersen zonder tweede actuele verifier:** {len(unverified)}.",
+        ]
+        if legacy_verified:
+            lines.append(f"- **Legacy geverifieerde handelslijnen:** {len(legacy_verified)}.")
+        if other_priced:
+            lines.append(f"- **Overige geprijsde onderzoekslijnen:** {len(other_priced)}.")
+        lines.extend(
+            [
+                f"- **Geblokkeerd of niet opgelost:** {len(unresolved)}.",
+                "- **Portefeuillebesluit:** prijsverificatie wijzigt op zichzelf geen portefeuille- of allocatiebesluit.",
+            ]
         )
-    return (
-        f"- **Pricing coverage:** {len(priced)} of {len(rows)} trading lines priced.\n"
-        f"- **Fully verified lines:** {len(verified)}.\n"
-        f"- **Priced but identity or trading-line verification still pending:** {len(pending)}.\n"
-        f"- **Unresolved:** {len(failed)}.\n"
-        "- **Portfolio decision:** retain cash; this pricing run did not automatically make any instrument eligible for portfolio inclusion."
+        return "\n".join(lines)
+    lines = [
+        f"- **Pricing coverage:** {len(priced)} of {len(rows)} trading lines priced.",
+        f"- **Exact closes with independent current verification:** {len(verified)}.",
+        f"- **Exact closes without a second current verifier:** {len(unverified)}.",
+    ]
+    if legacy_verified:
+        lines.append(f"- **Legacy verified trading lines:** {len(legacy_verified)}.")
+    if other_priced:
+        lines.append(f"- **Other priced research lines:** {len(other_priced)}.")
+    lines.extend(
+        [
+            f"- **Blocked or unresolved:** {len(unresolved)}.",
+            "- **Portfolio decision:** price verification by itself does not change any portfolio or allocation decision.",
+        ]
     )
+    return "\n".join(lines)
 
 
 def _markdown_nl(report_date: str, state: dict[str, Any], pricing: dict[str, Any]) -> str:
@@ -172,8 +231,8 @@ De getoonde prijzen zijn marktobservaties uit de huidige routine-run en vormen g
 ## 7. Volgende routineactie
 
 - Rond verificatie van brokerbeschikbaarheid en EUR-handelslijnen af.
-- Verbeter de bronovereenkomst voordat de prijsinformatie als voldoende betrouwbaar voor waardering kan worden beschouwd.
-- Herbeoordeel pas daarna of cash gedeeltelijk mag worden ingezet.
+- Voeg waar beschikbaar onafhankelijke prijsverificatie toe; het tijdelijk ontbreken van een tweede actuele verifier blokkeert een exact aan de geverifieerde handelslijn gekoppelde slotkoers niet.
+- Herbeoordeel portefeuille- of cashinzet alleen vanuit het afzonderlijke allocatie- en re-underwritingkader.
 """
 
 
@@ -230,8 +289,8 @@ The displayed prices are market observations from the current routine run and do
 ## 7. Next routine action
 
 - Complete broker availability and EUR trading-line verification.
-- Improve source agreement before the pricing evidence is considered sufficiently reliable for valuation.
-- Only then reassess whether part of the cash may be deployed.
+- Add independent price verification where available; temporary absence of a second current verifier does not block an exact close bound to the verified trading line.
+- Reassess portfolio or cash deployment only through the separate allocation and re-underwriting framework.
 """
 
 
@@ -276,6 +335,7 @@ def build(args: argparse.Namespace) -> dict[str, Path]:
     render_report(markdown_path=en_md, html_output=en_html, pdf_output=en_pdf, language="en", title=f"Weekly ETF EU Review | English Companion | {args.report_date}")
 
     latest_close = _latest_close_date(rows)
+    pricing_policy = pricing.get("pricing_authority_policy") or {}
     manifest = {
         "schema_version": "etf_eu_fresh_generation_package_v1",
         "artifact_type": "etf_eu_fresh_generation_package_manifest",
@@ -286,7 +346,10 @@ def build(args: argparse.Namespace) -> dict[str, Path]:
         "pricing_as_of": latest_close,
         "pricing_contract_schema": "ucits_close_price_validation_basket_results_v2",
         "pricing_contract_validation": pricing_validation,
-        "funded_two_provider_consensus_required": True,
+        "funded_exact_primary_pricing_required": True,
+        "second_provider_required_for_liveness": pricing_policy.get("second_provider_required_for_liveness") is True,
+        "funded_two_provider_consensus_required": False,
+        "pricing_authority_mode": pricing_policy.get("mode"),
         "source_of_truth_repo": SOURCE_REPO,
         "reference_architecture_repo": DONOR_REPO,
         "upstream_pattern_adapted": UPSTREAM_PATTERN,
@@ -353,7 +416,10 @@ def build(args: argparse.Namespace) -> dict[str, Path]:
         "report_suffix": args.report_suffix,
         "fresh_generation_package_manifest": str(manifest_path),
         "pricing_contract_schema": "ucits_close_price_validation_basket_results_v2",
-        "funded_two_provider_consensus_required": True,
+        "funded_exact_primary_pricing_required": True,
+        "second_provider_required_for_liveness": pricing_policy.get("second_provider_required_for_liveness") is True,
+        "funded_two_provider_consensus_required": False,
+        "pricing_authority_mode": pricing_policy.get("mode"),
         "client_surface_clean": False,
         "authority_metadata_absent": False,
         "raw_status_enums_absent": False,

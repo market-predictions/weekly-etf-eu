@@ -9,19 +9,21 @@ from unittest.mock import patch
 
 from pricing import provider_secret_safety
 from pricing.provider_secret_safety import enforce_provider_secret_safety
-from pricing.ucits_price_qualification_policy import apply_identity_anchor_policy
+from pricing.ucits_price_qualification_policy import apply_primary_verification_policy_payload
 
 
 class ProviderEvidenceRedactionTests(unittest.TestCase):
     def test_provider_message_body_is_never_persisted(self):
         secret = "example-secret-value"
         payload = {
+            "schema_version": "ucits_price_provider_qualification_v1",
+            "report_date": "2026-08-17",
+            "provider_order": ["alpha_vantage", "yahoo_chart"],
+            "agreement_tolerance_pct": 1.0,
             "funded_line_count": 1,
             "lines": [{
                 "basket_id": "vwce_xetra_eur",
                 "funded": True,
-                "qualification_status": "single_source_only",
-                "agreeing_providers": ["yahoo_chart"],
                 "provider_results": [{
                     "provider": "alpha_vantage",
                     "pricing_status": "fetch_failed",
@@ -34,11 +36,26 @@ class ProviderEvidenceRedactionTests(unittest.TestCase):
                 }],
             }],
         }
-        with tempfile.TemporaryDirectory() as tmp:
-            path = Path(tmp) / "qualification.json"
-            path.write_text(json.dumps(payload), encoding="utf-8")
-            result = apply_identity_anchor_policy(path)
-            text = path.read_text(encoding="utf-8")
+        identity_binding = {
+            "rows": [{
+                "basket_id": "vwce_xetra_eur",
+                "funded": True,
+                "registry_id": "global_core",
+                "static_identity_binding": True,
+                "binding_status": "verified_static_exact_line",
+                "provider_symbol_bindings": {
+                    "alpha_vantage": {
+                        "matched": True,
+                        "provider_registry_symbol": "VWCE.DEX",
+                        "canonical_registry_symbol": "VWCE.DEX",
+                        "blockers": [],
+                    }
+                },
+                "blockers": [],
+            }]
+        }
+        result = apply_primary_verification_policy_payload(payload, identity_binding)
+        text = json.dumps(result, sort_keys=True)
         row = result["lines"][0]["provider_results"][0]
         self.assertNotIn(secret, text)
         self.assertEqual(row["blockers"], ["provider_rate_or_quota_limit"])

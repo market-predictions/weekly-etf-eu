@@ -5,6 +5,7 @@ from argparse import Namespace
 from pathlib import Path
 
 from pricing.ucits_price_provider_engine import build_legacy_validation_artifact
+from pricing.ucits_primary_verification_legacy import apply_primary_verification_to_legacy
 from tools.build_etf_eu_routine_report_package_v2 import build as build_package
 from tools.validate_etf_eu_client_grade_report_v2_standalone import validate as validate_client_package
 from tools.validate_etf_eu_markdown_delivery_artifacts import validate as validate_markdown
@@ -54,12 +55,14 @@ def _portfolio() -> dict:
 def _qualification() -> dict:
     lines = []
     for index, (ticker, isin, _shares, _value) in enumerate(FUNDED, start=1):
+        close = 100.0 + index
         providers = [
             {
                 "provider": "provider_a",
                 "provider_symbol": ticker,
                 "pricing_status": "priced",
                 "close_date": "2026-08-07",
+                "close_price": close,
                 "observed_at_utc": "2026-08-08T00:00:00Z",
                 "blockers": [],
             },
@@ -68,6 +71,7 @@ def _qualification() -> dict:
                 "provider_symbol": ticker,
                 "pricing_status": "priced",
                 "close_date": "2026-08-07",
+                "close_price": close + 0.01,
                 "observed_at_utc": "2026-08-08T00:00:01Z",
                 "blockers": [],
             },
@@ -84,14 +88,24 @@ def _qualification() -> dict:
                 "expected_currency": "EUR",
                 "funded": True,
                 "selected_close_date": "2026-08-07",
-                "consensus_close_price": 100.0 + index,
+                "selected_close_price": close,
+                "consensus_close_price": close,
+                "primary_provider": "provider_a",
+                "primary_close_price": close,
+                "static_primary_provider_symbol_binding": True,
                 "same_date_provider_count": 2,
-                "qualification_status": "qualified_development_consensus",
-                "identity_assurance_status": "metadata_anchored_exact_line",
-                "identity_anchor_provider_count": 1,
+                "qualification_status": "fresh_exact_verified",
+                "verification_status": "verified_same_date_within_tolerance",
+                "verification_providers": ["provider_b"],
+                "static_identity_binding": True,
+                "static_identity_binding_status": "verified_static_exact_line",
+                "static_identity_registry_id": f"funded-{index}",
+                "identity_assurance_status": "static_registry_verified_exact_line",
+                "identity_anchor_provider_count": 0,
+                "valuation_grade": True,
                 "provider_results": providers,
                 "agreeing_providers": ["provider_a", "provider_b"],
-                "agreement_spread_pct": 0.1,
+                "agreement_spread_pct": 0.01,
             }
         )
     return {
@@ -101,9 +115,23 @@ def _qualification() -> dict:
         "provider_order": ["provider_a", "provider_b"],
         "provider_configuration": {},
         "funded_line_count": 4,
+        "funded_pricing_authorized_count": 4,
+        "funded_verified_count": 4,
+        "funded_unverified_count": 0,
         "funded_consensus_count": 4,
+        "funded_static_identity_bound_count": 4,
         "funded_identity_anchor_count": 4,
         "report_pricing_gate_passed": True,
+        "pricing_authority_policy": {
+            "mode": "donor_aligned_primary_plus_verification_v1",
+            "primary_provider_symbol_binding_required": True,
+            "second_provider_required_for_liveness": False,
+            "same_date_disagreement_blocks": True,
+        },
+        "identity_policy": {
+            "static_exact_line_binding_required": True,
+            "live_metadata_anchor_required_each_run": False,
+        },
         "lines": lines,
     }
 
@@ -151,6 +179,10 @@ def test_full_candidate_package_builds_and_validates_all_six_client_artifacts(tm
         source_basket="config/ucits_close_price_validation_basket.yml",
         run_id=run_id,
     )
+    apply_primary_verification_to_legacy(
+        qualification_path=pricing_qualification,
+        legacy_path=pricing_artifact,
+    )
 
     outputs = build_package(
         Namespace(
@@ -188,6 +220,20 @@ def test_full_candidate_package_builds_and_validates_all_six_client_artifacts(tm
     assert state["schema_version"] == "etf_eu_client_grade_report_state_v2"
     assert state["pricing_contract"]["report_pricing_gate_passed"] is True
     assert state["pricing_contract"]["funded_position_count"] == 4
+    assert state["pricing_contract"]["funded_exact_primary_pricing_required"] is True
+    assert state["pricing_contract"]["second_provider_required_for_liveness"] is False
+    assert state["pricing_contract"]["funded_two_provider_consensus_required"] is False
+
+    # Regression for H1 assurance finding: the actual promoted v2 package path
+    # must preserve the primary-plus-optional-verification authority in every
+    # final machine contract, rather than reintroducing the retired universal
+    # two-provider liveness requirement after the normalized state is built.
+    for artifact_key in ("manifest", "ready", "routine"):
+        payload = json.loads(Path(outputs[artifact_key]).read_text(encoding="utf-8"))
+        assert payload["funded_exact_primary_pricing_required"] is True
+        assert payload["second_provider_required_for_liveness"] is False
+        assert payload["funded_two_provider_consensus_required"] is False
+        assert payload["pricing_authority_mode"] == "donor_aligned_primary_plus_verification_v1"
 
     markdown_result = validate_markdown(Path(state_path), nl_md, en_md)
     assert markdown_result["passed"] is True, markdown_result["blockers"]

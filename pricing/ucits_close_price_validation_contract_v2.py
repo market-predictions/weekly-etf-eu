@@ -6,6 +6,7 @@ from typing import Any
 import json
 
 SCHEMA_VERSION = "ucits_close_price_validation_basket_results_v2"
+AUTHORIZED_EXACT_STATUSES = {"fresh_exact_verified", "fresh_exact_unverified"}
 
 
 def _ticker(row: dict[str, Any]) -> str:
@@ -30,6 +31,14 @@ def validate_payload(
     portfolio_state: dict[str, Any] | None = None,
     require_funded_consensus: bool = True,
 ) -> dict[str, Any]:
+    """Validate funded pricing authority under primary+verification semantics.
+
+    The historical parameter name `require_funded_consensus` is retained for
+    caller compatibility. When true, it means that every funded line must have
+    valuation-grade exact requested-date pricing authority. A second provider is
+    confidence verification, not a universal liveness requirement.
+    """
+
     blockers: list[str] = []
 
     if payload.get("schema_version") != SCHEMA_VERSION:
@@ -61,25 +70,27 @@ def validate_payload(
     if int(payload.get("priced_line_count") or 0) != priced_count:
         blockers.append("pricing priced_line_count does not match rows")
 
+    policy = payload.get("pricing_authority_policy") or {}
+    if policy.get("mode") != "donor_aligned_primary_plus_verification_v1":
+        blockers.append("primary+verification pricing authority policy missing")
+    if policy.get("primary_provider_symbol_binding_required") is not True:
+        blockers.append("primary provider static symbol binding must be required")
+    if policy.get("second_provider_required_for_liveness") is not False:
+        blockers.append("second provider must not be a universal liveness dependency")
+    if policy.get("same_date_disagreement_blocks") is not True:
+        blockers.append("same-date provider disagreement must fail closed")
+
     if require_funded_consensus and payload.get("report_pricing_gate_passed") is not True:
-        blockers.append("funded two-provider pricing consensus gate is not passed")
+        blockers.append("funded exact-close pricing authority gate is not passed")
     if require_funded_consensus and payload.get("valuation_grade") is not True:
         blockers.append("pricing artifact is not valuation-grade for the funded set")
 
     funded_positions: list[dict[str, Any]] = []
     if portfolio_state is not None:
-        funded_positions = [
-            row for row in portfolio_state.get("positions") or [] if isinstance(row, dict)
-        ]
+        funded_positions = [row for row in portfolio_state.get("positions") or [] if isinstance(row, dict)]
         if not funded_positions:
             blockers.append("protected portfolio has no funded positions")
 
-    # ISIN identifies the fund/share class, not the exchange trading line. One
-    # UCITS share class can legitimately have multiple venue/ticker rows (e.g.
-    # SXR8/Xetra and CSPX/LSE share IE00B5BMR087). Pricing authority therefore
-    # resolves the protected holding by exact (ISIN, trading-line ticker). Never
-    # let a sibling venue row overwrite the funded line merely because ISIN is
-    # shared.
     rows_by_exact_identity = {
         (_isin(row), _ticker(row)): row
         for row in rows
@@ -102,17 +113,21 @@ def validate_payload(
             continue
 
         row_blockers: list[str] = []
+        authority_status = str(row.get("source_agreement_status") or "")
         if row.get("pricing_status") != "priced_non_authoritative":
             row_blockers.append("not_priced")
-        if row.get("source_agreement_status") != "qualified_development_consensus":
-            row_blockers.append("no_qualified_two_provider_consensus")
-        agreeing = [str(value) for value in row.get("agreeing_providers") or [] if str(value).strip()]
-        if len(set(agreeing)) < 2:
-            row_blockers.append("fewer_than_two_agreeing_providers")
+        if authority_status not in AUTHORIZED_EXACT_STATUSES:
+            row_blockers.append("no_authorized_exact_primary_close")
         if row.get("valuation_grade") is not True:
             row_blockers.append("not_valuation_grade")
-        if row.get("completed_close_on_or_before_report_date") is not True:
-            row_blockers.append("completed_close_gate_missing")
+        if row.get("static_identity_binding") is not True:
+            row_blockers.append("static_exact_line_identity_not_bound")
+        if row.get("identity_assurance_status") != "static_registry_verified_exact_line":
+            row_blockers.append("static_identity_assurance_missing")
+        if row.get("static_primary_provider_symbol_binding") is not True:
+            row_blockers.append("static_primary_provider_symbol_not_bound")
+        if row.get("completed_close_on_requested_report_date") is not True:
+            row_blockers.append("exact_requested_date_close_gate_missing")
         if str(row.get("requested_report_date") or "") != report_date_raw:
             row_blockers.append("row_report_date_mismatch")
         close_date_raw = str(row.get("close_date") or "")
@@ -121,22 +136,35 @@ def validate_payload(
         except ValueError:
             close_date = None
             row_blockers.append("invalid_close_date")
-        if close_date and report_date and close_date > report_date:
-            row_blockers.append("close_after_report_date")
+        if close_date and report_date and close_date != report_date:
+            row_blockers.append("close_date_not_exact_requested_date")
         if row.get("close_price") in (None, ""):
             row_blockers.append("missing_close_price")
+        if not str(row.get("primary_provider") or "").strip():
+            row_blockers.append("primary_provider_missing")
+        same_date_count = int(row.get("same_date_provider_count") or 0)
+        if same_date_count < 1:
+            row_blockers.append("no_exact_same_date_provider")
+        if authority_status == "fresh_exact_verified":
+            if same_date_count < 2:
+                row_blockers.append("verified_status_without_verifier")
+            if not row.get("verification_providers"):
+                row_blockers.append("verified_status_without_verification_provider")
+        if authority_status == "fresh_exact_unverified" and same_date_count != 1:
+            row_blockers.append("unverified_status_requires_one_exact_provider")
 
         if row_blockers:
-            blockers.append(
-                f"funded pricing contract failed for {ticker or isin}: " + ",".join(row_blockers)
-            )
+            blockers.append(f"funded pricing contract failed for {ticker or isin}: " + ",".join(row_blockers))
         funded_evidence.append(
             {
                 "ticker": ticker,
                 "isin": isin,
                 "close_date": close_date_raw or None,
-                "agreeing_providers": sorted(set(agreeing)),
-                "source_agreement_status": row.get("source_agreement_status"),
+                "primary_provider": row.get("primary_provider"),
+                "verification_providers": row.get("verification_providers") or [],
+                "source_agreement_status": authority_status,
+                "static_identity_binding": row.get("static_identity_binding") is True,
+                "static_primary_provider_symbol_binding": row.get("static_primary_provider_symbol_binding") is True,
                 "valuation_grade": row.get("valuation_grade"),
                 "passed": not row_blockers,
                 "blockers": row_blockers,
@@ -146,10 +174,12 @@ def validate_payload(
     return {
         "schema_version": "etf_eu_pricing_contract_validation_v2",
         "pricing_schema": payload.get("schema_version"),
+        "pricing_authority_mode": policy.get("mode"),
         "report_date": report_date_raw or None,
         "expected_report_date": expected_report_date,
         "report_pricing_gate_passed": payload.get("report_pricing_gate_passed") is True,
         "require_funded_consensus": require_funded_consensus,
+        "requirement_semantics": "funded_exact_primary_pricing_authority",
         "funded_position_count": len(funded_positions),
         "funded_evidence": funded_evidence,
         "valid": not blockers,
