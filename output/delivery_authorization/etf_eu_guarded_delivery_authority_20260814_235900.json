@@ -29,6 +29,13 @@
   },
   "assured_candidate_head_sha": "f230a17fb6504ff1513ade0f4cb0b6ac0e1a0b5b",
   "broker_execution": false,
+  "client_surface_safety": {
+    "evidence_ref": "output/quality/etf_eu_client_grade_v2_validation_20260814_235900.json",
+    "main_surface_tbd_candidate_exposure": false,
+    "main_surface_us_proxy_exposure": false,
+    "nan_price_in_client_surface": false,
+    "stale_delivery_wording_present": false
+  },
   "delivery_authority": true,
   "independent_assurance": {
     "evidence_ref": "https://github.com/market-predictions/weekly-etf-eu/issues/102#issuecomment-5319158410",
