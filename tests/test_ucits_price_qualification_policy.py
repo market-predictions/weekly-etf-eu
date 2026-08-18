@@ -15,7 +15,21 @@ class PrimaryVerificationIdentityPolicyTests(unittest.TestCase):
                     "registry_id": "global_core",
                     "static_identity_binding": bound,
                     "binding_status": "verified_static_exact_line" if bound else "identity_binding_failed",
-                    "blockers": [] if bound else ["provider_symbol_mismatch"],
+                    "provider_symbol_bindings": {
+                        "alpha_vantage": {
+                            "matched": True,
+                            "provider_registry_symbol": "VWCE.DEX",
+                            "canonical_registry_symbol": "VWCE.DEX",
+                            "blockers": [],
+                        },
+                        "yahoo_chart": {
+                            "matched": True,
+                            "provider_registry_symbol": "VWCE.DE",
+                            "canonical_registry_symbol": "VWCE.DE",
+                            "blockers": [],
+                        },
+                    },
+                    "blockers": [] if bound else ["canonical_trading_line_match_count:0"],
                 }
             ]
         }
@@ -67,6 +81,7 @@ class PrimaryVerificationIdentityPolicyTests(unittest.TestCase):
         line = result["lines"][0]
         self.assertEqual(line["qualification_status"], "fresh_exact_unverified")
         self.assertEqual(line["identity_assurance_status"], "static_registry_verified_exact_line")
+        self.assertTrue(line["static_primary_provider_symbol_binding"])
         self.assertEqual(line["identity_anchor_providers"], ["yahoo_chart"])
         self.assertTrue(result["report_pricing_gate_passed"])
 
