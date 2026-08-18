@@ -10,13 +10,15 @@ pull_request=106
 repository=market-predictions/weekly-etf-eu
 branch=agent/etf-eu-email-equity-parity-105
 base_main_sha=d9b4ecac4f49417fd7430b01303d1c3425b7074a
-candidate_head_sha=2f70796037999a2cc543ecfe2df477ca02a8e324
 owner_role=implementation_operations
 status=HANDOVER_READY
 opened_at=2026-08-18T06:52:23Z
 last_reconciled_at=2026-08-18T07:00:00Z
+last_reconciled_claim_head_sha=c145811c170f0ffc23cf329753591c880fd0ba6b
 principal_decision_required=false
 ```
+
+`last_reconciled_claim_head_sha` is an observed reconciliation value, not a self-referential promise. Independent assurance must reconstruct and freeze the live PR #106 head from GitHub immediately before review.
 
 ## Current issue
 The canonical 2026-08-14 HTML and delivered RFC822 MIME both contain the equity curve as inline SVG, while the recipient Gmail HTML surface does not render it. The corresponding PDF renders the same curve correctly.
@@ -28,8 +30,7 @@ The canonical 2026-08-14 HTML and delivered RFC822 MIME both contain the equity 
 Canonical report semantics remain unchanged. The mail transport layer may derive a presentation-only email representation from the independently approved HTML, but it must preserve content and fail closed when a chart expected by the canonical HTML cannot be embedded safely.
 
 ## Input/state contract
-- exact base: `d9b4ecac4f49417fd7430b01303d1c3425b7074a`;
-- exact candidate: `2f70796037999a2cc543ecfe2df477ca02a8e324`;
+- exact base at claim creation: `d9b4ecac4f49417fd7430b01303d1c3425b7074a`;
 - canonical NL/EN HTML remains the source representation;
 - canonical NL/EN PDF remains unchanged;
 - the equity curve is identified by `class="equity-curve-svg"` in the canonical HTML;
@@ -59,10 +60,10 @@ For HTML email delivery when an equity curve is present:
 5. `tests/test_etf_eu_guarded_delivery_authority.py`
    - stale fixture aligned to the already-authoritative explicit `client_surface_safety` contract; no product behavior changed.
 
-## Exact-head validation
+## Validation evidence before final metadata reconciliation
 
 ```text
-candidate_head=2f70796037999a2cc543ecfe2df477ca02a8e324
+implementation_validation_head=2f70796037999a2cc543ecfe2df477ca02a8e324
 email_equity_parity_run=32109238595 result=SUCCESS
 product_boundary_run=32109238376 result=SUCCESS
 donor_parity_run=32109238441 result=SUCCESS
@@ -72,18 +73,22 @@ broker_execution=false
 resend_executed=false
 ```
 
+Any later claim/work-package-only commit still requires exact-live-head CI to complete before assurance.
+
 ## Operational runbook remaining
-1. Perform independent blind-first `governance_release_assurance` on PR #106 exact head `2f70796037999a2cc543ecfe2df477ca02a8e324` against base `d9b4ecac4f49417fd7430b01303d1c3425b7074a`.
-2. Merge only an unchanged PASSed head.
-3. Reconcile project control state and stable decision/defect history after merge.
-4. Do not resend the already-delivered report without a separate governed send action.
+1. Reconstruct the live PR #106 head from GitHub and require all exact-head PR gates green.
+2. Perform independent blind-first `governance_release_assurance` on that frozen exact head against current base/main.
+3. Merge only the unchanged PASSed head.
+4. Reconcile project control state and stable decision/defect history after merge.
+5. Do not resend the already-delivered report without a separate governed send action.
 
 ## Acceptance status
-- mail-safe equity curve representation: PASS in CI;
+- mail-safe equity curve representation: PASS in implementation CI;
 - NL/EN MIME parity tests: PASS;
 - product boundary: PASS;
-- donor parity/full-package regressions: PASS;
+- donor parity/full-package regressions: PASS after stale fixture repair;
 - canonical report bytes changed: NO;
+- exact-live-head CI after final metadata reconciliation: PENDING;
 - independent exact-head assurance: PENDING;
 - merge: PENDING;
 - corrected resend: NOT AUTHORIZED / NOT EXECUTED.
