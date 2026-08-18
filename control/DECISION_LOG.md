@@ -550,3 +550,29 @@ control/evidence/etf_eu_wp11a_multi_provider_pricing_evidence_20260803.md
 workflow_run=30842139405
 artifact_id=8867298602
 ```
+
+---
+
+## 2026-08-18 — Guarded delivery package safety assertions are explicit authority
+
+### Decision
+
+Guarded Weekly ETF EU delivery must bind client-surface safety assertions explicitly in the machine delivery-authority and propagate them into the generated delivery-package manifest. Missing safety booleans fail closed; they are never inferred as safe.
+
+The explicit false assertions are:
+
+```text
+stale_delivery_wording_present=false
+main_surface_us_proxy_exposure=false
+main_surface_tbd_candidate_exposure=false
+nan_price_in_client_surface=false
+```
+
+### Reason
+
+Controlled transport run `32105981988` attempt 1 correctly failed before SMTP because the package writer omitted these fields while the package validator required them. The contract was repaired without changing any independently assured report artifact bytes. Attempt 2 passed the same guarded workflow and completed delivery.
+
+### Consequence
+
+The delivery authority now references existing client-grade safety evidence, validates that each assertion is explicitly false, and the package writer copies those assertions into the delivery manifest. A missing assertion remains a transport blocker. Report rerendering is not an acceptable delivery-layer repair after independent artifact approval.
+

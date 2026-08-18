@@ -21,8 +21,19 @@
       "last_reconciled_at": "2026-08-09T21:20:00Z",
       "pull_request": 80,
       "pull_request_or_issue_reference": "PR #80",
-      "dependencies": [{"pull_request": 78}, {"pull_request": 82}],
-      "handover": {"disposition": "SUPERSEDE", "successor_claim_id": "ETF-EU-RELEASE-INTEGRATION-V3", "path": "handover/ETF_EU_PR80_TO_RELEASE_INTEGRATION_V3_20260809.md"}
+      "dependencies": [
+        {
+          "pull_request": 78
+        },
+        {
+          "pull_request": 82
+        }
+      ],
+      "handover": {
+        "disposition": "SUPERSEDE",
+        "successor_claim_id": "ETF-EU-RELEASE-INTEGRATION-V3",
+        "path": "handover/ETF_EU_PR80_TO_RELEASE_INTEGRATION_V3_20260809.md"
+      }
     },
     {
       "claim_id": "ETF-EU-RELEASE-INTEGRATION-V3",
@@ -41,8 +52,18 @@
       "last_reconciled_at": "2026-08-10T16:05:00+02:00",
       "pull_request": 84,
       "pull_request_or_issue_reference": "PR #84 merged; assurance issue #87 PASS",
-      "dependencies": [{"pull_request": 78}, {"pull_request": 82}],
-      "handover": {"disposition": "CLOSE", "path": "handover/ETF_EU_RELEASE_INTEGRATION_V3_CLOSE_20260810.md"}
+      "dependencies": [
+        {
+          "pull_request": 78
+        },
+        {
+          "pull_request": 82
+        }
+      ],
+      "handover": {
+        "disposition": "CLOSE",
+        "path": "handover/ETF_EU_RELEASE_INTEGRATION_V3_CLOSE_20260810.md"
+      }
     },
     {
       "claim_id": "ETF-EU-DONOR-PARITY-RECONCILIATION-V1",
@@ -61,7 +82,11 @@
       "last_reconciled_at": "2026-08-10T23:58:00+02:00",
       "pull_request": 91,
       "pull_request_or_issue_reference": "Issue #90; PR #91 PASSed in issue #93 and merged as 202b0a629af34c697c7b7cb8fdce97fbb56bddbc; post-merge donor execution leak transferred to issue #94 / PR #95.",
-      "dependencies": [{"pull_request": 84}],
+      "dependencies": [
+        {
+          "pull_request": 84
+        }
+      ],
       "last_assurance": {
         "issue": 93,
         "reviewed_head_sha": "686c658c03d5ba4cbd208e254822a73b3fb514f2",
@@ -95,7 +120,11 @@
       "last_reconciled_at": "2026-08-11T10:24:52+02:00",
       "pull_request": 95,
       "pull_request_or_issue_reference": "Issue #94; PR #95 independently PASSed in issue #96 comment 5246954887 and merged unchanged as 10823b7c457a253e409a768f52ee95b1522c363f; exact-main product boundary run 31472717495 PASS; no donor artifact regeneration.",
-      "dependencies": [{"pull_request": 91}],
+      "dependencies": [
+        {
+          "pull_request": 91
+        }
+      ],
       "protected_boundaries": {
         "portfolio_mutation": false,
         "trade_ledger_write": false,
@@ -157,7 +186,11 @@
       "last_reconciled_at": "2026-08-17T09:05:00+02:00",
       "pull_request": 98,
       "pull_request_or_issue_reference": "Issue #97; fresh candidate run 20260810_123000; semantic rerender run 31502986816 PASS; independent exact-head PASS in issue #99; PR #98 merged unchanged on 2026-08-15. No delivery authority or delivery receipt existed for this lineage.",
-      "dependencies": [{"pull_request": 95}],
+      "dependencies": [
+        {
+          "pull_request": 95
+        }
+      ],
       "protected_boundaries": {
         "model_portfolio_mutation": "explicit allocation decision only",
         "real_broker_execution": false,
@@ -177,7 +210,10 @@
         "report_date": "2026-08-10",
         "run_id": "20260810_123000",
         "funded_position_count": 6,
-        "added_tickers": ["DFEN", "IQQQ"],
+        "added_tickers": [
+          "DFEN",
+          "IQQQ"
+        ],
         "cash_eur": 28101.01,
         "nav_eur": 100738.73,
         "semantic_rerender_run": 31502986816,
@@ -204,28 +240,51 @@
       "scope": "Fresh 2026-08-14 Weekly ETF EU cycle: recover the stalled post-PR98 transition, perform broad discovery and EU-local full portfolio re-underwrite on current completed-close evidence, produce the bilingual client-grade candidate, obtain fresh assurance and use guarded delivery only with receipt evidence.",
       "branch": "agent/etf-eu-fresh-260814-v1",
       "base_or_target_branch": "main",
-      "last_reconciled_target_sha": "427fb2e7213d997b571e0c55371086fbddd598ce",
-      "current_claim_head_sha": "603c54a6c47790b4b9ad9fc3c5d46736a1d54990",
-      "status": "ACTIVE",
+      "last_reconciled_target_sha": "f74e33e8e3c8322275dfd11234cb3e0f6e4d3ca1",
+      "current_claim_head_sha": "f230a17fb6504ff1513ade0f4cb0b6ac0e1a0b5b",
+      "status": "CLOSED",
       "opened_at": "2026-08-17T09:01:54+02:00",
-      "last_reconciled_at": "2026-08-17T09:05:00+02:00",
-      "pull_request": null,
-      "pull_request_or_issue_reference": "Issue #100; work package ETF_EU_FRESH_REPORT_260814_V1_20260817; request etf_eu_routine_report_request_20260814_235900.json.",
-      "dependencies": [{"pull_request": 98}],
+      "last_reconciled_at": "2026-08-18T06:25:00Z",
+      "pull_request": 101,
+      "pull_request_or_issue_reference": "Issue #100; PR #101 independently PASSed in issue #102 and merged unchanged; controlled transport run 32105981988 attempt 2 succeeded; recipient INBOX receipt and NL/EN attachment hashes confirmed; closeout manifest persisted.",
+      "dependencies": [
+        {
+          "pull_request": 98
+        }
+      ],
       "protected_boundaries": {
         "model_portfolio_mutation": "explicit current allocation decision only",
         "real_broker_execution": false,
-        "report_delivery": false,
-        "smtp_send": false,
-        "independent_assurance_required": true
+        "report_delivery": true,
+        "smtp_send": true,
+        "independent_assurance_required": true,
+        "delivery_portfolio_mutation": false
       },
       "validation": {
         "report_date": "2026-08-14",
         "run_id": "20260814_235900",
         "predecessor_routine_manifest": "output/run_manifests/etf_eu_routine_run_manifest_2026-08-10_20260810_123000.json",
         "predecessor_delivery_closeout_manifest": "output/run_manifests/etf_eu_delivery_closeout_manifest_20260710_1755.json",
-        "candidate_delivery_authority": false,
-        "real_broker_execution": false
+        "candidate_delivery_authority": true,
+        "real_broker_execution": false,
+        "assured_candidate_head_sha": "f230a17fb6504ff1513ade0f4cb0b6ac0e1a0b5b",
+        "independent_assurance_issue": 102,
+        "independent_assurance_verdict": "PASS",
+        "merged_commit_sha": "7e20340eca82bfb9aad0b63ffeaae7291e7f14e6",
+        "controlled_transport_workflow_run": 32105981988,
+        "controlled_transport_attempt": 2,
+        "controlled_transport_run_id": "20260818_061712",
+        "report_delivery": true,
+        "smtp_send": true,
+        "receipt_confirmed": true,
+        "attachment_hash_confirmation": true,
+        "delivery_closeout_manifest": "output/run_manifests/etf_eu_delivery_closeout_manifest_20260818_061712.json"
+      },
+      "handover": {
+        "disposition": "CLOSE",
+        "closeout_manifest": "output/run_manifests/etf_eu_delivery_closeout_manifest_20260818_061712.json",
+        "receipt_evidence": "output/delivery/etf_eu_delivery_receipt_evidence_20260818_061712.json",
+        "reason": "Fresh 2026-08-14 cycle independently assured, merged, controlled-transported and recipient-side receipt/attachment integrity confirmed."
       }
     }
   ]
