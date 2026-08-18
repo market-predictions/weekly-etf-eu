@@ -29,6 +29,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -u
+          set +e
           python pricing/build_ucits_close_price_validation_basket_results.py \
             --run-id 20260818_235900 \
             --report-date 2026-08-18 \
@@ -40,6 +41,7 @@ jobs:
             --max-attempts 2 \
             --rate-limit-mode stop
           rc=$?
+          set -e
           export PRICING_RC="$rc"
           python - <<'PY'
           import base64, json, os, urllib.request
