@@ -1,0 +1,14 @@
+{
+  "found": true,
+  "run": {
+    "conclusion": null,
+    "created_at": "2026-08-19T17:35:07Z",
+    "head_sha": "2efabc86ef7468c9c027e164de3c1ae5ca1feef9",
+    "html_url": "https://github.com/market-predictions/weekly-etf-eu/actions/runs/32282438516",
+    "id": 32282438516,
+    "name": "Weekly ETF EU candidate build",
+    "run_attempt": 1,
+    "status": "in_progress",
+    "updated_at": "2026-08-19T17:35:13Z"
+  }
+}
