@@ -52,12 +52,14 @@ def materialize_standalone_equity_html(
     language: str,
     chart_path: Path,
 ) -> str:
-    """Replace the renderer's inline SVG with the donor-standard embedded PNG.
+    """Replace the renderer's inline equity SVG with the donor-standard embedded PNG.
 
     This runs before final client HTML/PDF authority is established. The exact
     embedded PNG bytes are therefore part of the assured standalone HTML and the
     PDF rendered from that HTML. SMTP transport may only translate those same
-    bytes from data-URI form to MIME CID form.
+    bytes from data-URI form to MIME CID form. Non-equity SVG elsewhere in the
+    client surface is outside this contract and must not be mistaken for a
+    residual equity-curve SVG.
     """
     curve = state.get("equity_curve") if isinstance(state.get("equity_curve"), dict) else {}
     show_chart = curve.get("show_chart") is True
@@ -87,7 +89,7 @@ def materialize_standalone_equity_html(
     )
     standalone = EQUITY_SVG_BLOCK_RE.sub(replacement, rendered_html, count=1)
     lowered = standalone.lower()
-    if "equity-curve-svg" in lowered or "<svg" in lowered:
+    if "equity-curve-svg" in lowered:
         raise StandaloneHtmlEquityError("Inline equity SVG remained after donor PNG materialization")
     if len(EQUITY_DATA_URI_RE.findall(standalone)) != 1:
         raise StandaloneHtmlEquityError("Standalone HTML must contain exactly one embedded equity-curve PNG")
