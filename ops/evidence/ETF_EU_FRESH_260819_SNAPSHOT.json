@@ -3,105 +3,105 @@
   "jobs": [
     {
       "conclusion": null,
-      "id": 96161450300,
+      "id": 96163108073,
       "name": "candidate-build",
       "status": "in_progress",
       "steps": [
         {
-          "completed_at": "2026-08-19T17:26:35Z",
+          "completed_at": "2026-08-19T17:31:57Z",
           "conclusion": "success",
           "name": "Set up job",
           "number": 1,
-          "started_at": "2026-08-19T17:26:33Z",
+          "started_at": "2026-08-19T17:31:56Z",
           "status": "completed"
         },
         {
-          "completed_at": "2026-08-19T17:26:35Z",
+          "completed_at": "2026-08-19T17:31:57Z",
           "conclusion": "success",
           "name": "Require non-main candidate branch",
           "number": 2,
-          "started_at": "2026-08-19T17:26:35Z",
+          "started_at": "2026-08-19T17:31:57Z",
           "status": "completed"
         },
         {
-          "completed_at": "2026-08-19T17:26:40Z",
+          "completed_at": "2026-08-19T17:32:00Z",
           "conclusion": "success",
           "name": "Check out exact candidate branch",
           "number": 3,
-          "started_at": "2026-08-19T17:26:35Z",
+          "started_at": "2026-08-19T17:31:57Z",
           "status": "completed"
         },
         {
-          "completed_at": "2026-08-19T17:26:47Z",
+          "completed_at": "2026-08-19T17:32:04Z",
           "conclusion": "success",
           "name": "Check out donor research repository",
           "number": 4,
-          "started_at": "2026-08-19T17:26:40Z",
+          "started_at": "2026-08-19T17:32:00Z",
           "status": "completed"
         },
         {
-          "completed_at": "2026-08-19T17:26:47Z",
+          "completed_at": "2026-08-19T17:32:04Z",
           "conclusion": "success",
           "name": "Set up Python",
           "number": 5,
-          "started_at": "2026-08-19T17:26:47Z",
+          "started_at": "2026-08-19T17:32:04Z",
           "status": "completed"
         },
         {
-          "completed_at": "2026-08-19T17:27:04Z",
+          "completed_at": "2026-08-19T17:32:14Z",
           "conclusion": "success",
           "name": "Install system PDF packages",
           "number": 6,
-          "started_at": "2026-08-19T17:26:47Z",
+          "started_at": "2026-08-19T17:32:04Z",
           "status": "completed"
         },
         {
-          "completed_at": null,
-          "conclusion": null,
+          "completed_at": "2026-08-19T17:32:31Z",
+          "conclusion": "success",
           "name": "Install candidate dependencies",
           "number": 7,
-          "started_at": "2026-08-19T17:27:04Z",
-          "status": "in_progress"
+          "started_at": "2026-08-19T17:32:14Z",
+          "status": "completed"
         },
         {
-          "completed_at": null,
-          "conclusion": null,
+          "completed_at": "2026-08-19T17:32:31Z",
+          "conclusion": "success",
           "name": "Resolve and validate candidate request",
           "number": 8,
-          "started_at": null,
-          "status": "pending"
+          "started_at": "2026-08-19T17:32:31Z",
+          "status": "completed"
         },
         {
-          "completed_at": null,
-          "conclusion": null,
+          "completed_at": "2026-08-19T17:32:31Z",
+          "conclusion": "success",
           "name": "Select current donor breadth evidence",
           "number": 9,
-          "started_at": null,
-          "status": "pending"
+          "started_at": "2026-08-19T17:32:31Z",
+          "status": "completed"
         },
         {
-          "completed_at": null,
-          "conclusion": null,
+          "completed_at": "2026-08-19T17:32:32Z",
+          "conclusion": "success",
           "name": "Select quota-aware allocation pricing candidates",
           "number": 10,
-          "started_at": null,
-          "status": "pending"
+          "started_at": "2026-08-19T17:32:31Z",
+          "status": "completed"
         },
         {
-          "completed_at": null,
-          "conclusion": null,
+          "completed_at": "2026-08-19T17:32:32Z",
+          "conclusion": "success",
           "name": "Validate routine implementation preflight",
           "number": 11,
-          "started_at": null,
-          "status": "pending"
+          "started_at": "2026-08-19T17:32:32Z",
+          "status": "completed"
         },
         {
           "completed_at": null,
           "conclusion": null,
           "name": "Build current UCITS pricing evidence",
           "number": 12,
-          "started_at": null,
-          "status": "pending"
+          "started_at": "2026-08-19T17:32:32Z",
+          "status": "in_progress"
         },
         {
           "completed_at": null,
@@ -186,15 +186,16 @@
       ]
     }
   ],
+  "monitor_revision": "after_valuation_repair",
   "run": {
     "conclusion": null,
-    "created_at": "2026-08-19T17:26:28Z",
-    "head_sha": "9413cbb780fc54b9d1c21fdd6bb256960bab99bf",
-    "html_url": "https://github.com/market-predictions/weekly-etf-eu/actions/runs/32281603860",
-    "id": 32281603860,
+    "created_at": "2026-08-19T17:31:51Z",
+    "head_sha": "2efabc86ef7468c9c027e164de3c1ae5ca1feef9",
+    "html_url": "https://github.com/market-predictions/weekly-etf-eu/actions/runs/32282125285",
+    "id": 32282125285,
     "name": "Weekly ETF EU candidate build",
     "run_attempt": 1,
     "status": "in_progress",
-    "updated_at": "2026-08-19T17:26:33Z"
+    "updated_at": "2026-08-19T17:31:56Z"
   }
 }
