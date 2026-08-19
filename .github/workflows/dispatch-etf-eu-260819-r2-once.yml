@@ -1,0 +1,52 @@
+name: Dispatch ETF EU fresh 260819 r2 once
+
+on:
+  push:
+    branches:
+      - ops/dispatch-etf-eu-260819-r2-once
+    paths:
+      - .github/workflows/dispatch-etf-eu-260819-r2-once.yml
+
+permissions:
+  actions: write
+  contents: write
+
+jobs:
+  dispatch-and-snapshot:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ops/dispatch-etf-eu-260819-r2-once
+      - name: Dispatch repaired canonical candidate and snapshot run id
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          curl --fail-with-body -sS \
+            -X POST \
+            -H "Authorization: Bearer ${GH_TOKEN}" \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/workflows/run-weekly-etf-eu-routine.yml/dispatches \
+            -d '{"ref":"agent/etf-eu-fresh-260819-v1","inputs":{"request_path":"control/requests/ETF_EU_FRESH_260819.request"}}'
+          sleep 8
+          python - <<'PY'
+          import json, os, urllib.request
+          repo=os.environ['GITHUB_REPOSITORY']; token=os.environ['GH_TOKEN']
+          req=urllib.request.Request(
+              f'https://api.github.com/repos/{repo}/actions/workflows/run-weekly-etf-eu-routine.yml/runs?branch=agent%2Fetf-eu-fresh-260819-v1&per_page=5',
+              headers={'Authorization':f'Bearer {token}','Accept':'application/vnd.github+json','X-GitHub-Api-Version':'2022-11-28'})
+          with urllib.request.urlopen(req) as r: runs=json.load(r).get('workflow_runs',[])
+          out={'found':bool(runs)}
+          if runs:
+              x=runs[0]
+              out['run']={k:x.get(k) for k in ['id','name','status','conclusion','html_url','head_sha','created_at','updated_at','run_attempt']}
+          os.makedirs('ops/evidence',exist_ok=True)
+          open('ops/evidence/ETF_EU_FRESH_260819_R2_DISPATCH.json','w').write(json.dumps(out,indent=2,sort_keys=True)+'\n')
+          PY
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add ops/evidence/ETF_EU_FRESH_260819_R2_DISPATCH.json
+          git commit -m 'Record ETF EU fresh 260819 repaired dispatch' || true
+          git push origin HEAD:ops/dispatch-etf-eu-260819-r2-once
