@@ -32,7 +32,7 @@ jobs:
               req=urllib.request.Request(url, headers={'Authorization':f'Bearer {token}','Accept':'application/vnd.github+json','X-GitHub-Api-Version':'2022-11-28'})
               with urllib.request.urlopen(req) as r: return json.load(r)
           runs=get(f'https://api.github.com/repos/{repo}/actions/workflows/run-weekly-etf-eu-routine.yml/runs?branch=agent%2Fetf-eu-fresh-260819-v1&per_page=5').get('workflow_runs',[])
-          out={'found':bool(runs)}
+          out={'found':bool(runs),'monitor_revision':'after_valuation_repair'}
           if runs:
               r=runs[0]
               out['run']={k:r.get(k) for k in ['id','name','status','conclusion','html_url','head_sha','created_at','updated_at','run_attempt']}
@@ -44,5 +44,5 @@ jobs:
           git config user.name github-actions[bot]
           git config user.email 41898282+github-actions[bot]@users.noreply.github.com
           git add ops/evidence/ETF_EU_FRESH_260819_SNAPSHOT.json
-          git commit -m 'Snapshot ETF EU fresh 260819 run' || true
+          git commit -m 'Refresh ETF EU fresh 260819 run snapshot' || true
           git push origin HEAD:ops/dispatch-etf-eu-260819-once
