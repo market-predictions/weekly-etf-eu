@@ -1,0 +1,200 @@
+{
+  "found": true,
+  "jobs": [
+    {
+      "conclusion": null,
+      "id": 96163108073,
+      "name": "candidate-build",
+      "status": "in_progress",
+      "steps": [
+        {
+          "completed_at": "2026-08-19T17:31:57Z",
+          "conclusion": "success",
+          "name": "Set up job",
+          "number": 1,
+          "started_at": "2026-08-19T17:31:56Z",
+          "status": "completed"
+        },
+        {
+          "completed_at": "2026-08-19T17:31:57Z",
+          "conclusion": "success",
+          "name": "Require non-main candidate branch",
+          "number": 2,
+          "started_at": "2026-08-19T17:31:57Z",
+          "status": "completed"
+        },
+        {
+          "completed_at": "2026-08-19T17:32:00Z",
+          "conclusion": "success",
+          "name": "Check out exact candidate branch",
+          "number": 3,
+          "started_at": "2026-08-19T17:31:57Z",
+          "status": "completed"
+        },
+        {
+          "completed_at": "2026-08-19T17:32:04Z",
+          "conclusion": "success",
+          "name": "Check out donor research repository",
+          "number": 4,
+          "started_at": "2026-08-19T17:32:00Z",
+          "status": "completed"
+        },
+        {
+          "completed_at": "2026-08-19T17:32:04Z",
+          "conclusion": "success",
+          "name": "Set up Python",
+          "number": 5,
+          "started_at": "2026-08-19T17:32:04Z",
+          "status": "completed"
+        },
+        {
+          "completed_at": "2026-08-19T17:32:14Z",
+          "conclusion": "success",
+          "name": "Install system PDF packages",
+          "number": 6,
+          "started_at": "2026-08-19T17:32:04Z",
+          "status": "completed"
+        },
+        {
+          "completed_at": "2026-08-19T17:32:31Z",
+          "conclusion": "success",
+          "name": "Install candidate dependencies",
+          "number": 7,
+          "started_at": "2026-08-19T17:32:14Z",
+          "status": "completed"
+        },
+        {
+          "completed_at": "2026-08-19T17:32:31Z",
+          "conclusion": "success",
+          "name": "Resolve and validate candidate request",
+          "number": 8,
+          "started_at": "2026-08-19T17:32:31Z",
+          "status": "completed"
+        },
+        {
+          "completed_at": "2026-08-19T17:32:31Z",
+          "conclusion": "success",
+          "name": "Select current donor breadth evidence",
+          "number": 9,
+          "started_at": "2026-08-19T17:32:31Z",
+          "status": "completed"
+        },
+        {
+          "completed_at": "2026-08-19T17:32:32Z",
+          "conclusion": "success",
+          "name": "Select quota-aware allocation pricing candidates",
+          "number": 10,
+          "started_at": "2026-08-19T17:32:31Z",
+          "status": "completed"
+        },
+        {
+          "completed_at": "2026-08-19T17:32:32Z",
+          "conclusion": "success",
+          "name": "Validate routine implementation preflight",
+          "number": 11,
+          "started_at": "2026-08-19T17:32:32Z",
+          "status": "completed"
+        },
+        {
+          "completed_at": null,
+          "conclusion": null,
+          "name": "Build current UCITS pricing evidence",
+          "number": 12,
+          "started_at": "2026-08-19T17:32:32Z",
+          "status": "in_progress"
+        },
+        {
+          "completed_at": null,
+          "conclusion": null,
+          "name": "Refresh macro context and candidate valuation history",
+          "number": 13,
+          "started_at": null,
+          "status": "pending"
+        },
+        {
+          "completed_at": null,
+          "conclusion": null,
+          "name": "Build client-grade v2 candidate package with broad discovery",
+          "number": 14,
+          "started_at": null,
+          "status": "pending"
+        },
+        {
+          "completed_at": null,
+          "conclusion": null,
+          "name": "Validate candidate machine contract",
+          "number": 15,
+          "started_at": null,
+          "status": "pending"
+        },
+        {
+          "completed_at": null,
+          "conclusion": null,
+          "name": "Render complete candidate PDF review pages",
+          "number": 16,
+          "started_at": null,
+          "status": "pending"
+        },
+        {
+          "completed_at": null,
+          "conclusion": null,
+          "name": "Persist generated candidate outputs to candidate branch only",
+          "number": 17,
+          "started_at": null,
+          "status": "pending"
+        },
+        {
+          "completed_at": null,
+          "conclusion": null,
+          "name": "Upload frozen candidate review bundle",
+          "number": 18,
+          "started_at": null,
+          "status": "pending"
+        },
+        {
+          "completed_at": null,
+          "conclusion": null,
+          "name": "State assurance boundary",
+          "number": 19,
+          "started_at": null,
+          "status": "pending"
+        },
+        {
+          "completed_at": null,
+          "conclusion": null,
+          "name": "Post Set up Python",
+          "number": 36,
+          "started_at": null,
+          "status": "pending"
+        },
+        {
+          "completed_at": null,
+          "conclusion": null,
+          "name": "Post Check out donor research repository",
+          "number": 37,
+          "started_at": null,
+          "status": "pending"
+        },
+        {
+          "completed_at": null,
+          "conclusion": null,
+          "name": "Post Check out exact candidate branch",
+          "number": 38,
+          "started_at": null,
+          "status": "pending"
+        }
+      ]
+    }
+  ],
+  "run": {
+    "conclusion": null,
+    "created_at": "2026-08-19T17:31:51Z",
+    "head_sha": "2efabc86ef7468c9c027e164de3c1ae5ca1feef9",
+    "html_url": "https://github.com/market-predictions/weekly-etf-eu/actions/runs/32282125285",
+    "id": 32282125285,
+    "name": "Weekly ETF EU candidate build",
+    "run_attempt": 1,
+    "status": "in_progress",
+    "updated_at": "2026-08-19T17:31:56Z"
+  }
+}
