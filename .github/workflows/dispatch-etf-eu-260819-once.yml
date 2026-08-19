@@ -28,3 +28,4 @@ jobs:
             https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/workflows/run-weekly-etf-eu-routine.yml/dispatches \
             -d '{"ref":"agent/etf-eu-fresh-260819-v1","inputs":{"request_path":"control/requests/ETF_EU_FRESH_260819.request"}}'
           echo "DISPATCHED_CANONICAL_ETF_EU_ROUTINE=true"
+          echo "REDISPATCH_REASON=align_derived_valuation_with_primary_plus_verification"
