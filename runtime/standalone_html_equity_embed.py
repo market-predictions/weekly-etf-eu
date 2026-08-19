@@ -18,6 +18,10 @@ EQUITY_SVG_BLOCK_RE = re.compile(
     r'</div>',
     flags=re.IGNORECASE | re.DOTALL,
 )
+EQUITY_SVG_ELEMENT_RE = re.compile(
+    r'<svg\b[^>]*class=["\'][^"\']*\bequity-curve-svg\b[^"\']*["\'][^>]*>',
+    flags=re.IGNORECASE,
+)
 EQUITY_DATA_URI_RE = re.compile(
     r'<img\b(?=[^>]*\bclass=["\'][^"\']*\bequity-curve-image\b[^"\']*["\'])'
     r'(?=[^>]*\bsrc=["\']data:image/png;base64,[A-Za-z0-9+/=]+["\'])[^>]*>',
@@ -52,15 +56,7 @@ def materialize_standalone_equity_html(
     language: str,
     chart_path: Path,
 ) -> str:
-    """Replace the renderer's inline equity SVG with the donor-standard embedded PNG.
-
-    This runs before final client HTML/PDF authority is established. The exact
-    embedded PNG bytes are therefore part of the assured standalone HTML and the
-    PDF rendered from that HTML. SMTP transport may only translate those same
-    bytes from data-URI form to MIME CID form. Non-equity SVG elsewhere in the
-    client surface is outside this contract and must not be mistaken for a
-    residual equity-curve SVG.
-    """
+    """Replace the renderer's inline equity SVG with the donor-standard embedded PNG."""
     curve = state.get("equity_curve") if isinstance(state.get("equity_curve"), dict) else {}
     show_chart = curve.get("show_chart") is True
     svg_matches = list(EQUITY_SVG_BLOCK_RE.finditer(rendered_html))
@@ -88,8 +84,7 @@ def materialize_standalone_equity_html(
         '</div>'
     )
     standalone = EQUITY_SVG_BLOCK_RE.sub(replacement, rendered_html, count=1)
-    lowered = standalone.lower()
-    if "equity-curve-svg" in lowered:
+    if EQUITY_SVG_ELEMENT_RE.search(standalone):
         raise StandaloneHtmlEquityError("Inline equity SVG remained after donor PNG materialization")
     if len(EQUITY_DATA_URI_RE.findall(standalone)) != 1:
         raise StandaloneHtmlEquityError("Standalone HTML must contain exactly one embedded equity-curve PNG")
@@ -102,12 +97,12 @@ def validate_standalone_html_equity(rendered_html: str, state: dict[str, Any]) -
     curve = state.get("equity_curve") if isinstance(state.get("equity_curve"), dict) else {}
     show_chart = curve.get("show_chart") is True
     data_uri_count = rendered_html.count("data:image/png;base64,")
-    has_svg = "equity-curve-svg" in rendered_html.lower()
+    has_equity_svg = EQUITY_SVG_ELEMENT_RE.search(rendered_html) is not None
     if show_chart and data_uri_count != 1:
         raise StandaloneHtmlEquityError(
             f"Expected one embedded equity PNG for visible curve; found {data_uri_count}"
         )
-    if show_chart and has_svg:
+    if show_chart and has_equity_svg:
         raise StandaloneHtmlEquityError("Standalone HTML still contains inline equity SVG")
     if not show_chart and data_uri_count:
         raise StandaloneHtmlEquityError("Standalone HTML contains an equity PNG although chart is disabled")
