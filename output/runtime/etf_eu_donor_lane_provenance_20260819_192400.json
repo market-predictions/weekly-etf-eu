@@ -1,0 +1,24 @@
+{
+  "copied_candidate_path": "output/runtime/etf_eu_donor_lane_source_20260819_192400.json",
+  "discovery_engine_version": "lane_discovery_v5_instrument_eligibility+direct_replacement_rs_v1",
+  "funding_authority": false,
+  "required_breadth_buckets": [
+    "ai_digital_infrastructure",
+    "defense_resilience",
+    "grid_power_electrification",
+    "uranium_nuclear",
+    "agriculture_food_security",
+    "water",
+    "china",
+    "india_regional_industrialization",
+    "biotech_healthcare_innovation",
+    "fintech_financial_infrastructure",
+    "robotics_automation",
+    "critical_minerals_materials"
+  ],
+  "schema_version": "etf_eu_donor_lane_provenance_v1",
+  "source_commit_sha": "3ffff5e6104fcc2b72ce6553718a59be2905d3af",
+  "source_path": "output/lane_reviews/etf_lane_assessment_260807.json",
+  "source_report_date": "2026-08-07",
+  "source_repository": "market-predictions/weekly-etf"
+}

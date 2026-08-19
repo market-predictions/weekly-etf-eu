@@ -5,3 +5,4 @@ date,nav_eur,cash_eur,invested_market_value_eur,daily_return_pct,since_inception
 2026-07-27,99756.76,60439.44,39317.32,-0.259797,-0.243240,-0.259797,Three-position funded-aware non-delivery preview,routine-client-grade-v2-20260727_123001
 2026-08-10,100738.73,28101.01,72637.72,0.984364,0.738730,0.000000,Current 2026-08-10 completed-close valuation after explicit model-only DFEN and IQQQ allocation; no broker order,allocation:etf_eu_current_allocation_decision_20260810_123000.json
 2026-08-14,100851.09,28101.01,72750.08,0.111536,0.851090,0.000000,Candidate-only EU/UCITS valuation observation; not delivery authority,routine-candidate-20260814_235900
+2026-08-19,99495.04,28101.01,71394.03,-1.344606,-0.504960,-1.344606,Candidate-only EU/UCITS valuation observation; not delivery authority,routine-candidate-20260819_192400
