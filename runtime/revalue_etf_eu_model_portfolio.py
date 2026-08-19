@@ -37,10 +37,12 @@ def revalue_portfolio(
 
     Shares, cash, entry basis and trade lineage are inherited unchanged. Current
     price, market value, weight, P/L and NAV are recomputed only from exact funded
-    lines that passed the canonical two-provider completed-close pricing gate.
-    V1 deliberately supports EUR trading lines only because every currently funded
-    Weekly ETF EU position is EUR-denominated; any future non-EUR funded line fails
-    closed until an explicit FX conversion contract exists.
+    lines that passed the canonical primary-close-plus-verification pricing gate.
+    Both ``fresh_exact_verified`` and ``fresh_exact_unverified`` are valuation-grade;
+    independent same-date verification upgrades confidence but is not a liveness
+    requirement. V1 deliberately supports EUR trading lines only because every
+    currently funded Weekly ETF EU position is EUR-denominated; any future non-EUR
+    funded line fails closed until an explicit FX conversion contract exists.
     """
 
     if str(pricing.get("report_date") or "") != report_date:
@@ -76,9 +78,21 @@ def revalue_portfolio(
             raise RuntimeError(f"Missing exact funded pricing evidence for {ticker} / {isin}")
         if evidence.get("valuation_grade") is not True:
             raise RuntimeError(f"Funded pricing evidence is not valuation-grade for {ticker}")
-        providers = [str(value) for value in evidence.get("agreeing_providers") or [] if str(value)]
-        if len(set(providers)) < 2:
-            raise RuntimeError(f"Funded pricing evidence lacks two-provider consensus for {ticker}")
+
+        source_status = str(evidence.get("source_agreement_status") or "").strip()
+        if source_status not in {"fresh_exact_verified", "fresh_exact_unverified"}:
+            raise RuntimeError(
+                f"Funded pricing evidence lacks exact primary-close authority for {ticker}: {source_status}"
+            )
+        if evidence.get("static_primary_provider_symbol_binding") is not True:
+            raise RuntimeError(f"Funded primary provider symbol is not statically bound for {ticker}")
+        primary_provider = str(evidence.get("primary_provider") or "").strip()
+        if not primary_provider:
+            raise RuntimeError(f"Funded pricing evidence lacks selected primary provider for {ticker}")
+        verification_providers = [
+            str(value) for value in evidence.get("verification_providers") or [] if str(value)
+        ]
+
         if str(evidence.get("close_date") or "") != report_date:
             raise RuntimeError(
                 f"Funded close date mismatch for {ticker}: "
@@ -117,14 +131,16 @@ def revalue_portfolio(
         position["market_value_eur"] = round(market_value, 2)
         position["price_date"] = report_date
         position["pricing_completed_close"] = True
-        position["pricing_status"] = "qualified_two_provider_completed_close"
-        position["verification_status"] = "two_provider_consensus"
-        position["pricing_source"] = "canonical v2 Alpha Vantage + Yahoo Chart completed-close consensus"
-        position["pricing_source_quality"] = "valuation_grade_two_provider_completed_close_consensus"
-        position["valuation_source"] = "canonical_v2_completed_close_contract"
+        position["pricing_status"] = source_status
+        position["verification_status"] = (
+            "independently_verified" if source_status == "fresh_exact_verified" else "exact_primary_unverified"
+        )
+        position["pricing_source"] = f"canonical v2 exact completed close via {primary_provider}"
+        position["pricing_source_quality"] = f"valuation_grade_{source_status}"
+        position["valuation_source"] = "canonical_v2_primary_close_plus_verification_contract"
         position["model_execution_price_basis"] = (
-            f"{report_date} exact-line completed-close provider consensus; "
-            "model valuation only, no broker order"
+            f"{report_date} exact-line completed close via {primary_provider}; "
+            f"verification={position['verification_status']}; model valuation only, no broker order"
         )
         avg_entry = _num(position.get("avg_entry_local")) if position.get("avg_entry_local") not in (None, "") else 0.0
         pnl = (price - avg_entry) * shares if avg_entry else 0.0
@@ -139,7 +155,9 @@ def revalue_portfolio(
                 "close_price_eur": price,
                 "market_value_eur": round(market_value, 2),
                 "close_date": report_date,
-                "agreeing_providers": providers,
+                "source_agreement_status": source_status,
+                "primary_provider": primary_provider,
+                "verification_providers": verification_providers,
             }
         )
 
@@ -156,7 +174,7 @@ def revalue_portfolio(
     derived["nav_eur"] = round(nav, 2)
     derived["last_valuation_report_date"] = report_date
     derived["last_valuation_run_id"] = str(pricing.get("run_id") or "") or None
-    derived["last_valuation_source"] = "canonical_v2_completed_close_contract_derived_report_state"
+    derived["last_valuation_source"] = "canonical_v2_primary_close_plus_verification_derived_report_state"
     derived["derived_valuation"] = {
         "report_date": report_date,
         "pricing_artifact_report_date": pricing.get("report_date"),
@@ -169,6 +187,7 @@ def revalue_portfolio(
         "invested_market_value_eur": round(invested, 2),
         "cash_eur": round(cash, 2),
         "nav_eur": round(nav, 2),
+        "pricing_authority_mode": "donor_aligned_primary_plus_verification_v1",
         "lines": valuation_rows,
     }
     return derived
