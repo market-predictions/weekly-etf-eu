@@ -1,0 +1,68 @@
+name: Patch and dispatch ETF EU fresh 260819 r4 once
+
+on:
+  push:
+    branches:
+      - ops/patch-dispatch-etf-eu-260819-r4-once
+    paths:
+      - .github/workflows/patch-dispatch-etf-eu-260819-r4-once.yml
+
+permissions:
+  actions: write
+  contents: write
+
+jobs:
+  patch-dispatch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: agent/etf-eu-fresh-260819-v1
+          fetch-depth: 0
+      - name: Remove retired two-provider client semantics
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('runtime/finalize_etf_eu_client_surface_semantics.py')
+          s=p.read_text(encoding='utf-8')
+          old='''def _funded_grade_count(positions: list[dict[str, Any]]) -> int:\n    total = 0\n    for row in positions:\n        pricing = str(row.get("pricing_status") or "").casefold()\n        verification = str(row.get("verification_status") or "").casefold()\n        if "two_provider" in pricing or "two-provider" in pricing or "consensus" in verification:\n            total += 1\n    return total\n'''
+          new='''def _funded_grade_count(positions: list[dict[str, Any]]) -> int:\n    total = 0\n    for row in positions:\n        pricing = str(row.get("pricing_status") or "").strip().casefold()\n        if pricing in {"fresh_exact_verified", "fresh_exact_unverified"}:\n            total += 1\n    return total\n'''
+          if old not in s:
+              raise SystemExit('EXPECTED_FUNDED_GRADE_BLOCK_NOT_FOUND')
+          s=s.replace(old,new)
+          replacements={
+            'hebben two-provider completed-close consensus en vormen de actuele waarderingsbasis.':'hebben valuation-grade exact completed-close pricing authority en vormen de actuele waarderingsbasis.',
+            'hebben valuation-grade two-provider completed-close consensus.':'hebben valuation-grade exact completed-close pricing authority.',
+            'Behoud two-provider exact-line consensus als actuele waarderingsgate; research-only prijzen blijven niet-authoritatief voor funding.':'Behoud exact requested-date primary-close authority als actuele waarderingsgate; onafhankelijke same-date verificatie verhoogt confidence maar is geen liveness-eis.',
+            'current re-underwriting, pricing consensus en expliciet allocatiebesluit':'current re-underwriting, valuation-grade pricing en expliciet allocatiebesluit',
+            'have two-provider completed-close consensus and form the current valuation basis.':'have valuation-grade exact completed-close pricing authority and form the current valuation basis.',
+            'have valuation-grade two-provider completed-close consensus.':'have valuation-grade exact completed-close pricing authority.',
+            'Maintain two-provider exact-line consensus as the current valuation gate; research-only prices remain non-authoritative for funding.':'Maintain exact requested-date primary-close authority as the current valuation gate; independent same-date verification raises confidence but is not a liveness requirement.',
+            'current re-underwriting, pricing consensus and an explicit allocation decision':'current re-underwriting, valuation-grade pricing and an explicit allocation decision',
+          }
+          for a,b in replacements.items():
+              s=s.replace(a,b)
+          residual=[x for x in ['two-provider completed-close consensus','two-provider exact-line consensus','pricing consensus'] if x.casefold() in s.casefold()]
+          if residual:
+              raise SystemExit('RETIRED_CLIENT_PRICING_SEMANTICS_REMAIN:'+','.join(residual))
+          p.write_text(s,encoding='utf-8')
+          PY
+          python -m py_compile runtime/finalize_etf_eu_client_surface_semantics.py runtime/standalone_html_equity_embed.py runtime/revalue_etf_eu_model_portfolio.py
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add runtime/finalize_etf_eu_client_surface_semantics.py
+          git commit -m 'Align client pricing semantics with primary close verification'
+          git push origin HEAD:agent/etf-eu-fresh-260819-v1
+      - name: Dispatch repaired candidate
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          curl --fail-with-body -sS -X POST \
+            -H "Authorization: Bearer ${GH_TOKEN}" \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/workflows/run-weekly-etf-eu-routine.yml/dispatches \
+            -d '{"ref":"agent/etf-eu-fresh-260819-v1","inputs":{"request_path":"control/requests/ETF_EU_FRESH_260819.request"}}'
+          echo R4_DISPATCHED=true
