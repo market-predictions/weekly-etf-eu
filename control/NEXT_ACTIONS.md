@@ -3,59 +3,55 @@
 ## Current priority
 
 ```text
-ROUTINE_IDLE_READY_FOR_NEXT_FRESH_CYCLE
+FRESH_REPORT_CYCLE_114_ACTIVE
+pricing_authority=PRIMARY_CLOSE_PLUS_OPTIONAL_VERIFICATION
 ```
 
-## Closed maintenance repair
+The active production lineage is issue #114. Issue #109 is superseded and closed; its old same-date two-provider requirement is historical only. PR #112 is merged and is the current pricing baseline.
 
-The post-delivery email equity-curve parity defect is closed.
+## Current pricing gate for the fresh cycle
 
-```text
-issue=105 CLOSED
-pull_request=106 MERGED
-assured_candidate_head=57fef69626951f2a33bc63ced25253bcc4e84df0
-merge_commit=1fb7168f7ba433e138503c68aa9447c5f7ebbc65
-independent_assurance_issue=108 CLOSED
-independent_assurance_verdict=PASS
-workpackage=ETF-EU-EMAIL-EQUITY-PARITY-105 CLOSED
-corrected_resend_authorized=false
-corrected_resend_executed=false
-principal_decision_required=false
-```
+Use `control/PRICING_AUTHORITY_CURRENT.md` as the human-readable current pricing summary and live merged runtime/tests as executable authority.
 
-The active graph-delivery contract now follows the established Weekly ETF donor pattern: deterministic PNG before SMTP, embedded PNG in final standalone HTML, final PDF regenerated from that HTML, and the identical approved PNG bytes reused through MIME `cid:equitycurve`. Controlled transport performs no chart redraw/rasterization and fails closed on residual SVG or missing/ambiguous/malformed PNG media.
+For each exact UCITS trading line:
 
-## No remaining action for the 2026-08-14 cycle
+- one qualified, correctly bound provider with the exact requested completed-session close is sufficient for valuation-grade `fresh_exact_unverified` pricing;
+- a second correctly bound exact same-date provider within tolerance upgrades the line to `fresh_exact_verified`;
+- a stale/missing/unbound verifier does not block a correctly bound exact primary;
+- actual same-date disagreement outside tolerance fails closed;
+- stale-only/no-exact-close/identity or primary-binding mismatch remains blocked.
 
-The previously delivered 2026-08-14 report remains closed and receipt-confirmed. The rendering repair does not reopen that report cycle and does not authorize a resend.
+Do **not** resurrect the retired rule that every funded line requires two simultaneous live providers.
 
-There is no remaining report production, assurance, merge, delivery, receipt or governance-closeout step for that historical cycle.
+## Fresh report cycle #114
 
-## Next normal fresh cycle
+The current cycle must:
 
-The next Weekly ETF EU production cycle must begin only when a new completed-close date is due. It must:
-
-- start from fresh completed-close evidence;
-- treat prior reports only as historical strategy/model context;
-- perform a full current portfolio re-underwrite rather than mechanically rolling positions forward;
-- use the current donor-aligned equity graph contract for HTML/PDF/email parity;
-- preserve independent assurance before merge;
-- preserve exact approved-artifact/hash binding before any controlled transport;
-- require a separate current guarded-send authority for any actual email delivery;
-- claim delivery success only from positive recipient-side receipt/attachment evidence or equivalent real delivery receipt/manifest.
+- resolve the latest applicable completed-close date from fresh evidence;
+- perform a full portfolio re-underwrite;
+- run broad discovery, then EU-local UCITS identity/investability/fundability checks;
+- try to achieve more than six funded positions where evidence supports this, without a hard position-count target or relaxed fundability/pricing standards;
+- use whole shares and reconcile residual cash exactly;
+- render NL primary + EN companion from one normalized state;
+- use the current deterministic PNG equity-curve contract for HTML/PDF/email parity;
+- pass machine, arithmetic and client-grade/visual QA;
+- freeze one exact candidate for independent assurance;
+- merge only after independent exact-head PASS and governed integration authority;
+- use guarded transport only after separate current guarded-send authority;
+- claim delivery success only from real recipient/receipt/attachment evidence or equivalent positive manifest.
 
 ## Protected boundaries
 
 - no real broker execution;
-- no share/cash mutation without explicit current allocation-decision authority;
-- no hard position-count target;
-- no retired 50%/35%/15% allocation limits;
-- no research-only mapping/price becomes funding authority automatically;
+- no share/cash mutation without explicit current allocation authority;
+- no hard ticker-count target;
+- no retired 50%/35%/15% allocation rules;
+- no diagnostic-only source promotion to force coverage;
+- no stale historical price treated as current truth;
 - candidate generation has no SMTP/delivery authority;
 - no rerender after artifact approval;
-- no resend of historical reports from architecture/maintenance authority;
-- no delivery success claim without a real receipt/manifest.
+- no delivery-success claim without positive receipt/manifest evidence.
 
 ## Controller housekeeping
 
-The project-local state is reconciled through the completed email-parity merge. Central `market-predictions/control-plane` cache/narrative entries may still be stale until their next portfolio-control reconciliation; project-local/live GitHub evidence remains authoritative.
+Read-first narrative state was stale after PR #112. Issue #115 exists specifically to reconcile canonical documentation so old two-provider wording cannot silently override live merged pricing behavior again. Historical issues/work packages remain provenance and must be interpreted by date and lifecycle state, not as current authority.
