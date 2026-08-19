@@ -1,13 +1,29 @@
 # Weekly ETF EU — Data Source Metadata Policy
 
-Date: 2026-06-04  
+Date: 2026-08-19  
 Repository: `market-predictions/weekly-etf-eu`
+
+## Current-status warning
+
+This file is **source metadata**, not current production pricing authority.
+
+The production pricing authority changed with merged PR #112 / main commit `5cc712582f86a51951cf57c55992f0ddc49a6ff1`. Use `control/PRICING_AUTHORITY_CURRENT.md` plus live merged runtime/tests for current behavior.
+
+In particular, this file MUST NOT be read as requiring two live same-date sources for every funded position. That universal requirement is retired.
+
+Current production rule in brief:
+
+- one qualified provider, correctly bound to the canonical UCITS trading line, with the exact requested completed-session close can be valuation-grade as `fresh_exact_unverified`;
+- an additional bound exact same-date source within tolerance upgrades the line to `fresh_exact_verified`;
+- a stale/missing/unbound verifier does not invalidate a valid exact primary;
+- actual same-date disagreement outside tolerance remains fail-closed;
+- no exact close or identity/primary-binding mismatch remains fail-closed.
 
 ## Purpose
 
-This file defines source metadata categories for the EU/UCITS pricing spine.
+This register classifies source types and intended evidence roles. It does not select the live primary provider, define provider priority, create valuation-grade pricing by itself, create fundability or funding authority, or override current runtime qualification policy.
 
-It is not an approval list and not a valuation-grade policy by itself. It records how pricing evidence sources are classified so later source selection and agreement-gate logic can reason from explicit metadata instead of hardcoded assumptions.
+Provider names or roles recorded here may describe research, diagnostic or historical integration work. Current provider-symbol bindings and provider priority must be reconstructed from current code/config for the exact run.
 
 ## Authority boundary
 
@@ -15,6 +31,8 @@ The metadata register does not:
 
 ```text
 create valuation_grade=true rows
+require two providers for liveness
+select a production primary provider
 create funding authority
 mutate portfolio state
 promote candidates to fundable
@@ -24,7 +42,7 @@ send email
 create delivery receipts
 ```
 
-Pricing adapters return typed evidence. A later agreement gate must decide whether evidence is valuation-grade, provisional or blocked.
+Pricing adapters return typed evidence. Current qualification is performed by the merged primary+verification policy.
 
 ## Categories
 
@@ -35,7 +53,7 @@ Pricing adapters return typed evidence. A later agreement gate must decide wheth
 | `exchange` | Exchange or trading venue source candidate. |
 | `data_vendor` | Data provider or aggregator. |
 | `issuer` | Issuer-provided product/NAV/factsheet reference. |
-| `connectivity` | Connectivity/fallback source that is useful operationally but not authority by itself. |
+| `connectivity` | Connectivity/fallback source useful operationally but not authority by itself. |
 | `unknown` | Source type not yet reviewed. |
 
 ### usage_mode
@@ -43,15 +61,13 @@ Pricing adapters return typed evidence. A later agreement gate must decide wheth
 | Value | Meaning |
 |---|---|
 | `official_close` | Candidate source for official or venue-specific completed-session close evidence. |
-| `candidate_evidence` | Candidate valuation evidence requiring agreement-gate review. |
-| `fallback_provisional` | Provisional fallback evidence; not sole valuation authority. |
+| `candidate_evidence` | Candidate valuation evidence subject to current qualification policy. |
+| `fallback_provisional` | Provisional fallback evidence; not automatically production authority. |
 | `diagnostic_cross_check` | Cross-check / diagnostic evidence only. |
 | `reference_stale_check` | Issuer/reference/stale-check context, not exchange close evidence. |
 | `connectivity_only` | Connectivity proof only. |
 
 ### authority_tier
-
-Authority tiers must align with `pricing.price_result_schema`:
 
 ```text
 exchange_official
@@ -61,7 +77,7 @@ non_authoritative_connectivity_only
 unknown
 ```
 
-These values describe evidence quality only. They do not create `valuation_grade=true` by themselves.
+These values describe evidence quality only. They do not create `valuation_grade=true` by themselves and do not impose a two-source liveness rule.
 
 ### review_status
 
@@ -74,38 +90,36 @@ These values describe evidence quality only. They do not create `valuation_grade
 | `reference_only` | Source is reference/stale-check only. |
 | `unknown` | Review status is not known. |
 
-## Current source-role register
+## Historical / research source-role register
 
-| source_id | source_type | usage_mode | license_class | authority_tier | review_status | counts_for_market_close_agreement | valuation_candidate_eligible | Notes |
-|---|---|---|---|---|---|---:|---:|---|
-| `euronext_live` | `exchange` | `official_close` | `exchange_public` | `candidate_valuation_source` | `pending_license_review` | true | true | Venue-specific official discovery candidate; license/session details still require review. |
-| `deutsche_boerse_live` | `exchange` | `official_close` | `exchange_public` | `candidate_valuation_source` | `pending_license_review` | true | true | Venue-specific official discovery candidate; license/session details still require review. |
-| `boerse_frankfurt` | `exchange` | `diagnostic_cross_check` | `unknown` | `diagnostic_candidate_source` | `pending_license_review` | false | false | Undocumented/free endpoint; exchange-candidate evidence only until reviewed. |
-| `stooq` | `data_vendor` | `diagnostic_cross_check` | `provider_free_personal` | `diagnostic_candidate_source` | `pending_coverage_review` | false | false | Provisional/cross-check source; explicit symbol mappings require coverage verification. |
-| `yahoo_yfinance` | `connectivity` | `fallback_provisional` | `provider_free_personal` | `non_authoritative_connectivity_only` | `provisional` | false | false | Fallback/provisional evidence only; not the sole path to valuation-grade UCITS pricing. |
-| `issuer_nav` | `issuer` | `reference_stale_check` | `issuer_public` | `diagnostic_candidate_source` | `reference_only` | false | false | Reference/stale-check evidence only; not exchange market-close agreement evidence. |
-| `blackrock_issuer_reference` | `issuer` | `reference_stale_check` | `issuer_public` | `diagnostic_candidate_source` | `reference_only` | false | false | Product facts/NAV sanity-check reference, not trading-line close authority. |
-| `twelve_data` | `data_vendor` | `diagnostic_cross_check` | `provider_paid` | `diagnostic_candidate_source` | `pending_coverage_review` | false | false | Diagnostic candidate until symbol/date/currency/session evidence and plan status are reviewed. |
-| `issuer_factsheet` | `issuer` | `reference_stale_check` | `issuer_public` | `diagnostic_candidate_source` | `reference_only` | false | false | Instrument facts and stale sanity checks only. |
+The following table is retained as source-research provenance. It is **not** the current production provider allowlist or provider-priority table.
 
-## Policy-mode helper semantics
+| source_id | source_type | usage_mode | license_class | authority_tier | review_status | Historical notes |
+|---|---|---|---|---|---|---|
+| `euronext_live` | `exchange` | `official_close` | `exchange_public` | `candidate_valuation_source` | `pending_license_review` | Venue-specific discovery candidate. |
+| `deutsche_boerse_live` | `exchange` | `official_close` | `exchange_public` | `candidate_valuation_source` | `pending_license_review` | Venue-specific discovery candidate. |
+| `boerse_frankfurt` | `exchange` | `diagnostic_cross_check` | `unknown` | `diagnostic_candidate_source` | `pending_license_review` | Diagnostic candidate only. |
+| `stooq` | `data_vendor` | `diagnostic_cross_check` | `provider_free_personal` | `diagnostic_candidate_source` | `pending_coverage_review` | Historical cross-check candidate; verify mappings before use. |
+| `yahoo_yfinance` | `connectivity` | `fallback_provisional` | `provider_free_personal` | `non_authoritative_connectivity_only` | `provisional` | Historical metadata classification; current Yahoo provider use, if any, is governed by current runtime/config binding rather than this row. |
+| `issuer_nav` | `issuer` | `reference_stale_check` | `issuer_public` | `diagnostic_candidate_source` | `reference_only` | Reference/stale-check evidence only. |
+| `blackrock_issuer_reference` | `issuer` | `reference_stale_check` | `issuer_public` | `diagnostic_candidate_source` | `reference_only` | Product facts/NAV sanity check only. |
+| `twelve_data` | `data_vendor` | `diagnostic_cross_check` | `provider_paid` | `diagnostic_candidate_source` | `pending_coverage_review` | Diagnostic/research provenance only. |
+| `issuer_factsheet` | `issuer` | `reference_stale_check` | `issuer_public` | `diagnostic_candidate_source` | `reference_only` | Instrument facts and stale sanity checks only. |
 
-The helper in `pricing/source_metadata_policy.py` filters metadata rows by declared policy mode.
+## Current authority pointers
 
-| policy_mode | Intended use |
-|---|---|
-| `diagnostic_evidence` | Return all declared source metadata rows in input order. |
-| `market_close_agreement_candidates` | Return only metadata rows that are allowed to count as market-close agreement candidates. |
-| `valuation_candidate_evidence` | Return only rows flagged as valuation candidate evidence. |
-| `reference_evidence` | Return issuer/reference/stale-check rows only. |
+For current production pricing behavior inspect:
 
-This is metadata filtering only. The agreement gate must still validate dates, closes, currencies, completed-session status, source lineage, agreement conditions and authority constraints.
+- `control/PRICING_AUTHORITY_CURRENT.md`
+- `config/ucits_symbol_registry.yml`
+- `pricing/ucits_provider_identity_binding.py`
+- `pricing/ucits_price_qualification_policy.py`
+- `pricing/ucits_primary_verification_legacy.py`
+- `pricing/build_ucits_close_price_validation_basket_results.py`
+- `pricing/ucits_close_price_validation_contract_v2.py`
+- current provider registry/config used by the runtime
+- exact tests for the current report candidate
 
-## Open review questions
+## Historical interpretation rule
 
-1. Confirm license and redistribution constraints for venue-specific official/free endpoints.
-2. Review whether the Börse Frankfurt / Xetra endpoint can ever move beyond diagnostic candidate evidence.
-3. Verify Stooq coverage and exact symbol mappings before any stronger role.
-4. Decide whether Yahoo/yfinance remains diagnostic/fallback only or can be considered as provisional evidence under a future agreement-gate rule.
-5. Keep issuer NAV and factsheets reference-only unless a separate NAV-specific report surface is designed.
-6. Review Twelve Data plan/source terms before any candidate valuation role.
+Older documents may legitimately contain terms such as `two-provider consensus`, `market_close_agreement_candidates`, or `require-funded-consensus`. Treat them by lifecycle and date. After PR #112, compatibility naming does not mean that two simultaneous live providers are universally required for valuation-grade funded pricing.
