@@ -42,9 +42,8 @@ def _replace_english_no_regime_change_sentence(text: str) -> str:
 def _funded_grade_count(positions: list[dict[str, Any]]) -> int:
     total = 0
     for row in positions:
-        pricing = str(row.get("pricing_status") or "").casefold()
-        verification = str(row.get("verification_status") or "").casefold()
-        if "two_provider" in pricing or "two-provider" in pricing or "consensus" in verification:
+        pricing = str(row.get("pricing_status") or "").strip().casefold()
+        if pricing in {"fresh_exact_verified", "fresh_exact_unverified"}:
             total += 1
     return total
 
@@ -107,7 +106,7 @@ def finalize_client_html_semantics(text: str, state: dict[str, Any], *, language
         text = _replace_list_item(
             text,
             "Meest volwassen implementatie:",
-            f"Gefinancierde exact-line waardering: {funded_grade} van {funded_count} gefinancierde lijnen hebben two-provider completed-close consensus en vormen de actuele waarderingsbasis.",
+            f"Gefinancierde exact-line waardering: {funded_grade} van {funded_count} gefinancierde lijnen hebben valuation-grade exact completed-close pricing authority en vormen de actuele waarderingsbasis.",
         )
         text = _replace_list_item(
             text,
@@ -116,10 +115,10 @@ def finalize_client_html_semantics(text: str, state: dict[str, Any], *, language
         )
 
         replacements = {
-            "Prijsobservaties zijn nog niet waarderingswaardig.": f"De {funded_grade} gefinancierde exact-lines hebben valuation-grade two-provider completed-close consensus.",
-            "Promoveer pas wanneer bronovereenkomst en prijslineage voldoende sterk zijn.": "Behoud two-provider exact-line consensus als actuele waarderingsgate; research-only prijzen blijven niet-authoritatief voor funding.",
+            "Prijsobservaties zijn nog niet waarderingswaardig.": f"De {funded_grade} gefinancierde exact-lines hebben valuation-grade exact completed-close pricing authority.",
+            "Promoveer pas wanneer bronovereenkomst en prijslineage voldoende sterk zijn.": "Behoud exact requested-date primary-close authority als actuele waarderingsgate; onafhankelijke same-date verificatie verhoogt confidence maar is geen liveness-eis.",
             f"{observed} handelslijnen wachten nog op volledige verificatie.": f"{research_count} niet-gefinancierde prijsregels blijven research-/vergelijkingsevidence zonder funding-authority.",
-            "Geen financiering vóór identiteit, KID, handelslijn en brokerbeschikbaarheid zijn bevestigd.": "Geen nieuwe financiering vóór identiteit, KID, exacte handelslijn, current re-underwriting, pricing consensus en expliciet allocatiebesluit zijn bevestigd.",
+            "Geen financiering vóór identiteit, KID, handelslijn en brokerbeschikbaarheid zijn bevestigd.": "Geen nieuwe financiering vóór identiteit, KID, exacte handelslijn, current re-underwriting, valuation-grade pricing en expliciet allocatiebesluit zijn bevestigd.",
             "Behoud kwaliteit en kasdiscipline; any allocation still requires a verified UCITS instrument, current pricing, re-underwriting and a separate capital decision.": "Behoud kwaliteit en kasdiscipline; iedere allocatie vereist een geverifieerd UCITS-instrument, actuele pricing, re-underwriting en een afzonderlijk kapitaalbesluit.",
             "Europese aandelen- of obligatieblootstelling blijft afhankelijk on UCITS identity, exact-line verification, current pricing, re-underwriting and a separate capital decision.": "Europese aandelen- of obligatieblootstelling blijft afhankelijk van UCITS-identiteit, exact-line verificatie, actuele pricing, re-underwriting en een afzonderlijk kapitaalbesluit.",
             "No material regime change was recorded versus the prior review; the Risk-on growth backdrop remained intact, market breadth is mixed, and cross-asset confirmation is mixed.": "Ten opzichte van de vorige review is geen materiële regimewijziging vastgesteld; de risk-on-groeiomgeving bleef intact, terwijl marktbreedte en cross-asset bevestiging gemengd zijn.",
@@ -155,7 +154,7 @@ def finalize_client_html_semantics(text: str, state: dict[str, Any], *, language
         text = _replace_list_item(
             text,
             "Most mature implementation:",
-            f"Funded exact-line valuation: {funded_grade} of {funded_count} funded lines have two-provider completed-close consensus and form the current valuation basis.",
+            f"Funded exact-line valuation: {funded_grade} of {funded_count} funded lines have valuation-grade exact completed-close pricing authority and form the current valuation basis.",
         )
         text = _replace_list_item(
             text,
@@ -163,10 +162,10 @@ def finalize_client_html_semantics(text: str, state: dict[str, Any], *, language
             f"Research/comparison layer: {research_count} unfunded pricing rows remain research-only; market-price availability creates no funding authority.",
         )
         replacements = {
-            "Pricing observations are not yet valuation-grade.": f"The {funded_grade} funded exact lines have valuation-grade two-provider completed-close consensus.",
-            "Promote only when source agreement and price lineage are sufficiently strong.": "Maintain two-provider exact-line consensus as the current valuation gate; research-only prices remain non-authoritative for funding.",
+            "Pricing observations are not yet valuation-grade.": f"The {funded_grade} funded exact lines have valuation-grade exact completed-close pricing authority.",
+            "Promote only when source agreement and price lineage are sufficiently strong.": "Maintain exact requested-date primary-close authority as the current valuation gate; independent same-date verification raises confidence but is not a liveness requirement.",
             f"{observed} trading lines are still awaiting full verification.": f"{research_count} unfunded pricing rows remain research/comparison evidence without funding authority.",
-            "No funding before identity, KID, trading line and broker availability are confirmed.": "No new funding before identity, KID, exact trading line, current re-underwriting, pricing consensus and an explicit allocation decision are confirmed.",
+            "No funding before identity, KID, trading line and broker availability are confirmed.": "No new funding before identity, KID, exact trading line, current re-underwriting, valuation-grade pricing and an explicit allocation decision are confirmed.",
             "0 lines have no usable price in this run.": "All current funded lines have usable completed-close pricing; research-only lines remain separately classified.",
         }
         for old, new in replacements.items():
