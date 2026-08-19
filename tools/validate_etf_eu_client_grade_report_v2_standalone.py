@@ -252,15 +252,18 @@ def validate_language(
             blockers.append("stale macro disclosure missing")
 
     curve = state.get("equity_curve") if isinstance(state.get("equity_curve"), dict) else {}
-    svg_visible = 'class="equity-curve-svg"' in html
+    equity_image_visible = 'class="equity-curve-image"' in html and 'data:image/png;base64,' in html
+    residual_equity_svg = 'class="equity-curve-svg"' in html
     cash_callout_visible = 'class="cash-callout"' in html
     if curve.get("show_chart") is True:
-        if not svg_visible:
+        if not equity_image_visible:
             blockers.append("equity curve should be visible but is absent")
+        if residual_equity_svg:
+            blockers.append("residual inline equity SVG remains after PNG materialization")
         if curve.get("latest_nav_matches_state") is not True:
             blockers.append("equity curve does not reconcile to current NAV")
     else:
-        if svg_visible:
+        if equity_image_visible or residual_equity_svg:
             blockers.append("equity curve is visible despite insufficient meaningful history")
         if not cash_callout_visible:
             blockers.append("cash-preservation callout missing while equity curve is suppressed")
