@@ -57,7 +57,7 @@ For the 6 funded lines, two-provider exact-line completed-close consensus forms 
 
 ## 6. Risk and quality boundaries
 
-1. A single market price or research-only observation is not an independent valuation basis; current funded valuation requires exact-line completed-close consensus from at least two providers.
+1. A single market price or research-only observation is not an independent valuation basis; a correctly identified exact completed-close from a qualified primary provider can be valuation-grade, and independent verification improves confidence. Same-date provider disagreement remains explicitly fail-closed; stale/no-exact/broken-primary cases remain blocked.
 2. A ticker is not canonical identity; ISIN remains authoritative.
 3. No portfolio change without a separate capital-allocation decision.
 4. Previous reports are historical strategy context, not current-price truth.

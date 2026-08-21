@@ -57,7 +57,7 @@ def finalize_markdown_semantics(text: str, state: dict[str, Any], *, language: s
             )
             required.append(f"**Nieuwe funded implementaties:** {names}")
         replacements = {
-            "1. Een prijsobservatie is geen zelfstandige waarderingsbasis.": "1. Een enkele marktprijs of research-only prijsobservatie is geen zelfstandige waarderingsbasis; actuele funded waardering vereist exact-line completed-close consensus uit minimaal twee providers.",
+            "1. Een prijsobservatie is geen zelfstandige waarderingsbasis.": "1. Een enkele marktprijs of research-only prijsobservatie is geen zelfstandige waarderingsbasis; een correct geïdentificeerde exacte completed-close van een gekwalificeerde primary provider kan waardering-grade zijn, en onafhankelijke verificatie verhoogt de vertrouwenswaardigheid. Same-date provider disagreement blijft expliciet fail-closed; stale/no-exact/broken-primary gevallen blijven geblokkeerd.",
             "Behoud kwaliteit en kasdiscipline; any allocation still requires a verified UCITS instrument, current pricing, re-underwriting and a separate capital decision.": "Behoud kwaliteit en kasdiscipline; iedere allocatie vereist een geverifieerd UCITS-instrument, actuele pricing, re-underwriting en een afzonderlijk kapitaalbesluit.",
             "Europese aandelen- of obligatieblootstelling blijft afhankelijk on UCITS identity, exact-line verification, current pricing, re-underwriting and a separate capital decision.": "Europese aandelen- of obligatieblootstelling blijft afhankelijk van UCITS-identiteit, exact-line verificatie, actuele pricing, re-underwriting en een afzonderlijk kapitaalbesluit.",
             "No material regime change was recorded versus the prior review; the Risk-on growth backdrop remained intact, market breadth is mixed, and cross-asset confirmation is mixed.": "Ten opzichte van de vorige review is geen materiële regimewijziging vastgesteld; de risk-on-groeiomgeving bleef intact, terwijl marktbreedte en cross-asset bevestiging gemengd zijn.",
@@ -85,7 +85,7 @@ def finalize_markdown_semantics(text: str, state: dict[str, Any], *, language: s
             required.append(f"**New funded implementations:** {names}")
         text = text.replace(
             "1. A price observation is not an independent valuation basis.",
-            "1. A single market price or research-only observation is not an independent valuation basis; current funded valuation requires exact-line completed-close consensus from at least two providers.",
+            "1. A single market price or research-only observation is not an independent valuation basis; a correctly identified exact completed-close from a qualified primary provider can be valuation-grade, and independent verification improves confidence. Same-date provider disagreement remains explicitly fail-closed; stale/no-exact/broken-primary cases remain blocked.",
         )
         forbidden = [
             "Best operational candidate: the verified S&P 500",

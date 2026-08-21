@@ -57,7 +57,7 @@ Voor de 6 gefinancierde lijnen vormt two-provider exact-line completed-close con
 
 ## 6. Risico- en kwaliteitsgrenzen
 
-1. Een enkele marktprijs of research-only prijsobservatie is geen zelfstandige waarderingsbasis; actuele funded waardering vereist exact-line completed-close consensus uit minimaal twee providers.
+1. Een enkele marktprijs of research-only prijsobservatie is geen zelfstandige waarderingsbasis; een correct geïdentificeerde exacte completed-close van een gekwalificeerde primary provider kan waardering-grade zijn, en onafhankelijke verificatie verhoogt de vertrouwenswaardigheid. Same-date provider disagreement blijft expliciet fail-closed; stale/no-exact/broken-primary gevallen blijven geblokkeerd.
 2. Een ticker is geen canonieke identiteit; ISIN blijft leidend.
 3. Geen portefeuillewijziging zonder een afzonderlijk besluit over inzet van kapitaal.
 4. Vorige rapporten zijn historische strategiecontext, niet actuele prijswaarheid.
