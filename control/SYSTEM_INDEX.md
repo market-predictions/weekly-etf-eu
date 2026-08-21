@@ -17,13 +17,16 @@ Read in this order:
 1. `control/SYSTEM_INDEX.md`
 2. `control/CURRENT_STATE.md`
 3. `control/NEXT_ACTIONS.md`
-4. `control/WORK_CLAIMS.json`
-5. the active/superseding handover record referenced by the claim registry, when present
-6. `control/PROJECT_GOVERNANCE_BOOTSTRAP.md`
-7. `control/ETF_EU_TWO_ROLE_GOVERNANCE_MODEL_V1.md`
-8. the minimum relevant execution files
+4. `control/PRICING_AUTHORITY_CURRENT.md` for any pricing/report/fundability work
+5. `control/WORK_CLAIMS.json`
+6. the active/superseding handover record referenced by the claim registry, when present
+7. `control/PROJECT_GOVERNANCE_BOOTSTRAP.md`
+8. `control/ETF_EU_TWO_ROLE_GOVERNANCE_MODEL_V1.md`
+9. the minimum relevant execution files
 
 Before continuing consequential work, reconcile the active claim against live GitHub branch, target, dependency, PR and handover state under the canonical control-plane lifecycle standard. Do not continue accumulating on a materially stale integration line.
+
+Historical issues, work packages, reports and metadata records are provenance. They do not override later merged runtime behavior or current read-first authority files.
 
 ## Five-layer operating model
 
@@ -99,6 +102,7 @@ Rules:
 - `control/UCITS_ETF_REVIEW_CONTRACT_V1.md`
 - `control/UCITS_INVESTABILITY_RULES.md`
 - `control/UCITS_SYMBOL_REGISTRY_CONTRACT.md`
+- `control/PRICING_AUTHORITY_CURRENT.md`
 - `output/etf_eu_portfolio_state.json`
 - `output/etf_eu_trade_ledger.csv`
 - `output/etf_eu_valuation_history.csv`
@@ -115,6 +119,20 @@ explicit current allocation decision
 ```
 
 Historical CAP01/transition target values are audit context, not current allocation authority.
+
+## Current pricing authority
+
+Merged PR #112 changed the production close-price contract from a universal two-live-provider gate to **primary close + optional independent verification**.
+
+Current rule:
+- exact canonical UCITS trading-line identity remains mandatory;
+- one qualified statically bound provider with the exact requested completed-session close can be valuation-grade as `fresh_exact_unverified`;
+- a second correctly bound exact same-date provider within tolerance upgrades the line to `fresh_exact_verified`;
+- stale/missing/unbound verifier evidence does not block a valid exact primary;
+- accepted exact same-date disagreement remains fail-closed;
+- no exact requested-date close or primary identity/binding mismatch remains fail-closed.
+
+The retired statement “every funded line requires two live same-date providers” MUST NOT be recovered from older issues, work packages, metadata tables, compatibility field names or report prose.
 
 ## Canonical EU configuration
 
@@ -219,20 +237,21 @@ Before creating or materially changing an EU workflow, runtime script, validator
 ## Current operating mode
 
 ```text
-DONOR_PARITY_RECONCILIATION_WITH_INDEPENDENT_RELEASE_ASSURANCE
+FRESH_REPORT_CYCLE_114_ACTIVE
+pricing_authority=PRIMARY_CLOSE_PLUS_OPTIONAL_VERIFICATION
+main_baseline=5cc712582f86a51951cf57c55992f0ddc49a6ff1
 ```
 
 Current direction:
 
 ```text
-PR91 implementation convergence
-→ final exact-head CI
-→ frozen implementation handover
-→ independent governance_release_assurance
-→ merge if PASS and unchanged
+fresh completed-close evidence under PR112 pricing authority
+→ full portfolio re-underwrite + broad discovery
+→ EU-local UCITS fundability and explicit allocation decision
+→ client-grade NL/EN candidate
+→ exact-head CI and independent governance_release_assurance
+→ governed integration if PASS and unchanged
 → exact-main validation
-→ issue/claim/project/control-plane closeout
-→ separate fresh-report production cycle
 → separately authorized guarded transport
 → independent receipt verification
 ```
