@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import copy
 import tempfile
 import unittest
 from pathlib import Path
@@ -7,6 +8,7 @@ from pathlib import Path
 from pricing.ucits_funded_universe import resolve_provider_registry_funded_universe
 from pricing.ucits_price_qualification_policy import apply_primary_verification_policy_payload
 from pricing.ucits_provider_identity_binding import build_provider_identity_binding
+from runtime.revalue_etf_eu_model_portfolio import revalue_portfolio
 
 
 REPORT_DATE = "2026-08-17"
@@ -101,6 +103,76 @@ class August17FreshnessSplitRegressionTests(unittest.TestCase):
             self.assertEqual(line["primary_provider"], "alpha_vantage")
             self.assertEqual(line["stale_or_other_date_providers"], ["yahoo_chart"])
             self.assertTrue(line["valuation_grade"])
+
+    def _primary_only_valuation_inputs(self) -> tuple[dict, dict]:
+        portfolio = {
+            "base_currency": "EUR",
+            "cash_eur": 1000.0,
+            "positions": [
+                {
+                    "ticker": "VWCE",
+                    "isin": "IE00BK5BQT80",
+                    "shares": 2,
+                    "avg_entry_local": 150.0,
+                    "current_price_local": 160.0,
+                    "market_value_local": 320.0,
+                    "market_value_eur": 320.0,
+                    "current_weight_pct": 24.0,
+                }
+            ],
+        }
+        pricing = {
+            "report_date": REPORT_DATE,
+            "run_id": "fixed-primary-only",
+            "report_pricing_gate_passed": True,
+            "rows": [
+                {
+                    "ticker": "VWCE",
+                    "isin": "IE00BK5BQT80",
+                    "currency": "EUR",
+                    "close_date": REPORT_DATE,
+                    "close_price": 169.06,
+                    "valuation_grade": True,
+                    "source_agreement_status": "fresh_exact_unverified",
+                    "primary_provider": "alpha_vantage",
+                    "verification_providers": [],
+                }
+            ],
+        }
+        return portfolio, pricing
+
+    def test_primary_only_exact_close_revalues_deterministically_without_mutation(self) -> None:
+        portfolio, pricing = self._primary_only_valuation_inputs()
+        original_portfolio = copy.deepcopy(portfolio)
+        original_pricing = copy.deepcopy(pricing)
+
+        first = revalue_portfolio(portfolio, pricing, report_date=REPORT_DATE)
+        second = revalue_portfolio(portfolio, pricing, report_date=REPORT_DATE)
+
+        self.assertEqual(first, second)
+        self.assertEqual(portfolio, original_portfolio)
+        self.assertEqual(pricing, original_pricing)
+        self.assertEqual(first["nav_eur"], 1338.12)
+        self.assertEqual(first["positions"][0]["verification_status"], "fresh_exact_unverified")
+        self.assertEqual(
+            first["positions"][0]["pricing_status"],
+            "qualified_completed_close_primary_plus_verification",
+        )
+        self.assertFalse(first["derived_valuation"]["portfolio_mutation"])
+        self.assertFalse(first["derived_valuation"]["trade_ledger_write"])
+        self.assertFalse(first["derived_valuation"]["real_broker_execution"])
+        evidence = first["derived_valuation"]["lines"][0]
+        self.assertEqual(evidence["primary_provider"], "alpha_vantage")
+        self.assertEqual(evidence["verification_providers"], [])
+        self.assertEqual(evidence["source_agreement_status"], "fresh_exact_unverified")
+        self.assertEqual(evidence["agreeing_providers"], ["alpha_vantage"])
+
+    def test_derived_valuation_fails_closed_without_authorized_exact_primary_status(self) -> None:
+        portfolio, pricing = self._primary_only_valuation_inputs()
+        pricing["rows"][0]["source_agreement_status"] = "provider_disagreement"
+
+        with self.assertRaisesRegex(RuntimeError, "lacks authorized exact primary close"):
+            revalue_portfolio(portfolio, pricing, report_date=REPORT_DATE)
 
 
 if __name__ == "__main__":
