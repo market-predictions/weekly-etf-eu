@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       request_path:
-        description: "Prepared v2 candidate request path"
+        description: "Prepared Weekly ETF EU candidate request path"
         required: true
 
 permissions:
@@ -42,25 +42,13 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Install system PDF packages
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y \
-            libcairo2 \
-            libpango-1.0-0 \
-            libgdk-pixbuf-2.0-0 \
-            libffi-dev \
-            shared-mime-info \
-            fonts-liberation \
-            fonts-dejavu-core \
-            fonts-lato \
-            poppler-utils
-
       - name: Install candidate dependencies
         run: |
           set -euo pipefail
+          sudo apt-get update
+          sudo apt-get install -y libcairo2 libpango-1.0-0 libgdk-pixbuf-2.0-0 libffi-dev shared-mime-info fonts-liberation fonts-dejavu-core fonts-lato poppler-utils
           python -m pip install --upgrade pip
-          pip install pyyaml yfinance mistune weasyprint matplotlib==3.9.2
+          pip install pyyaml yfinance weasyprint matplotlib==3.9.2
 
       - name: Resolve and validate candidate request
         env:
@@ -72,7 +60,6 @@ jobs:
           import sys
           from pathlib import Path
           from tools.validate_etf_eu_routine_report_request import validate
-
           data = validate(Path(sys.argv[1]))
           mapping = {
               "ETF_EU_REQUEST_PATH": sys.argv[1],
@@ -91,13 +78,12 @@ jobs:
       - name: Select current donor breadth evidence
         run: |
           set -euo pipefail
-          mkdir -p output/runtime
-          SELECTED=$(python tools/select_weekly_etf_donor_lane_artifact.py \
-            --donor-root _donor_weekly_etf \
-            --report-date "$ETF_EU_REPORT_DATE")
+          EVIDENCE_ROOT="output/evidence/${ETF_EU_RUN_ID}"
+          mkdir -p "$EVIDENCE_ROOT"
+          SELECTED=$(python tools/select_weekly_etf_donor_lane_artifact.py --donor-root _donor_weekly_etf --report-date "$ETF_EU_REPORT_DATE")
           DONOR_SHA=$(git -C _donor_weekly_etf rev-parse HEAD)
-          DONOR_COPY="output/runtime/etf_eu_donor_lane_source_${ETF_EU_RUN_ID}.json"
-          DONOR_PROVENANCE="output/runtime/etf_eu_donor_lane_provenance_${ETF_EU_RUN_ID}.json"
+          DONOR_COPY="$EVIDENCE_ROOT/donor_lane_source.json"
+          DONOR_PROVENANCE="$EVIDENCE_ROOT/donor_lane_provenance.json"
           cp "$SELECTED" "$DONOR_COPY"
           python - "$SELECTED" "$DONOR_COPY" "$DONOR_PROVENANCE" "$DONOR_SHA" <<'PY'
           import json, sys
@@ -112,19 +98,16 @@ jobs:
               "copied_candidate_path": copied,
               "source_report_date": payload.get("report_date"),
               "discovery_engine_version": payload.get("discovery_engine_version"),
-              "required_breadth_buckets": payload.get("required_breadth_buckets"),
               "funding_authority": False,
           }, indent=2, sort_keys=True) + "\n", encoding="utf-8")
           PY
           echo "ETF_EU_DONOR_LANE_ARTIFACT=$DONOR_COPY" >> "$GITHUB_ENV"
           echo "ETF_EU_DONOR_LANE_PROVENANCE=$DONOR_PROVENANCE" >> "$GITHUB_ENV"
-          echo "ETF_EU_DONOR_SOURCE_SHA=$DONOR_SHA" >> "$GITHUB_ENV"
-          echo "ETF_EU_DONOR_LANE_SELECTED=$SELECTED"
 
-      - name: Select quota-aware allocation pricing candidates
+      - name: Select quota-aware pricing candidates
         run: |
           set -euo pipefail
-          SELECTION="output/runtime/etf_eu_allocation_pricing_candidate_selection_${ETF_EU_RUN_ID}.json"
+          SELECTION="output/evidence/${ETF_EU_RUN_ID}/allocation_pricing_candidates.json"
           python tools/select_etf_eu_allocation_pricing_candidates.py \
             --donor-lane-artifact "$ETF_EU_DONOR_LANE_ARTIFACT" \
             --proxy-map config/ucits_benchmark_proxy_map.yml \
@@ -141,13 +124,11 @@ jobs:
           )
           echo "ETF_EU_ALLOCATION_PRICING_SELECTION=$SELECTION" >> "$GITHUB_ENV"
           echo "ETF_EU_ALLOCATION_PRICING_CANDIDATES=$CANDIDATES" >> "$GITHUB_ENV"
-          echo "ETF_EU_ALLOCATION_PRICING_CANDIDATES_SELECTED=$CANDIDATES"
 
       - name: Validate routine implementation preflight
         run: |
           set -euo pipefail
-          python -m tools.validate_etf_eu_routine_preflight \
-            --request "$ETF_EU_REQUEST_PATH"
+          python -m tools.validate_etf_eu_routine_preflight --request "$ETF_EU_REQUEST_PATH"
 
       - name: Build current UCITS pricing evidence
         env:
@@ -159,7 +140,7 @@ jobs:
             --report-date "$ETF_EU_REPORT_DATE" \
             --providers alpha_vantage,yahoo_chart \
             --allocation-candidate-basket-ids "$ETF_EU_ALLOCATION_PRICING_CANDIDATES" \
-            --require-funded-consensus \
+            --require-funded-exact-close-authority \
             --pause-seconds 8 \
             --rate-limit-cooldown-seconds 600 \
             --max-attempts 2 \
@@ -169,87 +150,46 @@ jobs:
             --portfolio-state output/etf_eu_portfolio_state.json \
             --expected-report-date "$ETF_EU_REPORT_DATE"
 
-      - name: Refresh macro context and candidate valuation history
+      - name: Refresh current macro evidence
         run: |
           set -euo pipefail
-          MACRO_ARTIFACT="output/macro/etf_eu_macro_policy_pack_${ETF_EU_RUN_ID}.json"
+          MACRO_ARTIFACT="output/evidence/${ETF_EU_RUN_ID}/macro_policy_pack.json"
           python -m runtime.adapt_weekly_etf_macro_for_eu \
             --source-url "https://raw.githubusercontent.com/market-predictions/weekly-etf/main/output/macro/latest.json" \
             --report-date "$ETF_EU_REPORT_DATE" \
             --run-id "$ETF_EU_RUN_ID" \
-            --output "$MACRO_ARTIFACT" \
-            --latest-output output/macro/latest.json
-          python tools/update_etf_eu_valuation_history.py \
-            --portfolio-state output/etf_eu_portfolio_state.json \
-            --history output/etf_eu_valuation_history.csv \
-            --report-date "$ETF_EU_REPORT_DATE" \
-            --source-report "routine-candidate-${ETF_EU_RUN_ID}" \
-            --comment "Candidate-only EU/UCITS valuation observation; not delivery authority" \
-            --output output/etf_eu_valuation_history.csv
+            --output "$MACRO_ARTIFACT"
           echo "ETF_EU_MACRO_ARTIFACT=$MACRO_ARTIFACT" >> "$GITHUB_ENV"
 
-      - name: Build client-grade v2 candidate package with broad discovery
+      - name: Build frozen Thin Current Kernel package
         run: |
           set -euo pipefail
-          python -m tools.build_etf_eu_routine_report_package_v2 \
+          python -m tools.build_etf_eu_thin_kernel_package \
             --run-id "$ETF_EU_RUN_ID" \
             --report-date "$ETF_EU_REPORT_DATE" \
             --report-suffix "$ETF_EU_REPORT_SUFFIX" \
             --pricing-artifact "output/pricing/ucits_close_price_validation_basket_results_${ETF_EU_RUN_ID}.json" \
             --macro-pack "$ETF_EU_MACRO_ARTIFACT" \
-            --registry config/ucits_symbol_registry.yml \
-            --proxy-map config/ucits_benchmark_proxy_map.yml \
             --donor-lane-artifact "$ETF_EU_DONOR_LANE_ARTIFACT" \
             --previous-routine-manifest "$ETF_EU_PREVIOUS_ROUTINE_MANIFEST" \
             --previous-delivery-closeout-manifest "$ETF_EU_PREVIOUS_CLOSEOUT"
 
-      - name: Validate candidate machine contract
+      - name: Validate frozen semantic and client-surface contract
         run: |
           set -euo pipefail
-          mkdir -p output/quality
-          V2_STATE="output/runtime/etf_eu_client_grade_report_state_${ETF_EU_RUN_ID}.json"
-          V2_VALIDATION="output/quality/etf_eu_client_grade_v2_validation_${ETF_EU_RUN_ID}.json"
-          MD_VALIDATION="output/quality/etf_eu_markdown_delivery_validation_${ETF_EU_RUN_ID}.json"
-          python -m tools.validate_etf_eu_client_grade_report_v2 \
-            --state "$V2_STATE" \
-            --dutch-html "output/fresh_generation/weekly_etf_eu_review_nl_${ETF_EU_REPORT_SUFFIX}.html" \
-            --dutch-pdf "output/fresh_generation/weekly_etf_eu_review_nl_${ETF_EU_REPORT_SUFFIX}.pdf" \
-            --english-html "output/fresh_generation/weekly_etf_eu_review_${ETF_EU_REPORT_SUFFIX}.html" \
-            --english-pdf "output/fresh_generation/weekly_etf_eu_review_${ETF_EU_REPORT_SUFFIX}.pdf" \
-            --output "$V2_VALIDATION" \
-            --strict
-          python -m tools.validate_etf_eu_markdown_delivery_artifacts \
-            --state "$V2_STATE" \
-            --dutch-markdown "output/fresh_generation/weekly_etf_eu_review_nl_${ETF_EU_REPORT_SUFFIX}.md" \
-            --english-markdown "output/fresh_generation/weekly_etf_eu_review_${ETF_EU_REPORT_SUFFIX}.md" \
-            --output "$MD_VALIDATION" \
-            --strict
-          python -m tools.write_etf_eu_routine_v2_machine_gate \
-            --validation "$V2_VALIDATION" \
-            --run-id "$ETF_EU_RUN_ID" \
-            --output-dir output/quality
+          VALIDATION="output/evidence/${ETF_EU_RUN_ID}/thin_kernel_validation.json"
+          python -m tools.validate_etf_eu_thin_kernel --output "$VALIDATION"
+          python tools/validate_etf_eu_product_boundary.py
 
-      - name: Render complete candidate PDF review pages
+      - name: Render complete PDF review pages
         run: |
           set -euo pipefail
-          REVIEW_ROOT="output/quality/review_pages/${ETF_EU_RUN_ID}"
-          mkdir -p "$REVIEW_ROOT/nl/all" "$REVIEW_ROOT/en/all"
-          python tools/render_etf_eu_pdf_review_pages.py \
-            --pdf "output/fresh_generation/weekly_etf_eu_review_nl_${ETF_EU_REPORT_SUFFIX}.pdf" \
-            --output-dir "$REVIEW_ROOT/nl" \
-            --write-index "$REVIEW_ROOT/nl/index.json"
-          python tools/render_etf_eu_pdf_review_pages.py \
-            --pdf "output/fresh_generation/weekly_etf_eu_review_${ETF_EU_REPORT_SUFFIX}.pdf" \
-            --output-dir "$REVIEW_ROOT/en" \
-            --write-index "$REVIEW_ROOT/en/index.json"
-          pdftoppm -png -r 120 \
-            "output/fresh_generation/weekly_etf_eu_review_nl_${ETF_EU_REPORT_SUFFIX}.pdf" \
-            "$REVIEW_ROOT/nl/all/page"
-          pdftoppm -png -r 120 \
-            "output/fresh_generation/weekly_etf_eu_review_${ETF_EU_REPORT_SUFFIX}.pdf" \
-            "$REVIEW_ROOT/en/all/page"
+          REVIEW_ROOT="output/evidence/${ETF_EU_RUN_ID}/review_pages"
+          mkdir -p "$REVIEW_ROOT/nl" "$REVIEW_ROOT/en"
+          python tools/render_etf_eu_pdf_review_pages.py --pdf output/current/report_nl.pdf --output-dir "$REVIEW_ROOT/nl" --write-index "$REVIEW_ROOT/nl/index.json"
+          python tools/render_etf_eu_pdf_review_pages.py --pdf output/current/report_en.pdf --output-dir "$REVIEW_ROOT/en" --write-index "$REVIEW_ROOT/en/index.json"
 
-      - name: Persist generated candidate outputs to candidate branch only
+      - name: Persist frozen candidate evidence to candidate branch only
         run: |
           set -euo pipefail
           git config user.name "github-actions[bot]"
@@ -258,33 +198,15 @@ jobs:
             "output/pricing/ucits_close_price_validation_basket_results_${ETF_EU_RUN_ID}.json" \
             "output/pricing/ucits_price_provider_qualification_${ETF_EU_RUN_ID}.json" \
             "output/pricing/ucits_price_provider_registry_resolved_${ETF_EU_RUN_ID}.yml" \
-            "$ETF_EU_MACRO_ARTIFACT" \
-            output/macro/latest.json \
-            output/etf_eu_valuation_history.csv \
+            output/etf_eu_accountability_history.csv \
             output/etf_eu_recommendation_scorecard.csv \
-            "$ETF_EU_DONOR_LANE_ARTIFACT" \
-            "$ETF_EU_DONOR_LANE_PROVENANCE" \
-            "$ETF_EU_ALLOCATION_PRICING_SELECTION" \
-            "output/runtime/etf_eu_donor_discovery_bridge_${ETF_EU_RUN_ID}.json" \
-            "output/runtime/etf_eu_client_grade_report_state_${ETF_EU_RUN_ID}.json" \
-            "output/fresh_generation/weekly_etf_eu_review_nl_${ETF_EU_REPORT_SUFFIX}.md" \
-            "output/fresh_generation/weekly_etf_eu_review_${ETF_EU_REPORT_SUFFIX}.md" \
-            "output/fresh_generation/weekly_etf_eu_review_nl_${ETF_EU_REPORT_SUFFIX}.html" \
-            "output/fresh_generation/weekly_etf_eu_review_${ETF_EU_REPORT_SUFFIX}.html" \
-            "output/fresh_generation/weekly_etf_eu_review_nl_${ETF_EU_REPORT_SUFFIX}.pdf" \
-            "output/fresh_generation/weekly_etf_eu_review_${ETF_EU_REPORT_SUFFIX}.pdf" \
-            "output/fresh_generation/etf_eu_fresh_generation_package_manifest_${ETF_EU_RUN_ID}.json" \
-            "output/fresh_generation/etf_eu_ready_for_controlled_delivery_${ETF_EU_RUN_ID}.json" \
-            "output/quality/etf_eu_client_grade_v2_validation_${ETF_EU_RUN_ID}.json" \
-            "output/quality/etf_eu_markdown_delivery_validation_${ETF_EU_RUN_ID}.json" \
-            "output/quality/etf_eu_routine_pdf_client_grade_${ETF_EU_RUN_ID}_nl.json" \
-            "output/quality/etf_eu_routine_pdf_client_grade_${ETF_EU_RUN_ID}_en.json" \
-            "output/quality/etf_eu_routine_pdf_client_grade_${ETF_EU_RUN_ID}.json" \
-            "output/run_manifests/etf_eu_routine_run_manifest_${ETF_EU_REPORT_DATE}_${ETF_EU_RUN_ID}.json"
+            output/current \
+            "output/evidence/${ETF_EU_RUN_ID}" \
+            "output/history/${ETF_EU_REPORT_DATE}/${ETF_EU_RUN_ID}"
           if git diff --cached --quiet; then
             echo "ETF_EU_CANDIDATE_OUTPUTS_UNCHANGED"
           else
-            git commit -m "Persist ETF EU candidate ${ETF_EU_RUN_ID} [skip ci]"
+            git commit -m "Persist ETF EU thin-kernel candidate ${ETF_EU_RUN_ID} [skip ci]"
             git push origin "HEAD:${ETF_EU_CANDIDATE_BRANCH}"
           fi
           echo "ETF_EU_CANDIDATE_ONLY=PASS"
@@ -295,28 +217,7 @@ jobs:
         with:
           name: etf-eu-candidate-${{ env.ETF_EU_RUN_ID }}
           path: |
-            output/fresh_generation/weekly_etf_eu_review_nl_${{ env.ETF_EU_REPORT_SUFFIX }}.md
-            output/fresh_generation/weekly_etf_eu_review_${{ env.ETF_EU_REPORT_SUFFIX }}.md
-            output/fresh_generation/weekly_etf_eu_review_nl_${{ env.ETF_EU_REPORT_SUFFIX }}.html
-            output/fresh_generation/weekly_etf_eu_review_${{ env.ETF_EU_REPORT_SUFFIX }}.html
-            output/fresh_generation/weekly_etf_eu_review_nl_${{ env.ETF_EU_REPORT_SUFFIX }}.pdf
-            output/fresh_generation/weekly_etf_eu_review_${{ env.ETF_EU_REPORT_SUFFIX }}.pdf
-            output/fresh_generation/etf_eu_fresh_generation_package_manifest_${{ env.ETF_EU_RUN_ID }}.json
-            output/pricing/ucits_price_provider_qualification_${{ env.ETF_EU_RUN_ID }}.json
-            output/runtime/etf_eu_allocation_pricing_candidate_selection_${{ env.ETF_EU_RUN_ID }}.json
-            output/runtime/etf_eu_donor_lane_source_${{ env.ETF_EU_RUN_ID }}.json
-            output/runtime/etf_eu_donor_lane_provenance_${{ env.ETF_EU_RUN_ID }}.json
-            output/runtime/etf_eu_donor_discovery_bridge_${{ env.ETF_EU_RUN_ID }}.json
-            output/runtime/etf_eu_client_grade_report_state_${{ env.ETF_EU_RUN_ID }}.json
-            output/quality/etf_eu_client_grade_v2_validation_${{ env.ETF_EU_RUN_ID }}.json
-            output/quality/etf_eu_markdown_delivery_validation_${{ env.ETF_EU_RUN_ID }}.json
-            output/quality/review_pages/${{ env.ETF_EU_RUN_ID }}
+            output/current/
+            output/evidence/${{ env.ETF_EU_RUN_ID }}/
+            output/history/${{ env.ETF_EU_REPORT_DATE }}/${{ env.ETF_EU_RUN_ID }}/
           if-no-files-found: error
-          retention-days: 90
-
-      - name: State assurance boundary
-        run: |
-          echo "ETF_EU_CANDIDATE_BUILD_COMPLETE"
-          echo "ETF_EU_INDEPENDENT_ASSURANCE_REQUIRED=true"
-          echo "ETF_EU_MERGE_AUTHORITY=false"
-          echo "ETF_EU_DELIVERY_AUTHORITY=false"
