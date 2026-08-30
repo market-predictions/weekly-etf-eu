@@ -1,57 +1,97 @@
 # Weekly ETF EU Review OS — Next Actions
 
-## Current priority
+## Purpose
+
+This file defines **stable priority/routing policy**, not a manually synchronized task queue. It intentionally contains no current issue/PR/SHA/claim label.
+
+For the actual next executable task, first resolve live `market-predictions/control-plane` queue/claim state and target-repository evidence. If a governed task is already active, continue that lawful lineage rather than opening duplicate work.
+
+## Product realization priority
+
+Current architecture authority:
+- `docs/architecture/WEEKLY_ETF_EU_PRODUCT_ARCHITECTURE_V2.md`
+- `docs/runbooks/WEEKLY_ETF_EU_REALIZATION_RUNBOOK_V1.md`
+
+When no higher-priority production incident or explicitly claimed work supersedes it, progress in this order:
+
+1. **R0 — Truth & Execution Convergence**
+   - live-first/read-first documentation;
+   - one obvious candidate and delivery entrypoint;
+   - executor/workflow reachability classification;
+   - archive/delete retired executors;
+   - truthful compatibility naming and historical-state hygiene.
+2. **R1 — Accountable Decision Kernel**
+   - stable investable comparator contract;
+   - valuation/accountability history;
+   - one frozen per-run `review_state`;
+   - deterministic arithmetic/date/contribution/parity tests.
+3. **R2 — Decision-First Client Surface**
+   - executive accountability cockpit;
+   - explicit funded-position decision table;
+   - production-factory detail demoted to appendix.
+4. **R3 — Pure Render Convergence**
+   - NL/EN Markdown/HTML from one semantic state;
+   - PDF from exact HTML;
+   - fail-only validators;
+   - retirement of superseded semantic patch/render/send paths;
+   - stop new writes to legacy current-looking output namespaces.
+5. **R4 — Evidence & Epistemic Quality**
+   - provenance, confidence, unresolved evidence, freshness and source-quality distinctions inside the same review-state/evidence plane.
+
+**Debt retirement is part of Definition of Done for every slice. Do not defer simplification to a later cleanup phase.**
+
+## Weekly report decision sequence
+
+For a fresh report cycle, preserve this order:
 
 ```text
-FRESH_REPORT_CYCLE_114_ACTIVE
-pricing_authority=PRIMARY_CLOSE_PLUS_OPTIONAL_VERIFICATION
+protected holdings/cash/ledger
+→ latest completed-close identity-bound pricing evidence
+→ full current re-underwriting
+→ broad challenger discovery
+→ EU/UCITS fundability and implementation gates
+→ explicit allocation/no-change decision
+→ benchmark-relative accountability
+→ frozen review state
+→ pure NL/EN artifacts
+→ exact-head independent assurance
+→ governed integration/exact-main validation
+→ separately authorized guarded transport
+→ independent receipt evidence
 ```
 
-The active production lineage is issue #114. Issue #109 is superseded and closed; its old same-date two-provider requirement is historical only. PR #112 is merged and is the current pricing baseline.
-
-## Current pricing gate for the fresh cycle
-
-Use `control/PRICING_AUTHORITY_CURRENT.md` as the human-readable current pricing summary and live merged runtime/tests as executable authority.
+## Stable pricing gate
 
 For each exact UCITS trading line:
+- one qualified correctly bound exact-date primary close may be valuation-grade as `fresh_exact_unverified`;
+- an exact same-date verifier within tolerance upgrades confidence;
+- stale/missing/unbound verifier does not block a valid exact primary;
+- same-date disagreement fails closed;
+- stale-only/no-exact-close/identity or primary-binding failure remains blocked.
 
-- one qualified, correctly bound provider with the exact requested completed-session close is sufficient for valuation-grade `fresh_exact_unverified` pricing;
-- a second correctly bound exact same-date provider within tolerance upgrades the line to `fresh_exact_verified`;
-- a stale/missing/unbound verifier does not block a correctly bound exact primary;
-- actual same-date disagreement outside tolerance fails closed;
-- stale-only/no-exact-close/identity or primary-binding mismatch remains blocked.
-
-Do **not** resurrect the retired rule that every funded line requires two simultaneous live providers.
-
-## Fresh report cycle #114
-
-The current cycle must:
-
-- resolve the latest applicable completed-close date from fresh evidence;
-- perform a full portfolio re-underwrite;
-- run broad discovery, then EU-local UCITS identity/investability/fundability checks;
-- try to achieve more than six funded positions where evidence supports this, without a hard position-count target or relaxed fundability/pricing standards;
-- use whole shares and reconcile residual cash exactly;
-- render NL primary + EN companion from one normalized state;
-- use the current deterministic PNG equity-curve contract for HTML/PDF/email parity;
-- pass machine, arithmetic and client-grade/visual QA;
-- freeze one exact candidate for independent assurance;
-- merge only after independent exact-head PASS and governed integration authority;
-- use guarded transport only after separate current guarded-send authority;
-- claim delivery success only from real recipient/receipt/attachment evidence or equivalent positive manifest.
+Never resurrect the retired universal two-provider requirement from historical prose or compatibility names.
 
 ## Protected boundaries
 
-- no real broker execution;
-- no share/cash mutation without explicit current allocation authority;
-- no hard ticker-count target;
-- no retired 50%/35%/15% allocation rules;
-- no diagnostic-only source promotion to force coverage;
+- no broker execution;
+- no share/cash/ledger mutation without explicit current allocation authority;
+- no hard position-count target;
+- no historical fixed-allocation rule treated as current authority;
+- no diagnostic source promotion to force coverage;
 - no stale historical price treated as current truth;
-- candidate generation has no SMTP/delivery authority;
+- no self-assurance by implementation worker;
 - no rerender after artifact approval;
 - no delivery-success claim without positive receipt/manifest evidence.
 
-## Controller housekeeping
+## Routing rule after each completed step
 
-Read-first narrative state was stale after PR #112. Issue #115 exists specifically to reconcile canonical documentation so old two-provider wording cannot silently override live merged pricing behavior again. Historical issues/work packages remain provenance and must be interpreted by date and lifecycle state, not as current authority.
+```text
+validate
+→ retire superseded debt exposed by the change
+→ persist evidence / freeze if required
+→ re-read live state
+→ select next lawful highest-priority task
+→ continue
+```
+
+Routine milestones are not stop conditions and do not require principal reconfirmation when already covered by the governing work contract.
