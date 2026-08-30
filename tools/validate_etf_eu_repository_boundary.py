@@ -4,8 +4,9 @@
 Provider names and retained historical donor source files are not product identity by
 themselves. The release boundary is stricter for *active GitHub Actions workflows*:
 no executable workflow in Weekly ETF EU may invoke the US Weekly ETF runtime/report
-path or the FX production path. Disabled ``*.yml.disabled`` files are audit history
-and are intentionally non-executable.
+path or the FX production path. Retired workflows do not remain as `.yml.disabled`
+pseudo-workflows; Git history is the default provenance source and any exceptional
+forensic copies live outside `.github/workflows/` under `archive/workflows/`.
 """
 from __future__ import annotations
 
@@ -52,6 +53,11 @@ def validate(root: Path) -> dict[str, Any]:
         if (root / relative).exists():
             blockers.append({"type": "misplaced_product_asset", "path": relative})
 
+    workflow_dir = root / ".github" / "workflows"
+    disabled_graveyard = sorted(path.name for path in workflow_dir.glob("*.disabled")) if workflow_dir.exists() else []
+    for name in disabled_graveyard:
+        blockers.append({"type": "retired_disabled_workflow_in_active_namespace", "path": f".github/workflows/{name}"})
+
     for path in _active_workflows(root):
         text = path.read_text(encoding="utf-8", errors="replace")
         folded = text.casefold()
@@ -75,7 +81,7 @@ def validate(root: Path) -> dict[str, Any]:
                 )
 
     return {
-        "schema_version": "weekly_etf_eu_repository_boundary_validation_v2",
+        "schema_version": "weekly_etf_eu_repository_boundary_validation_v3",
         "product": "weekly_etf_eu",
         "valid": not blockers,
         "verdict": "PASS" if not blockers else "FAIL",
@@ -84,7 +90,8 @@ def validate(root: Path) -> dict[str, Any]:
         "prohibited_fx_workflow_tokens": list(PROHIBITED_FX_WORKFLOW_TOKENS),
         "prohibited_us_donor_workflow_tokens": list(PROHIBITED_US_DONOR_WORKFLOW_TOKENS),
         "active_workflows_scanned": len(_active_workflows(root)),
-        "disabled_workflows_are_non_executable_audit_history": True,
+        "disabled_workflow_graveyard_count": len(disabled_graveyard),
+        "retired_workflow_provenance": "git_history_by_default_forensic_exceptions_under_archive_workflows",
     }
 
 
