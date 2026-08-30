@@ -8,10 +8,61 @@ import pytest
 
 from runtime.current.discovery import build_discovery_bridge
 from runtime.current.normalized_state import build_normalized_state
+from runtime.current.pricing import find_exact_price_row, verification_status
 from runtime.current.reunderwriting import apply_current_reunderwriting
 
 
 REPORT_DATE = "2026-08-28"
+
+
+def test_primary_only_exact_close_is_explicitly_unverified_but_usable() -> None:
+    row = {
+        "isin": "IE0000000000",
+        "ticker": "TEST",
+        "venue_code": "XETR",
+        "currency": "EUR",
+        "close_date": REPORT_DATE,
+        "close_price": 10.0,
+        "valuation_grade": True,
+        "blockers": [],
+        "agreeing_providers": ["primary"],
+        "source_agreement_status": "primary_exact_close_verifier_missing",
+    }
+    pricing = {"rows": [row]}
+    selected = find_exact_price_row(
+        pricing,
+        isin=row["isin"],
+        ticker=row["ticker"],
+        venue_code=row["venue_code"],
+        currency=row["currency"],
+        report_date=REPORT_DATE,
+    )
+    assert selected is row
+    assert verification_status(selected) == "exact_close_primary_only_verifier_unavailable"
+
+
+def test_disagreement_or_other_upstream_blocker_fails_closed() -> None:
+    row = {
+        "isin": "IE0000000000",
+        "ticker": "TEST",
+        "venue_code": "XETR",
+        "currency": "EUR",
+        "close_date": REPORT_DATE,
+        "close_price": 10.0,
+        "valuation_grade": False,
+        "blockers": ["provider_disagreement"],
+        "agreeing_providers": [],
+        "source_agreement_status": "provider_disagreement",
+    }
+    with pytest.raises(RuntimeError, match="not valuation-grade|has blockers"):
+        find_exact_price_row(
+            {"rows": [row]},
+            isin=row["isin"],
+            ticker=row["ticker"],
+            venue_code=row["venue_code"],
+            currency=row["currency"],
+            report_date=REPORT_DATE,
+        )
 
 
 def test_non_eur_funded_line_fails_closed_without_fx_evidence(tmp_path: Path) -> None:
