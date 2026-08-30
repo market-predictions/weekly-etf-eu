@@ -1,10 +1,11 @@
 schema_version: etf_eu_primary_comparator_v1
 status: active_product_accountability_contract
-effective_date: 2026-08-30
+effective_date: "2026-08-30"
 
 primary_comparator:
   comparator_id: vwce_ftse_all_world_ucits_acc_xetra_eur
   purpose: deliberately_simple_investable_global_equity_comparator
+  effective_date: "2026-08-30"
   registry_id: global_core_vanguard_ftse_all_world_acc
   isin: IE00BK5BQT80
   fund_name: Vanguard FTSE All-World UCITS ETF USD Acc
