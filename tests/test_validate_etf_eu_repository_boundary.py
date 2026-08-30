@@ -47,7 +47,7 @@ def test_us_donor_pricing_runtime_is_blocked_in_active_workflow(tmp_path: Path) 
     )
 
 
-def test_us_donor_runtime_is_allowed_only_as_disabled_audit_history(tmp_path: Path) -> None:
+def test_disabled_workflow_graveyard_is_blocked(tmp_path: Path) -> None:
     workflows = tmp_path / ".github" / "workflows"
     workflows.mkdir(parents=True)
     (workflows / "legacy-us-pricing.yml.disabled").write_text(
@@ -55,8 +55,10 @@ def test_us_donor_runtime_is_allowed_only_as_disabled_audit_history(tmp_path: Pa
         encoding="utf-8",
     )
     result = validate(tmp_path)
-    assert result["verdict"] == "PASS"
-    assert result["disabled_workflows_are_non_executable_audit_history"] is True
+    assert result["verdict"] == "FAIL"
+    assert result["disabled_workflow_graveyard_count"] == 1
+    assert any(item["type"] == "retired_disabled_workflow_in_active_namespace" for item in result["blockers"])
+    assert result["retired_workflow_provenance"] == "git_history_by_default_forensic_exceptions_under_archive_workflows"
 
 
 def test_legacy_us_report_renderer_is_blocked_in_active_workflow(tmp_path: Path) -> None:
