@@ -6,6 +6,7 @@ from pathlib import Path
 
 import pytest
 
+from tools.validate_etf_eu_delivery_package_manifest import validate as validate_package
 from tools.validate_etf_eu_guarded_delivery_authority import validate, write_delivery_package_manifest
 
 
@@ -129,6 +130,19 @@ def test_valid_authority_binds_canonical_thin_kernel_artifacts(tmp_path: Path, m
     assert written["dutch_primary_pdf"] == "output/current/report_nl.pdf"
     assert written["source_thin_kernel_manifest_path"] == "output/current/manifest.json"
     assert written["report_run_id"] == "20260807_220000"
+    assert validate_package(manifest)["status"] == "valid"
+
+
+def test_package_rejects_source_manifest_drift(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    _build_authority(tmp_path)
+    monkeypatch.chdir(tmp_path)
+    payload = validate(Path("authority.json"))
+    package = Path("output/delivery_package/test.json")
+    write_delivery_package_manifest(payload, package, "20260810_160000")
+    source = Path("output/current/manifest.json")
+    source.write_text(source.read_text(encoding="utf-8") + "\n", encoding="utf-8")
+    with pytest.raises(AssertionError, match="source thin-kernel manifest hash mismatch"):
+        validate_package(package)
 
 
 def test_hash_drift_fails_closed(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
