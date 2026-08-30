@@ -44,6 +44,9 @@ def _normalized_state() -> dict:
         "cash_policy": {"cash_after_explanation": "Keep cash as tactical reserve pending a stronger distinct opportunity."},
         "pricing_contract": {"pricing_authority_mode": "primary_exact_close_plus_optional_verification"},
         "donor_discovery_bridge": {
+            "fundable_challengers": [
+                {"ticker": "IQQQ", "isin": "IE00B1TXK627", "fund_name": "iShares Global Water UCITS ETF", "donor_total_score": 4.5}
+            ],
             "best_fundable_challenger": {"ticker": "IQQQ", "isin": "IE00B1TXK627", "fund_name": "iShares Global Water UCITS ETF", "donor_total_score": 4.5},
             "assessed_lanes": [],
         },
@@ -97,6 +100,10 @@ def test_review_state_is_frozen_and_comparator_need_not_be_funded(tmp_path: Path
     assert "VWCE" not in {row["ticker"] for row in review["funded_position_decisions"]}
     assert all(row["action"] == "HOLD" for row in review["funded_position_decisions"])
     assert next(row for row in review["funded_position_decisions"] if row["ticker"] == "SXR8")["confidence"] == "MEDIUM"
+    assert review["weekly_decision"]["best_new_or_replace_candidate"]["ticker"] == "IQQQ"
+    assert review["weekly_decision"]["best_new_or_replace_candidate"]["funding_authority"] is False
+    assert review["weekly_decision"]["biggest_current_risk"]["ticker"] == "SXR8"
+    assert review["weekly_decision"]["biggest_current_risk"]["type"] == "evidence_confidence"
 
     before = json.dumps(review, sort_keys=True)
     surfaces = [render_markdown(review, "nl"), render_markdown(review, "en"), render_html(review, "nl"), render_html(review, "en")]
@@ -104,6 +111,8 @@ def test_review_state_is_frozen_and_comparator_need_not_be_funded(tmp_path: Path
     for surface in surfaces:
         assert "€101,000.00" in surface
         assert "VWCE" in surface
+        assert "IQQQ" in surface
+        assert "SXR8" in surface
 
 
 def test_unresolved_position_fails_review_state(tmp_path: Path) -> None:
