@@ -1,0 +1,41 @@
+schema_version: etf_eu_primary_comparator_v1
+status: active_product_accountability_contract
+effective_date: 2026-08-30
+
+primary_comparator:
+  comparator_id: vwce_ftse_all_world_ucits_acc_xetra_eur
+  purpose: deliberately_simple_investable_global_equity_comparator
+  registry_id: global_core_vanguard_ftse_all_world_acc
+  isin: IE00BK5BQT80
+  fund_name: Vanguard FTSE All-World UCITS ETF USD Acc
+  exchange: Xetra
+  mic: XETR
+  ticker: VWCE
+  trading_currency: EUR
+  pricing_symbol_yahoo: VWCE.DE
+  provider_symbol_alpha_vantage: VWCE.DEX
+  benchmark_index: FTSE All-World Index
+  investability_basis: config/ucits_symbol_registry.yml
+  change_policy: explicit_governed_product_policy_change_only
+
+interpretation:
+  is_allocation_target: false
+  is_risk_target: false
+  is_trade_authority: false
+  portfolio_has_cash_and_bond_sleeves: true
+  required_context:
+    - compare return on compatible valuation dates
+    - show portfolio and comparator drawdown together
+    - show cash contribution_or_explicit_unavailable_status
+    - never interpret active return alone as trade authority
+
+optional_contextual_comparator: null
+
+missing_data_policy:
+  current_production_review: fail_accountability_complete_gate
+  historical_backfill: explicit_unresolved_no_silent_interpolation
+
+prohibited:
+  - opportunistic comparator switching after underperformance
+  - U.S. proxy substitution in client accountability when the exact UCITS line is available
+  - treating comparator as allocation or funding authority
