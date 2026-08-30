@@ -210,6 +210,7 @@ jobs:
             git push origin "HEAD:${ETF_EU_CANDIDATE_BRANCH}"
           fi
           echo "ETF_EU_CANDIDATE_ONLY=PASS"
+          echo "ETF_EU_INDEPENDENT_ASSURANCE_REQUIRED=true"
           echo "ETF_EU_DELIVERY_AUTHORITY=false"
 
       - name: Upload frozen candidate review bundle
