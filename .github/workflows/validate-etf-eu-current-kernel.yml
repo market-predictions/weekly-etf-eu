@@ -45,6 +45,7 @@ jobs:
           pytest -q \
             tests/test_etf_eu_thin_current_kernel.py \
             tests/test_etf_eu_current_kernel_boundaries.py \
+            tests/test_validate_etf_eu_current_reachability.py \
             tests/test_validate_etf_eu_repository_boundary.py
 
       - name: Enforce product and execution boundaries
