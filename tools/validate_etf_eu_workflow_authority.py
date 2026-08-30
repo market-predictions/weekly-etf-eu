@@ -4,6 +4,8 @@ from pathlib import Path
 
 
 WORKFLOW_DIR = Path(".github/workflows")
+ARCHIVE_DIR = Path("archive/workflows")
+ARCHIVE_POLICY = Path("archive/README.md")
 CANDIDATE = WORKFLOW_DIR / "run-weekly-etf-eu-routine.yml"
 TRANSPORT = WORKFLOW_DIR / "send-weekly-etf-eu-controlled-transport.yml"
 
@@ -34,6 +36,12 @@ RETIRED_ACTIVE_PATHS = {
     "validate-etf-lane-breadth.yml",
 }
 
+FORENSIC_ARCHIVE_PATHS = {
+    "persist-etf-pricing-audit.yml",
+    "validate-etf-runtime.yml",
+    "validate-etf-lane-breadth.yml",
+}
+
 PROHIBITED_US_DONOR_EXECUTION_TOKENS = (
     "pricing.run_pricing_pass",
     "output/etf_portfolio_state.json",
@@ -51,25 +59,31 @@ def _require(condition: bool, message: str) -> None:
 
 
 def _active_workflows() -> list[Path]:
-    return sorted(
-        set(WORKFLOW_DIR.glob("*.yml")) | set(WORKFLOW_DIR.glob("*.yaml"))
-    )
+    return sorted(set(WORKFLOW_DIR.glob("*.yml")) | set(WORKFLOW_DIR.glob("*.yaml")))
 
 
 def validate() -> None:
     _require(CANDIDATE.exists(), "canonical candidate workflow missing")
     _require(TRANSPORT.exists(), "canonical controlled transport workflow missing")
+    _require(ARCHIVE_POLICY.exists(), "forensic archive policy missing")
 
     active_paths = _active_workflows()
     active_names = {path.name for path in active_paths}
     leaked = sorted(RETIRED_ACTIVE_PATHS & active_names)
     _require(not leaked, f"retired workflows remain executable: {leaked}")
 
-    missing_disabled = sorted(
-        name for name in RETIRED_ACTIVE_PATHS
-        if not (WORKFLOW_DIR / f"{name}.disabled").exists()
+    # Architecture V2 deliberately removes the former `.yml.disabled` pseudo-workflow
+    # graveyard. Git history is the default provenance source. Only the three workflows
+    # needed to explain the 2026-08-10 donor-runtime incident remain as explicit,
+    # non-executable forensic artifacts outside `.github/workflows/`.
+    missing_forensic = sorted(
+        name for name in FORENSIC_ARCHIVE_PATHS
+        if not (ARCHIVE_DIR / name).exists()
     )
-    _require(not missing_disabled, f"retired workflow audit evidence missing: {missing_disabled}")
+    _require(not missing_forensic, f"forensic workflow archive evidence missing: {missing_forensic}")
+
+    stale_disabled = sorted(path.name for path in WORKFLOW_DIR.glob("*.disabled"))
+    _require(not stale_disabled, f"retired .disabled workflow graveyard remains: {stale_disabled}")
 
     donor_runtime_leaks: list[str] = []
     for path in active_paths:
@@ -136,8 +150,9 @@ def validate() -> None:
     print(
         "ETF_EU_WORKFLOW_AUTHORITY=PASS"
         f" | active_workflows={len(active_names)}"
-        f" | retired_disabled={len(RETIRED_ACTIVE_PATHS)}"
-        " | candidate_route=1 | delivery_route=1 | us_donor_execution_routes=0"
+        f" | retired_removed={len(RETIRED_ACTIVE_PATHS)}"
+        f" | forensic_archived={len(FORENSIC_ARCHIVE_PATHS)}"
+        " | disabled_graveyard=0 | candidate_route=1 | delivery_route=1 | us_donor_execution_routes=0"
     )
 
 
