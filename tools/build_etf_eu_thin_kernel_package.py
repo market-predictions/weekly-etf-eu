@@ -3,33 +3,16 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
-from argparse import Namespace
 from pathlib import Path
 from typing import Any
 
-from runtime.apply_etf_eu_current_reunderwriting import (
-    apply_cash_reunderwriting_to_contract_state,
-    apply_current_reunderwriting,
-)
-from runtime.apply_etf_eu_donor_parity_contract import apply_contract, write_recommendation_scorecard
-from runtime.build_etf_eu_client_grade_report_state_v2 import build_state
-from runtime.build_etf_eu_donor_discovery_bridge import write_bridge
+from runtime.current.discovery import write_discovery_bridge
+from runtime.current.normalized_state import build_normalized_state
+from runtime.current.recommendation_memory import write_recommendation_observation
 from runtime.current.render import render_to_paths
-from runtime.current.review_state import (
-    build_review_state,
-    dump_review_state,
-    write_accountability_observation,
-)
+from runtime.current.reunderwriting import apply_current_reunderwriting
+from runtime.current.review_state import build_review_state, dump_review_state, write_accountability_observation
 from weasyprint import HTML
-
-
-def _load(path: Path) -> dict[str, Any]:
-    if not path.exists():
-        raise RuntimeError(f"Required artifact not found: {path}")
-    payload = json.loads(path.read_text(encoding="utf-8"))
-    if not isinstance(payload, dict):
-        raise RuntimeError(f"Expected object in {path}")
-    return payload
 
 
 def _write(path: Path, payload: dict[str, Any]) -> None:
@@ -57,51 +40,44 @@ def build(args: argparse.Namespace) -> dict[str, Path]:
     history_dir.mkdir(parents=True, exist_ok=True)
     evidence_dir.mkdir(parents=True, exist_ok=True)
 
-    state_args = Namespace(
-        portfolio_state=args.portfolio_state,
-        valuation_history=args.valuation_history,
-        pricing_artifact=args.pricing_artifact,
-        macro_pack=args.macro_pack,
-        registry=args.registry,
-        run_id=args.run_id,
-        source_run_id=args.run_id,
+    normalized = build_normalized_state(
+        portfolio_state_path=Path(args.portfolio_state),
+        pricing_artifact_path=Path(args.pricing_artifact),
+        registry_path=Path(args.registry),
         report_date=args.report_date,
-        report_suffix=args.report_suffix,
+        run_id=args.run_id,
     )
-    normalized = build_state(state_args)
-    if normalized.get("state_valid") is not True:
-        raise RuntimeError(f"Normalized current state invalid: {normalized.get('blockers')}")
 
-    macro = _load(Path(args.macro_pack))
-    donor_lane = _load(Path(args.donor_lane_artifact))
+    bridge_path = evidence_dir / "donor_discovery_bridge.json"
+    bridge = write_discovery_bridge(
+        donor_lane_artifact=Path(args.donor_lane_artifact),
+        proxy_map_path=Path(args.proxy_map),
+        pricing_artifact_path=Path(args.pricing_artifact),
+        portfolio_state_path=Path(args.portfolio_state),
+        report_date=args.report_date,
+        output_path=bridge_path,
+    )
+
     reunderwriting_path = evidence_dir / "current_reunderwriting.json"
     normalized = apply_current_reunderwriting(
         normalized,
-        donor_lane=donor_lane,
-        macro_pack=macro,
+        recommendation_history_path=Path(args.recommendation_scorecard),
+        macro_pack_path=Path(args.macro_pack),
+        discovery_bridge=bridge,
         report_date=args.report_date,
         run_id=args.run_id,
-        output_path=reunderwriting_path,
+        evidence_output_path=reunderwriting_path,
     )
-    normalized = apply_contract(normalized, macro_pack=macro)
-    normalized = apply_cash_reunderwriting_to_contract_state(normalized)
+    if normalized.get("state_valid") is not True:
+        raise RuntimeError(f"Current normalized/re-underwritten state invalid: {normalized.get('blockers')}")
 
-    bridge_path = evidence_dir / "donor_discovery_bridge.json"
-    bridge = write_bridge(
-        Path(args.donor_lane_artifact),
-        Path(args.proxy_map),
-        Path(args.pricing_artifact),
-        Path(args.portfolio_state),
-        bridge_path,
-    )
-    normalized["donor_discovery_bridge"] = bridge
     normalized["discovery_parity"] = {
         "contract": "control/ETF_EU_DISCOVERY_FUNDABILITY_CONTRACT_V1.md",
         "donor_lane_artifact": args.donor_lane_artifact,
         "bridge_artifact": str(bridge_path),
         "funding_authority": False,
+        "pricing_authority_mode": "valuation_grade_exact_primary_plus_optional_independent_verification",
     }
-    write_recommendation_scorecard(normalized, Path(args.recommendation_scorecard), args.report_date, args.run_id)
 
     review_state_path = current_dir / "review_state.json"
     review_state = build_review_state(
@@ -129,9 +105,8 @@ def build(args: argparse.Namespace) -> dict[str, Path]:
     HTML(filename=str(nl_html), base_url=str(nl_html.parent.resolve())).write_pdf(str(nl_pdf))
     HTML(filename=str(en_html), base_url=str(en_html.parent.resolve())).write_pdf(str(en_pdf))
 
-    # The accountability observation is the only persistent state updated by this
-    # architecture run. It records measurement, never a portfolio/trade mutation.
     write_accountability_observation(review_state, Path(args.accountability_history))
+    write_recommendation_observation(normalized, Path(args.recommendation_scorecard), args.report_date, args.run_id)
 
     artifacts = {
         "review_state": _artifact(review_state_path),
@@ -161,6 +136,7 @@ def build(args: argparse.Namespace) -> dict[str, Path]:
             "current_reunderwriting": str(reunderwriting_path),
             "donor_discovery_bridge": str(bridge_path),
             "accountability_history": args.accountability_history,
+            "recommendation_history": args.recommendation_scorecard,
             "primary_comparator": args.comparator_config,
             "previous_routine_manifest": args.previous_routine_manifest,
             "previous_delivery_closeout_manifest": args.previous_delivery_closeout_manifest,
@@ -177,10 +153,9 @@ def build(args: argparse.Namespace) -> dict[str, Path]:
     manifest_path = current_dir / "manifest.json"
     _write(manifest_path, manifest)
 
-    # Keep a run-specific immutable copy while output/current remains the single
-    # obvious latest candidate namespace.
     for path in (review_state_path, nl_md, en_md, nl_html, en_html, nl_pdf, en_pdf, manifest_path):
         destination = history_dir / path.name
+        destination.parent.mkdir(parents=True, exist_ok=True)
         destination.write_bytes(path.read_bytes())
 
     evidence_manifest = {
@@ -226,7 +201,6 @@ def main() -> None:
     parser.add_argument("--registry", default="config/ucits_symbol_registry.yml")
     parser.add_argument("--proxy-map", default="config/ucits_benchmark_proxy_map.yml")
     parser.add_argument("--portfolio-state", default="output/etf_eu_portfolio_state.json")
-    parser.add_argument("--valuation-history", default="output/etf_eu_valuation_history.csv")
     parser.add_argument("--recommendation-scorecard", default="output/etf_eu_recommendation_scorecard.csv")
     parser.add_argument("--accountability-history", default="output/etf_eu_accountability_history.csv")
     parser.add_argument("--comparator-config", default="config/etf_eu_primary_comparator.yml")
