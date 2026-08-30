@@ -68,7 +68,7 @@ def _write_pricing(path: Path) -> None:
 
 def _write_comparator(path: Path) -> None:
     path.write_text(
-        """primary_comparator:\n  comparator_id: vwce\n  purpose: opportunity_cost\n  isin: IE00BK5BQT80\n  ticker: VWCE\n  mic: XETR\n  currency: EUR\n  effective_date: 2026-08-30\n""",
+        """primary_comparator:\n  comparator_id: vwce\n  purpose: opportunity_cost\n  isin: IE00BK5BQT80\n  ticker: VWCE\n  mic: XETR\n  currency: EUR\n  effective_date: \"2026-08-30\"\n""",
         encoding="utf-8",
     )
 
@@ -97,6 +97,7 @@ def test_review_state_is_frozen_and_comparator_need_not_be_funded(tmp_path: Path
     assert review["semantic_mutation_allowed_downstream"] is False
     assert review["accountability"]["status"] == "COMPLETE"
     assert review["accountability"]["comparator_ticker"] == "VWCE"
+    assert review["accountability"]["comparator_contract_effective_date"] == "2026-08-30"
     assert "VWCE" not in {row["ticker"] for row in review["funded_position_decisions"]}
     assert all(row["action"] == "HOLD" for row in review["funded_position_decisions"])
     assert next(row for row in review["funded_position_decisions"] if row["ticker"] == "SXR8")["confidence"] == "MEDIUM"
