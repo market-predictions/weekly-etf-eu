@@ -40,20 +40,19 @@ def _load_yaml(path: Path) -> dict[str, Any]:
     return payload
 
 
-def _normalize_action(row: dict[str, Any]) -> str:
+def _action(row: dict[str, Any]) -> str:
     raw = str(row.get("current_allocation_decision") or row.get("last_action") or "REVIEW").strip().upper()
-    aliases = {"INITIATE": "ADD", "BUY": "ADD", "TRIM": "REDUCE", "SELL": "CLOSE", "NO CHANGE": "HOLD"}
-    action = aliases.get(raw, raw)
+    action = {"INITIATE": "ADD", "BUY": "ADD", "TRIM": "REDUCE", "SELL": "CLOSE", "NO CHANGE": "HOLD"}.get(raw, raw)
     return action if action in _ALLOWED_ACTIONS else "REVIEW"
 
 
 def _position_decisions(state: dict[str, Any]) -> list[dict[str, Any]]:
-    portfolio = state.get("portfolio") if isinstance(state.get("portfolio"), dict) else {}
-    positions = [row for row in portfolio.get("positions") or [] if isinstance(row, dict)]
-    decisions: list[dict[str, Any]] = []
-    for row in positions:
-        action = _normalize_action(row)
+    rows: list[dict[str, Any]] = []
+    for row in (state.get("portfolio") or {}).get("positions") or []:
+        if not isinstance(row, dict):
+            continue
         unresolved: list[str] = []
+        action = _action(row)
         if not row.get("isin"):
             unresolved.append("missing_isin")
         if row.get("identity_binding_valid") is not True:
@@ -63,59 +62,45 @@ def _position_decisions(state: dict[str, Any]) -> list[dict[str, Any]]:
             action = "REVIEW"
         if not row.get("price_date"):
             unresolved.append("missing_price_date")
-        confidence = "HIGH"
         verification = str(row.get("verification_status") or "").lower()
-        if unresolved:
-            confidence = "LOW"
-        elif "primary_only" in verification or "not_recorded" in verification:
-            confidence = "MEDIUM"
-        decisions.append(
-            {
-                "ticker": _ticker(row),
-                "isin": row.get("isin"),
-                "fund_name": row.get("fund_name"),
-                "portfolio_role": row.get("portfolio_role"),
-                "action": action,
-                "shares": int(_num(row.get("shares"))),
-                "value_eur": round(_num(row.get("market_value_eur")), 2),
-                "weight_pct": round(_num(row.get("current_weight_pct")), 6),
-                "fresh_cash_view": row.get("fresh_cash_implication") or "Review",
-                "rationale": row.get("thesis_assessment") or row.get("required_next_action") or "Current review evidence unresolved.",
-                "contribution_eur": round(_num(row.get("portfolio_contribution_eur", row.get("unrealized_pnl_eur"))), 2),
-                "best_alternative": row.get("best_alternative") or "No current alternative established",
-                "invalidation_or_next_trigger": row.get("next_review_trigger") or row.get("required_next_action") or "Next scheduled re-underwriting",
-                "pricing_status": row.get("pricing_status"),
-                "verification_status": row.get("verification_status"),
-                "price_date": row.get("price_date"),
-                "confidence": confidence,
-                "unresolved": unresolved,
-                "evidence": {
-                    "pricing_source": row.get("pricing_source"),
-                    "pricing_source_quality": row.get("pricing_source_quality"),
-                    "agreeing_providers": row.get("pricing_agreeing_providers"),
-                    "source_run_id": row.get("source_run_id"),
-                    "thesis_score": row.get("thesis_score"),
-                    "implementation_score": row.get("implementation_score"),
-                    "factor_overlap_level": row.get("factor_overlap_level"),
-                },
-            }
-        )
-    return decisions
+        confidence = "LOW" if unresolved else ("MEDIUM" if "primary_only" in verification or "not_recorded" in verification else "HIGH")
+        rows.append({
+            "ticker": _ticker(row),
+            "isin": row.get("isin"),
+            "fund_name": row.get("fund_name"),
+            "portfolio_role": row.get("portfolio_role"),
+            "action": action,
+            "shares": int(_num(row.get("shares"))),
+            "value_eur": round(_num(row.get("market_value_eur")), 2),
+            "weight_pct": round(_num(row.get("current_weight_pct")), 6),
+            "fresh_cash_view": row.get("fresh_cash_implication") or "Review",
+            "rationale": row.get("thesis_assessment") or row.get("required_next_action") or "Current review evidence unresolved.",
+            "contribution_eur": round(_num(row.get("portfolio_contribution_eur", row.get("unrealized_pnl_eur"))), 2),
+            "best_alternative": row.get("best_alternative") or "No current alternative established",
+            "invalidation_or_next_trigger": row.get("next_review_trigger") or row.get("required_next_action") or "Next scheduled re-underwriting",
+            "pricing_status": row.get("pricing_status"),
+            "verification_status": row.get("verification_status"),
+            "price_date": row.get("price_date"),
+            "confidence": confidence,
+            "unresolved": unresolved,
+            "evidence": {
+                "pricing_source": row.get("pricing_source"),
+                "pricing_source_quality": row.get("pricing_source_quality"),
+                "agreeing_providers": row.get("pricing_agreeing_providers"),
+                "source_run_id": row.get("source_run_id"),
+                "memory_report_date": row.get("reunderwriting_memory_report_date"),
+                "thesis_score": row.get("thesis_score"),
+                "implementation_score": row.get("implementation_score"),
+                "factor_overlap_level": row.get("factor_overlap_level"),
+            },
+        })
+    return rows
 
 
-def _accountability(
-    state: dict[str, Any],
-    *,
-    comparator_config: dict[str, Any],
-    accountability_history: Path,
-    pricing_artifact: Path,
-    report_date: str,
-) -> dict[str, Any]:
-    portfolio = state.get("portfolio") if isinstance(state.get("portfolio"), dict) else {}
-    positions = [row for row in portfolio.get("positions") or [] if isinstance(row, dict)]
-    comparator = comparator_config.get("primary_comparator") or {}
-    pricing = load_pricing_artifact(pricing_artifact)
-    comparator_row = find_exact_price_row(
+def _accountability(state: dict[str, Any], *, comparator: dict[str, Any], history_path: Path, pricing_path: Path, report_date: str) -> dict[str, Any]:
+    portfolio = state.get("portfolio") or {}
+    pricing = load_pricing_artifact(pricing_path)
+    price = find_exact_price_row(
         pricing,
         isin=str(comparator.get("isin") or ""),
         ticker=str(comparator.get("ticker") or ""),
@@ -123,17 +108,15 @@ def _accountability(
         currency=str(comparator.get("currency") or "EUR"),
         report_date=report_date,
     )
-    current_close = _num(comparator_row.get("close_price"))
-    current_nav = _num(portfolio.get("nav_eur"))
-    current_cash = _num(portfolio.get("cash_eur"))
-    if current_nav <= 0 or current_close <= 0:
-        raise RuntimeError("Accountability requires positive portfolio NAV and comparator close")
+    current_close = _num(price.get("close_price"))
+    nav = _num(portfolio.get("nav_eur"))
+    cash = _num(portfolio.get("cash_eur"))
+    if nav <= 0 or current_close <= 0:
+        raise RuntimeError("Accountability requires positive NAV and comparator close")
 
-    history = _read_csv(accountability_history)
-    prior = None
-    for row in history:
-        if str(row.get("date") or "") < report_date:
-            prior = row
+    history = _read_csv(history_path)
+    prior_rows = [row for row in history if str(row.get("date") or "") < report_date]
+    prior = prior_rows[-1] if prior_rows else None
     if prior is None:
         return {
             "status": "BASELINE_REQUIRED",
@@ -141,42 +124,31 @@ def _accountability(
             "comparator_ticker": comparator.get("ticker"),
             "comparator_isin": comparator.get("isin"),
             "current_comparator_close_eur": round(current_close, 8),
-            "portfolio_nav_eur": round(current_nav, 2),
-            "cash_eur": round(current_cash, 2),
-            "cash_weight_pct": round(100.0 * current_cash / current_nav, 6),
+            "portfolio_nav_eur": round(nav, 2),
+            "cash_eur": round(cash, 2),
+            "cash_weight_pct": round(100.0 * cash / nav, 6),
             "period_return_supported": False,
+            "comparator_pricing": pricing_authority_summary(price),
             "unresolved": ["no_prior_accountability_baseline"],
-            "comparator_pricing": pricing_authority_summary(comparator_row),
         }
 
     prior_nav = _num(prior.get("portfolio_nav_eur"))
     prior_close = _num(prior.get("comparator_close_eur"))
     prior_index = _num(prior.get("comparator_index"), 100.0)
-    if prior_nav <= 0 or prior_close <= 0 or prior_index <= 0:
+    if min(prior_nav, prior_close, prior_index) <= 0:
         raise RuntimeError("Prior accountability baseline is invalid")
-
-    portfolio_return = (current_nav / prior_nav - 1.0) * 100.0
+    portfolio_return = (nav / prior_nav - 1.0) * 100.0
     comparator_return = (current_close / prior_close - 1.0) * 100.0
-    comparator_index = prior_index * (current_close / prior_close)
-    active_return = portfolio_return - comparator_return
+    comparator_index = prior_index * current_close / prior_close
     historical_navs = [_num(row.get("portfolio_nav_eur")) for row in history if _num(row.get("portfolio_nav_eur")) > 0]
-    portfolio_peak = max(historical_navs + [current_nav])
-    portfolio_drawdown = (current_nav / portfolio_peak - 1.0) * 100.0
     historical_indices = [_num(row.get("comparator_index")) for row in history if _num(row.get("comparator_index")) > 0]
+    portfolio_peak = max(historical_navs + [nav])
     comparator_peak = max(historical_indices + [comparator_index])
-    comparator_drawdown = (comparator_index / comparator_peak - 1.0) * 100.0
-
     contributions = sorted(
-        ({"ticker": _ticker(row), "contribution_eur": round(_num(row.get("portfolio_contribution_eur", row.get("unrealized_pnl_eur"))), 2)} for row in positions),
+        ({"ticker": _ticker(row), "contribution_eur": round(_num(row.get("portfolio_contribution_eur", row.get("unrealized_pnl_eur"))), 2)} for row in portfolio.get("positions") or [] if isinstance(row, dict)),
         key=lambda item: item["contribution_eur"],
     )
-    top_detractor = contributions[0] if contributions else None
-    top_contributor = contributions[-1] if contributions else None
-    cash_weight = 100.0 * current_cash / current_nav
-    cash_policy = state.get("cash_policy") if isinstance(state.get("cash_policy"), dict) else {}
-    reunderwriting = state.get("current_reunderwriting") if isinstance(state.get("current_reunderwriting"), dict) else {}
-    cash_explained = cash_policy.get("cash_after_explanation") or reunderwriting.get("cash_after_explanation")
-
+    cash_policy = state.get("cash_policy") or {}
     return {
         "status": "COMPLETE",
         "baseline_date": prior.get("date"),
@@ -186,50 +158,49 @@ def _accountability(
         "comparator_isin": comparator.get("isin"),
         "comparator_purpose": comparator.get("purpose"),
         "comparator_contract_effective_date": comparator.get("effective_date"),
-        "portfolio_nav_eur": round(current_nav, 2),
+        "portfolio_nav_eur": round(nav, 2),
         "portfolio_period_return_pct": round(portfolio_return, 6),
-        "portfolio_drawdown_pct": round(portfolio_drawdown, 6),
+        "portfolio_drawdown_pct": round((nav / portfolio_peak - 1.0) * 100.0, 6),
         "comparator_close_eur": round(current_close, 8),
         "comparator_period_return_pct": round(comparator_return, 6),
         "comparator_index": round(comparator_index, 6),
-        "comparator_drawdown_pct": round(comparator_drawdown, 6),
-        "active_return_pp": round(active_return, 6),
-        "cash_eur": round(current_cash, 2),
-        "cash_weight_pct": round(cash_weight, 6),
+        "comparator_drawdown_pct": round((comparator_index / comparator_peak - 1.0) * 100.0, 6),
+        "active_return_pp": round(portfolio_return - comparator_return, 6),
+        "cash_eur": round(cash, 2),
+        "cash_weight_pct": round(100.0 * cash / nav, 6),
         "cash_drag_eur": None,
         "cash_drag_status": "UNAVAILABLE_NOT_ESTIMATED",
-        "cash_rationale": cash_explained or "Cash rationale unresolved",
-        "top_contributor": top_contributor,
-        "top_detractor": top_detractor,
+        "cash_rationale": cash_policy.get("cash_after_explanation") or "Cash rationale unresolved",
+        "top_contributor": contributions[-1] if contributions else None,
+        "top_detractor": contributions[0] if contributions else None,
         "position_contributions": contributions,
         "costs_status": "UNAVAILABLE_NOT_INVENTED",
-        "comparator_pricing": pricing_authority_summary(comparator_row),
+        "comparator_pricing": pricing_authority_summary(price),
         "unresolved": ["cash_drag_not_yet_evidenced", "transaction_costs_not_evidenced"],
     }
 
 
+def _risk_summary(decisions: list[dict[str, Any]], accountability: dict[str, Any]) -> dict[str, Any]:
+    confidence_rank = {"LOW": 0, "MEDIUM": 1, "HIGH": 2}
+    if decisions:
+        weakest = sorted(decisions, key=lambda row: (confidence_rank.get(str(row.get("confidence")), 9), row.get("contribution_eur", 0)))[0]
+        if weakest.get("confidence") != "HIGH":
+            return {"ticker": weakest.get("ticker"), "type": "evidence_confidence", "summary": f"{weakest.get('ticker')} has {weakest.get('confidence')} confidence because current evidence/verification is less complete."}
+    detractor = accountability.get("top_detractor") or {}
+    return {"ticker": detractor.get("ticker"), "type": "current_contribution", "summary": f"{detractor.get('ticker') or 'Portfolio'} is the largest current contribution drag ({round(_num(detractor.get('contribution_eur')), 2):.2f} EUR)."}
+
+
 def build_review_state(
-    normalized_state: dict[str, Any],
-    *,
-    comparator_config_path: Path,
-    accountability_history_path: Path,
-    report_date: str,
-    run_id: str,
-    pricing_artifact: str,
-    donor_lane_artifact: str | None = None,
+    normalized_state: dict[str, Any], *, comparator_config_path: Path, accountability_history_path: Path,
+    report_date: str, run_id: str, pricing_artifact: str, donor_lane_artifact: str | None = None,
     macro_pack: str | None = None,
 ) -> dict[str, Any]:
     state = copy.deepcopy(normalized_state)
-    portfolio = state.get("portfolio") if isinstance(state.get("portfolio"), dict) else {}
+    portfolio = state.get("portfolio") or {}
     decisions = _position_decisions(state)
     comparator_config = _load_yaml(comparator_config_path)
-    accountability = _accountability(
-        state,
-        comparator_config=comparator_config,
-        accountability_history=accountability_history_path,
-        pricing_artifact=Path(pricing_artifact),
-        report_date=report_date,
-    )
+    comparator = comparator_config.get("primary_comparator") or {}
+    accountability = _accountability(state, comparator=comparator, history_path=accountability_history_path, pricing_path=Path(pricing_artifact), report_date=report_date)
 
     blockers: list[str] = []
     if state.get("state_valid") is not True:
@@ -245,15 +216,11 @@ def build_review_state(
         ", ".join(f"{row['ticker']} {row['action']}" for row in decisions if row["action"] != "HOLD") or "REVIEW"
     )
     bridge = state.get("donor_discovery_bridge") if isinstance(state.get("donor_discovery_bridge"), dict) else {}
-    candidates = []
-    for row in bridge.get("rows") or bridge.get("candidates") or []:
-        if isinstance(row, dict):
-            candidates.append({
-                "ticker": row.get("ticker") or row.get("eu_ticker") or row.get("mapped_ticker"),
-                "lane": row.get("taxonomy_tag") or row.get("lane"),
-                "status": row.get("fundability_status") or row.get("status"),
-                "funding_authority": False,
-            })
+    challengers = [dict(row, funding_authority=False) for row in bridge.get("fundable_challengers") or [] if isinstance(row, dict)]
+    best_challenger = dict(bridge.get("best_fundable_challenger") or {}) or None
+    if best_challenger is not None:
+        best_challenger["funding_authority"] = False
+    biggest_risk = _risk_summary(decisions, accountability)
 
     unresolved_claims = list(accountability.get("unresolved") or [])
     for row in decisions:
@@ -270,12 +237,8 @@ def build_review_state(
         "state_valid": not blockers,
         "blockers": blockers,
         "authority": {
-            "funding_authority": False,
-            "portfolio_mutation": False,
-            "trade_ledger_write": False,
-            "real_broker_execution": False,
-            "delivery_authority": False,
-            "client_text_creates_state_authority": False,
+            "funding_authority": False, "portfolio_mutation": False, "trade_ledger_write": False,
+            "real_broker_execution": False, "delivery_authority": False, "client_text_creates_state_authority": False,
         },
         "sources": {
             "normalized_state_schema": state.get("schema_version"),
@@ -297,10 +260,12 @@ def build_review_state(
             "model_portfolio_mutation": False,
             "allocation_decision_present": all(row["action"] != "REVIEW" for row in decisions),
             "cash_rationale": accountability.get("cash_rationale"),
+            "best_new_or_replace_candidate": best_challenger,
+            "biggest_current_risk": biggest_risk,
         },
         "accountability": accountability,
         "funded_position_decisions": decisions,
-        "challengers": candidates,
+        "challengers": challengers,
         "macro_context": state.get("macro") or state.get("macro_context"),
         "pricing_contract": state.get("pricing_contract") or state.get("pricing"),
         "epistemics": {
@@ -314,8 +279,8 @@ def build_review_state(
 
 
 def write_accountability_observation(review_state: dict[str, Any], path: Path) -> None:
-    accountability = review_state.get("accountability") or {}
-    if accountability.get("status") != "COMPLETE":
+    account = review_state.get("accountability") or {}
+    if account.get("status") != "COMPLETE":
         raise RuntimeError("Cannot persist incomplete accountability observation")
     fieldnames = [
         "date", "portfolio_nav_eur", "portfolio_period_return_pct", "portfolio_drawdown_pct", "comparator_id",
@@ -325,17 +290,17 @@ def write_accountability_observation(review_state: dict[str, Any], path: Path) -
     rows = [row for row in _read_csv(path) if row.get("date") != review_state.get("report_date")]
     rows.append({
         "date": review_state["report_date"],
-        "portfolio_nav_eur": f"{_num(accountability.get('portfolio_nav_eur')):.2f}",
-        "portfolio_period_return_pct": f"{_num(accountability.get('portfolio_period_return_pct')):.6f}",
-        "portfolio_drawdown_pct": f"{_num(accountability.get('portfolio_drawdown_pct')):.6f}",
-        "comparator_id": accountability.get("comparator_id"),
-        "comparator_close_eur": f"{_num(accountability.get('comparator_close_eur')):.8f}",
-        "comparator_index": f"{_num(accountability.get('comparator_index')):.6f}",
-        "comparator_period_return_pct": f"{_num(accountability.get('comparator_period_return_pct')):.6f}",
-        "comparator_drawdown_pct": f"{_num(accountability.get('comparator_drawdown_pct')):.6f}",
-        "active_return_pp": f"{_num(accountability.get('active_return_pp')):.6f}",
-        "cash_eur": f"{_num(accountability.get('cash_eur')):.2f}",
-        "cash_weight_pct": f"{_num(accountability.get('cash_weight_pct')):.6f}",
+        "portfolio_nav_eur": f"{_num(account.get('portfolio_nav_eur')):.2f}",
+        "portfolio_period_return_pct": f"{_num(account.get('portfolio_period_return_pct')):.6f}",
+        "portfolio_drawdown_pct": f"{_num(account.get('portfolio_drawdown_pct')):.6f}",
+        "comparator_id": account.get("comparator_id"),
+        "comparator_close_eur": f"{_num(account.get('comparator_close_eur')):.8f}",
+        "comparator_index": f"{_num(account.get('comparator_index')):.6f}",
+        "comparator_period_return_pct": f"{_num(account.get('comparator_period_return_pct')):.6f}",
+        "comparator_drawdown_pct": f"{_num(account.get('comparator_drawdown_pct')):.6f}",
+        "active_return_pp": f"{_num(account.get('active_return_pp')):.6f}",
+        "cash_eur": f"{_num(account.get('cash_eur')):.2f}",
+        "cash_weight_pct": f"{_num(account.get('cash_weight_pct')):.6f}",
         "source_portfolio": review_state.get("sources", {}).get("protected_portfolio_state") or "normalized_review_state",
         "source_comparator": review_state.get("sources", {}).get("pricing_artifact"),
         "record_status": "CURRENT_REVIEW_OBSERVATION",
