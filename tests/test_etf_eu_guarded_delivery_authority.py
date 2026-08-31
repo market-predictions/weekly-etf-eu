@@ -68,7 +68,24 @@ def _build_authority(root: Path) -> Path:
 
     safety_evidence = root / "output" / "quality" / "client_surface_safety_test.json"
     safety_evidence.parent.mkdir(parents=True)
-    safety_evidence.write_text('{"status":"PASS"}\n', encoding="utf-8")
+    safety_evidence.write_text(json.dumps({
+        "schema_version": "etf_eu_client_surface_safety_v1",
+        "status": "PASS",
+        "valid": True,
+        "thin_kernel_manifest": {
+            "path": str(thin_manifest_path.relative_to(root)),
+            "sha256": _sha(thin_manifest_path),
+        },
+        "artifacts": {},
+        "client_surface_safety": {
+            "stale_delivery_wording_present": False,
+            "main_surface_us_proxy_exposure": False,
+            "main_surface_tbd_candidate_exposure": False,
+            "nan_price_in_client_surface": False,
+        },
+        "exposed_donor_proxies": [],
+        "blockers": [],
+    }, sort_keys=True) + "\n", encoding="utf-8")
     artifacts = {
         key: {
             "path": manifest_artifacts[key]["path"],
@@ -110,6 +127,7 @@ def _build_authority(root: Path) -> Path:
             "main_surface_tbd_candidate_exposure": False,
             "nan_price_in_client_surface": False,
             "evidence_ref": str(safety_evidence.relative_to(root)),
+            "evidence_sha256": _sha(safety_evidence),
         },
         "artifacts": artifacts,
     }
@@ -129,6 +147,7 @@ def test_valid_authority_binds_canonical_thin_kernel_artifacts(tmp_path: Path, m
     assert written["artifact_hashes_verified"] is True
     assert written["dutch_primary_pdf"] == "output/current/report_nl.pdf"
     assert written["source_thin_kernel_manifest_path"] == "output/current/manifest.json"
+    assert written["client_surface_safety_evidence_path"] == "output/quality/client_surface_safety_test.json"
     assert written["report_run_id"] == "20260807_220000"
     assert validate_package(manifest)["status"] == "valid"
 
@@ -142,6 +161,18 @@ def test_package_rejects_source_manifest_drift(tmp_path: Path, monkeypatch: pyte
     source = Path("output/current/manifest.json")
     source.write_text(source.read_text(encoding="utf-8") + "\n", encoding="utf-8")
     with pytest.raises(AssertionError, match="source thin-kernel manifest hash mismatch"):
+        validate_package(package)
+
+
+def test_package_rejects_safety_evidence_drift(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    _build_authority(tmp_path)
+    monkeypatch.chdir(tmp_path)
+    payload = validate(Path("authority.json"))
+    package = Path("output/delivery_package/test.json")
+    write_delivery_package_manifest(payload, package, "20260810_160000")
+    safety = Path("output/quality/client_surface_safety_test.json")
+    safety.write_text(safety.read_text(encoding="utf-8") + "\n", encoding="utf-8")
+    with pytest.raises(AssertionError, match="client-surface safety evidence hash mismatch"):
         validate_package(package)
 
 
