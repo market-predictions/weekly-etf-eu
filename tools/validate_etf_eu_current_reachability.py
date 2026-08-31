@@ -1,11 +1,5 @@
 #!/usr/bin/env python3
-"""Fail closed if executable ETF EU roots can still reach retired architecture.
-
-This is intentionally a small textual reachability audit. The architecture has a tiny
-set of executable roots; retired modules may exist temporarily during migration, but
-no active workflow or current builder may call them. Once no current references remain,
-those retired modules can be deleted with Git history as provenance.
-"""
+"""Fail closed if executable ETF EU roots can still reach retired architecture."""
 from __future__ import annotations
 
 import json
@@ -14,8 +8,18 @@ from typing import Iterable
 
 WORKFLOW_DIR = Path(".github/workflows")
 CURRENT_BUILDER = Path("tools/build_etf_eu_thin_kernel_package.py")
-CURRENT_RUNTIME_DIR = Path("runtime/current")
+RUNTIME_DIR = Path("runtime")
+CURRENT_RUNTIME_DIR = RUNTIME_DIR / "current"
 CONTROLLED_TRANSPORT_WORKFLOW = Path(".github/workflows/send-weekly-etf-eu-controlled-transport.yml")
+
+REQUIRED_TOP_LEVEL_RUNTIME_FILES = (
+    "__init__.py",
+    "adapt_weekly_etf_macro_for_eu.py",
+    "check_etf_eu_delivery_receipt.py",
+    "send_etf_eu_controlled_report.py",
+    "write_etf_eu_delivery_evidence.py",
+)
+ALLOWED_TOP_LEVEL_RUNTIME_DIRS = ("current",)
 
 RETIRED_EXECUTOR_TOKENS = (
     "build_etf_eu_client_grade_report_state_v2",
@@ -78,6 +82,43 @@ def _scan(paths: Iterable[Path], tokens: tuple[str, ...], blocker_type: str) -> 
     return blockers
 
 
+def _validate_runtime_namespace() -> list[dict[str, str]]:
+    blockers: list[dict[str, str]] = []
+    if not RUNTIME_DIR.exists():
+        return [{"type": "runtime_namespace_missing", "path": str(RUNTIME_DIR), "token": ""}]
+
+    required = set(REQUIRED_TOP_LEVEL_RUNTIME_FILES)
+    allowed_dirs = set(ALLOWED_TOP_LEVEL_RUNTIME_DIRS)
+    present_files = {path.name for path in RUNTIME_DIR.iterdir() if path.is_file()}
+    present_dirs = {path.name for path in RUNTIME_DIR.iterdir() if path.is_dir() and path.name != "__pycache__"}
+
+    for name in sorted(required - present_files):
+        blockers.append({
+            "type": "required_runtime_helper_missing",
+            "path": str(RUNTIME_DIR / name),
+            "token": name,
+        })
+    for name in sorted(present_files - required):
+        blockers.append({
+            "type": "unexpected_top_level_runtime_executor",
+            "path": str(RUNTIME_DIR / name),
+            "token": name,
+        })
+    for name in sorted(present_dirs - allowed_dirs):
+        blockers.append({
+            "type": "unexpected_top_level_runtime_directory",
+            "path": str(RUNTIME_DIR / name),
+            "token": name,
+        })
+    for name in sorted(allowed_dirs - present_dirs):
+        blockers.append({
+            "type": "required_runtime_directory_missing",
+            "path": str(RUNTIME_DIR / name),
+            "token": name,
+        })
+    return blockers
+
+
 def _validate_controlled_transport_main_write(workflows: list[Path]) -> list[dict[str, str]]:
     blockers: list[dict[str, str]] = []
     if CONTROLLED_TRANSPORT_WORKFLOW not in workflows:
@@ -108,14 +149,10 @@ def validate() -> dict[str, object]:
 
     missing = [str(path) for path in (CURRENT_BUILDER, CURRENT_RUNTIME_DIR) if not path.exists()]
     blockers.extend({"type": "missing_current_root", "path": path, "token": ""} for path in missing)
+    blockers.extend(_validate_runtime_namespace())
 
-    # Retired semantic/state/allocator executors are forbidden from every active
-    # workflow and from the Thin Current Kernel itself.
     blockers.extend(_scan(workflows + current_roots, RETIRED_EXECUTOR_TOKENS, "retired_executor_reachable"))
 
-    # Direct writes to main are forbidden everywhere except the one governed
-    # main-only transport workflow, where the write is limited to post-transport
-    # delivery/receipt evidence and remains guarded by exact assured authority.
     non_transport_workflows = [path for path in workflows if path != CONTROLLED_TRANSPORT_WORKFLOW]
     blockers.extend(_scan(non_transport_workflows, FORBIDDEN_AUTHORITY_TOKENS, "direct_main_write_reachable"))
     blockers.extend(_validate_controlled_transport_main_write(workflows))
@@ -123,11 +160,15 @@ def validate() -> dict[str, object]:
     blockers.extend(_scan(workflows + current_roots, ARCHIVE_IMPORT_TOKENS, "archive_execution_reachable"))
 
     result = {
-        "schema_version": "etf_eu_current_reachability_v2",
+        "schema_version": "etf_eu_current_reachability_v3",
         "valid": not blockers,
         "verdict": "PASS" if not blockers else "FAIL",
         "active_workflow_count": len(workflows),
         "current_runtime_module_count": len([path for path in current_roots if path.parent == CURRENT_RUNTIME_DIR]),
+        "runtime_namespace": {
+            "required_top_level_files": list(REQUIRED_TOP_LEVEL_RUNTIME_FILES),
+            "allowed_top_level_directories": list(ALLOWED_TOP_LEVEL_RUNTIME_DIRS),
+        },
         "retired_executor_tokens": list(RETIRED_EXECUTOR_TOKENS),
         "controlled_transport_main_write_exception": {
             "workflow": str(CONTROLLED_TRANSPORT_WORKFLOW),
