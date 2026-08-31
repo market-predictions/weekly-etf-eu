@@ -178,7 +178,12 @@ jobs:
         run: |
           set -euo pipefail
           VALIDATION="output/evidence/${ETF_EU_RUN_ID}/thin_kernel_validation.json"
+          SAFETY="output/evidence/${ETF_EU_RUN_ID}/client_surface_safety.json"
           python -m tools.validate_etf_eu_thin_kernel --output "$VALIDATION"
+          python tools/validate_etf_eu_client_surface_safety.py \
+            --manifest output/current/manifest.json \
+            --proxy-map config/ucits_benchmark_proxy_map.yml \
+            --output "$SAFETY"
           python tools/validate_etf_eu_product_boundary.py
 
       - name: Render complete PDF review pages
