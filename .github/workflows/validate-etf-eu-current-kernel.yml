@@ -33,6 +33,7 @@ jobs:
           set -euo pipefail
           python -m compileall -q runtime/current
           python -m py_compile \
+            runtime/write_etf_eu_delivery_evidence.py \
             tools/build_etf_eu_thin_kernel_package.py \
             tools/validate_etf_eu_thin_kernel.py \
             tools/validate_etf_eu_client_surface_safety.py \
@@ -49,6 +50,7 @@ jobs:
           pytest -q \
             tests/test_etf_eu_thin_current_kernel.py \
             tests/test_etf_eu_current_kernel_boundaries.py \
+            tests/test_etf_eu_delivery_evidence_current.py \
             tests/test_etf_eu_guarded_delivery_authority.py \
             tests/test_etf_eu_guarded_delivery_authority_builder.py \
             tests/test_validate_etf_eu_current_reachability.py \
