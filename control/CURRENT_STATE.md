@@ -4,72 +4,121 @@
 
 This file is **NARRATIVE_LIGHT** stable context. It is not a runtime routing table and deliberately does not carry a manually synchronized current `main` SHA, issue number, PR number, claim owner, candidate head or CI result.
 
-For volatile operational state, resolve live evidence in this order:
+Resolve volatile operational state live in this order:
 
-1. canonical `market-predictions/control-plane` queue/claim state;
-2. target repository live `main`, branches, PRs/issues and workflow/check evidence;
-3. exact candidate/handover/result references where applicable;
+1. canonical `market-predictions/control-plane` queue/claim evidence where available;
+2. target repository live `main`, branch, PR/issue and workflow/check evidence;
+3. exact candidate/handover/result references;
 4. authoritative machine state/output evidence.
 
-If this narrative conflicts with later merged code or protected machine state, the live authoritative evidence wins.
+If this narrative conflicts with later merged code or protected machine state, live authoritative evidence wins.
 
-## Stable product state
+## Stable product architecture
 
-Weekly ETF EU is being converged to the Thin Current Kernel defined by:
-- `docs/architecture/WEEKLY_ETF_EU_PRODUCT_ARCHITECTURE_V2.md`
-- `docs/runbooks/WEEKLY_ETF_EU_REALIZATION_RUNBOOK_V1.md`
+Weekly ETF EU uses the Thin Current Kernel defined by:
+- `docs/architecture/WEEKLY_ETF_EU_PRODUCT_ARCHITECTURE_V2.md`;
+- `docs/runbooks/WEEKLY_ETF_EU_REALIZATION_RUNBOOK_V1.md`.
 
-The product target is one weekly EU-investable capital decision plus accountable evidence, communicated through one premium NL/EN report family.
+The product is one weekly EU-investable capital decision plus accountable evidence, communicated through one premium NL/EN report family.
+
+The semantic execution boundary is deliberately small:
+
+```text
+protected persistent state + current evidence
+→ runtime/current/
+→ one frozen review_state
+→ pure NL/EN Markdown/HTML
+→ PDF from exact HTML
+→ exact artifact manifest
+```
+
+After freeze, downstream validation/render/delivery may not mutate NAV, selected prices, funded-position actions, allocation semantics, comparator performance or evidence status.
+
+## Canonical runtime topology
+
+Allowed top-level runtime namespace:
+
+```text
+runtime/__init__.py
+runtime/adapt_weekly_etf_macro_for_eu.py
+runtime/current/
+runtime/send_etf_eu_controlled_report.py
+runtime/write_etf_eu_delivery_evidence.py
+runtime/check_etf_eu_delivery_receipt.py
+```
+
+Additional top-level runtime executors or subdirectories are forbidden by current reachability validation. Retired builders, allocator/shadow paths, post-render semantic patchers and alternate senders are Git-history provenance, not current execution authority.
 
 ## Stable production pricing semantics
 
-`control/PRICING_AUTHORITY_CURRENT.md` is the canonical human-readable policy summary. Stable semantics:
+`control/PRICING_AUTHORITY_CURRENT.md` is the canonical human-readable policy summary.
 
-- source-independent UCITS trading-line identity first;
+- exact source-independent UCITS trading-line identity is mandatory;
 - one qualified correctly bound primary provider with the exact requested completed-session close is sufficient for valuation-grade `fresh_exact_unverified` pricing;
 - an exact same-date correctly bound verifier within tolerance upgrades confidence to `fresh_exact_verified`;
 - stale/missing/unbound verifier evidence does not invalidate a valid exact primary;
 - accepted exact same-date disagreement outside tolerance fails closed;
 - stale-only/no-exact-close/primary identity or binding failure remains blocked;
-- selected valuation price is the primary close.
+- selected valuation price is the authoritative primary close.
 
-The prior universal two-live-provider gate is retired. Compatibility names containing `consensus` are not authority and must have a bounded sunset.
+The prior universal two-live-provider gate is retired. Historical prose or compatibility names containing `consensus` do not override this policy.
 
 ## Stable state topology
 
 Persistent domain truth:
 - protected portfolio state;
 - authoritative trade ledger;
-- dated valuation/accountability history;
+- dated accountability/valuation history;
 - recommendation/re-underwriting memory;
 - UCITS identity registry.
 
 Per-run truth:
-- one immutable/frozen `review_state_<run_id>.json` derived from persistent state and current evidence;
-- this becomes the single semantic source for NL/EN Markdown/HTML/PDF after freeze.
+- one immutable/frozen review state derived from persistent state plus current evidence;
+- this is the single semantic source for NL/EN Markdown/HTML/PDF after freeze.
 
-Client text never creates portfolio authority. Prior reports are historical evidence only.
+Current candidate package namespace:
+
+```text
+output/current/
+```
+
+Immutable run/evidence namespaces:
+
+```text
+output/history/<report_date>/<run_id>/
+output/evidence/<run_id>/
+```
+
+Client text never creates portfolio authority. Historical target weights, prior report prose and prior recommendation wording are continuity evidence only.
+
+## Accountability comparator
+
+The stable primary opportunity-cost comparator is the configured VWCE UCITS trading line. Comparator performance is accountability evidence, not an allocation target, volatility target or automatic trading instruction.
 
 ## Stable operating boundaries
 
 - no real broker execution;
-- no portfolio/share/cash mutation without explicit current allocation authority;
+- no protected share/cash/ledger mutation without explicit current allocation authority;
 - no diagnostic-only source promotion merely to force coverage;
 - no hard ticker-count target;
 - pricing confidence is not an allocation rule;
 - candidate generation has no SMTP/delivery authority;
 - independent assurance is exact-head and separate from implementation;
-- guarded transport sends exact approved artifacts only;
+- guarded transport sends exact approved artifacts only and may not re-render;
 - no delivery-success claim without positive receipt/manifest evidence.
 
-## Stable current-entrypoint contract
+## Stable workflow topology
 
-Until a later governed revision changes it, the current production workflow entrypoints are indexed by `control/ETF_EU_WORKFLOW_AUTHORITY_INDEX_V1.md`:
-- candidate: `.github/workflows/run-weekly-etf-eu-routine.yml`;
-- guarded delivery: `.github/workflows/send-weekly-etf-eu-controlled-transport.yml`.
+`control/ETF_EU_WORKFLOW_AUTHORITY_INDEX_V1.md` defines the six current/current-supporting workflows:
+- candidate build;
+- guarded delivery;
+- current-kernel regression;
+- provider-engine regression;
+- release-evidence preflight;
+- repository/product-boundary validation.
 
-Historical executors must leave current executable/read-first namespaces as they are superseded.
+No historical workflow or runtime path gains authority from remaining in Git history or archive.
 
 ## How to answer “what is the current status?”
 
-Do not quote this file as a lifecycle snapshot. Re-read live Control and target-repository evidence, then report the observed state with exact SHAs/PRs/issues/checks and timestamp as evidence. Do not write those volatile facts back here unless the stable topology or authority policy itself changed.
+Do not quote this file as a lifecycle snapshot. Re-read live Control and target-repository evidence, then report observed SHAs/PRs/issues/checks and timestamps. Do not write volatile lifecycle facts back here unless stable topology or authority policy itself changed.
