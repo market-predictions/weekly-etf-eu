@@ -9,6 +9,13 @@ from pathlib import Path
 
 SHA256_RE = re.compile(r"^(?:sha256:)?[0-9a-f]{64}$")
 CLIENT_KEYS = ("nl_md", "en_md", "nl_html", "en_html", "nl_pdf", "en_pdf")
+SAFETY_SCHEMA = "etf_eu_client_surface_safety_v1"
+SAFETY_FLAGS = (
+    "stale_delivery_wording_present",
+    "main_surface_us_proxy_exposure",
+    "main_surface_tbd_candidate_exposure",
+    "nan_price_in_client_surface",
+)
 
 
 def _sha256(path: Path) -> str:
@@ -69,17 +76,30 @@ def validate(path: Path) -> dict:
     assert data["pdf_output_available"] is True
     assert data["html_output_available"] is True
     if data["client_grade_package_ready"] is True:
-        assert data["stale_delivery_wording_present"] is False
-        assert data["main_surface_us_proxy_exposure"] is False
-        assert data["main_surface_tbd_candidate_exposure"] is False
-        assert data["nan_price_in_client_surface"] is False
+        for flag in SAFETY_FLAGS:
+            assert data[flag] is False, f"client-surface safety flag failed: {flag}"
+
     safety_ref = Path(data["client_surface_safety_evidence_ref"])
+    safety_hash = str(data["client_surface_safety_evidence_sha256"]).lower()
     assert str(safety_ref).startswith("output/")
     assert safety_ref.exists(), f"missing client-surface safety evidence {safety_ref}"
+    assert SHA256_RE.fullmatch(safety_hash) is not None
+    assert _sha256(safety_ref) == _normalise_hash(safety_hash), "client-surface safety evidence hash mismatch"
+    safety = json.loads(safety_ref.read_text(encoding="utf-8"))
+    assert safety["schema_version"] == SAFETY_SCHEMA
+    assert safety["status"] == "PASS" and safety["valid"] is True
+    for flag in SAFETY_FLAGS:
+        assert (safety.get("client_surface_safety") or {}).get(flag) is False, f"safety evidence failed: {flag}"
+        assert data[flag] is False
+    safety_manifest = safety.get("thin_kernel_manifest") or {}
+    assert safety_manifest.get("path") == str(source_path), "safety evidence/source manifest path mismatch"
+    assert _normalise_hash(str(safety_manifest.get("sha256", ""))) == _normalise_hash(source_hash), "safety evidence/source manifest hash mismatch"
+
     return {
         "status": "valid",
         "manifest": str(path),
         "source_thin_kernel_manifest": str(source_path),
+        "client_surface_safety_evidence": str(safety_ref),
         "pdf_output_available": data["pdf_output_available"],
         "html_output_available": data["html_output_available"],
         "client_grade_package_ready": data["client_grade_package_ready"],
