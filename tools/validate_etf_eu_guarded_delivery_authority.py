@@ -11,6 +11,7 @@ SCHEMA = "etf_eu_guarded_delivery_authority_v1"
 ARTIFACT_TYPE = "etf_eu_guarded_delivery_authority"
 PRODUCT = "weekly_etf_eu"
 THIN_KERNEL_SCHEMA = "etf_eu_thin_kernel_manifest_v1"
+SAFETY_SCHEMA = "etf_eu_client_surface_safety_v1"
 REQUIRED_ARTIFACT_KEYS = ("nl_md", "en_md", "nl_html", "en_html", "nl_pdf", "en_pdf")
 REQUIRED_CLIENT_SURFACE_FALSE_FLAGS = (
     "stale_delivery_wording_present",
@@ -91,6 +92,27 @@ def _validate_bound_thin_kernel_manifest(
     return manifest_path, actual_hash, manifest
 
 
+def _validate_client_surface_safety(payload: dict[str, Any]) -> tuple[Path, str]:
+    safety = payload.get("client_surface_safety")
+    _require(isinstance(safety, dict), "client_surface_safety object required")
+    for flag in REQUIRED_CLIENT_SURFACE_FALSE_FLAGS:
+        _require(safety.get(flag) is False, f"client surface safety assertion failed: {flag}")
+    safety_evidence = Path(str(safety.get("evidence_ref", "")))
+    declared_hash = str(safety.get("evidence_sha256", "")).lower()
+    _require(str(safety_evidence).startswith("output/"), "client surface safety evidence must be under output/")
+    _require(safety_evidence.exists(), f"client surface safety evidence missing: {safety_evidence}")
+    _require(SHA256_RE.fullmatch(declared_hash) is not None, "invalid client surface safety evidence sha256")
+    actual_hash = _sha256(safety_evidence)
+    _require(actual_hash == _normalise_hash(declared_hash), "client surface safety evidence hash mismatch")
+    evidence = _load(safety_evidence)
+    _require(evidence.get("schema_version") == SAFETY_SCHEMA, "client surface safety evidence schema mismatch")
+    _require(evidence.get("status") == "PASS" and evidence.get("valid") is True, "client surface safety evidence must PASS")
+    evidence_flags = evidence.get("client_surface_safety") or {}
+    for flag in REQUIRED_CLIENT_SURFACE_FALSE_FLAGS:
+        _require(evidence_flags.get(flag) is False, f"client surface safety evidence failed: {flag}")
+    return safety_evidence, actual_hash
+
+
 def validate(path: Path) -> dict[str, Any]:
     payload = _load(path)
     _require(payload.get("schema_version") == SCHEMA, "delivery authority schema mismatch")
@@ -128,17 +150,15 @@ def validate(path: Path) -> dict[str, Any]:
     _require(principal.get("approved") is True, "principal guarded-send authorization is not approved")
     _require(bool(str(principal.get("reference", "")).strip()), "principal authorization reference required")
 
-    safety = payload.get("client_surface_safety")
-    _require(isinstance(safety, dict), "client_surface_safety object required")
-    for flag in REQUIRED_CLIENT_SURFACE_FALSE_FLAGS:
-        _require(safety.get(flag) is False, f"client surface safety assertion failed: {flag}")
-    safety_evidence = Path(str(safety.get("evidence_ref", "")))
-    _require(str(safety_evidence).startswith("output/"), "client surface safety evidence must be under output/")
-    _require(safety_evidence.exists(), f"client surface safety evidence missing: {safety_evidence}")
-
+    safety_path, safety_hash = _validate_client_surface_safety(payload)
     manifest_path, manifest_hash, thin_manifest = _validate_bound_thin_kernel_manifest(
         payload, report_date=report_date, report_suffix=report_suffix, report_run_id=report_run_id
     )
+    safety_evidence = _load(safety_path)
+    safety_binding = safety_evidence.get("thin_kernel_manifest") or {}
+    _require(str(safety_binding.get("path", "")) == str(manifest_path), "client surface safety evidence bound to different thin kernel manifest")
+    _require(_normalise_hash(str(safety_binding.get("sha256", ""))) == manifest_hash, "client surface safety thin kernel manifest hash mismatch")
+
     manifest_artifacts = thin_manifest["artifacts"]
     artifacts = payload.get("artifacts")
     _require(isinstance(artifacts, dict), "artifacts object required")
@@ -160,6 +180,7 @@ def validate(path: Path) -> dict[str, Any]:
         _require(_sha256(artifact_path) == _normalise_hash(expected_hash), f"artifact hash mismatch: {artifact_path}")
 
     payload["_validated_thin_kernel_manifest"] = {"path": str(manifest_path), "sha256": manifest_hash}
+    payload["_validated_client_surface_safety"] = {"path": str(safety_path), "sha256": safety_hash}
     return payload
 
 
@@ -167,6 +188,10 @@ def write_delivery_package_manifest(payload: dict[str, Any], output: Path, trans
     artifacts = payload["artifacts"]
     safety = payload["client_surface_safety"]
     source_manifest = payload.get("_validated_thin_kernel_manifest") or payload["thin_kernel_manifest"]
+    safety_binding = payload.get("_validated_client_surface_safety") or {
+        "path": safety["evidence_ref"],
+        "sha256": safety["evidence_sha256"],
+    }
     manifest = {
         "schema_version": "etf_eu_delivery_package_manifest_v1",
         "run_id": transport_run_id,
@@ -175,6 +200,8 @@ def write_delivery_package_manifest(payload: dict[str, Any], output: Path, trans
         "report_suffix": payload["report_suffix"],
         "source_thin_kernel_manifest_path": source_manifest["path"],
         "source_thin_kernel_manifest_sha256": _normalise_hash(str(source_manifest["sha256"])),
+        "client_surface_safety_evidence_path": safety_binding["path"],
+        "client_surface_safety_evidence_sha256": _normalise_hash(str(safety_binding["sha256"])),
         "dutch_primary_pdf": artifacts["nl_pdf"]["path"],
         "english_companion_pdf": artifacts["en_pdf"]["path"],
         "dutch_primary_html": artifacts["nl_html"]["path"],
