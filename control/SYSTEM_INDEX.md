@@ -9,6 +9,7 @@ Weekly ETF EU is a weekly EU-investable capital-decision and accountability syst
 Canonical product architecture:
 - `docs/architecture/WEEKLY_ETF_EU_PRODUCT_ARCHITECTURE_V2.md`
 - `docs/runbooks/WEEKLY_ETF_EU_REALIZATION_RUNBOOK_V1.md`
+- `control/DECISION_LOG_20260831_ARCHITECTURE_V2.md`
 
 The upstream `market-predictions/weekly-etf` repository is a donor for proven primitives and behavior. It is never authority for EU holdings, prices, recipients, trading lines, allocation, delivery or workflow state.
 
@@ -26,7 +27,7 @@ For meaningful ETF-EU architecture, debugging, prompt, script, workflow, report 
 
 **LIVE_FIRST rule:** volatile facts such as current `main` SHA, active issue/PR, claim owner, candidate head, CI result and delivery receipt are resolved from live GitHub/control-plane evidence. They are deliberately not duplicated here as “current state”.
 
-Historical issues, work packages, reports, disabled workflows and metadata are provenance only. They never override later merged code, protected machine state or current read-first authority.
+Historical issues, work packages, reports, archived workflows and metadata are provenance only. They never override later merged code, protected machine state or current read-first authority.
 
 ## Four product layers + governance boundary
 
@@ -61,7 +62,8 @@ Local compatibility copies are migration provenance, not shared authority.
 Authoritative persistent domain truth:
 - `output/etf_eu_portfolio_state.json`
 - `output/etf_eu_trade_ledger.csv`
-- `output/etf_eu_valuation_history.csv` (migrates toward valuation/accountability history under Revision V2)
+- `output/etf_eu_valuation_history.csv`
+- `output/etf_eu_accountability_history.csv`
 - `output/etf_eu_recommendation_scorecard.csv`
 - `config/ucits_symbol_registry.yml`
 
@@ -87,7 +89,7 @@ Historical activation/transition target values are audit context, never implicit
 
 ## Per-run semantic authority
 
-Revision V2 introduces one immutable/frozen per-run `review_state_<run_id>.json` as the only client-semantic authority after build. It is derived from protected persistent state plus current evidence.
+The Thin Current Kernel lives under `runtime/current/` and produces one immutable/frozen per-run review state as the only client-semantic authority after build. It is derived from protected persistent state plus current evidence.
 
 After freeze, renderers/validators/delivery may not:
 - recalculate NAV into a different value;
@@ -98,6 +100,14 @@ After freeze, renderers/validators/delivery may not:
 - manufacture missing evidence.
 
 A semantic change requires a new review state and new candidate head.
+
+Current package namespaces:
+
+```text
+output/current/
+output/history/<report_date>/<run_id>/
+output/evidence/<run_id>/
+```
 
 ## Current pricing authority — stable policy
 
@@ -112,7 +122,7 @@ Stable rule:
 - stale-only pricing, missing exact requested-date close or primary identity/binding failure remains fail-closed;
 - selected valuation price is the authoritative primary close, not a median blend.
 
-The retired statement “every funded line requires two live same-date providers” is historical only, even if a compatibility field/CLI name still contains `consensus` during a bounded sunset.
+The retired statement “every funded line requires two live same-date providers” is historical only.
 
 ## EU configuration
 
@@ -141,8 +151,20 @@ Candidate build:
 
 Guarded delivery is a separate main-only boundary. It sends exact approved artifacts without re-rendering and requires independent assurance plus separate current send authority. SMTP success is not inbox receipt; delivery closes only on positive receipt/manifest evidence.
 
-### Historical executors
-Historical workflows/runtime paths must not remain beside current entrypoints in a way that can be mistaken for production. Revision V2 classifies them as current/supporting, explicit forensic archive, or delete.
+### Runtime boundary
+
+The only allowed top-level runtime namespace is:
+
+```text
+runtime/__init__.py
+runtime/adapt_weekly_etf_macro_for_eu.py
+runtime/current/
+runtime/send_etf_eu_controlled_report.py
+runtime/write_etf_eu_delivery_evidence.py
+runtime/check_etf_eu_delivery_receipt.py
+```
+
+`tools/validate_etf_eu_current_reachability.py` fails closed if parallel executors reappear.
 
 ## Donor reuse rule
 
