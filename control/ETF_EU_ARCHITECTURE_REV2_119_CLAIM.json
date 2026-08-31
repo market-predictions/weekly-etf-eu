@@ -1,0 +1,29 @@
+{
+  "schema_version": "1.0.0",
+  "standard_id": "WORK_CLAIM_AND_BRANCH_LIFECYCLE_STANDARD_V1",
+  "claim_id": "ETF-EU-ARCHITECTURE-REV2-119",
+  "workpackage_id": "ETF-EU-ARCHITECTURE-REV2-119",
+  "repository": "market-predictions/weekly-etf-eu",
+  "owner_role": "implementation_operations",
+  "scope": "Complete issue #119 / PR #120 Architecture Revision V2 realization through final obsolete-surface cleanup, exact-head validation and frozen Worker-B assurance handover. No self-assurance, merge, report delivery, SMTP, broker or portfolio-state authority.",
+  "branch": "agent/etf-eu-architecture-rev2-realization-119",
+  "base_or_target_branch": "main",
+  "last_reconciled_target_sha": "d53c53680a2265c09d6bd25e2caa1c376d799258",
+  "current_claim_head_sha": "936ff69d1c93cf734f62d0454641f3faa42526ad",
+  "status": "ACTIVE",
+  "opened_at": "2026-08-31T22:44:49+02:00",
+  "last_reconciled_at": "2026-08-31T22:44:49+02:00",
+  "pull_request": 120,
+  "pull_request_or_issue_reference": "Issue #119; PR #120",
+  "integration_claim": false,
+  "dependencies": [],
+  "authority_boundaries": {
+    "independent_assurance": false,
+    "merge_or_integration": false,
+    "report_delivery": false,
+    "smtp_send": false,
+    "portfolio_or_ledger_mutation": false,
+    "broker_execution": false
+  },
+  "next_action": "Remove only proven obsolete current-looking delivery/test/tool surfaces, rerun exact-head gates, reconcile the claim at the final candidate, then freeze and hand over to independent governance_release_assurance."
+}
