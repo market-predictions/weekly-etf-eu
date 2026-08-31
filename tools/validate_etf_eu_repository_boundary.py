@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Fail closed when another product's executable assets leak into Weekly ETF EU.
+"""Fail closed when retired product/runtime surfaces leak into Weekly ETF EU.
 
 Provider names and retained historical donor source files are not product identity by
 themselves. The release boundary is stricter for *active GitHub Actions workflows*:
@@ -7,6 +7,10 @@ no executable workflow in Weekly ETF EU may invoke the US Weekly ETF runtime/rep
 path or the FX production path. Retired workflows do not remain as `.yml.disabled`
 pseudo-workflows; Git history is the default provenance source and any exceptional
 forensic copies live outside `.github/workflows/` under `archive/workflows/`.
+
+Historical MVP work-package validators and tests are also retired from active
+`tools/` and `tests/` namespaces. Their implementation-state assertions are forensic
+history, not current product invariants; Git history is the provenance source.
 """
 from __future__ import annotations
 
@@ -34,6 +38,10 @@ PROHIBITED_US_DONOR_WORKFLOW_TOKENS = (
     "etf.txt",
     "etf-pro.txt",
 )
+RETIRED_MVP_NAMESPACE_GLOBS = (
+    "tools/validate_etf_eu_mvp*.py",
+    "tests/test_etf_eu_mvp*.py",
+)
 
 
 def _active_workflows(root: Path) -> list[Path]:
@@ -52,6 +60,14 @@ def validate(root: Path) -> dict[str, Any]:
     for relative in PROHIBITED_ROOT_PATHS:
         if (root / relative).exists():
             blockers.append({"type": "misplaced_product_asset", "path": relative})
+
+    retired_mvp_assets: list[str] = []
+    for pattern in RETIRED_MVP_NAMESPACE_GLOBS:
+        for path in sorted(root.glob(pattern)):
+            if path.is_file():
+                relative = str(path.relative_to(root))
+                retired_mvp_assets.append(relative)
+                blockers.append({"type": "retired_mvp_asset_in_active_namespace", "path": relative})
 
     workflow_dir = root / ".github" / "workflows"
     disabled_graveyard = sorted(path.name for path in workflow_dir.glob("*.disabled")) if workflow_dir.exists() else []
@@ -81,7 +97,7 @@ def validate(root: Path) -> dict[str, Any]:
                 )
 
     return {
-        "schema_version": "weekly_etf_eu_repository_boundary_validation_v3",
+        "schema_version": "weekly_etf_eu_repository_boundary_validation_v4",
         "product": "weekly_etf_eu",
         "valid": not blockers,
         "verdict": "PASS" if not blockers else "FAIL",
@@ -89,9 +105,12 @@ def validate(root: Path) -> dict[str, Any]:
         "prohibited_root_paths": list(PROHIBITED_ROOT_PATHS),
         "prohibited_fx_workflow_tokens": list(PROHIBITED_FX_WORKFLOW_TOKENS),
         "prohibited_us_donor_workflow_tokens": list(PROHIBITED_US_DONOR_WORKFLOW_TOKENS),
+        "retired_mvp_namespace_globs": list(RETIRED_MVP_NAMESPACE_GLOBS),
+        "retired_mvp_asset_count": len(retired_mvp_assets),
         "active_workflows_scanned": len(_active_workflows(root)),
         "disabled_workflow_graveyard_count": len(disabled_graveyard),
         "retired_workflow_provenance": "git_history_by_default_forensic_exceptions_under_archive_workflows",
+        "retired_mvp_provenance": "git_history_only",
     }
 
 

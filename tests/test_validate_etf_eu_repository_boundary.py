@@ -13,6 +13,7 @@ def test_clean_repository_passes(tmp_path: Path) -> None:
     result = validate(tmp_path)
     assert result["verdict"] == "PASS"
     assert result["product"] == "weekly_etf_eu"
+    assert result["retired_mvp_asset_count"] == 0
 
 
 def test_fx_runner_is_blocked(tmp_path: Path) -> None:
@@ -75,3 +76,28 @@ def test_legacy_us_report_renderer_is_blocked_in_active_workflow(tmp_path: Path)
         and item["token"] == "send_report.py"
         for item in result["blockers"]
     )
+
+
+def test_retired_mvp_validator_is_blocked_in_active_tools_namespace(tmp_path: Path) -> None:
+    tools = tmp_path / "tools"
+    tools.mkdir(parents=True)
+    path = tools / "validate_etf_eu_mvp18b_controlled_sender_entrypoint_implementation.py"
+    path.write_text("# historical work-package validator\n", encoding="utf-8")
+    result = validate(tmp_path)
+    assert result["verdict"] == "FAIL"
+    assert result["retired_mvp_asset_count"] == 1
+    assert any(
+        item["type"] == "retired_mvp_asset_in_active_namespace" and item["path"] == str(path.relative_to(tmp_path))
+        for item in result["blockers"]
+    )
+
+
+def test_retired_mvp_test_is_blocked_in_active_tests_namespace(tmp_path: Path) -> None:
+    tests = tmp_path / "tests"
+    tests.mkdir(parents=True)
+    path = tests / "test_etf_eu_mvp19_fix2_ready_for_controlled_resend.py"
+    path.write_text("# historical work-package test\n", encoding="utf-8")
+    result = validate(tmp_path)
+    assert result["verdict"] == "FAIL"
+    assert result["retired_mvp_asset_count"] == 1
+    assert result["retired_mvp_provenance"] == "git_history_only"
