@@ -1,257 +1,196 @@
 # Weekly ETF EU Review OS — System Index
 
-This file is the first entry point for serious work on `market-predictions/weekly-etf-eu`.
+This is the stable first entry point for serious work on `market-predictions/weekly-etf-eu`.
 
-## Product purpose
+## Product mission
 
-```text
-Dutch/EU-client ETF review using UCITS ETFs as investable instruments.
-```
+Weekly ETF EU is a weekly EU-investable capital-decision and accountability system. It answers where the model portfolio stands, whether the process is adding value versus a stable investable comparator, which funded holdings still deserve capital, which alternatives are better, what should change now, and why. The premium NL/EN report is the client interface to that decision and evidence.
 
-The upstream `market-predictions/weekly-etf` repository is a donor for mature decision/state patterns. It is not authority for EU holdings, recipients, trading lines, allocation decisions or delivery decisions.
+Canonical product architecture:
+- `docs/architecture/WEEKLY_ETF_EU_PRODUCT_ARCHITECTURE_V2.md`
+- `docs/runbooks/WEEKLY_ETF_EU_REALIZATION_RUNBOOK_V1.md`
+- `control/DECISION_LOG_20260831_ARCHITECTURE_V2.md`
+
+The upstream `market-predictions/weekly-etf` repository is a donor for proven primitives and behavior. It is never authority for EU holdings, prices, recipients, trading lines, allocation, delivery or workflow state.
 
 ## Mandatory session start
 
-Read in this order:
+For meaningful ETF-EU architecture, debugging, prompt, script, workflow, report or delivery work:
 
-1. `control/SYSTEM_INDEX.md`
-2. `control/CURRENT_STATE.md`
-3. `control/NEXT_ACTIONS.md`
-4. `control/PRICING_AUTHORITY_CURRENT.md` for any pricing/report/fundability work
-5. `control/WORK_CLAIMS.json`
-6. the active/superseding handover record referenced by the claim registry, when present
-7. `control/PROJECT_GOVERNANCE_BOOTSTRAP.md`
-8. `control/ETF_EU_TWO_ROLE_GOVERNANCE_MODEL_V1.md`
-9. the minimum relevant execution files
+1. read the canonical operating method in `market-predictions/control-plane`;
+2. read `control/SYSTEM_INDEX.md`;
+3. read `control/CURRENT_STATE.md`;
+4. read `control/NEXT_ACTIONS.md`;
+5. read `control/PRICING_AUTHORITY_CURRENT.md` for pricing/report/fundability work;
+6. inspect live canonical queue/claim state and target-repository branch/PR/issue evidence where the work is consequential;
+7. read only the minimum relevant execution/governance files.
 
-Before continuing consequential work, reconcile the active claim against live GitHub branch, target, dependency, PR and handover state under the canonical control-plane lifecycle standard. Do not continue accumulating on a materially stale integration line.
+**LIVE_FIRST rule:** volatile facts such as current `main` SHA, active issue/PR, claim owner, candidate head, CI result and delivery receipt are resolved from live GitHub/control-plane evidence. They are deliberately not duplicated here as “current state”.
 
-Historical issues, work packages, reports and metadata records are provenance. They do not override later merged runtime behavior or current read-first authority files.
+Historical issues, work packages, reports, archived workflows and metadata are provenance only. They never override later merged code, protected machine state or current read-first authority.
 
-## Five-layer operating model
+## Four product layers + governance boundary
 
-Always distinguish:
+Always keep distinct:
 
-1. **Decision framework** — which UCITS instruments deserve capital.
-2. **Input/state contract** — authoritative instruments, prices, holdings, cash and ledger facts.
-3. **Output contract** — Dutch-primary and English-companion report behavior.
-4. **Operational runbook** — generation, validation, persistence, transport and closeout.
-5. **Governance and release assurance** — independent proof that the complete requested outcome was achieved.
+1. **Decision framework** — what deserves capital and why.
+2. **Input/state contract** — protected holdings/cash/ledger plus fresh identity-bound evidence.
+3. **Output contract** — one frozen per-run review state and pure NL/EN projections.
+4. **Operational runbook** — deterministic generation, validation, persistence and delivery mechanics.
+
+Independent release assurance and guarded delivery protect the boundary around these layers; they do not create investment semantics.
 
 ## Cross-project governance authority
 
-Canonical shared governance and claim/branch standards live in:
-
-`market-predictions/control-plane`
-
-Relevant standards:
+Shared governance lives in `market-predictions/control-plane`, including:
 - `control/CROSS_PROJECT_PRINCIPAL_AGENT_OPERATING_CHARTER_V1.md`
 - `control/CROSS_PROJECT_TWO_ROLE_GOVERNANCE_STANDARD_V1.md`
 - `control/WORK_CLAIM_AND_BRANCH_LIFECYCLE_STANDARD_V1.md`
+- `control/CONTROL_QUEUE_PROTOCOL_V1.md`
 
-Local compatibility copies are migration provenance, not current shared authority.
+Local compatibility copies are migration provenance, not shared authority.
 
-## Two-role governance model
+### Worker separation
 
-The project has one user-facing coordinator and two internally separated roles:
+- Worker A / `implementation_operations` builds or repairs one candidate and may not self-assure.
+- Worker B / `governance_release_assurance` independently reviews one exact frozen candidate head and may not repair it.
+- Semantic candidate changes invalidate prior assurance.
+- `principal_manual_relay_count=0` remains the orchestration target.
 
-```text
-implementation_operations
-governance_release_assurance
-```
+## Canonical persistent EU state
 
-Role A builds/repairs a candidate. Role B independently reviews one exact frozen candidate head. Role A may not self-certify. Role B may not mutate the reviewed candidate.
+Authoritative persistent domain truth:
+- `output/etf_eu_portfolio_state.json`
+- `output/etf_eu_trade_ledger.csv`
+- `output/etf_eu_valuation_history.csv`
+- `output/etf_eu_accountability_history.csv`
+- `output/etf_eu_recommendation_scorecard.csv`
+- `config/ucits_symbol_registry.yml`
 
-Project governance authority:
-- `control/PROJECT_GOVERNANCE_BOOTSTRAP.md`
-- `control/ETF_EU_TWO_ROLE_GOVERNANCE_MODEL_V1.md`
-- `control/ETF_EU_WORKFLOW_AUTHORITY_INDEX_V1.md`
-- `control/ETF_EU_GOVERNANCE_CHANGELOG.md`
-- `control/WORK_CLAIMS.json`
-
-Historical machine tooling retains compatibility filenames:
-- `tools/build_etf_eu_release_assurance.py`
-- `tools/validate_etf_eu_release_assurance.py`
-- `.github/workflows/validate-etf-eu-release-assurance.yml`
-
-Their current authority is **machine release-evidence preflight only**. They cannot issue an independent assurance verdict, merge authority or delivery authority.
-
-## Work-claim and handover authority
-
-Machine-readable claim registry:
-
-`control/WORK_CLAIMS.json`
-
-Durable ownership/lineage handovers:
-
-`handover/`
-
-Rules:
-- detect stale/orphaned claims without principal prompting;
-- one active release-integration claim per release line;
-- merged/closed PRs may not leave overlapping active claims;
-- superseded branches are read-only evidence donors;
-- generated reports/CI retriggers may not prolong a materially stale line;
-- roadmap/current-state must point at the surviving claim;
-- every handover ends `CLOSE`, `TRANSFER` or `SUPERSEDE`.
-
-## Canonical EU decision and state authority
-
+Related authority contracts:
 - `control/ETF_EU_ALLOCATION_AUTHORITY_V1.md`
 - `control/ETF_EU_DISCOVERY_FUNDABILITY_CONTRACT_V1.md`
 - `control/UCITS_ETF_REVIEW_CONTRACT_V1.md`
 - `control/UCITS_INVESTABILITY_RULES.md`
 - `control/UCITS_SYMBOL_REGISTRY_CONTRACT.md`
 - `control/PRICING_AUTHORITY_CURRENT.md`
-- `output/etf_eu_portfolio_state.json`
-- `output/etf_eu_trade_ledger.csv`
-- `output/etf_eu_valuation_history.csv`
-- `output/etf_eu_recommendation_scorecard.csv`
 
 Authority order for current allocation:
 
 ```text
 explicit current allocation decision
 > protected portfolio state + trade ledger
-> current completed-close valuation + current recommendation evidence
-> current donor opportunity state mapped to verified UCITS lines
+> current completed-close valuation + current re-underwriting evidence
+> current donor opportunity evidence mapped to verified UCITS lines
 > historical strategy/shadow context
 ```
 
-Historical CAP01/transition target values are audit context, not current allocation authority.
+Historical activation/transition target values are audit context, never implicit current allocation authority.
 
-## Current pricing authority
+## Per-run semantic authority
 
-Merged PR #112 changed the production close-price contract from a universal two-live-provider gate to **primary close + optional independent verification**.
+The Thin Current Kernel lives under `runtime/current/` and produces one immutable/frozen per-run review state as the only client-semantic authority after build. It is derived from protected persistent state plus current evidence.
 
-Current rule:
-- exact canonical UCITS trading-line identity remains mandatory;
-- one qualified statically bound provider with the exact requested completed-session close can be valuation-grade as `fresh_exact_unverified`;
-- a second correctly bound exact same-date provider within tolerance upgrades the line to `fresh_exact_verified`;
+After freeze, renderers/validators/delivery may not:
+- recalculate NAV into a different value;
+- choose a different authoritative price;
+- change a funded-position action;
+- change allocation semantics;
+- rewrite comparator performance;
+- manufacture missing evidence.
+
+A semantic change requires a new review state and new candidate head.
+
+Current package namespaces:
+
+```text
+output/current/
+output/history/<report_date>/<run_id>/
+output/evidence/<run_id>/
+```
+
+## Current pricing authority — stable policy
+
+Canonical human-readable summary: `control/PRICING_AUTHORITY_CURRENT.md`.
+
+Stable rule:
+- exact canonical UCITS trading-line identity is mandatory;
+- one qualified statically bound primary provider with the exact requested completed-session close may be valuation-grade as `fresh_exact_unverified`;
+- a correctly bound exact same-date verifier within tolerance upgrades to `fresh_exact_verified`;
 - stale/missing/unbound verifier evidence does not block a valid exact primary;
-- accepted exact same-date disagreement remains fail-closed;
-- no exact requested-date close or primary identity/binding mismatch remains fail-closed.
+- accepted exact same-date disagreement fails closed;
+- stale-only pricing, missing exact requested-date close or primary identity/binding failure remains fail-closed;
+- selected valuation price is the authoritative primary close, not a median blend.
 
-The retired statement “every funded line requires two live same-date providers” MUST NOT be recovered from older issues, work packages, metadata tables, compatibility field names or report prose.
+The retired statement “every funded line requires two live same-date providers” is historical only.
 
-## Canonical EU configuration
+## EU configuration
 
-- `config/ucits_symbol_registry.yml` — identity/investability authority only; not funded-state authority
+Current identity/investability/discovery configuration includes:
+- `config/ucits_symbol_registry.yml`
 - `config/ucits_benchmark_proxy_map.yml`
 - `config/nl_client_investability_rules.yml`
 - `config/etf_eu_discovery_universe.yml`
 
-Historical/non-executable allocation context:
-- `config/etf_eu_transition_policy_v1.yml`
-- `config/etf_eu_target_allocation.yml`
+Historical/non-executable allocation context must remain explicitly non-current.
 
-Both are explicitly non-current authority.
+## Current operational entrypoints
 
-## Canonical output behavior
-
-Current state is normalized before rendering by:
-- `runtime/apply_etf_eu_donor_parity_contract.py`
-
-Funded client rendering:
-- `runtime/render_etf_eu_client_grade_v2_funded.py`
-
-Rules:
-- all funded positions must be present, including L0CK;
-- no historical strategic/phase target may appear as a current target;
-- no retired 50/35/15 or fixed-reserve policy may appear as current control;
-- missing current re-underwriting is `UNRESOLVED`, not implicit Hold;
-- NL and EN are produced from one normalized state.
-
-## Canonical operational topology
-
-Authoritative index:
-
-`control/ETF_EU_WORKFLOW_AUTHORITY_INDEX_V1.md`
+Authoritative workflow index: `control/ETF_EU_WORKFLOW_AUTHORITY_INDEX_V1.md`.
 
 ### Candidate build
-
 `.github/workflows/run-weekly-etf-eu-routine.yml`
 
-This workflow:
+Candidate build:
 - refuses `main`;
-- builds and machine-validates a candidate;
-- may persist generated candidate evidence only to its candidate branch;
-- cannot self-assure;
-- cannot merge;
-- cannot create delivery authority;
-- cannot send email;
-- cannot execute broker actions.
-
-### Independent assurance
-
-After the candidate is frozen, a separate `governance_release_assurance` reviewer returns:
-
-`PASS | FAIL | INDETERMINATE`
-
-on the exact head. Any semantic candidate change invalidates the verdict.
-
-### Merge / exact-main
-
-Merge is permitted only after independent PASS and unchanged reviewed head. Exact-main validation follows merge.
+- may build, validate and persist candidate evidence on its candidate branch;
+- cannot self-assure, merge, create delivery authority, send email or execute broker actions.
 
 ### Guarded delivery
-
 `.github/workflows/send-weekly-etf-eu-controlled-transport.yml`
 
-This is the sole active real delivery workflow. It is main-only and requires a committed guarded-delivery authority binding:
-- exact independently assured candidate head;
-- approved report commit in main lineage;
-- independent PASS evidence reference;
-- separate principal guarded-send authorization;
-- exact NL/EN MD/HTML/PDF paths and SHA-256 hashes.
+Guarded delivery is a separate main-only boundary. It sends exact approved artifacts without re-rendering and requires independent assurance plus separate current send authority. SMTP success is not inbox receipt; delivery closes only on positive receipt/manifest evidence.
 
-It sends the approved artifacts without re-rendering. SMTP success is not inbox receipt. Delivery closes only on positive independent receipt/attachment evidence.
+### Runtime boundary
 
-Historical activation/send/repair/preview workflows are retained only as `.yml.disabled` audit history.
+The only allowed top-level runtime namespace is:
 
-## Upstream-first reuse rule
+```text
+runtime/__init__.py
+runtime/adapt_weekly_etf_macro_for_eu.py
+runtime/current/
+runtime/send_etf_eu_controlled_report.py
+runtime/write_etf_eu_delivery_evidence.py
+runtime/check_etf_eu_delivery_receipt.py
+```
 
-Before creating or materially changing an EU workflow, runtime script, validator, renderer or control contract:
+`tools/validate_etf_eu_current_reachability.py` fails closed if parallel executors reappear.
 
-1. inspect the closest mature upstream implementation;
-2. choose port, adapt, wrap or intentional divergence;
-3. record the decision;
-4. never import U.S. state or recipient authority as EU authority;
-5. do not copy a donor operational weakness merely to achieve superficial symmetry.
+## Donor reuse rule
+
+Before porting donor code:
+1. prove the underlying problem is genuinely shared;
+2. reuse only if the donor primitive remains simpler than rebuilding;
+3. never import donor state/recipient/workflow authority;
+4. wrap with EU identity/investability/pricing gates;
+5. identify which EU duplicate becomes removable.
+
+A port that removes nothing is presumptively adding a parallel path.
 
 ## Non-negotiable controls
 
-- Use ISIN-first identity; ticker alone is insufficient.
-- Do not present U.S.-listed ETFs as Dutch/EU investable holdings.
-- Do not fund an instrument before investability, pricing, re-underwriting and explicit allocation gates pass.
-- Do not mutate protected portfolio state or ledger without explicit allocation authority.
-- Do not infer current Hold/Add/Reduce from historical targets, old actions or report prose.
-- Do not turn donor review/disclosure thresholds into allocation caps.
-- Do not claim independent assurance from machine/CI evidence.
-- Do not claim production delivery from generation, validation or SMTP success alone.
-- Bind exact approved artifacts before guarded transport.
-- Require independent receipt evidence before `DELIVERY_CONFIRMED`.
-- Treat missing or contradictory evidence as a blocker.
-- Do not continue implementation/release accumulation on a materially stale claim branch.
+- ISIN-first/trading-line identity; ticker alone is insufficient.
+- No U.S.-listed ETF presented as Dutch/EU investable holding.
+- No funding before investability, pricing, re-underwriting and explicit allocation gates.
+- No protected portfolio/ledger mutation without explicit current allocation authority.
+- No current Hold/Add/Reduce inferred from old targets/actions/report prose.
+- No donor review threshold treated as allocation cap.
+- No machine/CI preflight represented as independent assurance.
+- No generation/SMTP represented as delivery success.
+- Exact artifacts are bound before guarded transport.
+- Missing/contradictory authority evidence fails closed.
+- Do not accumulate consequential work on a materially stale claim/integration line.
 
-## Current operating mode
+## Volatile operating state
 
-```text
-FRESH_REPORT_CYCLE_114_ACTIVE
-pricing_authority=PRIMARY_CLOSE_PLUS_OPTIONAL_VERIFICATION
-main_baseline=5cc712582f86a51951cf57c55992f0ddc49a6ff1
-```
-
-Current direction:
-
-```text
-fresh completed-close evidence under PR112 pricing authority
-→ full portfolio re-underwrite + broad discovery
-→ EU-local UCITS fundability and explicit allocation decision
-→ client-grade NL/EN candidate
-→ exact-head CI and independent governance_release_assurance
-→ governed integration if PASS and unchanged
-→ exact-main validation
-→ separately authorized guarded transport
-→ independent receipt verification
-```
+This file intentionally contains **no current SHA, issue, PR, claim, candidate or lifecycle label**. Resolve those facts live under the startup protocol. `control/CURRENT_STATE.md` explains the stable state topology; `control/NEXT_ACTIONS.md` defines priority policy rather than a manually synchronized task list.

@@ -1,57 +1,112 @@
 # Weekly ETF EU Review OS — Next Actions
 
-## Current priority
+## Purpose
 
-```text
-FRESH_REPORT_CYCLE_114_ACTIVE
-pricing_authority=PRIMARY_CLOSE_PLUS_OPTIONAL_VERIFICATION
-```
+This file defines **stable priority/routing policy**, not a manually synchronized task queue. It intentionally contains no current issue/PR/SHA/claim label.
 
-The active production lineage is issue #114. Issue #109 is superseded and closed; its old same-date two-provider requirement is historical only. PR #112 is merged and is the current pricing baseline.
+For the actual next executable task, resolve live `market-predictions/control-plane` queue/claim state and target-repository evidence first. Continue an existing lawful lineage rather than opening duplicate work.
 
-## Current pricing gate for the fresh cycle
+## Current architecture authority
 
-Use `control/PRICING_AUTHORITY_CURRENT.md` as the human-readable current pricing summary and live merged runtime/tests as executable authority.
+- `docs/architecture/WEEKLY_ETF_EU_PRODUCT_ARCHITECTURE_V2.md`
+- `docs/runbooks/WEEKLY_ETF_EU_REALIZATION_RUNBOOK_V1.md`
+- `control/ETF_EU_WORKFLOW_AUTHORITY_INDEX_V1.md`
+
+The Thin Current Kernel, frozen review-state contract, pure projections, stable accountability comparator, exact-close pricing authority and separate guarded-delivery boundary are the current architecture baseline.
+
+## Default operating priority
+
+When no higher-priority production incident or explicitly claimed work supersedes it, proceed in this order:
+
+1. **Resolve live lifecycle state**
+   - current `main`;
+   - active claim/issue/PR;
+   - exact candidate head;
+   - current CI/check evidence;
+   - latest authoritative portfolio/pricing/accountability state.
+2. **Generate one fresh candidate**
+   - protected holdings/cash/ledger first;
+   - latest completed-close identity-bound pricing;
+   - full current funded-position re-underwriting;
+   - broad challenger discovery;
+   - EU/UCITS fundability gates;
+   - explicit allocation/no-change decision;
+   - benchmark-relative accountability.
+3. **Freeze semantic state**
+   - one review state;
+   - no downstream semantic mutation;
+   - pure NL/EN Markdown/HTML/PDF;
+   - exact artifact hashes/manifest.
+4. **Machine validate**
+   - current-kernel regressions;
+   - pricing/provider invariants;
+   - workflow/repository/reachability boundaries;
+   - fail closed on missing/contradictory authority.
+5. **Independent exact-head assurance**
+   - separate `governance_release_assurance` worker;
+   - blind-first reconstruction where required;
+   - `PASS | FAIL | INDETERMINATE` on one exact frozen head;
+   - no repair by assurance worker.
+6. **Governed integration**
+   - unchanged assured head only;
+   - exact-main validation after integration;
+   - semantic drift invalidates assurance.
+7. **Separately authorized guarded transport**
+   - main-only;
+   - exact frozen manifest and artifact hashes;
+   - no re-render;
+   - double send confirmation and explicit authority.
+8. **Receipt closeout**
+   - transport evidence is not inbox receipt;
+   - close delivery only on positive receipt/manifest evidence.
+
+## Stable pricing gate
 
 For each exact UCITS trading line:
+- one qualified correctly bound exact-date primary close may be valuation-grade as `fresh_exact_unverified`;
+- an exact same-date verifier within tolerance upgrades confidence;
+- stale/missing/unbound verifier does not block a valid exact primary;
+- same-date disagreement fails closed;
+- stale-only/no-exact-close/identity or primary-binding failure remains blocked.
 
-- one qualified, correctly bound provider with the exact requested completed-session close is sufficient for valuation-grade `fresh_exact_unverified` pricing;
-- a second correctly bound exact same-date provider within tolerance upgrades the line to `fresh_exact_verified`;
-- a stale/missing/unbound verifier does not block a correctly bound exact primary;
-- actual same-date disagreement outside tolerance fails closed;
-- stale-only/no-exact-close/identity or primary-binding mismatch remains blocked.
+Never resurrect the retired universal two-provider requirement from historical prose, tests, old scorecard wording or compatibility names.
 
-Do **not** resurrect the retired rule that every funded line requires two simultaneous live providers.
+## Runtime and workflow hygiene
 
-## Fresh report cycle #114
+The current runtime namespace and six-workflow topology are bounded by `control/ETF_EU_WORKFLOW_AUTHORITY_INDEX_V1.md` and machine validators.
 
-The current cycle must:
+For every material change:
 
-- resolve the latest applicable completed-close date from fresh evidence;
-- perform a full portfolio re-underwrite;
-- run broad discovery, then EU-local UCITS identity/investability/fundability checks;
-- try to achieve more than six funded positions where evidence supports this, without a hard position-count target or relaxed fundability/pricing standards;
-- use whole shares and reconcile residual cash exactly;
-- render NL primary + EN companion from one normalized state;
-- use the current deterministic PNG equity-curve contract for HTML/PDF/email parity;
-- pass machine, arithmetic and client-grade/visual QA;
-- freeze one exact candidate for independent assurance;
-- merge only after independent exact-head PASS and governed integration authority;
-- use guarded transport only after separate current guarded-send authority;
-- claim delivery success only from real recipient/receipt/attachment evidence or equivalent positive manifest.
+```text
+change
+→ validate
+→ remove superseded path/test/doc exposed by the change
+→ re-read live state
+→ continue
+```
+
+Do not add a parallel builder, renderer, allocator, sender, shadow workflow or current-looking output namespace when an existing current responsibility can be extended more simply.
 
 ## Protected boundaries
 
-- no real broker execution;
-- no share/cash mutation without explicit current allocation authority;
-- no hard ticker-count target;
-- no retired 50%/35%/15% allocation rules;
-- no diagnostic-only source promotion to force coverage;
+- no broker execution;
+- no share/cash/ledger mutation without explicit current allocation authority;
+- no hard position-count target;
+- no historical fixed-allocation rule treated as current authority;
+- no diagnostic source promotion to force coverage;
 - no stale historical price treated as current truth;
-- candidate generation has no SMTP/delivery authority;
+- no self-assurance by implementation worker;
+- no machine preflight represented as independent assurance;
 - no rerender after artifact approval;
 - no delivery-success claim without positive receipt/manifest evidence.
 
-## Controller housekeeping
+## Architecture-change rule
 
-Read-first narrative state was stale after PR #112. Issue #115 exists specifically to reconcile canonical documentation so old two-provider wording cannot silently override live merged pricing behavior again. Historical issues/work packages remain provenance and must be interpreted by date and lifecycle state, not as current authority.
+A future architecture change must explicitly identify:
+- decision-framework impact;
+- input/state-contract impact;
+- output-contract impact;
+- operational-runbook impact;
+- superseded code/workflow/test/documentation to remove.
+
+Debt retirement remains part of Definition of Done; do not defer it to a later cleanup phase.

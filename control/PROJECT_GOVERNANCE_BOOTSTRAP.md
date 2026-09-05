@@ -30,6 +30,7 @@ The user provides one Weekly ETF EU instruction and receives one consolidated pr
 - The controlled transport sends the already-assured artifacts; it does not re-render them.
 - Delivery is not confirmed until independent receipt and production closeout evidence exist.
 - `tools/validate_etf_eu_workflow_authority.py` fail-closes historical workflow reactivation and parallel delivery paths.
+- Issue #119 / PR #120 implementation ownership is reconciled in the machine-readable lifecycle record `control/ETF_EU_ARCHITECTURE_REV2_119_CLAIM.json`; it grants Worker-A implementation ownership only and does not grant assurance, integration, delivery, portfolio or broker authority.
 
 ## Authority separation
 

@@ -24,6 +24,23 @@ from pricing.ucits_primary_verification_legacy import apply_primary_verification
 from pricing.ucits_provider_identity_binding import build_provider_identity_binding
 
 
+DEPRECATED_CONSENSUS_FLAG = "--require-funded-consensus"
+CANONICAL_EXACT_CLOSE_FLAG = "--require-funded-exact-close-authority"
+
+
+def _warn_deprecated_consensus_alias(enabled: bool) -> None:
+    if not enabled:
+        return
+    print(
+        "DEPRECATED_PRICING_FLAG"
+        f" | old={DEPRECATED_CONSENSUS_FLAG}"
+        f" | replacement={CANONICAL_EXACT_CLOSE_FLAG}"
+        " | semantics=exact_primary_close_authority_with_optional_independent_verification"
+        " | sunset=remove_after_all_active_callers_use_replacement",
+        file=sys.stderr,
+    )
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--basket", default="config/ucits_close_price_validation_basket.yml")
@@ -39,9 +56,23 @@ def main() -> None:
     parser.add_argument("--pause-seconds", type=float, default=1.0)
     parser.add_argument("--max-close-age-days", type=int, default=7)
     parser.add_argument("--agreement-tolerance-pct", type=float, default=1.0)
-    # Retained CLI compatibility: this now means require funded pricing authority,
-    # not require two live providers on the same date.
-    parser.add_argument("--require-funded-consensus", action="store_true")
+    parser.add_argument(
+        CANONICAL_EXACT_CLOSE_FLAG,
+        action="store_true",
+        help=(
+            "Fail closed unless every funded line has exact completed-close pricing authority: "
+            "a correctly bound exact-date primary close is sufficient; independent verification upgrades confidence; "
+            "accepted same-date disagreement remains blocking."
+        ),
+    )
+    parser.add_argument(
+        DEPRECATED_CONSENSUS_FLAG,
+        action="store_true",
+        help=(
+            "DEPRECATED compatibility alias for --require-funded-exact-close-authority. "
+            "It does not require two live providers."
+        ),
+    )
     parser.add_argument(
         "--allocation-candidate-basket-ids",
         default="",
@@ -52,6 +83,8 @@ def main() -> None:
     parser.add_argument("--max-attempts", type=int, default=1)
     parser.add_argument("--rate-limit-mode", choices=("stop", "sleep"), default="stop")
     args = parser.parse_args()
+
+    _warn_deprecated_consensus_alias(args.require_funded_consensus)
 
     secret_safety = enforce_provider_secret_safety()
     allocation_candidate_basket_ids = [
@@ -148,7 +181,11 @@ def main() -> None:
         f" | alpha_live={secret_safety['alpha_vantage_live_enabled']}"
         f" | gate={qualification['report_pricing_gate_passed']}"
     )
-    require_pricing_authority = args.require_funded_consensus or bool(os.environ.get("WP11_RUN_ID"))
+    require_pricing_authority = (
+        args.require_funded_exact_close_authority
+        or args.require_funded_consensus
+        or bool(os.environ.get("WP11_RUN_ID"))
+    )
     if require_pricing_authority and not qualification.get("report_pricing_gate_passed"):
         raise SystemExit(
             "Funded-position exact completed-close and static identity gate failed; report generation is blocked."

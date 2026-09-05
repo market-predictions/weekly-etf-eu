@@ -1,4 +1,4 @@
-name: Validate ETF EU multi-provider close-price engine
+name: Validate ETF EU close-price provider engine
 
 on:
   workflow_dispatch:
@@ -21,8 +21,6 @@ on:
       - "pricing/ucits_price_evidence_cache.py"
       - "pricing/ucits_price_qualification_policy.py"
       - "pricing/build_ucits_close_price_validation_basket_results.py"
-      - "runtime/build_etf_eu_routine_valuation_overlay.py"
-      - "runtime/apply_etf_eu_routine_valuation_to_client_report.py"
       - "tools/qualify_ucits_price_providers.py"
       - "tests/test_provider_secret_safety.py"
       - "tests/test_alpha_vantage_capacity_policy.py"
@@ -31,10 +29,6 @@ on:
       - "tests/test_ucits_price_evidence_cache.py"
       - "tests/test_ucits_price_evidence_redaction.py"
       - "tests/test_ucits_price_qualification_policy.py"
-      - "tests/test_etf_eu_routine_valuation_overlay.py"
-      - "tests/test_apply_etf_eu_routine_valuation_to_client_report.py"
-      - "control/work_packages/WP_SYNC_11A_MULTI_PROVIDER_CLOSE_PRICE_ENGINE_20260803.md"
-      - "control/work_packages/WP_SYNC_11A_OPERATIONALIZATION_20260808.md"
       - ".github/workflows/validate-etf-eu-price-provider-engine.yml"
 
 permissions:
@@ -60,10 +54,10 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Install bounded dependencies
-        run: python -m pip install requests==2.32.3 PyYAML==6.0.2 beautifulsoup4 weasyprint
+      - name: Install bounded provider dependencies
+        run: python -m pip install requests==2.32.3 PyYAML==6.0.2 beautifulsoup4
 
-      - name: Run deterministic adapter, capacity, secret-safety, funded-universe, cache, redaction, consensus, identity, valuation and client-surface tests
+      - name: Run provider, capacity, identity, cache, redaction and qualification regressions
         run: |
           python -m unittest \
             tests/test_provider_secret_safety.py \
@@ -73,8 +67,6 @@ jobs:
             tests/test_ucits_price_evidence_cache.py \
             tests/test_ucits_price_evidence_redaction.py \
             tests/test_ucits_price_qualification_policy.py \
-            tests/test_etf_eu_routine_valuation_overlay.py \
-            tests/test_apply_etf_eu_routine_valuation_to_client_report.py \
             -v
 
       - name: Qualify controlled trading-line universe with live providers
@@ -93,7 +85,7 @@ jobs:
             --max-close-age-days 7 \
             --agreement-tolerance-pct 1.0
 
-      - name: Validate qualification artifact contract
+      - name: Validate provider qualification artifact contract
         if: github.event_name == 'workflow_dispatch'
         run: |
           python - <<'PY'
@@ -137,9 +129,8 @@ jobs:
           if capacity.get("live_close_scope") != "authoritative_funded_positions_only":
               raise SystemExit("ALPHA_CAPACITY_SCOPE_MISMATCH")
           for line in payload["lines"]:
-              if line.get("funded") and line.get("qualification_status") == "qualified_development_consensus":
-                  if not line.get("identity_anchor_providers"):
-                      raise SystemExit(f"PRICE_ENGINE_UNANCHORED_FUNDED_LINE:{line['ticker']}")
+              if line.get("funded") and line.get("valuation_grade") is True and not line.get("identity_anchor_providers"):
+                  raise SystemExit(f"PRICE_ENGINE_UNANCHORED_FUNDED_LINE:{line['ticker']}")
 
           def contains_exact_secret(node, secret):
               if isinstance(node, dict):
@@ -156,7 +147,7 @@ jobs:
               "ETF_EU_PRICE_ENGINE_OK"
               f" | configured={payload['provider_configuration']}"
               f" | lines={payload['line_count']}"
-              f" | funded_consensus={payload['funded_consensus_count']}/{payload['funded_line_count']}"
+              f" | funded_authorized={payload.get('funded_pricing_authorized_count', 0)}/{payload['funded_line_count']}"
               f" | identity_anchors={payload['funded_identity_anchor_count']}/{payload['funded_line_count']}"
               f" | stale_registry_flags={authority.get('stale_registry_funded_flags_overridden', [])}"
               f" | cache_used={payload.get('provider_cache_used_count', 0)}"

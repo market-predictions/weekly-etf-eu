@@ -1,69 +1,124 @@
 # Weekly ETF EU Review OS — Current State
 
-## Snapshot
+## Authority notice
+
+This file is **NARRATIVE_LIGHT** stable context. It is not a runtime routing table and deliberately does not carry a manually synchronized current `main` SHA, issue number, PR number, claim owner, candidate head or CI result.
+
+Resolve volatile operational state live in this order:
+
+1. canonical `market-predictions/control-plane` queue/claim evidence where available;
+2. target repository live `main`, branch, PR/issue and workflow/check evidence;
+3. exact candidate/handover/result references;
+4. authoritative machine state/output evidence.
+
+If this narrative conflicts with later merged code or protected machine state, live authoritative evidence wins.
+
+## Stable product architecture
+
+Weekly ETF EU uses the Thin Current Kernel defined by:
+- `docs/architecture/WEEKLY_ETF_EU_PRODUCT_ARCHITECTURE_V2.md`;
+- `docs/runbooks/WEEKLY_ETF_EU_REALIZATION_RUNBOOK_V1.md`.
+
+The product is one weekly EU-investable capital decision plus accountable evidence, communicated through one premium NL/EN report family.
+
+The semantic execution boundary is deliberately small:
 
 ```text
-date=2026-08-19
-repository=market-predictions/weekly-etf-eu
-main_sha=5cc712582f86a51951cf57c55992f0ddc49a6ff1
-state=FRESH_REPORT_CYCLE_OPEN_ON_PRIMARY_VERIFICATION_PRICING
-current_report_issue=114
-pricing_authority=PRIMARY_CLOSE_PLUS_OPTIONAL_VERIFICATION
-pricing_change_issue=111 CLOSED
-pricing_change_pr=112 MERGED
-pricing_change_merge=5cc712582f86a51951cf57c55992f0ddc49a6ff1
-pricing_assurance_issue=113 CLOSED_COMPLETED
-principal_decision_required=false
-real_broker_execution=false
+protected persistent state + current evidence
+→ runtime/current/
+→ one frozen review_state
+→ pure NL/EN Markdown/HTML
+→ PDF from exact HTML
+→ exact artifact manifest
 ```
 
-## Current production pricing authority
+After freeze, downstream validation/render/delivery may not mutate NAV, selected prices, funded-position actions, allocation semantics, comparator performance or evidence status.
 
-The prior universal two-live-provider same-date consensus requirement is retired.
+## Canonical runtime topology
 
-Current production semantics are defined by merged PR #112 and summarized canonically in `control/PRICING_AUTHORITY_CURRENT.md`:
+Allowed top-level runtime namespace:
 
-- establish source-independent UCITS trading-line identity from the canonical symbol registry;
-- require the primary provider symbol to be correctly bound to that exact line;
-- one qualified bound provider with the exact requested completed-session close is sufficient for valuation-grade `fresh_exact_unverified` pricing;
-- an additional correctly bound exact same-date provider within tolerance upgrades the line to `fresh_exact_verified`;
-- a stale, missing or unbound verifier does not invalidate a correctly bound exact primary;
-- two accepted exact same-date providers outside tolerance fail closed as `provider_disagreement`;
-- stale-only pricing, no exact requested-date close, broken primary binding, returned-symbol mismatch, venue mismatch or currency mismatch remain blocked;
-- selected valuation price is the primary provider close, not a median blend.
+```text
+runtime/__init__.py
+runtime/adapt_weekly_etf_macro_for_eu.py
+runtime/current/
+runtime/send_etf_eu_controlled_report.py
+runtime/write_etf_eu_delivery_evidence.py
+runtime/check_etf_eu_delivery_receipt.py
+```
 
-Any older issue, work-package, metadata or narrative statement saying that every funded line still requires two live providers is historical provenance only and is not current authority.
+Additional top-level runtime executors or subdirectories are forbidden by current reachability validation. Retired builders, allocator/shadow paths, post-render semantic patchers and alternate senders are Git-history provenance, not current execution authority.
 
-## Why the rule changed
+## Stable production pricing semantics
 
-The 2026-08-17 candidate exposed the liveness defect: Alpha Vantage had exact 2026-08-17 closes for all six funded positions while Yahoo was still on 2026-08-14. The old universal two-provider gate therefore blocked 6/6 valid exact primary closes. PR #112 separated exact primary close authority from independent verification, preserved fail-closed disagreement and identity controls, passed independent assurance, and merged on 2026-08-18.
+`control/PRICING_AUTHORITY_CURRENT.md` is the canonical human-readable policy summary.
 
-## Current report lifecycle
+- exact source-independent UCITS trading-line identity is mandatory;
+- one qualified correctly bound primary provider with the exact requested completed-session close is sufficient for valuation-grade `fresh_exact_unverified` pricing;
+- an exact same-date correctly bound verifier within tolerance upgrades confidence to `fresh_exact_verified`;
+- stale/missing/unbound verifier evidence does not invalidate a valid exact primary;
+- accepted exact same-date disagreement outside tolerance fails closed;
+- stale-only/no-exact-close/primary identity or binding failure remains blocked;
+- selected valuation price is the authoritative primary close.
 
-Issue #109 is closed as superseded because its body still encoded the retired same-date two-provider requirement. Issue #113 is closed because PR #112 assurance/integration completed. The active fresh-report lineage is issue #114.
+The prior universal two-live-provider gate is retired. Historical prose or compatibility names containing `consensus` do not override this policy.
 
-The new cycle must:
+## Stable state topology
 
-- use fresh completed-close evidence under the primary+verification pricing authority;
-- perform a full current portfolio re-underwrite;
-- perform broad donor discovery followed by EU-local UCITS mapping/fundability;
-- seek more than six funded positions only where current evidence, fundability, pricing and allocation authority support them; there is no hard ticker-count target;
-- preserve whole-share/cash reconciliation;
-- produce one normalized NL/EN client-grade artifact set;
-- obtain independent exact-head assurance before integration;
-- use guarded transport only after separate current send authority;
-- claim delivery success only from real receipt/manifest evidence.
+Persistent domain truth:
+- protected portfolio state;
+- authoritative trade ledger;
+- dated accountability/valuation history;
+- recommendation/re-underwriting memory;
+- UCITS identity registry.
 
-## Historical closed cycle
+Per-run truth:
+- one immutable/frozen review state derived from persistent state plus current evidence;
+- this is the single semantic source for NL/EN Markdown/HTML/PDF after freeze.
 
-The 2026-08-14 report cycle remains closed and delivery-confirmed. The later email-equity parity repair remains merged and does not reopen that historical cycle.
+Current candidate package namespace:
 
-## Stable boundaries
+```text
+output/current/
+```
+
+Immutable run/evidence namespaces:
+
+```text
+output/history/<report_date>/<run_id>/
+output/evidence/<run_id>/
+```
+
+Client text never creates portfolio authority. Historical target weights, prior report prose and prior recommendation wording are continuity evidence only.
+
+## Accountability comparator
+
+The stable primary opportunity-cost comparator is the configured VWCE UCITS trading line. Comparator performance is accountability evidence, not an allocation target, volatility target or automatic trading instruction.
+
+## Stable operating boundaries
 
 - no real broker execution;
-- no portfolio/share/cash mutation without explicit current allocation authority;
-- no diagnostic-only source promotion merely to increase coverage;
+- no protected share/cash/ledger mutation without explicit current allocation authority;
+- no diagnostic-only source promotion merely to force coverage;
+- no hard ticker-count target;
 - pricing confidence is not an allocation rule;
 - candidate generation has no SMTP/delivery authority;
-- no delivery-success claim without positive receipt/manifest evidence;
-- prior reports and old issues are historical context, not current pricing truth.
+- independent assurance is exact-head and separate from implementation;
+- guarded transport sends exact approved artifacts only and may not re-render;
+- no delivery-success claim without positive receipt/manifest evidence.
+
+## Stable workflow topology
+
+`control/ETF_EU_WORKFLOW_AUTHORITY_INDEX_V1.md` defines the six current/current-supporting workflows:
+- candidate build;
+- guarded delivery;
+- current-kernel regression;
+- provider-engine regression;
+- release-evidence preflight;
+- repository/product-boundary validation.
+
+No historical workflow or runtime path gains authority from remaining in Git history or archive.
+
+## How to answer “what is the current status?”
+
+Do not quote this file as a lifecycle snapshot. Re-read live Control and target-repository evidence, then report observed SHAs/PRs/issues/checks and timestamps. Do not write volatile lifecycle facts back here unless stable topology or authority policy itself changed.

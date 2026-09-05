@@ -1,0 +1,2 @@
+date,portfolio_nav_eur,portfolio_period_return_pct,portfolio_drawdown_pct,comparator_id,comparator_close_eur,comparator_index,comparator_period_return_pct,comparator_drawdown_pct,active_return_pp,cash_eur,cash_weight_pct,source_portfolio,source_comparator,record_status
+2026-08-14,100851.09,0.000000,0.000000,vwce_ftse_all_world_ucits_acc_xetra_eur,168.88000244,100.000000,0.000000,0.000000,0.000000,28101.01,27.863863,output/etf_eu_valuation_history.csv,output/pricing/ucits_close_price_validation_basket_results_20260814_235900.json,ACCOUNTABILITY_BASELINE
