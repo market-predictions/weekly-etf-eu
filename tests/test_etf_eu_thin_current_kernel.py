@@ -28,6 +28,8 @@ def _normalized_state() -> dict:
                     "thesis_assessment": "US equity overweight remains explicit rather than diversification.",
                     "best_alternative": "No superior replacement established", "next_review_trigger": "Weekly re-underwriting",
                     "portfolio_contribution_eur": 100.0, "source_run_id": "fixture",
+                    "reunderwriting_memory_report_date": "2026-08-14", "reunderwriting_memory_shares": 10,
+                    "reunderwriting_memory_weight_pct": 6.4,
                 },
                 {
                     "ticker": "EUNA", "exchange_ticker": "EUNA", "isin": "IE00BDBRDM35",
@@ -38,6 +40,8 @@ def _normalized_state() -> dict:
                     "current_allocation_decision": "hold", "fresh_cash_implication": "Hold", "reunderwriting_complete": True,
                     "thesis_assessment": "Bond ballast remains useful.", "best_alternative": "None established",
                     "next_review_trigger": "Weekly re-underwriting", "portfolio_contribution_eur": -25.0, "source_run_id": "fixture",
+                    "reunderwriting_memory_report_date": "2026-08-14", "reunderwriting_memory_shares": 1000,
+                    "reunderwriting_memory_weight_pct": 5.0,
                 },
             ],
         },
