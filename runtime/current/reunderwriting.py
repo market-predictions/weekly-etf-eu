@@ -65,8 +65,6 @@ def _macro_fresh(macro: dict[str, Any], report_date: str) -> tuple[bool, str | N
     source_date = str(provenance.get("source_report_date") or macro.get("report_date") or "")
     if not source_date:
         return False, None
-    # Workflow refreshes this artifact for the report date. We deliberately do
-    # not silently stretch old macro context into a current decision.
     return source_date == report_date, source_date
 
 
@@ -156,9 +154,11 @@ def apply_current_reunderwriting(
             blockers.append("loss_and_implementation_review_trigger")
 
         complete = not blockers
-        current_action = prior_action if complete else "REVIEW"
-        if current_action not in {"ADD", "HOLD", "REDUCE", "REPLACE", "CLOSE"}:
-            current_action = "HOLD" if complete else "REVIEW"
+        # Historical recommendation memory is continuity evidence only. It may
+        # never directly become the current action. With complete current-run
+        # evidence and no machine-evidenced invalidation/superior replacement,
+        # the current independent decision is HOLD; otherwise fail closed to REVIEW.
+        current_action = "HOLD" if complete else "REVIEW"
 
         challenger_text = "No same-exposure fundable challenger established in current discovery evidence"
         if challengers:
@@ -170,19 +170,19 @@ def apply_current_reunderwriting(
         thesis_memory = str((prior or {}).get("thesis_assessment") or "").strip()
         fresh_test = (
             f"Fresh {report_date} test: exact identity-bound close is current; macro evidence date={macro_source_date or 'missing'}; "
-            f"same-exposure current fundable challengers={len(challengers)}; prior thesis is continuity memory only."
+            f"same-exposure current fundable challengers={len(challengers)}; prior action={prior_action} is history only and is not reused as current authority."
         )
         assessment = (
-            f"Prior thesis continuity: {thesis_memory} Current run found no machine-evidenced hard invalidation or superior replacement authority."
+            f"Prior thesis continuity: {thesis_memory} Current run found no machine-evidenced hard invalidation or superior replacement authority; current action is independently derived as HOLD."
             if complete else
-            f"Current re-underwriting cannot close: {', '.join(blockers)}. Prior thesis is retained as history only, not current decision authority."
+            f"Current re-underwriting cannot close: {', '.join(blockers)}. Prior thesis and prior action are retained as history only, not current decision authority."
         )
         implementation_assessment = (
             f"Exact {report_date} valuation-grade close on the bound EU trading line; verification={position.get('verification_status')}."
         )
         position.update({
-            "would_initiate_today": "Yes" if current_action in {"ADD", "HOLD"} and complete else "Review",
-            "would_initiate_at_current_weight": "Yes" if current_action == "HOLD" and complete else ("No" if current_action in {"REDUCE", "REPLACE", "CLOSE"} else "Review"),
+            "would_initiate_today": "Yes" if current_action == "HOLD" and complete else "Review",
+            "would_initiate_at_current_weight": "Yes" if current_action == "HOLD" and complete else "Review",
             "fresh_cash_implication": current_action.title() if current_action != "REVIEW" else "Review",
             "fresh_cash_test": fresh_test,
             "reunderwriting_complete": complete,
@@ -199,11 +199,14 @@ def apply_current_reunderwriting(
             "hedge_validity_status": (prior or {}).get("hedge_validity_status") or "Not designated as a guaranteed hedge",
             "current_allocation_decision": current_action.lower() if current_action != "REVIEW" else "review",
             "next_review_trigger": (prior or {}).get("next_review_trigger") or "Next weekly re-underwriting or material evidence change",
-            "required_next_action": "Maintain current model shares pending next weekly re-underwriting" if current_action == "HOLD" else f"Current decision: {current_action}",
+            "required_next_action": "Maintain current model shares pending next weekly re-underwriting" if current_action == "HOLD" else "Current decision: REVIEW",
             "source_run_id": run_id,
             "source_authority": "current_exact_pricing_plus_current_macro_plus_current_discovery_plus_historical_thesis_memory",
             "reunderwriting_memory_report_date": (prior or {}).get("report_date"),
             "reunderwriting_memory_run_id": (prior or {}).get("run_id"),
+            "reunderwriting_memory_shares": _num((prior or {}).get("shares"), -1.0),
+            "reunderwriting_memory_weight_pct": _num((prior or {}).get("current_weight_pct"), -1.0),
+            "reunderwriting_memory_action": prior_action,
             "reunderwriting_blockers": blockers,
             "same_exposure_current_challengers": challengers,
         })
@@ -212,7 +215,10 @@ def apply_current_reunderwriting(
             "isin": isin,
             "complete": complete,
             "current_action": current_action,
+            "memory_action": prior_action,
             "memory_report_date": (prior or {}).get("report_date"),
+            "memory_shares": (prior or {}).get("shares"),
+            "memory_weight_pct": (prior or {}).get("current_weight_pct"),
             "macro_source_date": macro_source_date,
             "exact_close_date": position.get("price_date"),
             "verification_status": position.get("verification_status"),
