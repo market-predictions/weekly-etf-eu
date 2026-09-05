@@ -56,6 +56,21 @@ def _require_ancestor(ancestor: str, descendant: str, message: str) -> None:
     _require(result.returncode == 0, message)
 
 
+def _require_output_only_delta(candidate_sha: str, approved_commit: str) -> list[str]:
+    result = _git(["diff", "--name-only", "-z", "--no-renames", candidate_sha, approved_commit])
+    changed = [item.decode("utf-8") for item in result.stdout.split(b"\0") if item]
+    invalid = []
+    for raw in changed:
+        path = PurePosixPath(raw)
+        if not path.parts or path.parts[0] != "output":
+            invalid.append(raw)
+    _require(
+        not invalid,
+        "unreviewed semantic changes between assured candidate and approved report commit: " + ", ".join(invalid),
+    )
+    return changed
+
+
 def _repo_path(value: object, label: str) -> str:
     raw = str(value or "")
     path = PurePosixPath(raw)
@@ -90,6 +105,7 @@ def validate_git_binding(authority_path: str) -> dict[str, Any]:
     head = _git(["rev-parse", "HEAD"]).stdout.decode("ascii").strip()
     _require_commit(head, "current checkout head")
     _require_ancestor(candidate_sha, approved_commit, "assured candidate is not an ancestor of approved report commit")
+    _require_output_only_delta(candidate_sha, approved_commit)
     _require_ancestor(approved_commit, head, "approved report commit is not in current checkout lineage")
 
     assurance = authority.get("independent_assurance")

@@ -32,13 +32,45 @@ def _load_json(path: Path) -> dict[str, Any]:
     return payload
 
 
-def _latest_completed_memory(path: Path) -> dict[tuple[str, str], dict[str, str]]:
+def _accountability_baseline_date(path: Path | None, report_date: str) -> str | None:
+    if path is None or not path.exists():
+        return None
+    with path.open("r", encoding="utf-8", newline="") as handle:
+        rows = list(csv.DictReader(handle))
+    prior_rows = [row for row in rows if str(row.get("date") or "") < report_date]
+    return str(prior_rows[-1].get("date") or "") or None if prior_rows else None
+
+
+def _completed_memory_for_baseline(
+    path: Path,
+    *,
+    baseline_date: str | None,
+    report_date: str,
+) -> dict[tuple[str, str], dict[str, str]]:
     rows: list[dict[str, str]] = []
     with path.open("r", encoding="utf-8", newline="") as handle:
         rows = list(csv.DictReader(handle))
+
+    # Production binds recommendation continuity to the same prior dated
+    # observation selected by accountability. The fallback exists only for
+    # direct/library callers that have no accountability history path; it
+    # still excludes same-day rows so reruns cannot read their own output.
+    selected_date = baseline_date
+    if selected_date is None:
+        prior_dates = [
+            str(row.get("report_date") or "")
+            for row in rows
+            if _bool(row.get("reunderwriting_complete")) and str(row.get("report_date") or "") < report_date
+        ]
+        selected_date = max(prior_dates) if prior_dates else None
+    if not selected_date:
+        return {}
+
     latest: dict[tuple[str, str], dict[str, str]] = {}
     for row in rows:
         if not _bool(row.get("reunderwriting_complete")):
+            continue
+        if str(row.get("report_date") or "") != selected_date:
             continue
         ticker = str(row.get("ticker") or "").strip().upper()
         isin = str(row.get("isin") or "").strip().upper()
@@ -46,9 +78,7 @@ def _latest_completed_memory(path: Path) -> dict[tuple[str, str], dict[str, str]
             continue
         key = (isin, ticker)
         previous = latest.get(key)
-        if previous is None or (str(row.get("report_date") or ""), str(row.get("run_id") or "")) > (
-            str(previous.get("report_date") or ""), str(previous.get("run_id") or "")
-        ):
+        if previous is None or str(row.get("run_id") or "") > str(previous.get("run_id") or ""):
             latest[key] = row
     return latest
 
@@ -115,9 +145,15 @@ def apply_current_reunderwriting(
     report_date: str,
     run_id: str,
     evidence_output_path: Path,
+    accountability_history_path: Path | None = None,
 ) -> dict[str, Any]:
     state = copy.deepcopy(normalized_state)
-    memory = _latest_completed_memory(recommendation_history_path)
+    baseline_date = _accountability_baseline_date(accountability_history_path, report_date)
+    memory = _completed_memory_for_baseline(
+        recommendation_history_path,
+        baseline_date=baseline_date,
+        report_date=report_date,
+    )
     macro = _load_json(macro_pack_path)
     macro_is_fresh, macro_source_date = _macro_fresh(macro, report_date)
     positions = state.get("portfolio", {}).get("positions") or []
@@ -131,8 +167,6 @@ def apply_current_reunderwriting(
         isin = str(position.get("isin") or "").strip().upper()
         prior = memory.get((isin, ticker))
         blockers: list[str] = []
-        if prior is None:
-            blockers.append("no_completed_reunderwriting_memory")
         if position.get("identity_binding_valid") is not True:
             blockers.append("identity_binding_invalid")
         if position.get("pricing_status") != "valuation_grade_exact_close" or str(position.get("price_date") or "") != report_date:
@@ -145,19 +179,15 @@ def apply_current_reunderwriting(
         prior_action = _memory_action(prior or {})
         prior_thesis_score = _num((prior or {}).get("thesis_score"), -1.0)
         prior_implementation_score = _num((prior or {}).get("implementation_score"), -1.0)
-        if prior_thesis_score < 0 or prior_implementation_score < 0:
-            blockers.append("prior_thesis_or_implementation_score_missing")
 
+        # Current loss evidence may itself require review, but historical
+        # implementation/thesis scores never decide current HOLD/REVIEW.
         pnl_pct = _num(position.get("unrealized_pnl_pct"))
-        hard_review_trigger = pnl_pct < -10.0 and prior_implementation_score < 4.0
-        if hard_review_trigger:
-            blockers.append("loss_and_implementation_review_trigger")
+        current_loss_review_trigger = pnl_pct < -10.0
+        if current_loss_review_trigger:
+            blockers.append("current_loss_review_trigger")
 
         complete = not blockers
-        # Historical recommendation memory is continuity evidence only. It may
-        # never directly become the current action. With complete current-run
-        # evidence and no machine-evidenced invalidation/superior replacement,
-        # the current independent decision is HOLD; otherwise fail closed to REVIEW.
         current_action = "HOLD" if complete else "REVIEW"
 
         challenger_text = "No same-exposure fundable challenger established in current discovery evidence"
@@ -168,14 +198,16 @@ def apply_current_reunderwriting(
             challenger_text = str(prior.get("best_alternative")).strip() + " [historical comparison memory; not current funding authority]"
 
         thesis_memory = str((prior or {}).get("thesis_assessment") or "").strip()
+        continuity = f" Prior thesis continuity: {thesis_memory}" if thesis_memory else ""
         fresh_test = (
             f"Fresh {report_date} test: exact identity-bound close is current; macro evidence date={macro_source_date or 'missing'}; "
-            f"same-exposure current fundable challengers={len(challengers)}; prior action={prior_action} is history only and is not reused as current authority."
+            f"same-exposure current fundable challengers={len(challengers)}; current loss={pnl_pct:.4f}%; "
+            f"prior action={prior_action} and historical scores are continuity only and are not reused as current authority."
         )
         assessment = (
-            f"Prior thesis continuity: {thesis_memory} Current run found no machine-evidenced hard invalidation or superior replacement authority; current action is independently derived as HOLD."
+            f"Current run found no machine-evidenced hard invalidation or superior replacement authority; current action is independently derived as HOLD.{continuity}"
             if complete else
-            f"Current re-underwriting cannot close: {', '.join(blockers)}. Prior thesis and prior action are retained as history only, not current decision authority."
+            f"Current re-underwriting cannot close: {', '.join(blockers)}. Prior thesis, action and scores remain continuity evidence only, not current decision authority.{continuity}"
         )
         implementation_assessment = (
             f"Exact {report_date} valuation-grade close on the bound EU trading line; verification={position.get('verification_status')}."
@@ -201,7 +233,7 @@ def apply_current_reunderwriting(
             "next_review_trigger": (prior or {}).get("next_review_trigger") or "Next weekly re-underwriting or material evidence change",
             "required_next_action": "Maintain current model shares pending next weekly re-underwriting" if current_action == "HOLD" else "Current decision: REVIEW",
             "source_run_id": run_id,
-            "source_authority": "current_exact_pricing_plus_current_macro_plus_current_discovery_plus_historical_thesis_memory",
+            "source_authority": "current_exact_pricing_plus_current_macro_plus_current_discovery_plus_current_loss_evidence; historical_memory_continuity_only",
             "reunderwriting_memory_report_date": (prior or {}).get("report_date"),
             "reunderwriting_memory_run_id": (prior or {}).get("run_id"),
             "reunderwriting_memory_shares": _num((prior or {}).get("shares"), -1.0),
@@ -219,12 +251,15 @@ def apply_current_reunderwriting(
             "memory_report_date": (prior or {}).get("report_date"),
             "memory_shares": (prior or {}).get("shares"),
             "memory_weight_pct": (prior or {}).get("current_weight_pct"),
+            "historical_thesis_score": None if prior_thesis_score < 0 else prior_thesis_score,
+            "historical_implementation_score": None if prior_implementation_score < 0 else prior_implementation_score,
+            "accountability_baseline_date": baseline_date,
             "macro_source_date": macro_source_date,
             "exact_close_date": position.get("price_date"),
             "verification_status": position.get("verification_status"),
             "lane_evidence_count": len(lane_evidence),
             "same_exposure_fundable_challenger_count": len(challengers),
-            "hard_review_trigger": hard_review_trigger,
+            "current_loss_review_trigger": current_loss_review_trigger,
             "blockers": blockers,
         })
 
@@ -253,6 +288,7 @@ def apply_current_reunderwriting(
         "funded_position_count": len(evidence_rows),
         "completed_position_count": len(evidence_rows) - len(incomplete),
         "incomplete_tickers": [row["ticker"] for row in incomplete],
+        "accountability_baseline_date": baseline_date,
         "macro_source_date": macro_source_date,
         "macro_fresh": macro_is_fresh,
         "cash_after_explanation": cash_rationale,
@@ -274,6 +310,7 @@ def apply_current_reunderwriting(
         "report_date": report_date,
         "run_id": run_id,
         "complete": not incomplete,
+        "accountability_baseline_date": baseline_date,
         "rows": evidence_rows,
         "best_fundable_challenger": best_challenger,
         "cash_rationale": cash_rationale,

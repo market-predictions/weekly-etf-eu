@@ -62,6 +62,7 @@ def build(args: argparse.Namespace) -> dict[str, Path]:
     normalized = apply_current_reunderwriting(
         normalized,
         recommendation_history_path=Path(args.recommendation_scorecard),
+        accountability_history_path=Path(args.accountability_history),
         macro_pack_path=Path(args.macro_pack),
         discovery_bridge=bridge,
         report_date=args.report_date,
