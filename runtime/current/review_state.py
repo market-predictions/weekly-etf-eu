@@ -75,7 +75,7 @@ def _position_decisions(state: dict[str, Any]) -> list[dict[str, Any]]:
             "weight_pct": round(_num(row.get("current_weight_pct")), 6),
             "fresh_cash_view": row.get("fresh_cash_implication") or "Review",
             "rationale": row.get("thesis_assessment") or row.get("required_next_action") or "Current review evidence unresolved.",
-            "contribution_eur": round(_num(row.get("portfolio_contribution_eur", row.get("unrealized_pnl_eur"))), 2),
+            "contribution_eur": None,
             "best_alternative": row.get("best_alternative") or "No current alternative established",
             "invalidation_or_next_trigger": row.get("next_review_trigger") or row.get("required_next_action") or "Next scheduled re-underwriting",
             "pricing_status": row.get("pricing_status"),
@@ -95,6 +95,33 @@ def _position_decisions(state: dict[str, Any]) -> list[dict[str, Any]]:
             },
         })
     return rows
+
+
+def _period_position_contributions(state: dict[str, Any], *, prior_nav: float, baseline_date: str) -> tuple[list[dict[str, Any]], list[str]]:
+    contributions: list[dict[str, Any]] = []
+    unresolved: list[str] = []
+    for row in (state.get("portfolio") or {}).get("positions") or []:
+        if not isinstance(row, dict):
+            continue
+        ticker = _ticker(row)
+        prior_date = str(row.get("reunderwriting_memory_report_date") or "")
+        prior_shares = _num(row.get("reunderwriting_memory_shares"), -1.0)
+        prior_weight = _num(row.get("reunderwriting_memory_weight_pct"), -1.0)
+        current_shares = _num(row.get("shares"), -1.0)
+        current_value = _num(row.get("market_value_eur"), -1.0)
+        if prior_date != baseline_date:
+            unresolved.append(f"position_prior_observation_date_mismatch:{ticker}")
+            continue
+        if min(prior_shares, prior_weight, current_shares, current_value) < 0:
+            unresolved.append(f"position_prior_observation_missing:{ticker}")
+            continue
+        if abs(current_shares - prior_shares) > 1e-9:
+            unresolved.append(f"position_flow_not_evidenced:{ticker}")
+            continue
+        prior_value = prior_nav * prior_weight / 100.0
+        contributions.append({"ticker": ticker, "contribution_eur": round(current_value - prior_value, 2)})
+    contributions.sort(key=lambda item: item["contribution_eur"])
+    return contributions, unresolved
 
 
 def _accountability(state: dict[str, Any], *, comparator: dict[str, Any], history_path: Path, pricing_path: Path, report_date: str) -> dict[str, Any]:
@@ -132,6 +159,7 @@ def _accountability(state: dict[str, Any], *, comparator: dict[str, Any], histor
             "unresolved": ["no_prior_accountability_baseline"],
         }
 
+    baseline_date = str(prior.get("date") or "")
     prior_nav = _num(prior.get("portfolio_nav_eur"))
     prior_close = _num(prior.get("comparator_close_eur"))
     prior_index = _num(prior.get("comparator_index"), 100.0)
@@ -144,14 +172,12 @@ def _accountability(state: dict[str, Any], *, comparator: dict[str, Any], histor
     historical_indices = [_num(row.get("comparator_index")) for row in history if _num(row.get("comparator_index")) > 0]
     portfolio_peak = max(historical_navs + [nav])
     comparator_peak = max(historical_indices + [comparator_index])
-    contributions = sorted(
-        ({"ticker": _ticker(row), "contribution_eur": round(_num(row.get("portfolio_contribution_eur", row.get("unrealized_pnl_eur"))), 2)} for row in portfolio.get("positions") or [] if isinstance(row, dict)),
-        key=lambda item: item["contribution_eur"],
-    )
+    contributions, contribution_unresolved = _period_position_contributions(state, prior_nav=prior_nav, baseline_date=baseline_date)
     cash_policy = state.get("cash_policy") or {}
+    unresolved = ["cash_drag_not_yet_evidenced", "transaction_costs_not_evidenced", *contribution_unresolved]
     return {
-        "status": "COMPLETE",
-        "baseline_date": prior.get("date"),
+        "status": "COMPLETE" if not contribution_unresolved else "INCOMPLETE",
+        "baseline_date": baseline_date,
         "report_date": report_date,
         "comparator_id": comparator.get("comparator_id"),
         "comparator_ticker": comparator.get("ticker"),
@@ -174,16 +200,18 @@ def _accountability(state: dict[str, Any], *, comparator: dict[str, Any], histor
         "top_contributor": contributions[-1] if contributions else None,
         "top_detractor": contributions[0] if contributions else None,
         "position_contributions": contributions,
+        "position_contribution_method": "current_market_value_minus_prior_dated_position_value_when_shares_unchanged",
+        "position_flows_require_explicit_evidence": True,
         "costs_status": "UNAVAILABLE_NOT_INVENTED",
         "comparator_pricing": pricing_authority_summary(price),
-        "unresolved": ["cash_drag_not_yet_evidenced", "transaction_costs_not_evidenced"],
+        "unresolved": unresolved,
     }
 
 
 def _risk_summary(decisions: list[dict[str, Any]], accountability: dict[str, Any]) -> dict[str, Any]:
     confidence_rank = {"LOW": 0, "MEDIUM": 1, "HIGH": 2}
     if decisions:
-        weakest = sorted(decisions, key=lambda row: (confidence_rank.get(str(row.get("confidence")), 9), row.get("contribution_eur", 0)))[0]
+        weakest = sorted(decisions, key=lambda row: (confidence_rank.get(str(row.get("confidence")), 9), _num(row.get("contribution_eur"))))[0]
         if weakest.get("confidence") != "HIGH":
             return {"ticker": weakest.get("ticker"), "type": "evidence_confidence", "summary": f"{weakest.get('ticker')} has {weakest.get('confidence')} confidence because current evidence/verification is less complete."}
     detractor = accountability.get("top_detractor") or {}
@@ -201,6 +229,9 @@ def build_review_state(
     comparator_config = _load_yaml(comparator_config_path)
     comparator = comparator_config.get("primary_comparator") or {}
     accountability = _accountability(state, comparator=comparator, history_path=accountability_history_path, pricing_path=Path(pricing_artifact), report_date=report_date)
+    contribution_by_ticker = {str(row.get("ticker")): row.get("contribution_eur") for row in accountability.get("position_contributions") or []}
+    for decision in decisions:
+        decision["contribution_eur"] = contribution_by_ticker.get(str(decision.get("ticker")))
 
     blockers: list[str] = []
     if state.get("state_valid") is not True:
