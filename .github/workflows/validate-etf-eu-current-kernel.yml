@@ -39,6 +39,7 @@ jobs:
             tools/validate_etf_eu_client_surface_safety.py \
             tools/build_etf_eu_guarded_delivery_authority.py \
             tools/validate_etf_eu_guarded_delivery_authority.py \
+            tools/validate_etf_eu_guarded_delivery_git_binding.py \
             tools/validate_etf_eu_delivery_package_manifest.py \
             tools/validate_etf_eu_current_reachability.py \
             tools/validate_etf_eu_repository_boundary.py \
