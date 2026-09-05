@@ -78,7 +78,9 @@ def build_normalized_state(*, portfolio_state_path: Path, pricing_artifact_path:
             "price_date": report_date, "pricing_completed_close": True, "pricing_status": "valuation_grade_exact_close",
             "verification_status": verification_status(price_row), "pricing_source": price_row.get("source_name") or price_row.get("source_id"),
             "pricing_source_quality": price_row.get("source_quality_status"), "pricing_agreeing_providers": list(price_row.get("agreeing_providers") or []),
-            "portfolio_contribution_eur": pnl, "unrealized_pnl_eur": pnl, "unrealized_pnl_pct": round(pnl_pct, 6) if pnl_pct is not None else None,
+            "portfolio_contribution_eur": None, "portfolio_contribution_pct_nav": None,
+            "portfolio_contribution_status": "requires_prior_dated_observation_and_flow_reconciliation",
+            "unrealized_pnl_eur": pnl, "unrealized_pnl_pct": round(pnl_pct, 6) if pnl_pct is not None else None,
             "valuation_source": "thin_current_kernel_exact_line_pricing", "source_run_id": run_id,
         })
         normalized_positions.append(row)
@@ -86,8 +88,6 @@ def build_normalized_state(*, portfolio_state_path: Path, pricing_artifact_path:
     if nav <= 0: raise RuntimeError("Normalized portfolio NAV must be positive")
     for row in normalized_positions:
         row["current_weight_pct"] = round(100.0 * float(row["market_value_eur"]) / nav, 6)
-        pnl = row.get("portfolio_contribution_eur")
-        row["portfolio_contribution_pct_nav"] = round(100.0 * float(pnl) / nav, 6) if pnl is not None else None
     return {
         "schema_version": SCHEMA_VERSION, "artifact_type": "weekly_etf_eu_current_normalized_state", "run_id": run_id, "report_date": report_date,
         "state_valid": True, "blockers": [],
