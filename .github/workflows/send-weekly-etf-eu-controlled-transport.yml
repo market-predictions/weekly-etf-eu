@@ -81,6 +81,8 @@ jobs:
           set -euo pipefail
           RUN_ID="$(date -u +'%Y%m%d_%H%M%S')"
           PACKAGE_MANIFEST="output/delivery_package/etf_eu_delivery_package_manifest_${RUN_ID}.json"
+          python tools/validate_etf_eu_guarded_delivery_git_binding.py \
+            --authority "$ETF_EU_DELIVERY_AUTHORITY"
           python tools/validate_etf_eu_guarded_delivery_authority.py \
             --authority "$ETF_EU_DELIVERY_AUTHORITY" \
             --transport-run-id "$RUN_ID" \
