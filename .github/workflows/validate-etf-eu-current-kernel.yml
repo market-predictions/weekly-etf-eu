@@ -37,6 +37,7 @@ jobs:
             tools/build_etf_eu_thin_kernel_package.py \
             tools/validate_etf_eu_thin_kernel.py \
             tools/validate_etf_eu_client_surface_safety.py \
+            tools/validate_etf_eu_independent_assurance.py \
             tools/build_etf_eu_guarded_delivery_authority.py \
             tools/validate_etf_eu_guarded_delivery_authority.py \
             tools/validate_etf_eu_guarded_delivery_git_binding.py \

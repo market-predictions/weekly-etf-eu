@@ -7,8 +7,16 @@ on:
       - "control/ETF_EU_GOVERNANCE_RELEASE_ASSURANCE_WORK_PACKAGE_20260805.md"
       - "tools/build_etf_eu_release_assurance.py"
       - "tools/validate_etf_eu_release_assurance.py"
+      - "tools/validate_etf_eu_independent_assurance.py"
+      - "tools/build_etf_eu_guarded_delivery_authority.py"
+      - "tools/validate_etf_eu_guarded_delivery_authority.py"
+      - "tools/validate_etf_eu_guarded_delivery_git_binding.py"
+      - "tests/test_etf_eu_guarded_delivery_authority.py"
+      - "tests/test_etf_eu_guarded_delivery_authority_builder.py"
+      - "tests/test_etf_eu_exact_review_findings.py"
       - "fixtures/governance/**"
       - ".github/workflows/validate-etf-eu-release-assurance.yml"
+      - ".github/workflows/send-weekly-etf-eu-controlled-transport.yml"
       - ".github/workflows/run-weekly-etf-eu-routine.yml"
   workflow_dispatch:
     inputs:
@@ -37,7 +45,11 @@ jobs:
           set -euo pipefail
           python -m py_compile \
             tools/build_etf_eu_release_assurance.py \
-            tools/validate_etf_eu_release_assurance.py
+            tools/validate_etf_eu_release_assurance.py \
+            tools/validate_etf_eu_independent_assurance.py \
+            tools/build_etf_eu_guarded_delivery_authority.py \
+            tools/validate_etf_eu_guarded_delivery_authority.py \
+            tools/validate_etf_eu_guarded_delivery_git_binding.py
 
       - name: Validate positive machine-preflight fixture
         run: |

@@ -8,6 +8,11 @@ import pytest
 
 from tools.validate_etf_eu_delivery_package_manifest import validate as validate_package
 from tools.validate_etf_eu_guarded_delivery_authority import validate, write_delivery_package_manifest
+from tools.validate_etf_eu_independent_assurance import validate_review_file
+
+CANDIDATE = "1" * 40
+BASE = "0" * 40
+BASE_BRANCH = "main"
 
 
 def _sha(path: Path) -> str:
@@ -18,7 +23,32 @@ def _plain_sha(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
-def _build_authority(root: Path) -> Path:
+def _write_review(root: Path, *, verdict: str = "PASS") -> Path:
+    path = root / "review.json"
+    body = "\n".join([
+        "ETF_EU_INDEPENDENT_ASSURANCE_V1",
+        f"verdict={verdict}",
+        "reviewer_role=governance_release_assurance",
+        "implementation_role_separate=true",
+        f"candidate_sha={CANDIDATE}",
+        f"expected_base_branch={BASE_BRANCH}",
+        f"expected_base_sha={BASE}",
+    ])
+    payload = {
+        "id": 12345,
+        "state": "COMMENTED",
+        "body": body,
+        "commit_id": CANDIDATE,
+        "html_url": "https://github.com/market-predictions/weekly-etf-eu/pull/120#pullrequestreview-12345",
+        "pull_request_url": "https://api.github.com/repos/market-predictions/weekly-etf-eu/pulls/120",
+        "submitted_at": "2026-09-06T12:00:00Z",
+        "user": {"login": "external-reviewer"},
+    }
+    path.write_text(json.dumps(payload), encoding="utf-8")
+    return path
+
+
+def _build_authority(root: Path) -> tuple[Path, Path]:
     suffix = "260807"
     current = root / "output" / "current"
     current.mkdir(parents=True)
@@ -66,7 +96,7 @@ def _build_authority(root: Path) -> Path:
     thin_manifest_path = current / "manifest.json"
     thin_manifest_path.write_text(json.dumps(thin_manifest, sort_keys=True), encoding="utf-8")
 
-    safety_evidence = root / "output" / "quality" / "client_surface_safety_test.json"
+    safety_evidence = root / "output" / "evidence" / "20260807_220000" / "client_surface_safety.json"
     safety_evidence.parent.mkdir(parents=True)
     safety_evidence.write_text(json.dumps({
         "schema_version": "etf_eu_client_surface_safety_v1",
@@ -93,6 +123,13 @@ def _build_authority(root: Path) -> Path:
         }
         for key in ("nl_md", "en_md", "nl_html", "en_html", "nl_pdf", "en_pdf")
     }
+    review_path = _write_review(root)
+    assurance = validate_review_file(
+        review_path,
+        candidate_sha=CANDIDATE,
+        expected_base_branch=BASE_BRANCH,
+        expected_base_sha=BASE,
+    )
     payload = {
         "schema_version": "etf_eu_guarded_delivery_authority_v1",
         "artifact_type": "etf_eu_guarded_delivery_authority",
@@ -104,19 +141,15 @@ def _build_authority(root: Path) -> Path:
         "report_date": "2026-08-07",
         "report_suffix": suffix,
         "report_run_id": "20260807_220000",
-        "assured_candidate_head_sha": "1" * 40,
+        "assured_candidate_head_sha": CANDIDATE,
+        "expected_base_branch": BASE_BRANCH,
+        "expected_base_sha": BASE,
         "approved_report_commit_sha": "2" * 40,
         "thin_kernel_manifest": {
             "path": str(thin_manifest_path.relative_to(root)),
             "sha256": _sha(thin_manifest_path),
         },
-        "independent_assurance": {
-            "verdict": "PASS",
-            "reviewer_role": "governance_release_assurance",
-            "implementation_role_separate": True,
-            "reviewed_head_sha": "1" * 40,
-            "evidence_ref": "https://github.com/market-predictions/weekly-etf-eu/issues/999#issuecomment-1",
-        },
+        "independent_assurance": assurance,
         "principal_guarded_send_authorization": {
             "approved": True,
             "reference": "principal-command-2026-08-10",
@@ -133,29 +166,31 @@ def _build_authority(root: Path) -> Path:
     }
     path = root / "authority.json"
     path.write_text(json.dumps(payload), encoding="utf-8")
-    return path
+    return path, review_path
 
 
 def test_valid_authority_binds_canonical_thin_kernel_artifacts(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
-    _build_authority(tmp_path)
+    authority, review = _build_authority(tmp_path)
     monkeypatch.chdir(tmp_path)
-    payload = validate(Path("authority.json"))
+    payload = validate(Path("authority.json"), assurance_evidence_path=review)
     manifest = Path("output/delivery_package/test.json")
     write_delivery_package_manifest(payload, manifest, "20260810_160000")
     written = json.loads(manifest.read_text(encoding="utf-8"))
     assert written["source_is_independently_assured"] is True
+    assert written["expected_base_branch"] == "main"
+    assert written["expected_base_sha"] == BASE
     assert written["artifact_hashes_verified"] is True
     assert written["dutch_primary_pdf"] == "output/current/report_nl.pdf"
     assert written["source_thin_kernel_manifest_path"] == "output/current/manifest.json"
-    assert written["client_surface_safety_evidence_path"] == "output/quality/client_surface_safety_test.json"
+    assert written["client_surface_safety_evidence_path"] == "output/evidence/20260807_220000/client_surface_safety.json"
     assert written["report_run_id"] == "20260807_220000"
     assert validate_package(manifest)["status"] == "valid"
 
 
 def test_package_rejects_source_manifest_drift(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
-    _build_authority(tmp_path)
+    _, review = _build_authority(tmp_path)
     monkeypatch.chdir(tmp_path)
-    payload = validate(Path("authority.json"))
+    payload = validate(Path("authority.json"), assurance_evidence_path=review)
     package = Path("output/delivery_package/test.json")
     write_delivery_package_manifest(payload, package, "20260810_160000")
     source = Path("output/current/manifest.json")
@@ -165,28 +200,28 @@ def test_package_rejects_source_manifest_drift(tmp_path: Path, monkeypatch: pyte
 
 
 def test_package_rejects_safety_evidence_drift(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
-    _build_authority(tmp_path)
+    _, review = _build_authority(tmp_path)
     monkeypatch.chdir(tmp_path)
-    payload = validate(Path("authority.json"))
+    payload = validate(Path("authority.json"), assurance_evidence_path=review)
     package = Path("output/delivery_package/test.json")
     write_delivery_package_manifest(payload, package, "20260810_160000")
-    safety = Path("output/quality/client_surface_safety_test.json")
+    safety = Path("output/evidence/20260807_220000/client_surface_safety.json")
     safety.write_text(safety.read_text(encoding="utf-8") + "\n", encoding="utf-8")
     with pytest.raises(AssertionError, match="client-surface safety evidence hash mismatch"):
         validate_package(package)
 
 
 def test_hash_drift_fails_closed(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
-    _build_authority(tmp_path)
+    _, review = _build_authority(tmp_path)
     monkeypatch.chdir(tmp_path)
     payload = json.loads(Path("authority.json").read_text(encoding="utf-8"))
     Path(payload["artifacts"]["nl_md"]["path"]).write_text("changed after assurance", encoding="utf-8")
     with pytest.raises(AssertionError, match="artifact hash mismatch"):
-        validate(Path("authority.json"))
+        validate(Path("authority.json"), assurance_evidence_path=review)
 
 
 def test_manifest_freeze_drift_fails_closed(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
-    _build_authority(tmp_path)
+    _, review = _build_authority(tmp_path)
     monkeypatch.chdir(tmp_path)
     payload = json.loads(Path("authority.json").read_text(encoding="utf-8"))
     manifest_path = Path(payload["thin_kernel_manifest"]["path"])
@@ -196,22 +231,22 @@ def test_manifest_freeze_drift_fails_closed(tmp_path: Path, monkeypatch: pytest.
     payload["thin_kernel_manifest"]["sha256"] = _sha(manifest_path)
     Path("authority.json").write_text(json.dumps(payload), encoding="utf-8")
     with pytest.raises(AssertionError, match="semantic state is not frozen"):
-        validate(Path("authority.json"))
+        validate(Path("authority.json"), assurance_evidence_path=review)
 
 
 def test_artifact_binding_drift_fails_closed(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
-    _build_authority(tmp_path)
+    _, review = _build_authority(tmp_path)
     monkeypatch.chdir(tmp_path)
     payload = json.loads(Path("authority.json").read_text(encoding="utf-8"))
     payload["artifacts"]["nl_md"]["path"] = "output/current/report_en.md"
     payload["artifacts"]["nl_md"]["sha256"] = payload["artifacts"]["en_md"]["sha256"]
     Path("authority.json").write_text(json.dumps(payload), encoding="utf-8")
-    with pytest.raises(AssertionError, match="path differs from thin kernel manifest"):
-        validate(Path("authority.json"))
+    with pytest.raises(AssertionError, match="path is not canonical"):
+        validate(Path("authority.json"), assurance_evidence_path=review)
 
 
 def test_candidate_authority_escalation_fails_closed(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
-    _build_authority(tmp_path)
+    _, review = _build_authority(tmp_path)
     monkeypatch.chdir(tmp_path)
     payload = json.loads(Path("authority.json").read_text(encoding="utf-8"))
     manifest_path = Path(payload["thin_kernel_manifest"]["path"])
@@ -221,19 +256,22 @@ def test_candidate_authority_escalation_fails_closed(tmp_path: Path, monkeypatch
     payload["thin_kernel_manifest"]["sha256"] = _sha(manifest_path)
     Path("authority.json").write_text(json.dumps(payload), encoding="utf-8")
     with pytest.raises(AssertionError, match="candidate authority escalated: delivery_authority"):
-        validate(Path("authority.json"))
+        validate(Path("authority.json"), assurance_evidence_path=review)
 
 
-def test_non_pass_or_same_role_assurance_fails_closed(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
-    _build_authority(tmp_path)
+def test_assurance_tuple_or_evidence_tamper_fails_closed(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    _, review = _build_authority(tmp_path)
     monkeypatch.chdir(tmp_path)
     payload = json.loads(Path("authority.json").read_text(encoding="utf-8"))
-    payload["independent_assurance"]["verdict"] = "INDETERMINATE"
+    payload["expected_base_sha"] = "3" * 40
     Path("authority.json").write_text(json.dumps(payload), encoding="utf-8")
-    with pytest.raises(AssertionError, match="verdict must be PASS"):
-        validate(Path("authority.json"))
-    payload["independent_assurance"]["verdict"] = "PASS"
-    payload["independent_assurance"]["implementation_role_separate"] = False
+    with pytest.raises(AssertionError, match="assurance base sha mismatch"):
+        validate(Path("authority.json"), assurance_evidence_path=review)
+
+    payload["expected_base_sha"] = BASE
     Path("authority.json").write_text(json.dumps(payload), encoding="utf-8")
-    with pytest.raises(AssertionError, match="independence not evidenced"):
-        validate(Path("authority.json"))
+    review_payload = json.loads(review.read_text(encoding="utf-8"))
+    review_payload["body"] = review_payload["body"].replace("verdict=PASS", "verdict=FAIL")
+    review.write_text(json.dumps(review_payload), encoding="utf-8")
+    with pytest.raises(AssertionError, match="verdict must be PASS|binding hash mismatch"):
+        validate(Path("authority.json"), assurance_evidence_path=review)

@@ -7,6 +7,8 @@ import re
 from pathlib import Path
 from typing import Any
 
+from tools.validate_etf_eu_independent_assurance import resolve_review
+
 SCHEMA = "etf_eu_guarded_delivery_authority_v1"
 ARTIFACT_TYPE = "etf_eu_guarded_delivery_authority"
 PRODUCT = "weekly_etf_eu"
@@ -29,6 +31,14 @@ REQUIRED_THIN_KERNEL_FALSE_AUTHORITY = (
 )
 SHA_RE = re.compile(r"^[0-9a-f]{40}$")
 SHA256_RE = re.compile(r"^(?:sha256:)?[0-9a-f]{64}$")
+EXPECTED_ARTIFACT_PATHS = {
+    "nl_md": "output/current/report_nl.md",
+    "en_md": "output/current/report_en.md",
+    "nl_html": "output/current/report_nl.html",
+    "en_html": "output/current/report_en.html",
+    "nl_pdf": "output/current/report_nl.pdf",
+    "en_pdf": "output/current/report_en.pdf",
+}
 
 
 def _require(condition: bool, message: str) -> None:
@@ -59,7 +69,7 @@ def _validate_bound_thin_kernel_manifest(
     _require(isinstance(binding, dict), "thin_kernel_manifest binding required")
     manifest_path = Path(str(binding.get("path", "")))
     declared_hash = str(binding.get("sha256", "")).lower()
-    _require(str(manifest_path).startswith("output/"), "thin kernel manifest must be under output/")
+    _require(str(manifest_path) == "output/current/manifest.json", "thin kernel manifest must use canonical path")
     _require(SHA256_RE.fullmatch(declared_hash) is not None, "invalid thin kernel manifest sha256")
     actual_hash = _sha256(manifest_path)
     _require(actual_hash == _normalise_hash(declared_hash), "thin kernel manifest hash mismatch")
@@ -84,22 +94,28 @@ def _validate_bound_thin_kernel_manifest(
     _require(isinstance(review_state, dict), "thin kernel review_state artifact required")
     semantic_source = str(manifest.get("semantic_source", ""))
     _require(semantic_source == str(review_state.get("path", "")), "thin kernel semantic_source/review_state mismatch")
+    _require(semantic_source == "output/current/review_state.json", "review_state must use canonical path")
     review_state_path = Path(semantic_source)
-    _require(str(review_state_path).startswith("output/"), "review_state must be under output/")
     review_state_hash = str(review_state.get("sha256", "")).lower()
     _require(SHA256_RE.fullmatch(review_state_hash) is not None, "invalid review_state sha256")
     _require(_sha256(review_state_path) == _normalise_hash(review_state_hash), "review_state hash mismatch")
+
+    for key, expected_path in EXPECTED_ARTIFACT_PATHS.items():
+        item = manifest_artifacts.get(key)
+        _require(isinstance(item, dict), f"thin kernel artifact missing: {key}")
+        _require(str(item.get("path", "")) == expected_path, f"thin kernel artifact path mismatch: {key}")
     return manifest_path, actual_hash, manifest
 
 
-def _validate_client_surface_safety(payload: dict[str, Any]) -> tuple[Path, str]:
+def _validate_client_surface_safety(payload: dict[str, Any], *, report_run_id: str) -> tuple[Path, str]:
     safety = payload.get("client_surface_safety")
     _require(isinstance(safety, dict), "client_surface_safety object required")
     for flag in REQUIRED_CLIENT_SURFACE_FALSE_FLAGS:
         _require(safety.get(flag) is False, f"client surface safety assertion failed: {flag}")
     safety_evidence = Path(str(safety.get("evidence_ref", "")))
+    expected_path = Path("output") / "evidence" / report_run_id / "client_surface_safety.json"
+    _require(safety_evidence == expected_path, "client surface safety evidence must use canonical run-bound path")
     declared_hash = str(safety.get("evidence_sha256", "")).lower()
-    _require(str(safety_evidence).startswith("output/"), "client surface safety evidence must be under output/")
     _require(safety_evidence.exists(), f"client surface safety evidence missing: {safety_evidence}")
     _require(SHA256_RE.fullmatch(declared_hash) is not None, "invalid client surface safety evidence sha256")
     actual_hash = _sha256(safety_evidence)
@@ -113,7 +129,55 @@ def _validate_client_surface_safety(payload: dict[str, Any]) -> tuple[Path, str]
     return safety_evidence, actual_hash
 
 
-def validate(path: Path) -> dict[str, Any]:
+def _validate_independent_assurance(
+    payload: dict[str, Any], *, assurance_evidence_path: Path | None
+) -> dict[str, Any]:
+    candidate_sha = str(payload.get("assured_candidate_head_sha", "")).lower()
+    expected_base_branch = str(payload.get("expected_base_branch", ""))
+    expected_base_sha = str(payload.get("expected_base_sha", "")).lower()
+    _require(SHA_RE.fullmatch(candidate_sha) is not None, "invalid assured candidate head sha")
+    _require(bool(expected_base_branch.strip()), "expected base branch required")
+    _require(SHA_RE.fullmatch(expected_base_sha) is not None, "invalid expected base sha")
+
+    assurance = payload.get("independent_assurance")
+    _require(isinstance(assurance, dict), "independent_assurance object required")
+    _require(assurance.get("verdict") == "PASS", "independent assurance verdict must be PASS")
+    _require(assurance.get("reviewer_role") == "governance_release_assurance", "independent reviewer role mismatch")
+    _require(assurance.get("implementation_role_separate") is True, "assurance independence not evidenced")
+    _require(str(assurance.get("reviewed_head_sha", "")).lower() == candidate_sha, "assurance head/candidate mismatch")
+    _require(str(assurance.get("expected_base_branch", "")) == expected_base_branch, "assurance base branch mismatch")
+    _require(str(assurance.get("expected_base_sha", "")).lower() == expected_base_sha, "assurance base sha mismatch")
+    evidence_ref = str(assurance.get("evidence_ref", ""))
+    evidence_hash = str(assurance.get("evidence_binding_sha256", ""))
+    _require(bool(evidence_ref.strip()), "independent assurance evidence_ref required")
+    _require(SHA256_RE.fullmatch(evidence_hash.lower()) is not None, "invalid independent assurance evidence binding sha256")
+
+    resolved = resolve_review(
+        evidence_api_url=evidence_ref,
+        candidate_sha=candidate_sha,
+        expected_base_branch=expected_base_branch,
+        expected_base_sha=expected_base_sha,
+        evidence_binding_sha256=evidence_hash,
+        evidence_path=assurance_evidence_path,
+    )
+    for key in (
+        "verdict",
+        "reviewer_role",
+        "implementation_role_separate",
+        "reviewed_head_sha",
+        "expected_base_branch",
+        "expected_base_sha",
+        "evidence_ref",
+        "evidence_binding_sha256",
+        "review_id",
+        "reviewer_login",
+        "submitted_at",
+    ):
+        _require(assurance.get(key) == resolved.get(key), f"independent assurance resolved evidence mismatch: {key}")
+    return resolved
+
+
+def validate(path: Path, *, assurance_evidence_path: Path | None = None) -> dict[str, Any]:
     payload = _load(path)
     _require(payload.get("schema_version") == SCHEMA, "delivery authority schema mismatch")
     _require(payload.get("artifact_type") == ARTIFACT_TYPE, "delivery authority type mismatch")
@@ -132,25 +196,16 @@ def validate(path: Path) -> dict[str, Any]:
     _require(re.fullmatch(r"\d{8}_\d{6}", report_run_id) is not None, "invalid report_run_id")
     _require(report_run_id[:8] == report_date.replace("-", ""), "report run/date mismatch")
 
-    candidate_sha = str(payload.get("assured_candidate_head_sha", ""))
     approved_commit = str(payload.get("approved_report_commit_sha", ""))
-    _require(SHA_RE.fullmatch(candidate_sha) is not None, "invalid assured candidate head sha")
     _require(SHA_RE.fullmatch(approved_commit) is not None, "invalid approved report commit sha")
-
-    assurance = payload.get("independent_assurance")
-    _require(isinstance(assurance, dict), "independent_assurance object required")
-    _require(assurance.get("verdict") == "PASS", "independent assurance verdict must be PASS")
-    _require(assurance.get("reviewer_role") == "governance_release_assurance", "independent reviewer role mismatch")
-    _require(assurance.get("implementation_role_separate") is True, "assurance independence not evidenced")
-    _require(str(assurance.get("reviewed_head_sha", "")) == candidate_sha, "assurance head/candidate mismatch")
-    _require(bool(str(assurance.get("evidence_ref", "")).strip()), "independent assurance evidence_ref required")
+    resolved_assurance = _validate_independent_assurance(payload, assurance_evidence_path=assurance_evidence_path)
 
     principal = payload.get("principal_guarded_send_authorization")
     _require(isinstance(principal, dict), "principal guarded-send authorization required")
     _require(principal.get("approved") is True, "principal guarded-send authorization is not approved")
     _require(bool(str(principal.get("reference", "")).strip()), "principal authorization reference required")
 
-    safety_path, safety_hash = _validate_client_surface_safety(payload)
+    safety_path, safety_hash = _validate_client_surface_safety(payload, report_run_id=report_run_id)
     manifest_path, manifest_hash, thin_manifest = _validate_bound_thin_kernel_manifest(
         payload, report_date=report_date, report_suffix=report_suffix, report_run_id=report_run_id
     )
@@ -172,13 +227,14 @@ def validate(path: Path) -> dict[str, Any]:
         expected_hash = str(item.get("sha256", "")).lower()
         source_path = str(source.get("path", ""))
         source_hash = str(source.get("sha256", "")).lower()
-        _require(str(artifact_path).startswith("output/"), f"artifact {key} must be under output/")
+        _require(str(artifact_path) == EXPECTED_ARTIFACT_PATHS[key], f"artifact {key} path is not canonical")
         _require(artifact_path.exists(), f"approved artifact missing: {artifact_path}")
         _require(SHA256_RE.fullmatch(expected_hash) is not None, f"invalid sha256 for artifact {key}")
         _require(str(artifact_path) == source_path, f"artifact {key} path differs from thin kernel manifest")
         _require(_normalise_hash(expected_hash) == _normalise_hash(source_hash), f"artifact {key} hash differs from thin kernel manifest")
         _require(_sha256(artifact_path) == _normalise_hash(expected_hash), f"artifact hash mismatch: {artifact_path}")
 
+    payload["_validated_independent_assurance"] = resolved_assurance
     payload["_validated_thin_kernel_manifest"] = {"path": str(manifest_path), "sha256": manifest_hash}
     payload["_validated_client_surface_safety"] = {"path": str(safety_path), "sha256": safety_hash}
     return payload
@@ -187,6 +243,7 @@ def validate(path: Path) -> dict[str, Any]:
 def write_delivery_package_manifest(payload: dict[str, Any], output: Path, transport_run_id: str) -> None:
     artifacts = payload["artifacts"]
     safety = payload["client_surface_safety"]
+    assurance = payload.get("_validated_independent_assurance") or payload["independent_assurance"]
     source_manifest = payload.get("_validated_thin_kernel_manifest") or payload["thin_kernel_manifest"]
     safety_binding = payload.get("_validated_client_surface_safety") or {
         "path": safety["evidence_ref"],
@@ -219,8 +276,11 @@ def write_delivery_package_manifest(payload: dict[str, Any], output: Path, trans
         "client_surface_safety_evidence_ref": safety["evidence_ref"],
         "source_is_independently_assured": True,
         "assured_candidate_head_sha": payload["assured_candidate_head_sha"],
+        "expected_base_branch": payload["expected_base_branch"],
+        "expected_base_sha": payload["expected_base_sha"],
         "approved_report_commit_sha": payload["approved_report_commit_sha"],
-        "independent_assurance_evidence_ref": payload["independent_assurance"]["evidence_ref"],
+        "independent_assurance_evidence_ref": assurance["evidence_ref"],
+        "independent_assurance_evidence_binding_sha256": assurance["evidence_binding_sha256"],
         "artifact_hashes_verified": True,
         "valuation_grade": False,
         "funding_authority": False,
@@ -233,10 +293,14 @@ def write_delivery_package_manifest(payload: dict[str, Any], output: Path, trans
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--authority", required=True)
+    parser.add_argument("--assurance-evidence")
     parser.add_argument("--write-package-manifest")
     parser.add_argument("--transport-run-id")
     args = parser.parse_args()
-    payload = validate(Path(args.authority))
+    payload = validate(
+        Path(args.authority),
+        assurance_evidence_path=Path(args.assurance_evidence) if args.assurance_evidence else None,
+    )
     if args.write_package_manifest:
         _require(bool(args.transport_run_id), "--transport-run-id required when writing package manifest")
         write_delivery_package_manifest(payload, Path(args.write_package_manifest), args.transport_run_id)
@@ -245,6 +309,7 @@ def main() -> None:
         f" | report_run_id={payload['report_run_id']}"
         f" | report_suffix={payload['report_suffix']}"
         f" | candidate={payload['assured_candidate_head_sha']}"
+        f" | base={payload['expected_base_branch']}@{payload['expected_base_sha']}"
         f" | approved_commit={payload['approved_report_commit_sha']}"
     )
 

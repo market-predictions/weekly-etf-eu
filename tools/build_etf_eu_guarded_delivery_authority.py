@@ -9,6 +9,8 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
+from tools.validate_etf_eu_independent_assurance import validate_review_file
+
 SCHEMA = "etf_eu_guarded_delivery_authority_v1"
 ARTIFACT_TYPE = "etf_eu_guarded_delivery_authority"
 PRODUCT = "weekly_etf_eu"
@@ -44,28 +46,47 @@ def build_authority(
     thin_kernel_manifest_path: Path,
     safety_evidence_path: Path,
     assured_candidate_head_sha: str,
+    expected_base_branch: str,
+    expected_base_sha: str,
     approved_report_commit_sha: str,
-    assurance_evidence_ref: str,
+    assurance_evidence_path: Path,
     principal_authorization_ref: str,
-    confirm_independent_assurance_pass: bool,
-    confirm_role_separation: bool,
     confirm_principal_guarded_send_authorization: bool,
     output: Path,
 ) -> dict[str, Any]:
     _require(SHA_RE.fullmatch(assured_candidate_head_sha) is not None, "invalid assured candidate head sha")
+    _require(bool(expected_base_branch.strip()), "expected base branch required")
+    _require(SHA_RE.fullmatch(expected_base_sha) is not None, "invalid expected base sha")
     _require(SHA_RE.fullmatch(approved_report_commit_sha) is not None, "invalid approved report commit sha")
-    _require(confirm_independent_assurance_pass, "independent assurance PASS must be explicitly confirmed")
-    _require(confirm_role_separation, "implementation/assurance role separation must be explicitly confirmed")
-    _require(confirm_principal_guarded_send_authorization, "principal guarded-send authorization must be explicitly confirmed")
-    _require(bool(assurance_evidence_ref.strip()), "assurance evidence reference required")
+    _require(
+        confirm_principal_guarded_send_authorization,
+        "principal guarded-send authorization must be explicitly confirmed",
+    )
     _require(bool(principal_authorization_ref.strip()), "principal authorization reference required")
+
+    try:
+        assurance = validate_review_file(
+            assurance_evidence_path,
+            candidate_sha=assured_candidate_head_sha,
+            expected_base_branch=expected_base_branch,
+            expected_base_sha=expected_base_sha,
+        )
+    except (AssertionError, OSError, UnicodeDecodeError, json.JSONDecodeError) as exc:
+        raise RuntimeError(f"independent assurance evidence invalid: {exc}") from exc
 
     manifest = _load(thin_kernel_manifest_path)
     _require(manifest.get("schema_version") == "etf_eu_thin_kernel_manifest_v1", "thin kernel manifest schema mismatch")
     _require(manifest.get("semantic_state_frozen") is True, "thin kernel semantic state is not frozen")
     _require(manifest.get("post_freeze_semantic_mutation") is False, "thin kernel post-freeze mutation contract invalid")
     candidate_authority = manifest.get("authority") or {}
-    for key in ("portfolio_mutation", "trade_ledger_write", "real_broker_execution", "delivery_authority", "smtp_send", "funding_authority"):
+    for key in (
+        "portfolio_mutation",
+        "trade_ledger_write",
+        "real_broker_execution",
+        "delivery_authority",
+        "smtp_send",
+        "funding_authority",
+    ):
         _require(candidate_authority.get(key) is False, f"candidate authority escalated before delivery: {key}")
 
     safety = _load(safety_evidence_path)
@@ -80,8 +101,14 @@ def build_authority(
     ):
         _require(safety_flags.get(key) is False, f"client surface safety assertion failed: {key}")
     bound_manifest = safety.get("thin_kernel_manifest") or {}
-    _require(str(bound_manifest.get("path") or "") == str(thin_kernel_manifest_path), "safety evidence bound to different thin kernel manifest")
-    _require(str(bound_manifest.get("sha256") or "").lower() == _sha256(thin_kernel_manifest_path), "safety evidence thin kernel manifest hash mismatch")
+    _require(
+        str(bound_manifest.get("path") or "") == str(thin_kernel_manifest_path),
+        "safety evidence bound to different thin kernel manifest",
+    )
+    _require(
+        str(bound_manifest.get("sha256") or "").lower() == _sha256(thin_kernel_manifest_path),
+        "safety evidence thin kernel manifest hash mismatch",
+    )
 
     report_date = str(manifest.get("report_date") or "")
     report_suffix = str(manifest.get("report_suffix") or "")
@@ -91,6 +118,13 @@ def build_authority(
     _require(re.fullmatch(r"\d{8}_\d{6}", report_run_id) is not None, "invalid run_id in thin kernel manifest")
 
     manifest_artifacts = manifest.get("artifacts") or {}
+    review_state = manifest_artifacts.get("review_state")
+    _require(isinstance(review_state, dict), "thin kernel review_state artifact missing")
+    _require(
+        str(review_state.get("path") or "") == "output/current/review_state.json",
+        "thin kernel review_state must use canonical path",
+    )
+
     artifacts: dict[str, dict[str, str]] = {}
     for key in REQUIRED_ARTIFACT_KEYS:
         item = manifest_artifacts.get(key)
@@ -115,18 +149,14 @@ def build_authority(
         "report_suffix": report_suffix,
         "report_run_id": report_run_id,
         "assured_candidate_head_sha": assured_candidate_head_sha,
+        "expected_base_branch": expected_base_branch,
+        "expected_base_sha": expected_base_sha,
         "approved_report_commit_sha": approved_report_commit_sha,
         "thin_kernel_manifest": {
             "path": str(thin_kernel_manifest_path),
             "sha256": _sha256(thin_kernel_manifest_path),
         },
-        "independent_assurance": {
-            "verdict": "PASS",
-            "reviewer_role": "governance_release_assurance",
-            "implementation_role_separate": True,
-            "reviewed_head_sha": assured_candidate_head_sha,
-            "evidence_ref": assurance_evidence_ref,
-        },
+        "independent_assurance": assurance,
         "principal_guarded_send_authorization": {
             "approved": True,
             "reference": principal_authorization_ref,
@@ -144,15 +174,17 @@ def build_authority(
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Build exact-manifest ETF EU guarded-delivery authority without executing transport")
+    parser = argparse.ArgumentParser(
+        description="Build exact-manifest ETF EU guarded-delivery authority without executing transport"
+    )
     parser.add_argument("--thin-kernel-manifest", default="output/current/manifest.json")
     parser.add_argument("--client-surface-safety-evidence", required=True)
     parser.add_argument("--assured-candidate-head-sha", required=True)
+    parser.add_argument("--expected-base-branch", required=True)
+    parser.add_argument("--expected-base-sha", required=True)
     parser.add_argument("--approved-report-commit-sha", required=True)
-    parser.add_argument("--assurance-evidence-ref", required=True)
+    parser.add_argument("--assurance-evidence", required=True)
     parser.add_argument("--principal-authorization-ref", required=True)
-    parser.add_argument("--confirm-independent-assurance-pass", action="store_true")
-    parser.add_argument("--confirm-role-separation", action="store_true")
     parser.add_argument("--confirm-principal-guarded-send-authorization", action="store_true")
     parser.add_argument("--output", required=True)
     args = parser.parse_args()
@@ -160,11 +192,11 @@ def main() -> None:
         thin_kernel_manifest_path=Path(args.thin_kernel_manifest),
         safety_evidence_path=Path(args.client_surface_safety_evidence),
         assured_candidate_head_sha=args.assured_candidate_head_sha,
+        expected_base_branch=args.expected_base_branch,
+        expected_base_sha=args.expected_base_sha,
         approved_report_commit_sha=args.approved_report_commit_sha,
-        assurance_evidence_ref=args.assurance_evidence_ref,
+        assurance_evidence_path=Path(args.assurance_evidence),
         principal_authorization_ref=args.principal_authorization_ref,
-        confirm_independent_assurance_pass=args.confirm_independent_assurance_pass,
-        confirm_role_separation=args.confirm_role_separation,
         confirm_principal_guarded_send_authorization=args.confirm_principal_guarded_send_authorization,
         output=Path(args.output),
     )
@@ -172,6 +204,7 @@ def main() -> None:
         "ETF_EU_GUARDED_DELIVERY_AUTHORITY_BUILT"
         f" | report_run_id={payload['report_run_id']}"
         f" | candidate={payload['assured_candidate_head_sha']}"
+        f" | base={payload['expected_base_branch']}@{payload['expected_base_sha']}"
         f" | approved_commit={payload['approved_report_commit_sha']}"
         " | transport_executed=false"
     )

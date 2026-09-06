@@ -34,10 +34,13 @@ on:
 
 permissions:
   contents: write
+  pull-requests: read
 
 jobs:
   controlled-transport:
     runs-on: ubuntu-latest
+    env:
+      GITHUB_TOKEN: ${{ github.token }}
     steps:
       - name: Require main delivery surface
         run: |
