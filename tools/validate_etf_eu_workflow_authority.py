@@ -124,7 +124,7 @@ def validate() -> None:
         "delivery_authority_path",
         "validate_etf_eu_guarded_delivery_authority.py",
         "ETF_EU_APPROVED_REPORT_COMMIT",
-        "git merge-base --is-ancestor",
+        "ETF_EU_APPROVED_REPORT_COMMIT_NOT_EXACT_MAIN_HEAD",
         "confirm_guarded_send_second",
         "runtime.send_etf_eu_controlled_report",
         "--nl-md",
