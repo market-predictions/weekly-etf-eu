@@ -22,11 +22,13 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Install minimal validation dependencies
+      - name: Install deterministic validation dependencies
         run: |
           set -euo pipefail
+          sudo apt-get update
+          sudo apt-get install -y libcairo2 libpango-1.0-0 libgdk-pixbuf-2.0-0 libffi-dev shared-mime-info fonts-liberation fonts-dejavu-core fonts-lato
           python -m pip install --upgrade pip
-          pip install pytest pyyaml
+          pip install pytest pyyaml weasyprint==68.0
 
       - name: Compile current production kernel and validators
         run: |
@@ -38,6 +40,7 @@ jobs:
             tools/validate_etf_eu_thin_kernel.py \
             tools/validate_etf_eu_client_surface_safety.py \
             tools/validate_etf_eu_independent_assurance.py \
+            tools/validate_etf_eu_pure_projections.py \
             tools/build_etf_eu_guarded_delivery_authority.py \
             tools/validate_etf_eu_guarded_delivery_authority.py \
             tools/validate_etf_eu_guarded_delivery_git_binding.py \
@@ -53,6 +56,7 @@ jobs:
             tests/test_etf_eu_thin_current_kernel.py \
             tests/test_etf_eu_current_kernel_boundaries.py \
             tests/test_etf_eu_exact_review_findings.py \
+            tests/test_etf_eu_guarded_delivery_closeout.py \
             tests/test_etf_eu_delivery_evidence_current.py \
             tests/test_etf_eu_guarded_delivery_authority.py \
             tests/test_etf_eu_guarded_delivery_authority_builder.py \

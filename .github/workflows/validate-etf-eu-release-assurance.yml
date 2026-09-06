@@ -8,12 +8,14 @@ on:
       - "tools/build_etf_eu_release_assurance.py"
       - "tools/validate_etf_eu_release_assurance.py"
       - "tools/validate_etf_eu_independent_assurance.py"
+      - "tools/validate_etf_eu_pure_projections.py"
       - "tools/build_etf_eu_guarded_delivery_authority.py"
       - "tools/validate_etf_eu_guarded_delivery_authority.py"
       - "tools/validate_etf_eu_guarded_delivery_git_binding.py"
       - "tests/test_etf_eu_guarded_delivery_authority.py"
       - "tests/test_etf_eu_guarded_delivery_authority_builder.py"
       - "tests/test_etf_eu_exact_review_findings.py"
+      - "tests/test_etf_eu_guarded_delivery_closeout.py"
       - "fixtures/governance/**"
       - ".github/workflows/validate-etf-eu-release-assurance.yml"
       - ".github/workflows/send-weekly-etf-eu-controlled-transport.yml"
@@ -47,6 +49,7 @@ jobs:
             tools/build_etf_eu_release_assurance.py \
             tools/validate_etf_eu_release_assurance.py \
             tools/validate_etf_eu_independent_assurance.py \
+            tools/validate_etf_eu_pure_projections.py \
             tools/build_etf_eu_guarded_delivery_authority.py \
             tools/validate_etf_eu_guarded_delivery_authority.py \
             tools/validate_etf_eu_guarded_delivery_git_binding.py

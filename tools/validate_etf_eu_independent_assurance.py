@@ -12,6 +12,11 @@ from urllib.parse import urlparse
 MARKER = "ETF_EU_INDEPENDENT_ASSURANCE_V1"
 SHA_RE = re.compile(r"^[0-9a-f]{40}$")
 SHA256_RE = re.compile(r"^(?:sha256:)?[0-9a-f]{64}$")
+EXPECTED_REPOSITORY_FULL_NAME = "market-predictions/weekly-etf-eu"
+EXPECTED_PR_NUMBER = 120
+EXPECTED_PULL_API_URL = (
+    f"https://api.github.com/repos/{EXPECTED_REPOSITORY_FULL_NAME}/pulls/{EXPECTED_PR_NUMBER}"
+)
 
 
 def _require(condition: bool, message: str) -> None:
@@ -34,10 +39,10 @@ def _review_api_url(review: dict[str, Any]) -> str:
         "independent assurance pull_request_url must use api.github.com",
     )
     _require(
-        re.fullmatch(r"/repos/[^/]+/[^/]+/pulls/\d+", parsed.path) is not None,
-        "invalid independent assurance pull_request_url",
+        pull_url.rstrip("/") == EXPECTED_PULL_API_URL,
+        "independent assurance review is not bound to market-predictions/weekly-etf-eu PR #120",
     )
-    return pull_url.rstrip("/") + f"/reviews/{review_id}"
+    return EXPECTED_PULL_API_URL + f"/reviews/{review_id}"
 
 
 def _body_tuple(body: str) -> dict[str, str]:
@@ -81,6 +86,31 @@ def binding_sha256(review: dict[str, Any]) -> str:
         _binding_payload(review), sort_keys=True, separators=(",", ":")
     ).encode("utf-8")
     return "sha256:" + hashlib.sha256(canonical).hexdigest()
+
+
+def _validate_parent_pull_request(
+    pull: dict[str, Any],
+    *,
+    candidate_sha: str,
+    expected_base_branch: str,
+    expected_base_sha: str,
+) -> None:
+    _require(int(pull.get("number") or 0) == EXPECTED_PR_NUMBER, "independent assurance parent PR number mismatch")
+    _require(str(pull.get("url") or "").rstrip("/") == EXPECTED_PULL_API_URL, "independent assurance parent PR URL mismatch")
+    head = pull.get("head")
+    base = pull.get("base")
+    _require(isinstance(head, dict) and isinstance(base, dict), "independent assurance parent PR head/base missing")
+    head_repo = head.get("repo")
+    base_repo = base.get("repo")
+    _require(isinstance(head_repo, dict) and isinstance(base_repo, dict), "independent assurance parent PR repository identity missing")
+    _require(
+        str(head_repo.get("full_name") or "") == EXPECTED_REPOSITORY_FULL_NAME
+        and str(base_repo.get("full_name") or "") == EXPECTED_REPOSITORY_FULL_NAME,
+        "independent assurance parent PR repository mismatch",
+    )
+    _require(str(head.get("sha") or "").lower() == candidate_sha.lower(), "independent assurance parent PR head mismatch")
+    _require(str(base.get("ref") or "") == expected_base_branch, "independent assurance parent PR base branch mismatch")
+    _require(str(base.get("sha") or "").lower() == expected_base_sha.lower(), "independent assurance parent PR base sha mismatch")
 
 
 def validate_review(
@@ -145,6 +175,8 @@ def validate_review(
         "verdict": "PASS",
         "reviewer_role": "governance_release_assurance",
         "implementation_role_separate": True,
+        "repository_full_name": EXPECTED_REPOSITORY_FULL_NAME,
+        "pr_number": EXPECTED_PR_NUMBER,
         "reviewed_head_sha": candidate_sha,
         "expected_base_branch": expected_base_branch,
         "expected_base_sha": expected_base_sha,
@@ -163,15 +195,42 @@ def validate_review_file(path: Path, **kwargs: Any) -> dict[str, Any]:
     return validate_review(payload, **kwargs)
 
 
+def _fetch_github_json(url: str) -> dict[str, Any]:
+    parsed = urlparse(url)
+    _require(
+        parsed.scheme == "https" and parsed.netloc == "api.github.com",
+        "independent assurance GitHub URL must use api.github.com",
+    )
+    token = os.environ.get("GITHUB_TOKEN") or os.environ.get("GH_TOKEN")
+    headers = {
+        "Accept": "application/vnd.github+json",
+        "X-GitHub-Api-Version": "2022-11-28",
+    }
+    if token:
+        headers["Authorization"] = f"Bearer {token}"
+    request = urllib.request.Request(url, headers=headers, method="GET")
+    try:
+        with urllib.request.urlopen(request, timeout=30) as response:
+            payload = json.loads(response.read().decode("utf-8"))
+    except Exception as exc:
+        raise AssertionError("independent assurance evidence could not be resolved from GitHub") from exc
+    _require(isinstance(payload, dict), "resolved independent assurance GitHub evidence must be an object")
+    return payload
+
+
 def resolve_review(
     *,
     evidence_api_url: str,
     candidate_sha: str,
     expected_base_branch: str,
     expected_base_sha: str,
-    evidence_binding_sha256: str,
+    evidence_binding_sha256: str | None = None,
     evidence_path: Path | None = None,
 ) -> dict[str, Any]:
+    _require(
+        re.fullmatch(re.escape(EXPECTED_PULL_API_URL) + r"/reviews/\d+", evidence_api_url) is not None,
+        "independent assurance evidence is not a review on market-predictions/weekly-etf-eu PR #120",
+    )
     if evidence_path is not None:
         return validate_review_file(
             evidence_path,
@@ -182,28 +241,8 @@ def resolve_review(
             evidence_binding_sha256=evidence_binding_sha256,
         )
 
-    parsed = urlparse(evidence_api_url)
-    _require(
-        parsed.scheme == "https" and parsed.netloc == "api.github.com",
-        "independent assurance evidence API URL must use api.github.com",
-    )
-    token = os.environ.get("GITHUB_TOKEN") or os.environ.get("GH_TOKEN")
-    headers = {
-        "Accept": "application/vnd.github+json",
-        "X-GitHub-Api-Version": "2022-11-28",
-    }
-    if token:
-        headers["Authorization"] = f"Bearer {token}"
-    request = urllib.request.Request(evidence_api_url, headers=headers, method="GET")
-    try:
-        with urllib.request.urlopen(request, timeout=30) as response:
-            review = json.loads(response.read().decode("utf-8"))
-    except Exception as exc:
-        raise AssertionError(
-            "independent assurance evidence could not be resolved from GitHub"
-        ) from exc
-    _require(isinstance(review, dict), "resolved independent assurance evidence must be an object")
-    return validate_review(
+    review = _fetch_github_json(evidence_api_url)
+    resolved = validate_review(
         review,
         candidate_sha=candidate_sha,
         expected_base_branch=expected_base_branch,
@@ -211,3 +250,11 @@ def resolve_review(
         evidence_api_url=evidence_api_url,
         evidence_binding_sha256=evidence_binding_sha256,
     )
+    parent_pull = _fetch_github_json(EXPECTED_PULL_API_URL)
+    _validate_parent_pull_request(
+        parent_pull,
+        candidate_sha=candidate_sha,
+        expected_base_branch=expected_base_branch,
+        expected_base_sha=expected_base_sha,
+    )
+    return resolved
