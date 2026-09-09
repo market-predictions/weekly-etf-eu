@@ -42,7 +42,7 @@ def _write_review(root: Path, *, verdict: str = "PASS") -> Path:
         "html_url": "https://github.com/market-predictions/weekly-etf-eu/pull/120#pullrequestreview-12345",
         "pull_request_url": "https://api.github.com/repos/market-predictions/weekly-etf-eu/pulls/120",
         "submitted_at": "2026-09-06T12:00:00Z",
-        "user": {"login": "external-reviewer"},
+        "user": {"login": "chatgpt-codex-connector[bot]"},
     }
     path.write_text(json.dumps(payload), encoding="utf-8")
     return path
