@@ -41,7 +41,7 @@ def _review(*, pull_url: str = EXPECTED_PULL_API_URL) -> dict:
         "html_url": "https://github.com/market-predictions/weekly-etf-eu/pull/120#pullrequestreview-12345",
         "pull_request_url": pull_url,
         "submitted_at": "2026-09-06T12:00:00Z",
-        "user": {"login": "external-reviewer"},
+        "user": {"login": "chatgpt-codex-connector[bot]"},
     }
 
 
