@@ -17,6 +17,7 @@ EXPECTED_PR_NUMBER = 120
 EXPECTED_PULL_API_URL = (
     f"https://api.github.com/repos/{EXPECTED_REPOSITORY_FULL_NAME}/pulls/{EXPECTED_PR_NUMBER}"
 )
+TRUSTED_INDEPENDENT_REVIEWER_LOGINS = {"chatgpt-codex-connector[bot]"}
 
 
 def _require(condition: bool, message: str) -> None:
@@ -69,6 +70,10 @@ def _binding_payload(review: dict[str, Any]) -> dict[str, Any]:
     _require(isinstance(user, dict), "independent assurance reviewer identity missing")
     login = str(user.get("login") or "").strip()
     _require(bool(login), "independent assurance reviewer login missing")
+    _require(
+        login in TRUSTED_INDEPENDENT_REVIEWER_LOGINS,
+        "independent assurance reviewer is not a trusted independent reviewer identity",
+    )
     return {
         "id": int(review.get("id")),
         "state": str(review.get("state") or ""),
