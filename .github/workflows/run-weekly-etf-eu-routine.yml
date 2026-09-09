@@ -48,7 +48,7 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y libcairo2 libpango-1.0-0 libgdk-pixbuf-2.0-0 libffi-dev shared-mime-info fonts-liberation fonts-dejavu-core fonts-lato poppler-utils
           python -m pip install --upgrade pip
-          pip install pyyaml yfinance weasyprint matplotlib==3.9.2
+          pip install pyyaml yfinance weasyprint==68.0 matplotlib==3.9.2
 
       - name: Resolve and validate candidate request
         env:
