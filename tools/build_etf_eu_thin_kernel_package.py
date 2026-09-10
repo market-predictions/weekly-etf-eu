@@ -32,6 +32,18 @@ def _artifact(path: Path) -> dict[str, Any]:
     return {"path": str(path), "sha256": _sha256(path), "size_bytes": path.stat().st_size}
 
 
+def _pdf_identifier(html_text: str) -> bytes:
+    return hashlib.sha256(html_text.encode("utf-8")).digest()
+
+
+def _write_pdf(html_path: Path, pdf_path: Path) -> None:
+    html_text = html_path.read_text(encoding="utf-8")
+    HTML(
+        string=html_text,
+        base_url=str(html_path.parent.resolve()),
+    ).write_pdf(str(pdf_path), pdf_identifier=_pdf_identifier(html_text))
+
+
 def build(args: argparse.Namespace) -> dict[str, Path]:
     current_dir = Path(args.output_dir)
     history_dir = Path(args.history_dir) / args.report_date / args.run_id
@@ -103,8 +115,8 @@ def build(args: argparse.Namespace) -> dict[str, Path]:
     en_pdf = current_dir / "report_en.pdf"
     render_to_paths(review_state, language="nl", markdown_path=nl_md, html_path=nl_html)
     render_to_paths(review_state, language="en", markdown_path=en_md, html_path=en_html)
-    HTML(filename=str(nl_html), base_url=str(nl_html.parent.resolve())).write_pdf(str(nl_pdf))
-    HTML(filename=str(en_html), base_url=str(en_html.parent.resolve())).write_pdf(str(en_pdf))
+    _write_pdf(nl_html, nl_pdf)
+    _write_pdf(en_html, en_pdf)
 
     write_accountability_observation(review_state, Path(args.accountability_history))
     write_recommendation_observation(normalized, Path(args.recommendation_scorecard), args.report_date, args.run_id)
