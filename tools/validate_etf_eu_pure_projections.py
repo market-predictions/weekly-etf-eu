@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import json
 from pathlib import Path
 
@@ -17,6 +18,10 @@ def _require(condition: bool, message: str) -> None:
         raise AssertionError(message)
 
 
+def _pdf_identifier(html_text: str) -> bytes:
+    return hashlib.sha256(html_text.encode("utf-8")).digest()
+
+
 def _pdf_bytes(html_text: str) -> bytes:
     _require(
         weasyprint.__version__ == WEASYPRINT_VERSION,
@@ -25,7 +30,7 @@ def _pdf_bytes(html_text: str) -> bytes:
     return HTML(
         string=html_text,
         base_url=str(Path("output/current").resolve()),
-    ).write_pdf()
+    ).write_pdf(pdf_identifier=_pdf_identifier(html_text))
 
 
 def expected_projection_bytes(review_state_bytes: bytes) -> dict[str, bytes]:
