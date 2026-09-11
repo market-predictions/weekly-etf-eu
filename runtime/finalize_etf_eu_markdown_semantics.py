@@ -48,7 +48,7 @@ def finalize_markdown_semantics(text: str, state: dict[str, Any], *, language: s
     if language == "nl":
         if additions:
             names = " en ".join(additions) if len(additions) <= 2 else ", ".join(additions[:-1]) + " en " + additions[-1]
-            decision_line = f"- **Nieuwe funded implementaties:** {names} zijn deze run toegevoegd na EU-lokale re-underwriting, exact-line UCITS/KID-validatie en two-provider completed-close consensus."
+            decision_line = f"- **Nieuwe funded implementaties:** {names} zijn deze run toegevoegd na EU-lokale re-underwriting, exact-line UCITS/KID-validatie en geautoriseerde completed-close pricing."
             text = _ensure_decision_line(
                 text,
                 candidate_prefixes=["- **Beste operationele kandidaat:**", "- **Meest volwassen operationele kandidaat:**"],
@@ -57,7 +57,9 @@ def finalize_markdown_semantics(text: str, state: dict[str, Any], *, language: s
             )
             required.append(f"**Nieuwe funded implementaties:** {names}")
         replacements = {
-            "1. Een prijsobservatie is geen zelfstandige waarderingsbasis.": "1. Een enkele marktprijs of research-only prijsobservatie is geen zelfstandige waarderingsbasis; actuele funded waardering vereist exact-line completed-close consensus uit minimaal twee providers.",
+            "1. Een prijsobservatie is geen zelfstandige waarderingsbasis.": "1. Een enkele marktprijs of research-only prijsobservatie is geen zelfstandige waarderingsbasis; actuele funded waardering vereist een geautoriseerde exact-line completed-close primary prijs. Een onafhankelijke verifier verhoogt de confidence; same-date disagreement blokkeert de waardering.",
+            "Voor alle gefinancierde posities is een actuele koerscontrole met twee onafhankelijke bronnen beschikbaar; de spreads zijn verwaarloosbaar.": "Voor alle gefinancierde posities is een geautoriseerde exact-line completed-close primary prijs beschikbaar; onafhankelijke verificatie verhoogt de confidence en same-date disagreement blokkeert de waardering.",
+            "Voor elke positie is de actuele koers gecontroleerd via twee bronnen (Alpha Vantage en Yahoo).": "Voor elke gefinancierde positie is de actuele koers gebonden aan de geautoriseerde primary completed-close bron; beschikbare onafhankelijke verificatie wordt afzonderlijk als confidence-evidence vastgelegd.",
             "Behoud kwaliteit en kasdiscipline; any allocation still requires a verified UCITS instrument, current pricing, re-underwriting and a separate capital decision.": "Behoud kwaliteit en kasdiscipline; iedere allocatie vereist een geverifieerd UCITS-instrument, actuele pricing, re-underwriting en een afzonderlijk kapitaalbesluit.",
             "Europese aandelen- of obligatieblootstelling blijft afhankelijk on UCITS identity, exact-line verification, current pricing, re-underwriting and a separate capital decision.": "Europese aandelen- of obligatieblootstelling blijft afhankelijk van UCITS-identiteit, exact-line verificatie, actuele pricing, re-underwriting en een afzonderlijk kapitaalbesluit.",
             "No material regime change was recorded versus the prior review; the Risk-on growth backdrop remained intact, market breadth is mixed, and cross-asset confirmation is mixed.": "Ten opzichte van de vorige review is geen materiële regimewijziging vastgesteld; de risk-on-groeiomgeving bleef intact, terwijl marktbreedte en cross-asset bevestiging gemengd zijn.",
@@ -68,6 +70,9 @@ def finalize_markdown_semantics(text: str, state: dict[str, Any], *, language: s
             "Beste operationele kandidaat: de geverifieerde S&P 500",
             "Meest volwassen operationele kandidaat: de geverifieerde S&P 500",
             "Een prijsobservatie is geen zelfstandige waarderingsbasis.",
+            "two-provider completed-close consensus",
+            "twee onafhankelijke bronnen beschikbaar",
+            "actuele koers gecontroleerd via twee bronnen",
             "any allocation still requires",
             "afhankelijk on UCITS identity",
             "No material regime change was recorded",
@@ -75,7 +80,7 @@ def finalize_markdown_semantics(text: str, state: dict[str, Any], *, language: s
     else:
         if additions:
             names = " and ".join(additions) if len(additions) <= 2 else ", ".join(additions[:-1]) + " and " + additions[-1]
-            decision_line = f"- **New funded implementations:** {names} were added this run after EU-local re-underwriting, exact-line UCITS/KID validation and two-provider completed-close consensus."
+            decision_line = f"- **New funded implementations:** {names} were added this run after EU-local re-underwriting, exact-line UCITS/KID validation and authorized completed-close pricing."
             text = _ensure_decision_line(
                 text,
                 candidate_prefixes=["- **Best operational candidate:**", "- **Most advanced operational candidate:**", "- **Most mature operational candidate:**"],
@@ -83,15 +88,21 @@ def finalize_markdown_semantics(text: str, state: dict[str, Any], *, language: s
                 replacement=decision_line,
             )
             required.append(f"**New funded implementations:** {names}")
-        text = text.replace(
-            "1. A price observation is not an independent valuation basis.",
-            "1. A single market price or research-only observation is not an independent valuation basis; current funded valuation requires exact-line completed-close consensus from at least two providers.",
-        )
+        replacements = {
+            "1. A price observation is not an independent valuation basis.": "1. A single market price or research-only observation is not an independent valuation basis; current funded valuation requires an authorized exact-line completed-close primary price. An independent verifier increases confidence; same-date disagreement blocks valuation.",
+            "A current price verification with two independent sources is available for all funded positions; spreads are immaterial.": "An authorized exact-line completed-close primary price is available for every funded position; independent verification increases confidence and same-date disagreement blocks valuation.",
+            "Each position's current price is checked through two sources (Alpha Vantage and Yahoo).": "Each funded position's current price is bound to the authorized primary completed-close source; available independent verification is recorded separately as confidence evidence.",
+        }
+        for old, new in replacements.items():
+            text = text.replace(old, new)
         forbidden = [
             "Best operational candidate: the verified S&P 500",
             "Most advanced operational candidate: the verified S&P 500",
             "Most mature operational candidate: the verified S&P 500",
             "A price observation is not an independent valuation basis.",
+            "two-provider completed-close consensus",
+            "two independent sources is available for all funded positions",
+            "current price is checked through two sources",
         ]
     folded = text.casefold()
     residuals = [token for token in forbidden if token.casefold() in folded]
