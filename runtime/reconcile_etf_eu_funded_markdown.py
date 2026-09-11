@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from typing import Any
 
+from pricing.ucits_close_price_validation_contract_v2 import AUTHORIZED_EXACT_STATUSES
+
 
 def _money(value: Any, language: str) -> str:
     raw = f"{float(value or 0):,.2f}"
@@ -86,9 +88,28 @@ def _funded_valuation_grade_count(positions: list[dict[str, Any]]) -> int:
     for row in positions:
         status = str(row.get("pricing_status") or "").casefold()
         verification = str(row.get("verification_status") or "").casefold()
-        if status == "qualified_two_provider_completed_close" and "consensus" in verification:
+        if status == "qualified_completed_close_primary_plus_verification" and verification in AUTHORIZED_EXACT_STATUSES:
+            count += 1
+        elif status == "qualified_two_provider_completed_close" and "consensus" in verification:
+            # Historical protected state may still carry the predecessor label.
             count += 1
     return count
+
+
+def _verification_counts(positions: list[dict[str, Any]]) -> tuple[int, int]:
+    verified = 0
+    primary_only = 0
+    for row in positions:
+        status = str(row.get("pricing_status") or "").casefold()
+        verification = str(row.get("verification_status") or "").casefold()
+        if status == "qualified_completed_close_primary_plus_verification":
+            if verification == "fresh_exact_verified":
+                verified += 1
+            elif verification == "fresh_exact_unverified":
+                primary_only += 1
+        elif status == "qualified_two_provider_completed_close" and "consensus" in verification:
+            verified += 1
+    return verified, primary_only
 
 
 def validate_funded_markdown(text: str, state: dict[str, Any], *, language: str) -> list[str]:
@@ -130,7 +151,7 @@ def validate_funded_markdown(text: str, state: dict[str, Any], *, language: str)
             else f"{funded_grade} of {len(positions)} funded lines"
         )
         if required_quality.casefold() not in folded:
-            blockers.append("funded two-provider valuation-grade quality disclosure missing")
+            blockers.append("funded valuation-grade quality disclosure missing")
 
     forbidden = (
         [
@@ -143,6 +164,9 @@ def validate_funded_markdown(text: str, state: dict[str, Any], *, language: str)
             "do not allocate capital to thematic or gold exposure",
             "volledig geverifieerde lijnen: 0",
             "geprijsd maar identiteit of handelslijn nog te verifiëren: 13",
+            "two-provider completed-close consensus",
+            "twee onafhankelijke bronnen beschikbaar",
+            "actuele koers gecontroleerd via twee bronnen",
         ]
         if language == "nl"
         else [
@@ -153,6 +177,9 @@ def validate_funded_markdown(text: str, state: dict[str, Any], *, language: str)
             "phase target weight",
             "fully verified lines: 0",
             "priced but identity or trading-line verification still pending: 13",
+            "two-provider completed-close consensus",
+            "two independent sources is available for all funded positions",
+            "current price is checked through two sources",
         ]
     )
     for token in forbidden:
@@ -174,6 +201,7 @@ def reconcile_funded_markdown(text: str, state: dict[str, Any], *, language: str
     addition_names = _join_tickers(additions, language)
     count = len(positions)
     funded_grade = _funded_valuation_grade_count(positions)
+    verified_count, primary_only_count = _verification_counts(positions)
     total_pricing_rows = _pricing_table_row_count(text)
     research_rows = max(total_pricing_rows - count, 0)
 
@@ -185,7 +213,10 @@ def reconcile_funded_markdown(text: str, state: dict[str, Any], *, language: str
         )
         reason = f"- **Reden:** de modelportefeuille bevat {count} gefinancierde UCITS-posities ({position_names}); de review gebruikt actuele state, exact-line completed-close prijsbewijs en current re-underwriting."
         structure = f"- **Huidige positiegrondslag:** {position_names}; rollen, bijdrage, overlap en re-underwriting komen uit de actuele genormaliseerde state."
-        quality = f"- **Gefinancierde exact-line waardering:** {funded_grade} van {count} gefinancierde lijnen hebben two-provider completed-close consensus en vormen de actuele waarderingsbasis."
+        quality = (
+            f"- **Gefinancierde exact-line waardering:** {funded_grade} van {count} gefinancierde lijnen hebben geautoriseerde exact-line completed-close pricing; "
+            f"{verified_count} onafhankelijk geverifieerd en {primary_only_count} primary-authoritative zonder actuele verifier."
+        )
         text = _replace_prefixed_line(text, "- **Actie:**", action)
         text = _replace_prefixed_line(text, "- **Reden:**", reason)
         text = _replace_prefixed_line(text, "- **Huidige positiegrondslag:**", structure)
@@ -193,7 +224,10 @@ def reconcile_funded_markdown(text: str, state: dict[str, Any], *, language: str
         text = _replace_prefixed_line(text, "- **Volledig geverifieerde lijnen:**", quality)
         text = _replace_prefixed_line(text, "- **Geprijsd maar identiteit of handelslijn nog te verifiëren:**", f"- **Research-/vergelijkingslijnen:** {research_rows} niet-gefinancierde prijsregels blijven research-only; marktprijsbeschikbaarheid creëert geen funding-authority.")
         old_note = "De getoonde prijzen zijn marktobservaties uit de huidige routine-run en vormen geen zelfstandige basis voor waardering of aankoop."
-        new_note = f"Voor de {count} gefinancierde lijnen vormt two-provider exact-line completed-close consensus de actuele waarderingsbasis. Overige prijsregels zijn research-/vergelijkingsobservaties en creëren geen funding-authority."
+        new_note = (
+            f"Voor de {count} gefinancierde lijnen vormt een geautoriseerde exact-line completed-close primary prijs de actuele waarderingsbasis. "
+            "Een onafhankelijke verifier verhoogt de confidence; same-date disagreement blokkeert de waardering. Overige prijsregels zijn research-/vergelijkingsobservaties en creëren geen funding-authority."
+        )
         text = text.replace(old_note, new_note)
         replacements = {
             "- **Niet doen:** do not allocate capital to thematic or gold exposure until identity, KID, trading-line and product-policy checks are complete.": "- **Niet doen:** geen nieuw kapitaal toewijzen uitsluitend op basis van proxy, mapping of prijsbeschikbaarheid; identiteit, KID, exacte handelslijn, re-underwriting en expliciet allocatiebesluit blijven verplicht.",
@@ -203,7 +237,7 @@ def reconcile_funded_markdown(text: str, state: dict[str, Any], *, language: str
             "- **Wereldwijde aandelen:** IWDA, EUNL en VWCE blijven interessant voor brede spreiding, maar verificatie van handelslijn en bron is nog niet volledig.": "- **Wereldwijde aandelen:** actuele funded status en exacte lijnidentiteit komen uit protected state plus UCITS-registry; alternatieven blijven research-only tenzij alle fundability-gates passeren.",
             "- **Obligaties:** EUNA en AGGH kunnen later stabiliteit leveren; hun huidige rol blijft die van onderzoekskandidaat.": "- **Obligaties:** actuele funded status en rol komen uit protected state en current re-underwriting; alternatieven blijven research-only zonder expliciet allocatiebesluit.",
             "- Rond verificatie van brokerbeschikbaarheid en EUR-handelslijnen af.": f"- Herbeoordeel {position_names} op fresh-cash, bijdrage, overlap, invalidatievoorwaarden en beste alternatief.",
-            "- Verbeter de bronovereenkomst voordat de prijsinformatie als voldoende betrouwbaar voor waardering kan worden beschouwd.": "- Vereis voor iedere gefinancierde lijn verse exact-line completed-close evidence met two-provider consensus vóór current valuation/re-underwriting.",
+            "- Verbeter de bronovereenkomst voordat de prijsinformatie als voldoende betrouwbaar voor waardering kan worden beschouwd.": "- Vereis voor iedere gefinancierde lijn verse geautoriseerde exact-line completed-close primary evidence; een verifier verhoogt de confidence en same-date disagreement blokkeert de waardering.",
             "- Herbeoordeel pas daarna of cash gedeeltelijk mag worden ingezet.": "- Herbeoordeel de resterende materiële cash tegen nieuwe volledig fundable lanes; de huidige cash is expliciet verklaard door nog open fundability-blockers.",
         }
     else:
@@ -214,7 +248,10 @@ def reconcile_funded_markdown(text: str, state: dict[str, Any], *, language: str
         )
         reason = f"- **Reason:** the model portfolio contains {count} funded UCITS positions ({position_names}); the review uses current state, exact-line completed-close pricing evidence and current re-underwriting."
         structure = f"- **Current position structure:** {position_names}; roles, contribution, overlap and re-underwriting are derived from the current normalized state."
-        quality = f"- **Funded exact-line valuation:** {funded_grade} of {count} funded lines have two-provider completed-close consensus and form the current valuation basis."
+        quality = (
+            f"- **Funded exact-line valuation:** {funded_grade} of {count} funded lines have authorized exact-line completed-close pricing; "
+            f"{verified_count} independently verified and {primary_only_count} primary-authoritative without a current verifier."
+        )
         text = _replace_prefixed_line(text, "- **Action:**", action)
         text = _replace_prefixed_line(text, "- **Reason:**", reason)
         text = _replace_prefixed_line(text, "- **Current position structure:**", structure)
@@ -222,7 +259,10 @@ def reconcile_funded_markdown(text: str, state: dict[str, Any], *, language: str
         text = _replace_prefixed_line(text, "- **Fully verified lines:**", quality)
         text = _replace_prefixed_line(text, "- **Priced but identity or trading-line verification still pending:**", f"- **Research/comparison lines:** {research_rows} unfunded pricing rows remain research-only; market-price availability creates no funding authority.")
         old_note = "The displayed prices are market observations from the current routine run and do not independently authorize valuation or purchase."
-        new_note = f"For the {count} funded lines, two-provider exact-line completed-close consensus forms the current valuation basis. Other pricing rows are research/comparison observations and create no funding authority."
+        new_note = (
+            f"For the {count} funded lines, an authorized exact-line completed-close primary price forms the current valuation basis. "
+            "An independent verifier increases confidence; same-date disagreement blocks valuation. Other pricing rows are research/comparison observations and create no funding authority."
+        )
         text = text.replace(old_note, new_note)
         replacements = {
             "- **Portfolio decision:** retain cash; this pricing run did not automatically make any instrument eligible for portfolio inclusion.": "- **Portfolio decision:** existing positions remain subject to current re-underwriting; mapping or pricing alone creates no Add/Hold/Reduce or funding authority.",
@@ -230,7 +270,7 @@ def reconcile_funded_markdown(text: str, state: dict[str, Any], *, language: str
             "- **Global equity:** IWDA, EUNL and VWCE remain relevant for broad diversification, but trading-line and source verification is incomplete.": "- **Global equity:** current funded status and exact-line identity come from protected state plus the UCITS registry; alternatives remain research-only unless all fundability gates pass.",
             "- **Bonds:** EUNA and AGGH may later provide stability; their current role remains that of research candidates.": "- **Bonds:** current funded status and role come from protected state and current re-underwriting; alternatives remain research-only without an explicit allocation decision.",
             "- Complete broker availability and EUR trading-line verification.": f"- Re-underwrite {position_names} on fresh cash, contribution, overlap, invalidation conditions and best alternative.",
-            "- Improve source agreement before the pricing evidence is considered sufficiently reliable for valuation.": "- Require fresh exact-line completed-close evidence with two-provider consensus for every funded line before current valuation/re-underwriting.",
+            "- Improve source agreement before the pricing evidence is considered sufficiently reliable for valuation.": "- Require fresh authorized exact-line completed-close primary evidence for every funded line; a verifier increases confidence and same-date disagreement blocks valuation.",
             "- Only then reassess whether part of the cash may be deployed.": "- Reassess the remaining material cash against newly fully fundable lanes; current cash is explicitly explained by still-open fundability blockers.",
         }
 
