@@ -8,6 +8,7 @@ import pytest
 
 from pricing.ucits_close_price_validation_contract_v2 import validate_payload
 from runtime.build_etf_eu_client_grade_report_state_v2 import build_state
+from runtime.finalize_etf_eu_client_surface_semantics import finalize_client_html_semantics
 from runtime.finalize_etf_eu_markdown_semantics import finalize_markdown_semantics
 from runtime.reconcile_etf_eu_funded_markdown import (
     reconcile_funded_markdown,
@@ -246,7 +247,7 @@ def test_markdown_validator_rejects_retired_universal_two_provider_claim() -> No
     assert any("two independent sources" in blocker for blocker in blockers)
 
 
-def test_finalizer_rewrites_retired_universal_two_provider_claims() -> None:
+def test_markdown_finalizer_rewrites_retired_universal_two_provider_claims() -> None:
     source = "\n".join(
         [
             "- **Reason:** current review.",
@@ -259,6 +260,32 @@ def test_finalizer_rewrites_retired_universal_two_provider_claims() -> None:
     assert "independent verification increases confidence" in output
     assert "two independent sources" not in output
     assert "checked through two sources" not in output
+
+
+def test_html_finalizer_uses_primary_plus_verification_semantics() -> None:
+    state = _primary_only_markdown_state()
+    source = """<html><body><ul>
+<li>This run: old state.</li>
+<li>Most mature implementation: legacy.</li>
+<li>Main blocker: legacy.</li>
+</ul><p>Pricing observations are not yet valuation-grade.</p>
+<p>Promote only when source agreement and price lineage are sufficiently strong.</p></body></html>"""
+    output = finalize_client_html_semantics(source, state, language="en")
+    assert "Funded exact-line valuation: 1 of 1 funded lines have authorized exact-line completed-close pricing" in output
+    assert "0 independently verified and 1 primary-authoritative without a current verifier" in output
+    assert "authorized valuation-grade completed-close primary pricing" in output
+    assert "two-provider" not in output.casefold()
+
+
+def test_html_finalizer_fails_closed_on_retired_two_provider_copy() -> None:
+    state = _primary_only_markdown_state()
+    source = """<html><body><ul>
+<li>This run: old state.</li>
+<li>Most mature implementation: legacy.</li>
+<li>Main blocker: legacy.</li>
+</ul><p>two-provider completed-close consensus</p></body></html>"""
+    with pytest.raises(RuntimeError, match="residual_stale"):
+        finalize_client_html_semantics(source, state, language="en")
 
 
 def test_normalized_state_builder_requires_v2_gate(tmp_path: Path) -> None:
