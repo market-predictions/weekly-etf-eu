@@ -5,6 +5,8 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 from typing import Any
 
+from pricing.ucits_close_price_validation_contract_v2 import AUTHORIZED_EXACT_STATUSES
+
 
 def _ticker(row: dict[str, Any]) -> str:
     return str(row.get("ticker") or row.get("exchange_ticker") or "").strip().upper()
@@ -44,9 +46,28 @@ def _funded_grade_count(positions: list[dict[str, Any]]) -> int:
     for row in positions:
         pricing = str(row.get("pricing_status") or "").casefold()
         verification = str(row.get("verification_status") or "").casefold()
-        if "two_provider" in pricing or "two-provider" in pricing or "consensus" in verification:
+        if pricing == "qualified_completed_close_primary_plus_verification" and verification in AUTHORIZED_EXACT_STATUSES:
+            total += 1
+        elif pricing == "qualified_two_provider_completed_close" and "consensus" in verification:
+            # Historical protected state may still carry the predecessor label.
             total += 1
     return total
+
+
+def _verification_counts(positions: list[dict[str, Any]]) -> tuple[int, int]:
+    verified = 0
+    primary_only = 0
+    for row in positions:
+        pricing = str(row.get("pricing_status") or "").casefold()
+        verification = str(row.get("verification_status") or "").casefold()
+        if pricing == "qualified_completed_close_primary_plus_verification":
+            if verification == "fresh_exact_verified":
+                verified += 1
+            elif verification == "fresh_exact_unverified":
+                primary_only += 1
+        elif pricing == "qualified_two_provider_completed_close" and "consensus" in verification:
+            verified += 1
+    return verified, primary_only
 
 
 def _observed_line_count(state: dict[str, Any], funded_count: int) -> int:
@@ -92,6 +113,7 @@ def finalize_client_html_semantics(text: str, state: dict[str, Any], *, language
     additions = [str(value).strip().upper() for value in decision.get("added_tickers") or [] if str(value).strip()]
     funded_count = len(positions)
     funded_grade = _funded_grade_count(positions)
+    verified_count, primary_only_count = _verification_counts(positions)
     observed = _observed_line_count(state, funded_count)
     research_count = max(observed - funded_count, 0)
 
@@ -107,7 +129,7 @@ def finalize_client_html_semantics(text: str, state: dict[str, Any], *, language
         text = _replace_list_item(
             text,
             "Meest volwassen implementatie:",
-            f"Gefinancierde exact-line waardering: {funded_grade} van {funded_count} gefinancierde lijnen hebben two-provider completed-close consensus en vormen de actuele waarderingsbasis.",
+            f"Gefinancierde exact-line waardering: {funded_grade} van {funded_count} gefinancierde lijnen hebben geautoriseerde exact-line completed-close pricing; {verified_count} onafhankelijk geverifieerd en {primary_only_count} primary-authoritative zonder actuele verifier.",
         )
         text = _replace_list_item(
             text,
@@ -116,10 +138,10 @@ def finalize_client_html_semantics(text: str, state: dict[str, Any], *, language
         )
 
         replacements = {
-            "Prijsobservaties zijn nog niet waarderingswaardig.": f"De {funded_grade} gefinancierde exact-lines hebben valuation-grade two-provider completed-close consensus.",
-            "Promoveer pas wanneer bronovereenkomst en prijslineage voldoende sterk zijn.": "Behoud two-provider exact-line consensus als actuele waarderingsgate; research-only prijzen blijven niet-authoritatief voor funding.",
+            "Prijsobservaties zijn nog niet waarderingswaardig.": f"De {funded_grade} gefinancierde exact-lines hebben geautoriseerde valuation-grade completed-close primary pricing; een onafhankelijke verifier verhoogt de confidence.",
+            "Promoveer pas wanneer bronovereenkomst en prijslineage voldoende sterk zijn.": "Gebruik geautoriseerde exact-line completed-close primary pricing als actuele waarderingsgate; een verifier verhoogt de confidence en same-date disagreement blokkeert de waardering.",
             f"{observed} handelslijnen wachten nog op volledige verificatie.": f"{research_count} niet-gefinancierde prijsregels blijven research-/vergelijkingsevidence zonder funding-authority.",
-            "Geen financiering vóór identiteit, KID, handelslijn en brokerbeschikbaarheid zijn bevestigd.": "Geen nieuwe financiering vóór identiteit, KID, exacte handelslijn, current re-underwriting, pricing consensus en expliciet allocatiebesluit zijn bevestigd.",
+            "Geen financiering vóór identiteit, KID, handelslijn en brokerbeschikbaarheid zijn bevestigd.": "Geen nieuwe financiering vóór identiteit, KID, exacte handelslijn, current re-underwriting, actuele pricing-authority en expliciet allocatiebesluit zijn bevestigd.",
             "Behoud kwaliteit en kasdiscipline; any allocation still requires a verified UCITS instrument, current pricing, re-underwriting and a separate capital decision.": "Behoud kwaliteit en kasdiscipline; iedere allocatie vereist een geverifieerd UCITS-instrument, actuele pricing, re-underwriting en een afzonderlijk kapitaalbesluit.",
             "Europese aandelen- of obligatieblootstelling blijft afhankelijk on UCITS identity, exact-line verification, current pricing, re-underwriting and a separate capital decision.": "Europese aandelen- of obligatieblootstelling blijft afhankelijk van UCITS-identiteit, exact-line verificatie, actuele pricing, re-underwriting en een afzonderlijk kapitaalbesluit.",
             "No material regime change was recorded versus the prior review; the Risk-on growth backdrop remained intact, market breadth is mixed, and cross-asset confirmation is mixed.": "Ten opzichte van de vorige review is geen materiële regimewijziging vastgesteld; de risk-on-groeiomgeving bleef intact, terwijl marktbreedte en cross-asset bevestiging gemengd zijn.",
@@ -139,6 +161,9 @@ def finalize_client_html_semantics(text: str, state: dict[str, Any], *, language
             "0 geverifieerde UCITS-handelslijnen",
             f"{observed} lijnen zijn nog niet volledig geverifieerd of geprijsd",
             "Prijsobservaties zijn nog niet waarderingswaardig",
+            "two-provider completed-close consensus",
+            "two-provider exact-line consensus",
+            "valuation-grade two-provider",
             "any allocation still requires",
             "afhankelijk on UCITS identity",
             "No material regime change was recorded",
@@ -155,7 +180,7 @@ def finalize_client_html_semantics(text: str, state: dict[str, Any], *, language
         text = _replace_list_item(
             text,
             "Most mature implementation:",
-            f"Funded exact-line valuation: {funded_grade} of {funded_count} funded lines have two-provider completed-close consensus and form the current valuation basis.",
+            f"Funded exact-line valuation: {funded_grade} of {funded_count} funded lines have authorized exact-line completed-close pricing; {verified_count} independently verified and {primary_only_count} primary-authoritative without a current verifier.",
         )
         text = _replace_list_item(
             text,
@@ -163,10 +188,10 @@ def finalize_client_html_semantics(text: str, state: dict[str, Any], *, language
             f"Research/comparison layer: {research_count} unfunded pricing rows remain research-only; market-price availability creates no funding authority.",
         )
         replacements = {
-            "Pricing observations are not yet valuation-grade.": f"The {funded_grade} funded exact lines have valuation-grade two-provider completed-close consensus.",
-            "Promote only when source agreement and price lineage are sufficiently strong.": "Maintain two-provider exact-line consensus as the current valuation gate; research-only prices remain non-authoritative for funding.",
+            "Pricing observations are not yet valuation-grade.": f"The {funded_grade} funded exact lines have authorized valuation-grade completed-close primary pricing; an independent verifier increases confidence.",
+            "Promote only when source agreement and price lineage are sufficiently strong.": "Use authorized exact-line completed-close primary pricing as the current valuation gate; a verifier increases confidence and same-date disagreement blocks valuation.",
             f"{observed} trading lines are still awaiting full verification.": f"{research_count} unfunded pricing rows remain research/comparison evidence without funding authority.",
-            "No funding before identity, KID, trading line and broker availability are confirmed.": "No new funding before identity, KID, exact trading line, current re-underwriting, pricing consensus and an explicit allocation decision are confirmed.",
+            "No funding before identity, KID, trading line and broker availability are confirmed.": "No new funding before identity, KID, exact trading line, current re-underwriting, current pricing authority and an explicit allocation decision are confirmed.",
             "0 lines have no usable price in this run.": "All current funded lines have usable completed-close pricing; research-only lines remain separately classified.",
         }
         for old, new in replacements.items():
@@ -180,6 +205,9 @@ def finalize_client_html_semantics(text: str, state: dict[str, Any], *, language
             "0 verified UCITS trading lines",
             f"{observed} lines are not yet fully verified or priced",
             "Pricing observations are not yet valuation-grade",
+            "two-provider completed-close consensus",
+            "two-provider exact-line consensus",
+            "valuation-grade two-provider",
         ]
 
     missing = [token for token in required if token not in text]
