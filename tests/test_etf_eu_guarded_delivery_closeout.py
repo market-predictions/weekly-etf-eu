@@ -8,23 +8,18 @@ import pytest
 
 import tools.validate_etf_eu_independent_assurance as assurance_module
 from tools.validate_etf_eu_guarded_delivery_git_binding import _require_exact_delivery_head
-from tools.validate_etf_eu_independent_assurance import (
-    EXPECTED_PULL_API_URL,
-    resolve_review,
-    validate_review,
-)
-from tools.validate_etf_eu_pure_projections import (
-    expected_projection_bytes,
-    validate_projection_bytes,
-)
+from tools.validate_etf_eu_independent_assurance import resolve_review, validate_review
+from tools.validate_etf_eu_pure_projections import expected_projection_bytes, validate_projection_bytes
 
 CANDIDATE = "1" * 40
 BASE = "0" * 40
+REPOSITORY = "market-predictions/weekly-etf-eu"
+PULL_API_URL = f"https://api.github.com/repos/{REPOSITORY}/pulls/120"
 
 
-def _review(*, pull_url: str = EXPECTED_PULL_API_URL) -> dict:
+def _review(*, pull_url: str = PULL_API_URL, review_id: int = 12345) -> dict:
     return {
-        "id": 12345,
+        "id": review_id,
         "state": "COMMENTED",
         "body": "\n".join(
             [
@@ -38,7 +33,7 @@ def _review(*, pull_url: str = EXPECTED_PULL_API_URL) -> dict:
             ]
         ),
         "commit_id": CANDIDATE,
-        "html_url": "https://github.com/market-predictions/weekly-etf-eu/pull/120#pullrequestreview-12345",
+        "html_url": f"https://github.com/{REPOSITORY}/pull/{pull_url.rsplit('/', 1)[-1]}#pullrequestreview-{review_id}",
         "pull_request_url": pull_url,
         "submitted_at": "2026-09-06T12:00:00Z",
         "user": {"login": "chatgpt-codex-connector[bot]"},
@@ -48,14 +43,15 @@ def _review(*, pull_url: str = EXPECTED_PULL_API_URL) -> dict:
 def _pull(
     *,
     number: int = 120,
-    repo: str = "market-predictions/weekly-etf-eu",
+    repo: str = REPOSITORY,
     head_sha: str = CANDIDATE,
     base_branch: str = "main",
     base_sha: str = BASE,
 ) -> dict:
+    pull_url = f"https://api.github.com/repos/{repo}/pulls/{number}"
     return {
         "number": number,
-        "url": EXPECTED_PULL_API_URL,
+        "url": pull_url,
         "head": {"sha": head_sha, "repo": {"full_name": repo}},
         "base": {"ref": base_branch, "sha": base_sha, "repo": {"full_name": repo}},
     }
@@ -65,11 +61,11 @@ def _pull(
     "pull_url",
     [
         "https://api.github.com/repos/other/repo/pulls/120",
-        "https://api.github.com/repos/market-predictions/weekly-etf-eu/pulls/121",
+        "https://api.github.com/repos/market-predictions/other/pulls/121",
     ],
 )
-def test_independent_assurance_rejects_wrong_repository_or_pr(pull_url: str) -> None:
-    with pytest.raises(AssertionError, match="not bound to market-predictions/weekly-etf-eu PR #120"):
+def test_independent_assurance_rejects_wrong_repository(pull_url: str) -> None:
+    with pytest.raises(AssertionError, match="not bound to market-predictions/weekly-etf-eu"):
         validate_review(
             _review(pull_url=pull_url),
             candidate_sha=CANDIDATE,
@@ -92,12 +88,12 @@ def test_resolve_review_rejects_live_parent_pr_identity_drift(
     monkeypatch: pytest.MonkeyPatch, parent_pull: dict
 ) -> None:
     review = _review()
-    review_url = EXPECTED_PULL_API_URL + "/reviews/12345"
+    review_url = PULL_API_URL + "/reviews/12345"
 
     def fake_fetch(url: str) -> dict:
         if url == review_url:
             return review
-        if url == EXPECTED_PULL_API_URL:
+        if url == PULL_API_URL:
             return parent_pull
         raise AssertionError(f"unexpected URL: {url}")
 
@@ -109,6 +105,34 @@ def test_resolve_review_rejects_live_parent_pr_identity_drift(
             expected_base_branch="main",
             expected_base_sha=BASE,
         )
+
+
+def test_resolve_review_accepts_future_pr_identity_from_current_evidence(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    future_pr = 777
+    pull_url = f"https://api.github.com/repos/{REPOSITORY}/pulls/{future_pr}"
+    review_url = pull_url + "/reviews/98765"
+    review = _review(pull_url=pull_url, review_id=98765)
+    parent_pull = _pull(number=future_pr)
+
+    def fake_fetch(url: str) -> dict:
+        if url == review_url:
+            return review
+        if url == pull_url:
+            return parent_pull
+        raise AssertionError(f"unexpected URL: {url}")
+
+    monkeypatch.setattr(assurance_module, "_fetch_github_json", fake_fetch)
+    resolved = resolve_review(
+        evidence_api_url=review_url,
+        candidate_sha=CANDIDATE,
+        expected_base_branch="main",
+        expected_base_sha=BASE,
+    )
+    assert resolved["repository_full_name"] == REPOSITORY
+    assert resolved["pr_number"] == future_pr
+    assert resolved["evidence_ref"] == review_url
 
 
 def _git(cwd: Path, *args: str) -> str:
@@ -213,5 +237,5 @@ def test_pure_projection_validator_rejects_semantic_report_edits() -> None:
 
     tampered_pdf = dict(approved)
     tampered_pdf["nl_pdf"] = tampered_pdf["nl_pdf"] + b"tampered"
-    with pytest.raises(AssertionError, match="not a pure projection"):
+    with pytest.raises(AssertionError, match="not a pure projection|trailing data"):
         validate_projection_bytes(review_state_bytes, tampered_pdf)

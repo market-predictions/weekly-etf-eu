@@ -40,6 +40,13 @@ def _load_yaml(path: Path) -> dict[str, Any]:
     return payload
 
 
+def _load_json(path: Path) -> dict[str, Any]:
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    if not isinstance(payload, dict):
+        raise RuntimeError(f"Expected JSON object in {path}")
+    return payload
+
+
 def _action(row: dict[str, Any]) -> str:
     raw = str(row.get("current_allocation_decision") or row.get("last_action") or "REVIEW").strip().upper()
     action = {"INITIATE": "ADD", "BUY": "ADD", "TRIM": "REDUCE", "SELL": "CLOSE", "NO CHANGE": "HOLD"}.get(raw, raw)
@@ -97,9 +104,81 @@ def _position_decisions(state: dict[str, Any]) -> list[dict[str, Any]]:
     return rows
 
 
-def _period_position_contributions(state: dict[str, Any], *, prior_nav: float, baseline_date: str) -> tuple[list[dict[str, Any]], list[str]]:
+def _authorized_position_flows(
+    state: dict[str, Any], *, baseline_date: str, report_date: str
+) -> dict[str, dict[str, Any]]:
+    protected_path_raw = str((state.get("sources") or {}).get("protected_portfolio_state") or "")
+    if not protected_path_raw:
+        return {}
+    protected_path = Path(protected_path_raw)
+    if not protected_path.exists():
+        return {}
+    try:
+        protected = _load_json(protected_path)
+    except (OSError, UnicodeDecodeError, json.JSONDecodeError, RuntimeError):
+        return {}
+    activation = protected.get("last_model_capital_activation")
+    if not isinstance(activation, dict):
+        return {}
+    activation_date = str(activation.get("report_date") or "")
+    if not (baseline_date < activation_date <= report_date):
+        return {}
+    decision_path_raw = str(activation.get("decision") or "")
+    if not decision_path_raw:
+        return {}
+    decision_path = Path(decision_path_raw)
+    if not decision_path.exists():
+        return {}
+    try:
+        decision = _load_json(decision_path)
+    except (OSError, UnicodeDecodeError, json.JSONDecodeError, RuntimeError):
+        return {}
+    if decision.get("schema_version") != "etf_eu_current_allocation_decision_v1":
+        return {}
+    if str(decision.get("run_id") or "") != str(activation.get("run_id") or ""):
+        return {}
+    if str(decision.get("report_date") or "") != activation_date:
+        return {}
+    authority = decision.get("authority") or {}
+    if not isinstance(authority, dict):
+        return {}
+    if authority.get("explicit_current_allocation_decision") is not True:
+        return {}
+    if authority.get("model_portfolio_only") is not True or authority.get("real_broker_execution") is not False:
+        return {}
+
+    flows: dict[str, dict[str, Any]] = {}
+    for item in decision.get("decisions") or []:
+        if not isinstance(item, dict):
+            continue
+        ticker = _ticker(item)
+        shares_delta = _num(item.get("shares_delta"), 0.0)
+        trade_value = _num(item.get("trade_value_eur"), -1.0)
+        action = str(item.get("action") or "").strip().lower()
+        if not ticker or abs(shares_delta) <= 1e-9 or trade_value < 0:
+            continue
+        if shares_delta > 0 and action != "buy":
+            continue
+        if shares_delta < 0 and action not in {"sell", "trim", "reduce", "close"}:
+            continue
+        signed_flow = trade_value if shares_delta > 0 else -trade_value
+        flows[ticker] = {
+            "shares_delta": shares_delta,
+            "signed_flow_eur": signed_flow,
+            "action": action,
+            "report_date": activation_date,
+            "run_id": str(decision.get("run_id") or ""),
+            "evidence_ref": decision_path_raw,
+        }
+    return flows
+
+
+def _period_position_contributions(
+    state: dict[str, Any], *, prior_nav: float, baseline_date: str, report_date: str
+) -> tuple[list[dict[str, Any]], list[str]]:
     contributions: list[dict[str, Any]] = []
     unresolved: list[str] = []
+    flows = _authorized_position_flows(state, baseline_date=baseline_date, report_date=report_date)
     for row in (state.get("portfolio") or {}).get("positions") or []:
         if not isinstance(row, dict):
             continue
@@ -115,11 +194,25 @@ def _period_position_contributions(state: dict[str, Any], *, prior_nav: float, b
         if min(prior_shares, prior_weight, current_shares, current_value) < 0:
             unresolved.append(f"position_prior_observation_missing:{ticker}")
             continue
-        if abs(current_shares - prior_shares) > 1e-9:
+        prior_value = prior_nav * prior_weight / 100.0
+        share_delta = current_shares - prior_shares
+        if abs(share_delta) <= 1e-9:
+            contributions.append({"ticker": ticker, "contribution_eur": round(current_value - prior_value, 2)})
+            continue
+        flow = flows.get(ticker)
+        if not flow:
             unresolved.append(f"position_flow_not_evidenced:{ticker}")
             continue
-        prior_value = prior_nav * prior_weight / 100.0
-        contributions.append({"ticker": ticker, "contribution_eur": round(current_value - prior_value, 2)})
+        if abs(share_delta - _num(flow.get("shares_delta"))) > 1e-9:
+            unresolved.append(f"position_flow_share_delta_mismatch:{ticker}")
+            continue
+        signed_flow = _num(flow.get("signed_flow_eur"))
+        contributions.append({
+            "ticker": ticker,
+            "contribution_eur": round(current_value - prior_value - signed_flow, 2),
+            "flow_eur": round(signed_flow, 2),
+            "flow_evidence_ref": flow.get("evidence_ref"),
+        })
     contributions.sort(key=lambda item: item["contribution_eur"])
     return contributions, unresolved
 
@@ -172,7 +265,9 @@ def _accountability(state: dict[str, Any], *, comparator: dict[str, Any], histor
     historical_indices = [_num(row.get("comparator_index")) for row in history if _num(row.get("comparator_index")) > 0]
     portfolio_peak = max(historical_navs + [nav])
     comparator_peak = max(historical_indices + [comparator_index])
-    contributions, contribution_unresolved = _period_position_contributions(state, prior_nav=prior_nav, baseline_date=baseline_date)
+    contributions, contribution_unresolved = _period_position_contributions(
+        state, prior_nav=prior_nav, baseline_date=baseline_date, report_date=report_date
+    )
     cash_policy = state.get("cash_policy") or {}
     unresolved = ["cash_drag_not_yet_evidenced", "transaction_costs_not_evidenced", *contribution_unresolved]
     return {
@@ -200,7 +295,7 @@ def _accountability(state: dict[str, Any], *, comparator: dict[str, Any], histor
         "top_contributor": contributions[-1] if contributions else None,
         "top_detractor": contributions[0] if contributions else None,
         "position_contributions": contributions,
-        "position_contribution_method": "current_market_value_minus_prior_dated_position_value_when_shares_unchanged",
+        "position_contribution_method": "current_market_value_minus_prior_dated_position_value_minus_evidenced_internal_trade_flow",
         "position_flows_require_explicit_evidence": True,
         "costs_status": "UNAVAILABLE_NOT_INVENTED",
         "comparator_pricing": pricing_authority_summary(price),
