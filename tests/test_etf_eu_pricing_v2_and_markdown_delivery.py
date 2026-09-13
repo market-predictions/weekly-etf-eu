@@ -8,6 +8,8 @@ import pytest
 
 from pricing.ucits_close_price_validation_contract_v2 import validate_payload
 from runtime.build_etf_eu_client_grade_report_state_v2 import build_state
+from runtime.finalize_etf_eu_client_surface_semantics import finalize_client_html_semantics
+from runtime.finalize_etf_eu_markdown_semantics import finalize_markdown_semantics
 from runtime.reconcile_etf_eu_funded_markdown import (
     reconcile_funded_markdown,
     validate_funded_markdown,
@@ -111,6 +113,21 @@ def _pricing() -> dict:
     }
 
 
+def _primary_only_markdown_state() -> dict:
+    return {
+        "portfolio": {
+            "cash_eur": 50208.40,
+            "positions": [
+                {
+                    "exchange_ticker": "VWCE",
+                    "pricing_status": "qualified_completed_close_primary_plus_verification",
+                    "verification_status": "fresh_exact_unverified",
+                }
+            ],
+        }
+    }
+
+
 def test_v2_pricing_contract_accepts_four_funded_verified_lines() -> None:
     result = validate_payload(
         _pricing(),
@@ -199,6 +216,76 @@ def test_markdown_validator_rejects_three_position_and_retired_target_copy() -> 
     assert blockers
     assert any("three funded" in blocker for blocker in blockers)
     assert any("strategic target" in blocker for blocker in blockers)
+
+
+def test_primary_only_price_is_disclosed_without_universal_two_provider_claim() -> None:
+    state = _primary_only_markdown_state()
+    source = "\n".join(
+        [
+            "- **Action:** review current position.",
+            "- **Reason:** current review.",
+            "1 funded UCITS positions: VWCE",
+        ]
+    )
+    output = reconcile_funded_markdown(source, state, language="en")
+    assert "1 of 1 funded lines have authorized exact-line completed-close pricing" in output
+    assert "0 independently verified and 1 primary-authoritative without a current verifier" in output
+    assert "two-provider completed-close consensus" not in output.casefold()
+    assert validate_funded_markdown(output, state, language="en") == []
+
+
+def test_markdown_validator_rejects_retired_universal_two_provider_claim() -> None:
+    state = _primary_only_markdown_state()
+    stale = "\n".join(
+        [
+            "1 funded UCITS positions: VWCE",
+            "1 of 1 funded lines have authorized exact-line completed-close pricing.",
+            "A current price verification with two independent sources is available for all funded positions; spreads are immaterial.",
+        ]
+    )
+    blockers = validate_funded_markdown(stale, state, language="en")
+    assert any("two independent sources" in blocker for blocker in blockers)
+
+
+def test_markdown_finalizer_rewrites_retired_universal_two_provider_claims() -> None:
+    source = "\n".join(
+        [
+            "- **Reason:** current review.",
+            "A current price verification with two independent sources is available for all funded positions; spreads are immaterial.",
+            "Each position's current price is checked through two sources (Alpha Vantage and Yahoo).",
+        ]
+    )
+    output = finalize_markdown_semantics(source, {}, language="en")
+    assert "authorized exact-line completed-close primary price" in output
+    assert "independent verification increases confidence" in output
+    assert "two independent sources" not in output
+    assert "checked through two sources" not in output
+
+
+def test_html_finalizer_uses_primary_plus_verification_semantics() -> None:
+    state = _primary_only_markdown_state()
+    source = """<html><body><ul>
+<li>This run: old state.</li>
+<li>Most mature implementation: legacy.</li>
+<li>Main blocker: legacy.</li>
+</ul><p>Pricing observations are not yet valuation-grade.</p>
+<p>Promote only when source agreement and price lineage are sufficiently strong.</p></body></html>"""
+    output = finalize_client_html_semantics(source, state, language="en")
+    assert "Funded exact-line valuation: 1 of 1 funded lines have authorized exact-line completed-close pricing" in output
+    assert "0 independently verified and 1 primary-authoritative without a current verifier" in output
+    assert "authorized valuation-grade completed-close primary pricing" in output
+    assert "two-provider" not in output.casefold()
+
+
+def test_html_finalizer_fails_closed_on_retired_two_provider_copy() -> None:
+    state = _primary_only_markdown_state()
+    source = """<html><body><ul>
+<li>This run: old state.</li>
+<li>Most mature implementation: legacy.</li>
+<li>Main blocker: legacy.</li>
+</ul><p>two-provider completed-close consensus</p></body></html>"""
+    with pytest.raises(RuntimeError, match="residual_stale"):
+        finalize_client_html_semantics(source, state, language="en")
 
 
 def test_normalized_state_builder_requires_v2_gate(tmp_path: Path) -> None:
