@@ -15,8 +15,8 @@
 |---|---:|
 | Startkapitaal | EUR 100,000.00 |
 | Cash | EUR 28,101.01 |
-| Belegde marktwaarde | EUR 72,637.72 |
-| Totale portefeuillewaarde | EUR 100,738.73 |
+| Belegde marktwaarde | EUR 72,750.08 |
+| Totale portefeuillewaarde | EUR 100,851.09 |
 | Gefinancierde posities | 6 |
 
 ## 3. Actuele UCITS-prijssnapshot

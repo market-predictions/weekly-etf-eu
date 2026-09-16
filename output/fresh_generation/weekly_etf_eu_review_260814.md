@@ -15,8 +15,8 @@
 |---|---:|
 | Starting capital | EUR 100,000.00 |
 | Cash | EUR 28,101.01 |
-| Invested market value | EUR 72,637.72 |
-| Total portfolio value | EUR 100,738.73 |
+| Invested market value | EUR 72,750.08 |
+| Total portfolio value | EUR 100,851.09 |
 | Funded positions | 6 |
 
 ## 3. Current UCITS pricing snapshot
