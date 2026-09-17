@@ -50,16 +50,18 @@ def _portfolio_identities(portfolio: dict[str, Any]) -> set[tuple[str, str]]:
     }
 
 
-def _authorized_exact_pricing(pricing: dict[str, Any] | None) -> bool:
+def _pricing_authorized(pricing: dict[str, Any] | None) -> bool:
     if not pricing:
         return False
+    authority_status = str(pricing.get("source_agreement_status") or "").strip()
     return (
-        pricing.get("completed_close_on_requested_report_date") is True
-        and pricing.get("close_price") not in (None, "")
-        and str(pricing.get("source_agreement_status") or "") in AUTHORIZED_EXACT_STATUSES
+        authority_status in AUTHORIZED_EXACT_STATUSES
         and pricing.get("valuation_grade") is True
+        and pricing.get("completed_close_on_requested_report_date") is True
         and pricing.get("static_identity_binding") is True
         and pricing.get("static_primary_provider_symbol_binding") is True
+        and pricing.get("close_price") not in (None, "")
+        and bool(str(pricing.get("primary_provider") or "").strip())
     )
 
 
@@ -72,9 +74,9 @@ def _fundability(candidate: dict[str, Any], mapping_status: str, pricing: dict[s
         return "MAPPING_REQUIRED"
     if "incomplete" in str(candidate.get("identity_status") or "").lower() or "unresolved" in str(candidate.get("exchange") or "").lower():
         return "IDENTITY_OR_KID_INCOMPLETE"
-    if not pricing or pricing.get("completed_close_on_requested_report_date") is not True or pricing.get("close_price") in (None, ""):
+    if not pricing or pricing.get("close_price") in (None, ""):
         return "PRICING_REQUIRED"
-    if not _authorized_exact_pricing(pricing):
+    if not _pricing_authorized(pricing):
         return "PRICING_AUTHORITY_REQUIRED"
     return "FUNDABLE_REQUIRES_ALLOCATION_DECISION"
 
@@ -103,7 +105,8 @@ def build_bridge(
         }
         proxies.discard("")
         matched = [
-            row for row in maps
+            row
+            for row in maps
             if proxies & {str(value).strip().upper() for value in row.get("donor_proxies") or []}
         ]
         candidate_rows: list[dict[str, Any]] = []
@@ -116,43 +119,49 @@ def build_bridge(
                 ticker = str(candidate.get("exchange_ticker") or "").strip().upper()
                 price = prices.get((isin, ticker))
                 funded = (isin, ticker) in funded_ids
-                authority_status = str(price.get("source_agreement_status") or "") if price else ""
-                candidate_rows.append({
-                    **candidate,
-                    "exposure_id": mapping_row.get("exposure_id"),
-                    "mapping_status": mapping_status,
-                    "pricing_close_date": price.get("close_date") if price else None,
-                    "pricing_close": price.get("close_price") if price else None,
-                    "pricing_status": price.get("pricing_status") if price else None,
-                    "pricing_authority_status": authority_status or None,
-                    "pricing_primary_provider": price.get("primary_provider") if price else None,
-                    "pricing_verification_providers": price.get("verification_providers") if price else [],
-                    "pricing_authorized_exact": _authorized_exact_pricing(price),
-                    "fundability_status": _fundability(candidate, mapping_status, price, funded),
-                })
+                candidate_rows.append(
+                    {
+                        **candidate,
+                        "exposure_id": mapping_row.get("exposure_id"),
+                        "mapping_status": mapping_status,
+                        "pricing_close_date": price.get("close_date") if price else None,
+                        "pricing_close": price.get("close_price") if price else None,
+                        "pricing_status": price.get("pricing_status") if price else None,
+                        "pricing_authority_status": price.get("source_agreement_status") if price else None,
+                        "pricing_primary_provider": price.get("primary_provider") if price else None,
+                        "pricing_verification_providers": price.get("verification_providers") if price else [],
+                        "pricing_authorized": _pricing_authorized(price),
+                        "fundability_status": _fundability(candidate, mapping_status, price, funded),
+                    }
+                )
         if not candidate_rows:
-            candidate_rows = [{
-                "exposure_id": lane.get("taxonomy_tag") or lane.get("bucket"),
-                "mapping_status": "mapping_required",
-                "fundability_status": "MAPPING_REQUIRED",
-            }]
-        assessed.append({
-            "lane_name": lane.get("lane_name"),
-            "taxonomy_tag": lane.get("taxonomy_tag"),
-            "bucket": lane.get("bucket"),
-            "donor_primary_etf": lane.get("primary_etf"),
-            "donor_alternative_etf": lane.get("alternative_etf"),
-            "donor_total_score": lane.get("total_score"),
-            "donor_promoted_to_live_radar": lane.get("promoted_to_live_radar"),
-            "donor_challenger": lane.get("challenger"),
-            "donor_fundability_status": lane.get("fundability_status"),
-            "donor_is_fundable_candidate": bool(lane.get("is_fundable_candidate")),
-            "donor_return_1m_pct": lane.get("return_1m_pct"),
-            "donor_return_3m_pct": lane.get("return_3m_pct"),
-            "donor_relative_strength_score": lane.get("relative_strength_score"),
-            "donor_tradability_status": lane.get("tradability_status"),
-            "ucits_candidates": candidate_rows,
-        })
+            candidate_rows = [
+                {
+                    "exposure_id": lane.get("taxonomy_tag") or lane.get("bucket"),
+                    "mapping_status": "mapping_required",
+                    "pricing_authorized": False,
+                    "fundability_status": "MAPPING_REQUIRED",
+                }
+            ]
+        assessed.append(
+            {
+                "lane_name": lane.get("lane_name"),
+                "taxonomy_tag": lane.get("taxonomy_tag"),
+                "bucket": lane.get("bucket"),
+                "donor_primary_etf": lane.get("primary_etf"),
+                "donor_alternative_etf": lane.get("alternative_etf"),
+                "donor_total_score": lane.get("total_score"),
+                "donor_promoted_to_live_radar": lane.get("promoted_to_live_radar"),
+                "donor_challenger": lane.get("challenger"),
+                "donor_fundability_status": lane.get("fundability_status"),
+                "donor_is_fundable_candidate": bool(lane.get("is_fundable_candidate")),
+                "donor_return_1m_pct": lane.get("return_1m_pct"),
+                "donor_return_3m_pct": lane.get("return_3m_pct"),
+                "donor_relative_strength_score": lane.get("relative_strength_score"),
+                "donor_tradability_status": lane.get("tradability_status"),
+                "ucits_candidates": candidate_rows,
+            }
+        )
 
     buckets = sorted({str(row.get("bucket") or "") for row in assessed if row.get("bucket")})
     return {
@@ -166,8 +175,9 @@ def build_bridge(
         "authority": {
             "mapping_is_funding_authority": False,
             "pricing_is_funding_authority": False,
-            "new_allocation_requires_authorized_exact_pricing": True,
-            "authorized_exact_pricing_statuses": sorted(AUTHORIZED_EXACT_STATUSES),
+            "new_allocation_requires_authorized_exact_primary_pricing": True,
+            "second_provider_required_for_liveness": False,
+            "same_date_disagreement_blocks": True,
             "explicit_allocation_decision_required": True,
             "portfolio_mutation": False,
             "execution_authority": False,
@@ -175,7 +185,13 @@ def build_bridge(
     }
 
 
-def write_bridge(donor_lane_artifact: Path, proxy_map: Path, pricing_artifact: Path, portfolio_state: Path, output: Path) -> dict[str, Any]:
+def write_bridge(
+    donor_lane_artifact: Path,
+    proxy_map: Path,
+    pricing_artifact: Path,
+    portfolio_state: Path,
+    output: Path,
+) -> dict[str, Any]:
     payload = build_bridge(donor_lane_artifact, proxy_map, pricing_artifact, portfolio_state)
     output.parent.mkdir(parents=True, exist_ok=True)
     output.write_text(json.dumps(payload, indent=2, ensure_ascii=False, sort_keys=True) + "\n", encoding="utf-8")
