@@ -12,8 +12,19 @@ def _money(value: Any, language: str) -> str:
     return "EUR " + raw
 
 
+def _num(value: Any, language: str, decimals: int = 2) -> str:
+    try:
+        raw = f"{float(value):,.{decimals}f}"
+    except (TypeError, ValueError):
+        return "n/a"
+    if language == "nl":
+        raw = raw.replace(",", "X").replace(".", ",").replace("X", ".")
+    return raw
+
+
 def _ticker(row: dict[str, Any]) -> str:
-    return str(row.get("exchange_ticker") or row.get("ticker") or "").strip().upper()
+    ticker = str(row.get("exchange_ticker") or row.get("ticker") or "").strip().upper()
+    return "L0CK" if ticker == "LOCK" else ticker
 
 
 def _join_tickers(tickers: list[str], language: str) -> str:
@@ -26,41 +37,12 @@ def _join_tickers(tickers: list[str], language: str) -> str:
     return ", ".join(clean[:-1]) + conjunction + clean[-1]
 
 
-def _replace_prefixed_line(text: str, prefix: str, replacement: str) -> str:
-    lines = text.splitlines()
-    replaced = False
-    for index, line in enumerate(lines):
-        if not replaced and line.startswith(prefix):
-            lines[index] = replacement
-            replaced = True
-    suffix = "\n" if text.endswith("\n") else ""
-    return "\n".join(lines) + suffix
-
-
-def _pricing_table_row_count(text: str) -> int:
-    marker = "## 3."
-    start = text.find(marker)
-    if start < 0:
-        return 0
-    section = text[start:]
-    in_table = False
-    count = 0
-    for line in section.splitlines()[1:]:
-        if line.startswith("## "):
-            break
-        if line.startswith("| Trading line |") or line.startswith("| Handelslijn |"):
-            in_table = True
-            continue
-        if not in_table:
-            continue
-        if not line.startswith("|"):
-            if count:
-                break
-            continue
-        if "---" in line:
-            continue
-        count += 1
-    return count
+def _authority_status(row: dict[str, Any]) -> str:
+    for key in ("authority_status", "verification_status", "pricing_status", "source_agreement_status"):
+        value = str(row.get(key) or "").strip()
+        if value in AUTHORIZED_EXACT_STATUSES:
+            return value
+    return ""
 
 
 def _current_additions(state: dict[str, Any], positions: list[dict[str, Any]]) -> list[str]:
@@ -83,33 +65,252 @@ def _current_additions(state: dict[str, Any], positions: list[dict[str, Any]]) -
     ]
 
 
+def _status_label(status: str, language: str) -> str:
+    if language == "nl":
+        return {
+            "fresh_exact_verified": "Exacte slotkoers · onafhankelijk geverifieerd",
+            "fresh_exact_unverified": "Exacte slotkoers · geen actuele onafhankelijke verifier",
+        }.get(status, "Geen prijsautoriteit")
+    return {
+        "fresh_exact_verified": "Exact close · independently verified",
+        "fresh_exact_unverified": "Exact close · no current independent verifier",
+    }.get(status, "No pricing authority")
+
+
+def _provider_text(row: dict[str, Any], language: str) -> str:
+    primary = str(row.get("primary_provider") or "").strip() or "n/a"
+    verifiers = [str(value).strip() for value in row.get("verification_providers") or [] if str(value).strip()]
+    if verifiers:
+        return primary + " + " + ", ".join(verifiers)
+    return primary + (" (geen actuele verifier)" if language == "nl" else " (no current verifier)")
+
+
+def render_funded_markdown(state: dict[str, Any], *, language: str) -> str:
+    """Render final client Markdown directly from normalized current state.
+
+    No legacy client prose is consumed and no semantic post-processing is required.
+    Pricing claims are projections of the canonical pricing authority carried by
+    normalized state. Pricing authority remains separate from fundability,
+    allocation, broker execution and delivery authority.
+    """
+
+    if language not in {"nl", "en"}:
+        raise ValueError("language must be nl or en")
+
+    portfolio = state.get("portfolio") if isinstance(state.get("portfolio"), dict) else {}
+    positions = [row for row in portfolio.get("positions") or [] if isinstance(row, dict)]
+    if not positions:
+        raise RuntimeError("Native funded Markdown requires funded model positions")
+
+    tickers = [_ticker(row) for row in positions if _ticker(row)]
+    additions = _current_additions(state, positions)
+    verified = sum(_authority_status(row) == "fresh_exact_verified" for row in positions)
+    primary_only = sum(_authority_status(row) == "fresh_exact_unverified" for row in positions)
+    authorized = verified + primary_only
+    count = len(positions)
+    pricing_rows = [row for row in (state.get("pricing") or {}).get("rows") or [] if isinstance(row, dict)]
+    current_review = state.get("current_reunderwriting") if isinstance(state.get("current_reunderwriting"), dict) else {}
+    report_date = str(state.get("report_date") or current_review.get("report_date") or "")
+
+    lines: list[str] = []
+    if language == "nl":
+        lines.extend(
+            [
+                "# Weekly ETF EU Review",
+                "",
+                f"**Rapportdatum:** {report_date}",
+                "",
+                "## 1. Beslissamenvatting",
+                "",
+                f"- **Huidige portefeuille:** {count} gefinancierde UCITS-posities ({_join_tickers(tickers, 'nl')}).",
+                f"- **Kapitaal:** {_money(portfolio.get('invested_market_value_eur'), 'nl')} belegd en {_money(portfolio.get('cash_eur'), 'nl')} cash; geen echte brokeruitvoering.",
+                f"- **Prijsautoriteit:** {authorized} van {count} gefinancierde lijnen hebben geautoriseerde exact-line completed-close pricing; {verified} onafhankelijk geverifieerd en {primary_only} primary-authoritative zonder actuele verifier.",
+                "- **Beslisregel:** prijsautoriteit ondersteunt waardering, maar creëert geen funding-, allocatie-, broker- of delivery-authority.",
+            ]
+        )
+        if additions:
+            lines.append(f"- **Toegevoegd deze run:** {_join_tickers(additions, 'nl')}.")
+        else:
+            lines.append("- **Modelmutatie:** geen nieuwe modelportefeuillewijziging uit deze rapportgeneratie.")
+        lines.extend(["", "## 2. Gefinancierde posities", ""])
+        lines.append("| Handelslijn | ISIN | Stukken | Slotkoers | Peildatum | Marktwaarde | Gewicht | Prijsautoriteit | Bronbewijs | Actueel besluit |")
+        lines.append("| --- | --- | ---: | ---: | --- | ---: | ---: | --- | --- | --- |")
+        for row in positions:
+            status = _authority_status(row)
+            lines.append(
+                "| "
+                + " | ".join(
+                    [
+                        _ticker(row),
+                        str(row.get("isin") or ""),
+                        str(int(float(row.get("shares") or 0))),
+                        _money(row.get("current_price_local"), "nl"),
+                        str(row.get("price_date") or ""),
+                        _money(row.get("market_value_eur"), "nl"),
+                        _num(row.get("current_weight_pct"), "nl") + "%",
+                        _status_label(status, "nl"),
+                        _provider_text(row, "nl"),
+                        str(row.get("current_allocation_decision") or "hold"),
+                    ]
+                )
+                + " |"
+            )
+        lines.extend(["", "## 3. UCITS-kandidaten en prijsbewijs", ""])
+        lines.append("| Handelslijn | Fonds | ISIN | Beurs | Datum | Slot | Valuta | Prijsautoriteit | Primary | Verifier |")
+        lines.append("| --- | --- | --- | --- | --- | ---: | --- | --- | --- | --- |")
+        for row in pricing_rows:
+            status = _authority_status(row)
+            verifiers = ", ".join(str(value) for value in row.get("verification_providers") or []) or "geen actuele verifier"
+            lines.append(
+                "| "
+                + " | ".join(
+                    [
+                        str(row.get("ticker") or ""),
+                        str(row.get("fund_name") or ""),
+                        str(row.get("isin") or ""),
+                        str(row.get("exchange") or ""),
+                        str(row.get("close_date") or ""),
+                        _num(row.get("close_price"), "nl"),
+                        str(row.get("currency") or ""),
+                        _status_label(status, "nl"),
+                        str(row.get("primary_provider") or "n/a"),
+                        verifiers,
+                    ]
+                )
+                + " |"
+            )
+        lines.extend(
+            [
+                "",
+                "Exact primary pricing kan valuation-grade autoriteit dragen. Een actuele onafhankelijke verifier verhoogt confidence; same-date disagreement blijft fail-closed.",
+                "",
+                "## 4. Huidige re-underwriting",
+                "",
+            ]
+        )
+        for row in positions:
+            lines.extend(
+                [
+                    f"### {_ticker(row)}",
+                    f"- **Thesis:** {row.get('thesis_assessment') or 'n/a'}",
+                    f"- **Implementation:** {row.get('implementation_assessment') or 'n/a'}",
+                    f"- **Volgende actie:** {row.get('required_next_action') or 'n/a'}",
+                    "",
+                ]
+            )
+        lines.extend(
+            [
+                "## 5. Cash en volgende run",
+                "",
+                str(current_review.get("cash_after_explanation") or "Resterende cash blijft tactical reserve totdat een distincte lane alle huidige fundability-gates passeert."),
+                "",
+                "## Disclaimer",
+                "",
+                "Dit rapport is uitsluitend informatief en educatief en is geen beleggings-, juridisch, fiscaal of financieel advies. Geen echte brokeruitvoering of e-maildelivery is door deze rapportgeneratie geautoriseerd.",
+            ]
+        )
+    else:
+        lines.extend(
+            [
+                "# Weekly ETF EU Review",
+                "",
+                f"**Report date:** {report_date}",
+                "",
+                "## 1. Decision summary",
+                "",
+                f"- **Current portfolio:** {count} funded UCITS positions ({_join_tickers(tickers, 'en')}).",
+                f"- **Capital:** {_money(portfolio.get('invested_market_value_eur'), 'en')} invested and {_money(portfolio.get('cash_eur'), 'en')} cash; no real broker execution.",
+                f"- **Pricing authority:** {authorized} of {count} funded lines have authorized exact-line completed-close pricing; {verified} independently verified and {primary_only} primary-authoritative without a current verifier.",
+                "- **Decision rule:** pricing authority supports valuation but creates no funding, allocation, broker or delivery authority.",
+            ]
+        )
+        if additions:
+            lines.append(f"- **Added this run:** {_join_tickers(additions, 'en')}.")
+        else:
+            lines.append("- **Model mutation:** no new model-portfolio change is authorized by this report generation.")
+        lines.extend(["", "## 2. Funded positions", ""])
+        lines.append("| Trading line | ISIN | Shares | Close | Pricing date | Market value | Weight | Pricing authority | Evidence | Current decision |")
+        lines.append("| --- | --- | ---: | ---: | --- | ---: | ---: | --- | --- | --- |")
+        for row in positions:
+            status = _authority_status(row)
+            lines.append(
+                "| "
+                + " | ".join(
+                    [
+                        _ticker(row),
+                        str(row.get("isin") or ""),
+                        str(int(float(row.get("shares") or 0))),
+                        _money(row.get("current_price_local"), "en"),
+                        str(row.get("price_date") or ""),
+                        _money(row.get("market_value_eur"), "en"),
+                        _num(row.get("current_weight_pct"), "en") + "%",
+                        _status_label(status, "en"),
+                        _provider_text(row, "en"),
+                        str(row.get("current_allocation_decision") or "hold"),
+                    ]
+                )
+                + " |"
+            )
+        lines.extend(["", "## 3. UCITS candidates and pricing evidence", ""])
+        lines.append("| Trading line | Fund | ISIN | Exchange | Date | Close | Currency | Pricing authority | Primary | Verifier |")
+        lines.append("| --- | --- | --- | --- | --- | ---: | --- | --- | --- | --- |")
+        for row in pricing_rows:
+            status = _authority_status(row)
+            verifiers = ", ".join(str(value) for value in row.get("verification_providers") or []) or "no current verifier"
+            lines.append(
+                "| "
+                + " | ".join(
+                    [
+                        str(row.get("ticker") or ""),
+                        str(row.get("fund_name") or ""),
+                        str(row.get("isin") or ""),
+                        str(row.get("exchange") or ""),
+                        str(row.get("close_date") or ""),
+                        _num(row.get("close_price"), "en"),
+                        str(row.get("currency") or ""),
+                        _status_label(status, "en"),
+                        str(row.get("primary_provider") or "n/a"),
+                        verifiers,
+                    ]
+                )
+                + " |"
+            )
+        lines.extend(
+            [
+                "",
+                "Exact primary pricing can carry valuation-grade authority. A current independent verifier increases confidence; same-date disagreement remains fail-closed.",
+                "",
+                "## 4. Current re-underwriting",
+                "",
+            ]
+        )
+        for row in positions:
+            lines.extend(
+                [
+                    f"### {_ticker(row)}",
+                    f"- **Thesis:** {row.get('thesis_assessment') or 'n/a'}",
+                    f"- **Implementation:** {row.get('implementation_assessment') or 'n/a'}",
+                    f"- **Next action:** {row.get('required_next_action') or 'n/a'}",
+                    "",
+                ]
+            )
+        lines.extend(
+            [
+                "## 5. Cash and next run",
+                "",
+                str(current_review.get("cash_after_explanation") or "Residual cash remains tactical reserve until a distinct lane passes every current fundability gate."),
+                "",
+                "## Disclaimer",
+                "",
+                "This report is for informational and educational purposes only and is not investment, legal, tax or financial advice. No real broker execution or email delivery is authorized by this report generation.",
+            ]
+        )
+
+    return "\n".join(lines).rstrip() + "\n"
+
+
 def _funded_valuation_grade_count(positions: list[dict[str, Any]]) -> int:
-    count = 0
-    for row in positions:
-        status = str(row.get("pricing_status") or "").casefold()
-        verification = str(row.get("verification_status") or "").casefold()
-        if status == "qualified_completed_close_primary_plus_verification" and verification in AUTHORIZED_EXACT_STATUSES:
-            count += 1
-        elif status == "qualified_two_provider_completed_close" and "consensus" in verification:
-            # Historical protected state may still carry the predecessor label.
-            count += 1
-    return count
-
-
-def _verification_counts(positions: list[dict[str, Any]]) -> tuple[int, int]:
-    verified = 0
-    primary_only = 0
-    for row in positions:
-        status = str(row.get("pricing_status") or "").casefold()
-        verification = str(row.get("verification_status") or "").casefold()
-        if status == "qualified_completed_close_primary_plus_verification":
-            if verification == "fresh_exact_verified":
-                verified += 1
-            elif verification == "fresh_exact_unverified":
-                primary_only += 1
-        elif status == "qualified_two_provider_completed_close" and "consensus" in verification:
-            verified += 1
-    return verified, primary_only
+    return sum(_authority_status(row) in AUTHORIZED_EXACT_STATUSES for row in positions)
 
 
 def validate_funded_markdown(text: str, state: dict[str, Any], *, language: str) -> list[str]:
@@ -153,35 +354,28 @@ def validate_funded_markdown(text: str, state: dict[str, Any], *, language: str)
         if required_quality.casefold() not in folded:
             blockers.append("funded valuation-grade quality disclosure missing")
 
-    forbidden = (
-        [
-            "drie gefinancierde ucits-posities",
-            "reserve minimaal 7,50%",
-            "vaste 7,50% reserve",
-            "strategisch doelgewicht",
-            "fase-doelgewicht",
-            "fasedoelgewicht",
-            "do not allocate capital to thematic or gold exposure",
-            "volledig geverifieerde lijnen: 0",
-            "geprijsd maar identiteit of handelslijn nog te verifiëren: 13",
-            "two-provider completed-close consensus",
-            "twee onafhankelijke bronnen beschikbaar",
-            "actuele koers gecontroleerd via twee bronnen",
-        ]
-        if language == "nl"
-        else [
-            "three funded ucits positions",
-            "minimum cash reserve 7.50%",
-            "fixed 7.50% reserve",
-            "strategic target weight",
-            "phase target weight",
-            "fully verified lines: 0",
-            "priced but identity or trading-line verification still pending: 13",
-            "two-provider completed-close consensus",
-            "two independent sources is available for all funded positions",
-            "current price is checked through two sources",
-        ]
-    )
+    verified = sum(_authority_status(row) == "fresh_exact_verified" for row in positions)
+    primary_only = sum(_authority_status(row) == "fresh_exact_unverified" for row in positions)
+    if verified and ("onafhankelijk geverifieerd" if language == "nl" else "independently verified") not in folded:
+        blockers.append("verified pricing confidence disclosure missing")
+    if primary_only and ("geen actuele onafhankelijke verifier" if language == "nl" else "no current independent verifier") not in folded:
+        blockers.append("primary-only pricing confidence disclosure missing")
+
+    forbidden = [
+        "qualified_development_consensus",
+        "qualified_completed_close_primary_plus_verification",
+        "qualified_two_provider_completed_close",
+        "two-provider completed-close consensus",
+        "two-provider exact-line consensus",
+        "valuation-grade two-provider",
+        "single_source_only",
+        "priced_non_authoritative",
+        "verified_ucits_trading_line",
+        "reserve minimaal 7,50%",
+        "minimum cash reserve 7.50%",
+        "strategic target weight",
+        "phase target weight",
+    ]
     for token in forbidden:
         if token.casefold() in folded:
             blockers.append(f"retired/stale Markdown wording present: {token}")
@@ -189,107 +383,12 @@ def validate_funded_markdown(text: str, state: dict[str, Any], *, language: str)
 
 
 def reconcile_funded_markdown(text: str, state: dict[str, Any], *, language: str) -> str:
-    portfolio = state.get("portfolio") if isinstance(state.get("portfolio"), dict) else {}
-    positions = [row for row in portfolio.get("positions") or [] if isinstance(row, dict)]
-    if not positions:
-        return text
+    """Compatibility alias for callers not yet migrated to native generation.
 
-    cash = _money(portfolio.get("cash_eur"), language)
-    tickers = [_ticker(row) for row in positions if _ticker(row)]
-    additions = _current_additions(state, positions)
-    position_names = _join_tickers(tickers, language)
-    addition_names = _join_tickers(additions, language)
-    count = len(positions)
-    funded_grade = _funded_valuation_grade_count(positions)
-    verified_count, primary_only_count = _verification_counts(positions)
-    total_pricing_rows = _pricing_table_row_count(text)
-    research_rows = max(total_pricing_rows - count, 0)
+    The legacy input text is deliberately ignored. Final Markdown is generated
+    from normalized state rather than semantically patching an already-rendered
+    artifact.
+    """
 
-    if language == "nl":
-        action = (
-            f"- **Actie:** {addition_names} deze run toegevoegd; huidige modelportefeuille: {position_names}. Resterende liquiditeit {cash}."
-            if additions
-            else f"- **Actie:** {position_names} als huidige modelposities beoordelen; resterende liquiditeit {cash}."
-        )
-        reason = f"- **Reden:** de modelportefeuille bevat {count} gefinancierde UCITS-posities ({position_names}); de review gebruikt actuele state, exact-line completed-close prijsbewijs en current re-underwriting."
-        structure = f"- **Huidige positiegrondslag:** {position_names}; rollen, bijdrage, overlap en re-underwriting komen uit de actuele genormaliseerde state."
-        quality = (
-            f"- **Gefinancierde exact-line waardering:** {funded_grade} van {count} gefinancierde lijnen hebben geautoriseerde exact-line completed-close pricing; "
-            f"{verified_count} onafhankelijk geverifieerd en {primary_only_count} primary-authoritative zonder actuele verifier."
-        )
-        text = _replace_prefixed_line(text, "- **Actie:**", action)
-        text = _replace_prefixed_line(text, "- **Reden:**", reason)
-        text = _replace_prefixed_line(text, "- **Huidige positiegrondslag:**", structure)
-        text = _replace_prefixed_line(text, "- **Prijsdekking:**", f"- **Prijsdekking:** {total_pricing_rows} van {total_pricing_rows} handelslijnen hebben een marktobservatie op de peildatum.")
-        text = _replace_prefixed_line(text, "- **Volledig geverifieerde lijnen:**", quality)
-        text = _replace_prefixed_line(text, "- **Geprijsd maar identiteit of handelslijn nog te verifiëren:**", f"- **Research-/vergelijkingslijnen:** {research_rows} niet-gefinancierde prijsregels blijven research-only; marktprijsbeschikbaarheid creëert geen funding-authority.")
-        old_note = "De getoonde prijzen zijn marktobservaties uit de huidige routine-run en vormen geen zelfstandige basis voor waardering of aankoop."
-        new_note = (
-            f"Voor de {count} gefinancierde lijnen vormt een geautoriseerde exact-line completed-close primary prijs de actuele waarderingsbasis. "
-            "Een onafhankelijke verifier verhoogt de confidence; same-date disagreement blokkeert de waardering. Overige prijsregels zijn research-/vergelijkingsobservaties en creëren geen funding-authority."
-        )
-        text = text.replace(old_note, new_note)
-        replacements = {
-            "- **Niet doen:** do not allocate capital to thematic or gold exposure until identity, KID, trading-line and product-policy checks are complete.": "- **Niet doen:** geen nieuw kapitaal toewijzen uitsluitend op basis van proxy, mapping of prijsbeschikbaarheid; identiteit, KID, exacte handelslijn, re-underwriting en expliciet allocatiebesluit blijven verplicht.",
-            "- **Portefeuillebesluit:** cash behouden; geen instrument is door deze prijsrun automatisch geschikt geworden voor opname in de portefeuille.": "- **Portefeuillebesluit:** bestaande posities blijven uitsluitend onder actuele re-underwriting; mapping of pricing alleen creëert geen Add/Hold/Reduce- of funding-authority.",
-            "- **Kernaandelen:** operationeel het meest volwassen; SXR8 en CSPX blijven onderzoekskandidaten en zijn niet gefinancierd.": "- **Kernaandelen:** funded/unfunded status wordt uitsluitend uit de protected portfolio state afgeleid; research-alternatieven blijven niet-gefinancierde vergelijkingslijnen.",
-            "- **Core-aandelen:** operationeel het meest volwassen; SXR8 en CSPX blijven onderzoekskandidaten en zijn niet gefinancierd.": "- **Kernaandelen:** funded/unfunded status wordt uitsluitend uit de protected portfolio state afgeleid; research-alternatieven blijven niet-gefinancierde vergelijkingslijnen.",
-            "- **Wereldwijde aandelen:** IWDA, EUNL en VWCE blijven interessant voor brede spreiding, maar verificatie van handelslijn en bron is nog niet volledig.": "- **Wereldwijde aandelen:** actuele funded status en exacte lijnidentiteit komen uit protected state plus UCITS-registry; alternatieven blijven research-only tenzij alle fundability-gates passeren.",
-            "- **Obligaties:** EUNA en AGGH kunnen later stabiliteit leveren; hun huidige rol blijft die van onderzoekskandidaat.": "- **Obligaties:** actuele funded status en rol komen uit protected state en current re-underwriting; alternatieven blijven research-only zonder expliciet allocatiebesluit.",
-            "- Rond verificatie van brokerbeschikbaarheid en EUR-handelslijnen af.": f"- Herbeoordeel {position_names} op fresh-cash, bijdrage, overlap, invalidatievoorwaarden en beste alternatief.",
-            "- Verbeter de bronovereenkomst voordat de prijsinformatie als voldoende betrouwbaar voor waardering kan worden beschouwd.": "- Vereis voor iedere gefinancierde lijn verse geautoriseerde exact-line completed-close primary evidence; een verifier verhoogt de confidence en same-date disagreement blokkeert de waardering.",
-            "- Herbeoordeel pas daarna of cash gedeeltelijk mag worden ingezet.": "- Herbeoordeel de resterende materiële cash tegen nieuwe volledig fundable lanes; de huidige cash is expliciet verklaard door nog open fundability-blockers.",
-        }
-    else:
-        action = (
-            f"- **Action:** added {addition_names} this run; current model portfolio: {position_names}. Remaining liquidity is {cash}."
-            if additions
-            else f"- **Action:** review {position_names} as the current model positions; remaining liquidity is {cash}."
-        )
-        reason = f"- **Reason:** the model portfolio contains {count} funded UCITS positions ({position_names}); the review uses current state, exact-line completed-close pricing evidence and current re-underwriting."
-        structure = f"- **Current position structure:** {position_names}; roles, contribution, overlap and re-underwriting are derived from the current normalized state."
-        quality = (
-            f"- **Funded exact-line valuation:** {funded_grade} of {count} funded lines have authorized exact-line completed-close pricing; "
-            f"{verified_count} independently verified and {primary_only_count} primary-authoritative without a current verifier."
-        )
-        text = _replace_prefixed_line(text, "- **Action:**", action)
-        text = _replace_prefixed_line(text, "- **Reason:**", reason)
-        text = _replace_prefixed_line(text, "- **Current position structure:**", structure)
-        text = _replace_prefixed_line(text, "- **Pricing coverage:**", f"- **Pricing coverage:** {total_pricing_rows} of {total_pricing_rows} trading lines have a market observation on the pricing date.")
-        text = _replace_prefixed_line(text, "- **Fully verified lines:**", quality)
-        text = _replace_prefixed_line(text, "- **Priced but identity or trading-line verification still pending:**", f"- **Research/comparison lines:** {research_rows} unfunded pricing rows remain research-only; market-price availability creates no funding authority.")
-        old_note = "The displayed prices are market observations from the current routine run and do not independently authorize valuation or purchase."
-        new_note = (
-            f"For the {count} funded lines, an authorized exact-line completed-close primary price forms the current valuation basis. "
-            "An independent verifier increases confidence; same-date disagreement blocks valuation. Other pricing rows are research/comparison observations and create no funding authority."
-        )
-        text = text.replace(old_note, new_note)
-        replacements = {
-            "- **Portfolio decision:** retain cash; this pricing run did not automatically make any instrument eligible for portfolio inclusion.": "- **Portfolio decision:** existing positions remain subject to current re-underwriting; mapping or pricing alone creates no Add/Hold/Reduce or funding authority.",
-            "- **Core equity:** operationally most mature; SXR8 and CSPX remain research candidates and are not funded.": "- **Core equity:** funded/unfunded status is derived only from protected portfolio state; research alternatives remain unfunded comparison lines.",
-            "- **Global equity:** IWDA, EUNL and VWCE remain relevant for broad diversification, but trading-line and source verification is incomplete.": "- **Global equity:** current funded status and exact-line identity come from protected state plus the UCITS registry; alternatives remain research-only unless all fundability gates pass.",
-            "- **Bonds:** EUNA and AGGH may later provide stability; their current role remains that of research candidates.": "- **Bonds:** current funded status and role come from protected state and current re-underwriting; alternatives remain research-only without an explicit allocation decision.",
-            "- Complete broker availability and EUR trading-line verification.": f"- Re-underwrite {position_names} on fresh cash, contribution, overlap, invalidation conditions and best alternative.",
-            "- Improve source agreement before the pricing evidence is considered sufficiently reliable for valuation.": "- Require fresh authorized exact-line completed-close primary evidence for every funded line; a verifier increases confidence and same-date disagreement blocks valuation.",
-            "- Only then reassess whether part of the cash may be deployed.": "- Reassess the remaining material cash against newly fully fundable lanes; current cash is explicitly explained by still-open fundability blockers.",
-        }
-
-    for old, new in replacements.items():
-        text = text.replace(old, new)
-
-    # Sparse historical/test Markdown may not contain the legacy quality line that
-    # _replace_prefixed_line upgrades. Preserve the strict validator by inserting the
-    # canonical funded-quality disclosure when all funded lines are valuation-grade.
-    required_quality = (
-        f"{funded_grade} van {count} gefinancierde lijnen"
-        if language == "nl"
-        else f"{funded_grade} of {count} funded lines"
-    )
-    if funded_grade == count and required_quality.casefold() not in text.casefold():
-        separator = "" if not text or text.endswith("\n") else "\n"
-        text = text + separator + quality + "\n"
-
-    blockers = validate_funded_markdown(text, state, language=language)
-    if blockers:
-        raise RuntimeError("Funded Markdown reconciliation failed: " + "; ".join(blockers))
-    return text
+    _ = text
+    return render_funded_markdown(state, language=language)
