@@ -8,10 +8,9 @@ import pytest
 
 from pricing.ucits_close_price_validation_contract_v2 import validate_payload
 from runtime.build_etf_eu_client_grade_report_state_v2 import build_state
-from runtime.finalize_etf_eu_client_surface_semantics import finalize_client_html_semantics
-from runtime.finalize_etf_eu_markdown_semantics import finalize_markdown_semantics
 from runtime.reconcile_etf_eu_funded_markdown import (
     reconcile_funded_markdown,
+    render_funded_markdown,
     validate_funded_markdown,
 )
 
@@ -39,7 +38,12 @@ def _portfolio() -> dict:
                 "ticker": ticker,
                 "isin": isin,
                 "shares": 1,
+                "avg_entry_local": 100.0,
+                "current_price_local": 100.0,
+                "market_value_local": 12447.9,
                 "market_value_eur": 12447.9,
+                "current_weight_pct": 12.4479,
+                "trading_currency": "EUR",
             }
             for ticker, isin in FUNDED
         ],
@@ -114,17 +118,46 @@ def _pricing() -> dict:
 
 
 def _primary_only_markdown_state() -> dict:
+    position = {
+        "exchange_ticker": "VWCE",
+        "ticker": "VWCE",
+        "isin": "IE00BK5BQT80",
+        "shares": 2,
+        "current_price_local": 169.06,
+        "market_value_eur": 338.12,
+        "current_weight_pct": 25.27,
+        "price_date": "2026-08-07",
+        "pricing_status": "fresh_exact_unverified",
+        "verification_status": "fresh_exact_unverified",
+        "primary_provider": "provider_a",
+        "verification_providers": [],
+        "current_allocation_decision": "hold",
+    }
     return {
+        "report_date": "2026-08-07",
         "portfolio": {
-            "cash_eur": 50208.40,
-            "positions": [
+            "cash_eur": 1000.0,
+            "invested_market_value_eur": 338.12,
+            "nav_eur": 1338.12,
+            "positions": [position],
+        },
+        "pricing": {
+            "rows": [
                 {
-                    "exchange_ticker": "VWCE",
-                    "pricing_status": "qualified_completed_close_primary_plus_verification",
+                    "ticker": "VWCE",
+                    "fund_name": "Vanguard FTSE All-World UCITS ETF",
+                    "isin": "IE00BK5BQT80",
+                    "exchange": "Xetra",
+                    "close_date": "2026-08-07",
+                    "close_price": 169.06,
+                    "currency": "EUR",
+                    "authority_status": "fresh_exact_unverified",
                     "verification_status": "fresh_exact_unverified",
+                    "primary_provider": "provider_a",
+                    "verification_providers": [],
                 }
-            ],
-        }
+            ]
+        },
     }
 
 
@@ -182,110 +215,51 @@ def test_v2_pricing_contract_rejects_report_date_drift() -> None:
     assert any("report_date mismatch" in blocker for blocker in result["blockers"])
 
 
-def test_markdown_reconciliation_is_dynamic_and_contains_l0ck() -> None:
-    state = {"portfolio": _portfolio()}
-    source_nl = "\n".join(
-        [
-            "- **Actie:** geen transactie; EUR 100.000 cash behouden.",
-            "- **Reden:** de portefeuille bevat nog geen gefinancierde UCITS-posities en de huidige prijsrun levert marktobservaties, geen zelfstandige basis voor aankoop of waardering.",
-            "- **Beste operationele kandidaat:** de geverifieerde S&P 500 UCITS-lijnen blijven het verst gevorderd voor verdere bevestiging bij de broker en van de handelslijn.",
-        ]
-    )
-    result_nl = reconcile_funded_markdown(source_nl, state, language="nl")
-    assert "4 gefinancierde UCITS-posities" in result_nl
-    assert "L0CK" in result_nl
-    assert validate_funded_markdown(result_nl, state, language="nl") == []
-
-    source_en = "\n".join(
-        [
-            "- **Action:** no trade; retain EUR 100,000 cash.",
-            "- **Reason:** the portfolio still has no funded UCITS positions and the current pricing run provides market observations, not an independent basis for purchase or valuation.",
-            "- **Most advanced operational candidate:** the verified S&P 500 UCITS lines remain furthest advanced for broker and trading-line confirmation.",
-        ]
-    )
-    result_en = reconcile_funded_markdown(source_en, state, language="en")
-    assert "4 funded UCITS positions" in result_en
-    assert "L0CK" in result_en
-    assert validate_funded_markdown(result_en, state, language="en") == []
+def test_markdown_compatibility_alias_ignores_stale_source_and_renders_current_state() -> None:
+    state = _primary_only_markdown_state()
+    stale_source = "The portfolio remains fully in cash. two-provider completed-close consensus."
+    result = reconcile_funded_markdown(stale_source, state, language="en")
+    assert "1 funded UCITS positions (VWCE)" in result
+    assert "Exact close · no current independent verifier" in result
+    assert "remains fully in cash" not in result
+    assert "two-provider completed-close consensus" not in result
+    assert validate_funded_markdown(result, state, language="en") == []
 
 
-def test_markdown_validator_rejects_three_position_and_retired_target_copy() -> None:
+def test_native_markdown_is_bilingual_and_primary_only_truthful() -> None:
+    state = _primary_only_markdown_state()
+    nl = render_funded_markdown(state, language="nl")
+    en = render_funded_markdown(state, language="en")
+    assert "1 gefinancierde UCITS-posities (VWCE)" in nl
+    assert "Exacte slotkoers · geen actuele onafhankelijke verifier" in nl
+    assert "1 funded UCITS positions (VWCE)" in en
+    assert "Exact close · no current independent verifier" in en
+    assert "| Exact close · independently verified |" not in en
+    assert "| Exacte slotkoers · onafhankelijk geverifieerd |" not in nl
+    assert validate_funded_markdown(nl, state, language="nl") == []
+    assert validate_funded_markdown(en, state, language="en") == []
+
+
+def test_markdown_validator_rejects_wrong_count_and_retired_target_copy() -> None:
     state = {"portfolio": _portfolio()}
     bad = "The model portfolio contains three funded UCITS positions. Strategic target weight. VWCE EUNA SXR8 L0CK"
     blockers = validate_funded_markdown(bad, state, language="en")
     assert blockers
-    assert any("three funded" in blocker for blocker in blockers)
-    assert any("strategic target" in blocker for blocker in blockers)
+    assert any("dynamic funded position count" in blocker for blocker in blockers)
+    assert any("strategic target weight" in blocker for blocker in blockers)
 
 
-def test_primary_only_price_is_disclosed_without_universal_two_provider_claim() -> None:
-    state = _primary_only_markdown_state()
-    source = "\n".join(
-        [
-            "- **Action:** review current position.",
-            "- **Reason:** current review.",
-            "1 funded UCITS positions: VWCE",
-        ]
-    )
-    output = reconcile_funded_markdown(source, state, language="en")
-    assert "1 of 1 funded lines have authorized exact-line completed-close pricing" in output
-    assert "0 independently verified and 1 primary-authoritative without a current verifier" in output
-    assert "two-provider completed-close consensus" not in output.casefold()
-    assert validate_funded_markdown(output, state, language="en") == []
-
-
-def test_markdown_validator_rejects_retired_universal_two_provider_claim() -> None:
+def test_markdown_validator_rejects_retired_universal_source_count_claims() -> None:
     state = _primary_only_markdown_state()
     stale = "\n".join(
         [
-            "1 funded UCITS positions: VWCE",
+            "1 funded UCITS positions (VWCE)",
             "1 of 1 funded lines have authorized exact-line completed-close pricing.",
-            "A current price verification with two independent sources is available for all funded positions; spreads are immaterial.",
+            "A current price verification with two independent sources is available for all funded positions.",
         ]
     )
     blockers = validate_funded_markdown(stale, state, language="en")
     assert any("two independent sources" in blocker for blocker in blockers)
-
-
-def test_markdown_finalizer_rewrites_retired_universal_two_provider_claims() -> None:
-    source = "\n".join(
-        [
-            "- **Reason:** current review.",
-            "A current price verification with two independent sources is available for all funded positions; spreads are immaterial.",
-            "Each position's current price is checked through two sources (Alpha Vantage and Yahoo).",
-        ]
-    )
-    output = finalize_markdown_semantics(source, {}, language="en")
-    assert "authorized exact-line completed-close primary price" in output
-    assert "independent verification increases confidence" in output
-    assert "two independent sources" not in output
-    assert "checked through two sources" not in output
-
-
-def test_html_finalizer_uses_primary_plus_verification_semantics() -> None:
-    state = _primary_only_markdown_state()
-    source = """<html><body><ul>
-<li>This run: old state.</li>
-<li>Most mature implementation: legacy.</li>
-<li>Main blocker: legacy.</li>
-</ul><p>Pricing observations are not yet valuation-grade.</p>
-<p>Promote only when source agreement and price lineage are sufficiently strong.</p></body></html>"""
-    output = finalize_client_html_semantics(source, state, language="en")
-    assert "Funded exact-line valuation: 1 of 1 funded lines have authorized exact-line completed-close pricing" in output
-    assert "0 independently verified and 1 primary-authoritative without a current verifier" in output
-    assert "authorized valuation-grade completed-close primary pricing" in output
-    assert "two-provider" not in output.casefold()
-
-
-def test_html_finalizer_fails_closed_on_retired_two_provider_copy() -> None:
-    state = _primary_only_markdown_state()
-    source = """<html><body><ul>
-<li>This run: old state.</li>
-<li>Most mature implementation: legacy.</li>
-<li>Main blocker: legacy.</li>
-</ul><p>two-provider completed-close consensus</p></body></html>"""
-    with pytest.raises(RuntimeError, match="residual_stale"):
-        finalize_client_html_semantics(source, state, language="en")
 
 
 def test_normalized_state_builder_requires_v2_gate(tmp_path: Path) -> None:
@@ -314,7 +288,7 @@ def test_normalized_state_builder_requires_v2_gate(tmp_path: Path) -> None:
     )
     state = build_state(args)
     assert state["state_valid"] is True
-    assert state["schema_version"] == "etf_eu_client_grade_report_state_v2"
+    assert state["schema_version"] == "etf_eu_client_grade_report_state_v3"
     assert state["pricing_contract"]["report_pricing_gate_passed"] is True
     assert state["pricing_contract"]["funded_exact_primary_pricing_required"] is True
     assert state["pricing_contract"]["second_provider_required_for_liveness"] is False

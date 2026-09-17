@@ -13,14 +13,9 @@ from runtime.apply_etf_eu_current_reunderwriting import (
 from runtime.apply_etf_eu_donor_parity_contract import apply_contract, write_recommendation_scorecard
 from runtime.build_etf_eu_client_grade_report_state_v2 import build_state
 from runtime.build_etf_eu_donor_discovery_bridge import write_bridge
-from runtime.finalize_etf_eu_client_surface_semantics import finalize_client_html_semantics
-from runtime.finalize_etf_eu_markdown_semantics import finalize_markdown_semantics
-from runtime.inject_etf_eu_funded_identity_strip import inject_funded_identity_strip
-from runtime.polish_etf_eu_client_grade_html import polish
-from runtime.reconcile_etf_eu_funded_markdown import reconcile_funded_markdown
+from runtime.reconcile_etf_eu_funded_markdown import render_funded_markdown
 from runtime.render_etf_eu_client_grade_v2_funded import render
 from tools.build_etf_eu_routine_report_package import build as build_legacy_package
-from weasyprint import HTML
 
 
 def _load(path: Path) -> dict[str, Any]:
@@ -32,11 +27,6 @@ def _load(path: Path) -> dict[str, Any]:
 def _write(path: Path, payload: dict[str, Any]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(payload, indent=2, sort_keys=True, ensure_ascii=False) + "\n", encoding="utf-8")
-
-
-def _client_safe_status_text(text: str, *, language: str) -> str:
-    replacement = "Actieve modelpositie" if language == "nl" else "Active model position"
-    return text.replace("funded_model_position_active", replacement)
 
 
 def _restore_normalized_funded_consistency(state: dict[str, Any]) -> dict[str, Any]:
@@ -66,6 +56,9 @@ def _restore_normalized_funded_consistency(state: dict[str, Any]) -> dict[str, A
 
 
 def build(args: argparse.Namespace) -> dict[str, Path]:
+    # Keep the existing package builder only for stable file naming, manifests and
+    # non-semantic scaffolding. Final client Markdown/HTML/PDF are regenerated
+    # below directly from normalized current state.
     legacy_outputs = build_legacy_package(args)
     output_dir = Path(args.output_dir)
     state_path = Path("output/runtime") / f"etf_eu_client_grade_report_state_{args.run_id}.json"
@@ -102,6 +95,7 @@ def build(args: argparse.Namespace) -> dict[str, Path]:
     state = apply_contract(state, macro_pack=macro_pack)
     state = apply_cash_reunderwriting_to_contract_state(state)
     state = _restore_normalized_funded_consistency(state)
+
     bridge_path: Path | None = None
     if getattr(args, "donor_lane_artifact", None):
         bridge_path = Path("output/runtime") / f"etf_eu_donor_discovery_bridge_{args.run_id}.json"
@@ -131,30 +125,13 @@ def build(args: argparse.Namespace) -> dict[str, Path]:
     nl_pdf = output_dir / f"weekly_etf_eu_review_nl_{args.report_suffix}.pdf"
     en_pdf = output_dir / f"weekly_etf_eu_review_{args.report_suffix}.pdf"
 
+    # Native HTML/PDF generation. No post-render pricing semantics mutation is
+    # permitted after these calls.
     render(state_path, "nl", nl_html, nl_pdf)
     render(state_path, "en", en_html, en_pdf)
 
-    # The renderer may enrich the same state file for presentation. Reassert the
-    # normalized funded-consistency contract after both renders so validators and
-    # final client artifacts consume one persisted state authority.
     funded_state = _restore_normalized_funded_consistency(_load(state_path))
     _write(state_path, funded_state)
-
-    nl_polished = polish(nl_html.read_text(encoding="utf-8"), language="nl")
-    en_polished = polish(en_html.read_text(encoding="utf-8"), language="en")
-    nl_polished = _client_safe_status_text(nl_polished, language="nl")
-    en_polished = _client_safe_status_text(en_polished, language="en")
-    nl_polished = inject_funded_identity_strip(nl_polished, language="nl")
-    en_polished = inject_funded_identity_strip(en_polished, language="en")
-    # Final client semantics are derived from the same normalized state before
-    # HTML is persisted or PDFs are rendered. This prevents legacy layout-helper
-    # copy from diverging from current allocation/pricing authority.
-    nl_polished = finalize_client_html_semantics(nl_polished, funded_state, language="nl")
-    en_polished = finalize_client_html_semantics(en_polished, funded_state, language="en")
-    nl_html.write_text(nl_polished, encoding="utf-8")
-    en_html.write_text(en_polished, encoding="utf-8")
-    HTML(string=nl_polished, base_url=str(nl_html.parent.resolve())).write_pdf(str(nl_pdf))
-    HTML(string=en_polished, base_url=str(en_html.parent.resolve())).write_pdf(str(en_pdf))
 
     manifest_path = Path(legacy_outputs["manifest"])
     ready_path = Path(legacy_outputs["ready"])
@@ -163,19 +140,19 @@ def build(args: argparse.Namespace) -> dict[str, Path]:
     ready = _load(ready_path)
     routine = _load(routine_path)
 
+    # Native Markdown generation from the same normalized state used by HTML/PDF.
+    # Legacy Markdown content is not semantically patched or consumed.
     nl_md = Path(str(manifest["dutch_primary_markdown"]))
     en_md = Path(str(manifest["english_companion_markdown"]))
-    nl_text = reconcile_funded_markdown(nl_md.read_text(encoding="utf-8"), funded_state, language="nl")
-    en_text = reconcile_funded_markdown(en_md.read_text(encoding="utf-8"), funded_state, language="en")
-    nl_md.write_text(finalize_markdown_semantics(nl_text, funded_state, language="nl"), encoding="utf-8")
-    en_md.write_text(finalize_markdown_semantics(en_text, funded_state, language="en"), encoding="utf-8")
+    nl_md.write_text(render_funded_markdown(funded_state, language="nl"), encoding="utf-8")
+    en_md.write_text(render_funded_markdown(funded_state, language="en"), encoding="utf-8")
 
     pricing_contract = dict(funded_state.get("pricing_contract") or {})
     promotion_fields = {
-        "client_renderer_mode": "client_grade_v2_funded_aware_donor_parity_v1",
+        "client_renderer_mode": "client_grade_v3_native_state",
         "production_renderer": "runtime/render_etf_eu_client_grade_v2_funded.py",
         "renderer_engine": "weasyprint",
-        "render_source_authority": "normalized_report_state_plus_donor_parity_contract",
+        "render_source_authority": "normalized_report_state",
         "normalized_report_state": str(state_path),
         "recommendation_scorecard": args.recommendation_scorecard,
         "current_reunderwriting": str(reunderwriting_path) if reunderwriting_path else None,
@@ -183,7 +160,8 @@ def build(args: argparse.Namespace) -> dict[str, Path]:
         "discovery_fundability_contract": "control/ETF_EU_DISCOVERY_FUNDABILITY_CONTRACT_V1.md",
         "donor_discovery_bridge": str(bridge_path) if bridge_path else None,
         "donor_parity_contract": "runtime/apply_etf_eu_donor_parity_contract.py",
-        "client_surface_semantics_finalizer": "runtime/finalize_etf_eu_client_surface_semantics.py",
+        "client_surface_semantics_finalizer": None,
+        "post_render_semantic_mutation": False,
         "pricing_contract": "ucits_close_price_validation_basket_results_v2",
         "pricing_state_builder": "runtime/build_etf_eu_client_grade_report_state_v2.py",
         "funded_exact_primary_pricing_required": pricing_contract.get("funded_exact_primary_pricing_required") is True,
@@ -194,8 +172,8 @@ def build(args: argparse.Namespace) -> dict[str, Path]:
         "full_current_reunderwriting_complete": bool((funded_state.get("parity_completeness") or {}).get("all_funded_positions_have_current_reunderwriting")),
         "cash_deploy_or_explain_complete": bool((funded_state.get("parity_completeness") or {}).get("cash_deploy_or_explain_complete")),
         "shadow_transition_policy_current_authority": False,
-        "markdown_role": "funded_state_derived_delivery_artifact",
-        "markdown_generation_status": "generated_from_normalized_funded_state",
+        "markdown_role": "native_state_derived_delivery_artifact",
+        "markdown_generation_status": "native_from_normalized_state",
         "macro_policy_pack": args.macro_pack,
         "macro_source_report_date": (macro_pack.get("donor_provenance") or {}).get("source_report_date"),
         "macro_freshness_authority": "donor_provenance.source_report_date",
@@ -206,18 +184,18 @@ def build(args: argparse.Namespace) -> dict[str, Path]:
         "conditional_equity_curve_enabled": True,
         "equity_surface": "chart" if funded_state["equity_curve"]["show_chart"] else "cash_preservation_callout",
         "funded_position_count": funded_state["portfolio"]["position_count"],
-        "full_generation_status": "client_grade_v2_generated_pending_quality_gates",
+        "full_generation_status": "client_grade_v3_native_generated_pending_quality_gates",
         "upstream_pattern_adapted": "weekly-etf discovery breadth, normalized report state and capital re-underwriting memory adapted to EU/UCITS identity, pricing and fundability gates",
     }
     manifest.update(promotion_fields)
     manifest["renderer"] = "runtime/render_etf_eu_client_grade_v2_funded.py"
-    manifest["client_surface_sanitizer"] = "runtime/polish_etf_eu_client_grade_html.py+runtime/finalize_etf_eu_client_surface_semantics.py"
-    manifest["html_generation_status"] = "client_grade_v2_generated"
-    manifest["pdf_generation_status"] = "client_grade_v2_generated_pending_quality_gates"
+    manifest["client_surface_sanitizer"] = None
+    manifest["html_generation_status"] = "client_grade_v3_native_generated"
+    manifest["pdf_generation_status"] = "client_grade_v3_native_generated_pending_quality_gates"
     ready.update(promotion_fields)
     routine.update(promotion_fields)
-    routine["routine_stage"] = "routine_client_grade_v2_generation_completed_pending_quality_gates"
-    routine["workflow_status"] = "routine_client_grade_v2_generation_completed_pending_quality_gates"
+    routine["routine_stage"] = "routine_client_grade_v3_native_generation_completed_pending_quality_gates"
+    routine["workflow_status"] = "routine_client_grade_v3_native_generation_completed_pending_quality_gates"
 
     _write(manifest_path, manifest)
     _write(ready_path, ready)
@@ -239,7 +217,7 @@ def build(args: argparse.Namespace) -> dict[str, Path]:
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Build the promoted Weekly ETF EU client-grade v2 routine package.")
+    parser = argparse.ArgumentParser(description="Build the promoted Weekly ETF EU native routine package.")
     parser.add_argument("--run-id", required=True)
     parser.add_argument("--report-date", required=True)
     parser.add_argument("--report-suffix", required=True)
@@ -257,7 +235,7 @@ def main() -> None:
     parser.add_argument("--previous-delivery-closeout-manifest", required=True)
     args = parser.parse_args()
     outputs = build(args)
-    print("ETF_EU_ROUTINE_CLIENT_GRADE_V2_PACKAGE_OK | " + " | ".join(f"{key}={value}" for key, value in outputs.items()))
+    print("ETF_EU_ROUTINE_NATIVE_PACKAGE_OK | " + " | ".join(f"{key}={value}" for key, value in outputs.items()))
 
 
 if __name__ == "__main__":
