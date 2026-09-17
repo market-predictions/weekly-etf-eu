@@ -6,6 +6,8 @@ from typing import Any
 
 import yaml
 
+from pricing.ucits_close_price_validation_contract_v2 import AUTHORIZED_EXACT_STATUSES
+
 
 def _load_json(path: Path) -> dict[str, Any]:
     payload = json.loads(path.read_text(encoding="utf-8"))
@@ -48,15 +50,16 @@ def _portfolio_identities(portfolio: dict[str, Any]) -> set[tuple[str, str]]:
     }
 
 
-def _two_provider_consensus(pricing: dict[str, Any] | None) -> bool:
+def _authorized_exact_pricing(pricing: dict[str, Any] | None) -> bool:
     if not pricing:
         return False
-    providers = pricing.get("agreeing_providers") or []
     return (
-        pricing.get("completed_close_on_or_before_report_date") is True
+        pricing.get("completed_close_on_requested_report_date") is True
         and pricing.get("close_price") not in (None, "")
-        and str(pricing.get("source_agreement_status") or "") == "qualified_development_consensus"
-        and len(providers) >= 2
+        and str(pricing.get("source_agreement_status") or "") in AUTHORIZED_EXACT_STATUSES
+        and pricing.get("valuation_grade") is True
+        and pricing.get("static_identity_binding") is True
+        and pricing.get("static_primary_provider_symbol_binding") is True
     )
 
 
@@ -69,10 +72,10 @@ def _fundability(candidate: dict[str, Any], mapping_status: str, pricing: dict[s
         return "MAPPING_REQUIRED"
     if "incomplete" in str(candidate.get("identity_status") or "").lower() or "unresolved" in str(candidate.get("exchange") or "").lower():
         return "IDENTITY_OR_KID_INCOMPLETE"
-    if not pricing or pricing.get("completed_close_on_or_before_report_date") is not True or not pricing.get("close_price"):
+    if not pricing or pricing.get("completed_close_on_requested_report_date") is not True or pricing.get("close_price") in (None, ""):
         return "PRICING_REQUIRED"
-    if not _two_provider_consensus(pricing):
-        return "PRICING_CONSENSUS_REQUIRED"
+    if not _authorized_exact_pricing(pricing):
+        return "PRICING_AUTHORITY_REQUIRED"
     return "FUNDABLE_REQUIRES_ALLOCATION_DECISION"
 
 
@@ -113,6 +116,7 @@ def build_bridge(
                 ticker = str(candidate.get("exchange_ticker") or "").strip().upper()
                 price = prices.get((isin, ticker))
                 funded = (isin, ticker) in funded_ids
+                authority_status = str(price.get("source_agreement_status") or "") if price else ""
                 candidate_rows.append({
                     **candidate,
                     "exposure_id": mapping_row.get("exposure_id"),
@@ -120,9 +124,10 @@ def build_bridge(
                     "pricing_close_date": price.get("close_date") if price else None,
                     "pricing_close": price.get("close_price") if price else None,
                     "pricing_status": price.get("pricing_status") if price else None,
-                    "pricing_source_agreement_status": price.get("source_agreement_status") if price else None,
-                    "pricing_agreeing_providers": price.get("agreeing_providers") if price else [],
-                    "pricing_two_provider_consensus": _two_provider_consensus(price),
+                    "pricing_authority_status": authority_status or None,
+                    "pricing_primary_provider": price.get("primary_provider") if price else None,
+                    "pricing_verification_providers": price.get("verification_providers") if price else [],
+                    "pricing_authorized_exact": _authorized_exact_pricing(price),
                     "fundability_status": _fundability(candidate, mapping_status, price, funded),
                 })
         if not candidate_rows:
@@ -151,7 +156,7 @@ def build_bridge(
 
     buckets = sorted({str(row.get("bucket") or "") for row in assessed if row.get("bucket")})
     return {
-        "schema_version": "etf_eu_donor_discovery_bridge_v2",
+        "schema_version": "etf_eu_donor_discovery_bridge_v3",
         "donor_report_date": donor.get("report_date"),
         "donor_discovery_engine_version": donor.get("discovery_engine_version"),
         "assessed_lane_count": len(assessed),
@@ -161,7 +166,8 @@ def build_bridge(
         "authority": {
             "mapping_is_funding_authority": False,
             "pricing_is_funding_authority": False,
-            "new_allocation_requires_two_provider_consensus": True,
+            "new_allocation_requires_authorized_exact_pricing": True,
+            "authorized_exact_pricing_statuses": sorted(AUTHORIZED_EXACT_STATUSES),
             "explicit_allocation_decision_required": True,
             "portfolio_mutation": False,
             "execution_authority": False,
