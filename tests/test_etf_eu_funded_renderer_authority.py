@@ -3,7 +3,6 @@ from __future__ import annotations
 from runtime.apply_etf_eu_donor_parity_contract import apply_contract
 from runtime.render_etf_eu_client_grade_v2_funded import (
     funded_overlay,
-    patch_copy,
     position_table,
     validate_client_surface,
 )
@@ -59,22 +58,21 @@ def test_position_table_has_current_weight_and_reunderwriting_but_no_target_colu
         assert "re-underwriting" in lowered
 
 
-def test_patch_copy_converts_stale_prefunding_copy_and_client_gate_passes() -> None:
+def test_native_position_surface_uses_funded_state_without_prefunding_repair() -> None:
     overlaid = funded_overlay(state())
-    stale_en = " ".join(
-        [
-            "Retain cash",
-            "The S&amp;P 500 UCITS lines are operationally most advanced, but capital deployment requires a separate allocation decision.",
-            "This week: no portfolio transaction; the EU model portfolio remains fully in cash.",
-            "The portfolio is not yet invested. This is a deliberate capital-preservation state.",
-            "Retain EUR 100,000 cash until a separate allocation decision is made.",
-            "<p>Position analysis active.</p>",
-        ]
-    )
-    rendered = patch_copy(stale_en, overlaid, "en")
-    validate_client_surface(rendered, overlaid)
-    assert "4 protected model positions" in rendered
-    assert all(ticker in rendered for ticker in ("VWCE", "EUNA", "SXR8", "L0CK"))
+    for language in ("nl", "en"):
+        rendered = position_table(overlaid, language)
+        lowered = rendered.casefold()
+        assert all(ticker.casefold() in lowered for ticker in ("VWCE", "EUNA", "SXR8", "L0CK"))
+        for stale in (
+            "retain cash",
+            "remains fully in cash",
+            "portfolio is not yet invested",
+            "cash behouden",
+            "volledig in cash",
+            "portefeuille is nog niet belegd",
+        ):
+            assert stale.casefold() not in lowered
 
 
 def test_client_gate_rejects_retired_target_copy() -> None:
