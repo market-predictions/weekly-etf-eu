@@ -368,6 +368,8 @@ def validate_funded_markdown(text: str, state: dict[str, Any], *, language: str)
         "two-provider completed-close consensus",
         "two-provider exact-line consensus",
         "valuation-grade two-provider",
+        "two independent sources",
+        "checked through two sources",
         "single_source_only",
         "priced_non_authoritative",
         "verified_ucits_trading_line",
