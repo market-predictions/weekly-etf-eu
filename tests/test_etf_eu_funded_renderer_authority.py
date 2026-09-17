@@ -53,8 +53,8 @@ def test_funded_overlay_preserves_normalized_allocation_map_and_four_position_st
     assert overlaid["allocation_map"] == original_allocation
     assert overlaid["funded_consistency"]["position_count"] == 4
     assert set(overlaid["funded_consistency"]["funded_tickers"]) == {"VWCE", "EUNA", "SXR8", "L0CK"}
-    assert overlaid["verification_funnel"]["decision"].startswith("preserve_protected_funded_state")
-    assert "three_position" not in overlaid["verification_funnel"]["decision"]
+    assert overlaid["funded_consistency"]["normalized_state_authority"] is True
+    assert overlaid["funded_consistency"]["historical_target_copy_rendered"] is False
 
 
 def test_native_html_has_current_funded_state_but_no_retired_target_copy() -> None:
@@ -89,7 +89,7 @@ def test_native_html_needs_no_prefunding_semantic_repair() -> None:
 
 def test_client_gate_rejects_retired_target_copy() -> None:
     overlaid = funded_overlay(state())
-    bad = "VWCE EUNA SXR8 L0CK strategic target"
+    bad = build_html(overlaid, "en") + " strategic target"
     try:
         validate_client_surface(bad, overlaid)
     except RuntimeError as exc:
