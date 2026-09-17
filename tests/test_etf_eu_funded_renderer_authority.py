@@ -2,8 +2,8 @@ from __future__ import annotations
 
 from runtime.apply_etf_eu_donor_parity_contract import apply_contract
 from runtime.render_etf_eu_client_grade_v2_funded import (
+    build_html,
     funded_overlay,
-    position_table,
     validate_client_surface,
 )
 
@@ -11,25 +11,37 @@ from runtime.render_etf_eu_client_grade_v2_funded import (
 def state() -> dict:
     raw = {
         "state_valid": True,
+        "report_date": "2026-08-07",
         "portfolio": {
+            "starting_capital_eur": 100000.0,
             "nav_eur": 100000.0,
             "cash_eur": 50000.0,
             "invested_market_value_eur": 50000.0,
+            "since_inception_return_pct": 0.0,
             "positions": [
-                {"ticker": "VWCE", "fund_name": "Global", "isin": "IE00BK5BQT80", "shares": 151, "current_weight_pct": 25.0, "current_price_local": 165.0, "market_value_eur": 24915.0, "price_date": "2026-08-07", "strategic_target_weight_pct": 50.0, "phase_target_weight_pct": 25.0, "target_weight_pct": 25.0},
-                {"ticker": "EUNA", "fund_name": "Bonds", "isin": "IE00BDBRDM35", "shares": 1526, "current_weight_pct": 7.5, "current_price_local": 4.9, "market_value_eur": 7477.4, "price_date": "2026-08-07", "strategic_target_weight_pct": 15.0, "target_weight_pct": 7.5},
-                {"ticker": "SXR8", "fund_name": "S&P 500", "isin": "IE00B5BMR087", "shares": 10, "current_weight_pct": 7.0, "current_price_local": 705.0, "market_value_eur": 7050.0, "price_date": "2026-08-07", "target_weight_pct": 7.5},
-                {"ticker": "L0CK", "fund_name": "Cyber", "isin": "IE00BG0J4C88", "shares": 934, "current_weight_pct": 10.2, "current_price_local": 10.9, "market_value_eur": 10180.6, "price_date": "2026-08-07", "target_weight_pct": 10.2},
+                {"ticker": "VWCE", "fund_name": "Global", "isin": "IE00BK5BQT80", "shares": 151, "current_weight_pct": 25.0, "current_price_local": 165.0, "market_value_eur": 24915.0, "price_date": "2026-08-07", "pricing_status": "fresh_exact_unverified", "verification_status": "fresh_exact_unverified", "strategic_target_weight_pct": 50.0, "phase_target_weight_pct": 25.0, "target_weight_pct": 25.0},
+                {"ticker": "EUNA", "fund_name": "Bonds", "isin": "IE00BDBRDM35", "shares": 1526, "current_weight_pct": 7.5, "current_price_local": 4.9, "market_value_eur": 7477.4, "price_date": "2026-08-07", "pricing_status": "fresh_exact_unverified", "verification_status": "fresh_exact_unverified", "strategic_target_weight_pct": 15.0, "target_weight_pct": 7.5},
+                {"ticker": "SXR8", "fund_name": "S&P 500", "isin": "IE00B5BMR087", "shares": 10, "current_weight_pct": 7.0, "current_price_local": 705.0, "market_value_eur": 7050.0, "price_date": "2026-08-07", "pricing_status": "fresh_exact_unverified", "verification_status": "fresh_exact_unverified", "target_weight_pct": 7.5},
+                {"ticker": "L0CK", "fund_name": "Cyber", "isin": "IE00BG0J4C88", "shares": 934, "current_weight_pct": 10.2, "current_price_local": 10.9, "market_value_eur": 10180.6, "price_date": "2026-08-07", "pricing_status": "fresh_exact_unverified", "verification_status": "fresh_exact_unverified", "target_weight_pct": 10.2},
             ],
         },
+        "pricing": {
+            "rows": [
+                {"ticker": ticker, "authority_status": "fresh_exact_unverified", "verification_status": "fresh_exact_unverified", "close_date": "2026-08-07", "close_price": 1.0, "currency": "EUR", "primary_provider": "provider_a", "verification_providers": []}
+                for ticker in ("VWCE", "EUNA", "SXR8", "L0CK")
+            ]
+        },
+        "macro": {"fresh_for_report": True, "regime": "Test regime", "regime_nl": "Testregime", "fed": {}, "ecb": {}},
         "authority": {"portfolio_mutation": False, "trade_ledger_mutation": False},
-        "verification_funnel": {"observed_lines": 10, "verified_lines": 4},
+        "verification_funnel": {"observed_lines": 10, "priced_lines": 4, "authorized_lines": 4, "verified_lines": 0, "primary_only_lines": 4, "unresolved_lines": 6},
         "opportunity_radar": [
-            {"candidate_tickers": ["VWCE"], "status": "operationally_mature_not_funded"},
-            {"candidate_tickers": ["L0CK"], "status": "operationally_mature_not_funded"},
+            {"candidate_tickers": ["VWCE"], "status": "operationally_mature_not_funded", "name_nl": "Wereld", "name_en": "Global"},
+            {"candidate_tickers": ["L0CK"], "status": "operationally_mature_not_funded", "name_nl": "Cyber", "name_en": "Cyber"},
         ],
         "next_run_input": {"priority_candidates": ["SXRV"], "required_actions": []},
         "allocation_map": [],
+        "equity_curve": {"show_chart": False, "fallback_nl": "Onvoldoende historie.", "fallback_en": "Insufficient history."},
+        "current_reunderwriting": {"status": "COMPLETE", "cash_after_explanation": "Cash remains tactical reserve."},
     }
     return apply_contract(raw)
 
@@ -45,11 +57,11 @@ def test_funded_overlay_preserves_normalized_allocation_map_and_four_position_st
     assert "three_position" not in overlaid["verification_funnel"]["decision"]
 
 
-def test_position_table_has_current_weight_and_reunderwriting_but_no_target_column() -> None:
+def test_native_html_has_current_funded_state_but_no_retired_target_copy() -> None:
     overlaid = funded_overlay(state())
     for language in ("nl", "en"):
-        rendered = position_table(overlaid, language)
-        lowered = rendered.lower()
+        rendered = build_html(overlaid, language)
+        lowered = rendered.casefold()
         assert "l0ck" in lowered
         assert "strategic target" not in lowered
         assert "strategisch doel" not in lowered
@@ -58,10 +70,10 @@ def test_position_table_has_current_weight_and_reunderwriting_but_no_target_colu
         assert "re-underwriting" in lowered
 
 
-def test_native_position_surface_uses_funded_state_without_prefunding_repair() -> None:
+def test_native_html_needs_no_prefunding_semantic_repair() -> None:
     overlaid = funded_overlay(state())
     for language in ("nl", "en"):
-        rendered = position_table(overlaid, language)
+        rendered = build_html(overlaid, language)
         lowered = rendered.casefold()
         assert all(ticker.casefold() in lowered for ticker in ("VWCE", "EUNA", "SXR8", "L0CK"))
         for stale in (
