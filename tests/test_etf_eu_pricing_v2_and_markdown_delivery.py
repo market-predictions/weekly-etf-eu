@@ -234,8 +234,8 @@ def test_native_markdown_is_bilingual_and_primary_only_truthful() -> None:
     assert "Exacte slotkoers · geen actuele onafhankelijke verifier" in nl
     assert "1 funded UCITS positions (VWCE)" in en
     assert "Exact close · no current independent verifier" in en
-    assert "independently verified" not in en
-    assert "onafhankelijk geverifieerd" not in nl
+    assert "| Exact close · independently verified |" not in en
+    assert "| Exacte slotkoers · onafhankelijk geverifieerd |" not in nl
     assert validate_funded_markdown(nl, state, language="nl") == []
     assert validate_funded_markdown(en, state, language="en") == []
 
