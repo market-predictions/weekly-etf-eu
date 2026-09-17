@@ -217,23 +217,22 @@ def test_full_candidate_package_builds_and_validates_all_six_client_artifacts(tm
         assert Path(path).stat().st_size > 0, path
 
     state = json.loads(Path(state_path).read_text(encoding="utf-8"))
-    assert state["schema_version"] == "etf_eu_client_grade_report_state_v2"
+    assert state["schema_version"] == "etf_eu_client_grade_report_state_v3"
     assert state["pricing_contract"]["report_pricing_gate_passed"] is True
     assert state["pricing_contract"]["funded_position_count"] == 4
     assert state["pricing_contract"]["funded_exact_primary_pricing_required"] is True
     assert state["pricing_contract"]["second_provider_required_for_liveness"] is False
     assert state["pricing_contract"]["funded_two_provider_consensus_required"] is False
 
-    # Regression for H1 assurance finding: the actual promoted v2 package path
-    # must preserve the primary-plus-optional-verification authority in every
-    # final machine contract, rather than reintroducing the retired universal
-    # two-provider liveness requirement after the normalized state is built.
+    # The promoted package path must preserve canonical primary pricing authority
+    # with optional independent verification in every final machine contract.
     for artifact_key in ("manifest", "ready", "routine"):
         payload = json.loads(Path(outputs[artifact_key]).read_text(encoding="utf-8"))
         assert payload["funded_exact_primary_pricing_required"] is True
         assert payload["second_provider_required_for_liveness"] is False
         assert payload["funded_two_provider_consensus_required"] is False
         assert payload["pricing_authority_mode"] == "donor_aligned_primary_plus_verification_v1"
+        assert payload["post_render_semantic_mutation"] is False
 
     markdown_result = validate_markdown(Path(state_path), nl_md, en_md)
     assert markdown_result["passed"] is True, markdown_result["blockers"]
