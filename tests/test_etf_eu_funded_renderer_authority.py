@@ -87,12 +87,12 @@ def test_native_html_needs_no_prefunding_semantic_repair() -> None:
             assert stale.casefold() not in lowered
 
 
-def test_client_gate_rejects_retired_target_copy() -> None:
+def test_client_gate_rejects_retired_pricing_vocabulary() -> None:
     overlaid = funded_overlay(state())
-    bad = build_html(overlaid, "en") + " strategic target"
+    bad = build_html(overlaid, "en") + " qualified_development_consensus"
     try:
         validate_client_surface(bad, overlaid)
     except RuntimeError as exc:
         assert "ETF_EU_RETIRED_CLIENT_COPY_LEAK" in str(exc)
     else:
-        raise AssertionError("retired target copy should fail closed")
+        raise AssertionError("retired pricing vocabulary should fail closed")
