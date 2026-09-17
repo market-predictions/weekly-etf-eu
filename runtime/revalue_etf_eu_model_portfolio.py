@@ -105,10 +105,6 @@ def revalue_portfolio(
                 f"Funded close date mismatch for {ticker}: "
                 f"{evidence.get('close_date')} != {report_date}"
             )
-        # Historical portfolio fixtures predate the explicit per-position trading_currency
-        # field. For those EUR-only model states, the portfolio base currency is the
-        # authoritative compatibility fallback. A present per-position currency always
-        # wins, and any mismatch or non-EUR funded line still fails closed below.
         trading_currency = str(
             position.get("trading_currency") or portfolio.get("base_currency") or ""
         ).strip().upper()
@@ -138,14 +134,14 @@ def revalue_portfolio(
         position["market_value_eur"] = round(market_value, 2)
         position["price_date"] = report_date
         position["pricing_completed_close"] = True
-        position["pricing_status"] = "qualified_completed_close_primary_plus_verification"
+        position["pricing_status"] = authority_status
         position["verification_status"] = authority_status
-        position["pricing_source"] = "canonical v2 completed-close primary plus verification contract"
-        position["pricing_source_quality"] = f"valuation_grade_{authority_status}"
+        position["pricing_source"] = "canonical v2 exact completed-close primary pricing authority"
+        position["pricing_source_quality"] = "valuation_grade"
         position["valuation_source"] = "canonical_v2_completed_close_contract"
         position["model_execution_price_basis"] = (
             f"{report_date} exact-line completed-close primary pricing authority; "
-            f"verification_status={authority_status}; model valuation only, no broker order"
+            f"pricing_status={authority_status}; model valuation only, no broker order"
         )
         avg_entry = _num(position.get("avg_entry_local")) if position.get("avg_entry_local") not in (None, "") else 0.0
         pnl = (price - avg_entry) * shares if avg_entry else 0.0
