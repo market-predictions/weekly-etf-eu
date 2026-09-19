@@ -154,10 +154,7 @@ class August17FreshnessSplitRegressionTests(unittest.TestCase):
         self.assertEqual(pricing, original_pricing)
         self.assertEqual(first["nav_eur"], 1338.12)
         self.assertEqual(first["positions"][0]["verification_status"], "fresh_exact_unverified")
-        self.assertEqual(
-            first["positions"][0]["pricing_status"],
-            "qualified_completed_close_primary_plus_verification",
-        )
+        self.assertEqual(first["positions"][0]["pricing_status"], "fresh_exact_unverified")
         self.assertFalse(first["derived_valuation"]["portfolio_mutation"])
         self.assertFalse(first["derived_valuation"]["trade_ledger_write"])
         self.assertFalse(first["derived_valuation"]["real_broker_execution"])
