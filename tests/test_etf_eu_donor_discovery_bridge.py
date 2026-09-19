@@ -105,10 +105,11 @@ def test_bridge_accepts_verified_canonical_pricing_without_creating_funding_auth
 
     assert cyber["fundability_status"] == "FUNDABLE_REQUIRES_ALLOCATION_DECISION"
     assert cyber["pricing_authority_status"] == "fresh_exact_verified"
+    assert cyber["pricing_authority_blockers"] == []
     assert water["fundability_status"] == "MAPPING_REQUIRED"
     assert bridge["authority"]["mapping_is_funding_authority"] is False
     assert bridge["authority"]["pricing_is_funding_authority"] is False
-    assert bridge["authority"]["new_allocation_requires_authorized_exact_pricing"] is True
+    assert bridge["authority"]["new_allocation_requires_authorized_exact_primary_pricing"] is True
     assert bridge["authority"]["explicit_allocation_decision_required"] is True
 
 
@@ -122,6 +123,7 @@ def test_primary_only_exact_pricing_can_reach_allocation_decision(tmp_path: Path
     candidate = bridge["assessed_lanes"][0]["ucits_candidates"][0]
 
     assert candidate["pricing_authority_status"] == "fresh_exact_unverified"
+    assert candidate["pricing_authority_blockers"] == []
     assert candidate["pricing_verification_providers"] == []
     assert candidate["fundability_status"] == "FUNDABLE_REQUIRES_ALLOCATION_DECISION"
 
@@ -135,7 +137,10 @@ def test_non_authoritative_pricing_remains_blocked(tmp_path: Path) -> None:
     bridge = build_bridge(donor, mapping, pricing, portfolio)
     candidate = bridge["assessed_lanes"][0]["ucits_candidates"][0]
 
-    assert candidate["pricing_authority_status"] == "provider_disagreement"
+    assert candidate["pricing_authority_status"] == "no_pricing_authority"
+    assert "source_authority_status:provider_disagreement" in candidate["pricing_authority_blockers"]
+    assert "not_valuation_grade" in candidate["pricing_authority_blockers"]
+    assert candidate["pricing_authorized"] is False
     assert candidate["fundability_status"] == "PRICING_AUTHORITY_REQUIRED"
 
 
