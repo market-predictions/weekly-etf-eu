@@ -6,6 +6,11 @@ on:
       request_path:
         description: "Prepared v2 candidate request path"
         required: true
+  push:
+    branches:
+      - recovery/v6-golden-path-20
+    paths:
+      - .github/workflows/run-weekly-etf-eu-routine.yml
 
 permissions:
   contents: write
@@ -28,6 +33,45 @@ jobs:
         with:
           fetch-depth: 0
           ref: ${{ github.ref_name }}
+
+      - name: Resolve or create NO EMAIL request
+        env:
+          INPUT_REQUEST_PATH: ${{ inputs.request_path }}
+        run: |
+          set -euo pipefail
+          if [ "${GITHUB_EVENT_NAME}" = "workflow_dispatch" ]; then
+            REQUEST_PATH="${INPUT_REQUEST_PATH}"
+          else
+            if [ "${GITHUB_REF_NAME}" != "recovery/v6-golden-path-20" ]; then
+              echo "ETF_EU_GOLDEN_PATH_PROOF_REF_INVALID=${GITHUB_REF_NAME}" >&2
+              exit 1
+            fi
+            REPORT_DATE="2026-09-18"
+            REPORT_SUFFIX="260918"
+            RUN_SEQ=$(printf "%06d" "$((GITHUB_RUN_NUMBER % 1000000))")
+            RUN_ID="20260918_${RUN_SEQ}"
+            PREVIOUS_ROUTINE_MANIFEST=$(tr -d '\r\n' < output/run_manifests/latest_etf_eu_routine_run_manifest_path.txt)
+            PREVIOUS_CLOSEOUT=$(tr -d '\r\n' < output/run_manifests/latest_etf_eu_delivery_closeout_manifest_path.txt)
+            REQUEST_PATH="output/runtime/golden_path_pre_purge_request_${RUN_ID}.txt"
+            mkdir -p output/runtime
+            cat > "$REQUEST_PATH" <<EOF
+          schema_version=etf_eu_routine_report_request_v2
+          artifact_type=etf_eu_routine_report_request
+          run_id=${RUN_ID}
+          report_date=${REPORT_DATE}
+          report_suffix=${REPORT_SUFFIX}
+          previous_routine_manifest=${PREVIOUS_ROUTINE_MANIFEST}
+          previous_delivery_closeout_manifest=${PREVIOUS_CLOSEOUT}
+          execution_mode=generate_validate_candidate
+          delivery_authority=false
+          recipient_plaintext_values_exposed=false
+          secret_values_exposed=false
+          raw_receipt_pdf_stored_in_github=false
+          EOF
+          fi
+          test -n "$REQUEST_PATH"
+          echo "ETF_EU_REQUEST_PATH=$REQUEST_PATH" >> "$GITHUB_ENV"
+          echo "ETF_EU_PROOF_DELIVERY_AUTHORITY=false"
 
       - name: Check out donor research repository
         uses: actions/checkout@v4
@@ -63,8 +107,6 @@ jobs:
           pip install pyyaml yfinance mistune weasyprint matplotlib==3.9.2
 
       - name: Resolve and validate candidate request
-        env:
-          ETF_EU_REQUEST_PATH: ${{ inputs.request_path }}
         run: |
           set -euo pipefail
           python tools/validate_etf_eu_routine_report_request.py --request "$ETF_EU_REQUEST_PATH"
