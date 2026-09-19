@@ -6,6 +6,7 @@ from typing import Any
 
 import yaml
 
+from pricing.canonical_pricing_authority import canonical_pricing_authority
 from pricing.ucits_close_price_validation_contract_v2 import AUTHORIZED_EXACT_STATUSES
 
 
@@ -51,18 +52,8 @@ def _portfolio_identities(portfolio: dict[str, Any]) -> set[tuple[str, str]]:
 
 
 def _pricing_authorized(pricing: dict[str, Any] | None) -> bool:
-    if not pricing:
-        return False
-    authority_status = str(pricing.get("source_agreement_status") or "").strip()
-    return (
-        authority_status in AUTHORIZED_EXACT_STATUSES
-        and pricing.get("valuation_grade") is True
-        and pricing.get("completed_close_on_requested_report_date") is True
-        and pricing.get("static_identity_binding") is True
-        and pricing.get("static_primary_provider_symbol_binding") is True
-        and pricing.get("close_price") not in (None, "")
-        and bool(str(pricing.get("primary_provider") or "").strip())
-    )
+    authority_status, _blockers = canonical_pricing_authority(pricing)
+    return authority_status in AUTHORIZED_EXACT_STATUSES
 
 
 def _fundability(candidate: dict[str, Any], mapping_status: str, pricing: dict[str, Any] | None, funded: bool) -> str:
@@ -119,6 +110,7 @@ def build_bridge(
                 ticker = str(candidate.get("exchange_ticker") or "").strip().upper()
                 price = prices.get((isin, ticker))
                 funded = (isin, ticker) in funded_ids
+                authority_status, authority_blockers = canonical_pricing_authority(price)
                 candidate_rows.append(
                     {
                         **candidate,
@@ -126,11 +118,11 @@ def build_bridge(
                         "mapping_status": mapping_status,
                         "pricing_close_date": price.get("close_date") if price else None,
                         "pricing_close": price.get("close_price") if price else None,
-                        "pricing_status": price.get("pricing_status") if price else None,
-                        "pricing_authority_status": price.get("source_agreement_status") if price else None,
+                        "pricing_authority_status": authority_status,
+                        "pricing_authority_blockers": authority_blockers,
                         "pricing_primary_provider": price.get("primary_provider") if price else None,
                         "pricing_verification_providers": price.get("verification_providers") if price else [],
-                        "pricing_authorized": _pricing_authorized(price),
+                        "pricing_authorized": authority_status in AUTHORIZED_EXACT_STATUSES,
                         "fundability_status": _fundability(candidate, mapping_status, price, funded),
                     }
                 )
@@ -139,6 +131,8 @@ def build_bridge(
                 {
                     "exposure_id": lane.get("taxonomy_tag") or lane.get("bucket"),
                     "mapping_status": "mapping_required",
+                    "pricing_authority_status": "no_pricing_authority",
+                    "pricing_authority_blockers": ["pricing_row_missing"],
                     "pricing_authorized": False,
                     "fundability_status": "MAPPING_REQUIRED",
                 }
