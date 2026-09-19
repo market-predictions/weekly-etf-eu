@@ -5,6 +5,7 @@ import unittest
 from runtime.build_etf_eu_donor_discovery_bridge import _fundability
 from runtime.reconcile_etf_eu_funded_markdown import render_funded_markdown, validate_funded_markdown
 from runtime.render_etf_eu_client_grade_v2_funded import build_html
+from runtime.revalue_etf_eu_model_portfolio import revalue_portfolio
 
 
 REPORT_DATE = "2026-08-17"
@@ -47,6 +48,8 @@ def _primary_only_state() -> dict:
         "price_date": REPORT_DATE,
         "pricing_status": "fresh_exact_unverified",
         "verification_status": "fresh_exact_unverified",
+        "primary_provider": "alpha_vantage",
+        "verification_providers": [],
         "portfolio_role": "Diversified global equity core",
         "current_allocation_decision": "hold",
         "implementation_assessment": (
@@ -139,6 +142,27 @@ def _primary_only_state() -> dict:
     }
 
 
+def _funded_portfolio() -> dict:
+    return {
+        "base_currency": "EUR",
+        "cash_eur": 1000.0,
+        "positions": [
+            {
+                "ticker": "VWCE",
+                "exchange_ticker": "VWCE",
+                "isin": "IE00BK5BQT80",
+                "shares": 2,
+                "trading_currency": "EUR",
+                "avg_entry_local": 160.0,
+                "current_price_local": 165.0,
+                "market_value_local": 330.0,
+                "market_value_eur": 330.0,
+                "current_weight_pct": 24.81203,
+            }
+        ],
+    }
+
+
 class CoreTruthV6RegressionTests(unittest.TestCase):
     def test_primary_only_and_verified_authority_reach_fundability(self) -> None:
         for status in ("fresh_exact_unverified", "fresh_exact_verified"):
@@ -156,6 +180,20 @@ class CoreTruthV6RegressionTests(unittest.TestCase):
             "PRICING_AUTHORITY_REQUIRED",
         )
 
+    def test_revaluation_projects_provider_evidence_onto_normalized_position(self) -> None:
+        pricing = {
+            "run_id": "core-truth-provider-evidence",
+            "report_date": REPORT_DATE,
+            "report_pricing_gate_passed": True,
+            "rows": [_pricing("fresh_exact_verified")],
+        }
+        derived = revalue_portfolio(_funded_portfolio(), pricing, report_date=REPORT_DATE)
+        position = derived["positions"][0]
+        self.assertEqual(position["primary_provider"], "alpha_vantage")
+        self.assertEqual(position["verification_providers"], ["yahoo_chart"])
+        self.assertEqual(position["agreeing_providers"], ["alpha_vantage", "yahoo_chart"])
+        self.assertEqual(position["pricing_status"], "fresh_exact_verified")
+
     def test_primary_only_markdown_is_native_and_bilingual(self) -> None:
         state = _primary_only_state()
         nl = render_funded_markdown(state, language="nl")
@@ -163,6 +201,8 @@ class CoreTruthV6RegressionTests(unittest.TestCase):
 
         self.assertIn("Exacte slotkoers · geen actuele onafhankelijke verifier", nl)
         self.assertIn("Exact close · no current independent verifier", en)
+        self.assertIn("alpha_vantage (geen actuele verifier)", nl)
+        self.assertIn("alpha_vantage (no current verifier)", en)
         self.assertNotIn("Exacte slotkoers · onafhankelijk geverifieerd", nl)
         self.assertNotIn("Exact close · independently verified", en)
         self.assertNotIn("qualified_development_consensus", nl + en)
