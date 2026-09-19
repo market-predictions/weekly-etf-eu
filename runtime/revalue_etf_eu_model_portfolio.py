@@ -136,6 +136,9 @@ def revalue_portfolio(
         position["pricing_completed_close"] = True
         position["pricing_status"] = authority_status
         position["verification_status"] = authority_status
+        position["primary_provider"] = primary_provider
+        position["verification_providers"] = verification_providers
+        position["agreeing_providers"] = providers
         position["pricing_source"] = "canonical v2 exact completed-close primary pricing authority"
         position["pricing_source_quality"] = "valuation_grade"
         position["valuation_source"] = "canonical_v2_completed_close_contract"
