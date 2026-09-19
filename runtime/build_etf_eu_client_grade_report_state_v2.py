@@ -6,6 +6,7 @@ from argparse import Namespace
 from pathlib import Path
 from typing import Any
 
+from pricing.canonical_pricing_authority import canonical_pricing_authority
 from pricing.ucits_close_price_validation_contract_v2 import (
     AUTHORIZED_EXACT_STATUSES,
     SCHEMA_VERSION,
@@ -21,8 +22,8 @@ def _canonical_pricing_rows(pricing_payload: dict[str, Any]) -> list[dict[str, A
     for source in pricing_payload.get("rows") or []:
         if not isinstance(source, dict):
             continue
-        authority_status = str(source.get("source_agreement_status") or "").strip()
-        authorized = authority_status in AUTHORIZED_EXACT_STATUSES and source.get("valuation_grade") is True
+        authority_status, authority_blockers = canonical_pricing_authority(source)
+        authorized = authority_status in AUTHORIZED_EXACT_STATUSES
         rows.append(
             {
                 "basket_id": source.get("basket_id"),
@@ -38,13 +39,13 @@ def _canonical_pricing_rows(pricing_payload: dict[str, Any]) -> list[dict[str, A
                 "authority_status": authority_status,
                 "verification_status": authority_status,
                 "authorized": authorized,
-                "valuation_grade": source.get("valuation_grade") is True,
+                "valuation_grade": authorized,
                 "primary_provider": source.get("primary_provider"),
                 "verification_providers": list(source.get("verification_providers") or []),
                 "same_date_provider_count": int(source.get("same_date_provider_count") or 0),
                 "static_identity_binding": source.get("static_identity_binding") is True,
                 "static_primary_provider_symbol_binding": source.get("static_primary_provider_symbol_binding") is True,
-                "blockers": list(source.get("blockers") or []),
+                "blockers": authority_blockers,
             }
         )
     return sorted(rows, key=lambda row: (str(row.get("fund_name") or ""), str(row.get("ticker") or "")))
@@ -69,7 +70,11 @@ def _canonical_verification_funnel(
         "unresolved_lines": len(pricing_rows) - len(authorized),
         "funded_positions": funded_position_count,
         "cash_eur": cash_eur,
-        "pricing_vocabulary": sorted(AUTHORIZED_EXACT_STATUSES),
+        "pricing_vocabulary": [
+            "fresh_exact_unverified",
+            "fresh_exact_verified",
+            "no_pricing_authority",
+        ],
         "decision": "canonical_pricing_authority_then_separate_fundability_and_allocation_decision",
     }
 
@@ -151,6 +156,11 @@ def build_state(args: Namespace) -> dict[str, Any]:
         "pricing_authority_mode": pricing_policy.get("mode"),
         "pricing_authority": "canonical_completed_close_primary_plus_verification",
         "authorized_statuses": sorted(AUTHORIZED_EXACT_STATUSES),
+        "authority_vocabulary": [
+            "fresh_exact_unverified",
+            "fresh_exact_verified",
+            "no_pricing_authority",
+        ],
         "rows": canonical_rows,
         "derived_portfolio_valuation": derived_portfolio.get("derived_valuation"),
     }
