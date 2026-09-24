@@ -1,0 +1,58 @@
+name: Verify funded ISIN renderer and dispatch Golden Path
+
+on:
+  push:
+    branches:
+      - recovery/v6-golden-path-20
+    paths:
+      - runtime/render_etf_eu_client_grade_v2_funded.py
+      - tests/test_etf_eu_funded_renderer_isin_layout.py
+      - output/runtime/golden_path_pre_purge_request_20260918_900128.txt
+      - .github/workflows/verify-etf-eu-funded-isin-fix.yml
+
+permissions:
+  actions: write
+  contents: read
+
+jobs:
+  verify-and-dispatch:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+      REQUEST_PATH: output/runtime/golden_path_pre_purge_request_20260918_900128.txt
+    steps:
+      - name: Check out exact candidate head
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install renderer test dependencies
+        run: |
+          set -euo pipefail
+          python -m pip install --upgrade pip
+          pip install pytest weasyprint matplotlib==3.9.2
+
+      - name: Validate NO EMAIL request
+        run: |
+          set -euo pipefail
+          python tools/validate_etf_eu_routine_report_request.py --request "$REQUEST_PATH"
+
+      - name: Run funded ISIN renderer regression
+        run: |
+          set -euo pipefail
+          python -m pytest -q tests/test_etf_eu_funded_renderer_isin_layout.py
+
+      - name: Dispatch existing Golden Path
+        run: |
+          set -euo pipefail
+          gh workflow run run-weekly-etf-eu-routine.yml \
+            --repo "$GITHUB_REPOSITORY" \
+            --ref "$GITHUB_REF_NAME" \
+            -f request_path="$REQUEST_PATH"
+          echo "ETF_EU_GOLDEN_PATH_DISPATCHED=true"
+          echo "ETF_EU_DELIVERY_AUTHORITY=false"

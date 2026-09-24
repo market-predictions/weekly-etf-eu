@@ -62,9 +62,15 @@ FORBIDDEN_CLIENT_PHRASES = (
     "verified_ucits_trading_line",
 )
 
+ISIN_TOKEN_CSS = ".isin-token { white-space: nowrap; overflow-wrap: normal; }"
+
 
 def e(value: Any) -> str:
     return html.escape(str(value if value is not None else ""), quote=True)
+
+
+def isin_token(value: Any) -> str:
+    return '<span class="isin-token">' + e(value) + "</span>"
 
 
 def num(value: Any, language: str, decimals: int = 2) -> str:
@@ -469,7 +475,7 @@ def _analyst_sections(state: dict[str, Any], language: str) -> str:
             [
                 e(ticker),
                 e(row.get("fund_name")),
-                e(row.get("isin")),
+                isin_token(row.get("isin")),
                 e(row.get("exchange")),
                 e(row.get("close_date") or "n/a"),
                 num(row.get("close_price"), language),
@@ -525,7 +531,7 @@ def _analyst_sections(state: dict[str, Any], language: str) -> str:
         position_rows.append(
             [
                 e(ticker),
-                e(row.get("isin")),
+                isin_token(row.get("isin")),
                 e(whole(row.get("shares"), language)),
                 money(row.get("current_price_local"), language),
                 e(row.get("price_date")),
@@ -611,7 +617,9 @@ def build_html(state: dict[str, Any], language: str) -> str:
         + e(title)
         + "</title><style>"
         + css()
-        + "</style></head><body><main>"
+        + "\n"
+        + ISIN_TOKEN_CSS
+        + "\n</style></head><body><main>"
         + body
         + "</main></body></html>"
     )
