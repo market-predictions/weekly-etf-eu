@@ -51,9 +51,7 @@ def _require(condition: bool, message: str) -> None:
 
 
 def _active_workflows() -> list[Path]:
-    return sorted(
-        set(WORKFLOW_DIR.glob("*.yml")) | set(WORKFLOW_DIR.glob("*.yaml"))
-    )
+    return sorted(set(WORKFLOW_DIR.glob("*.yml")) | set(WORKFLOW_DIR.glob("*.yaml")))
 
 
 def validate() -> None:
@@ -95,15 +93,24 @@ def validate() -> None:
         "runtime.send_etf_eu_rel",
         "--mode send",
         "MRKT_RPRTS_SMTP_PASS",
+        'REPORT_DATE="2026-09-18"',
+        "golden_path_pre_purge_request_",
     ):
-        _require(forbidden not in candidate, f"candidate workflow contains forbidden authority token: {forbidden}")
+        _require(forbidden not in candidate, f"candidate workflow contains forbidden authority/stale token: {forbidden}")
     for required in (
         "contents: read",
-        "ETF_EU_CANDIDATE_BUILD_REFUSES_MAIN",
+        'cron: "30 18 * * 3"',
+        "ETF_EU_SCHEDULE_REQUIRES_MAIN",
+        "ETF_EU_MANUAL_BUILD_REFUSES_MAIN",
         "ref: ${{ github.sha }}",
+        "ETF_EU_CLEAN_CHECKOUT_PROOF=PASS",
+        "tools/resolve_etf_eu_completed_close_date.py",
+        "ETF_EU_PRE_SEND_READY_CURRENT_TRUTH=PASS",
         "ETF_EU_PROOF_STALE_CANDIDATE",
         "ETF_EU_EXACT_HEAD_PROOF=PASS",
         "actions/upload-artifact@v4",
+        "etf_eu_ready_for_controlled_delivery_${{ env.ETF_EU_RUN_ID }}.json",
+        "etf_eu_routine_run_manifest_${{ env.ETF_EU_REPORT_DATE }}_${{ env.ETF_EU_RUN_ID }}.json",
         "ETF_EU_INDEPENDENT_ASSURANCE_REQUIRED=true",
         "ETF_EU_DELIVERY_AUTHORITY=false",
     ):
@@ -142,8 +149,9 @@ def validate() -> None:
         "ETF_EU_WORKFLOW_AUTHORITY=PASS"
         f" | active_workflows={len(active_names)}"
         f" | retired_disabled={len(RETIRED_ACTIVE_PATHS)}"
-        " | candidate_route=1 | candidate_repo_write_authority=0"
-        " | exact_head_proof=1 | delivery_route=1 | us_donor_execution_routes=0"
+        " | generation_route=1 | generation_repo_write_authority=0"
+        " | scheduled_pre_send_ready=1 | exact_head_proof=1"
+        " | delivery_route=1 | us_donor_execution_routes=0"
     )
 
 
