@@ -37,6 +37,8 @@ jobs:
             tools/select_weekly_etf_donor_lane_artifact.py \
             tools/build_etf_eu_routine_report_package.py \
             tools/build_etf_eu_routine_report_package_v2.py \
+            tools/finalize_etf_eu_pre_send_ready.py \
+            tools/write_etf_eu_routine_v2_machine_gate.py \
             tools/validate_ucits_close_price_validation_basket_results.py \
             tools/validate_etf_eu_markdown_delivery_artifacts.py \
             tools/validate_etf_eu_routine_report_request.py \
@@ -54,7 +56,8 @@ jobs:
             tests/test_etf_eu_pricing_v2_and_markdown_delivery.py \
             tests/test_etf_eu_candidate_build_end_to_end.py \
             tests/test_etf_eu_full_candidate_package_end_to_end.py \
-            tests/test_etf_eu_email_equity_parity.py
+            tests/test_etf_eu_email_equity_parity.py \
+            tests/test_etf_eu_pre_send_ready_finalization.py
       - name: Validate workflow authority topology
         run: |
           python tools/validate_etf_eu_workflow_authority.py
