@@ -13,7 +13,7 @@ on:
       - .github/workflows/run-weekly-etf-eu-routine.yml
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   candidate-build:
@@ -26,13 +26,12 @@ jobs:
             echo "ETF_EU_CANDIDATE_BUILD_REFUSES_MAIN" >&2
             exit 1
           fi
-          echo "ETF_EU_CANDIDATE_BRANCH=${GITHUB_REF_NAME}" >> "$GITHUB_ENV"
 
-      - name: Check out exact candidate branch
+      - name: Check out exact candidate SHA
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          ref: ${{ github.ref_name }}
+          ref: ${{ github.sha }}
 
       - name: Resolve or create NO EMAIL request
         env:
@@ -291,45 +290,25 @@ jobs:
             "output/fresh_generation/weekly_etf_eu_review_${ETF_EU_REPORT_SUFFIX}.pdf" \
             "$REVIEW_ROOT/en/all/page"
 
-      - name: Persist generated candidate outputs to candidate branch only
+      - name: Verify exact candidate source remained current
         run: |
           set -euo pipefail
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -f \
-            "output/pricing/ucits_close_price_validation_basket_results_${ETF_EU_RUN_ID}.json" \
-            "output/pricing/ucits_price_provider_qualification_${ETF_EU_RUN_ID}.json" \
-            "output/pricing/ucits_price_provider_registry_resolved_${ETF_EU_RUN_ID}.yml" \
-            "$ETF_EU_MACRO_ARTIFACT" \
-            output/macro/latest.json \
-            output/etf_eu_valuation_history.csv \
-            output/etf_eu_recommendation_scorecard.csv \
-            "$ETF_EU_DONOR_LANE_ARTIFACT" \
-            "$ETF_EU_DONOR_LANE_PROVENANCE" \
-            "$ETF_EU_ALLOCATION_PRICING_SELECTION" \
-            "output/runtime/etf_eu_donor_discovery_bridge_${ETF_EU_RUN_ID}.json" \
-            "output/runtime/etf_eu_client_grade_report_state_${ETF_EU_RUN_ID}.json" \
-            "output/fresh_generation/weekly_etf_eu_review_nl_${ETF_EU_REPORT_SUFFIX}.md" \
-            "output/fresh_generation/weekly_etf_eu_review_${ETF_EU_REPORT_SUFFIX}.md" \
-            "output/fresh_generation/weekly_etf_eu_review_nl_${ETF_EU_REPORT_SUFFIX}.html" \
-            "output/fresh_generation/weekly_etf_eu_review_${ETF_EU_REPORT_SUFFIX}.html" \
-            "output/fresh_generation/weekly_etf_eu_review_nl_${ETF_EU_REPORT_SUFFIX}.pdf" \
-            "output/fresh_generation/weekly_etf_eu_review_${ETF_EU_REPORT_SUFFIX}.pdf" \
-            "output/fresh_generation/etf_eu_fresh_generation_package_manifest_${ETF_EU_RUN_ID}.json" \
-            "output/fresh_generation/etf_eu_ready_for_controlled_delivery_${ETF_EU_RUN_ID}.json" \
-            "output/quality/etf_eu_client_grade_v2_validation_${ETF_EU_RUN_ID}.json" \
-            "output/quality/etf_eu_markdown_delivery_validation_${ETF_EU_RUN_ID}.json" \
-            "output/quality/etf_eu_routine_pdf_client_grade_${ETF_EU_RUN_ID}_nl.json" \
-            "output/quality/etf_eu_routine_pdf_client_grade_${ETF_EU_RUN_ID}_en.json" \
-            "output/quality/etf_eu_routine_pdf_client_grade_${ETF_EU_RUN_ID}.json" \
-            "output/run_manifests/etf_eu_routine_run_manifest_${ETF_EU_REPORT_DATE}_${ETF_EU_RUN_ID}.json"
-          if git diff --cached --quiet; then
-            echo "ETF_EU_CANDIDATE_OUTPUTS_UNCHANGED"
-          else
-            git commit -m "Persist ETF EU candidate ${ETF_EU_RUN_ID} [skip ci]"
-            git push origin "HEAD:${ETF_EU_CANDIDATE_BRANCH}"
+          TESTED_SHA=$(git rev-parse HEAD)
+          if [ "$TESTED_SHA" != "$GITHUB_SHA" ]; then
+            echo "ETF_EU_PROOF_CHECKOUT_SHA_MISMATCH tested=$TESTED_SHA expected=$GITHUB_SHA" >&2
+            exit 1
           fi
-          echo "ETF_EU_CANDIDATE_ONLY=PASS"
+          LIVE_SHA=$(git ls-remote origin "refs/heads/${GITHUB_REF_NAME}" | awk '{print $1}')
+          if [ -z "$LIVE_SHA" ]; then
+            echo "ETF_EU_PROOF_LIVE_BRANCH_SHA_MISSING=${GITHUB_REF_NAME}" >&2
+            exit 1
+          fi
+          if [ "$LIVE_SHA" != "$GITHUB_SHA" ]; then
+            echo "ETF_EU_PROOF_STALE_CANDIDATE tested=$GITHUB_SHA live=$LIVE_SHA" >&2
+            exit 1
+          fi
+          echo "ETF_EU_EXACT_HEAD_PROOF=PASS"
+          echo "ETF_EU_PROOF_CANDIDATE_SHA=$TESTED_SHA"
           echo "ETF_EU_DELIVERY_AUTHORITY=false"
 
       - name: Upload frozen candidate review bundle
