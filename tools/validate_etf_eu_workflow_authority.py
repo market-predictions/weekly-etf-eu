@@ -86,7 +86,9 @@ def validate() -> None:
 
     candidate = CANDIDATE.read_text(encoding="utf-8")
     for forbidden in (
-        "git push origin HEAD:main",
+        "git push",
+        "git commit",
+        "contents: write",
         "build_etf_eu_release_assurance.py",
         "validate_etf_eu_release_assurance.py",
         "runtime.send_etf_eu_controlled_report",
@@ -96,11 +98,14 @@ def validate() -> None:
     ):
         _require(forbidden not in candidate, f"candidate workflow contains forbidden authority token: {forbidden}")
     for required in (
+        "contents: read",
         "ETF_EU_CANDIDATE_BUILD_REFUSES_MAIN",
-        "ETF_EU_CANDIDATE_ONLY=PASS",
+        "ref: ${{ github.sha }}",
+        "ETF_EU_PROOF_STALE_CANDIDATE",
+        "ETF_EU_EXACT_HEAD_PROOF=PASS",
+        "actions/upload-artifact@v4",
         "ETF_EU_INDEPENDENT_ASSURANCE_REQUIRED=true",
         "ETF_EU_DELIVERY_AUTHORITY=false",
-        'git push origin "HEAD:${ETF_EU_CANDIDATE_BRANCH}"',
     ):
         _require(required in candidate, f"candidate workflow missing boundary: {required}")
 
@@ -137,7 +142,8 @@ def validate() -> None:
         "ETF_EU_WORKFLOW_AUTHORITY=PASS"
         f" | active_workflows={len(active_names)}"
         f" | retired_disabled={len(RETIRED_ACTIVE_PATHS)}"
-        " | candidate_route=1 | delivery_route=1 | us_donor_execution_routes=0"
+        " | candidate_route=1 | candidate_repo_write_authority=0"
+        " | exact_head_proof=1 | delivery_route=1 | us_donor_execution_routes=0"
     )
 
 
