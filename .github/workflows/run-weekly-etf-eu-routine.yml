@@ -1,33 +1,131 @@
-name: Weekly ETF EU candidate build
+name: Weekly ETF EU generation validation
+# Proof contract: control/GOLDEN_PATH_PROOF_RULES.md
+# Scheduled generation stops at PRE_SEND_READY; controlled transport is a separate authority domain.
+# Frozen Golden Path proof candidate includes the case-insensitive governance audit repair.
 
 on:
+  schedule:
+    - cron: "30 18 * * 3"
   workflow_dispatch:
     inputs:
       request_path:
-        description: "Prepared v2 candidate request path"
-        required: true
+        description: "Optional prepared v2 candidate request path; blank creates a fresh NO EMAIL request"
+        required: false
+        default: ""
+  push:
+    branches:
+      - recovery/v6-golden-path-20
+    paths:
+      - .github/workflows/run-weekly-etf-eu-routine.yml
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   candidate-build:
     runs-on: ubuntu-latest
     steps:
-      - name: Require non-main candidate branch
+      - name: Enforce execution ref boundary
         run: |
           set -euo pipefail
-          if [ "${GITHUB_REF_NAME}" = "main" ]; then
-            echo "ETF_EU_CANDIDATE_BUILD_REFUSES_MAIN" >&2
-            exit 1
-          fi
-          echo "ETF_EU_CANDIDATE_BRANCH=${GITHUB_REF_NAME}" >> "$GITHUB_ENV"
+          case "${GITHUB_EVENT_NAME}" in
+            schedule)
+              if [ "${GITHUB_REF_NAME}" != "main" ]; then
+                echo "ETF_EU_SCHEDULE_REQUIRES_MAIN ref=${GITHUB_REF_NAME}" >&2
+                exit 1
+              fi
+              ;;
+            workflow_dispatch|push)
+              if [ "${GITHUB_REF_NAME}" = "main" ]; then
+                echo "ETF_EU_MANUAL_BUILD_REFUSES_MAIN" >&2
+                exit 1
+              fi
+              ;;
+            *)
+              echo "ETF_EU_UNSUPPORTED_EVENT=${GITHUB_EVENT_NAME}" >&2
+              exit 1
+              ;;
+          esac
 
-      - name: Check out exact candidate branch
+      - name: Check out exact source SHA
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          ref: ${{ github.ref_name }}
+          ref: ${{ github.sha }}
+
+      - name: Prove clean exact-head checkout
+        run: |
+          set -euo pipefail
+          TESTED_SHA=$(git rev-parse HEAD)
+          if [ "$TESTED_SHA" != "$GITHUB_SHA" ]; then
+            echo "ETF_EU_CLEAN_CHECKOUT_SHA_MISMATCH tested=$TESTED_SHA expected=$GITHUB_SHA" >&2
+            exit 1
+          fi
+          if [ -n "$(git status --porcelain --untracked-files=all)" ]; then
+            echo "ETF_EU_CLEAN_CHECKOUT_DIRTY" >&2
+            git status --short >&2
+            exit 1
+          fi
+          mkdir -p output/quality
+          python3 - "$TESTED_SHA" <<'PY'
+          import json, sys
+          from pathlib import Path
+          Path("output/quality/clean_checkout_proof.json").write_text(
+              json.dumps({
+                  "schema_version": "etf_eu_clean_checkout_proof_v1",
+                  "source_sha": sys.argv[1],
+                  "clean_checkout": True,
+                  "manual_repair_applied": False,
+              }, indent=2, sort_keys=True) + "\n",
+              encoding="utf-8",
+          )
+          PY
+          echo "ETF_EU_CLEAN_CHECKOUT_PROOF=PASS"
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Resolve or create NO EMAIL request
+        env:
+          INPUT_REQUEST_PATH: ${{ inputs.request_path }}
+        run: |
+          set -euo pipefail
+          if [ "${GITHUB_EVENT_NAME}" = "workflow_dispatch" ] && [ -n "${INPUT_REQUEST_PATH}" ]; then
+            REQUEST_PATH="${INPUT_REQUEST_PATH}"
+          else
+            REPORT_DATE=$(python tools/resolve_etf_eu_completed_close_date.py)
+            REPORT_SUFFIX=$(python - "$REPORT_DATE" <<'PY'
+          import sys
+          from datetime import date
+          print(date.fromisoformat(sys.argv[1]).strftime("%y%m%d"))
+          PY
+            )
+            RUN_SEQ=$(printf "%06d" "$((GITHUB_RUN_NUMBER % 1000000))")
+            RUN_ID="$(printf '%s' "$REPORT_DATE" | tr -d '-')_${RUN_SEQ}"
+            PREVIOUS_ROUTINE_MANIFEST=$(tr -d '\r\n' < output/run_manifests/latest_etf_eu_routine_run_manifest_path.txt)
+            PREVIOUS_CLOSEOUT=$(tr -d '\r\n' < output/run_manifests/latest_etf_eu_delivery_closeout_manifest_path.txt)
+            REQUEST_PATH="output/runtime/weekly_etf_eu_candidate_request_${RUN_ID}.txt"
+            mkdir -p output/runtime
+            cat > "$REQUEST_PATH" <<EOF
+          schema_version=etf_eu_routine_report_request_v2
+          artifact_type=etf_eu_routine_report_request
+          run_id=${RUN_ID}
+          report_date=${REPORT_DATE}
+          report_suffix=${REPORT_SUFFIX}
+          previous_routine_manifest=${PREVIOUS_ROUTINE_MANIFEST}
+          previous_delivery_closeout_manifest=${PREVIOUS_CLOSEOUT}
+          execution_mode=generate_validate_candidate
+          delivery_authority=false
+          recipient_plaintext_values_exposed=false
+          secret_values_exposed=false
+          raw_receipt_pdf_stored_in_github=false
+          EOF
+          fi
+          test -n "$REQUEST_PATH"
+          echo "ETF_EU_REQUEST_PATH=$REQUEST_PATH" >> "$GITHUB_ENV"
+          echo "ETF_EU_PROOF_DELIVERY_AUTHORITY=false"
 
       - name: Check out donor research repository
         uses: actions/checkout@v4
@@ -36,11 +134,6 @@ jobs:
           ref: main
           fetch-depth: 1
           path: _donor_weekly_etf
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
 
       - name: Install system PDF packages
         run: |
@@ -63,8 +156,6 @@ jobs:
           pip install pyyaml yfinance mistune weasyprint matplotlib==3.9.2
 
       - name: Resolve and validate candidate request
-        env:
-          ETF_EU_REQUEST_PATH: ${{ inputs.request_path }}
         run: |
           set -euo pipefail
           python tools/validate_etf_eu_routine_report_request.py --request "$ETF_EU_REQUEST_PATH"
@@ -203,7 +294,7 @@ jobs:
             --previous-routine-manifest "$ETF_EU_PREVIOUS_ROUTINE_MANIFEST" \
             --previous-delivery-closeout-manifest "$ETF_EU_PREVIOUS_CLOSEOUT"
 
-      - name: Validate candidate machine contract
+      - name: Validate candidate machine contract and finalize PRE_SEND_READY
         run: |
           set -euo pipefail
           mkdir -p output/quality
@@ -229,6 +320,31 @@ jobs:
             --run-id "$ETF_EU_RUN_ID" \
             --output-dir output/quality
 
+      - name: Verify terminal PRE_SEND_READY current truth
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          run_id = os.environ["ETF_EU_RUN_ID"]
+          report_date = os.environ["ETF_EU_REPORT_DATE"]
+          paths = {
+              "package": Path(f"output/fresh_generation/etf_eu_fresh_generation_package_manifest_{run_id}.json"),
+              "ready": Path(f"output/fresh_generation/etf_eu_ready_for_controlled_delivery_{run_id}.json"),
+              "routine": Path(f"output/run_manifests/etf_eu_routine_run_manifest_{report_date}_{run_id}.json"),
+          }
+          for name, path in paths.items():
+              data = json.loads(path.read_text(encoding="utf-8"))
+              assert data.get("pre_send_ready") is True, (name, "pre_send_ready")
+              assert data.get("full_generation_status") == "PRE_SEND_READY", (name, "full_generation_status")
+              for field in ("funding_authority", "portfolio_mutation", "production_delivery_authority", "send_executed", "transport_attempted"):
+                  assert data.get(field) is not True, (name, field)
+          ready = json.loads(paths["ready"].read_text(encoding="utf-8"))
+          assert ready.get("ready_for_controlled_delivery") is False
+          assert ready.get("delivery_authorized") is False
+          print("ETF_EU_PRE_SEND_READY_CURRENT_TRUTH=PASS")
+          PY
+
       - name: Render complete candidate PDF review pages
         run: |
           set -euo pipefail
@@ -249,52 +365,34 @@ jobs:
             "output/fresh_generation/weekly_etf_eu_review_${ETF_EU_REPORT_SUFFIX}.pdf" \
             "$REVIEW_ROOT/en/all/page"
 
-      - name: Persist generated candidate outputs to candidate branch only
+      - name: Verify exact source remained current
         run: |
           set -euo pipefail
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -f \
-            "output/pricing/ucits_close_price_validation_basket_results_${ETF_EU_RUN_ID}.json" \
-            "output/pricing/ucits_price_provider_qualification_${ETF_EU_RUN_ID}.json" \
-            "output/pricing/ucits_price_provider_registry_resolved_${ETF_EU_RUN_ID}.yml" \
-            "$ETF_EU_MACRO_ARTIFACT" \
-            output/macro/latest.json \
-            output/etf_eu_valuation_history.csv \
-            output/etf_eu_recommendation_scorecard.csv \
-            "$ETF_EU_DONOR_LANE_ARTIFACT" \
-            "$ETF_EU_DONOR_LANE_PROVENANCE" \
-            "$ETF_EU_ALLOCATION_PRICING_SELECTION" \
-            "output/runtime/etf_eu_donor_discovery_bridge_${ETF_EU_RUN_ID}.json" \
-            "output/runtime/etf_eu_client_grade_report_state_${ETF_EU_RUN_ID}.json" \
-            "output/fresh_generation/weekly_etf_eu_review_nl_${ETF_EU_REPORT_SUFFIX}.md" \
-            "output/fresh_generation/weekly_etf_eu_review_${ETF_EU_REPORT_SUFFIX}.md" \
-            "output/fresh_generation/weekly_etf_eu_review_nl_${ETF_EU_REPORT_SUFFIX}.html" \
-            "output/fresh_generation/weekly_etf_eu_review_${ETF_EU_REPORT_SUFFIX}.html" \
-            "output/fresh_generation/weekly_etf_eu_review_nl_${ETF_EU_REPORT_SUFFIX}.pdf" \
-            "output/fresh_generation/weekly_etf_eu_review_${ETF_EU_REPORT_SUFFIX}.pdf" \
-            "output/fresh_generation/etf_eu_fresh_generation_package_manifest_${ETF_EU_RUN_ID}.json" \
-            "output/fresh_generation/etf_eu_ready_for_controlled_delivery_${ETF_EU_RUN_ID}.json" \
-            "output/quality/etf_eu_client_grade_v2_validation_${ETF_EU_RUN_ID}.json" \
-            "output/quality/etf_eu_markdown_delivery_validation_${ETF_EU_RUN_ID}.json" \
-            "output/quality/etf_eu_routine_pdf_client_grade_${ETF_EU_RUN_ID}_nl.json" \
-            "output/quality/etf_eu_routine_pdf_client_grade_${ETF_EU_RUN_ID}_en.json" \
-            "output/quality/etf_eu_routine_pdf_client_grade_${ETF_EU_RUN_ID}.json" \
-            "output/run_manifests/etf_eu_routine_run_manifest_${ETF_EU_REPORT_DATE}_${ETF_EU_RUN_ID}.json"
-          if git diff --cached --quiet; then
-            echo "ETF_EU_CANDIDATE_OUTPUTS_UNCHANGED"
-          else
-            git commit -m "Persist ETF EU candidate ${ETF_EU_RUN_ID} [skip ci]"
-            git push origin "HEAD:${ETF_EU_CANDIDATE_BRANCH}"
+          TESTED_SHA=$(git rev-parse HEAD)
+          if [ "$TESTED_SHA" != "$GITHUB_SHA" ]; then
+            echo "ETF_EU_PROOF_CHECKOUT_SHA_MISMATCH tested=$TESTED_SHA expected=$GITHUB_SHA" >&2
+            exit 1
           fi
-          echo "ETF_EU_CANDIDATE_ONLY=PASS"
+          LIVE_SHA=$(git ls-remote origin "refs/heads/${GITHUB_REF_NAME}" | awk '{print $1}')
+          if [ -z "$LIVE_SHA" ]; then
+            echo "ETF_EU_PROOF_LIVE_BRANCH_SHA_MISSING=${GITHUB_REF_NAME}" >&2
+            exit 1
+          fi
+          if [ "$LIVE_SHA" != "$GITHUB_SHA" ]; then
+            echo "ETF_EU_PROOF_STALE_CANDIDATE tested=$GITHUB_SHA live=$LIVE_SHA" >&2
+            exit 1
+          fi
+          echo "ETF_EU_EXACT_HEAD_PROOF=PASS"
+          echo "ETF_EU_PROOF_CANDIDATE_SHA=$TESTED_SHA"
           echo "ETF_EU_DELIVERY_AUTHORITY=false"
 
-      - name: Upload frozen candidate review bundle
+      - name: Upload frozen PRE_SEND_READY evidence bundle
         uses: actions/upload-artifact@v4
         with:
           name: etf-eu-candidate-${{ env.ETF_EU_RUN_ID }}
           path: |
+            output/quality/clean_checkout_proof.json
+            ${{ env.ETF_EU_REQUEST_PATH }}
             output/fresh_generation/weekly_etf_eu_review_nl_${{ env.ETF_EU_REPORT_SUFFIX }}.md
             output/fresh_generation/weekly_etf_eu_review_${{ env.ETF_EU_REPORT_SUFFIX }}.md
             output/fresh_generation/weekly_etf_eu_review_nl_${{ env.ETF_EU_REPORT_SUFFIX }}.html
@@ -302,7 +400,11 @@ jobs:
             output/fresh_generation/weekly_etf_eu_review_nl_${{ env.ETF_EU_REPORT_SUFFIX }}.pdf
             output/fresh_generation/weekly_etf_eu_review_${{ env.ETF_EU_REPORT_SUFFIX }}.pdf
             output/fresh_generation/etf_eu_fresh_generation_package_manifest_${{ env.ETF_EU_RUN_ID }}.json
+            output/fresh_generation/etf_eu_ready_for_controlled_delivery_${{ env.ETF_EU_RUN_ID }}.json
+            output/run_manifests/etf_eu_routine_run_manifest_${{ env.ETF_EU_REPORT_DATE }}_${{ env.ETF_EU_RUN_ID }}.json
+            output/pricing/ucits_close_price_validation_basket_results_${{ env.ETF_EU_RUN_ID }}.json
             output/pricing/ucits_price_provider_qualification_${{ env.ETF_EU_RUN_ID }}.json
+            output/macro/etf_eu_macro_policy_pack_${{ env.ETF_EU_RUN_ID }}.json
             output/runtime/etf_eu_allocation_pricing_candidate_selection_${{ env.ETF_EU_RUN_ID }}.json
             output/runtime/etf_eu_donor_lane_source_${{ env.ETF_EU_RUN_ID }}.json
             output/runtime/etf_eu_donor_lane_provenance_${{ env.ETF_EU_RUN_ID }}.json
@@ -310,13 +412,16 @@ jobs:
             output/runtime/etf_eu_client_grade_report_state_${{ env.ETF_EU_RUN_ID }}.json
             output/quality/etf_eu_client_grade_v2_validation_${{ env.ETF_EU_RUN_ID }}.json
             output/quality/etf_eu_markdown_delivery_validation_${{ env.ETF_EU_RUN_ID }}.json
+            output/quality/etf_eu_routine_pdf_client_grade_${{ env.ETF_EU_RUN_ID }}.json
+            output/quality/etf_eu_routine_pdf_client_grade_${{ env.ETF_EU_RUN_ID }}_nl.json
+            output/quality/etf_eu_routine_pdf_client_grade_${{ env.ETF_EU_RUN_ID }}_en.json
             output/quality/review_pages/${{ env.ETF_EU_RUN_ID }}
           if-no-files-found: error
           retention-days: 90
 
       - name: State assurance boundary
         run: |
-          echo "ETF_EU_CANDIDATE_BUILD_COMPLETE"
+          echo "ETF_EU_PRE_SEND_READY=true"
           echo "ETF_EU_INDEPENDENT_ASSURANCE_REQUIRED=true"
           echo "ETF_EU_MERGE_AUTHORITY=false"
           echo "ETF_EU_DELIVERY_AUTHORITY=false"

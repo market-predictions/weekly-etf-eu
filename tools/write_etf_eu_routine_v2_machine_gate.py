@@ -6,6 +6,8 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
+from tools.finalize_etf_eu_pre_send_ready import finalize_pre_send_ready
+
 
 def _utc_now() -> str:
     return datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
@@ -95,7 +97,22 @@ def main() -> None:
     _write(combined_path, combined)
     if combined["pdf_client_grade_passed"] is not True or combined["blockers"]:
         raise SystemExit("ETF_EU_ROUTINE_V2_MACHINE_GATE_FAILED")
+
+    report_date = str(validation.get("report_date") or "")
+    if not report_date:
+        raise SystemExit("ETF_EU_PRE_SEND_READY_REPORT_DATE_MISSING")
+    package_manifest = Path("output/fresh_generation") / f"etf_eu_fresh_generation_package_manifest_{args.run_id}.json"
+    ready_artifact = Path("output/fresh_generation") / f"etf_eu_ready_for_controlled_delivery_{args.run_id}.json"
+    routine_manifest = Path("output/run_manifests") / f"etf_eu_routine_run_manifest_{report_date}_{args.run_id}.json"
+    finalize_pre_send_ready(
+        package_manifest,
+        ready_artifact,
+        routine_manifest,
+        validation_path,
+        combined_path,
+    )
     print(f"ETF_EU_ROUTINE_V2_MACHINE_GATE_OK | output={combined_path}")
+    print(f"ETF_EU_PRE_SEND_READY=PASS | package={package_manifest} | ready={ready_artifact} | routine={routine_manifest}")
 
 
 if __name__ == "__main__":
