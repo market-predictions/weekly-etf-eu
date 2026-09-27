@@ -1,12 +1,15 @@
-name: Weekly ETF EU candidate build
+name: Weekly ETF EU generation validation
 # Proof contract: control/GOLDEN_PATH_PROOF_RULES.md
 
 on:
+  schedule:
+    - cron: "30 18 * * 3"
   workflow_dispatch:
     inputs:
       request_path:
-        description: "Prepared v2 candidate request path"
-        required: true
+        description: "Optional prepared v2 candidate request path; blank creates a fresh NO EMAIL request"
+        required: false
+        default: ""
   push:
     branches:
       - recovery/v6-golden-path-20
@@ -20,39 +23,88 @@ jobs:
   candidate-build:
     runs-on: ubuntu-latest
     steps:
-      - name: Require non-main candidate branch
+      - name: Enforce execution ref boundary
         run: |
           set -euo pipefail
-          if [ "${GITHUB_REF_NAME}" = "main" ]; then
-            echo "ETF_EU_CANDIDATE_BUILD_REFUSES_MAIN" >&2
-            exit 1
-          fi
+          case "${GITHUB_EVENT_NAME}" in
+            schedule)
+              if [ "${GITHUB_REF_NAME}" != "main" ]; then
+                echo "ETF_EU_SCHEDULE_REQUIRES_MAIN ref=${GITHUB_REF_NAME}" >&2
+                exit 1
+              fi
+              ;;
+            workflow_dispatch|push)
+              if [ "${GITHUB_REF_NAME}" = "main" ]; then
+                echo "ETF_EU_MANUAL_BUILD_REFUSES_MAIN" >&2
+                exit 1
+              fi
+              ;;
+            *)
+              echo "ETF_EU_UNSUPPORTED_EVENT=${GITHUB_EVENT_NAME}" >&2
+              exit 1
+              ;;
+          esac
 
-      - name: Check out exact candidate SHA
+      - name: Check out exact source SHA
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
           ref: ${{ github.sha }}
+
+      - name: Prove clean exact-head checkout
+        run: |
+          set -euo pipefail
+          TESTED_SHA=$(git rev-parse HEAD)
+          if [ "$TESTED_SHA" != "$GITHUB_SHA" ]; then
+            echo "ETF_EU_CLEAN_CHECKOUT_SHA_MISMATCH tested=$TESTED_SHA expected=$GITHUB_SHA" >&2
+            exit 1
+          fi
+          if [ -n "$(git status --porcelain --untracked-files=all)" ]; then
+            echo "ETF_EU_CLEAN_CHECKOUT_DIRTY" >&2
+            git status --short >&2
+            exit 1
+          fi
+          mkdir -p output/quality
+          python3 - "$TESTED_SHA" <<'PY'
+          import json, sys
+          from pathlib import Path
+          Path("output/quality/clean_checkout_proof.json").write_text(
+              json.dumps({
+                  "schema_version": "etf_eu_clean_checkout_proof_v1",
+                  "source_sha": sys.argv[1],
+                  "clean_checkout": True,
+                  "manual_repair_applied": False,
+              }, indent=2, sort_keys=True) + "\n",
+              encoding="utf-8",
+          )
+          PY
+          echo "ETF_EU_CLEAN_CHECKOUT_PROOF=PASS"
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
 
       - name: Resolve or create NO EMAIL request
         env:
           INPUT_REQUEST_PATH: ${{ inputs.request_path }}
         run: |
           set -euo pipefail
-          if [ "${GITHUB_EVENT_NAME}" = "workflow_dispatch" ]; then
+          if [ "${GITHUB_EVENT_NAME}" = "workflow_dispatch" ] && [ -n "${INPUT_REQUEST_PATH}" ]; then
             REQUEST_PATH="${INPUT_REQUEST_PATH}"
           else
-            if [ "${GITHUB_REF_NAME}" != "recovery/v6-golden-path-20" ]; then
-              echo "ETF_EU_GOLDEN_PATH_PROOF_REF_INVALID=${GITHUB_REF_NAME}" >&2
-              exit 1
-            fi
-            REPORT_DATE="2026-09-18"
-            REPORT_SUFFIX="260918"
+            REPORT_DATE=$(python tools/resolve_etf_eu_completed_close_date.py)
+            REPORT_SUFFIX=$(python - "$REPORT_DATE" <<'PY'
+          import sys
+          from datetime import date
+          print(date.fromisoformat(sys.argv[1]).strftime("%y%m%d"))
+          PY
+            )
             RUN_SEQ=$(printf "%06d" "$((GITHUB_RUN_NUMBER % 1000000))")
-            RUN_ID="20260918_${RUN_SEQ}"
+            RUN_ID="$(printf '%s' "$REPORT_DATE" | tr -d '-')_${RUN_SEQ}"
             PREVIOUS_ROUTINE_MANIFEST=$(tr -d '\r\n' < output/run_manifests/latest_etf_eu_routine_run_manifest_path.txt)
             PREVIOUS_CLOSEOUT=$(tr -d '\r\n' < output/run_manifests/latest_etf_eu_delivery_closeout_manifest_path.txt)
-            REQUEST_PATH="output/runtime/golden_path_pre_purge_request_${RUN_ID}.txt"
+            REQUEST_PATH="output/runtime/weekly_etf_eu_candidate_request_${RUN_ID}.txt"
             mkdir -p output/runtime
             cat > "$REQUEST_PATH" <<EOF
           schema_version=etf_eu_routine_report_request_v2
@@ -80,11 +132,6 @@ jobs:
           ref: main
           fetch-depth: 1
           path: _donor_weekly_etf
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
 
       - name: Install system PDF packages
         run: |
@@ -245,7 +292,7 @@ jobs:
             --previous-routine-manifest "$ETF_EU_PREVIOUS_ROUTINE_MANIFEST" \
             --previous-delivery-closeout-manifest "$ETF_EU_PREVIOUS_CLOSEOUT"
 
-      - name: Validate candidate machine contract
+      - name: Validate candidate machine contract and finalize PRE_SEND_READY
         run: |
           set -euo pipefail
           mkdir -p output/quality
@@ -271,6 +318,31 @@ jobs:
             --run-id "$ETF_EU_RUN_ID" \
             --output-dir output/quality
 
+      - name: Verify terminal PRE_SEND_READY current truth
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          run_id = os.environ["ETF_EU_RUN_ID"]
+          report_date = os.environ["ETF_EU_REPORT_DATE"]
+          paths = {
+              "package": Path(f"output/fresh_generation/etf_eu_fresh_generation_package_manifest_{run_id}.json"),
+              "ready": Path(f"output/fresh_generation/etf_eu_ready_for_controlled_delivery_{run_id}.json"),
+              "routine": Path(f"output/run_manifests/etf_eu_routine_run_manifest_{report_date}_{run_id}.json"),
+          }
+          for name, path in paths.items():
+              data = json.loads(path.read_text(encoding="utf-8"))
+              assert data.get("pre_send_ready") is True, (name, "pre_send_ready")
+              assert data.get("full_generation_status") == "PRE_SEND_READY", (name, "full_generation_status")
+              for field in ("funding_authority", "portfolio_mutation", "production_delivery_authority", "send_executed", "transport_attempted"):
+                  assert data.get(field) is not True, (name, field)
+          ready = json.loads(paths["ready"].read_text(encoding="utf-8"))
+          assert ready.get("ready_for_controlled_delivery") is False
+          assert ready.get("delivery_authorized") is False
+          print("ETF_EU_PRE_SEND_READY_CURRENT_TRUTH=PASS")
+          PY
+
       - name: Render complete candidate PDF review pages
         run: |
           set -euo pipefail
@@ -291,7 +363,7 @@ jobs:
             "output/fresh_generation/weekly_etf_eu_review_${ETF_EU_REPORT_SUFFIX}.pdf" \
             "$REVIEW_ROOT/en/all/page"
 
-      - name: Verify exact candidate source remained current
+      - name: Verify exact source remained current
         run: |
           set -euo pipefail
           TESTED_SHA=$(git rev-parse HEAD)
@@ -312,11 +384,13 @@ jobs:
           echo "ETF_EU_PROOF_CANDIDATE_SHA=$TESTED_SHA"
           echo "ETF_EU_DELIVERY_AUTHORITY=false"
 
-      - name: Upload frozen candidate review bundle
+      - name: Upload frozen PRE_SEND_READY evidence bundle
         uses: actions/upload-artifact@v4
         with:
           name: etf-eu-candidate-${{ env.ETF_EU_RUN_ID }}
           path: |
+            output/quality/clean_checkout_proof.json
+            ${{ env.ETF_EU_REQUEST_PATH }}
             output/fresh_generation/weekly_etf_eu_review_nl_${{ env.ETF_EU_REPORT_SUFFIX }}.md
             output/fresh_generation/weekly_etf_eu_review_${{ env.ETF_EU_REPORT_SUFFIX }}.md
             output/fresh_generation/weekly_etf_eu_review_nl_${{ env.ETF_EU_REPORT_SUFFIX }}.html
@@ -324,7 +398,11 @@ jobs:
             output/fresh_generation/weekly_etf_eu_review_nl_${{ env.ETF_EU_REPORT_SUFFIX }}.pdf
             output/fresh_generation/weekly_etf_eu_review_${{ env.ETF_EU_REPORT_SUFFIX }}.pdf
             output/fresh_generation/etf_eu_fresh_generation_package_manifest_${{ env.ETF_EU_RUN_ID }}.json
+            output/fresh_generation/etf_eu_ready_for_controlled_delivery_${{ env.ETF_EU_RUN_ID }}.json
+            output/run_manifests/etf_eu_routine_run_manifest_${{ env.ETF_EU_REPORT_DATE }}_${{ env.ETF_EU_RUN_ID }}.json
+            output/pricing/ucits_close_price_validation_basket_results_${{ env.ETF_EU_RUN_ID }}.json
             output/pricing/ucits_price_provider_qualification_${{ env.ETF_EU_RUN_ID }}.json
+            output/macro/etf_eu_macro_policy_pack_${{ env.ETF_EU_RUN_ID }}.json
             output/runtime/etf_eu_allocation_pricing_candidate_selection_${{ env.ETF_EU_RUN_ID }}.json
             output/runtime/etf_eu_donor_lane_source_${{ env.ETF_EU_RUN_ID }}.json
             output/runtime/etf_eu_donor_lane_provenance_${{ env.ETF_EU_RUN_ID }}.json
@@ -332,13 +410,16 @@ jobs:
             output/runtime/etf_eu_client_grade_report_state_${{ env.ETF_EU_RUN_ID }}.json
             output/quality/etf_eu_client_grade_v2_validation_${{ env.ETF_EU_RUN_ID }}.json
             output/quality/etf_eu_markdown_delivery_validation_${{ env.ETF_EU_RUN_ID }}.json
+            output/quality/etf_eu_routine_pdf_client_grade_${{ env.ETF_EU_RUN_ID }}.json
+            output/quality/etf_eu_routine_pdf_client_grade_${{ env.ETF_EU_RUN_ID }}_nl.json
+            output/quality/etf_eu_routine_pdf_client_grade_${{ env.ETF_EU_RUN_ID }}_en.json
             output/quality/review_pages/${{ env.ETF_EU_RUN_ID }}
           if-no-files-found: error
           retention-days: 90
 
       - name: State assurance boundary
         run: |
-          echo "ETF_EU_CANDIDATE_BUILD_COMPLETE"
+          echo "ETF_EU_PRE_SEND_READY=true"
           echo "ETF_EU_INDEPENDENT_ASSURANCE_REQUIRED=true"
           echo "ETF_EU_MERGE_AUTHORITY=false"
           echo "ETF_EU_DELIVERY_AUTHORITY=false"
