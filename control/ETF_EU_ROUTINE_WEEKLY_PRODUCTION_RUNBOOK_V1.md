@@ -107,6 +107,10 @@ Every funded holding is re-underwritten from current evidence. Missing evidence 
 
 The routine remains valuation/recommendation only unless a separate explicit allocation decision exists. It may not mutate protected shares, cash or trade ledger and may not execute at a broker.
 
+There is no universal current ETF EU cash floor; cash discipline is evidence/review context and does not independently create a trade or funding decision.
+
+Historical allocation mechanisms remain non-executable current authority. In particular: Transition allocator, CAP01 first-tranche activation and dated Stage-1 activation are historical/diagnostic only.
+
 ## Phase 6 — One normalized NL/EN package
 
 Build one run-scoped normalized state and render:
