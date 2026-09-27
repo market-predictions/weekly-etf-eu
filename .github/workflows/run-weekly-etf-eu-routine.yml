@@ -1,5 +1,6 @@
 name: Weekly ETF EU generation validation
 # Proof contract: control/GOLDEN_PATH_PROOF_RULES.md
+# Scheduled generation stops at PRE_SEND_READY; controlled transport is a separate authority domain.
 
 on:
   schedule:
