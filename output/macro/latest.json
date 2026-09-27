@@ -53,19 +53,19 @@
   "confidence_decomposition": {
     "client_facing_authority": false,
     "components": {
-      "GLD_return_3m_pct": 3.63,
-      "IWM_rs_vs_SPY_3m_pct": -5.9,
-      "SMH_return_3m_pct": -13.17,
-      "SPY_return_3m_pct": 2.26,
-      "TLT_return_3m_pct": -5.25,
-      "legacy_confidence": 0.62
+      "GLD_return_3m_pct": -6.02,
+      "IWM_rs_vs_SPY_3m_pct": 3.48,
+      "SMH_return_3m_pct": 1.64,
+      "SPY_return_3m_pct": 4.03,
+      "TLT_return_3m_pct": -2.26,
+      "legacy_confidence": 0.66
     },
     "decision_impact": "none_shadow_explanation_only",
     "method": "legacy_proxy_static_explained_for_schema_v1",
     "notes": [
       "This is a compatibility decomposition for the legacy proxy regime path.",
       "Deterministic derived confidence is planned for Phase 3 and is not yet production authority.",
-      "Current legacy regime label: Rate-hike repricing"
+      "Current legacy regime label: Risk-on growth"
     ],
     "shadow_only": true
   },
@@ -79,8 +79,8 @@
     "freshness_authority": "source_report_date_not_wrapper_generated_at",
     "freshness_evidence": {
       "fallback_used": false,
-      "relative_strength_data_through_date": "2026-09-18",
-      "requested_completed_close_date": "2026-09-18",
+      "relative_strength_data_through_date": "2026-08-14",
+      "requested_completed_close_date": "2026-08-14",
       "required_macro_proxy_metrics": [
         "GLD",
         "IWM",
@@ -90,11 +90,11 @@
       ],
       "source": "yfinance_exact_completed_close"
     },
-    "source_generated_at_utc": "2026-09-24T23:11:46.808428Z",
+    "source_generated_at_utc": "2026-08-17T18:54:33.335737Z",
     "source_repo": "market-predictions/weekly-etf",
-    "source_report_date": "2026-09-18",
-    "source_sha256": "eb51f5229aca41acb9f7898e21d35c14a446a3f94a4f68c1f0c05e6190d62684",
-    "source_url": "file:///home/runner/work/weekly-etf-eu/weekly-etf-eu/_donor_weekly_etf/output/macro/etf_macro_policy_pack_20260918_20260918_900128.json"
+    "source_report_date": "2026-08-14",
+    "source_sha256": "b931785771ed8c57c6444f729e69f74daa1449a23db59dc43e4dc951757f312a",
+    "source_url": "file:///home/runner/work/weekly-etf-eu/weekly-etf-eu/_donor_weekly_etf/output/macro/etf_macro_policy_pack_20260814_20260814_235900.json"
   },
   "eu_adaptation": {
     "broker_permission_required_for_real_execution": true,
@@ -200,8 +200,8 @@
   },
   "freshness_evidence": {
     "fallback_used": false,
-    "relative_strength_data_through_date": "2026-09-18",
-    "requested_completed_close_date": "2026-09-18",
+    "relative_strength_data_through_date": "2026-08-14",
+    "requested_completed_close_date": "2026-08-14",
     "required_macro_proxy_metrics": [
       "GLD",
       "IWM",
@@ -211,11 +211,11 @@
     ],
     "source": "yfinance_exact_completed_close"
   },
-  "generated_at_utc": "2026-09-24T23:11:46Z",
+  "generated_at_utc": "2026-08-17T18:54:33Z",
   "lane_adjustments": {
     "AI compute infrastructure": {
       "reason": "Regime and price leadership still support AI compute exposure, but concentration discipline applies.",
-      "score_adjustment": 0.08
+      "score_adjustment": 0.16
     },
     "China platform beta": {
       "reason": "Policy support is not yet enough to offset confidence and price-confirmation risk.",
@@ -227,7 +227,7 @@
     },
     "Gold hedge review": {
       "reason": "Gold must prove hedge behavior; macro status alone is not enough for fresh capital.",
-      "score_adjustment": 0.04
+      "score_adjustment": -0.06
     },
     "Grid buildout / electrification": {
       "reason": "AI power demand and infrastructure policy support the grid lane; funding still depends on PAVE-vs-GRID duel evidence.",
@@ -255,23 +255,23 @@
   "macro_signals": {
     "duration": {
       "evidence": {
-        "TLT_return_3m_pct": -5.25
+        "TLT_return_3m_pct": -2.26
       },
       "signal": "not_confirmed_as_tailwind"
     },
     "equity_leadership": {
       "evidence": {
-        "IWM_rs_vs_SPY_3m_pct": -5.9,
-        "SMH_return_3m_pct": -13.17,
-        "SPY_return_3m_pct": 2.26
+        "IWM_rs_vs_SPY_3m_pct": 3.48,
+        "SMH_return_3m_pct": 1.64,
+        "SPY_return_3m_pct": 4.03
       },
       "signal": "mixed"
     },
     "hedge_ballast": {
       "evidence": {
-        "GLD_return_3m_pct": 3.63
+        "GLD_return_3m_pct": -6.02
       },
-      "signal": "supportive"
+      "signal": "under_review"
     }
   },
   "policy_catalysts": [
@@ -352,47 +352,47 @@
   },
   "reference_architecture_repo": "market-predictions/weekly-etf",
   "regime": {
-    "confidence": 0.62,
+    "confidence": 0.66,
     "confidence_source": "legacy_proxy_static",
-    "current": "Rate-hike repricing",
+    "current": "Risk-on growth",
     "previous": "Unknown",
     "what_changed": [
-      "The regime changed versus the prior review from Risk-on growth to Rate-hike repricing; market breadth is weakening and cross-asset confirmation is mixed."
+      "No material regime change was recorded versus the prior review; the Risk-on growth backdrop remained intact, market breadth is improving, and cross-asset confirmation is mixed."
     ]
   },
   "regime_memory": {
-    "breadth_trend": "weakening",
+    "breadth_trend": "improving",
     "confidence_trend": "flat",
     "cross_asset_confirmation": "mixed",
-    "current_confidence": 0.62,
-    "current_regime": "Rate-hike repricing",
+    "current_confidence": 0.66,
+    "current_regime": "Risk-on growth",
     "decision_rule": "Do not rotate aggressively unless a regime shift persists across at least two distinct report dates or cross-asset confirmation becomes broad.",
     "failed_rotation_count": 0,
-    "last_major_shift": "2026-09-18",
+    "last_major_shift": "2026-08-07",
     "previous_confidence": 0.66,
     "prior_regime": "Risk-on growth",
-    "regime_changed_this_run": true,
-    "report_date": "2026-09-18",
+    "regime_changed_this_run": false,
+    "report_date": "2026-08-14",
     "report_transfer": {
       "max_lines": 2,
       "show_in_report": true,
-      "summary": "Rate-hike repricing has persisted across 1 weekly observation(s); transition state is a possible transition, breadth is weakening, and cross-asset confirmation is mixed."
+      "summary": "Risk-on growth has persisted across 2 weekly observation(s); transition state is stable, breadth is improving, and cross-asset confirmation is mixed."
     },
-    "transition_state": "transition_candidate",
-    "updated_at_utc": "2026-09-24T23:11:46.808503Z",
-    "weeks_in_regime": 1
+    "transition_state": "stable",
+    "updated_at_utc": "2026-08-17T18:54:33.335810Z",
+    "weeks_in_regime": 2
   },
-  "report_date": "2026-09-18",
+  "report_date": "2026-08-14",
   "report_transfer": {
     "max_policy_catalysts": 3,
     "max_portfolio_implications": 3,
     "max_what_changed_bullets": 3,
     "style_rule": "Transfer only decision-relevant macro information. Do not dump the full research pack into the report."
   },
-  "run_id": "20260918_900128",
+  "run_id": "20260814_235900",
   "schema_version": "etf_eu_macro_policy_pack_v2",
   "source_files": {
-    "donor_macro_policy_pack": "file:///home/runner/work/weekly-etf-eu/weekly-etf-eu/_donor_weekly_etf/output/macro/etf_macro_policy_pack_20260918_20260918_900128.json",
+    "donor_macro_policy_pack": "file:///home/runner/work/weekly-etf-eu/weekly-etf-eu/_donor_weekly_etf/output/macro/etf_macro_policy_pack_20260814_20260814_235900.json",
     "eu_portfolio_state": "output/etf_eu_portfolio_state.json",
     "eu_ucits_registry": "config/ucits_symbol_registry.yml"
   },
