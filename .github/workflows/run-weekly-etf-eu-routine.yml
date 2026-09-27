@@ -1,4 +1,5 @@
 name: Weekly ETF EU candidate build
+# Proof contract: control/GOLDEN_PATH_PROOF_RULES.md
 
 on:
   workflow_dispatch:
