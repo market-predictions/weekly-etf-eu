@@ -1,6 +1,7 @@
 name: Weekly ETF EU generation validation
 # Proof contract: control/GOLDEN_PATH_PROOF_RULES.md
 # Scheduled generation stops at PRE_SEND_READY; controlled transport is a separate authority domain.
+# Frozen Golden Path proof candidate includes the case-insensitive governance audit repair.
 
 on:
   schedule:
