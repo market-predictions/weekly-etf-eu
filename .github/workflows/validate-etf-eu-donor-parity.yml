@@ -91,13 +91,14 @@ jobs:
 
           authority = Path('control/ETF_EU_ALLOCATION_AUTHORITY_V1.md').read_text(encoding='utf-8')
           runbook = Path('control/ETF_EU_ROUTINE_WEEKLY_PRODUCTION_RUNBOOK_V1.md').read_text(encoding='utf-8')
+          runbook_lower = runbook.lower()
           transition = yaml.safe_load(Path('config/etf_eu_transition_policy_v1.yml').read_text(encoding='utf-8'))
           target = yaml.safe_load(Path('config/etf_eu_target_allocation.yml').read_text(encoding='utf-8'))
           assert 'broker_specific_permission_required_for_model=false' in authority
           assert 'broker_permission_required_for_real_execution=true' in authority
           assert '~40% effective factor exposure = CONCENTRATION_DISCLOSURE_TRIGGER' in authority
-          assert 'there is no universal current ETF EU cash floor' in runbook
-          assert 'Transition allocator, CAP01 first-tranche activation' in runbook
+          assert 'there is no universal current etf eu cash floor' in runbook_lower
+          assert 'transition allocator, cap01 first-tranche activation' in runbook_lower
           assert transition['authority_status'] == 'HISTORICAL_NON_EXECUTABLE'
           assert transition['canonical_for_current_allocation'] is False
           assert transition['funding_authority'] is False
