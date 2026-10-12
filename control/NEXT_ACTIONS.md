@@ -1,57 +1,79 @@
-# Weekly ETF EU Review OS — Next Actions
+# Weekly ETF EU — Next Actions
+
+Date: 2026-09-27
 
 ## Current priority
 
+Finish `WEEU-GOLDEN-PATH-20` on PR #128 without reopening architecture.
+
+The implementation path is already converged. Remaining work is verification and governed lifecycle progression:
+
+1. freeze one post-purge exact candidate;
+2. pass canonical regression/product/release-preflight CI on that exact head;
+3. run the complete NO EMAIL generation from a clean exact-head checkout;
+4. require terminal `PRE_SEND_READY` current truth and a frozen Actions evidence bundle;
+5. obtain fresh internal review and fresh external exact-candidate assurance;
+6. stop at `HOLD_AFTER_PASS` unless separate integration authority exists;
+7. after integration to `main`, observe one real cron-triggered Wednesday generation reaching `PRE_SEND_READY` without manual repair or any transport/send side effect.
+
+## Current production path
+
+Generation/validation:
+
 ```text
-FRESH_REPORT_CYCLE_114_ACTIVE
-pricing_authority=PRIMARY_CLOSE_PLUS_OPTIONAL_VERIFICATION
+.github/workflows/run-weekly-etf-eu-routine.yml
 ```
 
-The active production lineage is issue #114. Issue #109 is superseded and closed; its old same-date two-provider requirement is historical only. PR #112 is merged and is the current pricing baseline.
+Controlled transport:
 
-## Current pricing gate for the fresh cycle
+```text
+.github/workflows/send-weekly-etf-eu-controlled-transport.yml
+```
 
-Use `control/PRICING_AUTHORITY_CURRENT.md` as the human-readable current pricing summary and live merged runtime/tests as executable authority.
+No third production route is allowed.
 
-For each exact UCITS trading line:
+## Required proof invariants
 
-- one qualified, correctly bound provider with the exact requested completed-session close is sufficient for valuation-grade `fresh_exact_unverified` pricing;
-- a second correctly bound exact same-date provider within tolerance upgrades the line to `fresh_exact_verified`;
-- a stale/missing/unbound verifier does not block a correctly bound exact primary;
-- actual same-date disagreement outside tolerance fails closed;
-- stale-only/no-exact-close/identity or primary-binding mismatch remains blocked.
+The frozen candidate proof must show:
 
-Do **not** resurrect the retired rule that every funded line requires two simultaneous live providers.
+```text
+clean_checkout=true
+manual_repair_applied=false
+exact_source_sha=true
+funded pricing/client-grade gates=PASS
+NL/EN funded ISIN coverage=PASS
+pre_send_ready=true
+full_generation_status=PRE_SEND_READY
+ready_for_controlled_delivery=false
+delivery_authorized=false
+send_executed=false
+transport_attempted=false
+portfolio_mutation=false
+```
 
-## Fresh report cycle #114
+Generated evidence stays in GitHub Actions artifacts and is not committed back to the candidate branch.
 
-The current cycle must:
+## Post-merge scheduled proof
 
-- resolve the latest applicable completed-close date from fresh evidence;
-- perform a full portfolio re-underwrite;
-- run broad discovery, then EU-local UCITS identity/investability/fundability checks;
-- try to achieve more than six funded positions where evidence supports this, without a hard position-count target or relaxed fundability/pricing standards;
-- use whole shares and reconcile residual cash exactly;
-- render NL primary + EN companion from one normalized state;
-- use the current deterministic PNG equity-curve contract for HTML/PDF/email parity;
-- pass machine, arithmetic and client-grade/visual QA;
-- freeze one exact candidate for independent assurance;
-- merge only after independent exact-head PASS and governed integration authority;
-- use guarded transport only after separate current guarded-send authority;
-- claim delivery success only from real recipient/receipt/attachment evidence or equivalent positive manifest.
+GitHub cron runs from the default branch, so a genuine scheduled observation cannot be produced on an unmerged PR head. The production cadence is Wednesday `18:30 UTC`, generation-only.
+
+The post-merge verification task must accept only a real `schedule` event on `main` and must verify:
+
+- fresh completed-close resolution;
+- clean checkout;
+- all quality gates green;
+- terminal `PRE_SEND_READY` artifacts;
+- frozen evidence artifact;
+- no repository write, send, transport, broker execution or portfolio mutation.
+
+Manual dispatch is useful for candidate proof but is not evidence that the cron trigger itself works.
 
 ## Protected boundaries
 
 - no real broker execution;
-- no share/cash mutation without explicit current allocation authority;
-- no hard ticker-count target;
-- no retired 50%/35%/15% allocation rules;
-- no diagnostic-only source promotion to force coverage;
-- no stale historical price treated as current truth;
-- candidate generation has no SMTP/delivery authority;
-- no rerender after artifact approval;
-- no delivery-success claim without positive receipt/manifest evidence.
-
-## Controller housekeeping
-
-Read-first narrative state was stale after PR #112. Issue #115 exists specifically to reconcile canonical documentation so old two-provider wording cannot silently override live merged pricing behavior again. Historical issues/work packages remain provenance and must be interpreted by date and lifecycle state, not as current authority.
+- no protected share/cash/trade-ledger mutation without separate explicit authority;
+- no SMTP or controlled transport from scheduled generation;
+- no delivery-success claim from generation or SMTP success;
+- no self-assurance;
+- no merge from `HOLD_AFTER_PASS` without governed integration authority;
+- no revival of retired repair/preview/send workflows merely to obtain evidence.

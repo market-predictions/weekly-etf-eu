@@ -1,69 +1,72 @@
-# Weekly ETF EU Review OS — Current State
+# Weekly ETF EU — Current State
+
+Date: 2026-09-27  
+Repository: `market-predictions/weekly-etf-eu`  
+Canonical work: PR #128 `WEEU-GOLDEN-PATH-20 — prove, purge, prove again`
 
 ## Snapshot
 
 ```text
-date=2026-08-19
-repository=market-predictions/weekly-etf-eu
-main_sha=5cc712582f86a51951cf57c55992f0ddc49a6ff1
-state=FRESH_REPORT_CYCLE_OPEN_ON_PRIMARY_VERIFICATION_PRICING
-current_report_issue=114
-pricing_authority=PRIMARY_CLOSE_PLUS_OPTIONAL_VERIFICATION
-pricing_change_issue=111 CLOSED
-pricing_change_pr=112 MERGED
-pricing_change_merge=5cc712582f86a51951cf57c55992f0ddc49a6ff1
-pricing_assurance_issue=113 CLOSED_COMPLETED
-principal_decision_required=false
+integration_policy=HOLD_AFTER_PASS
+candidate_branch=recovery/v6-golden-path-20
+production_generation_workflow=.github/workflows/run-weekly-etf-eu-routine.yml
+controlled_transport_workflow=.github/workflows/send-weekly-etf-eu-controlled-transport.yml
+production_generation_repo_write_authority=false
+production_generation_delivery_authority=false
 real_broker_execution=false
+portfolio_mutation=false
 ```
 
-## Current production pricing authority
+## Golden Path state
 
-The prior universal two-live-provider same-date consensus requirement is retired.
+The original funded-position ISIN/PDF defect is repaired. A pre-purge exact-head NO EMAIL cycle proved funded pricing, UCITS/fundability processing, normalized NL/EN generation, strict client-grade validation and exact-head proof.
 
-Current production semantics are defined by merged PR #112 and summarized canonically in `control/PRICING_AUTHORITY_CURRENT.md`:
+The structural liveness defect exposed by that proof is also repaired:
 
-- establish source-independent UCITS trading-line identity from the canonical symbol registry;
-- require the primary provider symbol to be correctly bound to that exact line;
-- one qualified bound provider with the exact requested completed-session close is sufficient for valuation-grade `fresh_exact_unverified` pricing;
-- an additional correctly bound exact same-date provider within tolerance upgrades the line to `fresh_exact_verified`;
-- a stale, missing or unbound verifier does not invalidate a correctly bound exact primary;
-- two accepted exact same-date providers outside tolerance fail closed as `provider_disagreement`;
-- stale-only pricing, no exact requested-date close, broken primary binding, returned-symbol mismatch, venue mismatch or currency mismatch remain blocked;
-- selected valuation price is the primary provider close, not a median blend.
+- generation/proof no longer commits generated output back to the governed branch;
+- exact source SHA is checked out and re-verified before success;
+- a moved branch fails closed as stale;
+- generated evidence is retained as an immutable GitHub Actions artifact;
+- concrete repair findings are recorded as ordinary SHA-bound PR comments rather than adding another state plane.
 
-Any older issue, work-package, metadata or narrative statement saying that every funded line still requires two live providers is historical provenance only and is not current authority.
+The purge has removed the temporary funded-ISIN dispatcher/request scaffolding and all committed Golden Path proof output. The branch now carries source, tests, workflow/governance and documentation changes only.
 
-## Why the rule changed
+## Canonical post-purge architecture
 
-The 2026-08-17 candidate exposed the liveness defect: Alpha Vantage had exact 2026-08-17 closes for all six funded positions while Yahoo was still on 2026-08-14. The old universal two-provider gate therefore blocked 6/6 valid exact primary closes. PR #112 separated exact primary close authority from independent verification, preserved fail-closed disagreement and identity controls, passed independent assurance, and merged on 2026-08-18.
+The single generation workflow now:
 
-## Current report lifecycle
+1. proves a clean exact-head checkout;
+2. creates or consumes a v2 NO EMAIL request;
+3. resolves the latest plausible completed European close instead of hard-coding a repair date;
+4. executes current donor/EU fundability, pricing, re-underwriting and normalized NL/EN generation;
+5. runs strict Markdown/PDF/client-surface machine gates;
+6. finalizes package/readiness/run-manifest state to `PRE_SEND_READY` only after those gates pass;
+7. keeps delivery/send/funding/portfolio-mutation authority false;
+8. uploads one frozen evidence bundle;
+9. re-verifies exact live source SHA before declaring success.
 
-Issue #109 is closed as superseded because its body still encoded the retired same-date two-provider requirement. Issue #113 is closed because PR #112 assurance/integration completed. The active fresh-report lineage is issue #114.
+Native weekly generation is configured for Wednesday `18:30 UTC` on `main`. Scheduled generation stops at `PRE_SEND_READY`; controlled transport remains separate and human/assurance gated.
 
-The new cycle must:
+## Authority boundaries
 
-- use fresh completed-close evidence under the primary+verification pricing authority;
-- perform a full current portfolio re-underwrite;
-- perform broad donor discovery followed by EU-local UCITS mapping/fundability;
-- seek more than six funded positions only where current evidence, fundability, pricing and allocation authority support them; there is no hard ticker-count target;
-- preserve whole-share/cash reconciliation;
-- produce one normalized NL/EN client-grade artifact set;
-- obtain independent exact-head assurance before integration;
-- use guarded transport only after separate current send authority;
-- claim delivery success only from real receipt/manifest evidence.
+`PRE_SEND_READY` means generation and deterministic quality validation succeeded. It does **not** mean delivery is authorized.
 
-## Historical closed cycle
+The generation path must remain:
 
-The 2026-08-14 report cycle remains closed and delivery-confirmed. The later email-equity parity repair remains merged and does not reopen that historical cycle.
+```text
+ready_for_controlled_delivery=false
+delivery_authorized=false
+production_delivery_authority=false
+send_executed=false
+transport_attempted=false
+funding_authority=false
+portfolio_mutation=false
+```
 
-## Stable boundaries
+Independent exact-head assurance remains mandatory before governed integration. Controlled transport remains a separate post-integration operation with its existing authority checks.
 
-- no real broker execution;
-- no portfolio/share/cash mutation without explicit current allocation authority;
-- no diagnostic-only source promotion merely to increase coverage;
-- pricing confidence is not an allocation rule;
-- candidate generation has no SMTP/delivery authority;
-- no delivery-success claim without positive receipt/manifest evidence;
-- prior reports and old issues are historical context, not current pricing truth.
+## Remaining proof boundary
+
+PR #128 can prove the post-purge candidate from a clean exact-head checkout and can prove that the scheduled path is configured correctly, but GitHub executes cron schedules only from the default branch. Therefore a genuine `event=schedule` observation can only be produced after this workflow is integrated into `main`.
+
+That post-merge observation is tracked as a separate WEEU verification task; a manual dispatch is not accepted as substitute evidence.

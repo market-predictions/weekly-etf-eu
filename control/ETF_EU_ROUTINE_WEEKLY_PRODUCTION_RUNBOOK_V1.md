@@ -1,217 +1,222 @@
-# ETF EU Routine Weekly Production Runbook V2
+# ETF EU Routine Weekly Production Runbook V3
 
-Date: 2026-08-10
-Repository: `market-predictions/weekly-etf-eu`
+Date: 2026-09-27  
+Repository: `market-predictions/weekly-etf-eu`  
 Status: CANONICAL
 
-This runbook governs fresh Weekly ETF EU candidate generation. Delivery is a separate post-assurance operation.
+This runbook governs the single current Weekly ETF EU generation path. Generation/validation and delivery are separate authority domains.
 
-## Authority
-Read first:
+## Read first
+
 1. `control/SYSTEM_INDEX.md`
 2. `control/CURRENT_STATE.md`
 3. `control/NEXT_ACTIONS.md`
-4. `control/WORK_CLAIMS.json`
+4. `control/GOLDEN_PATH_PROOF_RULES.md`
 5. `control/ETF_EU_ALLOCATION_AUTHORITY_V1.md`
 6. `control/ETF_EU_DISCOVERY_FUNDABILITY_CONTRACT_V1.md`
 7. `control/UCITS_INVESTABILITY_RULES.md`
+8. `control/PRICING_AUTHORITY_CURRENT.md`
 
-The closest mature `market-predictions/weekly-etf` implementation is the behavior donor. It is never authority for EU holdings, recipients, execution or delivery.
+## Canonical lifecycle
 
-## Canonical separation
 ```text
-candidate build + implementation validation
-→ frozen candidate
-→ independent governance_release_assurance
-→ merge / exact-main validation
-→ separately authorized guarded delivery
+clean exact source checkout
+→ fresh NO EMAIL request
+→ completed-close pricing + donor/EU fundability
+→ current-position re-underwrite + allocation boundary
+→ one normalized NL/EN package
+→ strict machine/client-quality gates
+→ PRE_SEND_READY
+→ frozen Actions evidence
+→ independent exact-head assurance
+→ governed integration / exact-main validation
+→ separately authorized controlled transport
 → independent receipt/attachment confirmation
 ```
 
-A candidate-build workflow must not send email, mutate the protected model portfolio or declare independent assurance on its own output.
+The generation workflow has no SMTP/send, delivery, broker-execution, funding or portfolio-mutation authority.
 
-## Phase 1 — Resolve current completed close
-1. Create a fresh `run_id` and report suffix.
-2. Resolve the latest plausible completed European trading date for the requested run.
-3. Build pricing evidence and require the funded exact lines to prove the actual same close date.
-4. If providers prove a different valid completed close (holiday/session effect), use evidence rather than a calendar guess.
-5. Never hard-code a historical repair date into the canonical routine.
+## Automation topology
 
-## Phase 2 — Current state and identity
-Canonical live inputs:
+Canonical generation workflow:
+
 ```text
-portfolio_state=output/etf_eu_portfolio_state.json
-trade_ledger=output/etf_eu_trade_ledger.csv
-valuation_history=output/etf_eu_valuation_history.csv
-recommendation_scorecard=output/etf_eu_recommendation_scorecard.csv
-ucits_registry=config/ucits_symbol_registry.yml
-proxy_map=config/ucits_benchmark_proxy_map.yml
-allocation_authority=control/ETF_EU_ALLOCATION_AUTHORITY_V1.md
+.github/workflows/run-weekly-etf-eu-routine.yml
 ```
 
-Rules:
-- protected portfolio state owns quantities and cash;
-- registry owns instrument identity, never current portfolio funding state;
-- previous reports are historical display/strategy context only;
-- historical strategic target fields are not current allocation authority;
-- exact share class + ISIN + venue + trading line + currency is canonical identity.
+It has two legitimate uses:
 
-## Phase 3 — Donor discovery and EU fundability bridge
-1. Read the latest donor lane artifact on or before the report date.
-2. Preserve the donor breadth/challenger evidence.
-3. Map donor research proxies through `config/ucits_benchmark_proxy_map.yml`.
-4. For each mapped EU candidate require the applicable identity/KID/exact-line evidence.
-5. Join current completed-close pricing.
-6. Emit normalized fundability states under `ETF_EU_DISCOVERY_FUNDABILITY_CONTRACT_V1`.
+- candidate/manual proof on a non-`main` branch;
+- native scheduled generation on `main` each Wednesday at `18:30 UTC` (`19:30 CET` / `20:30 CEST`).
 
-Mapping or pricing is never funding authority.
+The schedule is intentionally after the European completed-close threshold used by `tools/resolve_etf_eu_completed_close_date.py`. It generates and validates only; it never invokes controlled transport.
 
-## Phase 4 — Current funded pricing
-For every protected funded position require:
-- exact identity anchor;
-- current completed close;
-- current production pricing policy;
-- same-date funded set;
-- two-provider consensus where the production pricing contract requires it.
+Canonical controlled transport workflow:
 
-Missing funded current valuation evidence fails closed. Never use prior report prose as current price authority.
-
-## Phase 5 — Current-position re-underwriting
-Every funded holding receives current recommendation memory:
-- would initiate today;
-- would initiate at current weight;
-- fresh-cash implication;
-- thesis/implementation assessment where evidence exists;
-- replaceability/action clock;
-- alternative/duel status;
-- contribution/drag;
-- factor overlap;
-- hedge/role validity where relevant;
-- cash-policy implication;
-- required next action.
-
-Missing evidence is `Unresolved`, not a fabricated score.
-
-Cash discipline ports donor behavior:
-- cash >3% plus an actionable fully fundable lane requires deploy-or-explain review;
-- cash >5% is a material position;
-- neither threshold automatically creates a trade;
-- there is no universal current ETF EU cash floor.
-
-## Phase 6 — Allocation boundary
-A routine report run is valuation/recommendation only unless a separate explicit allocation decision is supplied.
-
-Current non-authority:
-- retired 50% maximum position;
-- retired 35% minimum cash;
-- retired 15% maximum new ETF;
-- 75% pricing-coverage threshold as position cap;
-- transition-era 25% turnover and 18% semiconductor cap;
-- fixed `Cash-first 50%` scenario;
-- historical CAP01 static target weights.
-
-A measured embedded exposure such as semiconductor overlap is descriptive lower-bound evidence, never a required allocation minimum.
-
-Broker-neutrality:
 ```text
-broker_specific_permission_required_for_model=false
-broker_permission_required_for_real_execution=true
+.github/workflows/send-weekly-etf-eu-controlled-transport.yml
 ```
-Model funding requires UCITS/KID/identity/exact-line/pricing/re-underwriting + explicit allocation decision. Account-level broker permission belongs only to a separately governed real-execution boundary.
 
-## Phase 7 — Normalized report state
-Build one run-scoped normalized state and apply `runtime/apply_etf_eu_donor_parity_contract.py` before rendering.
+Transport remains main-only and requires its existing independent-assurance and explicit human confirmation boundaries.
 
-The state must include:
-- protected current portfolio;
-- current pricing lineage;
-- current macro provenance;
-- donor discovery bridge;
-- recommendation memory for every funded holding;
-- cash policy status;
-- allocation authority metadata;
-- explicit no-mutation/no-execution flags.
+## Phase 1 — Clean exact source
 
-Refresh `output/etf_eu_recommendation_scorecard.csv` from this same normalized run state so recommendation memory cannot lag the funded portfolio.
+The generation job checks out exact `github.sha` with full history. Before creating run-scoped files it must prove:
 
-## Phase 8 — Macro provenance
-Use donor macro behavior only with provenance.
-- preserve original donor evidence/report date;
-- compute freshness from the source evidence date, not the EU wrapper creation timestamp;
-- stale donor macro remains labelled historical context until refreshed;
-- no wrapper may make stale evidence appear current.
-
-## Phase 9 — NL/EN generation
-Generate Dutch-primary and English-companion outputs from the same normalized state.
-
-Rules:
-- no independent Dutch research pass;
-- no shadow allocation controls in current-control tables;
-- no fixed cash-floor/target scenario in authoritative client copy;
-- embedded overlap labelled as measured lower-bound exposure;
-- exact four-position state (or whatever the protected state currently contains) must be consistent across all sections;
-- no duplicate funded ticker rows;
-- no broker-execution implication.
-
-## Phase 10 — Machine and visual validation
-Required checks include:
 ```text
-state_valid=true
+HEAD == GITHUB_SHA
+git status --porcelain == empty
+manual_repair_applied=false
+```
+
+A dirty or wrong checkout fails closed.
+
+## Phase 2 — Resolve run identity
+
+For a fresh generated request:
+
+1. resolve the latest plausible completed European close using `tools/resolve_etf_eu_completed_close_date.py`;
+2. derive `report_suffix` from that date;
+3. create a fresh run ID whose date prefix equals the report date;
+4. bind the previous routine manifest and previous delivery closeout from the canonical pointer files;
+5. set `execution_mode=generate_validate_candidate` and `delivery_authority=false`.
+
+A prepared v2 request may be supplied for a manual non-main proof. Historical repair dates must never be hard-coded into the canonical routine.
+
+## Phase 3 — Donor research and EU fundability
+
+`market-predictions/weekly-etf` is a research/behavior donor only. The WEEU workflow may read donor artifacts but may not execute US portfolio, pricing, report or send paths.
+
+The EU path:
+
+1. selects donor breadth evidence on or before the report date;
+2. records donor source SHA/provenance;
+3. maps research proxies through the EU UCITS proxy map;
+4. applies EU identity/KID/fundability rules;
+5. carries no funding authority from the donor.
+
+## Phase 4 — Current pricing
+
+Pricing authority is defined by `control/PRICING_AUTHORITY_CURRENT.md` and the current executable pricing contract. The routine must use exact trading-line identity and current completed-close evidence and fail closed on the contract's blocking conditions.
+
+Pricing confidence is valuation evidence, never an allocation or broker-execution instruction.
+
+## Phase 5 — Current-position re-underwriting and allocation boundary
+
+Every funded holding is re-underwritten from current evidence. Missing evidence is unresolved, never fabricated.
+
+The routine remains valuation/recommendation only unless a separate explicit allocation decision exists. It may not mutate protected shares, cash or trade ledger and may not execute at a broker.
+
+There is no universal current ETF EU cash floor; cash discipline is evidence/review context and does not independently create a trade or funding decision.
+
+Historical allocation mechanisms remain non-executable current authority. In particular: Transition allocator, CAP01 first-tranche activation and dated Stage-1 activation are historical/diagnostic only.
+
+## Phase 6 — One normalized NL/EN package
+
+Build one run-scoped normalized state and render:
+
+- Dutch primary Markdown/HTML/PDF;
+- English companion Markdown/HTML/PDF;
+- pricing, macro and donor provenance;
+- funded-position identity including exact ISIN/trading line;
+- recommendation and allocation-boundary state.
+
+NL and EN are two renderings of one normalized state, not independent research runs.
+
+## Phase 7 — Deterministic quality gates
+
+Required automated gates include:
+
+```text
 funded_position_set_matches_protected_state=true
-recommendation_scorecard_matches_funded_set=true
-donor_discovery_bridge_present=true
-shadow_rules_executable=false
-broker_neutrality_consistent=true
+funded_state_consistency_passed=true
 nl_en_numeric_state_parity=true
-client_surface_shadow_leakage=false
-pricing_gate_passed=true
-visual_review_passed=true
+client_grade_v2_passed=true
+markdown_delivery_validation_passed=true
+pdf_client_grade_passed=true
+client_surface_clean=true
+authority_metadata_absent=true
+raw_status_enums_absent=true
 ```
 
-Render all NL/EN PDF pages and inspect clipping, overlap, glyphs, hierarchy and state consistency.
+All NL/EN PDF pages are also rendered into review pages and frozen in the evidence bundle for independent review.
 
-## Phase 11 — Candidate persistence
-Candidate generation may upload an Actions artifact and may persist evidence to its candidate branch. It must not write a pre-assurance candidate directly to protected `main` as a release shortcut.
+## Phase 8 — PRE_SEND_READY finalization
 
-Freeze:
-- source SHA;
-- generated artifact digest;
-- report date/run identity;
-- normalized state;
-- pricing evidence;
-- donor discovery bridge;
-- recommendation scorecard;
-- NL/EN HTML/PDF;
-- machine/visual gates.
+Only after the strict NL/EN, Markdown and routine machine gates pass, `tools/write_etf_eu_routine_v2_machine_gate.py` invokes the minimal finalizer `tools/finalize_etf_eu_pre_send_ready.py`.
 
-## Phase 12 — Independent assurance
-A separate `governance_release_assurance` reviewer reconstructs the frozen candidate and returns exactly:
+It updates the existing package manifest, readiness artifact and routine manifest to one terminal generation truth:
+
+```text
+pre_send_ready=true
+full_generation_status=PRE_SEND_READY
+next_action=INDEPENDENT_RELEASE_ASSURANCE
+```
+
+The same artifacts must still prove:
+
+```text
+ready_for_controlled_delivery=false
+delivery_authorized=false
+production_delivery_authority=false
+send_executed=false
+transport_attempted=false
+funding_authority=false
+portfolio_mutation=false
+```
+
+`PRE_SEND_READY` therefore means “generation and deterministic quality validation completed”; it is not delivery authority.
+
+## Phase 9 — Exact-head and immutable evidence
+
+Before success, the workflow re-checks:
+
+```text
+git rev-parse HEAD == GITHUB_SHA
+live source branch SHA == GITHUB_SHA
+```
+
+A moved branch fails closed as `ETF_EU_PROOF_STALE_CANDIDATE`.
+
+Generated report files, machine gates, PRE_SEND_READY artifacts, pricing/provenance and review pages are uploaded as one GitHub Actions artifact. They are evidence, not repository source. The generation workflow never commits or pushes proof output.
+
+## Phase 10 — Independent assurance
+
+A separate `governance_release_assurance` review reconstructs the frozen exact candidate and returns:
+
 ```text
 PASS | FAIL | INDETERMINATE
 ```
 
-Implementation may not certify itself. Reviewer may not mutate the candidate. Any repair requires a new exact candidate and fresh assurance.
+Implementation may not certify itself. A repair changes the SHA and requires fresh affected proof and assurance.
 
-## Phase 13 — Merge and exact-main validation
-After PASS and unchanged head:
+## Phase 11 — Integration
+
+After unchanged exact-head PASS and governed integration authority:
+
 1. merge;
-2. validate exact `main` where required;
-3. reconcile work claim/branch/handover;
-4. update CURRENT_STATE/NEXT_ACTIONS/decision/changelog records.
+2. verify exact `main` where required;
+3. reconcile current-state/next-action records;
+4. allow the native weekly schedule to operate from default branch.
 
-## Phase 14 — Guarded delivery (separate operation)
-Only after explicit post-merge delivery authority:
-1. bind the exact approved package;
-2. execute controlled transport;
-3. record transport result;
-4. independently confirm matching inbox receipt and expected attachments;
-5. reconcile an existing receipt rather than resend.
+A scheduled workflow in GitHub Actions runs from the default branch. Therefore the first genuine cron-triggered proof can only exist after the scheduled workflow has been integrated into `main`; a manual dispatch is not substituted for that evidence.
 
-Generation, Actions success or SMTP no-exception is not delivery confirmation.
+## Phase 12 — Controlled transport
 
-## Historical/diagnostic routes
-Transition allocator, CAP01 first-tranche activation, Stage-1 dated activation and 2026-08-04/05 repair workflows are historical/diagnostic evidence only. They are not canonical routine funding or release authority after this V2 runbook takes effect.
+Delivery is a separate operation. It requires the existing guarded-delivery authority, independent assurance binding and explicit human confirmation. Generation success, `PRE_SEND_READY`, a successful schedule or SMTP no-exception does not prove delivery.
 
-## Completion definition
-A candidate-generation cycle is complete at `ASSURANCE_READY`, not `DELIVERED`.
-A delivered weekly run is complete only after independent PASS, merge/exact-main reconciliation, separately authorized transport and independent receipt/attachment evidence.
+A delivered weekly run is complete only after positive independent receipt/attachment evidence.
+
+## Retired routes
+
+Transition allocators, dated repair/preview workflows, old send workflows, candidate branch persistence of generated output and US donor execution paths are historical/diagnostic evidence only. They are not current production routes.
+
+Git history is the archive; active workflow topology represents current truth.
+
+## Completion definitions
+
+A generation cycle is complete when its exact source SHA reaches `PRE_SEND_READY` and its immutable evidence bundle exists.
+
+A release candidate is assurance-ready only after that exact generation evidence is frozen for independent review.
+
+A delivered weekly report is complete only after independent PASS, governed integration, separately authorized transport and independent receipt/attachment confirmation.
