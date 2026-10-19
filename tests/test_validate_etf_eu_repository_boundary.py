@@ -73,3 +73,18 @@ def test_legacy_us_report_renderer_is_blocked_in_active_workflow(tmp_path: Path)
         and item["token"] == "send_report.py"
         for item in result["blockers"]
     )
+
+
+def test_canonical_generation_uses_only_weekly_schedule_and_manual_trigger() -> None:
+    """A merged recovery branch must never trigger product candidate generation."""
+    root = Path(__file__).resolve().parents[1]
+    text = (root / ".github/workflows/run-weekly-etf-eu-routine.yml").read_text(
+        encoding="utf-8"
+    )
+    events = text.split("\non:\n", 1)[1].split("\npermissions:\n", 1)[0]
+
+    assert '  schedule:\n    - cron: "30 18 * * 3"' in events
+    assert "  workflow_dispatch:\n" in events
+    assert "\n  push:" not in events
+    assert "recovery/v6-golden-path-20" not in events
+    assert "\npermissions:\n  contents: read\n" in text
