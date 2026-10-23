@@ -12,11 +12,6 @@ on:
         description: "Optional prepared v2 candidate request path; blank creates a fresh NO EMAIL request"
         required: false
         default: ""
-  push:
-    branches:
-      - recovery/v6-golden-path-20
-    paths:
-      - .github/workflows/run-weekly-etf-eu-routine.yml
 
 permissions:
   contents: read
