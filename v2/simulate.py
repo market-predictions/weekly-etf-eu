@@ -19,7 +19,7 @@ from pathlib import Path
 
 import yaml
 
-from v2.engine import Prices, apply, decide, scan
+from v2.engine import Prices, apply, benchmark_index, decide, scan
 
 ROOT = Path(__file__).resolve().parent
 
@@ -36,7 +36,8 @@ def wednesdays(start: date, end: date) -> list[str]:
 def run(name: str, holdings: dict[str, int], cash: float, start: str, dates: list[str], prices: Prices, uni: list[dict], pol: dict) -> dict:
     """Value at `start`, then decide weekly on `dates` (all after start)."""
     weeks, trades_log, checks = [], [], []
-    bench0 = prices.close(pol["benchmark"], start)
+    bidx = benchmark_index(prices, pol, [start] + dates)
+    bench0 = bidx[start]
     start_value = round(cash + sum(sh * prices.close(i, start) for i, sh in holdings.items()), 2)
     for d in dates:
         sc = scan(prices, uni, pol, d)
@@ -61,7 +62,7 @@ def run(name: str, holdings: dict[str, int], cash: float, start: str, dates: lis
         for t in dec.trades:
             trades_log.append({"date": d, **{k: t[k] for k in ("id", "side", "shares", "price", "amount", "cost", "kind")},
                                "why": t["reason"].get("why"), "detail": t["reason"].get("detail")})
-        weeks.append({"date": d, "nav": nav, "bench": prices.close(pol["benchmark"], d), "regime": dec.regime,
+        weeks.append({"date": d, "nav": nav, "bench": round(bidx[d], 4), "regime": dec.regime,
                       "breadth": sc["breadth_pct"], "n_trades": len(dec.trades), "sats": ",".join(sorted(sats)),
                       "deferred": len(dec.deferred), "notes": " | ".join(dec.notes)})
 

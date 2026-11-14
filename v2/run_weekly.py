@@ -24,7 +24,7 @@ from v2 import market, mailer
 from v2 import narrate as N
 from v2 import render as R
 from v2 import sources as S
-from v2.engine import Prices, apply, decide, scan
+from v2.engine import Prices, apply, benchmark_return, decide, scan
 from v2.facts import build
 
 ROOT = Path(__file__).resolve().parent
@@ -134,7 +134,7 @@ def main() -> None:
     port = json.loads((STATE / "portfolio.json").read_text())
     hold = {p["id"]: p["shares"] for p in port["positions"]}
     cash = float(port["cash_eur"])
-    if prices.close(pol["benchmark"], d, max_stale_days=2) is None:
+    if any(prices.close(i, d, max_stale_days=2) is None for i in pol["benchmark"]["weights"]):
         raise SystemExit(f"RUN_BLOCKED: no benchmark close for {d} (market closed or data missing)")
 
     # 2. Cross-check held positions
@@ -155,7 +155,8 @@ def main() -> None:
 
     # 4. Save new state (committed by the workflow only if the whole run succeeds)
     prev = hist[-1]
-    bench = prices.close(pol["benchmark"], d, max_stale_days=2)
+    bench = prices.close(pol["trend_reference"], d, max_stale_days=2)
+    b_idx = round(float(prev["benchmark_index"]) * (1 + (benchmark_return(prices, pol, prev["date"], d) or 0.0)), 6)
     first = hist[0]
     append_csv("trades.csv", [{
         "date": d, "type": t["side"], "id": t["id"], "isin": uni_by[t["id"]]["isin"], "shares": t["shares"],
@@ -169,7 +170,7 @@ def main() -> None:
         "date": d, "nav_eur": nav, "cash_eur": round(cash_after, 2), "invested_eur": invested, "benchmark_close": bench,
         "source": "weekly_run", "cum_return_pct": round((nav / float(first["nav_eur"]) - 1) * 100, 4),
         "week_return_pct": round((nav / float(prev["nav_eur"]) - 1) * 100, 4),
-        "benchmark_cum_return_pct": round((bench / float(first["benchmark_close"]) - 1) * 100, 4),
+        "benchmark_cum_return_pct": round((b_idx / float(first["benchmark_index"]) - 1) * 100, 4), "benchmark_index": b_idx,
     }])
     (STATE / "portfolio.json").write_text(json.dumps({
         "as_of": d, "cash_eur": round(cash_after, 2), "nav_eur": nav, "track_record_start": port.get("track_record_start", first["date"]),

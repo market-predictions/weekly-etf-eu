@@ -39,6 +39,27 @@ class Prices:
         return self.closes[iid][i] if gap <= max_stale_days else None
 
 
+# ── Benchmark ────────────────────────────────────────────────────────────────
+def benchmark_return(prices: Prices, policy: dict, a: str, b: str) -> float | None:
+    """Return of the blended benchmark from close a to close b (weights reset at a)."""
+    tot = 0.0
+    for iid, w in policy["benchmark"]["weights"].items():
+        pa, pb = prices.close(iid, a), prices.close(iid, b)
+        if not pa or not pb:
+            return None
+        tot += w * (pb / pa - 1)
+    return tot
+
+
+def benchmark_index(prices: Prices, policy: dict, dates: list[str], base: float = 100.0) -> dict[str, float]:
+    """Index of the benchmark over the given (weekly) dates, rebalanced at each date."""
+    idx = {dates[0]: base}
+    for a, b in zip(dates, dates[1:]):
+        r = benchmark_return(prices, policy, a, b)
+        idx[b] = idx[a] * (1 + (r or 0.0))
+    return idx
+
+
 # ── Scan ─────────────────────────────────────────────────────────────────────
 def _ret(series: list[float], days: int) -> float | None:
     if len(series) <= days:
@@ -96,7 +117,7 @@ def scan(prices: Prices, universe: list[dict], policy: dict, d: str) -> dict:
         r["rank"] = i
 
     breadth = 100.0 * sum(1 for r in ranked if r["trend_up"]) / n if n else 0.0
-    bench = next((r for r in rows if r["id"] == policy["benchmark"]), None)
+    bench = next((r for r in rows if r["id"] == policy["trend_reference"]), None)
     ds = policy["defensive_switch"]
     risk_off = bool(bench and bench["trend_up"] is False and breadth < ds["max_breadth_pct"])
     return {"date": d, "rows": rows, "ranked": ranked, "n_ranked": n, "breadth_pct": round(breadth, 1),

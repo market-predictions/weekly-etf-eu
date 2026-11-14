@@ -14,7 +14,7 @@ from pathlib import Path
 import yaml
 
 from v2 import macro as M
-from v2.engine import Prices, apply, decide, scan
+from v2.engine import Prices, apply, benchmark_index, benchmark_return, decide, scan
 
 ROOT = Path(__file__).resolve().parent
 MARKET_PANEL = [  # asset-class barometer shown in the report
@@ -42,7 +42,7 @@ def ret(prices: Prices, iid: str, d: str, days_back: int) -> float | None:
     return (end / start - 1) if end and start else None
 
 
-def attribution(hist: list[dict], d: str, names: dict, prices: Prices) -> dict:
+def attribution(hist: list[dict], d: str, names: dict, prices: Prices, pol: dict) -> dict:
     """Explain the gap with the benchmark, per holding and cash, chained weekly.
 
     For each week: holding i contributes w_i × (r_i − r_bench), cash contributes
@@ -61,7 +61,7 @@ def attribution(hist: list[dict], d: str, names: dict, prices: Prices) -> dict:
         comp: dict[str, float] = {}
         for a, b in pairs:
             nav = float(H[a]["nav_eur"])
-            rb = float(H[b]["benchmark_close"]) / float(H[a]["benchmark_close"]) - 1
+            rb = benchmark_return(prices, pol, a, b) or 0.0
             for i, r in by.get(a, {}).items():
                 pa, pb = prices.close(i, a), prices.close(i, b)
                 if not pa or not pb:
@@ -82,12 +82,15 @@ def attribution(hist: list[dict], d: str, names: dict, prices: Prices) -> dict:
         return round((float(r["value_eur"]) if r else float(H[first]["cash_eur"]) if i == "CASH" else 0) / nav * 100, 1)
 
     def pack(comp, first, last):
-        gap = (float(H[last]["nav_eur"]) / float(H[first]["nav_eur"]) - 1) - (float(H[last]["benchmark_close"]) / float(H[first]["benchmark_close"]) - 1)
+        span = [x for x in dates if first <= x <= last]
+        bi = benchmark_index(prices, pol, span)
+        bret = bi[last] / bi[first] - 1
+        gap = (float(H[last]["nav_eur"]) / float(H[first]["nav_eur"]) - 1) - bret
         items = [{"id": k, "name": "Cash" if k == "CASH" else names.get(k, k), "pts": round(v * 100, 2),
                   "own_return_pct": 0.0 if k == "CASH" else own_return(k, first, last), "start_weight_pct": start_weight(k, first)} for k, v in comp.items()]
         items.sort(key=lambda x: x["pts"])
         resid = round(gap * 100 - sum(x["pts"] for x in items), 2)
-        bench = round((float(H[last]["benchmark_close"]) / float(H[first]["benchmark_close"]) - 1) * 100, 2)
+        bench = round(bret * 100, 2)
         return {"from": first, "to": last, "gap_pts": round(gap * 100, 2), "benchmark_return_pct": bench, "items": items, "residual_pts": resid}
 
     pairs = list(zip(dates, dates[1:]))
@@ -126,8 +129,10 @@ def build(d: str, with_macro: bool = True, applied: dict | None = None) -> dict:
     start = hist[0]
     prev_rows = [h for h in hist if h["date"] < d]
     prev_nav = float(prev_rows[-1]["nav_eur"]) if prev_rows else float(start["nav_eur"])
-    b_now, b_start = prices.close(pol["benchmark"], d), prices.close(pol["benchmark"], start["date"])
-    b_prev = prices.close(pol["benchmark"], prev_rows[-1]["date"]) if prev_rows else b_start
+    bdates = sorted({h["date"] for h in hist if h["date"] <= d} | {d})
+    bidx = benchmark_index(prices, pol, bdates)
+    b_now, b_start = bidx[d], bidx[start["date"]]
+    b_prev = bidx[prev_rows[-1]["date"]] if prev_rows else b_start
     nav_before = dec.nav_before
 
     positions = []
@@ -167,7 +172,7 @@ def build(d: str, with_macro: bool = True, applied: dict | None = None) -> dict:
                        "return_3m_pct": pct(ret(prices, iid, d, 91), 1), "return_12m_pct": pct(ret(prices, iid, d, 365), 1)})
 
     chart = [{"date": h["date"], "portfolio_index": round(float(h["nav_eur"]) / float(start["nav_eur"]) * 100, 2),
-              "benchmark_index": round(float(h["benchmark_close"]) / b_start * 100, 2)} for h in hist if h["date"] <= d]
+              "benchmark_index": round(bidx[h["date"]] / b_start * 100, 2)} for h in hist if h["date"] <= d]
     if not chart or chart[-1]["date"] != d:
         chart.append({"date": d, "portfolio_index": round(nav / float(start["nav_eur"]) * 100, 2), "benchmark_index": round(b_now / b_start * 100, 2)})
 
@@ -175,7 +180,7 @@ def build(d: str, with_macro: bool = True, applied: dict | None = None) -> dict:
         "report_date": d,
         "data_through": d,
         "track_record_start": start["date"],
-        "benchmark": {"id": pol["benchmark"], "name": names[pol["benchmark"]]},
+        "benchmark": {"label": pol["benchmark"]["label"], "weights": pol["benchmark"]["weights"]},
         "portfolio": {
             "value_eur": nav, "value_before_trades_eur": nav_before, "cash_eur": round(cash_after, 2), "cash_pct": pct(cash_after / nav, 1),
             "week_return_pct": pct(nav_before / prev_nav - 1), "since_start_return_pct": pct(nav_before / float(start["nav_eur"]) - 1),
@@ -183,9 +188,9 @@ def build(d: str, with_macro: bool = True, applied: dict | None = None) -> dict:
             "difference_vs_benchmark_pts": round((nav_before / float(start["nav_eur"]) - 1 - (b_now / b_start - 1)) * 100, 2),
             "n_positions": len(hold_after), "start_value_eur": float(start["nav_eur"]),
         },
-        "regime": {"state": sc["regime"], "breadth_pct": sc["breadth_pct"], "benchmark_trend": "up" if sc["benchmark_trend_up"] else "down",
+        "regime": {"state": sc["regime"], "breadth_pct": sc["breadth_pct"], "world_equity_trend": "up" if sc["benchmark_trend_up"] else "down",
                    "breadth_threshold_pct": pol["defensive_switch"]["max_breadth_pct"], "n_ranked": sc["n_ranked"]},
-        "attribution": attribution(hist, d, names, prices),
+        "attribution": attribution(hist, d, names, prices, pol),
         "trades": trades,
         "deferred": deferred,
         "decision_notes": dec.notes,
