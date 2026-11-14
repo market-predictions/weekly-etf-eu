@@ -80,7 +80,8 @@ def scan(prices: Prices, universe: list[dict], policy: dict, d: str) -> dict:
         for w in wins:
             r = _ret(s, w)
             row[f"r{w}"] = round(r, 6) if r is not None else None
-        row["rankable"] = inst["sleeve"] == "satellite" and len(s) > min_hist and all(row[f"r{w}"] is not None for w in wins) and sma is not None
+        rank_sleeves = set(policy.get("scoring", {}).get("rank_sleeves", ["satellite"]))
+        row["rankable"] = inst["sleeve"] in rank_sleeves and len(s) > min_hist and all(row[f"r{w}"] is not None for w in wins) and sma is not None
         rows.append(row)
 
     ranked = [r for r in rows if r["rankable"]]
@@ -125,7 +126,7 @@ def _select_satellites(sc: dict, held: set[str], uni: dict[str, dict], pol: dict
     exits = []
     kept = []
     for iid in sorted(held):
-        if uni.get(iid, {}).get("sleeve") != "satellite":
+        if uni.get(iid, {}).get("sleeve") not in set(pol.get("scoring", {}).get("rank_sleeves", ["satellite"])):
             continue
         r = by_id.get(iid)
         if r is None:
@@ -186,14 +187,17 @@ def decide(d: str, holdings: dict[str, int], cash: float, prices: Prices, univer
     targets: dict[str, float] = {r["id"]: w_sat for r in selected}
     cash_t = policy["cash"]["target"]
     defensive = (n - len(selected)) * w_sat
-    core_w = 1 - cash_t - w_sat * len(selected) - defensive
-    lo, hi = policy["core"]["weight_band"]
-    if core_w > hi:
-        defensive += core_w - hi
-        core_w = hi
-    eq_share = policy["core"]["equity_share"][regime]
-    targets[policy["core"]["equity"]] = core_w * eq_share
-    targets[policy["core"]["bonds"]] = core_w * (1 - eq_share)
+    if policy["core"].get("enabled", True):
+        core_w = 1 - cash_t - w_sat * len(selected) - defensive
+        lo, hi = policy["core"]["weight_band"]
+        if core_w > hi:
+            defensive += core_w - hi
+            core_w = hi
+        eq_share = policy["core"]["equity_share"][regime]
+        targets[policy["core"]["equity"]] = targets.get(policy["core"]["equity"], 0) + core_w * eq_share
+        targets[policy["core"]["bonds"]] = targets.get(policy["core"]["bonds"], 0) + core_w * (1 - eq_share)
+    else:  # pure rotation: whatever the slots do not use goes to the defensive fund
+        defensive = max(0.0, 1 - cash_t - w_sat * len(selected))
     if defensive > 1e-9:
         targets[policy["defensive_switch"]["instrument"]] = targets.get(policy["defensive_switch"]["instrument"], 0) + defensive
     dec = Decision(d, regime, round(nav, 2), {k: round(v, 4) for k, v in targets.items()}, selected_satellites=[r["id"] for r in selected])

@@ -14,7 +14,9 @@ import yaml
 from v2 import sources as S
 
 ROOT = Path(__file__).resolve().parent
-YEARS = 3
+import os
+YEARS = int(os.environ.get("V2_YEARS", "3"))
+OUT_NAME = os.environ.get("V2_PRICES_FILE", "prices.csv")
 
 
 def verified_instruments() -> list[dict]:
@@ -37,7 +39,7 @@ def main() -> None:
         report.append(f"{inst['id']}: {len(r.closes)} closes from {first} err={r.error}")
         print(report[-1], flush=True)
         S.pause(0.5)
-    out = ROOT / "state" / "prices.csv"
+    out = ROOT / "state" / OUT_NAME
     out.parent.mkdir(exist_ok=True)
     with out.open("w", newline="") as f:
         w = csv.DictWriter(f, fieldnames=["date", "id", "close"])

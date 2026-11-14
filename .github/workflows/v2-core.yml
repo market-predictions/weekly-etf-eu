@@ -4,7 +4,7 @@ name: v2 core (development)
 # and commits generated evidence/state back to the v2-core branch.
 on:
   push:
-    branches: [v2-core]
+    branches: [v2-core, v2-rotation]
     paths: ["v2/**", ".github/workflows/v2-core.yml"]
   workflow_dispatch:
 
@@ -43,6 +43,8 @@ jobs:
           MRKT_RPRTS_MAIL_FROM: ${{ secrets.MRKT_RPRTS_MAIL_FROM }}
           V2_TRIAL_TO: ${{ secrets.V2_TRIAL_TO }}
           V2_REHEARSAL: "1"
+          V2_YEARS: "12"
+          V2_PRICES_FILE: "prices_long.csv"
           V2_AV_LIMIT: "2"
           V2_PRIMARY: yahoo
           V2_VERIFIER: alpha_vantage
@@ -62,4 +64,4 @@ jobs:
           for d in v2/evidence v2/state; do if [ -d "$d" ]; then git add -f "$d"; fi; done
           if git diff --cached --quiet; then echo "nothing to commit"; exit 0; fi
           git commit -m "v2: results of $(tr '\n' ' ' < v2/ci_task.txt) [skip ci]"
-          git push origin HEAD:v2-core
+          git push origin HEAD:${{ github.ref_name }}
