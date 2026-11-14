@@ -1,0 +1,134 @@
+{
+ "base": {
+  "design 2016-21": {
+   "ann": 8.63,
+   "vol": 10.11,
+   "mdd": -23.4,
+   "mix_eq": 62,
+   "mix_ann": 8.98,
+   "mix_mdd": -22.3,
+   "alpha": -0.35,
+   "changes_per_year": 29.3
+  },
+  "test 2022-26": {
+   "ann": 8.76,
+   "vol": 11.16,
+   "mdd": -18.0,
+   "mix_eq": 80,
+   "mix_ann": 7.93,
+   "mix_mdd": -17.6,
+   "alpha": 0.83,
+   "changes_per_year": 28.5
+  }
+ },
+ "V1 vol-target": {
+  "design 2016-21": {
+   "ann": 8.82,
+   "vol": 10.49,
+   "mdd": -23.4,
+   "mix_eq": 65,
+   "mix_ann": 9.33,
+   "mix_mdd": -23.0,
+   "alpha": -0.51,
+   "changes_per_year": 32.6
+  },
+  "test 2022-26": {
+   "ann": 8.41,
+   "vol": 11.71,
+   "mdd": -18.9,
+   "mix_eq": 85,
+   "mix_ann": 8.66,
+   "mix_mdd": -18.6,
+   "alpha": -0.24,
+   "changes_per_year": 33.8
+  }
+ },
+ "V2 skip-month": {
+  "design 2016-21": {
+   "ann": 9.3,
+   "vol": 10.17,
+   "mdd": -24.2,
+   "mix_eq": 63,
+   "mix_ann": 9.03,
+   "mix_mdd": -22.4,
+   "alpha": 0.27,
+   "changes_per_year": 25.9
+  },
+  "test 2022-26": {
+   "ann": 7.59,
+   "vol": 11.21,
+   "mdd": -18.8,
+   "mix_eq": 81,
+   "mix_ann": 7.99,
+   "mix_mdd": -17.7,
+   "alpha": -0.41,
+   "changes_per_year": 29.7
+  }
+ },
+ "V3 inflation": {
+  "design 2016-21": {
+   "ann": 8.66,
+   "vol": 10.12,
+   "mdd": -23.4,
+   "mix_eq": 62,
+   "mix_ann": 8.99,
+   "mix_mdd": -22.3,
+   "alpha": -0.33,
+   "changes_per_year": 29.6
+  },
+  "test 2022-26": {
+   "ann": 9.38,
+   "vol": 10.95,
+   "mdd": -15.6,
+   "mix_eq": 78,
+   "mix_ann": 7.65,
+   "mix_mdd": -17.2,
+   "alpha": 1.73,
+   "changes_per_year": 30.1
+  }
+ },
+ "V4 theme filter": {
+  "design 2016-21": {
+   "ann": 8.97,
+   "vol": 10.18,
+   "mdd": -23.8,
+   "mix_eq": 63,
+   "mix_ann": 9.04,
+   "mix_mdd": -22.4,
+   "alpha": -0.07,
+   "changes_per_year": 27.6
+  },
+  "test 2022-26": {
+   "ann": 8.56,
+   "vol": 11.15,
+   "mdd": -18.1,
+   "mix_eq": 80,
+   "mix_ann": 7.93,
+   "mix_mdd": -17.6,
+   "alpha": 0.64,
+   "changes_per_year": 29.7
+  }
+ },
+ "ALL": {
+  "design 2016-21": {
+   "ann": 9.46,
+   "vol": 10.49,
+   "mdd": -24.0,
+   "mix_eq": 65,
+   "mix_ann": 9.33,
+   "mix_mdd": -23.0,
+   "alpha": 0.13,
+   "changes_per_year": 30.6
+  },
+  "test 2022-26": {
+   "ann": 8.85,
+   "vol": 11.57,
+   "mdd": -16.8,
+   "mix_eq": 84,
+   "mix_ann": 8.47,
+   "mix_mdd": -18.4,
+   "alpha": 0.38,
+   "changes_per_year": 34.2
+  }
+ }
+}

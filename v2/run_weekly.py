@@ -143,7 +143,10 @@ def main() -> None:
     if blockers:
         raise SystemExit("RUN_BLOCKED: " + "; ".join(blockers))
 
-    # 3. Decide and apply
+    # 3. Decide and apply (inflation rule gets the latest published HICP)
+    from v2 import macro as M
+    pol["_runtime"] = M.runtime(M.fetch(date.fromisoformat(d)))
+    print("INFLATION_INPUT " + json.dumps(pol["_runtime"]))
     sc = scan(prices, uni, pol, d)
     dec = decide(d, hold, cash, prices, uni, pol, sc)
     hold_after, cash_after = apply(hold, cash, dec)

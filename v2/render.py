@@ -187,9 +187,11 @@ def decisions_table(f, c, lang):
     for tr in f["trades"]:
         rows.append(f'<tr><td><span class="tag {tr["side"]}">{t(tr["side"], lang)}</span></td><td><b>{e(tr["id"])}</b><div class="sub">{e(short_name(tr["name"]))}</div></td>'
                     f'<td class="num">{eur(tr["amount_eur"], lang)}</td><td>{e(texts.get(tr["id"], ""))}</td></tr>')
-    for x in f["deferred"]:
-        rows.append(f'<tr class="muted"><td><span class="tag planned">{t("planned", lang)}</span></td><td><b>{e(x["id"])}</b><div class="sub">{e(short_name(x["name"]))}</div></td>'
-                    f'<td class="num">–</td><td>{e(texts.get(x["id"], ""))}</td></tr>')
+    if f["deferred"]:  # one compact row: planned changes follow in later weeks
+        ids = ", ".join(f'{x["id"]} ({("koop" if x["kind"] == "entry" else "verkoop") if lang == "nl" else ("buy" if x["kind"] == "entry" else "sell")})' for x in f["deferred"])
+        note = (f"Volgen in de komende weken: maximaal {f['rules']['max_changes_per_week']} fondswissels per week." if lang == "nl"
+                else f"Follow in the coming weeks: at most {f['rules']['max_changes_per_week']} fund changes per week.")
+        rows.append(f'<tr class="muted"><td><span class="tag planned">{t("planned", lang)}</span></td><td colspan="2"><b>{e(ids)}</b></td><td>{e(note)}</td></tr>')
     return (f'<table class="dec"><thead><tr><th>{t("action", lang)}</th><th>{t("fund", lang)}</th><th class="num">{t("amount", lang)}</th><th>{t("why", lang)}</th></tr></thead><tbody>{"".join(rows)}</tbody></table>'
             if rows else f'<p class="note">{t("no_trades", lang)}</p>')
 
@@ -293,11 +295,11 @@ def page_method(f, lang):
     r = f["rules"]
     if lang == "nl":
         how = [
-            f"De portefeuille bestaat uit een kern (VWCE voor aandelen, EUNA voor obligaties), {r['satellites']['risk_on']} satellieten van elk circa {num(r['satellite_weight_pct'], 'nl', 0)}% en een kleine kaspositie (doel {num(r['cash_target_pct'], 'nl', 0)}%).",
-            "Elke week worden alle fondsen in het universum gerangschikt op hun rendement over 3, 6 en 12 maanden. De sterkste fondsen met een opwaartse trend vullen de satellietplaatsen; per thema of regio is één fonds toegestaan.",
-            f"Een fonds in bezit blijft zolang het in de top 15 staat en de trend op is. Een nieuw fonds vervangt een bestaand fonds alleen bij een scoreverschil van ten minste {r['replacement_margin_pts']} punten. Een fonds wordt op trend verkocht na twee opeenvolgende weken onder het 200-daags gemiddelde.",
-            f"Als wereldaandelen in een dalende trend staan en de meeste fondsen ook, schakelt de portefeuille naar defensief: {r['satellites']['risk_off']} satellieten en de vrijgekomen ruimte in een geldmarktfonds (XEON).",
-            f"Maximaal {r['max_changes_per_week']} fondswissels per week; overtollige kas wordt in stappen belegd.",
+            f"Kern: VWCE (aandelen) en EUNA (obligaties). Daaromheen {r['satellites']['risk_on']} satellieten van circa {num(r['satellite_weight_pct'], 'nl', 0)}% en een kleine kaspositie (doel {num(r['cash_target_pct'], 'nl', 0)}%).",
+            "Elke week worden alle fondsen gerangschikt op rendement over 3, 6 en 12 maanden; de sterkste met een opwaartse trend vullen de satellietplaatsen, één per thema of regio.",
+            f"Een satelliet blijft zolang hij in de top 15 staat en de trend op is; een nieuw fonds vervangt hem alleen bij minstens {r['replacement_margin_pts']} punten meer. Verkoop op trend volgt na twee weken onder het 200-daags gemiddelde.",
+            f"Defensief bij een dalende trend in wereldaandelen en zwakke breedte: {r['satellites']['risk_off']} satellieten, de rest in een geldmarktfonds (XEON). Bij inflatie boven 3% en stijgend houdt de kern kortlopende staatsobligaties (IBGS) aan.",
+            f"Maximaal {r['max_changes_per_week']} fondswissels per week. Doel: meedoen met de markt en grote verliezen beperken; de regels beloven geen beter rendement dan de benchmark.",
         ]
         data = ("Benchmark: 70% wereldwijde aandelen (VWCE) en 30% wereldwijde obligaties (EUNA), wekelijks geherbalanceerd. "
                 "Koersen: slotkoersen op Xetra en Euronext Amsterdam in euro (Yahoo Finance), posities gecontroleerd tegen een tweede bron (Alpha Vantage). "
@@ -310,11 +312,11 @@ def page_method(f, lang):
                 "(een deel van) uw inleg verliezen. In het verleden behaalde resultaten bieden geen garantie voor de toekomst. Lees voor u belegt de essentiële-informatiedocumenten (KID) van de fondsen.")
     else:
         how = [
-            f"The portfolio has a core (VWCE for equities, EUNA for bonds), {r['satellites']['risk_on']} satellites of about {num(r['satellite_weight_pct'], 'en', 0)}% each, and a small cash position (target {num(r['cash_target_pct'], 'en', 0)}%).",
-            "Every week all funds in the universe are ranked on their 3-, 6- and 12-month returns. The strongest funds in an uptrend fill the satellite slots; one fund per theme or region.",
-            f"A held fund stays while it ranks in the top 15 and its trend is up. A newcomer replaces a holding only if it scores at least {r['replacement_margin_pts']} points higher. A fund is sold on trend after two consecutive weeks below its 200-day average.",
-            f"When world equity is in a downtrend and most funds are too, the portfolio turns defensive: {r['satellites']['risk_off']} satellites, with the freed-up weight in a money-market fund (XEON).",
-            f"At most {r['max_changes_per_week']} fund changes per week; excess cash is invested in steps.",
+            f"Core: VWCE (equities) and EUNA (bonds). Around it {r['satellites']['risk_on']} satellites of about {num(r['satellite_weight_pct'], 'en', 0)}% and a small cash position (target {num(r['cash_target_pct'], 'en', 0)}%).",
+            "Every week all funds are ranked on 3-, 6- and 12-month returns; the strongest in an uptrend fill the satellite slots, one per theme or region.",
+            f"A satellite stays while it ranks in the top 15 and its trend is up; a newcomer replaces it only if it scores at least {r['replacement_margin_pts']} points higher. A trend sale follows two weeks below the 200-day average.",
+            f"Defensive when world equity is in a downtrend and breadth is weak: {r['satellites']['risk_off']} satellites, the rest in a money-market fund (XEON). With inflation above 3% and rising, the core holds short-dated government bonds (IBGS).",
+            f"At most {r['max_changes_per_week']} fund changes per week. Aim: keep up with the market and limit large losses; the rules do not promise to beat the benchmark.",
         ]
         data = ("Benchmark: 70% world equity (VWCE) and 30% global bonds (EUNA), rebalanced weekly. "
                 "Prices: closing prices on Xetra and Euronext Amsterdam in euro (Yahoo Finance), with holdings checked against a second source (Alpha Vantage). "
