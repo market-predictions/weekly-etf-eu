@@ -19,8 +19,8 @@ import yaml
 from v2 import sources as S
 
 ROOT = Path(__file__).resolve().parent
-AV_LIMIT = 10
-EODHD_LIMIT = 15
+AV_LIMIT = int(os.environ.get('V2_AV_LIMIT', '10'))
+EODHD_LIMIT = int(os.environ.get('V2_EODHD_LIMIT', '15'))
 
 
 def main() -> None:
@@ -79,6 +79,8 @@ def main() -> None:
         identity_ok = row["isin_maps_to_expected_line"] and y.currency == "EUR"
         row["identity"] = "verified" if identity_ok else "failed"
         rows.append(row)
+        print("ROW " + json.dumps({k: row.get(k) for k in ("id", "yahoo_isin_symbols", "yahoo_currency", "yahoo_name")}
+              | {s: (v["last_date"], v["last_close"], v["error"]) for s, v in row["sources"].items()}), flush=True)
         print(f"{ticker:6} identity={row['identity']:9} "
               + " ".join(f"{k}={'Y' if v['ok'] else 'n'}" for k, v in row["sources"].items())
               + (f" spread={row['agreement']['spread_pct']}%" if row.get("agreement") else ""), flush=True)
