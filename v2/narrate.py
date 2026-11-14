@@ -15,7 +15,7 @@ from typing import Any
 import requests
 
 LANGS = ("en", "nl")
-SECTIONS = ("headline", "summary", "trades", "markets", "watch")
+SECTIONS = ("headline", "what_happened", "why", "what_we_do", "trades", "markets", "watch")
 BANNED = {
     "en": ["you should", "we recommend", "guaranteed", "will rise", "will fall", "certain to", "buy now", "sell now"],
     "nl": ["u moet", "je moet", "wij raden", "we raden", "gegarandeerd", "zal stijgen", "zal dalen", "nu kopen", "nu verkopen"],
@@ -32,10 +32,12 @@ Hard rules:
 6. Name funds by a short form of their name (e.g. "Vanguard FTSE All-World"), with the ticker in brackets the first time.
 7. Macro items with "stale": true or "available": false must be described as not current / unavailable, or left out.
 
-Return a JSON object with exactly these keys, written in the requested language:
-- "headline": one sentence, at most 14 words, the main news of the week.
-- "summary": 3-4 sentences: this week's and since-start return of the portfolio vs the benchmark, the market state (regime, breadth), and what changed in the portfolio.
-- "trades": a list with one object {"id": <ticker>, "text": <one or two sentences>} per trade, then one per deferred change (say it is planned for a later week and why).
+Return a JSON object with exactly these keys, written in the requested language. The first page tells one story in three short parts — keep each part focused on its own question:
+- "headline": one sentence, at most 14 words: the single most important thing about the portfolio this week or since the start.
+- "what_happened": 2-3 sentences. How did the portfolio do this week and since the start, compared with the benchmark? Lead with the result.
+- "why": 2-3 sentences. Explain the gap with the benchmark using "attribution.since_start" (and "attribution.week" if relevant): name the one or two items with the largest contribution in points ("pts"), with their own return ("own_return_pct") and weight at the start ("start_weight_pct"). Cash counts as an item: idle cash costs return when the benchmark rises. Contributions are in percentage points of the gap.
+- "what_we_do": 2-3 sentences. What the rules decided this week and why, in plain words (summarise the trades and deferred changes; details follow in a table).
+- "trades": a list with one object {"id": <ticker>, "text": <one sentence>} per trade, then one per deferred change (say it is planned for a later week and why).
 - "markets": 3-4 sentences on the market panel and the macro indicators.
 - "watch": a list of 2-3 short sentences on what the rules are watching next (e.g. held funds whose rank or trend is close to a threshold, deferred changes).
 """
@@ -103,7 +105,7 @@ def check(sections: dict, lang: str, facts: dict) -> list[str]:
             problems.append(f"missing section {k}")
     allowed = allowed_numbers(facts)
     texts = []
-    for k in ("headline", "summary", "markets"):
+    for k in ("headline", "what_happened", "why", "what_we_do", "markets"):
         texts.append(str(sections.get(k, "")))
     texts += [str(t.get("text", "")) for t in sections.get("trades", []) if isinstance(t, dict)]
     texts += [str(t) for t in sections.get("watch", [])]
@@ -194,16 +196,34 @@ def fallback(facts: dict, lang: str) -> dict:
     headline = ("Portefeuille " + up_dn(p["week_return_pct"]) + f" {_fmt(abs(p['week_return_pct']), lang)}% deze week" if nl
                 else f"Portfolio {up_dn(p['week_return_pct'])} {_fmt(abs(p['week_return_pct']), lang)}% this week")
     regime = {"risk_on": ("risicobereid" if nl else "risk-on"), "risk_off": ("defensief" if nl else "risk-off")}[rg["state"]]
-    if nl:
-        summary = (f"De modelportefeuille {up_dn(p['week_return_pct'])} deze week {_fmt(abs(p['week_return_pct']), lang)}%, tegen {_fmt(p['benchmark_week_return_pct'], lang)}% voor de benchmark. "
-                   f"Sinds {_long(facts['track_record_start'], lang)} is het rendement {_fmt(p['since_start_return_pct'], lang)}% tegen {_fmt(p['benchmark_since_start_return_pct'], lang)}% voor de benchmark. "
-                   f"De markttoestand is {regime}: {_fmt(rg['breadth_pct'], lang, 1)}% van de gerangschikte fondsen staat boven het 200-daags gemiddelde. "
-                   f"Er zijn deze week {len(facts['trades'])} transacties.")
-    else:
-        summary = (f"The model portfolio {up_dn(p['week_return_pct'])} {_fmt(abs(p['week_return_pct']), lang)}% this week, against {_fmt(p['benchmark_week_return_pct'], lang)}% for the benchmark. "
-                   f"Since {_long(facts['track_record_start'], lang)} the return is {_fmt(p['since_start_return_pct'], lang)}% against {_fmt(p['benchmark_since_start_return_pct'], lang)}% for the benchmark. "
-                   f"The market state is {regime}: {_fmt(rg['breadth_pct'], lang, 1)}% of ranked funds trade above their 200-day average. "
-                   f"There are {len(facts['trades'])} trades this week.")
+    _att = ((facts.get("attribution") or {}).get("since_start") or {}).get("items") or []
+    _w = min(_att, key=lambda x: x["pts"]) if _att else None
+    if _w and p["difference_vs_benchmark_pts"] < 0 and _w["pts"] < 0 and _w["id"] != "CASH":
+        headline = (f"{_w['id']} is de belangrijkste reden voor de achterstand op VWCE" if nl
+                    else f"{_w['id']} is the main reason the portfolio trails VWCE")
+    happened = (f"De modelportefeuille {up_dn(p['week_return_pct'])} deze week {_fmt(abs(p['week_return_pct']), lang)}%, tegen {_fmt(p['benchmark_week_return_pct'], lang)}% voor de benchmark (VWCE). "
+                f"Sinds {_long(facts['track_record_start'], lang)} is het rendement {_fmt(p['since_start_return_pct'], lang)}% tegen {_fmt(p['benchmark_since_start_return_pct'], lang)}%: een achterstand van {_fmt(abs(p['difference_vs_benchmark_pts']), lang)} procentpunt."
+                if nl and p['difference_vs_benchmark_pts'] < 0 else
+                f"De modelportefeuille {up_dn(p['week_return_pct'])} deze week {_fmt(abs(p['week_return_pct']), lang)}%, tegen {_fmt(p['benchmark_week_return_pct'], lang)}% voor de benchmark (VWCE). "
+                f"Sinds {_long(facts['track_record_start'], lang)} is het rendement {_fmt(p['since_start_return_pct'], lang)}% tegen {_fmt(p['benchmark_since_start_return_pct'], lang)}%."
+                if nl else
+                f"The model portfolio {up_dn(p['week_return_pct'])} {_fmt(abs(p['week_return_pct']), lang)}% this week, against {_fmt(p['benchmark_week_return_pct'], lang)}% for the benchmark (VWCE). "
+                f"Since {_long(facts['track_record_start'], lang)} it returned {_fmt(p['since_start_return_pct'], lang)}% against {_fmt(p['benchmark_since_start_return_pct'], lang)}%"
+                + (f", a shortfall of {_fmt(abs(p['difference_vs_benchmark_pts']), lang)} percentage points." if p['difference_vs_benchmark_pts'] < 0 else "."))
+    att = (facts.get("attribution") or {}).get("since_start") or {"items": []}
+    worst = min(att["items"], key=lambda x: x["pts"]) if att["items"] else None
+    best = max(att["items"], key=lambda x: x["pts"]) if att["items"] else None
+    why = ""
+    if worst:
+        wn = ("kaspositie" if nl else "cash position") if worst["id"] == "CASH" else worst["id"]
+        why = (f"Het grootste effect kwam van {wn}: {_fmt(worst['pts'], lang)} procentpunt (gewicht {_fmt(worst['start_weight_pct'], lang, 1)}%, eigen rendement {_fmt(worst['own_return_pct'], lang)}%). " if nl
+               else f"The largest effect came from {wn}: {_fmt(worst['pts'], lang)} percentage points (weight {_fmt(worst['start_weight_pct'], lang, 1)}%, own return {_fmt(worst['own_return_pct'], lang)}%). ")
+    if best and best["pts"] > 0:
+        why += (f"De sterkste bijdrage kwam van {best['id']}: +{_fmt(best['pts'], lang)} procentpunt." if nl
+                else f"The strongest contribution came from {best['id']}: +{_fmt(best['pts'], lang)} percentage points.")
+    n_tr, n_def = len(facts["trades"]), len(facts["deferred"])
+    what_we_do = (f"De regels leiden deze week tot {n_tr} transacties; {n_def} nieuwe posities volgen in de komende weken vanwege het maximum van {facts['rules']['max_changes_per_week']} fondswissels per week." if nl
+                  else f"The rules lead to {n_tr} trades this week; {n_def} new positions follow in the coming weeks because of the limit of {facts['rules']['max_changes_per_week']} fund changes per week.")
     trades = [{"id": t["id"], "text": reason_text(t, lang)} for t in facts["trades"]]
     trades += [{"id": x["id"], "text": reason_text(x, lang) + (f" Gepland voor een volgende week: maximaal {facts['rules']['max_changes_per_week']} fondswissels per week." if nl
                                         else f" Planned for a later week: at most {facts['rules']['max_changes_per_week']} fund changes per week.")} for x in facts["deferred"]]
@@ -215,7 +235,7 @@ def fallback(facts: dict, lang: str) -> dict:
     watch = [(f"Gepland: {('koop' if x['kind'] == 'entry' else 'verkoop')} {x['id']} ({short(x['name'])})." if nl
               else f"Planned: {('buy' if x['kind'] == 'entry' else 'sell')} {x['id']} ({short(x['name'])}).") for x in facts["deferred"][:3]] or [
         "Geen geplande wijzigingen." if nl else "No planned changes."]
-    return {"headline": headline, "summary": summary, "trades": trades, "markets": markets, "watch": watch}
+    return {"headline": headline, "what_happened": happened, "why": why, "what_we_do": what_we_do, "trades": trades, "markets": markets, "watch": watch}
 
 
 def narrate(facts: dict) -> dict:

@@ -29,6 +29,13 @@ T = {
     "cash": {"en": "Cash", "nl": "Kas"},
     "vs": {"en": "benchmark", "nl": "benchmark"},
     "decisions": {"en": "This week's decisions", "nl": "Besluiten deze week"},
+    "h_happened": {"en": "What happened", "nl": "Wat er gebeurde"},
+    "h_why": {"en": "Why", "nl": "Waarom"},
+    "h_do": {"en": "What we are doing", "nl": "Wat we doen"},
+    "att_title": {"en": "What explains the gap with VWCE", "nl": "Wat verklaart het verschil met VWCE"},
+    "att_sub": {"en": "Contribution since {d}, percentage points", "nl": "Bijdrage sinds {d}, procentpunt"},
+    "att_total": {"en": "Total gap", "nl": "Totaal verschil"},
+    "cash_item": {"en": "Cash", "nl": "Kas"},
     "action": {"en": "Action", "nl": "Actie"}, "fund": {"en": "Fund", "nl": "Fonds"},
     "amount": {"en": "Amount", "nl": "Bedrag"}, "why": {"en": "Why", "nl": "Waarom"},
     "buy": {"en": "Buy", "nl": "Koop"}, "sell": {"en": "Sell", "nl": "Verkoop"}, "planned": {"en": "Planned", "nl": "Gepland"},
@@ -141,9 +148,48 @@ def chart_svg(points: list[dict], lang: str) -> str:
 </svg>'''
 
 
+def attribution_svg(att: dict, lang: str) -> str:
+    items = sorted(att["items"], key=lambda x: x["pts"])
+    W, row, L, R = 250, 19, 44, 40
+    H = row * len(items) + 8
+    m = max(0.5, max(abs(x["pts"]) for x in items))
+    zero = L + (W - L - R) * 0.5 if any(x["pts"] > 0 for x in items) and any(x["pts"] < 0 for x in items) else (W - R if all(x["pts"] <= 0 for x in items) else L)
+    scale = (W - L - R) * (0.5 if zero not in (L, W - R) else 1.0) / m
+    out = []
+    for k, x in enumerate(items):
+        y = 4 + k * row
+        w = abs(x["pts"]) * scale
+        x0 = zero - w if x["pts"] < 0 else zero
+        col = ORANGE if x["pts"] < 0 else BLUE
+        label = t("cash_item", lang) if x["id"] == "CASH" else x["id"]
+        out.append(f'<text x="{L - 6}" y="{y + 12:.1f}" font-family="Inter" font-weight="600" font-size="9" fill="#1d1d1b" text-anchor="end">{e(label)}</text>')
+        if w >= 0.5:
+            out.append(f'<rect x="{x0:.1f}" y="{y + 3:.1f}" width="{w:.1f}" height="11" rx="2" fill="{col}"/>')
+        vx = (x0 - 4) if x["pts"] < 0 else (zero + w + 4)
+        anchor = "end" if x["pts"] < 0 else "start"
+        if x["pts"] < 0 and vx < L + 22:  # no room left of the bar: write inside-right of zero
+            vx, anchor = zero + 4, "start"
+        out.append(f'<text x="{vx:.1f}" y="{y + 12:.1f}" font-family="Inter" font-size="8.5" fill="#3a3936" text-anchor="{anchor}">{num(x["pts"], lang, 2, True)}</text>')
+    out.append(f'<line x1="{zero:.1f}" x2="{zero:.1f}" y1="0" y2="{H}" stroke="#8a8882" stroke-width="1"/>')
+    return f'<svg viewBox="0 0 {W} {H}" width="100%" xmlns="http://www.w3.org/2000/svg" role="img">{"".join(out)}</svg>'
+
+
 # ── Page builders ───────────────────────────────────────────────────────────
 def kpi(label, main, sub="", cls=""):
     return f'<div class="kpi"><div class="k-label">{label}</div><div class="k-main {cls}">{main}</div><div class="k-sub">{sub}</div></div>'
+
+
+def decisions_table(f, c, lang):
+    texts = {x.get("id"): x.get("text", "") for x in c.get("trades", []) if isinstance(x, dict)}
+    rows = []
+    for tr in f["trades"]:
+        rows.append(f'<tr><td><span class="tag {tr["side"]}">{t(tr["side"], lang)}</span></td><td><b>{e(tr["id"])}</b><div class="sub">{e(short_name(tr["name"]))}</div></td>'
+                    f'<td class="num">{eur(tr["amount_eur"], lang)}</td><td>{e(texts.get(tr["id"], ""))}</td></tr>')
+    for x in f["deferred"]:
+        rows.append(f'<tr class="muted"><td><span class="tag planned">{t("planned", lang)}</span></td><td><b>{e(x["id"])}</b><div class="sub">{e(short_name(x["name"]))}</div></td>'
+                    f'<td class="num">–</td><td>{e(texts.get(x["id"], ""))}</td></tr>')
+    return (f'<table class="dec"><thead><tr><th>{t("action", lang)}</th><th>{t("fund", lang)}</th><th class="num">{t("amount", lang)}</th><th>{t("why", lang)}</th></tr></thead><tbody>{"".join(rows)}</tbody></table>'
+            if rows else f'<p class="note">{t("no_trades", lang)}</p>')
 
 
 def page_summary(f, c, lang):
@@ -155,23 +201,23 @@ def page_summary(f, c, lang):
             f'{t("vs", lang)} {num(p["benchmark_since_start_return_pct"], lang, sign=True)}%', tone(p["since_start_return_pct"])),
         kpi(t("cash", lang), num(p["cash_pct"], lang, 1) + "%", eur(p["cash_eur"], lang)),
     ])
-    texts = {x.get("id"): x.get("text", "") for x in c.get("trades", []) if isinstance(x, dict)}
-    rows = []
-    for tr in f["trades"]:
-        rows.append(f'<tr><td><span class="tag {tr["side"]}">{t(tr["side"], lang)}</span></td><td><b>{e(tr["id"])}</b><div class="sub">{e(short_name(tr["name"]))}</div></td>'
-                    f'<td class="num">{eur(tr["amount_eur"], lang)}</td><td>{e(texts.get(tr["id"], ""))}</td></tr>')
-    for x in f["deferred"]:
-        rows.append(f'<tr class="muted"><td><span class="tag planned">{t("planned", lang)}</span></td><td><b>{e(x["id"])}</b><div class="sub">{e(short_name(x["name"]))}</div></td>'
-                    f'<td class="num">–</td><td>{e(texts.get(x["id"], ""))}</td></tr>')
-    table = (f'<table class="dec"><thead><tr><th>{t("action", lang)}</th><th>{t("fund", lang)}</th><th class="num">{t("amount", lang)}</th><th>{t("why", lang)}</th></tr></thead><tbody>{"".join(rows)}</tbody></table>'
-             if rows else f'<p class="note">{t("no_trades", lang)}</p>')
+    att = (f.get("attribution") or {}).get("since_start")
+    side = ""
+    if att and att["items"]:
+        side = (f'<div class="att"><div class="att-title">{t("att_title", lang)}</div><div class="att-sub">{t("att_sub", lang, d=long_date(att["from"], lang))}</div>'
+                f'{attribution_svg(att, lang)}<div class="att-total">{t("att_total", lang)}: <b>{num(att["gap_pts"], lang, 2, True)}</b></div></div>')
     return f'''<section class="page first">
 <header class="mast"><div><div class="brand">{t("title", lang)}</div><div class="subbrand">{t("subtitle", lang)}</div></div><div class="date">{long_date(f["report_date"], lang)}</div></header>
 <h1>{e(c["headline"])}</h1>
-<p class="lead">{e(c["summary"])}</p>
 <div class="kpis">{tiles}</div>
-<h2>{t("decisions", lang)}</h2>
-{table}
+<div class="chart-head"><span>{t("chart_title", lang)} {long_date(f["track_record_start"], lang)}</span>
+<span class="legend"><i style="background:{BLUE}"></i>{t("portfolio", lang)} <i style="background:{ORANGE}"></i>VWCE (benchmark)</span></div>
+{chart_svg(f["chart"], lang)}
+<div class="story"><div class="narr">
+<h3>{t("h_happened", lang)}</h3><p>{e(c["what_happened"])}</p>
+<h3>{t("h_why", lang)}</h3><p>{e(c["why"])}</p>
+<h3>{t("h_do", lang)}</h3><p>{e(c["what_we_do"])}</p>
+</div>{side}</div>
 </section>'''
 
 
@@ -186,10 +232,8 @@ def page_performance(f, c, lang):
     cash = f["portfolio"]
     rows.append(f'<tr class="muted"><td><b>{t("cash", lang)}</b></td><td></td><td class="num">{eur(cash["cash_eur"], lang)}</td><td class="num">{num(cash["cash_pct"], lang, 1)}%</td><td></td><td></td><td></td><td></td></tr>')
     return f'''<section class="page">
-<h2>{t("performance", lang)}</h2>
-<div class="chart-head"><span>{t("chart_title", lang)} {long_date(f["track_record_start"], lang)}</span>
-<span class="legend"><i style="background:{BLUE}"></i>{t("portfolio", lang)} <i style="background:{ORANGE}"></i>VWCE (benchmark)</span></div>
-{chart_svg(f["chart"], lang)}
+<h2 class="top">{t("decisions", lang)}</h2>
+{decisions_table(f, c, lang)}
 <h2>{t("positions", lang)}</h2>
 <table><thead><tr><th>{t("fund", lang)}</th><th>{t("role", lang)}</th><th class="num">{"Value" if lang == "en" else "Waarde"}</th><th class="num">{t("weight", lang)}</th>
 <th class="num">{t("w1", lang)}</th><th class="num">{t("m3", lang)}</th><th>{t("trend", lang)}</th><th class="num">{t("rank", lang)}</th></tr></thead><tbody>{"".join(rows)}</tbody></table>
@@ -227,7 +271,7 @@ def page_scan(f, c, lang, method=""):
                    f'<td class="num">{num(m["value_1y_ago"], lang, nd)}{u if m["value_1y_ago"] is not None else ""}</td><td class="num sub-inline">{(MONTHS[lang][int(m["date"][5:7]) - 1] + " " + m["date"][:4]) if monthly else long_date(m["date"], lang)}</td></tr>')
     watch = "".join(f"<li>{e(w)}</li>" for w in c.get("watch", []))
     return f'''<section class="page">
-<h2>{t("scan", lang)}</h2>
+<h2 class="top">{t("scan", lang)}</h2>
 <div class="state"><span class="tag {"pos" if rg["state"] == "risk_on" else "neg"}-bg">{t("state", lang)}: {t(rg["state"], lang)}</span>
 <span>{t("breadth", lang, b=num(rg["breadth_pct"], lang, 1), t=rg["breadth_threshold_pct"])}</span></div>
 <p class="note">{t("scan_intro", lang, n=rg["n_ranked"])}</p>
@@ -330,6 +374,12 @@ table.gap {{ margin-top: 10pt; }} h2.top {{ margin-top: 0; }}
 b {{ font-feature-settings: "zero" 1; }}
 ul.watch, ol.how {{ margin: 0; padding-left: 14pt; }} ul.watch li, ol.how li {{ margin-bottom: 4pt; }}
 .small {{ font-size: 8pt; color: #3a3936; }}
+.kpis {{ margin-bottom: 12pt; }}
+.story {{ display: flex; gap: 16pt; margin-top: 8pt; border-top: 1px solid #e6e4df; padding-top: 4pt; }}
+.narr {{ flex: 1.45; }} .narr p {{ margin: 0 0 4pt; font-size: 9.3pt; color: #2e2d2a; }}
+.att {{ flex: 1; padding-top: 10pt; }}
+.att-title {{ font-weight: 600; font-size: 9pt; }} .att-sub {{ font-size: 7.5pt; color: #6b6a66; margin-bottom: 4pt; }}
+.att-total {{ font-size: 8pt; color: #52514e; border-top: 1px solid #e6e4df; margin-top: 3pt; padding-top: 3pt; }}
 """
 
 

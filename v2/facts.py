@@ -42,6 +42,58 @@ def ret(prices: Prices, iid: str, d: str, days_back: int) -> float | None:
     return (end / start - 1) if end and start else None
 
 
+def attribution(hist: list[dict], d: str, names: dict) -> dict:
+    """Explain the gap with the benchmark, per holding and cash, chained weekly.
+
+    For each week: holding i contributes w_i × (r_i − r_bench), cash contributes
+    w_cash × (0 − r_bench), with weights at the start of the week. Summed over
+    weeks this equals the arithmetic gap up to a small compounding residual,
+    which is reported rather than hidden.
+    """
+    vals = list(csv.DictReader((ROOT / "state" / "valuations.csv").open()))
+    by: dict[str, dict[str, dict]] = {}
+    for r in vals:
+        by.setdefault(r["date"], {})[r["id"]] = r
+    H = {h["date"]: h for h in hist if h["date"] <= d}
+    dates = sorted(H)
+
+    def period(pairs):
+        comp: dict[str, float] = {}
+        for a, b in pairs:
+            nav = float(H[a]["nav_eur"])
+            rb = float(H[b]["benchmark_close"]) / float(H[a]["benchmark_close"]) - 1
+            for i, r in by.get(a, {}).items():
+                if i not in by.get(b, {}):
+                    continue
+                w = float(r["value_eur"]) / nav
+                ri = float(by[b][i]["close"]) / float(r["close"]) - 1
+                comp[i] = comp.get(i, 0.0) + w * (ri - rb)
+            comp["CASH"] = comp.get("CASH", 0.0) + float(H[a]["cash_eur"]) / nav * (0 - rb)
+        return comp
+
+    def own_return(i, first, last):
+        a, b = by.get(first, {}).get(i), by.get(last, {}).get(i)
+        return round((float(b["close"]) / float(a["close"]) - 1) * 100, 2) if a and b else None
+
+    def start_weight(i, first):
+        r = by.get(first, {}).get(i)
+        nav = float(H[first]["nav_eur"])
+        return round((float(r["value_eur"]) if r else float(H[first]["cash_eur"]) if i == "CASH" else 0) / nav * 100, 1)
+
+    def pack(comp, first, last):
+        gap = (float(H[last]["nav_eur"]) / float(H[first]["nav_eur"]) - 1) - (float(H[last]["benchmark_close"]) / float(H[first]["benchmark_close"]) - 1)
+        items = [{"id": k, "name": "Cash" if k == "CASH" else names.get(k, k), "pts": round(v * 100, 2),
+                  "own_return_pct": 0.0 if k == "CASH" else own_return(k, first, last), "start_weight_pct": start_weight(k, first)} for k, v in comp.items()]
+        items.sort(key=lambda x: x["pts"])
+        resid = round(gap * 100 - sum(x["pts"] for x in items), 2)
+        bench = round((float(H[last]["benchmark_close"]) / float(H[first]["benchmark_close"]) - 1) * 100, 2)
+        return {"from": first, "to": last, "gap_pts": round(gap * 100, 2), "benchmark_return_pct": bench, "items": items, "residual_pts": resid}
+
+    pairs = list(zip(dates, dates[1:]))
+    return {"since_start": pack(period(pairs), dates[0], dates[-1]) if pairs else None,
+            "week": pack(period(pairs[-1:]), pairs[-1][0], pairs[-1][1]) if pairs else None}
+
+
 def build(d: str, with_macro: bool = True) -> dict:
     uni_all = yaml.safe_load((ROOT / "universe.yml").read_text())["instruments"]
     uni = [i for i in uni_all if i.get("status") == "verified"]
@@ -123,6 +175,7 @@ def build(d: str, with_macro: bool = True) -> dict:
         },
         "regime": {"state": sc["regime"], "breadth_pct": sc["breadth_pct"], "benchmark_trend": "up" if sc["benchmark_trend_up"] else "down",
                    "breadth_threshold_pct": pol["defensive_switch"]["max_breadth_pct"], "n_ranked": sc["n_ranked"]},
+        "attribution": attribution(hist, d, names),
         "trades": trades,
         "deferred": deferred,
         "decision_notes": dec.notes,
