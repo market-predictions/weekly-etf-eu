@@ -25,7 +25,9 @@ jobs:
         with:
           python-version: "3.12"
       - name: Install
-        run: pip install requests==2.32.3 PyYAML==6.0.2
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq libpango-1.0-0 libpangoft2-1.0-0 >/dev/null
+          pip install requests==2.32.3 PyYAML==6.0.2 weasyprint==70.0
       - name: Run task
         env:
           ALPHA_VANTAGE_API_KEY: ${{ secrets.ALPHA_VANTAGE_API_KEY }}
@@ -51,7 +53,7 @@ jobs:
           set -euo pipefail
           git config user.name "v2-core-bot"
           git config user.email "v2-core-bot@users.noreply.github.com"
-          for d in v2/evidence v2/state; do if [ -d "$d" ]; then git add "$d"; fi; done
+          for d in v2/evidence v2/state; do if [ -d "$d" ]; then git add -f "$d"; fi; done
           if git diff --cached --quiet; then echo "nothing to commit"; exit 0; fi
           git commit -m "v2: results of $(tr '\n' ' ' < v2/ci_task.txt) [skip ci]"
           git push origin HEAD:v2-core

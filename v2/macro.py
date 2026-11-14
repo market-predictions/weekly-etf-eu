@@ -3,7 +3,7 @@
 Each indicator: latest value, its date, the value ~1 month earlier, and a
 staleness flag. Missing or stale data is reported as such — never filled in.
 
-Sources: ECB Data Portal (no key) and FRED CSV (no key).
+Sources (no keys): ECB Data Portal, New York Fed (EFFR), Eurostat (HICP).
 """
 from __future__ import annotations
 
@@ -21,10 +21,10 @@ UA = {"User-Agent": "Mozilla/5.0 (weekly-etf-eu v2)"}
 # id: (source, series key, label EN, label NL, unit, max_age_days)
 SERIES = {
     "ecb_deposit_rate": ("ecb", "FM/D.U2.EUR.4F.KR.DFR.LEV", "ECB deposit rate", "ECB-depositorente", "%", 10),
-    "fed_funds_upper": ("fred", "DFEDTARU", "Fed funds target (upper)", "Fed funds-doel (bovengrens)", "%", 10),
+    "fed_funds_effective": ("nyfed", "effr", "US federal funds rate (effective)", "Amerikaanse federal funds-rente (effectief)", "%", 10),
     "euro_10y_yield": ("ecb", "YC/B.U2.EUR.4F.G_N_A.SV_C_YM.SR_10Y", "Euro area 10y government yield (AAA)", "Rente 10-jaars staatsobligaties eurozone (AAA)", "%", 10),
     "eurusd": ("ecb", "EXR/D.USD.EUR.SP00.A", "EUR/USD", "EUR/USD", "", 10),
-    "euro_inflation": ("ecb", "ICP/M.U2.N.000000.4.ANR", "Euro area inflation (HICP, y/y)", "Inflatie eurozone (HICP, j/j)", "%", 75),
+    "euro_inflation": ("eurostat", "prc_hicp_manr:EA:CP00", "Euro area inflation (HICP, y/y)", "Inflatie eurozone (HICP, j/j)", "%", 75),
 }
 
 
@@ -52,13 +52,39 @@ def _fred(key: str, start: date) -> list[tuple[str, float]]:
     return sorted(out)
 
 
+def _nyfed(key: str, start: date) -> list[tuple[str, float]]:
+    r = requests.get(f"https://markets.newyorkfed.org/api/rates/unsecured/{key}/search.json",
+                     params={"startDate": start.isoformat(), "endDate": date.today().isoformat()}, headers=UA, timeout=30)
+    r.raise_for_status()
+    return sorted((x["effectiveDate"], float(x["percentRate"])) for x in r.json().get("refRates", []) if x.get("percentRate") is not None)
+
+
+def _eurostat(key: str, start: date) -> list[tuple[str, float]]:
+    dataset, geo, coicop = key.split(":")
+    r = requests.get(f"https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/{dataset}",
+                     params={"geo": geo, "coicop": coicop, "format": "JSON", "sinceTimePeriod": start.strftime("%Y-%m")}, headers=UA, timeout=30)
+    r.raise_for_status()
+    js = r.json()
+    times = js["dimension"]["time"]["category"]["index"]  # {"2026-09": 0, ...}
+    vals = js.get("value", {})
+    out = []
+    for period, idx in times.items():
+        v = vals.get(str(idx))
+        if v is not None:
+            out.append((period + "-01", float(v)))
+    return sorted(out)
+
+
+FETCHERS = {"ecb": _ecb, "fred": _fred, "nyfed": _nyfed, "eurostat": _eurostat}
+
+
 def fetch(asof: date) -> dict:
     start = asof - timedelta(days=500)
     result = {}
     for sid, (src, key, en, nl, unit, max_age) in SERIES.items():
         item = {"label_en": en, "label_nl": nl, "unit": unit, "source": src, "series": key}
         try:
-            obs = [(d, v) for d, v in (_ecb(key, start) if src == "ecb" else _fred(key, start)) if d <= asof.isoformat()]
+            obs = [(d, v) for d, v in FETCHERS[src](key, start) if d <= asof.isoformat()]
             if not obs:
                 raise ValueError("no observations")
             d, v = obs[-1]
