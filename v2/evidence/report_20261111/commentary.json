@@ -1,0 +1,110 @@
+{
+ "source": {
+  "en": "fallback",
+  "nl": "fallback"
+ },
+ "problems": {
+  "en": [
+   "no OPENAI_API_KEY"
+  ],
+  "nl": [
+   "no OPENAI_API_KEY"
+  ]
+ },
+ "en": {
+  "headline": "Portfolio rose 0.49% this week",
+  "summary": "The model portfolio rose 0.49% this week, against 0.62% for the benchmark. Since 14 August 2026 the return is -0.44% against 1.21% for the benchmark. The market state is risk-on: 73.3% of ranked funds trade above their 200-day average. There are 6 trades this week.",
+  "trades": [
+   {
+    "id": "DFEN",
+    "text": "Sell 207 × DFEN: close 51.14 below 200-day average 54.83 for 2 consecutive weeks."
+   },
+   {
+    "id": "IQQQ",
+    "text": "Sell 33 × IQQQ: weight 10.3% vs target 8.0% (band 2%)."
+   },
+   {
+    "id": "L0CK",
+    "text": "Sell 237 × L0CK: weight 10.7% vs target 8.0% (band 2%)."
+   },
+   {
+    "id": "SXR8",
+    "text": "Sell 10 × SXR8: not part of the target portfolio (core is VWCE + EUNA)."
+   },
+   {
+    "id": "EUNA",
+    "text": "Buy 1994 × EUNA: weight 7.4% vs target 17.1% (band 2%)."
+   },
+   {
+    "id": "VWCE",
+    "text": "Buy 83 × VWCE: weight 25.7% vs target 39.9% (band 2%)."
+   },
+   {
+    "id": "2B70",
+    "text": "2B70: planned for a later week (at most 2 fund changes per week)."
+   },
+   {
+    "id": "CBUF",
+    "text": "CBUF: planned for a later week (at most 2 fund changes per week)."
+   },
+   {
+    "id": "IS3S",
+    "text": "IS3S: planned for a later week (at most 2 fund changes per week)."
+   }
+  ],
+  "markets": "Strongest asset class this week: Emerging-market equity (2.21%); weakest: Japanese equity (-0.17%).",
+  "watch": [
+   "Planned change: 2B70.",
+   "Planned change: CBUF.",
+   "Planned change: IS3S."
+  ]
+ },
+ "nl": {
+  "headline": "Portefeuille steeg 0,49% deze week",
+  "summary": "De modelportefeuille steeg deze week 0,49%, tegen 0,62% voor de benchmark. Sinds 14 augustus 2026 is het rendement -0,44% tegen 1,21% voor de benchmark. De markttoestand is risicobereid: 73,3% van de gerangschikte fondsen staat boven het 200-daags gemiddelde. Er zijn deze week 6 transacties.",
+  "trades": [
+   {
+    "id": "DFEN",
+    "text": "Verkoop 207 × DFEN: close 51.14 below 200-day average 54.83 for 2 consecutive weeks."
+   },
+   {
+    "id": "IQQQ",
+    "text": "Verkoop 33 × IQQQ: weight 10.3% vs target 8.0% (band 2%)."
+   },
+   {
+    "id": "L0CK",
+    "text": "Verkoop 237 × L0CK: weight 10.7% vs target 8.0% (band 2%)."
+   },
+   {
+    "id": "SXR8",
+    "text": "Verkoop 10 × SXR8: not part of the target portfolio (core is VWCE + EUNA)."
+   },
+   {
+    "id": "EUNA",
+    "text": "Koop 1994 × EUNA: weight 7.4% vs target 17.1% (band 2%)."
+   },
+   {
+    "id": "VWCE",
+    "text": "Koop 83 × VWCE: weight 25.7% vs target 39.9% (band 2%)."
+   },
+   {
+    "id": "2B70",
+    "text": "2B70: gepland voor een volgende week (maximaal 2 fondswissels per week)."
+   },
+   {
+    "id": "CBUF",
+    "text": "CBUF: gepland voor een volgende week (maximaal 2 fondswissels per week)."
+   },
+   {
+    "id": "IS3S",
+    "text": "IS3S: gepland voor een volgende week (maximaal 2 fondswissels per week)."
+   }
+  ],
+  "markets": "Sterkste categorie deze week: Aandelen opkomende markten (2,21%); zwakste: Japanse aandelen (-0,17%).",
+  "watch": [
+   "Geplande wijziging: 2B70.",
+   "Geplande wijziging: CBUF.",
+   "Geplande wijziging: IS3S."
+  ]
+ }
+}

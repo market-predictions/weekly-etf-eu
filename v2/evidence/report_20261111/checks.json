@@ -1,0 +1,58 @@
+{
+ "commentary_source": {
+  "en": "fallback",
+  "nl": "fallback"
+ },
+ "commentary_problems": {
+  "en": [
+   "no OPENAI_API_KEY"
+  ],
+  "nl": [
+   "no OPENAI_API_KEY"
+  ]
+ },
+ "render": {
+  "nl": {
+   "pdf": "/home/runner/work/weekly-etf-eu/weekly-etf-eu/v2/evidence/report_20261111/weekly_etf_review_nl_20261111.pdf",
+   "pages": 4,
+   "problems": []
+  },
+  "en": {
+   "pdf": "/home/runner/work/weekly-etf-eu/weekly-etf-eu/v2/evidence/report_20261111/weekly_etf_review_20261111.pdf",
+   "pages": 4,
+   "problems": []
+  }
+ },
+ "macro": {
+  "ecb_deposit_rate": {
+   "available": true,
+   "date": "2026-11-11",
+   "stale": false,
+   "error": null
+  },
+  "fed_funds_effective": {
+   "available": true,
+   "date": "2026-11-10",
+   "stale": false,
+   "error": null
+  },
+  "euro_10y_yield": {
+   "available": true,
+   "date": "2026-11-11",
+   "stale": false,
+   "error": null
+  },
+  "eurusd": {
+   "available": true,
+   "date": "2026-11-11",
+   "stale": false,
+   "error": null
+  },
+  "euro_inflation": {
+   "available": true,
+   "date": "2025-12-01",
+   "stale": true,
+   "error": null
+  }
+ }
+}
