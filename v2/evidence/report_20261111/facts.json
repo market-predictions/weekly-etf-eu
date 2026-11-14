@@ -26,6 +26,124 @@
   "breadth_threshold_pct": 40,
   "n_ranked": 30
  },
+ "attribution": {
+  "since_start": {
+   "from": "2026-08-14",
+   "to": "2026-11-11",
+   "gap_pts": -1.65,
+   "benchmark_return_pct": 1.21,
+   "items": [
+    {
+     "id": "DFEN",
+     "name": "VanEck Defense UCITS ETF",
+     "pts": -1.7,
+     "own_return_pct": -12.94,
+     "start_weight_pct": 12.1
+    },
+    {
+     "id": "CASH",
+     "name": "Cash",
+     "pts": -0.37,
+     "own_return_pct": 0.0,
+     "start_weight_pct": 27.9
+    },
+    {
+     "id": "EUNA",
+     "name": "iShares Core Global Aggregate Bond UCITS ETF EUR Hedged Acc",
+     "pts": -0.13,
+     "own_return_pct": -0.4,
+     "start_weight_pct": 7.4
+    },
+    {
+     "id": "VWCE",
+     "name": "Vanguard FTSE All-World UCITS ETF Acc",
+     "pts": 0.0,
+     "own_return_pct": 1.21,
+     "start_weight_pct": 25.3
+    },
+    {
+     "id": "SXR8",
+     "name": "iShares Core S&P 500 UCITS ETF Acc",
+     "pts": 0.08,
+     "own_return_pct": 2.26,
+     "start_weight_pct": 7.2
+    },
+    {
+     "id": "L0CK",
+     "name": "iShares Digital Security UCITS ETF Acc",
+     "pts": 0.18,
+     "own_return_pct": 2.65,
+     "start_weight_pct": 10.4
+    },
+    {
+     "id": "IQQQ",
+     "name": "iShares Global Water UCITS ETF Dist",
+     "pts": 0.28,
+     "own_return_pct": 4.16,
+     "start_weight_pct": 9.8
+    }
+   ],
+   "residual_pts": 0.01
+  },
+  "week": {
+   "from": "2026-11-04",
+   "to": "2026-11-11",
+   "gap_pts": -0.13,
+   "benchmark_return_pct": 0.62,
+   "items": [
+    {
+     "id": "CASH",
+     "name": "Cash",
+     "pts": -0.18,
+     "own_return_pct": 0.0,
+     "start_weight_pct": 28.1
+    },
+    {
+     "id": "EUNA",
+     "name": "iShares Core Global Aggregate Bond UCITS ETF EUR Hedged Acc",
+     "pts": -0.06,
+     "own_return_pct": -0.24,
+     "start_weight_pct": 7.5
+    },
+    {
+     "id": "IQQQ",
+     "name": "iShares Global Water UCITS ETF Dist",
+     "pts": -0.04,
+     "own_return_pct": 0.19,
+     "start_weight_pct": 10.3
+    },
+    {
+     "id": "SXR8",
+     "name": "iShares Core S&P 500 UCITS ETF Acc",
+     "pts": -0.02,
+     "own_return_pct": 0.29,
+     "start_weight_pct": 7.4
+    },
+    {
+     "id": "VWCE",
+     "name": "Vanguard FTSE All-World UCITS ETF Acc",
+     "pts": 0.0,
+     "own_return_pct": 0.62,
+     "start_weight_pct": 25.7
+    },
+    {
+     "id": "L0CK",
+     "name": "iShares Digital Security UCITS ETF Acc",
+     "pts": 0.03,
+     "own_return_pct": 0.88,
+     "start_weight_pct": 10.7
+    },
+    {
+     "id": "DFEN",
+     "name": "VanEck Defense UCITS ETF",
+     "pts": 0.15,
+     "own_return_pct": 2.1,
+     "start_weight_pct": 10.4
+    }
+   ],
+   "residual_pts": -0.01
+  }
+ },
  "trades": [
   {
    "side": "sell",

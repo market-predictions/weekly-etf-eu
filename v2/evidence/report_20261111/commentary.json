@@ -12,8 +12,10 @@
   ]
  },
  "en": {
-  "headline": "Portfolio rose 0.49% this week",
-  "summary": "The model portfolio rose 0.49% this week, against 0.62% for the benchmark. Since 14 August 2026 the return is -0.44% against 1.21% for the benchmark. The market state is risk-on: 73.3% of ranked funds trade above their 200-day average. There are 6 trades this week.",
+  "headline": "DFEN is the main reason the portfolio trails VWCE",
+  "what_happened": "The model portfolio rose 0.49% this week, against 0.62% for the benchmark (VWCE). Since 14 August 2026 it returned -0.44% against 1.21%, a shortfall of 1.65 percentage points.",
+  "why": "The largest effect came from DFEN: -1.70 percentage points (weight 12.1%, own return -12.94%). The strongest contribution came from IQQQ: +0.28 percentage points.",
+  "what_we_do": "The rules lead to 6 trades this week; 3 new positions follow in the coming weeks because of the limit of 2 fund changes per week.",
   "trades": [
    {
     "id": "DFEN",
@@ -60,8 +62,10 @@
   ]
  },
  "nl": {
-  "headline": "Portefeuille steeg 0,49% deze week",
-  "summary": "De modelportefeuille steeg deze week 0,49%, tegen 0,62% voor de benchmark. Sinds 14 augustus 2026 is het rendement -0,44% tegen 1,21% voor de benchmark. De markttoestand is risicobereid: 73,3% van de gerangschikte fondsen staat boven het 200-daags gemiddelde. Er zijn deze week 6 transacties.",
+  "headline": "DFEN is de belangrijkste reden voor de achterstand op VWCE",
+  "what_happened": "De modelportefeuille steeg deze week 0,49%, tegen 0,62% voor de benchmark (VWCE). Sinds 14 augustus 2026 is het rendement -0,44% tegen 1,21%: een achterstand van 1,65 procentpunt.",
+  "why": "Het grootste effect kwam van DFEN: -1,70 procentpunt (gewicht 12,1%, eigen rendement -12,94%). De sterkste bijdrage kwam van IQQQ: +0,28 procentpunt.",
+  "what_we_do": "De regels leiden deze week tot 6 transacties; 3 nieuwe posities volgen in de komende weken vanwege het maximum van 2 fondswissels per week.",
   "trades": [
    {
     "id": "DFEN",
