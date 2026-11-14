@@ -20,8 +20,8 @@ satellites:
   max_weight_each: 0.10
   min_history_days: 252          # need 12 months of prices to be ranked
   one_per: [theme, segment, region, factor]   # no two satellites sharing the same tag value
-  hold_buffer_rank_multiple: 2   # a held satellite stays while rank <= count * 2 and trend is up
-  replacement_margin_pts: 15     # a newcomer must beat the weakest holding by 15 score points (was 10; calmer, 2026-11-14)
+  hold_buffer_rank_multiple: 3   # a held satellite stays while rank <= count * 3 (top 15) and trend is up (was 2; 2026-11-14)
+  replacement_margin_pts: 25     # a newcomer must beat the weakest holding by 25 score points (was 10 → 15 → 25; 2026-11-14)
   trend_exit_confirm_weeks: 2    # sell on trend only after 2 consecutive weekly closes below the 200-day average
 
 scoring:
