@@ -73,6 +73,8 @@ def scan(prices: Prices, universe: list[dict], policy: dict, d: str) -> dict:
             "tags": sorted(f"{k}:{v}" for k, v in tags(inst)),
             "close": s[-1], "sma200": round(sma, 4) if sma else None,
             "trend_up": (s[-1] > sma) if sma else None,
+            # Trend one week (5 trading days) earlier, for exit confirmation.
+            "trend_up_prev": (s[-6] > sum(s[-205:-5]) / sc["trend_sma_days"]) if len(s) >= sc["trend_sma_days"] + 5 else None,
             "vol": round(_vol(s, sc["volatility_days"]) or 0, 4) if len(s) > sc["volatility_days"] else None,
         }
         for w in wins:
@@ -128,8 +130,8 @@ def _select_satellites(sc: dict, held: set[str], uni: dict[str, dict], pol: dict
         r = by_id.get(iid)
         if r is None:
             exits.append({"id": iid, "why": "not_rankable", "detail": "insufficient price history to rank"})
-        elif not r["trend_up"]:
-            exits.append({"id": iid, "why": "trend_down", "detail": f"close {r['close']:.2f} below 200-day average {r['sma200']:.2f}", "rank": r["rank"], "score": r["score"]})
+        elif not r["trend_up"] and (sat.get("trend_exit_confirm_weeks", 1) < 2 or r["trend_up_prev"] is False):
+            exits.append({"id": iid, "why": "trend_down", "detail": f"close {r['close']:.2f} below 200-day average {r['sma200']:.2f} for 2 consecutive weeks", "rank": r["rank"], "score": r["score"]})
         elif r["rank"] > keep_limit:
             exits.append({"id": iid, "why": "rank_dropped", "detail": f"rank {r['rank']} of {sc['n_ranked']} (keep while ≤ {keep_limit})", "rank": r["rank"], "score": r["score"]})
         else:

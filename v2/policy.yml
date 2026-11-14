@@ -21,7 +21,8 @@ satellites:
   min_history_days: 252          # need 12 months of prices to be ranked
   one_per: [theme, segment, region, factor]   # no two satellites sharing the same tag value
   hold_buffer_rank_multiple: 2   # a held satellite stays while rank <= count * 2 and trend is up
-  replacement_margin_pts: 10     # a newcomer must beat the weakest holding by 10 score points
+  replacement_margin_pts: 15     # a newcomer must beat the weakest holding by 15 score points (was 10; calmer, 2026-11-14)
+  trend_exit_confirm_weeks: 2    # sell on trend only after 2 consecutive weekly closes below the 200-day average
 
 scoring:
   # Composite = mean of percentile ranks (0–100) of these total returns in EUR.

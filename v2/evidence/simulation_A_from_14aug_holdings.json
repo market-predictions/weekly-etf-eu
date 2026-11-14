@@ -5,19 +5,19 @@
   "to": "2026-11-11",
   "weeks": 13,
   "start_value": 100851.09,
-  "end_value": 100554.44,
-  "return_pct": -0.29,
+  "end_value": 99961.01,
+  "return_pct": -0.88,
   "benchmark_return_pct": 1.21,
-  "max_drawdown_pct": -2.24,
-  "ann_vol_pct": 7.76,
-  "instrument_changes": 13,
-  "trades": 31,
-  "turnover_per_year_pct": 566.9,
-  "costs_eur": 130.94,
+  "max_drawdown_pct": -2.21,
+  "ann_vol_pct": 7.2,
+  "instrument_changes": 11,
+  "trades": 29,
+  "turnover_per_year_pct": 500.3,
+  "costs_eur": 115.23,
   "weeks_risk_off": 0,
   "rule_checks": {
    "max_changes_in_a_week": 2,
-   "max_satellite_weight_pct": 9.16,
+   "max_satellite_weight_pct": 9.22,
    "max_satellites_held": 5,
    "weeks_core_outside_40_60": 0,
    "weeks_cash_above_5pct": 5,
@@ -29,10 +29,10 @@
    "EUNA": 3557,
    "2B70": 897,
    "IS3S": 108,
-   "CBUF": 936,
-   "IS3Q": 84
+   "XAIX": 34,
+   "CBUF": 864
   },
-  "final_cash": 3098.48
+  "final_cash": 2983.58
  },
  "weeks": [
   {
@@ -103,29 +103,29 @@
   },
   {
    "date": "2026-09-30",
-   "nav": 100686.91,
+   "nav": 100702.66,
    "bench": 169.78,
    "regime": "risk_on",
    "breadth": 56.7,
-   "n_trades": 2,
-   "sats": "2B70,2B76,IS3S,L0CK,XAIX",
-   "deferred": 0,
-   "notes": "buys scaled to 100% of target by the cash/deployment limit"
-  },
-  {
-   "date": "2026-10-07",
-   "nav": 102277.02,
-   "bench": 172.92,
-   "regime": "risk_on",
-   "breadth": 60.0,
    "n_trades": 0,
-   "sats": "2B70,2B76,IS3S,L0CK,XAIX",
+   "sats": "2B70,EXV1,IS3S,L0CK,XAIX",
    "deferred": 0,
    "notes": ""
   },
   {
+   "date": "2026-10-07",
+   "nav": 101606.21,
+   "bench": 172.92,
+   "regime": "risk_on",
+   "breadth": 60.0,
+   "n_trades": 2,
+   "sats": "2B70,2B76,IS3S,L0CK,XAIX",
+   "deferred": 0,
+   "notes": "buys scaled to 94% of target by the cash/deployment limit"
+  },
+  {
    "date": "2026-10-14",
-   "nav": 101570.9,
+   "nav": 100919.86,
    "bench": 172.48,
    "regime": "risk_on",
    "breadth": 66.7,
@@ -136,7 +136,7 @@
   },
   {
    "date": "2026-10-21",
-   "nav": 101239.42,
+   "nav": 100597.48,
    "bench": 171.32,
    "regime": "risk_on",
    "breadth": 63.3,
@@ -147,7 +147,7 @@
   },
   {
    "date": "2026-10-28",
-   "nav": 102329.04,
+   "nav": 101676.95,
    "bench": 171.94,
    "regime": "risk_on",
    "breadth": 60.0,
@@ -158,25 +158,25 @@
   },
   {
    "date": "2026-11-04",
-   "nav": 100035.78,
+   "nav": 99431.52,
    "bench": 169.86,
    "regime": "risk_on",
    "breadth": 60.0,
    "n_trades": 2,
    "sats": "2B70,CBUF,IS3S,L0CK,XAIX",
    "deferred": 0,
-   "notes": "buys scaled to 95% of target by the cash/deployment limit"
+   "notes": "buys scaled to 88% of target by the cash/deployment limit"
   },
   {
    "date": "2026-11-11",
-   "nav": 100554.44,
+   "nav": 99961.01,
    "bench": 170.92,
    "regime": "risk_on",
    "breadth": 73.3,
-   "n_trades": 2,
-   "sats": "2B70,CBUF,IS3Q,IS3S,L0CK",
+   "n_trades": 0,
+   "sats": "2B70,CBUF,IS3S,L0CK,XAIX",
    "deferred": 0,
-   "notes": "buys scaled to 86% of target by the cash/deployment limit"
+   "notes": ""
   }
  ],
  "checks": [
@@ -230,59 +230,59 @@
   },
   {
    "date": "2026-09-30",
-   "changes": 2,
+   "changes": 0,
    "max_sat_weight": 0.0863,
    "n_sats": 5,
-   "core_weight": 0.5708,
-   "cash_weight": 0.0301
+   "core_weight": 0.5707,
+   "cash_weight": 0.033
   },
   {
    "date": "2026-10-07",
-   "changes": 0,
-   "max_sat_weight": 0.0884,
+   "changes": 2,
+   "max_sat_weight": 0.089,
    "n_sats": 5,
-   "core_weight": 0.5693,
-   "cash_weight": 0.0296
+   "core_weight": 0.573,
+   "cash_weight": 0.0301
   },
   {
    "date": "2026-10-14",
    "changes": 0,
-   "max_sat_weight": 0.089,
+   "max_sat_weight": 0.0896,
    "n_sats": 5,
-   "core_weight": 0.5728,
-   "cash_weight": 0.0298
+   "core_weight": 0.5765,
+   "cash_weight": 0.0303
   },
   {
    "date": "2026-10-21",
    "changes": 0,
-   "max_sat_weight": 0.0887,
+   "max_sat_weight": 0.0893,
    "n_sats": 5,
-   "core_weight": 0.5728,
-   "cash_weight": 0.0299
+   "core_weight": 0.5764,
+   "cash_weight": 0.0304
   },
   {
    "date": "2026-10-28",
    "changes": 0,
-   "max_sat_weight": 0.0916,
+   "max_sat_weight": 0.0922,
    "n_sats": 5,
-   "core_weight": 0.5687,
-   "cash_weight": 0.0296
+   "core_weight": 0.5724,
+   "cash_weight": 0.0301
   },
   {
    "date": "2026-11-04",
    "changes": 2,
-   "max_sat_weight": 0.0861,
+   "max_sat_weight": 0.0866,
    "n_sats": 5,
-   "core_weight": 0.5779,
+   "core_weight": 0.5814,
    "cash_weight": 0.03
   },
   {
    "date": "2026-11-11",
-   "changes": 2,
-   "max_sat_weight": 0.0865,
+   "changes": 0,
+   "max_sat_weight": 0.0871,
    "n_sats": 5,
-   "core_weight": 0.577,
-   "cash_weight": 0.0308
+   "core_weight": 0.5804,
+   "cash_weight": 0.0298
   }
  ]
 }
