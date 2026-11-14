@@ -221,12 +221,18 @@ def decide(d: str, holdings: dict[str, int], cash: float, prices: Prices, univer
     changes.sort(key=lambda c: c[0])
     limit = policy["turnover"]["max_instrument_changes_per_week"]
     allowed, deferred = changes[:limit], changes[limit:]
+    targets_before_defer = dict(targets)
     for _, kind, iid, info in deferred:
         dec.deferred.append({"id": iid, "kind": kind, **info, "deferred_reason": f"max {limit} instrument changes per week"})
         if kind == "exit":
             targets[iid] = holdings[iid] * px[iid] / nav  # hold as-is this week
         else:
             targets[iid] = 0.0
+            # Weight waiting for a deferred entry is parked in the benchmark (core equity)
+            # instead of cash, so waiting does not create a gap with the benchmark.
+            park = policy.get("cash", {}).get("park_pending_entries_in")
+            if park:
+                targets[park] = targets.get(park, 0.0) + targets_before_defer.get(iid, 0.0)
     change_info = {iid: (kind, info) for _, kind, iid, info in allowed}
 
     # 3. Orders: sells first, then buys within the cash/deployment budget --------

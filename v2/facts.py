@@ -42,7 +42,7 @@ def ret(prices: Prices, iid: str, d: str, days_back: int) -> float | None:
     return (end / start - 1) if end and start else None
 
 
-def attribution(hist: list[dict], d: str, names: dict) -> dict:
+def attribution(hist: list[dict], d: str, names: dict, prices: Prices) -> dict:
     """Explain the gap with the benchmark, per holding and cash, chained weekly.
 
     For each week: holding i contributes w_i × (r_i − r_bench), cash contributes
@@ -63,17 +63,18 @@ def attribution(hist: list[dict], d: str, names: dict) -> dict:
             nav = float(H[a]["nav_eur"])
             rb = float(H[b]["benchmark_close"]) / float(H[a]["benchmark_close"]) - 1
             for i, r in by.get(a, {}).items():
-                if i not in by.get(b, {}):
+                pa, pb = prices.close(i, a), prices.close(i, b)
+                if not pa or not pb:
                     continue
                 w = float(r["value_eur"]) / nav
-                ri = float(by[b][i]["close"]) / float(r["close"]) - 1
+                ri = pb / pa - 1
                 comp[i] = comp.get(i, 0.0) + w * (ri - rb)
             comp["CASH"] = comp.get("CASH", 0.0) + float(H[a]["cash_eur"]) / nav * (0 - rb)
         return comp
 
     def own_return(i, first, last):
-        a, b = by.get(first, {}).get(i), by.get(last, {}).get(i)
-        return round((float(b["close"]) / float(a["close"]) - 1) * 100, 2) if a and b else None
+        pa, pb = prices.close(i, first), prices.close(i, last)
+        return round((pb / pa - 1) * 100, 2) if pa and pb else None
 
     def start_weight(i, first):
         r = by.get(first, {}).get(i)
@@ -94,7 +95,13 @@ def attribution(hist: list[dict], d: str, names: dict) -> dict:
             "week": pack(period(pairs[-1:]), pairs[-1][0], pairs[-1][1]) if pairs else None}
 
 
-def build(d: str, with_macro: bool = True) -> dict:
+def build(d: str, with_macro: bool = True, applied: dict | None = None) -> dict:
+    """Facts for report date d.
+
+    Preview (applied=None): decide from the saved state without saving anything.
+    Live run: pass applied={"hold_before", "cash_before", "decision", "hold_after", "cash_after"}
+    after run_weekly has saved the new state, so nothing is decided twice.
+    """
     uni_all = yaml.safe_load((ROOT / "universe.yml").read_text())["instruments"]
     uni = [i for i in uni_all if i.get("status") == "verified"]
     names = {i["id"]: i["name"] for i in uni_all}
@@ -103,14 +110,17 @@ def build(d: str, with_macro: bool = True) -> dict:
     prices = Prices(list(csv.DictReader((ROOT / "state" / "prices.csv").open())))
     port = json.loads((ROOT / "state" / "portfolio.json").read_text())
     hist = list(csv.DictReader((ROOT / "state" / "history.csv").open()))
-    hold = {p["id"]: p["shares"] for p in port["positions"]}
-    cash = float(port["cash_eur"])
-
     sc = scan(prices, uni, pol, d)
     prev_d = (date.fromisoformat(d) - timedelta(days=7)).isoformat()
     sc_prev = scan(prices, uni, pol, prev_d)
-    dec = decide(d, hold, cash, prices, uni, pol, sc)
-    hold_after, cash_after = apply(hold, cash, dec)
+    if applied is None:
+        hold = {p["id"]: p["shares"] for p in port["positions"]}
+        cash = float(port["cash_eur"])
+        dec = decide(d, hold, cash, prices, uni, pol, sc)
+        hold_after, cash_after = apply(hold, cash, dec)
+    else:
+        hold, cash = applied["hold_before"], applied["cash_before"]
+        dec, hold_after, cash_after = applied["decision"], applied["hold_after"], applied["cash_after"]
 
     nav = round(cash_after + sum(sh * prices.close(i, d) for i, sh in hold_after.items()), 2)
     start = hist[0]
@@ -175,7 +185,7 @@ def build(d: str, with_macro: bool = True) -> dict:
         },
         "regime": {"state": sc["regime"], "breadth_pct": sc["breadth_pct"], "benchmark_trend": "up" if sc["benchmark_trend_up"] else "down",
                    "breadth_threshold_pct": pol["defensive_switch"]["max_breadth_pct"], "n_ranked": sc["n_ranked"]},
-        "attribution": attribution(hist, d, names),
+        "attribution": attribution(hist, d, names, prices),
         "trades": trades,
         "deferred": deferred,
         "decision_notes": dec.notes,

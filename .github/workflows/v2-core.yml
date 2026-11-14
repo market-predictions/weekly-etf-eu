@@ -36,7 +36,13 @@ jobs:
           TWELVEDATA_API_KEY: ${{ secrets.TWELVEDATA_API_KEY }}
           STOOQ_API_KEY: ${{ secrets.STOOQ_API_KEY }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-          V2_REPORT_DATE: "2026-11-11"
+          MRKT_RPRTS_SMTP_HOST: ${{ secrets.MRKT_RPRTS_SMTP_HOST }}
+          MRKT_RPRTS_SMTP_PORT: ${{ secrets.MRKT_RPRTS_SMTP_PORT }}
+          MRKT_RPRTS_SMTP_USER: ${{ secrets.MRKT_RPRTS_SMTP_USER }}
+          MRKT_RPRTS_SMTP_PASS: ${{ secrets.MRKT_RPRTS_SMTP_PASS }}
+          MRKT_RPRTS_MAIL_FROM: ${{ secrets.MRKT_RPRTS_MAIL_FROM }}
+          V2_TRIAL_TO: ${{ secrets.V2_TRIAL_TO }}
+          V2_REHEARSAL: "1"
           V2_AV_LIMIT: "2"
           V2_PRIMARY: yahoo
           V2_VERIFIER: alpha_vantage
