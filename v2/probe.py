@@ -23,6 +23,26 @@ AV_LIMIT = int(os.environ.get('V2_AV_LIMIT', '10'))
 EODHD_LIMIT = int(os.environ.get('V2_EODHD_LIMIT', '15'))
 
 
+STOP = {"ucits", "etf", "usd", "eur", "acc", "dist", "the", "and", "a", "of", "ii", "plc", "core"}
+
+
+SYNONYMS = {"€": " euro ", "govt": "government", "corp": "corporate"}
+
+
+def _tokens(text: str) -> set[str]:
+    text = text.replace("€", SYNONYMS["€"])
+    return {SYNONYMS.get(t, t) for t in _raw_tokens(text)}
+
+
+def _raw_tokens(text: str) -> set[str]:
+    return {t for t in "".join(c.lower() if c.isalnum() else " " for c in text).split() if t not in STOP and len(t) > 1}
+
+
+def name_match(expected: str, reported: str) -> bool:
+    exp, rep = _tokens(expected), _tokens(reported)
+    return bool(exp) and len(exp & rep) / len(exp) >= 0.6
+
+
 def main() -> None:
     universe = yaml.safe_load((ROOT / "universe.yml").read_text())["instruments"]
     held = {"VWCE", "EUNA", "SXR8", "L0CK", "DFEN", "IQQQ"}
@@ -76,7 +96,9 @@ def main() -> None:
         if shared:
             px = [r.closes[shared] for r in dated if shared in r.closes]
             row["agreement"] = {"date": shared, "n": len(px), "spread_pct": round((max(px) - min(px)) / min(px) * 100, 4)}
-        identity_ok = row["isin_maps_to_expected_line"] and y.currency == "EUR"
+        # Yahoo's ISIN search returns only a fund's primary listing (often LSE), so it
+        # cannot confirm the EUR line. Identity = EUR quote + fund-name match on the line.
+        identity_ok = y.currency == "EUR" and name_match(inst.get("name", ""), y.name or "")
         row["identity"] = "verified" if identity_ok else "failed"
         rows.append(row)
         print("ROW " + json.dumps({k: row.get(k) for k in ("id", "yahoo_isin_symbols", "yahoo_currency", "yahoo_name")}

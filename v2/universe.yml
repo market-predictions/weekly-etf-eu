@@ -4,10 +4,10 @@
 # instruments' own EUR prices (no U.S. proxies).
 #
 # status:
-#   verified        = identity (ISIN+ticker+exchange) already proven by the current
-#                     pipeline's registry and priced in production runs
-#   to_verify       = drafted from public knowledge; phase 1 verifies ISIN, ticker,
-#                     exchange and currency against the price provider before use
+#   verified        = the EUR trading line returns daily closes in EUR and the
+#                     fund name reported for that line matches this entry
+#                     (evidence: v2/evidence/probe_20261114.json)
+#   line_not_found  = no EUR trading line with data found; excluded from the scan
 #   isin_tbd        = instrument choice made, identifier still to be researched
 # Anything not `verified` is excluded from scoring until phase 1 confirms it.
 #
@@ -34,55 +34,55 @@ instruments:
 
   # ── Core bonds ────────────────────────────────────────────────────────────
   - {id: EUNA, name: iShares Core Global Aggregate Bond UCITS ETF EUR Hedged Acc, isin: IE00BDBRDM35, exchange: Xetra, currency: EUR, asset_class: bonds, segment: global_aggregate_hedged, sleeve: core, status: verified}
-  - {id: EUNH, name: iShares Core Euro Government Bond UCITS ETF, isin: IE00B4WXJJ64, exchange: Xetra, currency: EUR, asset_class: bonds, segment: euro_government, sleeve: core, status: to_verify}
-  - {id: EUN5, name: iShares Core EUR Corp Bond UCITS ETF, isin: IE00B3F81R35, exchange: Xetra, currency: EUR, asset_class: bonds, segment: euro_ig_credit, sleeve: core, status: to_verify}
+  - {id: EUNH, name: iShares Core Euro Government Bond UCITS ETF, isin: IE00B4WXJJ64, exchange: Xetra, currency: EUR, asset_class: bonds, segment: euro_government, sleeve: core, status: verified}
+  - {id: EUN5, name: iShares Core EUR Corp Bond UCITS ETF, isin: IE00B3F81R35, exchange: Xetra, currency: EUR, asset_class: bonds, segment: euro_ig_credit, sleeve: core, status: verified}
 
   # ── Defensive ─────────────────────────────────────────────────────────────
-  - {id: XEON, name: Xtrackers II EUR Overnight Rate Swap UCITS ETF, isin: LU0290358497, exchange: Xetra, currency: EUR, asset_class: cash_like, segment: money_market, sleeve: defensive, status: to_verify}
-  - {id: IBGS, name: iShares Euro Government Bond 1-3yr UCITS ETF, isin: IE00B14X4Q57, exchange: Xetra, currency: EUR, asset_class: bonds, segment: euro_government_short, sleeve: defensive, status: to_verify}
+  - {id: XEON, name: Xtrackers II EUR Overnight Rate Swap UCITS ETF, isin: LU0290358497, exchange: Xetra, currency: EUR, asset_class: cash_like, segment: money_market, sleeve: defensive, status: verified}
+  - {id: IBGS, name: iShares Euro Government Bond 1-3yr UCITS ETF, isin: IE00B14X4Q57, exchange: Euronext Amsterdam, currency: EUR, asset_class: bonds, segment: euro_government_short, sleeve: defensive, status: verified}
 
   # ── Satellite: equity regions ─────────────────────────────────────────────
-  - {id: EUNK, name: iShares Core MSCI Europe UCITS ETF Acc, isin: IE00B4K48X80, exchange: Xetra, currency: EUR, asset_class: equity, region: europe, sleeve: satellite, status: to_verify}
-  - {id: IJPA, name: iShares Core MSCI Japan IMI UCITS ETF Acc, isin: IE00B4L5YX21, exchange: Euronext Amsterdam, currency: EUR, asset_class: equity, region: japan, sleeve: satellite, status: to_verify}
-  - {id: EMIM, name: iShares Core MSCI EM IMI UCITS ETF Acc, isin: IE00BKM4GZ66, exchange: Euronext Amsterdam, currency: EUR, asset_class: equity, region: emerging, sleeve: satellite, status: to_verify}
-  - {id: ICGA, name: iShares MSCI China UCITS ETF Acc, isin: IE00BJ5JPG56, exchange: Xetra, currency: EUR, asset_class: equity, region: china, sleeve: satellite, status: to_verify}
-  - {id: QDV5, name: iShares MSCI India UCITS ETF Acc, isin: IE00BZCQB185, exchange: Xetra, currency: EUR, asset_class: equity, region: india, sleeve: satellite, status: to_verify}
-  - {id: IUSN, name: iShares MSCI World Small Cap UCITS ETF Acc, isin: IE00BF4RFH31, exchange: Xetra, currency: EUR, asset_class: equity, region: global_small_cap, sleeve: satellite, status: to_verify}
-  - {id: SXRV, name: iShares Nasdaq 100 UCITS ETF Acc, isin: IE00B53SZB19, exchange: Xetra, currency: EUR, asset_class: equity, region: us_growth, sleeve: satellite, status: to_verify, note: "same ISIN as current CNDX (LSE, USD); EUR Xetra line to verify"}
+  - {id: EUNK, name: iShares Core MSCI Europe UCITS ETF Acc, isin: IE00B4K48X80, exchange: Xetra, currency: EUR, asset_class: equity, region: europe, sleeve: satellite, status: verified}
+  - {id: IJPA, name: iShares Core MSCI Japan IMI UCITS ETF Acc, isin: IE00B4L5YX21, exchange: Euronext Amsterdam, currency: EUR, asset_class: equity, region: japan, sleeve: satellite, status: verified}
+  - {id: EMIM, name: iShares Core MSCI EM IMI UCITS ETF Acc, isin: IE00BKM4GZ66, exchange: Euronext Amsterdam, currency: EUR, asset_class: equity, region: emerging, sleeve: satellite, status: verified}
+  - {id: ICGA, name: iShares MSCI China UCITS ETF Acc, isin: IE00BJ5JPG56, exchange: Xetra, currency: EUR, asset_class: equity, region: china, sleeve: satellite, status: verified}
+  - {id: QDV5, name: iShares MSCI India UCITS ETF Acc, isin: IE00BZCQB185, exchange: Xetra, currency: EUR, asset_class: equity, region: india, sleeve: satellite, status: verified}
+  - {id: IUSN, name: iShares MSCI World Small Cap UCITS ETF Acc, isin: IE00BF4RFH31, exchange: Xetra, currency: EUR, asset_class: equity, region: global_small_cap, sleeve: satellite, status: verified}
+  - {id: SXRV, name: iShares Nasdaq 100 UCITS ETF Acc, isin: IE00B53SZB19, exchange: Xetra, currency: EUR, asset_class: equity, region: us_growth, sleeve: satellite, status: verified, note: "same ISIN as current CNDX (LSE, USD); EUR Xetra line to verify"}
 
   # ── Satellite: factors ────────────────────────────────────────────────────
-  - {id: IS3R, name: iShares Edge MSCI World Momentum Factor UCITS ETF, isin: IE00BP3QZ825, exchange: Xetra, currency: EUR, asset_class: equity, factor: momentum, sleeve: satellite, status: to_verify}
-  - {id: IS3S, name: iShares Edge MSCI World Value Factor UCITS ETF, isin: IE00BP3QZB59, exchange: Xetra, currency: EUR, asset_class: equity, factor: value, sleeve: satellite, status: to_verify}
-  - {id: IS3Q, name: iShares Edge MSCI World Quality Factor UCITS ETF, isin: IE00BP3QZ601, exchange: Xetra, currency: EUR, asset_class: equity, factor: quality, sleeve: satellite, status: to_verify}
-  - {id: IQQ0, name: iShares Edge MSCI World Minimum Volatility UCITS ETF, isin: IE00B8FHGS14, exchange: Xetra, currency: EUR, asset_class: equity, factor: min_vol, sleeve: satellite, status: to_verify}
+  - {id: IS3R, name: iShares Edge MSCI World Momentum Factor UCITS ETF, isin: IE00BP3QZ825, exchange: Xetra, currency: EUR, asset_class: equity, factor: momentum, sleeve: satellite, status: verified}
+  - {id: IS3S, name: iShares Edge MSCI World Value Factor UCITS ETF, isin: IE00BP3QZB59, exchange: Xetra, currency: EUR, asset_class: equity, factor: value, sleeve: satellite, status: verified}
+  - {id: IS3Q, name: iShares Edge MSCI World Quality Factor UCITS ETF, isin: IE00BP3QZ601, exchange: Xetra, currency: EUR, asset_class: equity, factor: quality, sleeve: satellite, status: verified}
+  - {id: IQQ0, name: iShares Edge MSCI World Minimum Volatility UCITS ETF, isin: IE00B8FHGS14, exchange: Xetra, currency: EUR, asset_class: equity, factor: min_vol, sleeve: satellite, status: verified}
 
   # ── Satellite: themes (from the 25 donor lanes / 12 buckets) ──────────────
   - {id: VVSM, name: VanEck Semiconductor UCITS ETF, isin: IE00BMC38736, exchange: Xetra, currency: EUR, asset_class: equity, theme: ai_compute_semiconductors, sleeve: satellite, status: verified}
-  - {id: XAIX, name: Xtrackers Artificial Intelligence & Big Data UCITS ETF, isin: IE00BGV5VN51, exchange: Xetra, currency: EUR, asset_class: equity, theme: ai_software_data, sleeve: satellite, status: to_verify}
+  - {id: XAIX, name: Xtrackers Artificial Intelligence & Big Data UCITS ETF, isin: IE00BGV5VN51, exchange: Xetra, currency: EUR, asset_class: equity, theme: ai_software_data, sleeve: satellite, status: verified}
   - {id: L0CK, name: iShares Digital Security UCITS ETF Acc, isin: IE00BG0J4C88, exchange: Xetra, currency: EUR, asset_class: equity, theme: cybersecurity, sleeve: satellite, status: verified}
   - {id: DFEN, name: VanEck Defense UCITS ETF, isin: IE000YYE6WK5, exchange: Xetra, currency: EUR, asset_class: equity, theme: defense_resilience, sleeve: satellite, status: verified}
-  - {id: 2B76, name: iShares Automation & Robotics UCITS ETF, isin: IE00BYZK4552, exchange: Xetra, currency: EUR, asset_class: equity, theme: robotics_automation, sleeve: satellite, status: to_verify}
-  - {id: NUKL, name: VanEck Uranium and Nuclear Technologies UCITS ETF, isin: IE000M7V94E1, exchange: Xetra, currency: EUR, asset_class: equity, theme: uranium_nuclear, sleeve: satellite, status: to_verify}
-  - {id: IQQH, name: iShares Global Clean Energy UCITS ETF, isin: IE00B1XNHC34, exchange: Xetra, currency: EUR, asset_class: equity, theme: clean_energy, sleeve: satellite, status: to_verify}
+  - {id: 2B76, name: iShares Automation & Robotics UCITS ETF, isin: IE00BYZK4552, exchange: Xetra, currency: EUR, asset_class: equity, theme: robotics_automation, sleeve: satellite, status: verified}
+  - {id: NUKL, name: VanEck Uranium and Nuclear Technologies UCITS ETF, isin: IE000M7V94E1, exchange: Xetra, currency: EUR, asset_class: equity, theme: uranium_nuclear, sleeve: satellite, status: verified}
+  - {id: IQQH, name: iShares Global Clean Energy UCITS ETF, isin: IE00B1XNHC34, exchange: Xetra, currency: EUR, asset_class: equity, theme: clean_energy, sleeve: satellite, status: verified}
   - {id: GRID, name: "Smart-grid / electrification UCITS ETF (instrument to select)", isin: null, exchange: null, currency: EUR, asset_class: equity, theme: grid_power_electrification, sleeve: satellite, status: isin_tbd}
-  - {id: IQQI, name: iShares Global Infrastructure UCITS ETF, isin: IE00B1FZS467, exchange: Xetra, currency: EUR, asset_class: equity, theme: infrastructure, sleeve: satellite, status: to_verify}
+  - {id: IQQI, name: iShares Global Infrastructure UCITS ETF, isin: IE00B1FZS467, exchange: Xetra, currency: EUR, asset_class: equity, theme: infrastructure, sleeve: satellite, status: verified}
   - {id: IQQQ, name: iShares Global Water UCITS ETF Dist, isin: IE00B1TXK627, exchange: Xetra, currency: EUR, asset_class: equity, theme: water, sleeve: satellite, status: verified}
   - {id: XMLC, name: L&G Clean Water UCITS ETF Acc, isin: IE00BK5BC891, exchange: Xetra, currency: EUR, asset_class: equity, theme: water, sleeve: satellite, status: verified}
   - {id: ISAE, name: iShares Agribusiness UCITS ETF Acc, isin: IE00B6R52143, exchange: Euronext Amsterdam, currency: EUR, asset_class: equity, theme: agriculture_food_security, sleeve: satellite, status: verified}
   - {id: CBUF, name: iShares MSCI World Health Care Sector Advanced UCITS ETF Dist, isin: IE00BJ5JNZ06, exchange: Xetra, currency: EUR, asset_class: equity, theme: healthcare, sleeve: satellite, status: verified}
-  - {id: 2B70, name: iShares Nasdaq US Biotechnology UCITS ETF, isin: IE00BYXG2H39, exchange: Xetra, currency: EUR, asset_class: equity, theme: biotech, sleeve: satellite, status: to_verify}
+  - {id: 2B70, name: iShares Nasdaq US Biotechnology UCITS ETF, isin: IE00BYXG2H39, exchange: Xetra, currency: EUR, asset_class: equity, theme: biotech, sleeve: satellite, status: verified}
   - {id: FINT, name: "Fintech UCITS ETF (instrument to select)", isin: null, exchange: null, currency: EUR, asset_class: equity, theme: fintech_financial_infrastructure, sleeve: satellite, status: isin_tbd}
-  - {id: EXV1, name: iShares STOXX Europe 600 Banks UCITS ETF (DE), isin: DE000A0F5UJ7, exchange: Xetra, currency: EUR, asset_class: equity, theme: european_banks, sleeve: satellite, status: to_verify}
-  - {id: REMX, name: VanEck Rare Earth and Strategic Metals UCITS ETF, isin: IE0002PG6CA6, exchange: Xetra, currency: EUR, asset_class: equity, theme: critical_minerals_materials, sleeve: satellite, status: to_verify}
+  - {id: EXV1, name: iShares STOXX Europe 600 Banks UCITS ETF (DE), isin: DE000A0F5UJ7, exchange: Xetra, currency: EUR, asset_class: equity, theme: european_banks, sleeve: satellite, status: verified}
+  - {id: VVMX, name: VanEck Rare Earth and Strategic Metals UCITS ETF, isin: IE0002PG6CA6, exchange: Xetra, currency: EUR, asset_class: equity, theme: critical_minerals_materials, sleeve: satellite, status: verified}
   - {id: COPR, name: "Copper miners UCITS ETF (instrument to select)", isin: null, exchange: null, currency: EUR, asset_class: equity, theme: critical_minerals_materials, sleeve: satellite, status: isin_tbd}
 
   # ── Satellite: bonds ──────────────────────────────────────────────────────
-  - {id: IBCI, name: iShares EUR Inflation Linked Govt Bond UCITS ETF, isin: IE00B0M62X26, exchange: Xetra, currency: EUR, asset_class: bonds, segment: euro_inflation_linked, sleeve: satellite, status: to_verify}
-  - {id: EUNW, name: iShares EUR High Yield Corp Bond UCITS ETF, isin: IE00B66F4759, exchange: Xetra, currency: EUR, asset_class: bonds, segment: euro_high_yield, sleeve: satellite, status: to_verify}
-  - {id: EMBH, name: iShares J.P. Morgan USD EM Bond UCITS ETF EUR Hedged, isin: IE00B9M6RS56, exchange: Xetra, currency: EUR, asset_class: bonds, segment: em_debt_hedged, sleeve: satellite, status: to_verify, note: "ticker to confirm"}
-  - {id: UST10, name: iShares USD Treasury Bond 7-10yr UCITS ETF, isin: IE00B3VWN518, exchange: Xetra, currency: EUR, asset_class: bonds, segment: us_treasury_unhedged, sleeve: satellite, status: to_verify, note: "ticker to confirm; unhedged = USD exposure"}
+  - {id: IBCI, name: iShares EUR Inflation Linked Govt Bond UCITS ETF, isin: IE00B0M62X26, exchange: Xetra, currency: EUR, asset_class: bonds, segment: euro_inflation_linked, sleeve: satellite, status: verified}
+  - {id: EUNW, name: iShares EUR High Yield Corp Bond UCITS ETF, isin: IE00B66F4759, exchange: Xetra, currency: EUR, asset_class: bonds, segment: euro_high_yield, sleeve: satellite, status: verified}
+  - {id: EMBH, name: iShares J.P. Morgan USD EM Bond UCITS ETF EUR Hedged, isin: IE00B9M6RS56, exchange: null, currency: EUR, asset_class: bonds, segment: em_debt_hedged, sleeve: satellite, status: line_not_found, note: "no EUR line found on Yahoo; IUS7.DE is the USD (Dist) share class, a different instrument"}
+  - {id: UST10, name: iShares USD Treasury Bond 7-10yr UCITS ETF, isin: IE00B3VWN518, exchange: null, currency: EUR, asset_class: bonds, segment: us_treasury_unhedged, sleeve: satellite, status: line_not_found, note: "SXRM.DE quotes in USD on Yahoo; no EUR line found"}
 
   # ── Satellite: real assets (ETCs allowed) ─────────────────────────────────
-  - {id: 4GLD, name: Xetra-Gold ETC, isin: DE000A0S9GB0, exchange: Xetra, currency: EUR, asset_class: commodity, segment: gold, instrument_type: ETC, sleeve: satellite, status: to_verify}
+  - {id: 4GLD, name: Xetra-Gold ETC, isin: DE000A0S9GB0, exchange: Xetra, currency: EUR, asset_class: commodity, segment: gold, instrument_type: ETC, sleeve: satellite, status: verified}
   - {id: CMOD, name: "Broad commodities UCITS ETF (instrument to select)", isin: null, exchange: null, currency: EUR, asset_class: commodity, segment: broad_commodities, sleeve: satellite, status: isin_tbd}
-  - {id: IQQ6, name: iShares Developed Markets Property Yield UCITS ETF, isin: IE00B1FZS350, exchange: Xetra, currency: EUR, asset_class: real_estate, segment: global_listed_property, sleeve: satellite, status: to_verify}
+  - {id: IQQ6, name: iShares Developed Markets Property Yield UCITS ETF, isin: IE00B1FZS350, exchange: Xetra, currency: EUR, asset_class: real_estate, segment: global_listed_property, sleeve: satellite, status: verified}

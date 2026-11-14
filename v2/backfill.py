@@ -100,7 +100,9 @@ def main() -> None:
             p = series[pos["id"]]["primary"]
             v = series[pos["id"]]["verifier"]
             pd_, px = close_on_or_before(p.closes, d)
+            px = round(px, 4) if px is not None else None
             vd_, vx = close_on_or_before(v.closes, d)
+            vx = round(vx, 4) if vx is not None else None
             status = "verified"
             spread = None
             if px is None:
