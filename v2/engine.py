@@ -225,6 +225,9 @@ def decide(d: str, holdings: dict[str, int], cash: float, prices: Prices, univer
     bps = policy["execution"]["cost_bps"] / 10_000
     band = policy["turnover"]["rebalance_band_pts"] / 100
     sells, buys = [], []
+    # Cash above its band is deployed into underweight holdings even when each
+    # holding is individually inside its rebalance band.
+    cash_excess = cash / nav > policy["cash"]["band"][1]
     for iid in sorted(set(holdings) | set(targets)):
         p = px.get(iid)
         if not p:
@@ -233,7 +236,7 @@ def decide(d: str, holdings: dict[str, int], cash: float, prices: Prices, univer
         tgt_w = targets.get(iid, 0.0)
         diff = tgt_w - cur_w
         kind, info = change_info.get(iid, (None, None))
-        if kind is None and abs(diff) <= band:
+        if kind is None and abs(diff) <= band and not (diff > 0 and cash_excess and iid in held):
             continue
         if kind is None and iid not in held and tgt_w <= 0:
             continue
@@ -244,7 +247,8 @@ def decide(d: str, holdings: dict[str, int], cash: float, prices: Prices, univer
                               "reason": info or {"why": "resize", "detail": f"weight {cur_w:.1%} vs target {tgt_w:.1%} (band {band:.0%})"}})
         elif diff > 0:
             buys.append({"id": iid, "side": "buy", "want": diff * nav, "price": p, "kind": kind or "resize",
-                         "reason": info or {"why": "resize", "detail": f"weight {cur_w:.1%} vs target {tgt_w:.1%} (band {band:.0%})"}})
+                         "reason": info or ({"why": "deploy_cash", "detail": f"cash {cash / nav:.1%} above {policy['cash']['band'][1]:.0%} ceiling; topping up toward target {tgt_w:.1%}"}
+                                            if abs(diff) <= band else {"why": "resize", "detail": f"weight {cur_w:.1%} vs target {tgt_w:.1%} (band {band:.0%})"})})
     proceeds = 0.0
     for s in sells:
         amt = s["shares"] * s["price"]

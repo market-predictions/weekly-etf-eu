@@ -66,96 +66,127 @@ date,id,side,shares,price,amount,cost,kind,why,detail
 2025-02-05,VWCE,buy,16,137.38,2198.08,2.2,resize,resize,weight 30.0% vs target 39.9% (band 2%)
 2025-02-05,XAIX,buy,4,140.78,563.12,0.56,resize,resize,weight 5.1% vs target 8.0% (band 2%)
 2025-02-12,DFEN,sell,172,37.755,6493.86,6.49,exit,replaced,ICGA scores 93 vs 77 (margin ≥ 10)
-2025-02-12,ICGA,buy,765,4.9815,3810.85,3.81,entry,selected,"rank 2 of 30, score 93, uptrend"
-2025-02-12,4GLD,buy,15,89.78,1346.7,1.35,resize,resize,weight 5.1% vs target 8.0% (band 2%)
-2025-02-12,EUNA,buy,335,4.8116,1611.89,1.61,resize,resize,weight 13.7% vs target 17.1% (band 2%)
-2025-02-12,EXV1,buy,85,24.14,2051.9,2.05,resize,resize,weight 3.7% vs target 8.0% (band 2%)
-2025-02-12,VWCE,buy,26,138.3,3595.8,3.6,resize,resize,weight 32.2% vs target 39.9% (band 2%)
+2025-02-12,ICGA,buy,721,4.9815,3591.66,3.59,entry,selected,"rank 2 of 30, score 93, uptrend"
+2025-02-12,4GLD,buy,14,89.78,1256.92,1.26,resize,resize,weight 5.1% vs target 8.0% (band 2%)
+2025-02-12,EUNA,buy,316,4.8116,1520.47,1.52,resize,resize,weight 13.7% vs target 17.1% (band 2%)
+2025-02-12,EXV1,buy,80,24.14,1931.2,1.93,resize,resize,weight 3.7% vs target 8.0% (band 2%)
+2025-02-12,L0CK,buy,83,9.391,779.45,0.78,resize,deploy_cash,cash 26.9% above 5% ceiling; topping up toward target 8.0%
+2025-02-12,VWCE,buy,24,138.3,3319.2,3.32,resize,resize,weight 32.2% vs target 39.9% (band 2%)
 2025-02-12,XAIX,buy,7,142.8,999.6,1.0,resize,resize,weight 5.8% vs target 8.0% (band 2%)
 2025-02-19,XAIX,sell,48,145.66,6991.68,6.99,exit,replaced,DFEN scores 95 vs 80 (margin ≥ 10)
-2025-02-19,DFEN,buy,154,39.775,6125.35,6.13,entry,selected,"rank 2 of 30, score 95, uptrend"
-2025-02-19,EXV1,buy,70,24.52,1716.4,1.72,resize,resize,weight 5.7% vs target 8.0% (band 2%)
-2025-02-19,ICGA,buy,621,5.141,3192.56,3.19,resize,resize,weight 3.8% vs target 8.0% (band 2%)
-2025-02-19,VWCE,buy,22,140.0,3080.0,3.08,resize,resize,weight 35.9% vs target 39.9% (band 2%)
-2025-02-26,DFEN,buy,59,38.27,2257.93,2.26,resize,resize,weight 5.8% vs target 8.0% (band 2%)
-2025-02-26,L0CK,buy,229,8.992,2059.17,2.06,resize,resize,weight 6.0% vs target 8.0% (band 2%)
-2025-03-05,VWCE,buy,20,130.3,2606.0,2.61,resize,resize,weight 37.3% vs target 39.9% (band 2%)
-2025-03-12,4GLD,sell,73,86.535,6317.05,6.32,exit,slots_reduced,risk_off allows 3 satellites; rank 4 is the weakest held
-2025-03-12,L0CK,sell,906,8.079,7319.57,7.32,exit,trend_down,close 8.08 below 200-day average 8.11
-2025-03-12,VWCE,sell,73,126.4,9227.2,9.23,resize,resize,weight 39.5% vs target 30.0% (band 2%)
-2025-03-12,EUNA,buy,2839,4.8183,13679.15,13.68,resize,resize,weight 16.0% vs target 30.0% (band 2%)
-2025-03-19,EUNA,sell,2555,4.8308,12342.69,12.34,resize,resize,weight 29.5% vs target 17.1% (band 2%)
+2025-02-19,DFEN,buy,119,39.775,4733.22,4.73,entry,selected,"rank 2 of 30, score 95, uptrend"
+2025-02-19,4GLD,buy,10,90.36,903.6,0.9,resize,deploy_cash,cash 19.9% above 5% ceiling; topping up toward target 8.0%
+2025-02-19,EUNA,buy,246,4.822,1186.21,1.19,resize,deploy_cash,cash 19.9% above 5% ceiling; topping up toward target 17.1%
+2025-02-19,EXV1,buy,58,24.52,1422.16,1.42,resize,resize,weight 5.6% vs target 8.0% (band 2%)
+2025-02-19,ICGA,buy,509,5.141,2616.77,2.62,resize,resize,weight 3.6% vs target 8.0% (band 2%)
+2025-02-19,L0CK,buy,63,9.445,595.03,0.6,resize,deploy_cash,cash 19.9% above 5% ceiling; topping up toward target 8.0%
+2025-02-19,VWCE,buy,18,140.0,2520.0,2.52,resize,resize,weight 35.6% vs target 39.9% (band 2%)
+2025-02-26,4GLD,buy,6,89.11,534.66,0.53,resize,deploy_cash,cash 13.2% above 5% ceiling; topping up toward target 8.0%
+2025-02-26,DFEN,buy,64,38.27,2449.28,2.45,resize,resize,weight 4.5% vs target 8.0% (band 2%)
+2025-02-26,EUNA,buy,79,4.8697,384.71,0.38,resize,deploy_cash,cash 13.2% above 5% ceiling; topping up toward target 17.1%
+2025-02-26,EXV1,buy,16,25.715,411.44,0.41,resize,deploy_cash,cash 13.2% above 5% ceiling; topping up toward target 8.0%
+2025-02-26,ICGA,buy,214,5.284,1130.78,1.13,resize,deploy_cash,cash 13.2% above 5% ceiling; topping up toward target 8.0%
+2025-02-26,L0CK,buy,57,8.992,512.54,0.51,resize,deploy_cash,cash 13.2% above 5% ceiling; topping up toward target 8.0%
+2025-02-26,VWCE,buy,11,137.22,1509.42,1.51,resize,resize,weight 37.6% vs target 39.9% (band 2%)
+2025-03-05,4GLD,buy,2,87.48,174.96,0.17,resize,deploy_cash,cash 6.5% above 5% ceiling; topping up toward target 8.0%
+2025-03-05,DFEN,buy,12,40.555,486.66,0.49,resize,deploy_cash,cash 6.5% above 5% ceiling; topping up toward target 8.0%
+2025-03-05,ICGA,buy,103,5.122,527.57,0.53,resize,deploy_cash,cash 6.5% above 5% ceiling; topping up toward target 8.0%
+2025-03-05,L0CK,buy,52,8.5,442.0,0.44,resize,deploy_cash,cash 6.5% above 5% ceiling; topping up toward target 8.0%
+2025-03-05,VWCE,buy,13,130.3,1693.9,1.69,resize,deploy_cash,cash 6.5% above 5% ceiling; topping up toward target 39.9%
+2025-03-12,4GLD,sell,90,86.535,7788.15,7.79,exit,slots_reduced,risk_off allows 3 satellites; rank 4 is the weakest held
+2025-03-12,L0CK,sell,932,8.079,7529.63,7.53,exit,trend_down,close 8.08 below 200-day average 8.11
+2025-03-12,VWCE,sell,72,126.4,9100.8,9.1,resize,resize,weight 39.3% vs target 30.0% (band 2%)
+2025-03-12,EUNA,buy,2521,4.8183,12146.93,12.15,resize,resize,weight 17.5% vs target 30.0% (band 2%)
+2025-03-19,EUNA,sell,2551,4.8308,12323.37,12.32,resize,resize,weight 29.5% vs target 17.1% (band 2%)
 2025-03-19,4GLD,buy,66,89.725,5921.85,5.92,entry,selected,"rank 4 of 30, score 90, uptrend"
-2025-03-19,EUNK,buy,69,86.17,5945.73,5.95,entry,selected,"rank 5 of 30, score 80, uptrend"
-2025-03-19,VWCE,buy,57,128.46,7322.22,7.32,resize,resize,weight 30.0% vs target 39.9% (band 2%)
-2025-03-26,4GLD,buy,20,89.94,1798.8,1.8,resize,resize,weight 6.0% vs target 8.0% (band 2%)
-2025-03-26,EUNK,buy,22,85.12,1872.64,1.87,resize,resize,weight 5.9% vs target 8.0% (band 2%)
+2025-03-19,EUNK,buy,68,86.17,5859.56,5.86,entry,selected,"rank 5 of 30, score 80, uptrend"
+2025-03-19,VWCE,buy,57,128.46,7322.22,7.32,resize,resize,weight 29.9% vs target 39.9% (band 2%)
+2025-03-26,4GLD,buy,19,89.94,1708.86,1.71,resize,resize,weight 6.0% vs target 8.0% (band 2%)
+2025-03-26,EUNA,buy,7,4.8157,33.71,0.03,resize,deploy_cash,cash 8.7% above 5% ceiling; topping up toward target 17.1%
+2025-03-26,EUNK,buy,22,85.12,1872.64,1.87,resize,resize,weight 5.8% vs target 8.0% (band 2%)
+2025-03-26,ICGA,buy,6,5.101,30.61,0.03,resize,deploy_cash,cash 8.7% above 5% ceiling; topping up toward target 8.0%
 2025-03-26,VWCE,buy,14,130.02,1820.28,1.82,resize,resize,weight 37.8% vs target 39.9% (band 2%)
-2025-04-02,EUNK,sell,91,83.44,7593.04,7.59,exit,slots_reduced,risk_off allows 3 satellites; rank 6 is the weakest held
-2025-04-02,ICGA,sell,1386,4.9805,6902.97,6.9,exit,slots_reduced,risk_off allows 3 satellites; rank 4 is the weakest held
-2025-04-02,VWCE,sell,72,127.3,9165.6,9.17,resize,resize,weight 39.3% vs target 30.0% (band 2%)
-2025-04-02,EUNA,buy,2537,4.8587,12326.52,12.33,resize,resize,weight 17.4% vs target 30.0% (band 2%)
-2025-04-09,XEON,buy,37,145.922,5399.11,5.4,entry,core_or_defensive,core/defensive allocation
-2025-04-09,VWCE,buy,8,110.5,884.0,0.88,resize,resize,weight 27.8% vs target 30.0% (band 2%)
-2025-04-16,XEON,buy,36,145.998,5255.93,5.26,resize,resize,weight 5.7% vs target 13.0% (band 2%)
-2025-05-14,EUNA,sell,2519,4.8238,12151.15,12.15,resize,resize,weight 29.3% vs target 17.1% (band 2%)
+2025-04-02,EUNK,sell,90,83.44,7509.6,7.51,exit,slots_reduced,risk_off allows 3 satellites; rank 6 is the weakest held
+2025-04-02,ICGA,sell,1553,4.9805,7734.72,7.73,exit,slots_reduced,risk_off allows 3 satellites; rank 4 is the weakest held
+2025-04-02,VWCE,sell,71,127.3,9038.3,9.04,resize,resize,weight 39.3% vs target 30.0% (band 2%)
+2025-04-02,EUNA,buy,2523,4.8587,12258.5,12.26,resize,resize,weight 17.5% vs target 30.0% (band 2%)
+2025-04-09,XEON,buy,35,145.922,5107.27,5.11,entry,core_or_defensive,core/defensive allocation
+2025-04-09,EXV1,buy,13,21.515,279.69,0.28,resize,deploy_cash,cash 16.5% above 5% ceiling; topping up toward target 8.0%
+2025-04-09,VWCE,buy,7,110.5,773.5,0.77,resize,resize,weight 27.9% vs target 30.0% (band 2%)
+2025-04-16,VWCE,buy,4,116.9,467.6,0.47,resize,deploy_cash,cash 9.4% above 5% ceiling; topping up toward target 30.0%
+2025-04-16,XEON,buy,37,145.998,5401.93,5.4,resize,resize,weight 5.4% vs target 13.0% (band 2%)
+2025-04-23,XEON,buy,1,146.012,146.01,0.15,resize,resize,weight 11.0% vs target 13.0% (band 2%)
+2025-05-14,EUNA,sell,2511,4.8238,12112.56,12.11,resize,resize,weight 29.3% vs target 17.1% (band 2%)
 2025-05-14,XEON,sell,73,146.195,10672.23,10.67,exit,not_in_target,not part of the target portfolio (core is VWCE + EUNA)
-2025-05-14,ICGA,buy,1610,4.951,7971.11,7.97,entry,selected,"rank 4 of 30, score 86, uptrend"
-2025-05-14,VWCE,buy,68,129.46,8803.28,8.8,resize,resize,weight 31.0% vs target 39.9% (band 2%)
+2025-05-14,ICGA,buy,1606,4.951,7951.31,7.95,entry,selected,"rank 4 of 30, score 86, uptrend"
+2025-05-14,VWCE,buy,64,129.46,8285.44,8.29,resize,resize,weight 31.5% vs target 39.9% (band 2%)
 2025-05-21,EUNK,buy,67,87.18,5841.06,5.84,entry,selected,"rank 4 of 30, score 79, uptrend"
-2025-05-28,DFEN,sell,45,47.525,2138.62,2.14,resize,resize,weight 10.1% vs target 8.0% (band 2%)
-2025-05-28,ICGA,sell,1610,4.706,7576.66,7.58,exit,replaced,NUKL scores 91 vs 61 (margin ≥ 10)
-2025-05-28,NUKL,buy,212,35.865,7603.38,7.6,entry,selected,"rank 4 of 30, score 91, uptrend"
-2025-05-28,EUNK,buy,24,86.39,2073.36,2.07,resize,resize,weight 5.8% vs target 8.0% (band 2%)
-2025-07-09,4GLD,sell,86,90.895,7816.97,7.82,exit,replaced,XAIX scores 75 vs 64 (margin ≥ 10)
-2025-07-09,XAIX,buy,56,138.06,7731.36,7.73,entry,selected,"rank 4 of 30, score 75, uptrend"
-2025-07-23,EUNK,sell,91,86.68,7887.88,7.89,exit,replaced,VVMX scores 89 vs 60 (margin ≥ 10)
-2025-07-23,VVMX,buy,910,8.7,7917.0,7.92,entry,selected,"rank 3 of 30, score 89, uptrend"
-2025-08-13,XAIX,sell,56,140.64,7875.84,7.88,exit,replaced,ICGA scores 84 vs 66 (margin ≥ 10)
-2025-08-13,ICGA,buy,1505,5.175,7788.38,7.79,entry,selected,"rank 5 of 30, score 84, uptrend"
-2025-08-27,ICGA,sell,1505,5.184,7801.92,7.8,exit,replaced,VVSM scores 82 vs 67 (margin ≥ 10)
-2025-08-27,VVSM,buy,182,42.53,7740.46,7.74,entry,selected,"rank 4 of 30, score 82, uptrend"
-2025-10-15,DFEN,sell,168,53.27,8949.36,8.95,exit,replaced,IQQH scores 84 vs 71 (margin ≥ 10)
-2025-10-15,NUKL,sell,56,59.77,3347.12,3.35,resize,resize,weight 10.9% vs target 8.0% (band 2%)
-2025-10-15,VVMX,sell,206,13.226,2724.56,2.72,resize,resize,weight 10.3% vs target 8.0% (band 2%)
-2025-10-15,IQQH,buy,1120,8.302,9298.24,9.3,entry,selected,"rank 4 of 30, score 84, uptrend"
-2025-10-15,EUNA,buy,477,4.957,2364.49,2.36,resize,resize,weight 15.1% vs target 17.1% (band 2%)
-2025-10-15,VWCE,buy,20,141.68,2833.6,2.83,resize,resize,weight 37.4% vs target 39.9% (band 2%)
-2025-10-22,EXV1,sell,310,29.945,9282.95,9.28,exit,rank_dropped,rank 14 of 30 (keep while ≤ 10)
-2025-10-22,4GLD,buy,81,111.64,9042.84,9.04,entry,selected,"rank 4 of 30, score 82, uptrend"
-2025-12-17,NUKL,sell,156,44.435,6931.86,6.93,exit,rank_dropped,rank 12 of 30 (keep while ≤ 10)
-2025-12-17,EXV1,buy,218,34.18,7451.24,7.45,entry,selected,"rank 2 of 30, score 93, uptrend"
-2026-01-21,IQQH,sell,1120,8.674,9714.88,9.71,exit,replaced,DFEN scores 87 vs 68 (margin ≥ 10)
-2026-01-21,DFEN,buy,151,62.35,9414.85,9.41,entry,selected,"rank 4 of 30, score 87, uptrend"
-2026-02-11,DFEN,sell,151,56.53,8536.03,8.54,exit,rank_dropped,rank 13 of 30 (keep while ≤ 10)
-2026-02-11,NUKL,buy,152,55.8,8481.6,8.48,entry,selected,"rank 4 of 30, score 89, uptrend"
-2026-03-04,EXV1,sell,218,34.51,7523.18,7.52,exit,rank_dropped,rank 11 of 30 (keep while ≤ 10)
-2026-03-04,DFEN,buy,120,62.32,7478.4,7.48,entry,selected,"rank 5 of 30, score 87, uptrend"
-2026-03-25,NUKL,sell,152,50.84,7727.68,7.73,exit,replaced,IQQH scores 90 vs 75 (margin ≥ 10)
-2026-03-25,IQQH,buy,846,9.348,7908.41,7.91,entry,selected,"rank 3 of 30, score 90, uptrend"
-2026-04-08,DFEN,sell,120,60.91,7309.2,7.31,exit,replaced,ISAE scores 84 vs 71 (margin ≥ 10)
-2026-04-08,ISAE,buy,141,51.0246,7194.47,7.19,entry,selected,"rank 3 of 30, score 84, uptrend"
-2026-04-15,4GLD,sell,81,130.8,10594.8,10.59,exit,replaced,IS3S scores 83 vs 69 (margin ≥ 10)
-2026-04-15,VVSM,sell,37,67.45,2495.65,2.5,resize,resize,weight 10.1% vs target 8.0% (band 2%)
-2026-04-15,IS3S,buy,172,56.67,9747.24,9.75,entry,selected,"rank 4 of 30, score 83, uptrend"
-2026-04-15,ISAE,buy,55,49.7378,2735.58,2.74,resize,resize,weight 5.7% vs target 8.0% (band 2%)
-2026-04-29,ISAE,sell,196,49.591,9719.84,9.72,exit,replaced,EMIM scores 79 vs 67 (margin ≥ 10)
-2026-04-29,EMIM,buy,226,44.018,9948.07,9.95,entry,selected,"rank 5 of 30, score 79, uptrend"
-2026-05-13,EMIM,sell,226,46.79,10574.54,10.57,exit,replaced,XAIX scores 89 vs 78 (margin ≥ 10)
-2026-05-13,XAIX,buy,43,191.46,8232.78,8.23,entry,selected,"rank 3 of 30, score 89, uptrend"
-2026-05-13,EUNA,buy,467,4.898,2287.37,2.29,resize,resize,weight 14.9% vs target 17.1% (band 2%)
-2026-05-27,VVSM,sell,30,93.32,2799.6,2.8,resize,resize,weight 10.1% vs target 8.0% (band 2%)
-2026-06-10,VVMX,sell,704,14.572,10258.69,10.26,exit,rank_dropped,rank 11 of 30 (keep while ≤ 10)
-2026-06-10,2B76,buy,610,17.04,10394.4,10.39,entry,selected,"rank 5 of 30, score 83, uptrend"
-2026-07-08,IQQH,sell,846,9.492,8030.23,8.03,exit,rank_dropped,rank 12 of 30 (keep while ≤ 10)
-2026-07-08,2B70,buy,1223,8.629,10553.27,10.55,entry,selected,"rank 5 of 30, score 85, uptrend"
-2026-08-05,2B76,sell,610,18.614,11354.54,11.35,exit,replaced,EXV1 scores 90 vs 79 (margin ≥ 10)
-2026-08-05,EXV1,buy,251,42.6,10692.6,10.69,entry,selected,"rank 4 of 30, score 90, uptrend"
-2026-08-19,VVSM,sell,115,89.92,10340.8,10.34,exit,replaced,L0CK scores 84 vs 72 (margin ≥ 10)
-2026-08-19,L0CK,buy,994,10.75,10685.5,10.69,entry,selected,"rank 4 of 30, score 84, uptrend"
-2026-09-30,EXV1,sell,251,41.82,10496.82,10.5,exit,replaced,2B76 scores 86 vs 71 (margin ≥ 10)
-2026-09-30,2B76,buy,557,19.306,10753.44,10.75,entry,selected,"rank 5 of 30, score 86, uptrend"
-2026-11-04,2B76,sell,557,18.228,10153.0,10.15,exit,rank_dropped,rank 12 of 30 (keep while ≤ 10)
-2026-11-04,CBUF,buy,1256,8.09,10161.04,10.16,entry,selected,"rank 2 of 30, score 94, uptrend"
-2026-11-11,XAIX,sell,43,204.25,8782.75,8.78,exit,replaced,IS3Q scores 75 vs 62 (margin ≥ 10)
-2026-11-11,IS3Q,buy,107,81.4,8709.8,8.71,entry,selected,"rank 5 of 30, score 75, uptrend"
+2025-05-21,EUNA,buy,11,4.8293,53.12,0.05,resize,deploy_cash,cash 9.4% above 5% ceiling; topping up toward target 17.1%
+2025-05-21,ICGA,buy,32,4.854,155.33,0.16,resize,deploy_cash,cash 9.4% above 5% ceiling; topping up toward target 8.0%
+2025-05-21,VWCE,buy,2,129.32,258.64,0.26,resize,deploy_cash,cash 9.4% above 5% ceiling; topping up toward target 39.9%
+2025-05-28,ICGA,sell,1638,4.706,7708.43,7.71,exit,replaced,NUKL scores 91 vs 61 (margin ≥ 10)
+2025-05-28,NUKL,buy,171,35.865,6132.91,6.13,entry,selected,"rank 4 of 30, score 91, uptrend"
+2025-05-28,EUNK,buy,19,86.39,1641.41,1.64,resize,resize,weight 5.8% vs target 8.0% (band 2%)
+2025-06-04,NUKL,buy,1,34.545,34.55,0.03,resize,resize,weight 5.9% vs target 8.0% (band 2%)
+2025-07-09,4GLD,sell,85,90.895,7726.07,7.73,exit,replaced,XAIX scores 75 vs 64 (margin ≥ 10)
+2025-07-09,XAIX,buy,55,138.06,7593.3,7.59,entry,selected,"rank 4 of 30, score 75, uptrend"
+2025-07-23,EUNK,sell,86,86.68,7454.48,7.45,exit,replaced,VVMX scores 89 vs 60 (margin ≥ 10)
+2025-07-23,VVMX,buy,861,8.7,7490.7,7.49,entry,selected,"rank 3 of 30, score 89, uptrend"
+2025-08-13,XAIX,sell,55,140.64,7735.2,7.74,exit,replaced,ICGA scores 84 vs 66 (margin ≥ 10)
+2025-08-13,ICGA,buy,1478,5.175,7648.65,7.65,entry,selected,"rank 5 of 30, score 84, uptrend"
+2025-08-27,ICGA,sell,1478,5.184,7661.95,7.66,exit,replaced,VVSM scores 82 vs 67 (margin ≥ 10)
+2025-08-27,VVSM,buy,179,42.53,7612.87,7.61,entry,selected,"rank 4 of 30, score 82, uptrend"
+2025-10-15,DFEN,sell,195,53.27,10387.65,10.39,exit,replaced,IQQH scores 84 vs 71 (margin ≥ 10)
+2025-10-15,IQQH,buy,1108,8.302,9198.62,9.2,entry,selected,"rank 4 of 30, score 84, uptrend"
+2025-10-22,EXV1,sell,322,29.945,9642.29,9.64,exit,rank_dropped,rank 14 of 30 (keep while ≤ 10)
+2025-10-22,4GLD,buy,79,111.64,8819.56,8.82,entry,selected,"rank 4 of 30, score 82, uptrend"
+2025-12-17,NUKL,sell,172,44.435,7642.82,7.64,exit,rank_dropped,rank 12 of 30 (keep while ≤ 10)
+2025-12-17,EXV1,buy,259,34.18,8852.62,8.85,entry,selected,"rank 2 of 30, score 93, uptrend"
+2026-01-07,VVMX,sell,206,14.39,2964.34,2.96,resize,resize,weight 10.5% vs target 8.0% (band 2%)
+2026-01-07,EUNA,buy,540,4.9337,2664.2,2.66,resize,resize,weight 14.8% vs target 17.1% (band 2%)
+2026-01-21,IQQH,sell,1108,8.674,9610.79,9.61,exit,replaced,DFEN scores 87 vs 68 (margin ≥ 10)
+2026-01-21,DFEN,buy,129,62.35,8043.15,8.04,entry,selected,"rank 4 of 30, score 87, uptrend"
+2026-01-21,VWCE,buy,14,147.0,2058.0,2.06,resize,resize,weight 37.8% vs target 39.9% (band 2%)
+2026-02-11,DFEN,sell,129,56.53,7292.37,7.29,exit,rank_dropped,rank 13 of 30 (keep while ≤ 10)
+2026-02-11,NUKL,buy,132,55.8,7365.6,7.37,entry,selected,"rank 4 of 30, score 89, uptrend"
+2026-03-04,EXV1,sell,259,34.51,8938.09,8.94,exit,rank_dropped,rank 11 of 30 (keep while ≤ 10)
+2026-03-04,DFEN,buy,113,62.32,7042.16,7.04,entry,selected,"rank 5 of 30, score 87, uptrend"
+2026-03-04,NUKL,buy,33,54.69,1804.77,1.8,resize,resize,weight 6.0% vs target 8.0% (band 2%)
+2026-03-11,DFEN,buy,1,61.89,61.89,0.06,resize,resize,weight 5.8% vs target 8.0% (band 2%)
+2026-03-25,NUKL,sell,165,50.84,8388.6,8.39,exit,replaced,IQQH scores 90 vs 75 (margin ≥ 10)
+2026-03-25,IQQH,buy,723,9.348,6758.6,6.76,entry,selected,"rank 3 of 30, score 90, uptrend"
+2026-03-25,DFEN,buy,28,60.63,1697.64,1.7,resize,resize,weight 5.9% vs target 8.0% (band 2%)
+2026-04-01,IQQH,buy,5,9.115,45.58,0.05,resize,resize,weight 5.7% vs target 8.0% (band 2%)
+2026-04-08,DFEN,sell,142,60.91,8649.22,8.65,exit,replaced,ISAE scores 84 vs 71 (margin ≥ 10)
+2026-04-08,ISAE,buy,129,51.0246,6582.17,6.58,entry,selected,"rank 3 of 30, score 84, uptrend"
+2026-04-08,IQQH,buy,218,9.093,1982.27,1.98,resize,resize,weight 5.6% vs target 8.0% (band 2%)
+2026-04-15,4GLD,sell,79,130.8,10333.2,10.33,exit,replaced,IS3S scores 83 vs 69 (margin ≥ 10)
+2026-04-15,IS3S,buy,135,56.67,7650.45,7.65,entry,selected,"rank 4 of 30, score 83, uptrend"
+2026-04-15,ISAE,buy,51,49.7378,2536.63,2.54,resize,resize,weight 5.3% vs target 8.0% (band 2%)
+2026-04-22,VVSM,sell,41,71.54,2933.14,2.93,resize,resize,weight 10.4% vs target 8.0% (band 2%)
+2026-04-29,ISAE,sell,180,49.591,8926.38,8.93,exit,replaced,EMIM scores 79 vs 67 (margin ≥ 10)
+2026-04-29,EMIM,buy,196,44.018,8627.53,8.63,entry,selected,"rank 5 of 30, score 79, uptrend"
+2026-04-29,EUNA,buy,203,4.9026,995.23,1.0,resize,deploy_cash,cash 5.4% above 5% ceiling; topping up toward target 17.1%
+2026-04-29,IQQH,buy,43,9.933,427.12,0.43,resize,deploy_cash,cash 5.4% above 5% ceiling; topping up toward target 8.0%
+2026-04-29,IS3S,buy,28,58.96,1650.88,1.65,resize,deploy_cash,cash 5.4% above 5% ceiling; topping up toward target 8.0%
+2026-05-13,EMIM,sell,196,46.79,9170.84,9.17,exit,replaced,XAIX scores 89 vs 78 (margin ≥ 10)
+2026-05-13,XAIX,buy,47,191.46,8998.62,9.0,entry,selected,"rank 3 of 30, score 89, uptrend"
+2026-06-03,VVSM,sell,31,101.8,3155.8,3.16,resize,resize,weight 10.3% vs target 8.0% (band 2%)
+2026-06-10,VVMX,sell,655,14.572,9544.66,9.54,exit,rank_dropped,rank 11 of 30 (keep while ≤ 10)
+2026-06-10,2B76,buy,577,17.04,9832.08,9.83,entry,selected,"rank 5 of 30, score 83, uptrend"
+2026-06-10,EUNA,buy,198,4.907,971.59,0.97,resize,deploy_cash,cash 5.5% above 5% ceiling; topping up toward target 17.1%
+2026-06-10,IQQH,buy,47,9.922,466.33,0.47,resize,deploy_cash,cash 5.5% above 5% ceiling; topping up toward target 8.0%
+2026-06-10,VVSM,buy,4,92.18,368.72,0.37,resize,deploy_cash,cash 5.5% above 5% ceiling; topping up toward target 8.0%
+2026-06-10,XAIX,buy,4,198.3,793.2,0.79,resize,deploy_cash,cash 5.5% above 5% ceiling; topping up toward target 8.0%
+2026-07-08,IQQH,sell,1036,9.492,9833.71,9.83,exit,rank_dropped,rank 12 of 30 (keep while ≤ 10)
+2026-07-08,2B70,buy,1172,8.629,10113.19,10.11,entry,selected,"rank 5 of 30, score 85, uptrend"
+2026-08-05,2B76,sell,577,18.614,10740.28,10.74,exit,replaced,EXV1 scores 90 vs 79 (margin ≥ 10)
+2026-08-05,EXV1,buy,249,42.6,10607.4,10.61,entry,selected,"rank 4 of 30, score 90, uptrend"
+2026-08-19,VVSM,sell,111,89.92,9981.12,9.98,exit,replaced,L0CK scores 84 vs 72 (margin ≥ 10)
+2026-08-19,L0CK,buy,932,10.75,10019.0,10.02,entry,selected,"rank 4 of 30, score 84, uptrend"
+2026-09-30,EXV1,sell,249,41.82,10413.18,10.41,exit,replaced,2B76 scores 86 vs 71 (margin ≥ 10)
+2026-09-30,2B76,buy,534,19.306,10309.4,10.31,entry,selected,"rank 5 of 30, score 86, uptrend"
+2026-11-04,2B76,sell,534,18.228,9733.75,9.73,exit,rank_dropped,rank 12 of 30 (keep while ≤ 10)
+2026-11-04,CBUF,buy,1205,8.09,9748.45,9.75,entry,selected,"rank 2 of 30, score 94, uptrend"
+2026-11-11,XAIX,sell,51,204.25,10416.75,10.42,exit,replaced,IS3Q scores 75 vs 62 (margin ≥ 10)
+2026-11-11,IS3Q,buy,127,81.4,10337.8,10.34,entry,selected,"rank 5 of 30, score 75, uptrend"
