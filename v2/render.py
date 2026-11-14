@@ -220,10 +220,11 @@ def page_scan(f, c, lang, method=""):
             mac.append(f'<tr class="muted"><td>{e(m["label_" + lang])}</td><td colspan="4">{t("unavailable", lang)}</td></tr>')
             continue
         u = m["unit"]
-        nd = 4 if not u else 2
+        monthly = m.get("source") == "eurostat"
+        nd = 4 if not u else (1 if monthly else 2)
         stale = f' <span class="pill">{t("not_current", lang)}</span>' if m.get("stale") else ""
         mac.append(f'<tr><td>{e(m["label_" + lang])}{stale}</td><td class="num"><b>{num(m["value"], lang, nd)}{u}</b></td><td class="num">{num(m["value_1m_ago"], lang, nd)}{u if m["value_1m_ago"] is not None else ""}</td>'
-                   f'<td class="num">{num(m["value_1y_ago"], lang, nd)}{u if m["value_1y_ago"] is not None else ""}</td><td class="num sub-inline">{long_date(m["date"], lang) if len(m["date"]) == 10 else e(m["date"])}</td></tr>')
+                   f'<td class="num">{num(m["value_1y_ago"], lang, nd)}{u if m["value_1y_ago"] is not None else ""}</td><td class="num sub-inline">{(MONTHS[lang][int(m["date"][5:7]) - 1] + " " + m["date"][:4]) if monthly else long_date(m["date"], lang)}</td></tr>')
     watch = "".join(f"<li>{e(w)}</li>" for w in c.get("watch", []))
     return f'''<section class="page">
 <h2>{t("scan", lang)}</h2>
