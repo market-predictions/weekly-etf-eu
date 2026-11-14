@@ -27,12 +27,22 @@ Rehearsal (Actions → *Weekly ETF Review (v2)* → *Run workflow*, rehearsal on
 replays the latest saved week on a scratch copy, sends the email to the owner
 only, and never touches the saved state.
 
+## Portfolio design
+
+- **Core (fixed):** VWCE (world equity) + EUNA (global bonds, EUR-hedged), 57% in normal markets, max 60%.
+  Kept on purpose: an 11-year test (2016–2026) showed that dropping the core adds volatility
+  without adding return (see the decision of 2026-11-15).
+- **Satellites:** 5 slots of ~8% (3 when defensive), chosen weekly from the scan.
+- **Reference funds** (`sleeve: reference`, e.g. IWDA, SXR8): shown for context, never bought.
+- **Benchmark:** 70% VWCE / 30% EUNA, rebalanced weekly — the same risk balance as the core.
+  The defensive switch uses VWCE's own trend (`trend_reference`).
+
 ## Files
 
 | File | Role |
 |---|---|
 | `universe.yml` | Every instrument the scan may rank (ISIN, EUR line, role, tags, verification status) |
-| `policy.yml` | The investment rules (core, satellites, defensive switch, cash, turnover, costs) |
+| `policy.yml` | The investment rules (core, satellites, defensive switch, cash, turnover, costs) and the benchmark |
 | `delivery.yml` | `off` / `trial` (owner only) / `live` (readers) |
 | `sources.py` | Price sources (Yahoo primary, Alpha Vantage cross-check) |
 | `market.py` | Refresh `state/prices.csv` |

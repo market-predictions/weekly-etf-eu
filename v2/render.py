@@ -32,7 +32,8 @@ T = {
     "h_happened": {"en": "What happened", "nl": "Wat er gebeurde"},
     "h_why": {"en": "Why", "nl": "Waarom"},
     "h_do": {"en": "What we are doing", "nl": "Wat we doen"},
-    "att_title": {"en": "What explains the gap with VWCE", "nl": "Wat verklaart het verschil met VWCE"},
+    "att_title": {"en": "What explains the gap with the benchmark", "nl": "Wat verklaart het verschil met de benchmark"},
+    "bench_label": {"en": "Benchmark (70% VWCE / 30% EUNA)", "nl": "Benchmark (70% VWCE / 30% EUNA)"},
     "att_sub": {"en": "Contribution since {d}, percentage points", "nl": "Bijdrage sinds {d}, procentpunt"},
     "att_total": {"en": "Total gap", "nl": "Totaal verschil"},
     "cash_item": {"en": "Cash", "nl": "Kas"},
@@ -47,7 +48,7 @@ T = {
     "role": {"en": "Role", "nl": "Rol"}, "weight": {"en": "Weight", "nl": "Gewicht"},
     "w1": {"en": "1 wk", "nl": "1 wk"}, "m3": {"en": "3 mo", "nl": "3 mnd"}, "m6": {"en": "6 mo", "nl": "6 mnd"}, "m12": {"en": "12 mo", "nl": "12 mnd"},
     "trend": {"en": "Trend", "nl": "Trend"}, "rank": {"en": "Rank", "nl": "Rang"}, "score": {"en": "Score", "nl": "Score"},
-    "core": {"en": "Core", "nl": "Kern"}, "satellite": {"en": "Satellite", "nl": "Satelliet"}, "defensive": {"en": "Defensive", "nl": "Defensief"},
+    "core": {"en": "Core", "nl": "Kern"}, "reference": {"en": "To sell", "nl": "Te verkopen"}, "satellite": {"en": "Satellite", "nl": "Satelliet"}, "defensive": {"en": "Defensive", "nl": "Defensief"},
     "up": {"en": "Up", "nl": "Op"}, "down": {"en": "Down", "nl": "Neer"},
     "scan": {"en": "The scan: all funds ranked", "nl": "De scan: alle fondsen gerangschikt"},
     "scan_intro": {"en": "{n} funds ranked on 3-, 6- and 12-month returns (score 0–100). Trend is up when the price is above its 200-day average.",
@@ -72,7 +73,8 @@ WHY_DROP = re.compile(r"[a-z]+_[a-z_]+")  # internal identifiers must never reac
 
 
 def t(key: str, lang: str, **kw) -> str:
-    return T[key][lang].format(**kw)
+    entry = T.get(key)
+    return entry[lang].format(**kw) if entry else str(key).replace("_", " ")
 
 
 def e(x) -> str:
@@ -144,7 +146,7 @@ def chart_svg(points: list[dict], lang: str) -> str:
 <circle cx="{X(n - 1):.1f}" cy="{Y(lb):.1f}" r="3" fill="{ORANGE}" stroke="#fff" stroke-width="2"/>
 <circle cx="{X(n - 1):.1f}" cy="{Y(lp):.1f}" r="3" fill="{BLUE}" stroke="#fff" stroke-width="2"/>
 <text x="{X(n - 1) + 8:.1f}" y="{yp + 3:.1f}" font-family="Inter" font-weight="600" font-size="9.5" fill="#1d1d1b">{t("portfolio", lang)} {num(lp, lang)}</text>
-<text x="{X(n - 1) + 8:.1f}" y="{yb + 3:.1f}" font-family="Inter" font-weight="600" font-size="9.5" fill="#1d1d1b">VWCE {num(lb, lang)}</text>
+<text x="{X(n - 1) + 8:.1f}" y="{yb + 3:.1f}" font-family="Inter" font-weight="600" font-size="9.5" fill="#1d1d1b">Benchmark {num(lb, lang)}</text>
 </svg>'''
 
 
@@ -211,7 +213,7 @@ def page_summary(f, c, lang):
 <h1>{e(c["headline"])}</h1>
 <div class="kpis">{tiles}</div>
 <div class="chart-head"><span>{t("chart_title", lang)} {long_date(f["track_record_start"], lang)}</span>
-<span class="legend"><i style="background:{BLUE}"></i>{t("portfolio", lang)} <i style="background:{ORANGE}"></i>VWCE (benchmark)</span></div>
+<span class="legend"><i style="background:{BLUE}"></i>{t("portfolio", lang)} <i style="background:{ORANGE}"></i>{t("bench_label", lang)}</span></div>
 {chart_svg(f["chart"], lang)}
 <div class="story"><div class="narr">
 <h3>{t("h_happened", lang)}</h3><p>{e(c["what_happened"])}</p>
@@ -297,7 +299,8 @@ def page_method(f, lang):
             f"Als wereldaandelen in een dalende trend staan en de meeste fondsen ook, schakelt de portefeuille naar defensief: {r['satellites']['risk_off']} satellieten en de vrijgekomen ruimte in een geldmarktfonds (XEON).",
             f"Maximaal {r['max_changes_per_week']} fondswissels per week; overtollige kas wordt in stappen belegd.",
         ]
-        data = ("Koersen: slotkoersen op Xetra en Euronext Amsterdam in euro (Yahoo Finance), posities gecontroleerd tegen een tweede bron (Alpha Vantage). "
+        data = ("Benchmark: 70% wereldwijde aandelen (VWCE) en 30% wereldwijde obligaties (EUNA), wekelijks geherbalanceerd. "
+                "Koersen: slotkoersen op Xetra en Euronext Amsterdam in euro (Yahoo Finance), posities gecontroleerd tegen een tweede bron (Alpha Vantage). "
                 "Rendementen zijn koersrendementen; bij uitkerende fondsen (Dist) zijn dividenden niet meegerekend. Transacties worden gemodelleerd tegen de slotkoers van woensdag "
                 f"met hele stukken en {num(r['cost_bps'] / 100, 'nl')}% geschatte kosten per transactie. " +
                 "Macrodata: ECB Data Portal, Federal Reserve Bank of New York en Eurostat. Het commentaar is opgesteld met behulp van AI op basis van uitsluitend de cijfers in dit rapport; "
@@ -313,7 +316,8 @@ def page_method(f, lang):
             f"When world equity is in a downtrend and most funds are too, the portfolio turns defensive: {r['satellites']['risk_off']} satellites, with the freed-up weight in a money-market fund (XEON).",
             f"At most {r['max_changes_per_week']} fund changes per week; excess cash is invested in steps.",
         ]
-        data = ("Prices: closing prices on Xetra and Euronext Amsterdam in euro (Yahoo Finance), with holdings checked against a second source (Alpha Vantage). "
+        data = ("Benchmark: 70% world equity (VWCE) and 30% global bonds (EUNA), rebalanced weekly. "
+                "Prices: closing prices on Xetra and Euronext Amsterdam in euro (Yahoo Finance), with holdings checked against a second source (Alpha Vantage). "
                 "Returns are price returns; for distributing funds (Dist) dividends are not included. Trades are modelled at the Wednesday close in whole shares "
                 f"with an estimated {num(r['cost_bps'] / 100, 'en')}% cost per trade. Macro data: ECB Data Portal, Federal Reserve Bank of New York and Eurostat. "
                 "The commentary is drafted with the help of AI from the figures in this report only; every number in the text is checked automatically against those figures.")
@@ -372,8 +376,9 @@ td {{ padding: 4pt 4pt; border-bottom: 1px solid #ecebe7; vertical-align: top; }
 .legend i {{ display: inline-block; width: 10pt; height: 2pt; vertical-align: middle; margin: 0 3pt 0 8pt; border-radius: 1pt; }}
 table.gap {{ margin-top: 10pt; }} h2.top {{ margin-top: 0; }}
 b {{ font-feature-settings: "zero" 1; }}
-ul.watch, ol.how {{ margin: 0; padding-left: 14pt; }} ul.watch li, ol.how li {{ margin-bottom: 4pt; }}
-.small {{ font-size: 8pt; color: #3a3936; }}
+ul.watch, ol.how {{ margin: 0; padding-left: 14pt; }} ul.watch li {{ margin-bottom: 4pt; }}
+ol.how li {{ margin-bottom: 2.5pt; font-size: 8.5pt; }}
+.small {{ font-size: 7.8pt; color: #3a3936; margin: 0 0 4pt; }}
 .kpis {{ margin-bottom: 12pt; }}
 .story {{ display: flex; gap: 16pt; margin-top: 8pt; border-top: 1px solid #e6e4df; padding-top: 4pt; }}
 .narr {{ flex: 1.45; }} .narr p {{ margin: 0 0 4pt; font-size: 9.3pt; color: #2e2d2a; }}

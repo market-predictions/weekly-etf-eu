@@ -5,42 +5,42 @@
   "to": "2026-11-11",
   "weeks": 103,
   "start_value": 100000.0,
-  "end_value": 132637.31,
-  "return_pct": 32.64,
-  "benchmark_return_pct": 29.68,
-  "max_drawdown_pct": -11.47,
-  "ann_vol_pct": 12.95,
+  "end_value": 130720.97,
+  "return_pct": 30.72,
+  "benchmark_return_pct": 21.1,
+  "max_drawdown_pct": -11.94,
+  "ann_vol_pct": 13.03,
   "instrument_changes": 49,
-  "trades": 181,
-  "turnover_per_year_pct": 253.5,
-  "costs_eur": 562.71,
-  "weeks_risk_off": 7,
+  "trades": 169,
+  "turnover_per_year_pct": 251.4,
+  "costs_eur": 552.06,
+  "weeks_risk_off": 8,
   "rule_checks": {
    "max_changes_in_a_week": 2,
-   "max_satellite_weight_pct": 9.97,
+   "max_satellite_weight_pct": 9.99,
    "max_satellites_held": 5,
-   "weeks_core_outside_40_60": 15,
-   "weeks_cash_above_5pct": 24,
+   "weeks_core_outside_40_60": 9,
+   "weeks_cash_above_5pct": 20,
    "first_week_cash_at_or_below_5pct": "2025-03-05"
   },
   "final_holdings": {
-   "EUNA": 4459,
-   "VWCE": 321,
-   "IS3S": 157,
-   "XAIX": 49,
-   "2B76": 577,
-   "2B70": 1180,
-   "CBUF": 1108
+   "EUNA": 4404,
+   "VWCE": 316,
+   "IS3S": 151,
+   "XAIX": 50,
+   "2B76": 568,
+   "2B70": 1161,
+   "CBUF": 1087
   },
-  "final_cash": 3964.74
+  "final_cash": 3908.72
  },
  "weeks": [
   {
    "date": "2024-11-27",
    "nav": 99993.1,
-   "bench": 133.48,
+   "bench": 101.1273,
    "regime": "risk_on",
-   "breadth": 86.7,
+   "breadth": 87.5,
    "n_trades": 2,
    "sats": "",
    "deferred": 5,
@@ -49,9 +49,9 @@
   {
    "date": "2024-12-04",
    "nav": 100090.32,
-   "bench": 136.06,
+   "bench": 102.6587,
    "regime": "risk_on",
-   "breadth": 93.3,
+   "breadth": 93.8,
    "n_trades": 4,
    "sats": "DFEN,NUKL",
    "deferred": 3,
@@ -60,9 +60,9 @@
   {
    "date": "2024-12-11",
    "nav": 100073.48,
-   "bench": 136.7,
+   "bench": 103.0461,
    "regime": "risk_on",
-   "breadth": 90.0,
+   "breadth": 90.6,
    "n_trades": 6,
    "sats": "DFEN,L0CK,NUKL,XAIX",
    "deferred": 1,
@@ -71,9 +71,9 @@
   {
    "date": "2024-12-18",
    "nav": 99873.29,
-   "bench": 135.78,
+   "bench": 102.303,
    "regime": "risk_on",
-   "breadth": 90.0,
+   "breadth": 90.6,
    "n_trades": 6,
    "sats": "DFEN,L0CK,NUKL,XAIX",
    "deferred": 0,
@@ -82,9 +82,9 @@
   {
    "date": "2024-12-25",
    "nav": 99512.97,
-   "bench": 133.76,
+   "bench": 101.052,
    "regime": "risk_on",
-   "breadth": 76.7,
+   "breadth": 78.1,
    "n_trades": 6,
    "sats": "DFEN,L0CK,NUKL,XAIX",
    "deferred": 0,
@@ -93,9 +93,9 @@
   {
    "date": "2025-01-01",
    "nav": 99396.18,
-   "bench": 133.22,
+   "bench": 100.8492,
    "regime": "risk_on",
-   "breadth": 73.3,
+   "breadth": 75.0,
    "n_trades": 6,
    "sats": "DFEN,L0CK,NUKL,XAIX",
    "deferred": 0,
@@ -104,9 +104,9 @@
   {
    "date": "2025-01-08",
    "nav": 99772.39,
-   "bench": 135.0,
+   "bench": 101.6007,
    "regime": "risk_on",
-   "breadth": 80.0,
+   "breadth": 81.2,
    "n_trades": 7,
    "sats": "4GLD,DFEN,L0CK,NUKL,XAIX",
    "deferred": 0,
@@ -115,9 +115,9 @@
   {
    "date": "2025-01-15",
    "nav": 100012.6,
-   "bench": 135.38,
+   "bench": 101.8079,
    "regime": "risk_on",
-   "breadth": 83.3,
+   "breadth": 84.4,
    "n_trades": 7,
    "sats": "4GLD,DFEN,L0CK,NUKL,XAIX",
    "deferred": 0,
@@ -126,9 +126,9 @@
   {
    "date": "2025-01-22",
    "nav": 101054.88,
-   "bench": 137.48,
+   "bench": 103.0366,
    "regime": "risk_on",
-   "breadth": 83.3,
+   "breadth": 78.1,
    "n_trades": 7,
    "sats": "4GLD,DFEN,L0CK,NUKL,XAIX",
    "deferred": 0,
@@ -137,9 +137,9 @@
   {
    "date": "2025-01-29",
    "nav": 100387.29,
-   "bench": 137.14,
+   "bench": 102.92,
    "regime": "risk_on",
-   "breadth": 80.0,
+   "breadth": 75.0,
    "n_trades": 7,
    "sats": "4GLD,DFEN,L0CK,NUKL,XAIX",
    "deferred": 0,
@@ -148,9 +148,9 @@
   {
    "date": "2025-02-05",
    "nav": 101261.63,
-   "bench": 137.38,
+   "bench": 103.227,
    "regime": "risk_on",
-   "breadth": 90.0,
+   "breadth": 90.6,
    "n_trades": 7,
    "sats": "4GLD,DFEN,L0CK,NUKL,XAIX",
    "deferred": 0,
@@ -159,9 +159,9 @@
   {
    "date": "2025-02-12",
    "nav": 101708.39,
-   "bench": 138.3,
+   "bench": 103.5241,
    "regime": "risk_on",
-   "breadth": 83.3,
+   "breadth": 81.2,
    "n_trades": 7,
    "sats": "4GLD,DFEN,L0CK,NUKL,XAIX",
    "deferred": 0,
@@ -170,9 +170,9 @@
   {
    "date": "2025-02-19",
    "nav": 102373.07,
-   "bench": 140.0,
+   "bench": 104.482,
    "regime": "risk_on",
-   "breadth": 86.7,
+   "breadth": 84.4,
    "n_trades": 8,
    "sats": "4GLD,DFEN,ICGA,L0CK,XAIX",
    "deferred": 0,
@@ -180,32 +180,32 @@
   },
   {
    "date": "2025-02-26",
-   "nav": 100766.98,
-   "bench": 137.22,
+   "nav": 100781.25,
+   "bench": 103.3398,
    "regime": "risk_on",
-   "breadth": 83.3,
-   "n_trades": 8,
-   "sats": "4GLD,DFEN,EXV1,ICGA,XAIX",
+   "breadth": 84.4,
+   "n_trades": 7,
+   "sats": "4GLD,DFEN,ICGA,L0CK,XAIX",
    "deferred": 0,
-   "notes": "buys scaled to 80% of target by the cash/deployment limit"
+   "notes": "buys scaled to 67% of target by the cash/deployment limit"
   },
   {
    "date": "2025-03-05",
-   "nav": 98247.19,
-   "bench": 130.3,
+   "nav": 97783.37,
+   "bench": 99.509,
    "regime": "risk_on",
-   "breadth": 46.7,
-   "n_trades": 5,
-   "sats": "4GLD,DFEN,EXV1,ICGA,XAIX",
+   "breadth": 43.8,
+   "n_trades": 6,
+   "sats": "4GLD,DFEN,EXV1,ICGA,L0CK",
    "deferred": 0,
-   "notes": "buys scaled to 85% of target by the cash/deployment limit"
+   "notes": "buys scaled to 94% of target by the cash/deployment limit"
   },
   {
    "date": "2025-03-12",
-   "nav": 96280.65,
-   "bench": 126.4,
+   "nav": 95718.26,
+   "bench": 97.2842,
    "regime": "risk_off",
-   "breadth": 30.0,
+   "breadth": 28.1,
    "n_trades": 4,
    "sats": "DFEN,EXV1,ICGA",
    "deferred": 1,
@@ -213,98 +213,98 @@
   },
   {
    "date": "2025-03-19",
-   "nav": 98053.9,
-   "bench": 128.46,
-   "regime": "risk_on",
-   "breadth": 40.0,
-   "n_trades": 4,
-   "sats": "4GLD,DFEN,EUNK,EXV1,ICGA",
+   "nav": 97494.11,
+   "bench": 98.4697,
+   "regime": "risk_off",
+   "breadth": 37.5,
+   "n_trades": 3,
+   "sats": "DFEN,EXV1,ICGA",
    "deferred": 0,
-   "notes": "buys scaled to 75% of target by the cash/deployment limit"
+   "notes": "13% parked in XEON: 0 of 3 satellite slots unfilled (risk-off) | buys scaled to 51% of target by the cash/deployment limit"
   },
   {
    "date": "2025-03-26",
-   "nav": 97992.8,
-   "bench": 130.02,
+   "nav": 97334.52,
+   "bench": 99.2145,
    "regime": "risk_on",
-   "breadth": 43.3,
-   "n_trades": 5,
-   "sats": "4GLD,DFEN,EUNK,EXV1,ICGA",
-   "deferred": 0,
-   "notes": "buys scaled to 85% of target by the cash/deployment limit"
+   "breadth": 40.6,
+   "n_trades": 6,
+   "sats": "4GLD,DFEN,EXV1,ICGA",
+   "deferred": 1,
+   "notes": ""
   },
   {
    "date": "2025-04-02",
-   "nav": 96767.26,
-   "bench": 127.3,
+   "nav": 96265.2,
+   "bench": 98.0273,
    "regime": "risk_off",
-   "breadth": 26.7,
-   "n_trades": 4,
+   "breadth": 25.0,
+   "n_trades": 5,
    "sats": "4GLD,DFEN,EXV1",
-   "deferred": 1,
-   "notes": "13% parked in XEON: 0 of 3 satellite slots unfilled (risk-off)"
+   "deferred": 0,
+   "notes": "13% parked in XEON: 0 of 3 satellite slots unfilled (risk-off) | buys scaled to 94% of target by the cash/deployment limit"
   },
   {
    "date": "2025-04-09",
-   "nav": 90633.94,
-   "bench": 110.5,
+   "nav": 90148.43,
+   "bench": 88.8033,
    "regime": "risk_off",
-   "breadth": 10.0,
-   "n_trades": 3,
-   "sats": "4GLD,DFEN,EXV1",
-   "deferred": 0,
-   "notes": "13% parked in XEON: 0 of 3 satellite slots unfilled (risk-off) | buys scaled to 43% of target by the cash/deployment limit"
-  },
-  {
-   "date": "2025-04-16",
-   "nav": 94189.06,
-   "bench": 116.9,
-   "regime": "risk_off",
-   "breadth": 10.0,
-   "n_trades": 2,
-   "sats": "4GLD,DFEN,EXV1",
-   "deferred": 0,
-   "notes": "13% parked in XEON: 0 of 3 satellite slots unfilled (risk-off) | buys scaled to 73% of target by the cash/deployment limit"
-  },
-  {
-   "date": "2025-04-23",
-   "nav": 94792.22,
-   "bench": 118.42,
-   "regime": "risk_off",
-   "breadth": 20.0,
+   "breadth": 9.4,
    "n_trades": 1,
    "sats": "4GLD,DFEN,EXV1",
    "deferred": 0,
-   "notes": "13% parked in XEON: 0 of 3 satellite slots unfilled (risk-off) | buys scaled to 7% of target by the cash/deployment limit"
+   "notes": "13% parked in XEON: 0 of 3 satellite slots unfilled (risk-off) | buys scaled to 34% of target by the cash/deployment limit"
+  },
+  {
+   "date": "2025-04-16",
+   "nav": 93660.73,
+   "bench": 92.5388,
+   "regime": "risk_off",
+   "breadth": 12.5,
+   "n_trades": 0,
+   "sats": "4GLD,DFEN,EXV1",
+   "deferred": 0,
+   "notes": "13% parked in XEON: 0 of 3 satellite slots unfilled (risk-off)"
+  },
+  {
+   "date": "2025-04-23",
+   "nav": 94234.96,
+   "bench": 93.4382,
+   "regime": "risk_off",
+   "breadth": 25.0,
+   "n_trades": 0,
+   "sats": "4GLD,DFEN,EXV1",
+   "deferred": 0,
+   "notes": "13% parked in XEON: 0 of 3 satellite slots unfilled (risk-off)"
   },
   {
    "date": "2025-04-30",
-   "nav": 96111.24,
-   "bench": 121.14,
+   "nav": 95530.67,
+   "bench": 95.0627,
    "regime": "risk_off",
-   "breadth": 20.0,
+   "breadth": 25.0,
    "n_trades": 0,
    "sats": "4GLD,DFEN,EXV1",
    "deferred": 0,
-   "notes": "13% parked in XEON: 0 of 3 satellite slots unfilled (risk-off) | buys scaled to 0% of target by the cash/deployment limit"
+   "notes": "13% parked in XEON: 0 of 3 satellite slots unfilled (risk-off)"
   },
   {
    "date": "2025-05-07",
-   "nav": 97140.92,
-   "bench": 123.14,
+   "nav": 96546.94,
+   "bench": 96.0755,
    "regime": "risk_off",
-   "breadth": 30.0,
+   "breadth": 34.4,
    "n_trades": 0,
    "sats": "4GLD,DFEN,EXV1",
    "deferred": 0,
-   "notes": "13% parked in XEON: 0 of 3 satellite slots unfilled (risk-off) | buys scaled to 0% of target by the cash/deployment limit"
+   "notes": "13% parked in XEON: 0 of 3 satellite slots unfilled (risk-off)"
   },
   {
    "date": "2025-05-14",
-   "nav": 98488.78,
-   "bench": 129.46,
+   "nav": 97826.96,
+   "bench": 99.2426,
    "regime": "risk_on",
-   "breadth": 56.7,
+   "breadth": 56.2,
    "n_trades": 4,
    "sats": "4GLD,DFEN,EXV1,ICGA",
    "deferred": 1,
@@ -312,21 +312,21 @@
   },
   {
    "date": "2025-05-21",
-   "nav": 99076.1,
-   "bench": 129.32,
+   "nav": 98409.74,
+   "bench": 99.2014,
    "regime": "risk_on",
-   "breadth": 56.7,
+   "breadth": 56.2,
    "n_trades": 4,
    "sats": "4GLD,DFEN,EUNK,EXV1,ICGA",
    "deferred": 0,
-   "notes": "buys scaled to 69% of target by the cash/deployment limit"
+   "notes": "buys scaled to 71% of target by the cash/deployment limit"
   },
   {
    "date": "2025-05-28",
-   "nav": 98760.34,
-   "bench": 129.18,
+   "nav": 98099.48,
+   "bench": 99.2156,
    "regime": "risk_on",
-   "breadth": 56.7,
+   "breadth": 59.4,
    "n_trades": 3,
    "sats": "4GLD,DFEN,EUNK,EXV1,NUKL",
    "deferred": 0,
@@ -334,21 +334,21 @@
   },
   {
    "date": "2025-06-04",
-   "nav": 98899.69,
-   "bench": 129.58,
+   "nav": 98241.98,
+   "bench": 99.5751,
    "regime": "risk_on",
-   "breadth": 56.7,
+   "breadth": 59.4,
    "n_trades": 1,
    "sats": "4GLD,DFEN,EUNK,EXV1,NUKL",
    "deferred": 0,
-   "notes": "buys scaled to 3% of target by the cash/deployment limit"
+   "notes": "buys scaled to 2% of target by the cash/deployment limit"
   },
   {
    "date": "2025-06-11",
-   "nav": 99399.79,
-   "bench": 130.36,
+   "nav": 98734.55,
+   "bench": 99.9726,
    "regime": "risk_on",
-   "breadth": 70.0,
+   "breadth": 71.9,
    "n_trades": 0,
    "sats": "4GLD,DFEN,EUNK,EXV1,NUKL",
    "deferred": 0,
@@ -356,32 +356,32 @@
   },
   {
    "date": "2025-06-18",
-   "nav": 99198.51,
-   "bench": 128.76,
+   "nav": 98541.75,
+   "bench": 99.1704,
    "regime": "risk_on",
-   "breadth": 53.3,
-   "n_trades": 1,
+   "breadth": 56.2,
+   "n_trades": 0,
    "sats": "4GLD,DFEN,EUNK,EXV1,NUKL",
    "deferred": 0,
    "notes": ""
   },
   {
    "date": "2025-06-25",
-   "nav": 98829.46,
-   "bench": 129.08,
+   "nav": 98133.5,
+   "bench": 99.4265,
    "regime": "risk_on",
-   "breadth": 46.7,
-   "n_trades": 5,
+   "breadth": 50.0,
+   "n_trades": 0,
    "sats": "4GLD,DFEN,EUNK,EXV1,NUKL",
    "deferred": 0,
-   "notes": "buys scaled to 70% of target by the cash/deployment limit"
+   "notes": ""
   },
   {
    "date": "2025-07-02",
-   "nav": 98853.66,
-   "bench": 129.92,
+   "nav": 98156.07,
+   "bench": 99.8294,
    "regime": "risk_on",
-   "breadth": 60.0,
+   "breadth": 62.5,
    "n_trades": 0,
    "sats": "4GLD,DFEN,EUNK,EXV1,NUKL",
    "deferred": 0,
@@ -389,10 +389,10 @@
   },
   {
    "date": "2025-07-09",
-   "nav": 99784.04,
-   "bench": 131.1,
+   "nav": 99120.01,
+   "bench": 100.4365,
    "regime": "risk_on",
-   "breadth": 63.3,
+   "breadth": 62.5,
    "n_trades": 0,
    "sats": "4GLD,DFEN,EUNK,EXV1,NUKL",
    "deferred": 0,
@@ -400,10 +400,10 @@
   },
   {
    "date": "2025-07-16",
-   "nav": 99443.1,
-   "bench": 130.4,
+   "nav": 98742.5,
+   "bench": 99.9133,
    "regime": "risk_on",
-   "breadth": 56.7,
+   "breadth": 56.2,
    "n_trades": 0,
    "sats": "4GLD,DFEN,EUNK,EXV1,NUKL",
    "deferred": 0,
@@ -411,32 +411,32 @@
   },
   {
    "date": "2025-07-23",
-   "nav": 101410.09,
-   "bench": 133.06,
+   "nav": 100673.51,
+   "bench": 101.4889,
    "regime": "risk_on",
-   "breadth": 73.3,
-   "n_trades": 2,
+   "breadth": 68.8,
+   "n_trades": 3,
    "sats": "DFEN,EUNK,EXV1,NUKL,VVMX",
    "deferred": 0,
-   "notes": "buys scaled to 98% of target by the cash/deployment limit"
+   "notes": ""
   },
   {
    "date": "2025-07-30",
-   "nav": 102959.96,
-   "bench": 135.7,
+   "nav": 102154.98,
+   "bench": 102.8841,
    "regime": "risk_on",
-   "breadth": 76.7,
+   "breadth": 71.9,
    "n_trades": 2,
    "sats": "DFEN,EXV1,NUKL,VVMX,XAIX",
    "deferred": 0,
-   "notes": "buys scaled to 94% of target by the cash/deployment limit"
+   "notes": ""
   },
   {
    "date": "2025-08-06",
-   "nav": 102364.97,
-   "bench": 133.46,
+   "nav": 101536.92,
+   "bench": 101.891,
    "regime": "risk_on",
-   "breadth": 73.3,
+   "breadth": 68.8,
    "n_trades": 0,
    "sats": "DFEN,EXV1,NUKL,VVMX,XAIX",
    "deferred": 0,
@@ -444,10 +444,10 @@
   },
   {
    "date": "2025-08-13",
-   "nav": 103618.33,
-   "bench": 135.3,
+   "nav": 102839.92,
+   "bench": 102.8887,
    "regime": "risk_on",
-   "breadth": 73.3,
+   "breadth": 68.8,
    "n_trades": 0,
    "sats": "DFEN,EXV1,NUKL,VVMX,XAIX",
    "deferred": 0,
@@ -455,10 +455,10 @@
   },
   {
    "date": "2025-08-20",
-   "nav": 102528.26,
-   "bench": 135.08,
+   "nav": 101813.12,
+   "bench": 102.6634,
    "regime": "risk_on",
-   "breadth": 73.3,
+   "breadth": 68.8,
    "n_trades": 0,
    "sats": "DFEN,EXV1,NUKL,VVMX,XAIX",
    "deferred": 0,
@@ -466,10 +466,10 @@
   },
   {
    "date": "2025-08-27",
-   "nav": 104774.23,
-   "bench": 136.82,
+   "nav": 103977.69,
+   "bench": 103.6143,
    "regime": "risk_on",
-   "breadth": 80.0,
+   "breadth": 75.0,
    "n_trades": 0,
    "sats": "DFEN,EXV1,NUKL,VVMX,XAIX",
    "deferred": 0,
@@ -477,10 +477,10 @@
   },
   {
    "date": "2025-09-03",
-   "nav": 104054.06,
-   "bench": 135.3,
+   "nav": 103246.49,
+   "bench": 102.8269,
    "regime": "risk_on",
-   "breadth": 70.0,
+   "breadth": 65.6,
    "n_trades": 0,
    "sats": "DFEN,EXV1,NUKL,VVMX,XAIX",
    "deferred": 0,
@@ -488,10 +488,10 @@
   },
   {
    "date": "2025-09-10",
-   "nav": 105264.27,
-   "bench": 137.38,
+   "nav": 104412.33,
+   "bench": 104.1402,
    "regime": "risk_on",
-   "breadth": 80.0,
+   "breadth": 78.1,
    "n_trades": 0,
    "sats": "DFEN,EXV1,NUKL,VVMX,XAIX",
    "deferred": 0,
@@ -499,10 +499,10 @@
   },
   {
    "date": "2025-09-17",
-   "nav": 106091.36,
-   "bench": 137.64,
+   "nav": 105204.19,
+   "bench": 104.3213,
    "regime": "risk_on",
-   "breadth": 80.0,
+   "breadth": 78.1,
    "n_trades": 0,
    "sats": "DFEN,EXV1,NUKL,VVMX,XAIX",
    "deferred": 0,
@@ -510,10 +510,10 @@
   },
   {
    "date": "2025-09-24",
-   "nav": 109317.14,
-   "bench": 139.34,
+   "nav": 108250.14,
+   "bench": 105.097,
    "regime": "risk_on",
-   "breadth": 80.0,
+   "breadth": 78.1,
    "n_trades": 0,
    "sats": "DFEN,EXV1,NUKL,VVMX,XAIX",
    "deferred": 0,
@@ -521,10 +521,10 @@
   },
   {
    "date": "2025-10-01",
-   "nav": 109917.56,
-   "bench": 140.5,
+   "nav": 108910.4,
+   "bench": 105.7633,
    "regime": "risk_on",
-   "breadth": 83.3,
+   "breadth": 81.2,
    "n_trades": 0,
    "sats": "DFEN,EXV1,NUKL,VVMX,XAIX",
    "deferred": 0,
@@ -532,10 +532,10 @@
   },
   {
    "date": "2025-10-08",
-   "nav": 113210.84,
-   "bench": 143.16,
+   "nav": 112095.86,
+   "bench": 107.1946,
    "regime": "risk_on",
-   "breadth": 86.7,
+   "breadth": 84.4,
    "n_trades": 1,
    "sats": "DFEN,EXV1,NUKL,VVMX,XAIX",
    "deferred": 0,
@@ -543,32 +543,32 @@
   },
   {
    "date": "2025-10-15",
-   "nav": 113730.37,
-   "bench": 141.68,
+   "nav": 112448.36,
+   "bench": 106.6121,
    "regime": "risk_on",
-   "breadth": 90.0,
-   "n_trades": 1,
+   "breadth": 90.6,
+   "n_trades": 5,
    "sats": "DFEN,EXV1,NUKL,VVMX,XAIX",
+   "deferred": 0,
+   "notes": "buys scaled to 69% of target by the cash/deployment limit"
+  },
+  {
+   "date": "2025-10-22",
+   "nav": 109832.51,
+   "bench": 107.0634,
+   "regime": "risk_on",
+   "breadth": 93.8,
+   "n_trades": 2,
+   "sats": "DFEN,NUKL,VVMX,VVSM,XAIX",
    "deferred": 0,
    "notes": ""
   },
   {
-   "date": "2025-10-22",
-   "nav": 111208.57,
-   "bench": 142.38,
-   "regime": "risk_on",
-   "breadth": 93.3,
-   "n_trades": 7,
-   "sats": "DFEN,NUKL,VVMX,VVSM,XAIX",
-   "deferred": 0,
-   "notes": "buys scaled to 100% of target by the cash/deployment limit"
-  },
-  {
    "date": "2025-10-29",
-   "nav": 115256.14,
-   "bench": 145.6,
+   "nav": 113784.16,
+   "bench": 108.7693,
    "regime": "risk_on",
-   "breadth": 90.0,
+   "breadth": 90.6,
    "n_trades": 0,
    "sats": "DFEN,NUKL,VVMX,VVSM,XAIX",
    "deferred": 0,
@@ -576,10 +576,10 @@
   },
   {
    "date": "2025-11-05",
-   "nav": 113122.6,
-   "bench": 145.46,
+   "nav": 111760.51,
+   "bench": 108.49,
    "regime": "risk_on",
-   "breadth": 90.0,
+   "breadth": 90.6,
    "n_trades": 0,
    "sats": "DFEN,NUKL,VVMX,VVSM,XAIX",
    "deferred": 0,
@@ -587,21 +587,21 @@
   },
   {
    "date": "2025-11-12",
-   "nav": 112767.57,
-   "bench": 145.74,
+   "nav": 111391.97,
+   "bench": 108.7172,
    "regime": "risk_on",
-   "breadth": 93.3,
+   "breadth": 93.8,
    "n_trades": 2,
    "sats": "IQQH,NUKL,VVMX,VVSM,XAIX",
    "deferred": 0,
-   "notes": "buys scaled to 99% of target by the cash/deployment limit"
+   "notes": ""
   },
   {
    "date": "2025-11-19",
-   "nav": 110243.04,
-   "bench": 141.38,
+   "nav": 108831.76,
+   "bench": 106.2745,
    "regime": "risk_on",
-   "breadth": 80.0,
+   "breadth": 81.2,
    "n_trades": 0,
    "sats": "IQQH,NUKL,VVMX,VVSM,XAIX",
    "deferred": 0,
@@ -609,65 +609,65 @@
   },
   {
    "date": "2025-11-26",
-   "nav": 111310.04,
-   "bench": 144.42,
+   "nav": 109934.12,
+   "bench": 108.0411,
    "regime": "risk_on",
-   "breadth": 93.3,
-   "n_trades": 2,
-   "sats": "4GLD,IQQH,NUKL,VVMX,VVSM",
+   "breadth": 93.8,
+   "n_trades": 0,
+   "sats": "IQQH,NUKL,VVMX,VVSM,XAIX",
    "deferred": 0,
-   "notes": "buys scaled to 99% of target by the cash/deployment limit"
+   "notes": ""
   },
   {
    "date": "2025-12-03",
-   "nav": 111562.02,
-   "bench": 144.18,
+   "nav": 110171.1,
+   "bench": 107.8539,
    "regime": "risk_on",
-   "breadth": 86.7,
+   "breadth": 84.4,
    "n_trades": 0,
-   "sats": "4GLD,IQQH,NUKL,VVMX,VVSM",
+   "sats": "IQQH,NUKL,VVMX,VVSM,XAIX",
    "deferred": 0,
    "notes": ""
   },
   {
    "date": "2025-12-10",
-   "nav": 112154.78,
-   "bench": 144.72,
+   "nav": 110953.84,
+   "bench": 107.9685,
    "regime": "risk_on",
-   "breadth": 86.7,
+   "breadth": 84.4,
    "n_trades": 0,
-   "sats": "4GLD,IQQH,NUKL,VVMX,VVSM",
+   "sats": "IQQH,NUKL,VVMX,VVSM,XAIX",
    "deferred": 0,
    "notes": ""
   },
   {
    "date": "2025-12-17",
-   "nav": 109254.5,
-   "bench": 141.8,
+   "nav": 107541.09,
+   "bench": 106.5008,
    "regime": "risk_on",
-   "breadth": 80.0,
+   "breadth": 78.1,
    "n_trades": 2,
-   "sats": "4GLD,EXV1,IQQH,VVMX,VVSM",
-   "deferred": 0,
-   "notes": "buys scaled to 90% of target by the cash/deployment limit"
-  },
-  {
-   "date": "2025-12-24",
-   "nav": 111885.54,
-   "bench": 144.7,
-   "regime": "risk_on",
-   "breadth": 83.3,
-   "n_trades": 0,
-   "sats": "4GLD,EXV1,IQQH,VVMX,VVSM",
+   "sats": "EXV1,IQQH,NUKL,VVMX,VVSM",
    "deferred": 0,
    "notes": ""
   },
   {
-   "date": "2025-12-31",
-   "nav": 112370.86,
-   "bench": 145.42,
+   "date": "2025-12-24",
+   "nav": 110373.18,
+   "bench": 108.0404,
    "regime": "risk_on",
-   "breadth": 90.0,
+   "breadth": 81.2,
+   "n_trades": 2,
+   "sats": "4GLD,EXV1,IQQH,VVMX,VVSM",
+   "deferred": 0,
+   "notes": "buys scaled to 92% of target by the cash/deployment limit"
+  },
+  {
+   "date": "2025-12-31",
+   "nav": 110873.86,
+   "bench": 108.539,
+   "regime": "risk_on",
+   "breadth": 87.5,
    "n_trades": 0,
    "sats": "4GLD,EXV1,IQQH,VVMX,VVSM",
    "deferred": 0,
@@ -675,10 +675,10 @@
   },
   {
    "date": "2026-01-07",
-   "nav": 115758.2,
-   "bench": 148.0,
+   "nav": 114114.6,
+   "bench": 109.7962,
    "regime": "risk_on",
-   "breadth": 93.3,
+   "breadth": 90.6,
    "n_trades": 0,
    "sats": "4GLD,EXV1,IQQH,VVMX,VVSM",
    "deferred": 0,
@@ -686,32 +686,32 @@
   },
   {
    "date": "2026-01-14",
-   "nav": 117526.45,
-   "bench": 148.4,
+   "nav": 115798.07,
+   "bench": 110.0687,
    "regime": "risk_on",
-   "breadth": 96.7,
-   "n_trades": 1,
+   "breadth": 96.9,
+   "n_trades": 0,
    "sats": "4GLD,EXV1,IQQH,VVMX,VVSM",
    "deferred": 0,
    "notes": ""
   },
   {
    "date": "2026-01-21",
-   "nav": 117939.39,
-   "bench": 147.0,
+   "nav": 116158.19,
+   "bench": 109.2002,
    "regime": "risk_on",
-   "breadth": 93.3,
-   "n_trades": 4,
+   "breadth": 87.5,
+   "n_trades": 0,
    "sats": "4GLD,EXV1,IQQH,VVMX,VVSM",
    "deferred": 0,
-   "notes": "buys scaled to 53% of target by the cash/deployment limit"
+   "notes": ""
   },
   {
    "date": "2026-01-28",
-   "nav": 119905.9,
-   "bench": 147.38,
+   "nav": 118052.93,
+   "bench": 109.4943,
    "regime": "risk_on",
-   "breadth": 93.3,
+   "breadth": 87.5,
    "n_trades": 0,
    "sats": "4GLD,EXV1,IQQH,VVMX,VVSM",
    "deferred": 0,
@@ -719,10 +719,10 @@
   },
   {
    "date": "2026-02-04",
-   "nav": 117964.22,
-   "bench": 147.76,
+   "nav": 116042.82,
+   "bench": 109.6739,
    "regime": "risk_on",
-   "breadth": 93.3,
+   "breadth": 87.5,
    "n_trades": 0,
    "sats": "4GLD,EXV1,IQQH,VVMX,VVSM",
    "deferred": 0,
@@ -730,10 +730,10 @@
   },
   {
    "date": "2026-02-11",
-   "nav": 119507.38,
-   "bench": 149.08,
+   "nav": 117604.9,
+   "bench": 110.5091,
    "regime": "risk_on",
-   "breadth": 93.3,
+   "breadth": 87.5,
    "n_trades": 0,
    "sats": "4GLD,EXV1,IQQH,VVMX,VVSM",
    "deferred": 0,
@@ -741,10 +741,10 @@
   },
   {
    "date": "2026-02-18",
-   "nav": 120153.68,
-   "bench": 149.5,
+   "nav": 118277.32,
+   "bench": 110.8829,
    "regime": "risk_on",
-   "breadth": 93.3,
+   "breadth": 87.5,
    "n_trades": 0,
    "sats": "4GLD,EXV1,IQQH,VVMX,VVSM",
    "deferred": 0,
@@ -752,21 +752,21 @@
   },
   {
    "date": "2026-02-25",
-   "nav": 122406.14,
-   "bench": 150.86,
+   "nav": 120610.84,
+   "bench": 111.6157,
    "regime": "risk_on",
-   "breadth": 93.3,
-   "n_trades": 0,
+   "breadth": 90.6,
+   "n_trades": 1,
    "sats": "4GLD,EXV1,IQQH,VVMX,VVSM",
    "deferred": 0,
    "notes": ""
   },
   {
    "date": "2026-03-04",
-   "nav": 120132.15,
-   "bench": 149.3,
+   "nav": 118363.83,
+   "bench": 110.8548,
    "regime": "risk_on",
-   "breadth": 86.7,
+   "breadth": 81.2,
    "n_trades": 0,
    "sats": "4GLD,EXV1,IQQH,VVMX,VVSM",
    "deferred": 0,
@@ -774,10 +774,10 @@
   },
   {
    "date": "2026-03-11",
-   "nav": 119818.95,
-   "bench": 148.0,
+   "nav": 118050.04,
+   "bench": 109.7774,
    "regime": "risk_on",
-   "breadth": 86.7,
+   "breadth": 81.2,
    "n_trades": 0,
    "sats": "4GLD,EXV1,IQQH,VVMX,VVSM",
    "deferred": 0,
@@ -785,21 +785,21 @@
   },
   {
    "date": "2026-03-18",
-   "nav": 117967.72,
-   "bench": 146.8,
+   "nav": 116317.65,
+   "bench": 109.1202,
    "regime": "risk_on",
-   "breadth": 90.0,
-   "n_trades": 2,
+   "breadth": 84.4,
+   "n_trades": 6,
    "sats": "4GLD,DFEN,IQQH,VVMX,VVSM",
    "deferred": 0,
-   "notes": "buys scaled to 90% of target by the cash/deployment limit"
+   "notes": "buys scaled to 88% of target by the cash/deployment limit"
   },
   {
    "date": "2026-03-25",
-   "nav": 116374.66,
-   "bench": 144.68,
+   "nav": 114808.57,
+   "bench": 107.9453,
    "regime": "risk_on",
-   "breadth": 86.7,
+   "breadth": 81.2,
    "n_trades": 0,
    "sats": "4GLD,DFEN,IQQH,VVMX,VVSM",
    "deferred": 0,
@@ -807,10 +807,10 @@
   },
   {
    "date": "2026-04-01",
-   "nav": 116419.63,
-   "bench": 144.9,
+   "nav": 114821.94,
+   "bench": 108.1163,
    "regime": "risk_on",
-   "breadth": 76.7,
+   "breadth": 71.9,
    "n_trades": 0,
    "sats": "4GLD,DFEN,IQQH,VVMX,VVSM",
    "deferred": 0,
@@ -818,10 +818,10 @@
   },
   {
    "date": "2026-04-08",
-   "nav": 118389.12,
-   "bench": 148.08,
+   "nav": 116791.52,
+   "bench": 109.851,
    "regime": "risk_on",
-   "breadth": 90.0,
+   "breadth": 84.4,
    "n_trades": 0,
    "sats": "4GLD,DFEN,IQQH,VVMX,VVSM",
    "deferred": 0,
@@ -829,21 +829,21 @@
   },
   {
    "date": "2026-04-15",
-   "nav": 120637.95,
-   "bench": 150.78,
+   "nav": 119019.33,
+   "bench": 111.1916,
    "regime": "risk_on",
-   "breadth": 86.7,
+   "breadth": 81.2,
    "n_trades": 2,
    "sats": "4GLD,IQQH,IS3S,VVMX,VVSM",
    "deferred": 0,
-   "notes": "buys scaled to 82% of target by the cash/deployment limit"
+   "notes": "buys scaled to 81% of target by the cash/deployment limit"
   },
   {
    "date": "2026-04-22",
-   "nav": 122981.83,
-   "bench": 153.38,
+   "nav": 121357.51,
+   "bench": 112.5954,
    "regime": "risk_on",
-   "breadth": 83.3,
+   "breadth": 78.1,
    "n_trades": 3,
    "sats": "EMIM,IQQH,IS3S,VVMX,VVSM",
    "deferred": 0,
@@ -851,21 +851,21 @@
   },
   {
    "date": "2026-04-29",
-   "nav": 123419.76,
-   "bench": 153.12,
+   "nav": 121778.91,
+   "bench": 112.2461,
    "regime": "risk_on",
-   "breadth": 80.0,
-   "n_trades": 4,
+   "breadth": 75.0,
+   "n_trades": 0,
    "sats": "EMIM,IQQH,IS3S,VVMX,VVSM",
    "deferred": 0,
-   "notes": "buys scaled to 64% of target by the cash/deployment limit"
+   "notes": ""
   },
   {
    "date": "2026-05-06",
-   "nav": 128891.57,
-   "bench": 158.06,
+   "nav": 127101.23,
+   "bench": 114.974,
    "regime": "risk_on",
-   "breadth": 83.3,
+   "breadth": 78.1,
    "n_trades": 0,
    "sats": "EMIM,IQQH,IS3S,VVMX,VVSM",
    "deferred": 0,
@@ -873,10 +873,10 @@
   },
   {
    "date": "2026-05-13",
-   "nav": 130315.48,
-   "bench": 159.14,
+   "nav": 128457.52,
+   "bench": 115.2952,
    "regime": "risk_on",
-   "breadth": 73.3,
+   "breadth": 68.8,
    "n_trades": 0,
    "sats": "EMIM,IQQH,IS3S,VVMX,VVSM",
    "deferred": 0,
@@ -884,10 +884,10 @@
   },
   {
    "date": "2026-05-20",
-   "nav": 128676.01,
-   "bench": 159.76,
+   "nav": 126833.96,
+   "bench": 115.5531,
    "regime": "risk_on",
-   "breadth": 73.3,
+   "breadth": 68.8,
    "n_trades": 0,
    "sats": "EMIM,IQQH,IS3S,VVMX,VVSM",
    "deferred": 0,
@@ -895,21 +895,21 @@
   },
   {
    "date": "2026-05-27",
-   "nav": 132504.47,
-   "bench": 162.2,
+   "nav": 130527.01,
+   "bench": 117.0069,
    "regime": "risk_on",
-   "breadth": 83.3,
-   "n_trades": 0,
+   "breadth": 78.1,
+   "n_trades": 1,
    "sats": "EMIM,IQQH,IS3S,VVMX,VVSM",
    "deferred": 0,
-   "notes": ""
+   "notes": "buys scaled to 62% of target by the cash/deployment limit"
   },
   {
    "date": "2026-06-03",
-   "nav": 135003.63,
-   "bench": 164.14,
+   "nav": 132948.94,
+   "bench": 117.9359,
    "regime": "risk_on",
-   "breadth": 76.7,
+   "breadth": 71.9,
    "n_trades": 1,
    "sats": "EMIM,IQQH,IS3S,VVMX,VVSM",
    "deferred": 0,
@@ -917,21 +917,21 @@
   },
   {
    "date": "2026-06-10",
-   "nav": 128261.85,
-   "bench": 159.24,
+   "nav": 126384.6,
+   "bench": 115.4231,
    "regime": "risk_on",
-   "breadth": 73.3,
-   "n_trades": 5,
+   "breadth": 68.8,
+   "n_trades": 6,
    "sats": "EMIM,IQQH,IS3S,VVSM,XAIX",
    "deferred": 0,
-   "notes": "buys scaled to 96% of target by the cash/deployment limit"
+   "notes": "buys scaled to 100% of target by the cash/deployment limit"
   },
   {
    "date": "2026-06-17",
-   "nav": 133444.48,
-   "bench": 164.64,
+   "nav": 131483.78,
+   "bench": 118.3754,
    "regime": "risk_on",
-   "breadth": 76.7,
+   "breadth": 78.1,
    "n_trades": 0,
    "sats": "EMIM,IQQH,IS3S,VVSM,XAIX",
    "deferred": 0,
@@ -939,10 +939,10 @@
   },
   {
    "date": "2026-06-24",
-   "nav": 133692.05,
-   "bench": 164.8,
+   "nav": 131725.62,
+   "bench": 118.5487,
    "regime": "risk_on",
-   "breadth": 80.0,
+   "breadth": 81.2,
    "n_trades": 0,
    "sats": "EMIM,IQQH,IS3S,VVSM,XAIX",
    "deferred": 0,
@@ -950,10 +950,10 @@
   },
   {
    "date": "2026-07-01",
-   "nav": 133965.33,
-   "bench": 165.94,
+   "nav": 131995.67,
+   "bench": 119.0358,
    "regime": "risk_on",
-   "breadth": 80.0,
+   "breadth": 81.2,
    "n_trades": 0,
    "sats": "EMIM,IQQH,IS3S,VVSM,XAIX",
    "deferred": 0,
@@ -961,32 +961,32 @@
   },
   {
    "date": "2026-07-08",
-   "nav": 129942.9,
-   "bench": 163.78,
+   "nav": 128067.5,
+   "bench": 117.6742,
    "regime": "risk_on",
-   "breadth": 76.7,
+   "breadth": 71.9,
+   "n_trades": 0,
+   "sats": "EMIM,IQQH,IS3S,VVSM,XAIX",
+   "deferred": 0,
+   "notes": ""
+  },
+  {
+   "date": "2026-07-15",
+   "nav": 128875.04,
+   "bench": 118.7867,
+   "regime": "risk_on",
+   "breadth": 71.9,
    "n_trades": 2,
    "sats": "2B76,EMIM,IS3S,VVSM,XAIX",
    "deferred": 0,
    "notes": "buys scaled to 98% of target by the cash/deployment limit"
   },
   {
-   "date": "2026-07-15",
-   "nav": 130766.02,
-   "bench": 165.8,
-   "regime": "risk_on",
-   "breadth": 76.7,
-   "n_trades": 0,
-   "sats": "2B76,EMIM,IS3S,VVSM,XAIX",
-   "deferred": 0,
-   "notes": ""
-  },
-  {
    "date": "2026-07-22",
-   "nav": 130784.24,
-   "bench": 165.4,
+   "nav": 128883.9,
+   "bench": 118.428,
    "regime": "risk_on",
-   "breadth": 76.7,
+   "breadth": 71.9,
    "n_trades": 0,
    "sats": "2B76,EMIM,IS3S,VVSM,XAIX",
    "deferred": 0,
@@ -994,10 +994,10 @@
   },
   {
    "date": "2026-07-29",
-   "nav": 126767.32,
-   "bench": 162.4,
+   "nav": 124925.15,
+   "bench": 116.9331,
    "regime": "risk_on",
-   "breadth": 73.3,
+   "breadth": 68.8,
    "n_trades": 2,
    "sats": "2B70,2B76,IS3S,VVSM,XAIX",
    "deferred": 0,
@@ -1005,10 +1005,10 @@
   },
   {
    "date": "2026-08-05",
-   "nav": 131588.5,
-   "bench": 168.04,
+   "nav": 129692.19,
+   "bench": 119.9134,
    "regime": "risk_on",
-   "breadth": 76.7,
+   "breadth": 71.9,
    "n_trades": 0,
    "sats": "2B70,2B76,IS3S,VVSM,XAIX",
    "deferred": 0,
@@ -1016,10 +1016,10 @@
   },
   {
    "date": "2026-08-12",
-   "nav": 132893.48,
-   "bench": 168.8,
+   "nav": 130976.4,
+   "bench": 120.2111,
    "regime": "risk_on",
-   "breadth": 76.7,
+   "breadth": 71.9,
    "n_trades": 0,
    "sats": "2B70,2B76,IS3S,VVSM,XAIX",
    "deferred": 0,
@@ -1027,10 +1027,10 @@
   },
   {
    "date": "2026-08-19",
-   "nav": 131310.98,
-   "bench": 166.5,
+   "nav": 129414.09,
+   "bench": 119.0454,
    "regime": "risk_on",
-   "breadth": 76.7,
+   "breadth": 71.9,
    "n_trades": 0,
    "sats": "2B70,2B76,IS3S,VVSM,XAIX",
    "deferred": 0,
@@ -1038,10 +1038,10 @@
   },
   {
    "date": "2026-08-26",
-   "nav": 131314.67,
-   "bench": 166.54,
+   "nav": 129413.82,
+   "bench": 119.1106,
    "regime": "risk_on",
-   "breadth": 76.7,
+   "breadth": 71.9,
    "n_trades": 0,
    "sats": "2B70,2B76,IS3S,VVSM,XAIX",
    "deferred": 0,
@@ -1049,10 +1049,10 @@
   },
   {
    "date": "2026-09-02",
-   "nav": 130995.06,
-   "bench": 166.82,
+   "nav": 129100.97,
+   "bench": 119.0096,
    "regime": "risk_on",
-   "breadth": 66.7,
+   "breadth": 62.5,
    "n_trades": 0,
    "sats": "2B70,2B76,IS3S,VVSM,XAIX",
    "deferred": 0,
@@ -1060,10 +1060,10 @@
   },
   {
    "date": "2026-09-09",
-   "nav": 131452.98,
-   "bench": 166.22,
+   "nav": 129557.08,
+   "bench": 118.6638,
    "regime": "risk_on",
-   "breadth": 56.7,
+   "breadth": 53.1,
    "n_trades": 0,
    "sats": "2B70,2B76,IS3S,VVSM,XAIX",
    "deferred": 0,
@@ -1071,10 +1071,10 @@
   },
   {
    "date": "2026-09-16",
-   "nav": 130928.02,
-   "bench": 166.3,
+   "nav": 129045.9,
+   "bench": 118.5684,
    "regime": "risk_on",
-   "breadth": 56.7,
+   "breadth": 53.1,
    "n_trades": 0,
    "sats": "2B70,2B76,IS3S,VVSM,XAIX",
    "deferred": 0,
@@ -1082,10 +1082,10 @@
   },
   {
    "date": "2026-09-23",
-   "nav": 134854.27,
-   "bench": 170.04,
+   "nav": 132921.45,
+   "bench": 120.2955,
    "regime": "risk_on",
-   "breadth": 56.7,
+   "breadth": 53.1,
    "n_trades": 0,
    "sats": "2B70,2B76,IS3S,VVSM,XAIX",
    "deferred": 0,
@@ -1093,10 +1093,10 @@
   },
   {
    "date": "2026-09-30",
-   "nav": 134944.44,
-   "bench": 169.78,
+   "nav": 133009.66,
+   "bench": 119.938,
    "regime": "risk_on",
-   "breadth": 56.7,
+   "breadth": 53.1,
    "n_trades": 0,
    "sats": "2B70,2B76,IS3S,VVSM,XAIX",
    "deferred": 0,
@@ -1104,10 +1104,10 @@
   },
   {
    "date": "2026-10-07",
-   "nav": 137027.1,
-   "bench": 172.92,
+   "nav": 135067.66,
+   "bench": 121.5079,
    "regime": "risk_on",
-   "breadth": 60.0,
+   "breadth": 56.2,
    "n_trades": 0,
    "sats": "2B70,2B76,IS3S,VVSM,XAIX",
    "deferred": 0,
@@ -1115,10 +1115,10 @@
   },
   {
    "date": "2026-10-14",
-   "nav": 135035.33,
-   "bench": 172.48,
+   "nav": 133104.8,
+   "bench": 121.4161,
    "regime": "risk_on",
-   "breadth": 66.7,
+   "breadth": 62.5,
    "n_trades": 0,
    "sats": "2B70,2B76,IS3S,VVSM,XAIX",
    "deferred": 0,
@@ -1126,10 +1126,10 @@
   },
   {
    "date": "2026-10-21",
-   "nav": 134165.83,
-   "bench": 171.32,
+   "nav": 132240.94,
+   "bench": 121.0238,
    "regime": "risk_on",
-   "breadth": 63.3,
+   "breadth": 59.4,
    "n_trades": 0,
    "sats": "2B70,2B76,IS3S,VVSM,XAIX",
    "deferred": 0,
@@ -1137,10 +1137,10 @@
   },
   {
    "date": "2026-10-28",
-   "nav": 135476.76,
-   "bench": 171.94,
+   "nav": 133533.51,
+   "bench": 121.4669,
    "regime": "risk_on",
-   "breadth": 60.0,
+   "breadth": 56.2,
    "n_trades": 0,
    "sats": "2B70,2B76,IS3S,VVSM,XAIX",
    "deferred": 0,
@@ -1148,10 +1148,10 @@
   },
   {
    "date": "2026-11-04",
-   "nav": 131975.37,
-   "bench": 169.86,
+   "nav": 130069.86,
+   "bench": 120.6574,
    "regime": "risk_on",
-   "breadth": 60.0,
+   "breadth": 56.2,
    "n_trades": 2,
    "sats": "2B70,2B76,CBUF,IS3S,XAIX",
    "deferred": 0,
@@ -1159,10 +1159,10 @@
   },
   {
    "date": "2026-11-11",
-   "nav": 132637.31,
-   "bench": 170.92,
+   "nav": 130720.97,
+   "bench": 121.0993,
    "regime": "risk_on",
-   "breadth": 73.3,
+   "breadth": 68.8,
    "n_trades": 0,
    "sats": "2B70,2B76,CBUF,IS3S,XAIX",
    "deferred": 0,
@@ -1276,120 +1276,120 @@
   },
   {
    "date": "2025-02-26",
-   "changes": 2,
-   "max_sat_weight": 0.0786,
+   "changes": 0,
+   "max_sat_weight": 0.0778,
    "n_sats": 5,
-   "core_weight": 0.5617,
-   "cash_weight": 0.0678
+   "core_weight": 0.5578,
+   "cash_weight": 0.0666
   },
   {
    "date": "2025-03-05",
-   "changes": 0,
-   "max_sat_weight": 0.0854,
+   "changes": 2,
+   "max_sat_weight": 0.085,
    "n_sats": 5,
-   "core_weight": 0.568,
-   "cash_weight": 0.0329
+   "core_weight": 0.5697,
+   "cash_weight": 0.0313
   },
   {
    "date": "2025-03-12",
    "changes": 2,
-   "max_sat_weight": 0.0864,
+   "max_sat_weight": 0.0861,
    "n_sats": 3,
-   "core_weight": 0.6006,
-   "cash_weight": 0.1559
+   "core_weight": 0.5997,
+   "cash_weight": 0.1587
   },
   {
    "date": "2025-03-19",
-   "changes": 2,
-   "max_sat_weight": 0.0897,
-   "n_sats": 5,
-   "core_weight": 0.5444,
-   "cash_weight": 0.0844
+   "changes": 1,
+   "max_sat_weight": 0.0893,
+   "n_sats": 3,
+   "core_weight": 0.5967,
+   "cash_weight": 0.0865
   },
   {
    "date": "2025-03-26",
-   "changes": 0,
-   "max_sat_weight": 0.0892,
-   "n_sats": 5,
-   "core_weight": 0.5663,
-   "cash_weight": 0.0319
+   "changes": 2,
+   "max_sat_weight": 0.0889,
+   "n_sats": 4,
+   "core_weight": 0.5692,
+   "cash_weight": 0.1026
   },
   {
    "date": "2025-04-02",
    "changes": 2,
-   "max_sat_weight": 0.0886,
+   "max_sat_weight": 0.0882,
    "n_sats": 3,
-   "core_weight": 0.5999,
-   "cash_weight": 0.1535
+   "core_weight": 0.593,
+   "cash_weight": 0.0351
   },
   {
    "date": "2025-04-09",
-   "changes": 1,
-   "max_sat_weight": 0.088,
+   "changes": 0,
+   "max_sat_weight": 0.0876,
    "n_sats": 3,
-   "core_weight": 0.6049,
-   "cash_weight": 0.0963
+   "core_weight": 0.5965,
+   "cash_weight": 0.0301
   },
   {
    "date": "2025-04-16",
    "changes": 0,
-   "max_sat_weight": 0.0925,
+   "max_sat_weight": 0.0921,
    "n_sats": 3,
-   "core_weight": 0.6046,
-   "cash_weight": 0.0318
+   "core_weight": 0.5915,
+   "cash_weight": 0.029
   },
   {
    "date": "2025-04-23",
    "changes": 0,
-   "max_sat_weight": 0.0916,
+   "max_sat_weight": 0.0913,
    "n_sats": 3,
-   "core_weight": 0.6052,
-   "cash_weight": 0.0301
+   "core_weight": 0.5923,
+   "cash_weight": 0.0288
   },
   {
    "date": "2025-04-30",
    "changes": 0,
-   "max_sat_weight": 0.0939,
+   "max_sat_weight": 0.0936,
    "n_sats": 3,
-   "core_weight": 0.605,
-   "cash_weight": 0.0297
+   "core_weight": 0.5922,
+   "cash_weight": 0.0284
   },
   {
    "date": "2025-05-07",
    "changes": 0,
-   "max_sat_weight": 0.096,
+   "max_sat_weight": 0.0956,
    "n_sats": 3,
-   "core_weight": 0.6026,
-   "cash_weight": 0.0293
+   "core_weight": 0.5899,
+   "cash_weight": 0.0281
   },
   {
    "date": "2025-05-14",
    "changes": 2,
-   "max_sat_weight": 0.0953,
+   "max_sat_weight": 0.095,
    "n_sats": 4,
    "core_weight": 0.5694,
-   "cash_weight": 0.0914
+   "cash_weight": 0.092
   },
   {
    "date": "2025-05-21",
    "changes": 1,
-   "max_sat_weight": 0.0983,
+   "max_sat_weight": 0.098,
    "n_sats": 5,
-   "core_weight": 0.5675,
-   "cash_weight": 0.0322
+   "core_weight": 0.5676,
+   "cash_weight": 0.0314
   },
   {
    "date": "2025-05-28",
    "changes": 2,
-   "max_sat_weight": 0.0996,
+   "max_sat_weight": 0.0993,
    "n_sats": 5,
-   "core_weight": 0.5694,
+   "core_weight": 0.5695,
    "cash_weight": 0.0306
   },
   {
    "date": "2025-06-04",
    "changes": 0,
-   "max_sat_weight": 0.0997,
+   "max_sat_weight": 0.0994,
    "n_sats": 5,
    "core_weight": 0.5707,
    "cash_weight": 0.0302
@@ -1397,601 +1397,601 @@
   {
    "date": "2025-06-11",
    "changes": 0,
-   "max_sat_weight": 0.098,
+   "max_sat_weight": 0.0977,
    "n_sats": 5,
-   "core_weight": 0.5701,
-   "cash_weight": 0.0301
+   "core_weight": 0.5702,
+   "cash_weight": 0.03
   },
   {
    "date": "2025-06-18",
    "changes": 0,
-   "max_sat_weight": 0.0865,
+   "max_sat_weight": 0.0999,
    "n_sats": 5,
    "core_weight": 0.5667,
-   "cash_weight": 0.0504
+   "cash_weight": 0.0301
   },
   {
    "date": "2025-06-25",
    "changes": 0,
-   "max_sat_weight": 0.0867,
+   "max_sat_weight": 0.0986,
    "n_sats": 5,
-   "core_weight": 0.5716,
-   "cash_weight": 0.031
+   "core_weight": 0.5705,
+   "cash_weight": 0.0302
   },
   {
    "date": "2025-07-02",
    "changes": 0,
-   "max_sat_weight": 0.0872,
+   "max_sat_weight": 0.0976,
    "n_sats": 5,
-   "core_weight": 0.5737,
-   "cash_weight": 0.031
+   "core_weight": 0.5727,
+   "cash_weight": 0.0302
   },
   {
    "date": "2025-07-09",
    "changes": 0,
-   "max_sat_weight": 0.0901,
+   "max_sat_weight": 0.0993,
    "n_sats": 5,
-   "core_weight": 0.5718,
-   "cash_weight": 0.0307
+   "core_weight": 0.5706,
+   "cash_weight": 0.0299
   },
   {
    "date": "2025-07-16",
    "changes": 0,
-   "max_sat_weight": 0.0847,
+   "max_sat_weight": 0.0996,
    "n_sats": 5,
-   "core_weight": 0.5708,
-   "cash_weight": 0.0308
+   "core_weight": 0.5698,
+   "cash_weight": 0.03
   },
   {
    "date": "2025-07-23",
    "changes": 2,
-   "max_sat_weight": 0.0854,
+   "max_sat_weight": 0.0819,
    "n_sats": 5,
-   "core_weight": 0.5686,
-   "cash_weight": 0.0301
+   "core_weight": 0.5676,
+   "cash_weight": 0.0499
   },
   {
    "date": "2025-07-30",
    "changes": 2,
-   "max_sat_weight": 0.0872,
+   "max_sat_weight": 0.0837,
    "n_sats": 5,
-   "core_weight": 0.5677,
-   "cash_weight": 0.0303
+   "core_weight": 0.5671,
+   "cash_weight": 0.0406
   },
   {
    "date": "2025-08-06",
    "changes": 0,
-   "max_sat_weight": 0.0883,
+   "max_sat_weight": 0.0847,
    "n_sats": 5,
-   "core_weight": 0.5654,
-   "cash_weight": 0.0305
+   "core_weight": 0.565,
+   "cash_weight": 0.0409
   },
   {
    "date": "2025-08-13",
    "changes": 0,
-   "max_sat_weight": 0.0916,
+   "max_sat_weight": 0.0878,
    "n_sats": 5,
-   "core_weight": 0.5641,
-   "cash_weight": 0.0301
+   "core_weight": 0.5633,
+   "cash_weight": 0.0404
   },
   {
    "date": "2025-08-20",
    "changes": 0,
-   "max_sat_weight": 0.0931,
+   "max_sat_weight": 0.0892,
    "n_sats": 5,
-   "core_weight": 0.5688,
-   "cash_weight": 0.0304
+   "core_weight": 0.5677,
+   "cash_weight": 0.0408
   },
   {
    "date": "2025-08-27",
    "changes": 0,
-   "max_sat_weight": 0.0893,
+   "max_sat_weight": 0.091,
    "n_sats": 5,
-   "core_weight": 0.5618,
-   "cash_weight": 0.0298
+   "core_weight": 0.5611,
+   "cash_weight": 0.0399
   },
   {
    "date": "2025-09-03",
    "changes": 0,
-   "max_sat_weight": 0.0883,
+   "max_sat_weight": 0.09,
    "n_sats": 5,
-   "core_weight": 0.5614,
-   "cash_weight": 0.03
+   "core_weight": 0.5607,
+   "cash_weight": 0.0402
   },
   {
    "date": "2025-09-10",
    "changes": 0,
-   "max_sat_weight": 0.0897,
+   "max_sat_weight": 0.0861,
    "n_sats": 5,
-   "core_weight": 0.562,
-   "cash_weight": 0.0297
+   "core_weight": 0.5616,
+   "cash_weight": 0.0398
   },
   {
    "date": "2025-09-17",
    "changes": 0,
-   "max_sat_weight": 0.0888,
+   "max_sat_weight": 0.0872,
    "n_sats": 5,
-   "core_weight": 0.5586,
-   "cash_weight": 0.0294
+   "core_weight": 0.5583,
+   "cash_weight": 0.0395
   },
   {
    "date": "2025-09-24",
    "changes": 0,
-   "max_sat_weight": 0.0922,
+   "max_sat_weight": 0.0921,
    "n_sats": 5,
-   "core_weight": 0.5462,
-   "cash_weight": 0.0286
+   "core_weight": 0.5467,
+   "cash_weight": 0.0383
   },
   {
    "date": "2025-10-01",
    "changes": 0,
-   "max_sat_weight": 0.092,
+   "max_sat_weight": 0.0938,
    "n_sats": 5,
-   "core_weight": 0.5467,
-   "cash_weight": 0.0284
+   "core_weight": 0.5469,
+   "cash_weight": 0.0381
   },
   {
    "date": "2025-10-08",
    "changes": 0,
-   "max_sat_weight": 0.0919,
+   "max_sat_weight": 0.0833,
    "n_sats": 5,
-   "core_weight": 0.5382,
-   "cash_weight": 0.0477
+   "core_weight": 0.5387,
+   "cash_weight": 0.0592
   },
   {
    "date": "2025-10-15",
    "changes": 0,
-   "max_sat_weight": 0.0849,
+   "max_sat_weight": 0.0882,
    "n_sats": 5,
-   "core_weight": 0.5326,
-   "cash_weight": 0.0701
+   "core_weight": 0.5585,
+   "cash_weight": 0.0309
   },
   {
    "date": "2025-10-22",
    "changes": 2,
-   "max_sat_weight": 0.0802,
+   "max_sat_weight": 0.0817,
    "n_sats": 5,
-   "core_weight": 0.5692,
-   "cash_weight": 0.0318
+   "core_weight": 0.5743,
+   "cash_weight": 0.0329
   },
   {
    "date": "2025-10-29",
    "changes": 0,
-   "max_sat_weight": 0.0888,
+   "max_sat_weight": 0.0853,
    "n_sats": 5,
-   "core_weight": 0.5579,
-   "cash_weight": 0.0307
+   "core_weight": 0.5632,
+   "cash_weight": 0.0317
   },
   {
    "date": "2025-11-05",
    "changes": 0,
-   "max_sat_weight": 0.0839,
+   "max_sat_weight": 0.084,
    "n_sats": 5,
-   "core_weight": 0.567,
-   "cash_weight": 0.0313
+   "core_weight": 0.572,
+   "cash_weight": 0.0323
   },
   {
    "date": "2025-11-12",
    "changes": 2,
-   "max_sat_weight": 0.0831,
+   "max_sat_weight": 0.0832,
    "n_sats": 5,
-   "core_weight": 0.57,
-   "cash_weight": 0.0301
+   "core_weight": 0.5751,
+   "cash_weight": 0.0318
   },
   {
    "date": "2025-11-19",
    "changes": 0,
-   "max_sat_weight": 0.0884,
+   "max_sat_weight": 0.0823,
    "n_sats": 5,
-   "core_weight": 0.5698,
-   "cash_weight": 0.0307
+   "core_weight": 0.5752,
+   "cash_weight": 0.0325
   },
   {
    "date": "2025-11-26",
-   "changes": 2,
-   "max_sat_weight": 0.0859,
+   "changes": 0,
+   "max_sat_weight": 0.0822,
    "n_sats": 5,
-   "core_weight": 0.5738,
-   "cash_weight": 0.0307
+   "core_weight": 0.579,
+   "cash_weight": 0.0322
   },
   {
    "date": "2025-12-03",
    "changes": 0,
-   "max_sat_weight": 0.0847,
+   "max_sat_weight": 0.0848,
    "n_sats": 5,
-   "core_weight": 0.5715,
-   "cash_weight": 0.0306
+   "core_weight": 0.5767,
+   "cash_weight": 0.0321
   },
   {
    "date": "2025-12-10",
    "changes": 0,
-   "max_sat_weight": 0.0861,
+   "max_sat_weight": 0.086,
    "n_sats": 5,
-   "core_weight": 0.5691,
-   "cash_weight": 0.0304
+   "core_weight": 0.5733,
+   "cash_weight": 0.0319
   },
   {
    "date": "2025-12-17",
    "changes": 2,
-   "max_sat_weight": 0.0852,
+   "max_sat_weight": 0.081,
    "n_sats": 5,
-   "core_weight": 0.5762,
-   "cash_weight": 0.03
+   "core_weight": 0.5833,
+   "cash_weight": 0.0334
   },
   {
    "date": "2025-12-24",
-   "changes": 0,
-   "max_sat_weight": 0.0881,
+   "changes": 2,
+   "max_sat_weight": 0.0838,
    "n_sats": 5,
-   "core_weight": 0.5708,
-   "cash_weight": 0.0293
+   "core_weight": 0.5766,
+   "cash_weight": 0.0311
   },
   {
    "date": "2025-12-31",
    "changes": 0,
-   "max_sat_weight": 0.088,
+   "max_sat_weight": 0.0845,
    "n_sats": 5,
-   "core_weight": 0.5709,
-   "cash_weight": 0.0292
+   "core_weight": 0.5767,
+   "cash_weight": 0.0309
   },
   {
    "date": "2026-01-07",
    "changes": 0,
-   "max_sat_weight": 0.0978,
+   "max_sat_weight": 0.0912,
    "n_sats": 5,
-   "core_weight": 0.5607,
-   "cash_weight": 0.0283
+   "core_weight": 0.5669,
+   "cash_weight": 0.0301
   },
   {
    "date": "2026-01-14",
    "changes": 0,
-   "max_sat_weight": 0.0875,
+   "max_sat_weight": 0.0954,
    "n_sats": 5,
-   "core_weight": 0.5536,
-   "cash_weight": 0.0502
+   "core_weight": 0.5601,
+   "cash_weight": 0.0296
   },
   {
    "date": "2026-01-21",
    "changes": 0,
-   "max_sat_weight": 0.0916,
+   "max_sat_weight": 0.0964,
    "n_sats": 5,
-   "core_weight": 0.5582,
-   "cash_weight": 0.0312
+   "core_weight": 0.5539,
+   "cash_weight": 0.0295
   },
   {
    "date": "2026-01-28",
    "changes": 0,
-   "max_sat_weight": 0.0914,
+   "max_sat_weight": 0.0972,
    "n_sats": 5,
-   "core_weight": 0.5505,
-   "cash_weight": 0.0307
+   "core_weight": 0.5464,
+   "cash_weight": 0.0291
   },
   {
    "date": "2026-02-04",
    "changes": 0,
-   "max_sat_weight": 0.0864,
+   "max_sat_weight": 0.0896,
    "n_sats": 5,
-   "core_weight": 0.5605,
-   "cash_weight": 0.0312
+   "core_weight": 0.5568,
+   "cash_weight": 0.0296
   },
   {
    "date": "2026-02-11",
    "changes": 0,
-   "max_sat_weight": 0.0907,
+   "max_sat_weight": 0.0923,
    "n_sats": 5,
-   "core_weight": 0.5575,
-   "cash_weight": 0.0308
+   "core_weight": 0.5537,
+   "cash_weight": 0.0292
   },
   {
    "date": "2026-02-18",
    "changes": 0,
-   "max_sat_weight": 0.0918,
+   "max_sat_weight": 0.0934,
    "n_sats": 5,
-   "core_weight": 0.5564,
-   "cash_weight": 0.0307
+   "core_weight": 0.5524,
+   "cash_weight": 0.029
   },
   {
    "date": "2026-02-25",
    "changes": 0,
-   "max_sat_weight": 0.0921,
+   "max_sat_weight": 0.0924,
    "n_sats": 5,
-   "core_weight": 0.5498,
-   "cash_weight": 0.0301
+   "core_weight": 0.5453,
+   "cash_weight": 0.0485
   },
   {
    "date": "2026-03-04",
    "changes": 0,
-   "max_sat_weight": 0.09,
+   "max_sat_weight": 0.0894,
    "n_sats": 5,
-   "core_weight": 0.5563,
-   "cash_weight": 0.0307
+   "core_weight": 0.5518,
+   "cash_weight": 0.0494
   },
   {
    "date": "2026-03-11",
    "changes": 0,
-   "max_sat_weight": 0.0911,
+   "max_sat_weight": 0.0909,
    "n_sats": 5,
-   "core_weight": 0.5524,
-   "cash_weight": 0.0307
+   "core_weight": 0.5479,
+   "cash_weight": 0.0495
   },
   {
    "date": "2026-03-18",
    "changes": 2,
-   "max_sat_weight": 0.092,
+   "max_sat_weight": 0.0922,
    "n_sats": 5,
-   "core_weight": 0.5577,
-   "cash_weight": 0.0302
+   "core_weight": 0.5671,
+   "cash_weight": 0.0312
   },
   {
    "date": "2026-03-25",
    "changes": 0,
-   "max_sat_weight": 0.093,
+   "max_sat_weight": 0.0932,
    "n_sats": 5,
-   "core_weight": 0.5592,
-   "cash_weight": 0.0306
+   "core_weight": 0.5683,
+   "cash_weight": 0.0316
   },
   {
    "date": "2026-04-01",
    "changes": 0,
-   "max_sat_weight": 0.0913,
+   "max_sat_weight": 0.0915,
    "n_sats": 5,
-   "core_weight": 0.5599,
-   "cash_weight": 0.0306
+   "core_weight": 0.5691,
+   "cash_weight": 0.0316
   },
   {
    "date": "2026-04-08",
    "changes": 0,
-   "max_sat_weight": 0.0953,
+   "max_sat_weight": 0.0956,
    "n_sats": 5,
-   "core_weight": 0.5594,
-   "cash_weight": 0.0301
+   "core_weight": 0.5685,
+   "cash_weight": 0.031
   },
   {
    "date": "2026-04-15",
    "changes": 2,
-   "max_sat_weight": 0.0995,
+   "max_sat_weight": 0.0997,
    "n_sats": 5,
-   "core_weight": 0.5557,
-   "cash_weight": 0.0303
+   "core_weight": 0.5647,
+   "cash_weight": 0.0301
   },
   {
    "date": "2026-04-22",
    "changes": 2,
-   "max_sat_weight": 0.0861,
+   "max_sat_weight": 0.0871,
    "n_sats": 5,
-   "core_weight": 0.5521,
-   "cash_weight": 0.0534
+   "core_weight": 0.5609,
+   "cash_weight": 0.0457
   },
   {
    "date": "2026-04-29",
    "changes": 0,
-   "max_sat_weight": 0.085,
+   "max_sat_weight": 0.0851,
    "n_sats": 5,
-   "core_weight": 0.5619,
-   "cash_weight": 0.0304
+   "core_weight": 0.5572,
+   "cash_weight": 0.0456
   },
   {
    "date": "2026-05-06",
    "changes": 0,
    "max_sat_weight": 0.0901,
    "n_sats": 5,
-   "core_weight": 0.5512,
-   "cash_weight": 0.0291
+   "core_weight": 0.547,
+   "cash_weight": 0.0437
   },
   {
    "date": "2026-05-13",
    "changes": 0,
    "max_sat_weight": 0.0937,
    "n_sats": 5,
-   "core_weight": 0.5467,
-   "cash_weight": 0.0288
+   "core_weight": 0.5429,
+   "cash_weight": 0.0432
   },
   {
    "date": "2026-05-20",
    "changes": 0,
-   "max_sat_weight": 0.094,
+   "max_sat_weight": 0.0939,
    "n_sats": 5,
-   "core_weight": 0.555,
-   "cash_weight": 0.0291
+   "core_weight": 0.5511,
+   "cash_weight": 0.0438
   },
   {
    "date": "2026-05-27",
    "changes": 0,
    "max_sat_weight": 0.0972,
    "n_sats": 5,
-   "core_weight": 0.5458,
-   "cash_weight": 0.0283
+   "core_weight": 0.5548,
+   "cash_weight": 0.03
   },
   {
    "date": "2026-06-03",
    "changes": 0,
-   "max_sat_weight": 0.0899,
+   "max_sat_weight": 0.0881,
    "n_sats": 5,
-   "core_weight": 0.5401,
-   "cash_weight": 0.0519
+   "core_weight": 0.5491,
+   "cash_weight": 0.054
   },
   {
    "date": "2026-06-10",
    "changes": 2,
-   "max_sat_weight": 0.0818,
+   "max_sat_weight": 0.08,
    "n_sats": 5,
    "core_weight": 0.5691,
-   "cash_weight": 0.0319
+   "cash_weight": 0.0334
   },
   {
    "date": "2026-06-17",
    "changes": 0,
-   "max_sat_weight": 0.0853,
+   "max_sat_weight": 0.085,
    "n_sats": 5,
-   "core_weight": 0.561,
-   "cash_weight": 0.0307
+   "core_weight": 0.5611,
+   "cash_weight": 0.0321
   },
   {
    "date": "2026-06-24",
    "changes": 0,
-   "max_sat_weight": 0.0857,
+   "max_sat_weight": 0.0854,
    "n_sats": 5,
    "core_weight": 0.5608,
-   "cash_weight": 0.0306
+   "cash_weight": 0.032
   },
   {
    "date": "2026-07-01",
    "changes": 0,
-   "max_sat_weight": 0.0871,
+   "max_sat_weight": 0.0869,
    "n_sats": 5,
    "core_weight": 0.562,
-   "cash_weight": 0.0305
+   "cash_weight": 0.032
   },
   {
    "date": "2026-07-08",
-   "changes": 2,
-   "max_sat_weight": 0.082,
+   "changes": 0,
+   "max_sat_weight": 0.0817,
    "n_sats": 5,
-   "core_weight": 0.5727,
-   "cash_weight": 0.0301
+   "core_weight": 0.5726,
+   "cash_weight": 0.0329
   },
   {
    "date": "2026-07-15",
-   "changes": 0,
-   "max_sat_weight": 0.0815,
+   "changes": 2,
+   "max_sat_weight": 0.0811,
    "n_sats": 5,
-   "core_weight": 0.5745,
-   "cash_weight": 0.0299
+   "core_weight": 0.5744,
+   "cash_weight": 0.03
   },
   {
    "date": "2026-07-22",
    "changes": 0,
-   "max_sat_weight": 0.0832,
+   "max_sat_weight": 0.0829,
    "n_sats": 5,
    "core_weight": 0.5727,
-   "cash_weight": 0.0299
+   "cash_weight": 0.03
   },
   {
    "date": "2026-07-29",
    "changes": 2,
-   "max_sat_weight": 0.0842,
+   "max_sat_weight": 0.0822,
    "n_sats": 5,
    "core_weight": 0.5833,
-   "cash_weight": 0.0301
+   "cash_weight": 0.03
   },
   {
    "date": "2026-08-05",
    "changes": 0,
-   "max_sat_weight": 0.083,
+   "max_sat_weight": 0.0815,
    "n_sats": 5,
-   "core_weight": 0.5764,
-   "cash_weight": 0.029
+   "core_weight": 0.5762,
+   "cash_weight": 0.0289
   },
   {
    "date": "2026-08-12",
    "changes": 0,
-   "max_sat_weight": 0.0831,
+   "max_sat_weight": 0.0824,
    "n_sats": 5,
-   "core_weight": 0.5722,
-   "cash_weight": 0.0287
+   "core_weight": 0.572,
+   "cash_weight": 0.0286
   },
   {
    "date": "2026-08-19",
    "changes": 0,
-   "max_sat_weight": 0.0832,
+   "max_sat_weight": 0.0815,
    "n_sats": 5,
-   "core_weight": 0.5733,
+   "core_weight": 0.5732,
    "cash_weight": 0.029
   },
   {
    "date": "2026-08-26",
    "changes": 0,
-   "max_sat_weight": 0.0838,
+   "max_sat_weight": 0.0822,
    "n_sats": 5,
-   "core_weight": 0.5736,
+   "core_weight": 0.5735,
    "cash_weight": 0.029
   },
   {
    "date": "2026-09-02",
    "changes": 0,
-   "max_sat_weight": 0.0845,
+   "max_sat_weight": 0.0825,
    "n_sats": 5,
-   "core_weight": 0.5746,
-   "cash_weight": 0.0291
+   "core_weight": 0.5745,
+   "cash_weight": 0.029
   },
   {
    "date": "2026-09-09",
    "changes": 0,
-   "max_sat_weight": 0.085,
+   "max_sat_weight": 0.083,
    "n_sats": 5,
-   "core_weight": 0.5709,
-   "cash_weight": 0.029
+   "core_weight": 0.5708,
+   "cash_weight": 0.0289
   },
   {
    "date": "2026-09-16",
    "changes": 0,
-   "max_sat_weight": 0.0851,
+   "max_sat_weight": 0.0831,
    "n_sats": 5,
-   "core_weight": 0.5728,
+   "core_weight": 0.5726,
    "cash_weight": 0.0291
   },
   {
    "date": "2026-09-23",
    "changes": 0,
-   "max_sat_weight": 0.0842,
+   "max_sat_weight": 0.0832,
    "n_sats": 5,
-   "core_weight": 0.5644,
-   "cash_weight": 0.0283
+   "core_weight": 0.5642,
+   "cash_weight": 0.0282
   },
   {
    "date": "2026-09-30",
    "changes": 0,
-   "max_sat_weight": 0.0835,
+   "max_sat_weight": 0.0828,
    "n_sats": 5,
-   "core_weight": 0.5624,
+   "core_weight": 0.5622,
    "cash_weight": 0.0282
   },
   {
    "date": "2026-10-07",
    "changes": 0,
-   "max_sat_weight": 0.0846,
+   "max_sat_weight": 0.0845,
    "n_sats": 5,
-   "core_weight": 0.5612,
+   "core_weight": 0.561,
    "cash_weight": 0.0278
   },
   {
    "date": "2026-10-14",
    "changes": 0,
-   "max_sat_weight": 0.0835,
+   "max_sat_weight": 0.0833,
    "n_sats": 5,
-   "core_weight": 0.569,
+   "core_weight": 0.5688,
    "cash_weight": 0.0282
   },
   {
    "date": "2026-10-21",
    "changes": 0,
-   "max_sat_weight": 0.0829,
+   "max_sat_weight": 0.0828,
    "n_sats": 5,
-   "core_weight": 0.5707,
+   "core_weight": 0.5705,
    "cash_weight": 0.0284
   },
   {
    "date": "2026-10-28",
    "changes": 0,
-   "max_sat_weight": 0.0833,
+   "max_sat_weight": 0.0832,
    "n_sats": 5,
-   "core_weight": 0.5673,
+   "core_weight": 0.5671,
    "cash_weight": 0.0281
   },
   {
    "date": "2026-11-04",
    "changes": 2,
-   "max_sat_weight": 0.0854,
+   "max_sat_weight": 0.0853,
    "n_sats": 5,
-   "core_weight": 0.5782,
-   "cash_weight": 0.03
+   "core_weight": 0.5781,
+   "cash_weight": 0.0301
   },
   {
    "date": "2026-11-11",
    "changes": 0,
-   "max_sat_weight": 0.0863,
+   "max_sat_weight": 0.0862,
    "n_sats": 5,
-   "core_weight": 0.5775,
+   "core_weight": 0.5774,
    "cash_weight": 0.0299
   }
  ]

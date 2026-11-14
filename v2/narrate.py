@@ -199,15 +199,15 @@ def fallback(facts: dict, lang: str) -> dict:
     _att = ((facts.get("attribution") or {}).get("since_start") or {}).get("items") or []
     _w = min(_att, key=lambda x: x["pts"]) if _att else None
     if _w and p["difference_vs_benchmark_pts"] < 0 and _w["pts"] < 0 and _w["id"] != "CASH":
-        headline = (f"{_w['id']} is de belangrijkste reden voor de achterstand op VWCE" if nl
-                    else f"{_w['id']} is the main reason the portfolio trails VWCE")
-    happened = (f"De modelportefeuille {up_dn(p['week_return_pct'])} deze week {_fmt(abs(p['week_return_pct']), lang)}%, tegen {_fmt(p['benchmark_week_return_pct'], lang)}% voor de benchmark (VWCE). "
+        headline = (f"{_w['id']} is de belangrijkste reden voor de achterstand op de benchmark" if nl
+                    else f"{_w['id']} is the main reason the portfolio trails its benchmark")
+    happened = (f"De modelportefeuille {up_dn(p['week_return_pct'])} deze week {_fmt(abs(p['week_return_pct']), lang)}%, tegen {_fmt(p['benchmark_week_return_pct'], lang)}% voor de benchmark (70% VWCE / 30% EUNA). "
                 f"Sinds {_long(facts['track_record_start'], lang)} is het rendement {_fmt(p['since_start_return_pct'], lang)}% tegen {_fmt(p['benchmark_since_start_return_pct'], lang)}%: een achterstand van {_fmt(abs(p['difference_vs_benchmark_pts']), lang)} procentpunt."
                 if nl and p['difference_vs_benchmark_pts'] < 0 else
-                f"De modelportefeuille {up_dn(p['week_return_pct'])} deze week {_fmt(abs(p['week_return_pct']), lang)}%, tegen {_fmt(p['benchmark_week_return_pct'], lang)}% voor de benchmark (VWCE). "
+                f"De modelportefeuille {up_dn(p['week_return_pct'])} deze week {_fmt(abs(p['week_return_pct']), lang)}%, tegen {_fmt(p['benchmark_week_return_pct'], lang)}% voor de benchmark (70% VWCE / 30% EUNA). "
                 f"Sinds {_long(facts['track_record_start'], lang)} is het rendement {_fmt(p['since_start_return_pct'], lang)}% tegen {_fmt(p['benchmark_since_start_return_pct'], lang)}%."
                 if nl else
-                f"The model portfolio {up_dn(p['week_return_pct'])} {_fmt(abs(p['week_return_pct']), lang)}% this week, against {_fmt(p['benchmark_week_return_pct'], lang)}% for the benchmark (VWCE). "
+                f"The model portfolio {up_dn(p['week_return_pct'])} {_fmt(abs(p['week_return_pct']), lang)}% this week, against {_fmt(p['benchmark_week_return_pct'], lang)}% for the benchmark (70% VWCE / 30% EUNA). "
                 f"Since {_long(facts['track_record_start'], lang)} it returned {_fmt(p['since_start_return_pct'], lang)}% against {_fmt(p['benchmark_since_start_return_pct'], lang)}%"
                 + (f", a shortfall of {_fmt(abs(p['difference_vs_benchmark_pts']), lang)} percentage points." if p['difference_vs_benchmark_pts'] < 0 else "."))
     att = (facts.get("attribution") or {}).get("since_start") or {"items": []}

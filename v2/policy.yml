@@ -4,7 +4,10 @@
 # them; it only explains the trades they produce.
 
 schema_version: weekly_etf_eu_policy_v2
-benchmark: VWCE
+benchmark:                       # what the report compares against (decided 2026-11-14)
+  label: "70% VWCE / 30% EUNA"
+  weights: {VWCE: 0.70, EUNA: 0.30}   # rebalanced weekly at the Wednesday close
+trend_reference: VWCE               # world-equity trend used by the defensive switch
 
 core:
   # Core = broad base; its weight floats inside the band, aimed at target.

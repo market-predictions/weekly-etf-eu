@@ -1,17 +1,17 @@
 date,id,side,shares,price,amount,cost,kind,why,detail
-2026-08-19,DFEN,sell,207,57.09,11817.63,11.82,exit,rank_dropped,rank 16 of 30 (keep while ≤ 15)
-2026-08-19,IQQQ,sell,149,65.64,9780.36,9.78,exit,rank_dropped,rank 22 of 30 (keep while ≤ 15)
+2026-08-19,DFEN,sell,207,57.09,11817.63,11.82,exit,rank_dropped,rank 16 of 32 (keep while ≤ 15)
+2026-08-19,IQQQ,sell,149,65.64,9780.36,9.78,exit,rank_dropped,rank 23 of 32 (keep while ≤ 15)
 2026-08-19,L0CK,sell,194,10.75,2085.5,2.09,resize,resize,weight 10.1% vs target 8.0% (band 2%)
 2026-08-19,EUNA,buy,1945,4.8978,9526.22,9.53,resize,resize,weight 7.5% vs target 17.1% (band 2%)
 2026-08-19,VWCE,buy,87,166.5,14485.5,14.49,resize,resize,weight 25.3% vs target 39.9% (band 2%)
 2026-08-26,SXR8,sell,10,709.68,7096.8,7.1,exit,not_in_target,not part of the target portfolio (core is VWCE + EUNA)
-2026-08-26,2B70,buy,865,9.165,7927.72,7.93,entry,selected,"rank 1 of 30, score 93, uptrend"
+2026-08-26,2B70,buy,865,9.165,7927.72,7.93,entry,selected,"rank 1 of 32, score 94, uptrend"
 2026-08-26,L0CK,buy,14,10.52,147.28,0.15,resize,deploy_cash,cash 27.9% above 5% ceiling; topping up toward target 8.0%
-2026-09-02,EXV1,buy,81,42.39,3433.59,3.43,entry,selected,"rank 2 of 30, score 89, uptrend"
-2026-09-02,IS3S,buy,48,70.5,3384.0,3.38,entry,selected,"rank 3 of 30, score 84, uptrend"
+2026-09-02,EXV1,buy,81,42.39,3433.59,3.43,entry,selected,"rank 2 of 32, score 89, uptrend"
+2026-09-02,IS3S,buy,48,70.5,3384.0,3.38,entry,selected,"rank 3 of 32, score 85, uptrend"
 2026-09-02,2B70,buy,4,9.049,36.2,0.04,resize,deploy_cash,cash 27.0% above 5% ceiling; topping up toward target 8.0%
 2026-09-02,EUNA,buy,4,4.8709,19.48,0.02,resize,deploy_cash,cash 27.0% above 5% ceiling; topping up toward target 17.1%
-2026-09-09,XAIX,buy,15,208.5,3127.5,3.13,entry,selected,"rank 4 of 30, score 83, uptrend"
+2026-09-09,XAIX,buy,15,208.5,3127.5,3.13,entry,selected,"rank 4 of 32, score 84, uptrend"
 2026-09-09,2B70,buy,11,8.82,97.02,0.1,resize,deploy_cash,cash 20.1% above 5% ceiling; topping up toward target 8.0%
 2026-09-09,EXV1,buy,42,42.595,1788.99,1.79,resize,resize,weight 3.5% vs target 8.0% (band 2%)
 2026-09-09,IS3S,buy,25,71.21,1780.25,1.78,resize,resize,weight 3.5% vs target 8.0% (band 2%)
@@ -24,7 +24,7 @@ date,id,side,shares,price,amount,cost,kind,why,detail
 2026-09-23,EXV1,buy,20,42.15,843.0,0.84,resize,deploy_cash,cash 6.3% above 5% ceiling; topping up toward target 8.0%
 2026-09-23,IS3S,buy,10,72.35,723.5,0.72,resize,deploy_cash,cash 6.3% above 5% ceiling; topping up toward target 8.0%
 2026-09-23,XAIX,buy,5,221.25,1106.25,1.11,resize,deploy_cash,cash 6.3% above 5% ceiling; topping up toward target 8.0%
-2026-10-07,EXV1,sell,185,39.96,7392.6,7.39,exit,replaced,2B76 scores 92 vs 53 (margin ≥ 25)
-2026-10-07,2B76,buy,380,20.095,7636.1,7.64,entry,selected,"rank 3 of 30, score 92, uptrend"
-2026-11-04,2B76,sell,380,18.228,6926.64,6.93,exit,replaced,CBUF scores 94 vs 59 (margin ≥ 25)
-2026-11-04,CBUF,buy,864,8.09,6989.76,6.99,entry,selected,"rank 2 of 30, score 94, uptrend"
+2026-10-07,EXV1,sell,185,39.96,7392.6,7.39,exit,replaced,2B76 scores 92 vs 55 (margin ≥ 25)
+2026-10-07,2B76,buy,380,20.095,7636.1,7.64,entry,selected,"rank 3 of 32, score 92, uptrend"
+2026-11-04,2B76,sell,380,18.228,6926.64,6.93,exit,replaced,CBUF scores 95 vs 59 (margin ≥ 25)
+2026-11-04,CBUF,buy,864,8.09,6989.76,6.99,entry,selected,"rank 2 of 32, score 95, uptrend"

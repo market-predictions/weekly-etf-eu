@@ -15,6 +15,7 @@
 #   core       = broad base (40–60% combined)
 #   satellite  = competes for 3–6 slots, max 10% each
 #   defensive  = destination of the defensive switch
+#   reference  = shown for context only; never bought (overlaps the core)
 #
 # Policy decisions captured here:
 #   - ETCs (gold, commodities) allowed (decision 2026-11-14)
@@ -29,13 +30,13 @@ instruments:
 
   # ── Core equity ───────────────────────────────────────────────────────────
   - {id: VWCE, name: Vanguard FTSE All-World UCITS ETF Acc, isin: IE00BK5BQT80, exchange: Xetra, currency: EUR, asset_class: equity, region: global, sleeve: core, status: verified}
-  - {id: IWDA, name: iShares Core MSCI World UCITS ETF Acc, isin: IE00B4L5Y983, exchange: Euronext Amsterdam, currency: EUR, asset_class: equity, region: developed, sleeve: core, status: verified}
-  - {id: SXR8, name: iShares Core S&P 500 UCITS ETF Acc, isin: IE00B5BMR087, exchange: Xetra, currency: EUR, asset_class: equity, region: us, sleeve: core, status: verified}
+  - {id: IWDA, name: iShares Core MSCI World UCITS ETF Acc, isin: IE00B4L5Y983, exchange: Euronext Amsterdam, currency: EUR, asset_class: equity, region: developed, sleeve: reference, status: verified}
+  - {id: SXR8, name: iShares Core S&P 500 UCITS ETF Acc, isin: IE00B5BMR087, exchange: Xetra, currency: EUR, asset_class: equity, region: us, sleeve: reference, status: verified}
 
   # ── Core bonds ────────────────────────────────────────────────────────────
   - {id: EUNA, name: iShares Core Global Aggregate Bond UCITS ETF EUR Hedged Acc, isin: IE00BDBRDM35, exchange: Xetra, currency: EUR, asset_class: bonds, segment: global_aggregate_hedged, sleeve: core, status: verified}
-  - {id: EUNH, name: iShares Core Euro Government Bond UCITS ETF, isin: IE00B4WXJJ64, exchange: Xetra, currency: EUR, asset_class: bonds, segment: euro_government, sleeve: core, status: verified}
-  - {id: EUN5, name: iShares Core EUR Corp Bond UCITS ETF, isin: IE00B3F81R35, exchange: Xetra, currency: EUR, asset_class: bonds, segment: euro_ig_credit, sleeve: core, status: verified}
+  - {id: EUNH, name: iShares Core Euro Government Bond UCITS ETF, isin: IE00B4WXJJ64, exchange: Xetra, currency: EUR, asset_class: bonds, segment: euro_government, sleeve: satellite, status: verified}
+  - {id: EUN5, name: iShares Core EUR Corp Bond UCITS ETF, isin: IE00B3F81R35, exchange: Xetra, currency: EUR, asset_class: bonds, segment: euro_ig_credit, sleeve: satellite, status: verified}
 
   # ── Defensive ─────────────────────────────────────────────────────────────
   - {id: XEON, name: Xtrackers II EUR Overnight Rate Swap UCITS ETF, isin: LU0290358497, exchange: Xetra, currency: EUR, asset_class: cash_like, segment: money_market, sleeve: defensive, status: verified}
