@@ -33,6 +33,8 @@ jobs:
           TWELVE_DATA_API_KEY: ${{ secrets.TWELVE_DATA_API_KEY }}
           TWELVEDATA_API_KEY: ${{ secrets.TWELVEDATA_API_KEY }}
           STOOQ_API_KEY: ${{ secrets.STOOQ_API_KEY }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          V2_REPORT_DATE: "2026-11-11"
           V2_AV_LIMIT: "2"
           V2_PRIMARY: yahoo
           V2_VERIFIER: alpha_vantage
