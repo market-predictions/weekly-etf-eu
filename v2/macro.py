@@ -93,12 +93,15 @@ def fetch(asof: date) -> dict:
             d, v = obs[-1]
             month_ago = (date.fromisoformat(d) - timedelta(days=30)).isoformat()
             prev = [x for x in obs if x[0] <= month_ago]
+            q_ago = (date.fromisoformat(d) - timedelta(days=88)).isoformat()
+            prev_q = [x for x in obs if x[0] <= q_ago]
             year_ago = (date.fromisoformat(d) - timedelta(days=365)).isoformat()
             prev_y = [x for x in obs if x[0] <= year_ago]
             item.update({
                 "date": d, "value": round(v, 4),
                 "value_1m_ago": round(prev[-1][1], 4) if prev else None,
                 "value_1y_ago": round(prev_y[-1][1], 4) if prev_y else None,
+                "value_3m_ago": round(prev_q[-1][1], 4) if prev_q else None,
                 "stale": (asof - date.fromisoformat(d)).days > max_age,
                 "available": True,
             })
@@ -106,6 +109,14 @@ def fetch(asof: date) -> dict:
             item.update({"available": False, "error": f"{type(exc).__name__}: {str(exc)[:80]}"})
         result[sid] = item
     return result
+
+
+def runtime(macro: dict) -> dict:
+    """Inputs for the inflation rule. Missing or stale data → None (rule keeps the current bond fund)."""
+    i = macro.get("euro_inflation") or {}
+    if not i.get("available") or i.get("stale"):
+        return {"hicp": None, "hicp_3m_ago": None}
+    return {"hicp": i.get("value"), "hicp_3m_ago": i.get("value_3m_ago")}
 
 
 def main() -> None:

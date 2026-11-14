@@ -33,6 +33,12 @@ scoring:
   trend_sma_days: 200                     # trend up = close above its 200-day average
   volatility_days: 63
 
+inflation_regime:                # decided 2026-11-15 after train/test research (v2/research.py)
+  # When euro-area inflation (latest published HICP y/y) is >= threshold and not lower
+  # than 3 months earlier, the bond core is held in short-dated euro government bonds.
+  threshold: 3.0
+  alt_bonds: IBGS
+
 defensive_switch:
   # Risk-off when broad equity is in a downtrend AND most risky assets are too.
   benchmark_below_trend: true

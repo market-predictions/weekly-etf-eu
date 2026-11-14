@@ -98,8 +98,10 @@ def scan(prices: Prices, universe: list[dict], policy: dict, d: str) -> dict:
             "trend_up_prev": (s[-6] > sum(s[-205:-5]) / sc["trend_sma_days"]) if len(s) >= sc["trend_sma_days"] + 5 else None,
             "vol": round(_vol(s, sc["volatility_days"]) or 0, 4) if len(s) > sc["volatility_days"] else None,
         }
+        skip = int(sc.get("skip_days", 0))
+        base = s[:-skip] if skip else s
         for w in wins:
-            r = _ret(s, w)
+            r = _ret(base, w)
             row[f"r{w}"] = round(r, 6) if r is not None else None
         row["rankable"] = inst["sleeve"] == "satellite" and len(s) > min_hist and all(row[f"r{w}"] is not None for w in wins) and sma is not None
         rows.append(row)
@@ -169,11 +171,19 @@ def _select_satellites(sc: dict, held: set[str], uni: dict[str, dict], pol: dict
         t = set(r["tags"])
         return any(t & set(c["tags"]) for c in chosen)
 
+    ref = next((x for x in sc["rows"] if x["id"] == pol.get("trend_reference")), None)
+    long_w = max(pol["scoring"]["momentum_windows_days"])
+
+    def theme_ok(r):
+        if not sat.get("theme_must_beat_reference") or not any(t.startswith("theme:") for t in r["tags"]):
+            return True
+        return ref is not None and ref.get(f"r{long_w}") is not None and r[f"r{long_w}"] > ref[f"r{long_w}"]
+
     selected = list(kept)
     for r in sc["ranked"]:
         if len(selected) >= n:
             break
-        if r["id"] in held or not r["trend_up"] or conflicts(r, selected):
+        if r["id"] in held or not r["trend_up"] or conflicts(r, selected) or not theme_ok(r):
             continue
         selected.append(r)
 
@@ -182,7 +192,7 @@ def _select_satellites(sc: dict, held: set[str], uni: dict[str, dict], pol: dict
         weakest = max(kept, key=lambda r: r["rank"])
         others = [k for k in kept if k is not weakest]
         for r in sc["ranked"]:
-            if r["id"] in held or not r["trend_up"] or conflicts(r, others):
+            if r["id"] in held or not r["trend_up"] or conflicts(r, others) or not theme_ok(r):
                 continue
             if r["score"] >= weakest["score"] + sat["replacement_margin_pts"]:
                 selected = others + [r]
@@ -213,11 +223,29 @@ def decide(d: str, holdings: dict[str, int], cash: float, prices: Prices, univer
         defensive += core_w - hi
         core_w = hi
     eq_share = policy["core"]["equity_share"][regime]
+    dec_notes: list[str] = []
+    vt = policy["core"].get("vol_target")
+    if vt:  # scale core equity to a fixed risk level using world-equity volatility
+        ref = next((x for x in sc["rows"] if x["id"] == policy["trend_reference"]), None)
+        if ref and ref.get("vol"):
+            eq_share = min(vt["max_share"], max(vt["min_share"], eq_share * vt["target_vol"] / ref["vol"]))
+            dec_notes.append(f"core equity share {eq_share:.0%} (world-equity volatility {ref['vol']:.1%} vs target {vt['target_vol']:.0%})")
+    bonds = policy["core"]["bonds"]
+    infl_info: dict = {}
+    inf, rt = policy.get("inflation_regime"), policy.get("_runtime", {})
+    if inf and rt.get("hicp") is None and inf["alt_bonds"] in held:
+        bonds = inf["alt_bonds"]  # no current inflation data: keep the bond fund we hold, no switch on missing data
+        dec_notes.append("inflation data unavailable: bond core unchanged")
+    elif inf and rt.get("hicp") is not None and rt["hicp"] >= inf["threshold"] and rt["hicp"] >= (rt.get("hicp_3m_ago") or rt["hicp"]):
+        bonds = inf["alt_bonds"]
+        infl_info = {"hicp": rt["hicp"], "hicp_3m_ago": rt.get("hicp_3m_ago"), "threshold": inf["threshold"]}
+        dec_notes.append(f"inflation {rt['hicp']:.1f}% ≥ {inf['threshold']}% and rising: core bonds held in {bonds}")
     targets[policy["core"]["equity"]] = core_w * eq_share
-    targets[policy["core"]["bonds"]] = core_w * (1 - eq_share)
+    targets[bonds] = targets.get(bonds, 0) + core_w * (1 - eq_share)
     if defensive > 1e-9:
         targets[policy["defensive_switch"]["instrument"]] = targets.get(policy["defensive_switch"]["instrument"], 0) + defensive
     dec = Decision(d, regime, round(nav, 2), {k: round(v, 4) for k, v in targets.items()}, selected_satellites=[r["id"] for r in selected])
+    dec.notes.extend(dec_notes)
     if defensive > 1e-9:
         dec.notes.append(f"{defensive:.0%} parked in {policy['defensive_switch']['instrument']}: "
                          f"{n - len(selected)} of {n} satellite slots unfilled" + (" (risk-off)" if regime == "risk_off" else ""))
@@ -239,9 +267,23 @@ def decide(d: str, holdings: dict[str, int], cash: float, prices: Prices, univer
                      "params": {"rank": r["rank"], "n": sc["n_ranked"], "score": round(r["score"])}}
                     if r else {"why": "core_or_defensive", "detail": "core/defensive allocation", "params": {"target_pct": round(w * 100, 1)}})
             changes.append((4 + (r["rank"] / 1000 if r else 0), "entry", iid, info))
+    # A switch between the normal and the inflation-regime core bond fund is one
+    # decision (sell one, buy the other) and is executed together as one change.
+    bond_pair = {policy["core"]["bonds"], (inf or {}).get("alt_bonds")} - {None}
+    switch = [c for c in changes if c[2] in bond_pair]
+    if switch:
+        changes = [c for c in changes if c[2] not in bond_pair]
+        new_bonds = bonds
+        for k, (prio, kind, iid, info) in enumerate(switch):
+            info = {"why": "inflation_regime" if new_bonds != policy["core"]["bonds"] else "inflation_regime_end",
+                    "detail": (f"core bonds from {iid if kind == 'exit' else policy['core']['bonds']} to {new_bonds}"),
+                    "params": {"from": policy["core"]["bonds"] if new_bonds != policy["core"]["bonds"] else (inf or {}).get("alt_bonds"),
+                               "to": new_bonds, **infl_info, "threshold": (inf or {}).get("threshold")}}
+            switch[k] = (-1, kind, iid, info)
     changes.sort(key=lambda c: c[0])
     limit = policy["turnover"]["max_instrument_changes_per_week"]
-    allowed, deferred = changes[:limit], changes[limit:]
+    limit_left = limit - (1 if switch else 0)
+    allowed, deferred = switch + changes[:limit_left], changes[limit_left:]
     targets_before_defer = dict(targets)
     for _, kind, iid, info in deferred:
         dec.deferred.append({"id": iid, "kind": kind, **info, "deferred_reason": f"max {limit} instrument changes per week"})

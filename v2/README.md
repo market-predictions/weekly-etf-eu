@@ -33,6 +33,15 @@ only, and never touches the saved state.
   Kept on purpose: an 11-year test (2016–2026) showed that dropping the core adds volatility
   without adding return (see the decision of 2026-11-15).
 - **Satellites:** 5 slots of ~8% (3 when defensive), chosen weekly from the scan.
+- **Inflation rule:** when euro-area inflation (latest published HICP y/y) is ≥ 3% and not
+  lower than 3 months earlier, the bond core is held in IBGS (short euro government bonds)
+  instead of EUNA. The switch is one change (sell + buy together). Missing or stale
+  inflation data never triggers a switch. Adopted 2026-11-15 after `research.py`
+  (train 2016–21 / test 2022–26): the only one of four candidate improvements that
+  held up out of sample — on a single inflation episode, so treat it as a risk rule.
+- **Positioning:** the aim is to keep up with the benchmark while limiting large losses.
+  Research found no statistically demonstrable alpha (standard error ≈ 2–3 pts/yr);
+  the report must not claim or imply outperformance.
 - **Reference funds** (`sleeve: reference`, e.g. IWDA, SXR8): shown for context, never bought.
 - **Benchmark:** 70% VWCE / 30% EUNA, rebalanced weekly — the same risk balance as the core.
   The defensive switch uses VWCE's own trend (`trend_reference`).

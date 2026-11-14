@@ -116,7 +116,9 @@ def build(d: str, with_macro: bool = True, applied: dict | None = None) -> dict:
     sc = scan(prices, uni, pol, d)
     prev_d = (date.fromisoformat(d) - timedelta(days=7)).isoformat()
     sc_prev = scan(prices, uni, pol, prev_d)
+    macro_now = M.fetch(date.fromisoformat(d)) if with_macro else {}
     if applied is None:
+        pol["_runtime"] = M.runtime(macro_now)
         hold = {p["id"]: p["shares"] for p in port["positions"]}
         cash = float(port["cash_eur"])
         dec = decide(d, hold, cash, prices, uni, pol, sc)
@@ -141,7 +143,8 @@ def build(d: str, with_macro: bool = True, applied: dict | None = None) -> dict:
         r = next((x for x in sc["rows"] if x["id"] == iid), {})
         rk = next((x for x in sc["ranked"] if x["id"] == iid), {})
         positions.append({
-            "id": iid, "name": names.get(iid, iid), "role": sleeves.get(iid),
+            "id": iid, "name": names.get(iid, iid),
+            "role": "core" if iid == (pol.get("inflation_regime") or {}).get("alt_bonds") else sleeves.get(iid),
             "shares": sh, "price_eur": round(p, 2), "value_eur": round(sh * p, 2), "weight_pct": pct(sh * p / nav, 1),
             "week_return_pct": pct(ret(prices, iid, d, 7)), "return_3m_pct": pct(r.get("r63")),
             "trend": "up" if r.get("trend_up") else "down" if r.get("trend_up") is False else None,
@@ -198,7 +201,7 @@ def build(d: str, with_macro: bool = True, applied: dict | None = None) -> dict:
         "scan_top10": top,
         "scan_bottom5": [scan_row(r) for r in sc["ranked"][-5:]],
         "market": market,
-        "macro": M.fetch(date.fromisoformat(d)) if with_macro else {},
+        "macro": macro_now,
         "chart": chart,
         "rules": {
             "satellites": pol["satellites"]["count"], "satellite_weight_pct": pct(pol["satellites"]["weight_each"], 0),

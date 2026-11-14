@@ -29,6 +29,7 @@ Hard rules:
 3. Explain trades mechanically from their "why" and "detail" fields: what rule triggered, with its numbers.
 4. No forecasts, no personal advice, no "you should". This is a model portfolio run by fixed rules.
 5. Tone: calm, precise, plain language for private investors. No jargon, no hype, no exclamation marks.
+   Positioning: this is a disciplined, explained portfolio that aims to keep up with its benchmark while limiting large losses. Never claim or imply that it will beat the market.
 6. Name funds by a short form of their name (e.g. "Vanguard FTSE All-World"), with the ticker in brackets the first time.
 7. Macro items with "stale": true or "available": false must be described as not current / unavailable, or left out.
 
@@ -174,6 +175,12 @@ def reason_text(t: dict, lang: str) -> str:
     if w == "deploy_cash":
         return (f"Kas {f(p['cash_pct'])}% ligt boven het plafond van {p['ceiling_pct']}%; aangevuld richting doel {f(p['target_pct'])}%." if nl
                 else f"Cash {f(p['cash_pct'])}% is above the {p['ceiling_pct']}% ceiling; topped up toward the {f(p['target_pct'])}% target.")
+    if w == "inflation_regime":
+        return (f"Inflatie {f(p['hicp'])}% ligt boven {f(p['threshold'])}% en stijgt: de obligatiekern gaat van {p['from']} naar kortlopende obligaties ({p['to']}), die minder lijden onder stijgende rente." if nl
+                else f"Inflation at {f(p['hicp'])}% is above {f(p['threshold'])}% and rising: the bond core moves from {p['from']} to short-dated bonds ({p['to']}), which suffer less from rising rates.")
+    if w == "inflation_regime_end":
+        return (f"De inflatieregel is niet langer actief: de obligatiekern gaat terug van {p['from']} naar {p['to']}." if nl
+                else f"The inflation rule is no longer active: the bond core moves back from {p['from']} to {p['to']}.")
     if w == "core_or_defensive":
         return (f"Kern- of defensieve positie, doelgewicht {f(p['target_pct'])}%." if nl else f"Core or defensive position, target weight {f(p['target_pct'])}%.")
     return t.get("detail", "")
