@@ -50,8 +50,8 @@
   },
   "euro_inflation": {
    "available": true,
-   "date": "2025-12-01",
-   "stale": true,
+   "date": "2026-10-01",
+   "stale": false,
    "error": null
   }
  }

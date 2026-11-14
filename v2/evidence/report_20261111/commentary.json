@@ -17,46 +17,46 @@
   "trades": [
    {
     "id": "DFEN",
-    "text": "Sell 207 × DFEN: close 51.14 below 200-day average 54.83 for 2 consecutive weeks."
+    "text": "Price 51.14 has been below its 200-day average (54.83) for two weeks running: the trend has turned, so the position is closed."
    },
    {
     "id": "IQQQ",
-    "text": "Sell 33 × IQQQ: weight 10.3% vs target 8.0% (band 2%)."
+    "text": "Weight 10.3% against a target of 8.0%; resized because the gap exceeds 2 percentage points."
    },
    {
     "id": "L0CK",
-    "text": "Sell 237 × L0CK: weight 10.7% vs target 8.0% (band 2%)."
+    "text": "Weight 10.7% against a target of 8.0%; resized because the gap exceeds 2 percentage points."
    },
    {
     "id": "SXR8",
-    "text": "Sell 10 × SXR8: not part of the target portfolio (core is VWCE + EUNA)."
+    "text": "Not part of the target portfolio: the core is VWCE plus EUNA."
    },
    {
     "id": "EUNA",
-    "text": "Buy 1994 × EUNA: weight 7.4% vs target 17.1% (band 2%)."
+    "text": "Weight 7.4% against a target of 17.1%; resized because the gap exceeds 2 percentage points."
    },
    {
     "id": "VWCE",
-    "text": "Buy 83 × VWCE: weight 25.7% vs target 39.9% (band 2%)."
+    "text": "Weight 25.7% against a target of 39.9%; resized because the gap exceeds 2 percentage points."
    },
    {
     "id": "2B70",
-    "text": "2B70: planned for a later week (at most 2 fund changes per week)."
+    "text": "New: rank 1 of 30 in the scan, score 97, in an uptrend. Planned for a later week: at most 2 fund changes per week."
    },
    {
     "id": "CBUF",
-    "text": "CBUF: planned for a later week (at most 2 fund changes per week)."
+    "text": "New: rank 2 of 30 in the scan, score 92, in an uptrend. Planned for a later week: at most 2 fund changes per week."
    },
    {
     "id": "IS3S",
-    "text": "IS3S: planned for a later week (at most 2 fund changes per week)."
+    "text": "New: rank 4 of 30 in the scan, score 77, in an uptrend. Planned for a later week: at most 2 fund changes per week."
    }
   ],
   "markets": "Strongest asset class this week: Emerging-market equity (2.21%); weakest: Japanese equity (-0.17%).",
   "watch": [
-   "Planned change: 2B70.",
-   "Planned change: CBUF.",
-   "Planned change: IS3S."
+   "Planned: buy 2B70 (iShares Nasdaq US Biotechnology).",
+   "Planned: buy CBUF (iShares MSCI World Health Care Sector Advanced).",
+   "Planned: buy IS3S (iShares Edge MSCI World Value Factor)."
   ]
  },
  "nl": {
@@ -65,46 +65,46 @@
   "trades": [
    {
     "id": "DFEN",
-    "text": "Verkoop 207 × DFEN: close 51.14 below 200-day average 54.83 for 2 consecutive weeks."
+    "text": "Koers 51,14 staat twee weken op rij onder het 200-daags gemiddelde (54,83): de trend is gekeerd, de positie wordt gesloten."
    },
    {
     "id": "IQQQ",
-    "text": "Verkoop 33 × IQQQ: weight 10.3% vs target 8.0% (band 2%)."
+    "text": "Gewicht 10,3% tegen doel 8,0%; bijgesteld omdat het verschil groter is dan 2 procentpunt."
    },
    {
     "id": "L0CK",
-    "text": "Verkoop 237 × L0CK: weight 10.7% vs target 8.0% (band 2%)."
+    "text": "Gewicht 10,7% tegen doel 8,0%; bijgesteld omdat het verschil groter is dan 2 procentpunt."
    },
    {
     "id": "SXR8",
-    "text": "Verkoop 10 × SXR8: not part of the target portfolio (core is VWCE + EUNA)."
+    "text": "Geen onderdeel van de doelportefeuille: de kern bestaat uit VWCE en EUNA."
    },
    {
     "id": "EUNA",
-    "text": "Koop 1994 × EUNA: weight 7.4% vs target 17.1% (band 2%)."
+    "text": "Gewicht 7,4% tegen doel 17,1%; bijgesteld omdat het verschil groter is dan 2 procentpunt."
    },
    {
     "id": "VWCE",
-    "text": "Koop 83 × VWCE: weight 25.7% vs target 39.9% (band 2%)."
+    "text": "Gewicht 25,7% tegen doel 39,9%; bijgesteld omdat het verschil groter is dan 2 procentpunt."
    },
    {
     "id": "2B70",
-    "text": "2B70: gepland voor een volgende week (maximaal 2 fondswissels per week)."
+    "text": "Nieuw: plaats 1 van 30 in de scan, score 97, opwaartse trend. Gepland voor een volgende week: maximaal 2 fondswissels per week."
    },
    {
     "id": "CBUF",
-    "text": "CBUF: gepland voor een volgende week (maximaal 2 fondswissels per week)."
+    "text": "Nieuw: plaats 2 van 30 in de scan, score 92, opwaartse trend. Gepland voor een volgende week: maximaal 2 fondswissels per week."
    },
    {
     "id": "IS3S",
-    "text": "IS3S: gepland voor een volgende week (maximaal 2 fondswissels per week)."
+    "text": "Nieuw: plaats 4 van 30 in de scan, score 77, opwaartse trend. Gepland voor een volgende week: maximaal 2 fondswissels per week."
    }
   ],
   "markets": "Sterkste categorie deze week: Aandelen opkomende markten (2,21%); zwakste: Japanse aandelen (-0,17%).",
   "watch": [
-   "Geplande wijziging: 2B70.",
-   "Geplande wijziging: CBUF.",
-   "Geplande wijziging: IS3S."
+   "Gepland: koop 2B70 (iShares Nasdaq US Biotechnology).",
+   "Gepland: koop CBUF (iShares MSCI World Health Care Sector Advanced).",
+   "Gepland: koop IS3S (iShares Edge MSCI World Value Factor)."
   ]
  }
 }

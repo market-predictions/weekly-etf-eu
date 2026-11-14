@@ -39,7 +39,11 @@
    "detail": "close 51.14 below 200-day average 54.83 for 2 consecutive weeks",
    "rank": 27,
    "score": 13,
-   "replaced_by": null
+   "replaced_by": null,
+   "params": {
+    "close": 51.14,
+    "sma200": 54.83
+   }
   },
   {
    "side": "sell",
@@ -53,7 +57,12 @@
    "detail": "weight 10.3% vs target 8.0% (band 2%)",
    "rank": null,
    "score": null,
-   "replaced_by": null
+   "replaced_by": null,
+   "params": {
+    "weight_pct": 10.3,
+    "target_pct": 8.0,
+    "band_pts": 2
+   }
   },
   {
    "side": "sell",
@@ -67,7 +76,12 @@
    "detail": "weight 10.7% vs target 8.0% (band 2%)",
    "rank": null,
    "score": null,
-   "replaced_by": null
+   "replaced_by": null,
+   "params": {
+    "weight_pct": 10.7,
+    "target_pct": 8.0,
+    "band_pts": 2
+   }
   },
   {
    "side": "sell",
@@ -81,7 +95,11 @@
    "detail": "not part of the target portfolio (core is VWCE + EUNA)",
    "rank": null,
    "score": null,
-   "replaced_by": null
+   "replaced_by": null,
+   "params": {
+    "core_equity": "VWCE",
+    "core_bonds": "EUNA"
+   }
   },
   {
    "side": "buy",
@@ -95,7 +113,12 @@
    "detail": "weight 7.4% vs target 17.1% (band 2%)",
    "rank": null,
    "score": null,
-   "replaced_by": null
+   "replaced_by": null,
+   "params": {
+    "weight_pct": 7.4,
+    "target_pct": 17.1,
+    "band_pts": 2
+   }
   },
   {
    "side": "buy",
@@ -109,7 +132,12 @@
    "detail": "weight 25.7% vs target 39.9% (band 2%)",
    "rank": null,
    "score": null,
-   "replaced_by": null
+   "replaced_by": null,
+   "params": {
+    "weight_pct": 25.7,
+    "target_pct": 39.9,
+    "band_pts": 2
+   }
   }
  ],
  "deferred": [
@@ -118,21 +146,36 @@
    "name": "iShares Nasdaq US Biotechnology UCITS ETF",
    "kind": "entry",
    "why": "selected",
-   "detail": "rank 1 of 30, score 97, uptrend"
+   "detail": "rank 1 of 30, score 97, uptrend",
+   "params": {
+    "rank": 1,
+    "n": 30,
+    "score": 97
+   }
   },
   {
    "id": "CBUF",
    "name": "iShares MSCI World Health Care Sector Advanced UCITS ETF Dist",
    "kind": "entry",
    "why": "selected",
-   "detail": "rank 2 of 30, score 92, uptrend"
+   "detail": "rank 2 of 30, score 92, uptrend",
+   "params": {
+    "rank": 2,
+    "n": 30,
+    "score": 92
+   }
   },
   {
    "id": "IS3S",
    "name": "iShares Edge MSCI World Value Factor UCITS ETF",
    "kind": "entry",
    "why": "selected",
-   "detail": "rank 4 of 30, score 77, uptrend"
+   "detail": "rank 4 of 30, score 77, uptrend",
+   "params": {
+    "rank": 4,
+    "n": 30,
+    "score": 77
+   }
   }
  ],
  "decision_notes": [],
@@ -497,12 +540,12 @@
    "label_nl": "Inflatie eurozone (HICP, j/j)",
    "unit": "%",
    "source": "eurostat",
-   "series": "prc_hicp_manr:EA:CP00",
-   "date": "2025-12-01",
-   "value": 2.0,
-   "value_1m_ago": 2.1,
-   "value_1y_ago": null,
-   "stale": true,
+   "series": "prc_hicp_minr:geo=EA,coicop18=TOTAL,unit=RCH_A",
+   "date": "2026-10-01",
+   "value": 4.0,
+   "value_1m_ago": 3.8,
+   "value_1y_ago": 2.1,
+   "stale": false,
    "available": true
   }
  },
