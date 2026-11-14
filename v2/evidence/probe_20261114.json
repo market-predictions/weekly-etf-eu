@@ -1,0 +1,1652 @@
+{
+ "probe_date": "2026-11-14",
+ "rows": [
+  {
+   "id": "DFEN",
+   "isin": "IE000YYE6WK5",
+   "exchange": "Xetra",
+   "draft_status": "verified",
+   "sources": {
+    "yahoo": {
+     "symbol": "DFEN.DE",
+     "ok": true,
+     "last_date": "2026-11-13",
+     "last_close": 49.630001068115234,
+     "currency": "EUR",
+     "error": null
+    },
+    "stooq": {
+     "symbol": "dfen.de",
+     "ok": false,
+     "last_date": null,
+     "last_close": null,
+     "currency": null,
+     "error": "no_data"
+    },
+    "twelve_data": {
+     "symbol": "DFEN:XETR",
+     "ok": false,
+     "last_date": null,
+     "last_close": null,
+     "currency": null,
+     "error": "err_404"
+    },
+    "alpha_vantage": {
+     "symbol": "DFEN.DEX",
+     "ok": true,
+     "last_date": "2026-11-13",
+     "last_close": 49.63,
+     "currency": "EUR",
+     "error": null
+    },
+    "eodhd": {
+     "symbol": "DFEN.XETRA",
+     "ok": false,
+     "last_date": null,
+     "last_close": null,
+     "currency": null,
+     "error": "no_key"
+    }
+   },
+   "yahoo_isin_symbols": [
+    "DFEN.DE",
+    "IE000YYE6WK5.SG"
+   ],
+   "isin_maps_to_expected_line": true,
+   "yahoo_name": "VanEck Defense ETF A USD Acc",
+   "yahoo_currency": "EUR",
+   "agreement": {
+    "date": "2026-11-13",
+    "n": 2,
+    "spread_pct": 0.0
+   },
+   "identity": "verified"
+  },
+  {
+   "id": "EUNA",
+   "isin": "IE00BDBRDM35",
+   "exchange": "Xetra",
+   "draft_status": "verified",
+   "sources": {
+    "yahoo": {
+     "symbol": "EUNA.DE",
+     "ok": true,
+     "last_date": "2026-11-13",
+     "last_close": 4.85099983215332,
+     "currency": "EUR",
+     "error": null
+    },
+    "stooq": {
+     "symbol": "euna.de",
+     "ok": false,
+     "last_date": null,
+     "last_close": null,
+     "currency": null,
+     "error": "no_data"
+    },
+    "twelve_data": {
+     "symbol": "EUNA:XETR",
+     "ok": false,
+     "last_date": null,
+     "last_close": null,
+     "currency": null,
+     "error": "err_404"
+    },
+    "alpha_vantage": {
+     "symbol": "EUNA.DEX",
+     "ok": true,
+     "last_date": "2026-11-13",
+     "last_close": 4.851,
+     "currency": "EUR",
+     "error": null
+    },
+    "eodhd": {
+     "symbol": "EUNA.XETRA",
+     "ok": false,
+     "last_date": null,
+     "last_close": null,
+     "currency": null,
+     "error": "no_key"
+    }
+   },
+   "yahoo_isin_symbols": [
+    "0GGH.L"
+   ],
+   "isin_maps_to_expected_line": false,
+   "yahoo_name": "iShares Core Global Aggregate Bond UCITS ETF EUR Hedged (Acc)",
+   "yahoo_currency": "EUR",
+   "agreement": {
+    "date": "2026-11-13",
+    "n": 2,
+    "spread_pct": 0.0
+   },
+   "identity": "failed"
+  },
+  {
+   "id": "IQQQ",
+   "isin": "IE00B1TXK627",
+   "exchange": "Xetra",
+   "draft_status": "verified",
+   "sources": {
+    "yahoo": {
+     "symbol": "IQQQ.DE",
+     "ok": true,
+     "last_date": "2026-11-13",
+     "last_close": 69.55999755859375,
+     "currency": "EUR",
+     "error": null
+    },
+    "stooq": {
+     "symbol": "iqqq.de",
+     "ok": false,
+     "last_date": null,
+     "last_close": null,
+     "currency": null,
+     "error": "no_data"
+    },
+    "twelve_data": {
+     "symbol": "IQQQ:XETR",
+     "ok": false,
+     "last_date": null,
+     "last_close": null,
+     "currency": null,
+     "error": "err_404"
+    },
+    "eodhd": {
+     "symbol": "IQQQ.XETRA",
+     "ok": false,
+     "last_date": null,
+     "last_close": null,
+     "currency": null,
+     "error": "no_key"
+    }
+   },
+   "yahoo_isin_symbols": [
+    "IH2O.L"
+   ],
+   "isin_maps_to_expected_line": false,
+   "yahoo_name": "iShares Global Water UCITS ETF USD (Dist)",
+   "yahoo_currency": "EUR",
+   "identity": "failed"
+  },
+  {
+   "id": "L0CK",
+   "isin": "IE00BG0J4C88",
+   "exchange": "Xetra",
+   "draft_status": "verified",
+   "sources": {
+    "yahoo": {
+     "symbol": "L0CK.DE",
+     "ok": true,
+     "last_date": "2026-11-13",
+     "last_close": 11.295999526977539,
+     "currency": "EUR",
+     "error": null
+    },
+    "stooq": {
+     "symbol": "l0ck.de",
+     "ok": false,
+     "last_date": null,
+     "last_close": null,
+     "currency": null,
+     "error": "no_data"
+    },
+    "twelve_data": {
+     "symbol": "L0CK:XETR",
+     "ok": false,
+     "last_date": null,
+     "last_close": null,
+     "currency": null,
+     "error": "err_404"
+    }
+   },
+   "yahoo_isin_symbols": [
+    "LOCK.L"
+   ],
+   "isin_maps_to_expected_line": false,
+   "yahoo_name": "iShares Digital Security UCITS ETF USD Acc",
+   "yahoo_currency": "EUR",
+   "identity": "failed"
+  },
+  {
+   "id": "SXR8",
+   "isin": "IE00B5BMR087",
+   "exchange": "Xetra",
+   "draft_status": "verified",
+   "sources": {
+    "yahoo": {
+     "symbol": "SXR8.DE",
+     "ok": true,
+     "last_date": "2026-11-13",
+     "last_close": 736.8400268554688,
+     "currency": "EUR",
+     "error": null
+    },
+    "stooq": {
+     "symbol": "sxr8.de",
+     "ok": false,
+     "last_date": null,
+     "last_close": null,
+     "currency": null,
+     "error": "no_data"
+    },
+    "twelve_data": {
+     "symbol": "SXR8:XETR",
+     "ok": false,
+     "last_date": null,
+     "last_close": null,
+     "currency": null,
+     "error": "err_404"
+    }
+   },
+   "yahoo_isin_symbols": [
+    "CSSPX.MI"
+   ],
+   "isin_maps_to_expected_line": false,
+   "yahoo_name": "iShares Core S&P 500 UCITS ETF USD (Acc)",
+   "yahoo_currency": "EUR",
+   "identity": "failed"
+  },
+  {
+   "id": "VWCE",
+   "isin": "IE00BK5BQT80",
+   "exchange": "Xetra",
+   "draft_status": "verified",
+   "sources": {
+    "yahoo": {
+     "symbol": "VWCE.DE",
+     "ok": true,
+     "last_date": "2026-11-13",
+     "last_close": 169.86000061035156,
+     "currency": "EUR",
+     "error": null
+    },
+    "stooq": {
+     "symbol": "vwce.de",
+     "ok": false,
+     "last_date": null,
+     "last_close": null,
+     "currency": null,
+     "error": "no_data"
+    },
+    "twelve_data": {
+     "symbol": "VWCE:XETR",
+     "ok": false,
+     "last_date": null,
+     "last_close": null,
+     "currency": null,
+     "error": "err_404"
+    }
+   },
+   "yahoo_isin_symbols": [
+    "VWRA.L",
+    "IE00BK5BQT80.SG"
+   ],
+   "isin_maps_to_expected_line": false,
+   "yahoo_name": "Vanguard FTSE All-World UCITS ETF USD Accumulation",
+   "yahoo_currency": "EUR",
+   "identity": "failed"
+  },
+  {
+   "id": "2B70",
+   "isin": "IE00BYXG2H39",
+   "exchange": "Xetra",
+   "draft_status": "to_verify",
+   "sources": {
+    "yahoo": {
+     "symbol": "2B70.DE",
+     "ok": true,
+     "last_date": "2026-11-13",
+     "last_close": 9.484999656677246,
+     "currency": "EUR",
+     "error": null
+    },
+    "stooq": {
+     "symbol": "2b70.de",
+     "ok": false,
+     "last_date": null,
+     "last_close": null,
+     "currency": null,
+     "error": "no_data"
+    },
+    "twelve_data": {
+     "symbol": "2B70:XETR",
+     "ok": false,
+     "last_date": null,
+     "last_close": null,
+     "currency": null,
+     "error": "err_404"
+    }
+   },
+   "yahoo_isin_symbols": [
+    "BTEC.L"
+   ],
+   "isin_maps_to_expected_line": false,
+   "yahoo_name": "iShares Nasdaq US Biotechnology UCITS ETF USD (Acc)",
+   "yahoo_currency": "EUR",
+   "identity": "failed"
+  },
+  {
+   "id": "2B76",
+   "isin": "IE00BYZK4552",
+   "exchange": "Xetra",
+   "draft_status": "to_verify",
+   "sources": {
+    "yahoo": {
+     "symbol": "2B76.DE",
+     "ok": true,
+     "last_date": "2026-11-13",
+     "last_close": 17.829999923706055,
+     "currency": "EUR",
+     "error": null
+    },
+    "stooq": {
+     "symbol": "2b76.de",
+     "ok": false,
+     "last_date": null,
+     "last_close": null,
+     "currency": null,
+     "error": "no_data"
+    },
+    "twelve_data": {
+     "symbol": "2B76:XETR",
+     "ok": false,
+     "last_date": null,
+     "last_close": null,
+     "currency": null,
+     "error": "err_404"
+    }
+   },
+   "yahoo_isin_symbols": [
+    "RBOT.L"
+   ],
+   "isin_maps_to_expected_line": false,
+   "yahoo_name": "iShares Automation & Robotics UCITS ETF USD (Acc)",
+   "yahoo_currency": "EUR",
+   "identity": "failed"
+  },
+  {
+   "id": "4GLD",
+   "isin": "DE000A0S9GB0",
+   "exchange": "Xetra",
+   "draft_status": "to_verify",
+   "sources": {
+    "yahoo": {
+     "symbol": "4GLD.DE",
+     "ok": true,
+     "last_date": "2026-11-13",
+     "last_close": 113.26000213623047,
+     "currency": "EUR",
+     "error": null
+    },
+    "stooq": {
+     "symbol": "4gld.de",
+     "ok": false,
+     "last_date": null,
+     "last_close": null,
+     "currency": null,
+     "error": "no_data"
+    },
+    "twelve_data": {
+     "symbol": "4GLD:XETR",
+     "ok": false,
+     "last_date": null,
+     "last_close": null,
+     "currency": null,
+     "error": "err_404"
+    }
+   },
+   "yahoo_isin_symbols": [],
+   "isin_maps_to_expected_line": false,
+   "yahoo_name": "Xetra-Gold",
+   "yahoo_currency": "EUR",
+   "identity": "failed"
+  },
+  {
+   "id": "CBUF",
+   "isin": "IE00BJ5JNZ06",
+   "exchange": "Xetra",
+   "draft_status": "verified",
+   "sources": {
+    "yahoo": {
+     "symbol": "CBUF.DE",
+     "ok": true,
+     "last_date": "2026-11-13",
+     "last_close": 8.215999603271484,
+     "currency": "EUR",
+     "error": null
+    },
+    "stooq": {
+     "symbol": "cbuf.de",
+     "ok": false,
+     "last_date": null,
+     "last_close": null,
+     "currency": null,
+     "error": "no_data"
+    },
+    "twelve_data": {
+     "symbol": "CBUF:XETR",
+     "ok": false,
+     "last_date": null,
+     "last_close": null,
+     "currency": null,
+     "error": "err_404"
+    }
+   },
+   "yahoo_isin_symbols": [
+    "IE00BJ5JNZ06.SG"
+   ],
+   "isin_maps_to_expected_line": false,
+   "yahoo_name": "iShares MSCI World Health Care Sector Advanced UCITS ETF USD Inc",
+   "yahoo_currency": "EUR",
+   "identity": "failed"
+  },
+  {
+   "id": "CMOD",
+   "isin": null,
+   "exchange": null,
+   "draft_status": "isin_tbd",
+   "sources": {},
+   "identity": "isin_tbd"
+  },
+  {
+   "id": "COPR",
+   "isin": null,
+   "exchange": null,
+   "draft_status": "isin_tbd",
+   "sources": {},
+   "identity": "isin_tbd"
+  },
+  {
+   "id": "EMBH",
+   "isin": "IE00B9M6RS56",
+   "exchange": "Xetra",
+   "draft_status": "to_verify",
+   "sources": {
+    "yahoo": {
+     "symbol": "EMBH.DE",
+     "ok": false,
+     "last_date": null,
+     "last_close": null,
+     "currency": null,
+     "error": "http_404"
+    },
+    "stooq": {
+     "symbol": "embh.de",
+     "ok": false,
+     "last_date": null,
+     "last_close": null,
+     "currency": null,
+     "error": "no_data"
+    },
+    "twelve_data": {
+     "symbol": "EMBH:XETR",
+     "ok": false,
+     "last_date": null,
+     "last_close": null,
+     "currency": null,
+     "error": "err_404"
+    }
+   },
+   "yahoo_isin_symbols": [
+    "EMBE.L"
+   ],
+   "isin_maps_to_expected_line": false,
+   "yahoo_name": null,
+   "yahoo_currency": null,
+   "identity": "failed"
+  },
+  {
+   "id": "EMIM",
+   "isin": "IE00BKM4GZ66",
+   "exchange": "Euronext Amsterdam",
+   "draft_status": "to_verify",
+   "sources": {
+    "yahoo": {
+     "symbol": "EMIM.AS",
+     "ok": true,
+     "last_date": "2026-11-13",
+     "last_close": 45.02000045776367,
+     "currency": "EUR",
+     "error": null
+    },
+    "stooq": {
+     "symbol": "emim.nl",
+     "ok": false,
+     "last_date": null,
+     "last_close": null,
+     "currency": null,
+     "error": "no_data"
+    },
+    "twelve_data": {
+     "symbol": "EMIM:Euronext",
+     "ok": false,
+     "last_date": null,
+     "last_close": null,
+     "currency": null,
+     "error": "err_404"
+    }
+   },
+   "yahoo_isin_symbols": [
+    "EIMI.L"
+   ],
+   "isin_maps_to_expected_line": false,
+   "yahoo_name": "iShares Core MSCI EM IMI UCITS ETF USD (Acc)",
+   "yahoo_currency": "EUR",
+   "identity": "failed"
+  },
+  {
+   "id": "EUN5",
+   "isin": "IE00B3F81R35",
+   "exchange": "Xetra",
+   "draft_status": "to_verify",
+   "sources": {
+    "yahoo": {
+     "symbol": "EUN5.DE",
+     "ok": true,
+     "last_date": "2026-11-13",
+     "last_close": 116.7249984741211,
+     "currency": "EUR",
+     "error": null
+    },
+    "stooq": {
+     "symbol": "eun5.de",
+     "ok": false,
+     "last_date": null,
+     "last_close": null,
+     "currency": null,
+     "error": "no_data"
+    },
+    "twelve_data": {
+     "symbol": "EUN5:XETR",
+     "ok": false,
+     "last_date": null,
+     "last_close": null,
+     "currency": null,
+     "error": "err_404"
+    }
+   },
+   "yahoo_isin_symbols": [
+    "IEAC.L"
+   ],
+   "isin_maps_to_expected_line": false,
+   "yahoo_name": "iShares Core \u20ac Corp Bond UCITS ETF EUR (Dist)",
+   "yahoo_currency": "EUR",
+   "identity": "failed"
+  },
+  {
+   "id": "EUNH",
+   "isin": "IE00B4WXJJ64",
+   "exchange": "Xetra",
+   "draft_status": "to_verify",
+   "sources": {
+    "yahoo": {
+     "symbol": "EUNH.DE",
+     "ok": true,
+     "last_date": "2026-11-13",
+     "last_close": 105.45999908447266,
+     "currency": "EUR",
+     "error": null
+    },
+    "stooq": {
+     "symbol": "eunh.de",
+     "ok": false,
+     "last_date": null,
+     "last_close": null,
+     "currency": null,
+     "error": "no_data"
+    },
+    "twelve_data": {
+     "symbol": "EUNH:XETR",
+     "ok": false,
+     "last_date": null,
+     "last_close": null,
+     "currency": null,
+     "error": "err_404"
+    }
+   },
+   "yahoo_isin_symbols": [
+    "SEGA.L"
+   ],
+   "isin_maps_to_expected_line": false,
+   "yahoo_name": "iShares Core \u20ac Govt Bond UCITS ETF EUR (Dist)",
+   "yahoo_currency": "EUR",
+   "identity": "failed"
+  },
+  {
+   "id": "EUNK",
+   "isin": "IE00B4K48X80",
+   "exchange": "Xetra",
+   "draft_status": "to_verify",
+   "sources": {
+    "yahoo": {
+     "symbol": "EUNK.DE",
+     "ok": true,
+     "last_date": "2026-11-13",
+     "last_close": 108.16000366210938,
+     "currency": "EUR",
+     "error": null
+    },
+    "stooq": {
+     "symbol": "eunk.de",
+     "ok": false,
+     "last_date": null,
+     "last_close": null,
+     "currency": null,
+     "error": "no_data"
+    },
+    "twelve_data": {
+     "symbol": "EUNK:XETR",
+     "ok": false,
+     "last_date": null,
+     "last_close": null,
+     "currency": null,
+     "error": "err_404"
+    }
+   },
+   "yahoo_isin_symbols": [
+    "IMEA.SW"
+   ],
+   "isin_maps_to_expected_line": false,
+   "yahoo_name": "iShares Core MSCI Europe UCITS ETF EUR (Acc)",
+   "yahoo_currency": "EUR",
+   "identity": "failed"
+  },
+  {
+   "id": "EUNW",
+   "isin": "IE00B66F4759",
+   "exchange": "Xetra",
+   "draft_status": "to_verify",
+   "sources": {
+    "yahoo": {
+     "symbol": "EUNW.DE",
+     "ok": true,
+     "last_date": "2026-11-13",
+     "last_close": 89.0979995727539,
+     "currency": "EUR",
+     "error": null
+    },
+    "stooq": {
+     "symbol": "eunw.de",
+     "ok": false,
+     "last_date": null,
+     "last_close": null,
+     "currency": null,
+     "error": "no_data"
+    },
+    "twelve_data": {
+     "symbol": "EUNW:XETR",
+     "ok": false,
+     "last_date": null,
+     "last_close": null,
+     "currency": null,
+     "error": "err_404"
+    }
+   },
+   "yahoo_isin_symbols": [
+    "SHYG.L"
+   ],
+   "isin_maps_to_expected_line": false,
+   "yahoo_name": "iShares \u20ac High Yield Corp Bond UCITS ETF EUR (Dist)",
+   "yahoo_currency": "EUR",
+   "identity": "failed"
+  },
+  {
+   "id": "EXV1",
+   "isin": "DE000A0F5UJ7",
+   "exchange": "Xetra",
+   "draft_status": "to_verify",
+   "sources": {
+    "yahoo": {
+     "symbol": "EXV1.DE",
+     "ok": true,
+     "last_date": "2026-11-13",
+     "last_close": 40.23500061035156,
+     "currency": "EUR",
+     "error": null
+    },
+    "stooq": {
+     "symbol": "exv1.de",
+     "ok": false,
+     "last_date": null,
+     "last_close": null,
+     "currency": null,
+     "error": "no_data"
+    },
+    "twelve_data": {
+     "symbol": "EXV1:XETR",
+     "ok": false,
+     "last_date": null,
+     "last_close": null,
+     "currency": null,
+     "error": "err_404"
+    }
+   },
+   "yahoo_isin_symbols": [
+    "EXV1.DE"
+   ],
+   "isin_maps_to_expected_line": true,
+   "yahoo_name": "iShares STOXX Europe 600 Banks UCITS ETF (DE) (Dist)",
+   "yahoo_currency": "EUR",
+   "identity": "verified"
+  },
+  {
+   "id": "FINT",
+   "isin": null,
+   "exchange": null,
+   "draft_status": "isin_tbd",
+   "sources": {},
+   "identity": "isin_tbd"
+  },
+  {
+   "id": "GRID",
+   "isin": null,
+   "exchange": null,
+   "draft_status": "isin_tbd",
+   "sources": {},
+   "identity": "isin_tbd"
+  },
+  {
+   "id": "IBCI",
+   "isin": "IE00B0M62X26",
+   "exchange": "Xetra",
+   "draft_status": "to_verify",
+   "sources": {
+    "yahoo": {
+     "symbol": "IBCI.DE",
+     "ok": true,
+     "last_date": "2026-11-13",
+     "last_close": 229.82000732421875,
+     "currency": "EUR",
+     "error": null
+    },
+    "stooq": {
+     "symbol": "ibci.de",
+     "ok": false,
+     "last_date": null,
+     "last_close": null,
+     "currency": null,
+     "error": "no_data"
+    },
+    "twelve_data": {
+     "symbol": "IBCI:XETR",
+     "ok": false,
+     "last_date": null,
+     "last_close": null,
+     "currency": null,
+     "error": "err_404"
+    }
+   },
+   "yahoo_isin_symbols": [
+    "IBCI.L"
+   ],
+   "isin_maps_to_expected_line": false,
+   "yahoo_name": "iShares \u20ac Inflation Linked Govt Bond UCITS ETF EUR (Acc)",
+   "yahoo_currency": "EUR",
+   "identity": "failed"
+  },
+  {
+   "id": "IBGS",
+   "isin": "IE00B14X4Q57",
+   "exchange": "Xetra",
+   "draft_status": "to_verify",
+   "sources": {
+    "yahoo": {
+     "symbol": "IBGS.DE",
+     "ok": false,
+     "last_date": null,
+     "last_close": null,
+     "currency": null,
+     "error": "http_404"
+    },
+    "stooq": {
+     "symbol": "ibgs.de",
+     "ok": false,
+     "last_date": null,
+     "last_close": null,
+     "currency": null,
+     "error": "no_data"
+    },
+    "twelve_data": {
+     "symbol": "IBGS:XETR",
+     "ok": false,
+     "last_date": null,
+     "last_close": null,
+     "currency": null,
+     "error": "err_404"
+    }
+   },
+   "yahoo_isin_symbols": [
+    "IBGS.SW"
+   ],
+   "isin_maps_to_expected_line": false,
+   "yahoo_name": null,
+   "yahoo_currency": null,
+   "identity": "failed"
+  },
+  {
+   "id": "ICGA",
+   "isin": "IE00BJ5JPG56",
+   "exchange": "Xetra",
+   "draft_status": "to_verify",
+   "sources": {
+    "yahoo": {
+     "symbol": "ICGA.DE",
+     "ok": true,
+     "last_date": "2026-11-13",
+     "last_close": 4.60699987411499,
+     "currency": "EUR",
+     "error": null
+    },
+    "stooq": {
+     "symbol": "icga.de",
+     "ok": false,
+     "last_date": null,
+     "last_close": null,
+     "currency": null,
+     "error": "no_data"
+    },
+    "twelve_data": {
+     "symbol": "ICGA:XETR",
+     "ok": false,
+     "last_date": null,
+     "last_close": null,
+     "currency": null,
+     "error": "err_404"
+    }
+   },
+   "yahoo_isin_symbols": [
+    "IE00BJ5JPG56.SG"
+   ],
+   "isin_maps_to_expected_line": false,
+   "yahoo_name": "iShares MSCI China UCITS ETF USD Acc",
+   "yahoo_currency": "EUR",
+   "identity": "failed"
+  },
+  {
+   "id": "IJPA",
+   "isin": "IE00B4L5YX21",
+   "exchange": "Euronext Amsterdam",
+   "draft_status": "to_verify",
+   "sources": {
+    "yahoo": {
+     "symbol": "IJPA.AS",
+     "ok": true,
+     "last_date": "2026-11-13",
+     "last_close": 71.51000213623047,
+     "currency": "EUR",
+     "error": null
+    },
+    "stooq": {
+     "symbol": "ijpa.nl",
+     "ok": false,
+     "last_date": null,
+     "last_close": null,
+     "currency": null,
+     "error": "no_data"
+    },
+    "twelve_data": {
+     "symbol": "IJPA:Euronext",
+     "ok": false,
+     "last_date": null,
+     "last_close": null,
+     "currency": null,
+     "error": "err_404"
+    }
+   },
+   "yahoo_isin_symbols": [
+    "IJPA.L"
+   ],
+   "isin_maps_to_expected_line": false,
+   "yahoo_name": "iShares Core MSCI Japan IMI UCITS ETF USD (Acc)",
+   "yahoo_currency": "EUR",
+   "identity": "failed"
+  },
+  {
+   "id": "IQQ0",
+   "isin": "IE00B8FHGS14",
+   "exchange": "Xetra",
+   "draft_status": "to_verify",
+   "sources": {
+    "yahoo": {
+     "symbol": "IQQ0.DE",
+     "ok": true,
+     "last_date": "2026-11-13",
+     "last_close": 73.30000305175781,
+     "currency": "EUR",
+     "error": null
+    },
+    "stooq": {
+     "symbol": "iqq0.de",
+     "ok": false,
+     "last_date": null,
+     "last_close": null,
+     "currency": null,
+     "error": "no_data"
+    },
+    "twelve_data": {
+     "symbol": "IQQ0:XETR",
+     "ok": false,
+     "last_date": null,
+     "last_close": null,
+     "currency": null,
+     "error": "err_404"
+    }
+   },
+   "yahoo_isin_symbols": [
+    "MINV.L"
+   ],
+   "isin_maps_to_expected_line": false,
+   "yahoo_name": "iShares Edge MSCI World Minimum Volatility UCITS ETF USD (Acc)",
+   "yahoo_currency": "EUR",
+   "identity": "failed"
+  },
+  {
+   "id": "IQQ6",
+   "isin": "IE00B1FZS350",
+   "exchange": "Xetra",
+   "draft_status": "to_verify",
+   "sources": {
+    "yahoo": {
+     "symbol": "IQQ6.DE",
+     "ok": true,
+     "last_date": "2026-11-13",
+     "last_close": 22.700000762939453,
+     "currency": "EUR",
+     "error": null
+    },
+    "stooq": {
+     "symbol": "iqq6.de",
+     "ok": false,
+     "last_date": null,
+     "last_close": null,
+     "currency": null,
+     "error": "no_data"
+    },
+    "twelve_data": {
+     "symbol": "IQQ6:XETR",
+     "ok": false,
+     "last_date": null,
+     "last_close": null,
+     "currency": null,
+     "error": "err_404"
+    }
+   },
+   "yahoo_isin_symbols": [
+    "IWDP.L"
+   ],
+   "isin_maps_to_expected_line": false,
+   "yahoo_name": "iShares Developed Markets Property Yield UCITS ETF USD (Dist)",
+   "yahoo_currency": "EUR",
+   "identity": "failed"
+  },
+  {
+   "id": "IQQH",
+   "isin": "IE00B1XNHC34",
+   "exchange": "Xetra",
+   "draft_status": "to_verify",
+   "sources": {
+    "yahoo": {
+     "symbol": "IQQH.DE",
+     "ok": true,
+     "last_date": "2026-11-13",
+     "last_close": 8.196999549865723,
+     "currency": "EUR",
+     "error": null
+    },
+    "stooq": {
+     "symbol": "iqqh.de",
+     "ok": false,
+     "last_date": null,
+     "last_close": null,
+     "currency": null,
+     "error": "no_data"
+    },
+    "twelve_data": {
+     "symbol": "IQQH:XETR",
+     "ok": false,
+     "last_date": null,
+     "last_close": null,
+     "currency": null,
+     "error": "err_404"
+    }
+   },
+   "yahoo_isin_symbols": [
+    "INRG.L"
+   ],
+   "isin_maps_to_expected_line": false,
+   "yahoo_name": "iShares Global Clean Energy Transition UCITS ETF USD (Dist)",
+   "yahoo_currency": "EUR",
+   "identity": "failed"
+  },
+  {
+   "id": "IQQI",
+   "isin": "IE00B1FZS467",
+   "exchange": "Xetra",
+   "draft_status": "to_verify",
+   "sources": {
+    "yahoo": {
+     "symbol": "IQQI.DE",
+     "ok": true,
+     "last_date": "2026-11-13",
+     "last_close": 35.869998931884766,
+     "currency": "EUR",
+     "error": null
+    },
+    "stooq": {
+     "symbol": "iqqi.de",
+     "ok": false,
+     "last_date": null,
+     "last_close": null,
+     "currency": null,
+     "error": "no_data"
+    },
+    "twelve_data": {
+     "symbol": "IQQI:XETR",
+     "ok": false,
+     "last_date": null,
+     "last_close": null,
+     "currency": null,
+     "error": "err_404"
+    }
+   },
+   "yahoo_isin_symbols": [
+    "INFR.L"
+   ],
+   "isin_maps_to_expected_line": false,
+   "yahoo_name": "iShares Global Infrastructure UCITS ETF USD (Dist)",
+   "yahoo_currency": "EUR",
+   "identity": "failed"
+  },
+  {
+   "id": "IS3Q",
+   "isin": "IE00BP3QZ601",
+   "exchange": "Xetra",
+   "draft_status": "to_verify",
+   "sources": {
+    "yahoo": {
+     "symbol": "IS3Q.DE",
+     "ok": true,
+     "last_date": "2026-11-13",
+     "last_close": 81.31999969482422,
+     "currency": "EUR",
+     "error": null
+    },
+    "stooq": {
+     "symbol": "is3q.de",
+     "ok": false,
+     "last_date": null,
+     "last_close": null,
+     "currency": null,
+     "error": "no_data"
+    },
+    "twelve_data": {
+     "symbol": "IS3Q:XETR",
+     "ok": false,
+     "last_date": null,
+     "last_close": null,
+     "currency": null,
+     "error": "err_404"
+    }
+   },
+   "yahoo_isin_symbols": [
+    "IWFQ.L"
+   ],
+   "isin_maps_to_expected_line": false,
+   "yahoo_name": "iShares Edge MSCI World Quality Factor UCITS ETF USD (Acc)",
+   "yahoo_currency": "EUR",
+   "identity": "failed"
+  },
+  {
+   "id": "IS3R",
+   "isin": "IE00BP3QZ825",
+   "exchange": "Xetra",
+   "draft_status": "to_verify",
+   "sources": {
+    "yahoo": {
+     "symbol": "IS3R.DE",
+     "ok": true,
+     "last_date": "2026-11-13",
+     "last_close": 94.29000091552734,
+     "currency": "EUR",
+     "error": null
+    },
+    "stooq": {
+     "symbol": "is3r.de",
+     "ok": false,
+     "last_date": null,
+     "last_close": null,
+     "currency": null,
+     "error": "no_data"
+    },
+    "twelve_data": {
+     "symbol": "IS3R:XETR",
+     "ok": false,
+     "last_date": null,
+     "last_close": null,
+     "currency": null,
+     "error": "err_404"
+    }
+   },
+   "yahoo_isin_symbols": [
+    "IWFM.L"
+   ],
+   "isin_maps_to_expected_line": false,
+   "yahoo_name": "iShares Edge MSCI World Momentum Factor UCITS ETF USD (Acc)",
+   "yahoo_currency": "EUR",
+   "identity": "failed"
+  },
+  {
+   "id": "IS3S",
+   "isin": "IE00BP3QZB59",
+   "exchange": "Xetra",
+   "draft_status": "to_verify",
+   "sources": {
+    "yahoo": {
+     "symbol": "IS3S.DE",
+     "ok": true,
+     "last_date": "2026-11-13",
+     "last_close": 69.86000061035156,
+     "currency": "EUR",
+     "error": null
+    },
+    "stooq": {
+     "symbol": "is3s.de",
+     "ok": false,
+     "last_date": null,
+     "last_close": null,
+     "currency": null,
+     "error": "no_data"
+    },
+    "twelve_data": {
+     "symbol": "IS3S:XETR",
+     "ok": false,
+     "last_date": null,
+     "last_close": null,
+     "currency": null,
+     "error": "err_404"
+    }
+   },
+   "yahoo_isin_symbols": [
+    "IWFV.L"
+   ],
+   "isin_maps_to_expected_line": false,
+   "yahoo_name": "iShares Edge MSCI World Value Factor UCITS ETF USD (Acc)",
+   "yahoo_currency": "EUR",
+   "identity": "failed"
+  },
+  {
+   "id": "ISAE",
+   "isin": "IE00B6R52143",
+   "exchange": "Euronext Amsterdam",
+   "draft_status": "verified",
+   "sources": {
+    "yahoo": {
+     "symbol": "ISAE.AS",
+     "ok": true,
+     "last_date": "2026-11-13",
+     "last_close": 49.595001220703125,
+     "currency": "EUR",
+     "error": null
+    },
+    "stooq": {
+     "symbol": "isae.nl",
+     "ok": false,
+     "last_date": null,
+     "last_close": null,
+     "currency": null,
+     "error": "no_data"
+    },
+    "twelve_data": {
+     "symbol": "ISAE:Euronext",
+     "ok": false,
+     "last_date": null,
+     "last_close": null,
+     "currency": null,
+     "error": "err_404"
+    }
+   },
+   "yahoo_isin_symbols": [
+    "ISAG.L"
+   ],
+   "isin_maps_to_expected_line": false,
+   "yahoo_name": "iShares Agribusiness UCITS ETF USD (Acc)",
+   "yahoo_currency": "EUR",
+   "identity": "failed"
+  },
+  {
+   "id": "IUSN",
+   "isin": "IE00BF4RFH31",
+   "exchange": "Xetra",
+   "draft_status": "to_verify",
+   "sources": {
+    "yahoo": {
+     "symbol": "IUSN.DE",
+     "ok": true,
+     "last_date": "2026-11-13",
+     "last_close": 9.237000465393066,
+     "currency": "EUR",
+     "error": null
+    },
+    "stooq": {
+     "symbol": "iusn.de",
+     "ok": false,
+     "last_date": null,
+     "last_close": null,
+     "currency": null,
+     "error": "no_data"
+    },
+    "twelve_data": {
+     "symbol": "IUSN:XETR",
+     "ok": false,
+     "last_date": null,
+     "last_close": null,
+     "currency": null,
+     "error": "err_404"
+    }
+   },
+   "yahoo_isin_symbols": [
+    "WSML.L"
+   ],
+   "isin_maps_to_expected_line": false,
+   "yahoo_name": "iShares MSCI World Small Cap UCITS ETF USD (Acc)",
+   "yahoo_currency": "EUR",
+   "identity": "failed"
+  },
+  {
+   "id": "IWDA",
+   "isin": "IE00B4L5Y983",
+   "exchange": "Euronext Amsterdam",
+   "draft_status": "verified",
+   "sources": {
+    "yahoo": {
+     "symbol": "IWDA.AS",
+     "ok": true,
+     "last_date": "2026-11-13",
+     "last_close": 130.49000549316406,
+     "currency": "EUR",
+     "error": null
+    },
+    "stooq": {
+     "symbol": "iwda.nl",
+     "ok": false,
+     "last_date": null,
+     "last_close": null,
+     "currency": null,
+     "error": "no_data"
+    },
+    "twelve_data": {
+     "symbol": "IWDA:Euronext",
+     "ok": false,
+     "last_date": null,
+     "last_close": null,
+     "currency": null,
+     "error": "err_404"
+    }
+   },
+   "yahoo_isin_symbols": [
+    "IWDA.L"
+   ],
+   "isin_maps_to_expected_line": false,
+   "yahoo_name": "iShares Core MSCI World UCITS ETF USD (Acc)",
+   "yahoo_currency": "EUR",
+   "identity": "failed"
+  },
+  {
+   "id": "NUKL",
+   "isin": "IE000M7V94E1",
+   "exchange": "Xetra",
+   "draft_status": "to_verify",
+   "sources": {
+    "yahoo": {
+     "symbol": "NUKL.DE",
+     "ok": true,
+     "last_date": "2026-11-13",
+     "last_close": 35.89500045776367,
+     "currency": "EUR",
+     "error": null
+    },
+    "stooq": {
+     "symbol": "nukl.de",
+     "ok": false,
+     "last_date": null,
+     "last_close": null,
+     "currency": null,
+     "error": "no_data"
+    },
+    "twelve_data": {
+     "symbol": "NUKL:XETR",
+     "ok": false,
+     "last_date": null,
+     "last_close": null,
+     "currency": null,
+     "error": "err_404"
+    }
+   },
+   "yahoo_isin_symbols": [
+    "NUCL.SW",
+    "IE000M7V94E1.SG"
+   ],
+   "isin_maps_to_expected_line": false,
+   "yahoo_name": "VanEck Uranium and Nuclear Technologies UCITS ETF A USD Acc",
+   "yahoo_currency": "EUR",
+   "identity": "failed"
+  },
+  {
+   "id": "QDV5",
+   "isin": "IE00BZCQB185",
+   "exchange": "Xetra",
+   "draft_status": "to_verify",
+   "sources": {
+    "yahoo": {
+     "symbol": "QDV5.DE",
+     "ok": true,
+     "last_date": "2026-11-13",
+     "last_close": 8.319000244140625,
+     "currency": "EUR",
+     "error": null
+    },
+    "stooq": {
+     "symbol": "qdv5.de",
+     "ok": false,
+     "last_date": null,
+     "last_close": null,
+     "currency": null,
+     "error": "no_data"
+    },
+    "twelve_data": {
+     "symbol": "QDV5:XETR",
+     "ok": false,
+     "last_date": null,
+     "last_close": null,
+     "currency": null,
+     "error": "err_404"
+    }
+   },
+   "yahoo_isin_symbols": [
+    "NDIA.L"
+   ],
+   "isin_maps_to_expected_line": false,
+   "yahoo_name": "iShares MSCI India UCITS ETF USD Acc",
+   "yahoo_currency": "EUR",
+   "identity": "failed"
+  },
+  {
+   "id": "REMX",
+   "isin": "IE0002PG6CA6",
+   "exchange": "Xetra",
+   "draft_status": "to_verify",
+   "sources": {
+    "yahoo": {
+     "symbol": "REMX.DE",
+     "ok": false,
+     "last_date": null,
+     "last_close": null,
+     "currency": null,
+     "error": "http_404"
+    },
+    "stooq": {
+     "symbol": "remx.de",
+     "ok": false,
+     "last_date": null,
+     "last_close": null,
+     "currency": null,
+     "error": "no_data"
+    },
+    "twelve_data": {
+     "symbol": "REMX:XETR",
+     "ok": false,
+     "last_date": null,
+     "last_close": null,
+     "currency": null,
+     "error": "err_404"
+    }
+   },
+   "yahoo_isin_symbols": [
+    "REGB.L",
+    "IE0002PG6CA6.SG"
+   ],
+   "isin_maps_to_expected_line": false,
+   "yahoo_name": null,
+   "yahoo_currency": null,
+   "identity": "failed"
+  },
+  {
+   "id": "SXRV",
+   "isin": "IE00B53SZB19",
+   "exchange": "Xetra",
+   "draft_status": "to_verify",
+   "sources": {
+    "yahoo": {
+     "symbol": "SXRV.DE",
+     "ok": true,
+     "last_date": "2026-11-13",
+     "last_close": 1446.5999755859375,
+     "currency": "EUR",
+     "error": null
+    },
+    "stooq": {
+     "symbol": "sxrv.de",
+     "ok": false,
+     "last_date": null,
+     "last_close": null,
+     "currency": null,
+     "error": "no_data"
+    },
+    "twelve_data": {
+     "symbol": "SXRV:XETR",
+     "ok": false,
+     "last_date": null,
+     "last_close": null,
+     "currency": null,
+     "error": "err_404"
+    }
+   },
+   "yahoo_isin_symbols": [
+    "CSNDX.SW"
+   ],
+   "isin_maps_to_expected_line": false,
+   "yahoo_name": "iShares NASDAQ 100 UCITS ETF USD (Acc)",
+   "yahoo_currency": "EUR",
+   "identity": "failed"
+  },
+  {
+   "id": "UST10",
+   "isin": "IE00B3VWN518",
+   "exchange": "Xetra",
+   "draft_status": "to_verify",
+   "sources": {
+    "yahoo": {
+     "symbol": "UST10.DE",
+     "ok": false,
+     "last_date": null,
+     "last_close": null,
+     "currency": null,
+     "error": "http_404"
+    },
+    "stooq": {
+     "symbol": "ust10.de",
+     "ok": false,
+     "last_date": null,
+     "last_close": null,
+     "currency": null,
+     "error": "no_data"
+    },
+    "twelve_data": {
+     "symbol": "UST10:XETR",
+     "ok": false,
+     "last_date": null,
+     "last_close": null,
+     "currency": null,
+     "error": "err_404"
+    }
+   },
+   "yahoo_isin_symbols": [
+    "CSBGU0.SW"
+   ],
+   "isin_maps_to_expected_line": false,
+   "yahoo_name": null,
+   "yahoo_currency": null,
+   "identity": "failed"
+  },
+  {
+   "id": "VVSM",
+   "isin": "IE00BMC38736",
+   "exchange": "Xetra",
+   "draft_status": "verified",
+   "sources": {
+    "yahoo": {
+     "symbol": "VVSM.DE",
+     "ok": true,
+     "last_date": "2026-11-13",
+     "last_close": 81.80999755859375,
+     "currency": "EUR",
+     "error": null
+    },
+    "stooq": {
+     "symbol": "vvsm.de",
+     "ok": false,
+     "last_date": null,
+     "last_close": null,
+     "currency": null,
+     "error": "no_data"
+    },
+    "twelve_data": {
+     "symbol": "VVSM:XETR",
+     "ok": false,
+     "last_date": null,
+     "last_close": null,
+     "currency": null,
+     "error": "err_404"
+    }
+   },
+   "yahoo_isin_symbols": [
+    "SMH.L",
+    "IE00BMC38736.SG"
+   ],
+   "isin_maps_to_expected_line": false,
+   "yahoo_name": "VanEck Semiconductor UCITS ETF",
+   "yahoo_currency": "EUR",
+   "identity": "failed"
+  },
+  {
+   "id": "XAIX",
+   "isin": "IE00BGV5VN51",
+   "exchange": "Xetra",
+   "draft_status": "to_verify",
+   "sources": {
+    "yahoo": {
+     "symbol": "XAIX.DE",
+     "ok": true,
+     "last_date": "2026-11-13",
+     "last_close": 199.9600067138672,
+     "currency": "EUR",
+     "error": null
+    },
+    "stooq": {
+     "symbol": "xaix.de",
+     "ok": false,
+     "last_date": null,
+     "last_close": null,
+     "currency": null,
+     "error": "no_data"
+    },
+    "twelve_data": {
+     "symbol": "XAIX:XETR",
+     "ok": false,
+     "last_date": null,
+     "last_close": null,
+     "currency": null,
+     "error": "err_404"
+    }
+   },
+   "yahoo_isin_symbols": [
+    "XAIX.DE",
+    "IE00BGV5VN51.SG"
+   ],
+   "isin_maps_to_expected_line": true,
+   "yahoo_name": "Xtrackers Artificial Intelligence & Big Data UCITS ETF 1C",
+   "yahoo_currency": "EUR",
+   "identity": "verified"
+  },
+  {
+   "id": "XEON",
+   "isin": "LU0290358497",
+   "exchange": "Xetra",
+   "draft_status": "to_verify",
+   "sources": {
+    "yahoo": {
+     "symbol": "XEON.DE",
+     "ok": true,
+     "last_date": "2026-11-13",
+     "last_close": 150.79299926757812,
+     "currency": "EUR",
+     "error": null
+    },
+    "stooq": {
+     "symbol": "xeon.de",
+     "ok": false,
+     "last_date": null,
+     "last_close": null,
+     "currency": null,
+     "error": "no_data"
+    },
+    "twelve_data": {
+     "symbol": "XEON:XETR",
+     "ok": false,
+     "last_date": null,
+     "last_close": null,
+     "currency": null,
+     "error": "err_404"
+    }
+   },
+   "yahoo_isin_symbols": [
+    "XEON.DE"
+   ],
+   "isin_maps_to_expected_line": true,
+   "yahoo_name": "Xtrackers II EUR Overnight Rate Swap UCITS ETF 1C",
+   "yahoo_currency": "EUR",
+   "identity": "verified"
+  },
+  {
+   "id": "XMLC",
+   "isin": "IE00BK5BC891",
+   "exchange": "Xetra",
+   "draft_status": "verified",
+   "sources": {
+    "yahoo": {
+     "symbol": "XMLC.DE",
+     "ok": true,
+     "last_date": "2026-11-13",
+     "last_close": 19.1560001373291,
+     "currency": "EUR",
+     "error": null
+    },
+    "stooq": {
+     "symbol": "xmlc.de",
+     "ok": false,
+     "last_date": null,
+     "last_close": null,
+     "currency": null,
+     "error": "no_data"
+    },
+    "twelve_data": {
+     "symbol": "XMLC:XETR",
+     "ok": false,
+     "last_date": null,
+     "last_close": null,
+     "currency": null,
+     "error": "err_404"
+    }
+   },
+   "yahoo_isin_symbols": [
+    "GLGG.L",
+    "IE00BK5BC891.SG"
+   ],
+   "isin_maps_to_expected_line": false,
+   "yahoo_name": "L&G Clean Water UCITS ETF",
+   "yahoo_currency": "EUR",
+   "identity": "failed"
+  }
+ ]
+}

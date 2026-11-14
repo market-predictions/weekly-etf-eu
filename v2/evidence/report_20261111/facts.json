@@ -1,0 +1,753 @@
+{
+ "report_date": "2026-11-11",
+ "data_through": "2026-11-11",
+ "track_record_start": "2026-08-14",
+ "benchmark": {
+  "id": "VWCE",
+  "name": "Vanguard FTSE All-World UCITS ETF Acc"
+ },
+ "portfolio": {
+  "value_eur": 100362.17,
+  "value_before_trades_eur": 100409.09,
+  "cash_eur": 27152.57,
+  "cash_pct": 27.1,
+  "week_return_pct": 0.49,
+  "since_start_return_pct": -0.44,
+  "benchmark_week_return_pct": 0.62,
+  "benchmark_since_start_return_pct": 1.21,
+  "difference_vs_benchmark_pts": -1.65,
+  "n_positions": 4,
+  "start_value_eur": 100851.09
+ },
+ "regime": {
+  "state": "risk_on",
+  "breadth_pct": 73.3,
+  "benchmark_trend": "up",
+  "breadth_threshold_pct": 40,
+  "n_ranked": 30
+ },
+ "attribution": {
+  "since_start": {
+   "from": "2026-08-14",
+   "to": "2026-11-11",
+   "gap_pts": -1.65,
+   "benchmark_return_pct": 1.21,
+   "items": [
+    {
+     "id": "DFEN",
+     "name": "VanEck Defense UCITS ETF",
+     "pts": -1.7,
+     "own_return_pct": -12.94,
+     "start_weight_pct": 12.1
+    },
+    {
+     "id": "CASH",
+     "name": "Cash",
+     "pts": -0.37,
+     "own_return_pct": 0.0,
+     "start_weight_pct": 27.9
+    },
+    {
+     "id": "EUNA",
+     "name": "iShares Core Global Aggregate Bond UCITS ETF EUR Hedged Acc",
+     "pts": -0.13,
+     "own_return_pct": -0.4,
+     "start_weight_pct": 7.4
+    },
+    {
+     "id": "VWCE",
+     "name": "Vanguard FTSE All-World UCITS ETF Acc",
+     "pts": 0.0,
+     "own_return_pct": 1.21,
+     "start_weight_pct": 25.3
+    },
+    {
+     "id": "SXR8",
+     "name": "iShares Core S&P 500 UCITS ETF Acc",
+     "pts": 0.08,
+     "own_return_pct": 2.26,
+     "start_weight_pct": 7.2
+    },
+    {
+     "id": "L0CK",
+     "name": "iShares Digital Security UCITS ETF Acc",
+     "pts": 0.18,
+     "own_return_pct": 2.65,
+     "start_weight_pct": 10.4
+    },
+    {
+     "id": "IQQQ",
+     "name": "iShares Global Water UCITS ETF Dist",
+     "pts": 0.28,
+     "own_return_pct": 4.16,
+     "start_weight_pct": 9.8
+    }
+   ],
+   "residual_pts": 0.01
+  },
+  "week": {
+   "from": "2026-11-04",
+   "to": "2026-11-11",
+   "gap_pts": -0.13,
+   "benchmark_return_pct": 0.62,
+   "items": [
+    {
+     "id": "CASH",
+     "name": "Cash",
+     "pts": -0.18,
+     "own_return_pct": 0.0,
+     "start_weight_pct": 28.1
+    },
+    {
+     "id": "EUNA",
+     "name": "iShares Core Global Aggregate Bond UCITS ETF EUR Hedged Acc",
+     "pts": -0.06,
+     "own_return_pct": -0.24,
+     "start_weight_pct": 7.5
+    },
+    {
+     "id": "IQQQ",
+     "name": "iShares Global Water UCITS ETF Dist",
+     "pts": -0.04,
+     "own_return_pct": 0.19,
+     "start_weight_pct": 10.3
+    },
+    {
+     "id": "SXR8",
+     "name": "iShares Core S&P 500 UCITS ETF Acc",
+     "pts": -0.02,
+     "own_return_pct": 0.29,
+     "start_weight_pct": 7.4
+    },
+    {
+     "id": "VWCE",
+     "name": "Vanguard FTSE All-World UCITS ETF Acc",
+     "pts": 0.0,
+     "own_return_pct": 0.62,
+     "start_weight_pct": 25.7
+    },
+    {
+     "id": "L0CK",
+     "name": "iShares Digital Security UCITS ETF Acc",
+     "pts": 0.03,
+     "own_return_pct": 0.88,
+     "start_weight_pct": 10.7
+    },
+    {
+     "id": "DFEN",
+     "name": "VanEck Defense UCITS ETF",
+     "pts": 0.15,
+     "own_return_pct": 2.1,
+     "start_weight_pct": 10.4
+    }
+   ],
+   "residual_pts": -0.01
+  }
+ },
+ "trades": [
+  {
+   "side": "sell",
+   "id": "DFEN",
+   "name": "VanEck Defense UCITS ETF",
+   "shares": 207,
+   "price_eur": 51.14,
+   "amount_eur": 10586,
+   "kind": "exit",
+   "why": "trend_down",
+   "detail": "close 51.14 below 200-day average 54.83 for 2 consecutive weeks",
+   "rank": 27,
+   "score": 13,
+   "replaced_by": null,
+   "params": {
+    "close": 51.14,
+    "sma200": 54.83
+   }
+  },
+  {
+   "side": "sell",
+   "id": "IQQQ",
+   "name": "iShares Global Water UCITS ETF Dist",
+   "shares": 33,
+   "price_eur": 69.15,
+   "amount_eur": 2282,
+   "kind": "resize",
+   "why": "resize",
+   "detail": "weight 10.3% vs target 8.0% (band 2%)",
+   "rank": null,
+   "score": null,
+   "replaced_by": null,
+   "params": {
+    "weight_pct": 10.3,
+    "target_pct": 8.0,
+    "band_pts": 2
+   }
+  },
+  {
+   "side": "sell",
+   "id": "L0CK",
+   "name": "iShares Digital Security UCITS ETF Acc",
+   "shares": 237,
+   "price_eur": 11.53,
+   "amount_eur": 2732,
+   "kind": "resize",
+   "why": "resize",
+   "detail": "weight 10.7% vs target 8.0% (band 2%)",
+   "rank": null,
+   "score": null,
+   "replaced_by": null,
+   "params": {
+    "weight_pct": 10.7,
+    "target_pct": 8.0,
+    "band_pts": 2
+   }
+  },
+  {
+   "side": "sell",
+   "id": "SXR8",
+   "name": "iShares Core S&P 500 UCITS ETF Acc",
+   "shares": 10,
+   "price_eur": 740.56,
+   "amount_eur": 7406,
+   "kind": "exit",
+   "why": "not_in_target",
+   "detail": "not part of the target portfolio (core is VWCE + EUNA)",
+   "rank": null,
+   "score": null,
+   "replaced_by": null,
+   "params": {
+    "core_equity": "VWCE",
+    "core_bonds": "EUNA"
+   }
+  },
+  {
+   "side": "buy",
+   "id": "EUNA",
+   "name": "iShares Core Global Aggregate Bond UCITS ETF EUR Hedged Acc",
+   "shares": 1994,
+   "price_eur": 4.87,
+   "amount_eur": 9720,
+   "kind": "resize",
+   "why": "resize",
+   "detail": "weight 7.4% vs target 17.1% (band 2%)",
+   "rank": null,
+   "score": null,
+   "replaced_by": null,
+   "params": {
+    "weight_pct": 7.4,
+    "target_pct": 17.1,
+    "band_pts": 2
+   }
+  },
+  {
+   "side": "buy",
+   "id": "VWCE",
+   "name": "Vanguard FTSE All-World UCITS ETF Acc",
+   "shares": 83,
+   "price_eur": 170.92,
+   "amount_eur": 14186,
+   "kind": "resize",
+   "why": "resize",
+   "detail": "weight 25.7% vs target 39.9% (band 2%)",
+   "rank": null,
+   "score": null,
+   "replaced_by": null,
+   "params": {
+    "weight_pct": 25.7,
+    "target_pct": 39.9,
+    "band_pts": 2
+   }
+  }
+ ],
+ "deferred": [
+  {
+   "id": "2B70",
+   "name": "iShares Nasdaq US Biotechnology UCITS ETF",
+   "kind": "entry",
+   "why": "selected",
+   "detail": "rank 1 of 30, score 97, uptrend",
+   "params": {
+    "rank": 1,
+    "n": 30,
+    "score": 97
+   }
+  },
+  {
+   "id": "CBUF",
+   "name": "iShares MSCI World Health Care Sector Advanced UCITS ETF Dist",
+   "kind": "entry",
+   "why": "selected",
+   "detail": "rank 2 of 30, score 92, uptrend",
+   "params": {
+    "rank": 2,
+    "n": 30,
+    "score": 92
+   }
+  },
+  {
+   "id": "IS3S",
+   "name": "iShares Edge MSCI World Value Factor UCITS ETF",
+   "kind": "entry",
+   "why": "selected",
+   "detail": "rank 4 of 30, score 77, uptrend",
+   "params": {
+    "rank": 4,
+    "n": 30,
+    "score": 77
+   }
+  }
+ ],
+ "decision_notes": [],
+ "positions": [
+  {
+   "id": "VWCE",
+   "name": "Vanguard FTSE All-World UCITS ETF Acc",
+   "role": "core",
+   "shares": 234,
+   "price_eur": 170.92,
+   "value_eur": 39995.28,
+   "weight_pct": 39.9,
+   "week_return_pct": 0.62,
+   "return_3m_pct": 1.21,
+   "trend": "up",
+   "rank": null,
+   "score": null
+  },
+  {
+   "id": "EUNA",
+   "name": "iShares Core Global Aggregate Bond UCITS ETF EUR Hedged Acc",
+   "role": "core",
+   "shares": 3520,
+   "price_eur": 4.87,
+   "value_eur": 17159.3,
+   "weight_pct": 17.1,
+   "week_return_pct": -0.24,
+   "return_3m_pct": -0.4,
+   "trend": "down",
+   "rank": null,
+   "score": null
+  },
+  {
+   "id": "L0CK",
+   "name": "iShares Digital Security UCITS ETF Acc",
+   "role": "satellite",
+   "shares": 697,
+   "price_eur": 11.53,
+   "value_eur": 8033.62,
+   "weight_pct": 8.0,
+   "week_return_pct": 0.88,
+   "return_3m_pct": 2.65,
+   "trend": "up",
+   "rank": 3,
+   "score": 83
+  },
+  {
+   "id": "IQQQ",
+   "name": "iShares Global Water UCITS ETF Dist",
+   "role": "satellite",
+   "shares": 116,
+   "price_eur": 69.15,
+   "value_eur": 8021.4,
+   "weight_pct": 8.0,
+   "week_return_pct": 0.19,
+   "return_3m_pct": 4.16,
+   "trend": "up",
+   "rank": 14,
+   "score": 59
+  }
+ ],
+ "scan_top10": [
+  {
+   "rank": 1,
+   "id": "2B70",
+   "name": "iShares Nasdaq US Biotechnology UCITS ETF",
+   "score": 97,
+   "return_3m_pct": 14.2,
+   "return_6m_pct": 34.7,
+   "return_12m_pct": 41.8,
+   "trend": "up",
+   "held": false,
+   "new_in_top10": false
+  },
+  {
+   "rank": 2,
+   "id": "CBUF",
+   "name": "iShares MSCI World Health Care Sector Advanced UCITS ETF Dist",
+   "score": 92,
+   "return_3m_pct": 16.2,
+   "return_6m_pct": 27.0,
+   "return_12m_pct": 24.0,
+   "trend": "up",
+   "held": false,
+   "new_in_top10": false
+  },
+  {
+   "rank": 3,
+   "id": "L0CK",
+   "name": "iShares Digital Security UCITS ETF Acc",
+   "score": 83,
+   "return_3m_pct": 2.7,
+   "return_6m_pct": 19.4,
+   "return_12m_pct": 28.4,
+   "trend": "up",
+   "held": true,
+   "new_in_top10": false
+  },
+  {
+   "rank": 4,
+   "id": "IS3S",
+   "name": "iShares Edge MSCI World Value Factor UCITS ETF",
+   "score": 77,
+   "return_3m_pct": -0.7,
+   "return_6m_pct": 10.9,
+   "return_12m_pct": 42.6,
+   "trend": "up",
+   "held": false,
+   "new_in_top10": false
+  },
+  {
+   "rank": 5,
+   "id": "IS3Q",
+   "name": "iShares Edge MSCI World Quality Factor UCITS ETF",
+   "score": 75,
+   "return_3m_pct": 3.6,
+   "return_6m_pct": 11.4,
+   "return_12m_pct": 21.0,
+   "trend": "up",
+   "held": false,
+   "new_in_top10": false
+  },
+  {
+   "rank": 6,
+   "id": "IQQ0",
+   "name": "iShares Edge MSCI World Minimum Volatility UCITS ETF",
+   "score": 74,
+   "return_3m_pct": 7.1,
+   "return_6m_pct": 12.2,
+   "return_12m_pct": 15.3,
+   "trend": "up",
+   "held": false,
+   "new_in_top10": false
+  },
+  {
+   "rank": 7,
+   "id": "QDV5",
+   "name": "iShares MSCI India UCITS ETF Acc",
+   "score": 68,
+   "return_3m_pct": 7.9,
+   "return_6m_pct": 15.0,
+   "return_12m_pct": -2.5,
+   "trend": "up",
+   "held": false,
+   "new_in_top10": true
+  },
+  {
+   "rank": 8,
+   "id": "IUSN",
+   "name": "iShares MSCI World Small Cap UCITS ETF Acc",
+   "score": 64,
+   "return_3m_pct": -0.3,
+   "return_6m_pct": 9.1,
+   "return_12m_pct": 22.4,
+   "trend": "up",
+   "held": false,
+   "new_in_top10": false
+  },
+  {
+   "rank": 9,
+   "id": "EUNK",
+   "name": "iShares Core MSCI Europe UCITS ETF Acc",
+   "score": 63,
+   "return_3m_pct": 1.2,
+   "return_6m_pct": 10.0,
+   "return_12m_pct": 17.4,
+   "trend": "up",
+   "held": false,
+   "new_in_top10": false
+  },
+  {
+   "rank": 10,
+   "id": "XAIX",
+   "name": "Xtrackers Artificial Intelligence & Big Data UCITS ETF",
+   "score": 62,
+   "return_3m_pct": -2.2,
+   "return_6m_pct": 8.1,
+   "return_12m_pct": 30.0,
+   "trend": "up",
+   "held": false,
+   "new_in_top10": false
+  }
+ ],
+ "scan_bottom5": [
+  {
+   "rank": 26,
+   "id": "ICGA",
+   "name": "iShares MSCI China UCITS ETF Acc",
+   "score": 16,
+   "return_3m_pct": -3.1,
+   "return_6m_pct": -5.9,
+   "return_12m_pct": -16.6,
+   "trend": "down",
+   "held": false
+  },
+  {
+   "rank": 27,
+   "id": "DFEN",
+   "name": "VanEck Defense UCITS ETF",
+   "score": 13,
+   "return_3m_pct": -12.9,
+   "return_6m_pct": -3.1,
+   "return_12m_pct": -3.9,
+   "trend": "down",
+   "held": false
+  },
+  {
+   "rank": 28,
+   "id": "IQQH",
+   "name": "iShares Global Clean Energy UCITS ETF",
+   "score": 10,
+   "return_3m_pct": -7.1,
+   "return_6m_pct": -18.1,
+   "return_12m_pct": -4.2,
+   "trend": "down",
+   "held": false
+  },
+  {
+   "rank": 29,
+   "id": "NUKL",
+   "name": "VanEck Uranium and Nuclear Technologies UCITS ETF",
+   "score": 2,
+   "return_3m_pct": -19.5,
+   "return_6m_pct": -20.0,
+   "return_12m_pct": -22.0,
+   "trend": "down",
+   "held": false
+  },
+  {
+   "rank": 30,
+   "id": "VVMX",
+   "name": "VanEck Rare Earth and Strategic Metals UCITS ETF",
+   "score": 2,
+   "return_3m_pct": -28.7,
+   "return_6m_pct": -38.6,
+   "return_12m_pct": -16.4,
+   "trend": "down",
+   "held": false
+  }
+ ],
+ "market": [
+  {
+   "id": "VWCE",
+   "label_en": "World equity",
+   "label_nl": "Wereldwijde aandelen",
+   "week_pct": 0.62,
+   "return_3m_pct": 1.3,
+   "return_12m_pct": 17.9
+  },
+  {
+   "id": "SXR8",
+   "label_en": "US equity (S&P 500)",
+   "label_nl": "Amerikaanse aandelen (S&P 500)",
+   "week_pct": 0.29,
+   "return_3m_pct": 2.5,
+   "return_12m_pct": 17.8
+  },
+  {
+   "id": "EUNK",
+   "label_en": "European equity",
+   "label_nl": "Europese aandelen",
+   "week_pct": 0.86,
+   "return_3m_pct": 1.0,
+   "return_12m_pct": 17.4
+  },
+  {
+   "id": "IJPA",
+   "label_en": "Japanese equity",
+   "label_nl": "Japanse aandelen",
+   "week_pct": -0.17,
+   "return_3m_pct": -1.9,
+   "return_12m_pct": 21.1
+  },
+  {
+   "id": "EMIM",
+   "label_en": "Emerging-market equity",
+   "label_nl": "Aandelen opkomende markten",
+   "week_pct": 2.21,
+   "return_3m_pct": -2.4,
+   "return_12m_pct": 18.8
+  },
+  {
+   "id": "EUNH",
+   "label_en": "Euro government bonds",
+   "label_nl": "Euro-staatsobligaties",
+   "week_pct": 0.0,
+   "return_3m_pct": -1.4,
+   "return_12m_pct": -4.7
+  },
+  {
+   "id": "EUN5",
+   "label_en": "Euro corporate bonds",
+   "label_nl": "Euro-bedrijfsobligaties",
+   "week_pct": 0.05,
+   "return_3m_pct": -0.7,
+   "return_12m_pct": -3.7
+  },
+  {
+   "id": "4GLD",
+   "label_en": "Gold",
+   "label_nl": "Goud",
+   "week_pct": -0.01,
+   "return_3m_pct": -5.8,
+   "return_12m_pct": 1.7
+  }
+ ],
+ "macro": {
+  "ecb_deposit_rate": {
+   "label_en": "ECB deposit rate",
+   "label_nl": "ECB-depositorente",
+   "unit": "%",
+   "source": "ecb",
+   "series": "FM/D.U2.EUR.4F.KR.DFR.LEV",
+   "date": "2026-11-11",
+   "value": 2.5,
+   "value_1m_ago": 2.5,
+   "value_1y_ago": 2.0,
+   "stale": false,
+   "available": true
+  },
+  "fed_funds_effective": {
+   "label_en": "US federal funds rate (effective)",
+   "label_nl": "Amerikaanse federal funds-rente (effectief)",
+   "unit": "%",
+   "source": "nyfed",
+   "series": "effr",
+   "date": "2026-11-10",
+   "value": 3.88,
+   "value_1m_ago": 3.88,
+   "value_1y_ago": 3.87,
+   "stale": false,
+   "available": true
+  },
+  "euro_10y_yield": {
+   "label_en": "Euro area 10y government yield (AAA)",
+   "label_nl": "Rente 10-jaars staatsobligaties eurozone (AAA)",
+   "unit": "%",
+   "source": "ecb",
+   "series": "YC/B.U2.EUR.4F.G_N_A.SV_C_YM.SR_10Y",
+   "date": "2026-11-11",
+   "value": 3.3401,
+   "value_1m_ago": 3.4987,
+   "value_1y_ago": 2.7362,
+   "stale": false,
+   "available": true
+  },
+  "eurusd": {
+   "label_en": "EUR/USD",
+   "label_nl": "EUR/USD",
+   "unit": "",
+   "source": "ecb",
+   "series": "EXR/D.USD.EUR.SP00.A",
+   "date": "2026-11-11",
+   "value": 1.1127,
+   "value_1m_ago": 1.1181,
+   "value_1y_ago": 1.1575,
+   "stale": false,
+   "available": true
+  },
+  "euro_inflation": {
+   "label_en": "Euro area inflation (HICP, y/y)",
+   "label_nl": "Inflatie eurozone (HICP, j/j)",
+   "unit": "%",
+   "source": "eurostat",
+   "series": "prc_hicp_minr:geo=EA,coicop18=TOTAL,unit=RCH_A",
+   "date": "2026-10-01",
+   "value": 4.0,
+   "value_1m_ago": 3.8,
+   "value_1y_ago": 2.1,
+   "stale": false,
+   "available": true
+  }
+ },
+ "chart": [
+  {
+   "date": "2026-08-14",
+   "portfolio_index": 100.0,
+   "benchmark_index": 100.0
+  },
+  {
+   "date": "2026-08-19",
+   "portfolio_index": 98.66,
+   "benchmark_index": 98.59
+  },
+  {
+   "date": "2026-08-26",
+   "portfolio_index": 97.87,
+   "benchmark_index": 98.61
+  },
+  {
+   "date": "2026-09-02",
+   "portfolio_index": 97.37,
+   "benchmark_index": 98.78
+  },
+  {
+   "date": "2026-09-09",
+   "portfolio_index": 97.05,
+   "benchmark_index": 98.42
+  },
+  {
+   "date": "2026-09-16",
+   "portfolio_index": 97.84,
+   "benchmark_index": 98.47
+  },
+  {
+   "date": "2026-09-23",
+   "portfolio_index": 99.14,
+   "benchmark_index": 100.69
+  },
+  {
+   "date": "2026-09-30",
+   "portfolio_index": 98.64,
+   "benchmark_index": 100.53
+  },
+  {
+   "date": "2026-10-07",
+   "portfolio_index": 99.62,
+   "benchmark_index": 102.39
+  },
+  {
+   "date": "2026-10-14",
+   "portfolio_index": 99.82,
+   "benchmark_index": 102.13
+  },
+  {
+   "date": "2026-10-21",
+   "portfolio_index": 99.75,
+   "benchmark_index": 101.44
+  },
+  {
+   "date": "2026-10-28",
+   "portfolio_index": 100.46,
+   "benchmark_index": 101.81
+  },
+  {
+   "date": "2026-11-04",
+   "portfolio_index": 99.07,
+   "benchmark_index": 100.58
+  },
+  {
+   "date": "2026-11-11",
+   "portfolio_index": 99.56,
+   "benchmark_index": 101.21
+  }
+ ],
+ "rules": {
+  "satellites": {
+   "risk_on": 5,
+   "risk_off": 3
+  },
+  "satellite_weight_pct": 8.0,
+  "max_changes_per_week": 2,
+  "replacement_margin_pts": 25,
+  "cash_target_pct": 3.0,
+  "cost_bps": 10
+ }
+}

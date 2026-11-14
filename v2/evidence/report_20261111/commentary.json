@@ -1,0 +1,114 @@
+{
+ "source": {
+  "en": "fallback",
+  "nl": "fallback"
+ },
+ "problems": {
+  "en": [
+   "no OPENAI_API_KEY"
+  ],
+  "nl": [
+   "no OPENAI_API_KEY"
+  ]
+ },
+ "en": {
+  "headline": "DFEN is the main reason the portfolio trails VWCE",
+  "what_happened": "The model portfolio rose 0.49% this week, against 0.62% for the benchmark (VWCE). Since 14 August 2026 it returned -0.44% against 1.21%, a shortfall of 1.65 percentage points.",
+  "why": "The largest effect came from DFEN: -1.70 percentage points (weight 12.1%, own return -12.94%). The strongest contribution came from IQQQ: +0.28 percentage points.",
+  "what_we_do": "The rules lead to 6 trades this week; 3 new positions follow in the coming weeks because of the limit of 2 fund changes per week.",
+  "trades": [
+   {
+    "id": "DFEN",
+    "text": "Price 51.14 has been below its 200-day average (54.83) for two weeks running: the trend has turned, so the position is closed."
+   },
+   {
+    "id": "IQQQ",
+    "text": "Weight 10.3% against a target of 8.0%; resized because the gap exceeds 2 percentage points."
+   },
+   {
+    "id": "L0CK",
+    "text": "Weight 10.7% against a target of 8.0%; resized because the gap exceeds 2 percentage points."
+   },
+   {
+    "id": "SXR8",
+    "text": "Not part of the target portfolio: the core is VWCE plus EUNA."
+   },
+   {
+    "id": "EUNA",
+    "text": "Weight 7.4% against a target of 17.1%; resized because the gap exceeds 2 percentage points."
+   },
+   {
+    "id": "VWCE",
+    "text": "Weight 25.7% against a target of 39.9%; resized because the gap exceeds 2 percentage points."
+   },
+   {
+    "id": "2B70",
+    "text": "New: rank 1 of 30 in the scan, score 97, in an uptrend. Planned for a later week: at most 2 fund changes per week."
+   },
+   {
+    "id": "CBUF",
+    "text": "New: rank 2 of 30 in the scan, score 92, in an uptrend. Planned for a later week: at most 2 fund changes per week."
+   },
+   {
+    "id": "IS3S",
+    "text": "New: rank 4 of 30 in the scan, score 77, in an uptrend. Planned for a later week: at most 2 fund changes per week."
+   }
+  ],
+  "markets": "Strongest asset class this week: Emerging-market equity (2.21%); weakest: Japanese equity (-0.17%).",
+  "watch": [
+   "Planned: buy 2B70 (iShares Nasdaq US Biotechnology).",
+   "Planned: buy CBUF (iShares MSCI World Health Care Sector Advanced).",
+   "Planned: buy IS3S (iShares Edge MSCI World Value Factor)."
+  ]
+ },
+ "nl": {
+  "headline": "DFEN is de belangrijkste reden voor de achterstand op VWCE",
+  "what_happened": "De modelportefeuille steeg deze week 0,49%, tegen 0,62% voor de benchmark (VWCE). Sinds 14 augustus 2026 is het rendement -0,44% tegen 1,21%: een achterstand van 1,65 procentpunt.",
+  "why": "Het grootste effect kwam van DFEN: -1,70 procentpunt (gewicht 12,1%, eigen rendement -12,94%). De sterkste bijdrage kwam van IQQQ: +0,28 procentpunt.",
+  "what_we_do": "De regels leiden deze week tot 6 transacties; 3 nieuwe posities volgen in de komende weken vanwege het maximum van 2 fondswissels per week.",
+  "trades": [
+   {
+    "id": "DFEN",
+    "text": "Koers 51,14 staat twee weken op rij onder het 200-daags gemiddelde (54,83): de trend is gekeerd, de positie wordt gesloten."
+   },
+   {
+    "id": "IQQQ",
+    "text": "Gewicht 10,3% tegen doel 8,0%; bijgesteld omdat het verschil groter is dan 2 procentpunt."
+   },
+   {
+    "id": "L0CK",
+    "text": "Gewicht 10,7% tegen doel 8,0%; bijgesteld omdat het verschil groter is dan 2 procentpunt."
+   },
+   {
+    "id": "SXR8",
+    "text": "Geen onderdeel van de doelportefeuille: de kern bestaat uit VWCE en EUNA."
+   },
+   {
+    "id": "EUNA",
+    "text": "Gewicht 7,4% tegen doel 17,1%; bijgesteld omdat het verschil groter is dan 2 procentpunt."
+   },
+   {
+    "id": "VWCE",
+    "text": "Gewicht 25,7% tegen doel 39,9%; bijgesteld omdat het verschil groter is dan 2 procentpunt."
+   },
+   {
+    "id": "2B70",
+    "text": "Nieuw: plaats 1 van 30 in de scan, score 97, opwaartse trend. Gepland voor een volgende week: maximaal 2 fondswissels per week."
+   },
+   {
+    "id": "CBUF",
+    "text": "Nieuw: plaats 2 van 30 in de scan, score 92, opwaartse trend. Gepland voor een volgende week: maximaal 2 fondswissels per week."
+   },
+   {
+    "id": "IS3S",
+    "text": "Nieuw: plaats 4 van 30 in de scan, score 77, opwaartse trend. Gepland voor een volgende week: maximaal 2 fondswissels per week."
+   }
+  ],
+  "markets": "Sterkste categorie deze week: Aandelen opkomende markten (2,21%); zwakste: Japanse aandelen (-0,17%).",
+  "watch": [
+   "Gepland: koop 2B70 (iShares Nasdaq US Biotechnology).",
+   "Gepland: koop CBUF (iShares MSCI World Health Care Sector Advanced).",
+   "Gepland: koop IS3S (iShares Edge MSCI World Value Factor)."
+  ]
+ }
+}
