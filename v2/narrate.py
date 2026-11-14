@@ -144,6 +144,44 @@ def _fmt(v: float, lang: str, nd: int = 2) -> str:
     return s.replace(",", "X").replace(".", ",").replace("X", ".") if lang == "nl" else s
 
 
+def reason_text(t: dict, lang: str) -> str:
+    """One sentence per trade, from the structured reason — both languages."""
+    p, w, nl = t.get("params") or {}, t.get("why"), lang == "nl"
+    f = lambda v, nd=1: _fmt(v, lang, nd)
+    if w == "trend_down":
+        return (f"Koers {f(p['close'], 2)} staat twee weken op rij onder het 200-daags gemiddelde ({f(p['sma200'], 2)}): de trend is gekeerd, de positie wordt gesloten." if nl
+                else f"Price {f(p['close'], 2)} has been below its 200-day average ({f(p['sma200'], 2)}) for two weeks running: the trend has turned, so the position is closed.")
+    if w == "rank_dropped":
+        return (f"Gezakt naar plaats {p['rank']} van {p['n']}; een positie blijft alleen zolang ze in de top {p['keep_limit']} staat." if nl
+                else f"Dropped to rank {p['rank']} of {p['n']}; a holding stays only while it ranks in the top {p['keep_limit']}.")
+    if w == "replaced":
+        return (f"Vervangen door {p['new_id']}: score {p['new_score']} tegen {p['old_score']}, meer dan de vereiste {p['margin']} punten verschil." if nl
+                else f"Replaced by {p['new_id']}: score {p['new_score']} against {p['old_score']}, more than the required {p['margin']}-point margin.")
+    if w == "slots_reduced":
+        return (f"Defensieve stand: nog {p['slots']} satellieten; dit is de zwakste positie (plaats {p['rank']})." if nl
+                else f"Defensive mode allows {p['slots']} satellites; this is the weakest holding (rank {p['rank']}).")
+    if w == "not_in_target":
+        return (f"Geen onderdeel van de doelportefeuille: de kern bestaat uit {p['core_equity']} en {p['core_bonds']}." if nl
+                else f"Not part of the target portfolio: the core is {p['core_equity']} plus {p['core_bonds']}.")
+    if w == "selected":
+        return (f"Nieuw: plaats {p['rank']} van {p['n']} in de scan, score {p['score']}, opwaartse trend." if nl
+                else f"New: rank {p['rank']} of {p['n']} in the scan, score {p['score']}, in an uptrend.")
+    if w == "resize":
+        return (f"Gewicht {f(p['weight_pct'])}% tegen doel {f(p['target_pct'])}%; bijgesteld omdat het verschil groter is dan {p['band_pts']} procentpunt." if nl
+                else f"Weight {f(p['weight_pct'])}% against a target of {f(p['target_pct'])}%; resized because the gap exceeds {p['band_pts']} percentage points.")
+    if w == "deploy_cash":
+        return (f"Kas {f(p['cash_pct'])}% ligt boven het plafond van {p['ceiling_pct']}%; aangevuld richting doel {f(p['target_pct'])}%." if nl
+                else f"Cash {f(p['cash_pct'])}% is above the {p['ceiling_pct']}% ceiling; topped up toward the {f(p['target_pct'])}% target.")
+    if w == "core_or_defensive":
+        return (f"Kern- of defensieve positie, doelgewicht {f(p['target_pct'])}%." if nl else f"Core or defensive position, target weight {f(p['target_pct'])}%.")
+    return t.get("detail", "")
+
+
+def short(name: str) -> str:
+    from v2.render import short_name
+    return short_name(name)
+
+
 def _long(d: str, lang: str) -> str:
     from v2.render import long_date
     return long_date(d, lang)
@@ -166,15 +204,16 @@ def fallback(facts: dict, lang: str) -> dict:
                    f"Since {_long(facts['track_record_start'], lang)} the return is {_fmt(p['since_start_return_pct'], lang)}% against {_fmt(p['benchmark_since_start_return_pct'], lang)}% for the benchmark. "
                    f"The market state is {regime}: {_fmt(rg['breadth_pct'], lang, 1)}% of ranked funds trade above their 200-day average. "
                    f"There are {len(facts['trades'])} trades this week.")
-    trades = [{"id": t["id"], "text": f"{('Verkoop' if t['side'] == 'sell' else 'Koop') if nl else t['side'].capitalize()} {t['shares']} × {t['id']}: {t['detail']}."} for t in facts["trades"]]
-    trades += [{"id": x["id"], "text": (f"{x['id']}: gepland voor een volgende week (maximaal {facts['rules']['max_changes_per_week']} fondswissels per week)." if nl
-                                        else f"{x['id']}: planned for a later week (at most {facts['rules']['max_changes_per_week']} fund changes per week).")} for x in facts["deferred"]]
+    trades = [{"id": t["id"], "text": reason_text(t, lang)} for t in facts["trades"]]
+    trades += [{"id": x["id"], "text": reason_text(x, lang) + (f" Gepland voor een volgende week: maximaal {facts['rules']['max_changes_per_week']} fondswissels per week." if nl
+                                        else f" Planned for a later week: at most {facts['rules']['max_changes_per_week']} fund changes per week.")} for x in facts["deferred"]]
     mk = facts["market"]
     best = max(mk, key=lambda m: m["week_pct"] or -99)
     worst = min(mk, key=lambda m: m["week_pct"] or 99)
     markets = (f"Sterkste categorie deze week: {best['label_nl']} ({_fmt(best['week_pct'], lang)}%); zwakste: {worst['label_nl']} ({_fmt(worst['week_pct'], lang)}%)." if nl
                else f"Strongest asset class this week: {best['label_en']} ({_fmt(best['week_pct'], lang)}%); weakest: {worst['label_en']} ({_fmt(worst['week_pct'], lang)}%).")
-    watch = [(f"Geplande wijziging: {x['id']}." if nl else f"Planned change: {x['id']}.") for x in facts["deferred"][:3]] or [
+    watch = [(f"Gepland: {('koop' if x['kind'] == 'entry' else 'verkoop')} {x['id']} ({short(x['name'])})." if nl
+              else f"Planned: {('buy' if x['kind'] == 'entry' else 'sell')} {x['id']} ({short(x['name'])}).") for x in facts["deferred"][:3]] or [
         "Geen geplande wijzigingen." if nl else "No planned changes."]
     return {"headline": headline, "summary": summary, "trades": trades, "markets": markets, "watch": watch}
 

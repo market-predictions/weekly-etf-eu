@@ -86,9 +86,9 @@ def build(d: str, with_macro: bool = True) -> dict:
         "price_eur": round(t["price"], 2), "amount_eur": round(t["amount"]), "kind": t["kind"],
         "why": t["reason"].get("why"), "detail": t["reason"].get("detail"),
         "rank": t["reason"].get("rank"), "score": round(t["reason"]["score"]) if t["reason"].get("score") is not None else None,
-        "replaced_by": t["reason"].get("replaced_by"),
+        "replaced_by": t["reason"].get("replaced_by"), "params": t["reason"].get("params", {}),
     } for t in dec.trades]
-    deferred = [{"id": x["id"], "name": names.get(x["id"], x["id"]), "kind": x["kind"], "why": x.get("why"), "detail": x.get("detail")} for x in dec.deferred]
+    deferred = [{"id": x["id"], "name": names.get(x["id"], x["id"]), "kind": x["kind"], "why": x.get("why"), "detail": x.get("detail"), "params": x.get("params", {})} for x in dec.deferred]
 
     def scan_row(r):
         return {"rank": r["rank"], "id": r["id"], "name": names.get(r["id"], r["id"]), "score": round(r["score"]),

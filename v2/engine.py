@@ -131,15 +131,18 @@ def _select_satellites(sc: dict, held: set[str], uni: dict[str, dict], pol: dict
         if r is None:
             exits.append({"id": iid, "why": "not_rankable", "detail": "insufficient price history to rank"})
         elif not r["trend_up"] and (sat.get("trend_exit_confirm_weeks", 1) < 2 or r["trend_up_prev"] is False):
-            exits.append({"id": iid, "why": "trend_down", "detail": f"close {r['close']:.2f} below 200-day average {r['sma200']:.2f} for 2 consecutive weeks", "rank": r["rank"], "score": r["score"]})
+            exits.append({"id": iid, "why": "trend_down", "detail": f"close {r['close']:.2f} below 200-day average {r['sma200']:.2f} for 2 consecutive weeks", "rank": r["rank"], "score": r["score"],
+                          "params": {"close": round(r["close"], 2), "sma200": round(r["sma200"], 2)}})
         elif r["rank"] > keep_limit:
-            exits.append({"id": iid, "why": "rank_dropped", "detail": f"rank {r['rank']} of {sc['n_ranked']} (keep while ≤ {keep_limit})", "rank": r["rank"], "score": r["score"]})
+            exits.append({"id": iid, "why": "rank_dropped", "detail": f"rank {r['rank']} of {sc['n_ranked']} (keep while ≤ {keep_limit})", "rank": r["rank"], "score": r["score"],
+                          "params": {"rank": r["rank"], "n": sc["n_ranked"], "keep_limit": keep_limit}})
         else:
             kept.append(r)
     kept.sort(key=lambda r: r["rank"])
     while len(kept) > n:  # risk-off can shrink the slot count
         r = kept.pop()
-        exits.append({"id": r["id"], "why": "slots_reduced", "detail": f"{sc['regime']} allows {n} satellites; rank {r['rank']} is the weakest held", "rank": r["rank"], "score": r["score"]})
+        exits.append({"id": r["id"], "why": "slots_reduced", "detail": f"{sc['regime']} allows {n} satellites; rank {r['rank']} is the weakest held", "rank": r["rank"], "score": r["score"],
+                      "params": {"slots": n, "rank": r["rank"]}})
 
     def conflicts(r, chosen):
         t = set(r["tags"])
@@ -162,7 +165,8 @@ def _select_satellites(sc: dict, held: set[str], uni: dict[str, dict], pol: dict
                 continue
             if r["score"] >= weakest["score"] + sat["replacement_margin_pts"]:
                 selected = others + [r]
-                exits.append({"id": weakest["id"], "why": "replaced", "detail": f"{r['id']} scores {r['score']:.0f} vs {weakest['score']:.0f} (margin ≥ {sat['replacement_margin_pts']})", "rank": weakest["rank"], "score": weakest["score"], "replaced_by": r["id"]})
+                exits.append({"id": weakest["id"], "why": "replaced", "detail": f"{r['id']} scores {r['score']:.0f} vs {weakest['score']:.0f} (margin ≥ {sat['replacement_margin_pts']})", "rank": weakest["rank"], "score": weakest["score"], "replaced_by": r["id"],
+                              "params": {"new_id": r["id"], "new_score": round(r["score"]), "old_score": round(weakest["score"]), "margin": sat["replacement_margin_pts"]}})
             break
     return selected, exits
 
@@ -203,14 +207,16 @@ def decide(d: str, holdings: dict[str, int], cash: float, prices: Prices, univer
     changes = []
     for iid in sorted(held):
         if targets.get(iid, 0) <= 0:
-            info = exit_info.get(iid) or {"id": iid, "why": "not_in_target", "detail": "not part of the target portfolio (core is " + policy["core"]["equity"] + " + " + policy["core"]["bonds"] + ")"}
+            info = exit_info.get(iid) or {"id": iid, "why": "not_in_target", "detail": "not part of the target portfolio (core is " + policy["core"]["equity"] + " + " + policy["core"]["bonds"] + ")",
+                                          "params": {"core_equity": policy["core"]["equity"], "core_bonds": policy["core"]["bonds"]}}
             prio = {"trend_down": 0, "not_rankable": 0, "slots_reduced": 1, "replaced": 2, "rank_dropped": 2}.get(info["why"], 3)
             changes.append((prio, "exit", iid, info))
     for iid, w in targets.items():
         if iid not in held and w > 0:
             r = by_id.get(iid)
-            info = ({"why": "selected", "detail": f"rank {r['rank']} of {sc['n_ranked']}, score {r['score']:.0f}, uptrend", "rank": r["rank"], "score": r["score"]}
-                    if r else {"why": "core_or_defensive", "detail": "core/defensive allocation"})
+            info = ({"why": "selected", "detail": f"rank {r['rank']} of {sc['n_ranked']}, score {r['score']:.0f}, uptrend", "rank": r["rank"], "score": r["score"],
+                     "params": {"rank": r["rank"], "n": sc["n_ranked"], "score": round(r["score"])}}
+                    if r else {"why": "core_or_defensive", "detail": "core/defensive allocation", "params": {"target_pct": round(w * 100, 1)}})
             changes.append((4 + (r["rank"] / 1000 if r else 0), "entry", iid, info))
     changes.sort(key=lambda c: c[0])
     limit = policy["turnover"]["max_instrument_changes_per_week"]
@@ -246,11 +252,14 @@ def decide(d: str, holdings: dict[str, int], cash: float, prices: Prices, univer
             sh = holdings[iid] if tgt_w <= 0 else min(holdings[iid], round(-diff * nav / p))
             if sh > 0:
                 sells.append({"id": iid, "side": "sell", "shares": sh, "price": p, "kind": kind or "resize",
-                              "reason": info or {"why": "resize", "detail": f"weight {cur_w:.1%} vs target {tgt_w:.1%} (band {band:.0%})"}})
+                              "reason": info or {"why": "resize", "detail": f"weight {cur_w:.1%} vs target {tgt_w:.1%} (band {band:.0%})",
+                                                 "params": {"weight_pct": round(cur_w * 100, 1), "target_pct": round(tgt_w * 100, 1), "band_pts": round(band * 100)}}})
         elif diff > 0:
             buys.append({"id": iid, "side": "buy", "want": diff * nav, "price": p, "kind": kind or "resize",
-                         "reason": info or ({"why": "deploy_cash", "detail": f"cash {cash / nav:.1%} above {policy['cash']['band'][1]:.0%} ceiling; topping up toward target {tgt_w:.1%}"}
-                                            if abs(diff) <= band else {"why": "resize", "detail": f"weight {cur_w:.1%} vs target {tgt_w:.1%} (band {band:.0%})"})})
+                         "reason": info or ({"why": "deploy_cash", "detail": f"cash {cash / nav:.1%} above {policy['cash']['band'][1]:.0%} ceiling; topping up toward target {tgt_w:.1%}",
+                                             "params": {"cash_pct": round(cash / nav * 100, 1), "ceiling_pct": round(policy["cash"]["band"][1] * 100), "target_pct": round(tgt_w * 100, 1), "weight_pct": round(cur_w * 100, 1)}}
+                                            if abs(diff) <= band else {"why": "resize", "detail": f"weight {cur_w:.1%} vs target {tgt_w:.1%} (band {band:.0%})",
+                                                                       "params": {"weight_pct": round(cur_w * 100, 1), "target_pct": round(tgt_w * 100, 1), "band_pts": round(band * 100)}})})
     proceeds = 0.0
     for s in sells:
         amt = s["shares"] * s["price"]

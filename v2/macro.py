@@ -24,7 +24,7 @@ SERIES = {
     "fed_funds_effective": ("nyfed", "effr", "US federal funds rate (effective)", "Amerikaanse federal funds-rente (effectief)", "%", 10),
     "euro_10y_yield": ("ecb", "YC/B.U2.EUR.4F.G_N_A.SV_C_YM.SR_10Y", "Euro area 10y government yield (AAA)", "Rente 10-jaars staatsobligaties eurozone (AAA)", "%", 10),
     "eurusd": ("ecb", "EXR/D.USD.EUR.SP00.A", "EUR/USD", "EUR/USD", "", 10),
-    "euro_inflation": ("eurostat", "prc_hicp_manr:EA:CP00", "Euro area inflation (HICP, y/y)", "Inflatie eurozone (HICP, j/j)", "%", 75),
+    "euro_inflation": ("eurostat", "prc_hicp_minr:geo=EA,coicop18=TOTAL,unit=RCH_A", "Euro area inflation (HICP, y/y)", "Inflatie eurozone (HICP, j/j)", "%", 75),
 }
 
 
@@ -60,9 +60,12 @@ def _nyfed(key: str, start: date) -> list[tuple[str, float]]:
 
 
 def _eurostat(key: str, start: date) -> list[tuple[str, float]]:
-    dataset, geo, coicop = key.split(":")
-    r = requests.get(f"https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/{dataset}",
-                     params={"geo": geo, "coicop": coicop, "format": "JSON", "sinceTimePeriod": start.strftime("%Y-%m")}, headers=UA, timeout=30)
+    # key = "dataset:dim=value,dim=value". HICP moved to ECOICOP v2 in Jan 2026:
+    # dataset prc_hicp_minr, dimension coicop18 (the old prc_hicp_manr froze at Dec 2025).
+    dataset, dims = key.split(":", 1)
+    params = dict(kv.split("=", 1) for kv in dims.split(","))
+    params.update({"format": "JSON", "sinceTimePeriod": start.strftime("%Y-%m")})
+    r = requests.get(f"https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/{dataset}", params=params, headers=UA, timeout=30)
     r.raise_for_status()
     js = r.json()
     times = js["dimension"]["time"]["category"]["index"]  # {"2026-09": 0, ...}

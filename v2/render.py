@@ -246,7 +246,7 @@ def page_method(f, lang):
     r = f["rules"]
     if lang == "nl":
         how = [
-            f"De portefeuille bestaat uit een kern (VWCE voor aandelen, EUNA voor obligaties), {r['satellites']['risk_on']} satellieten van elk circa {r['satellite_weight_pct']}% en een kleine kaspositie (doel {r['cash_target_pct']}%).",
+            f"De portefeuille bestaat uit een kern (VWCE voor aandelen, EUNA voor obligaties), {r['satellites']['risk_on']} satellieten van elk circa {num(r['satellite_weight_pct'], 'nl', 0)}% en een kleine kaspositie (doel {num(r['cash_target_pct'], 'nl', 0)}%).",
             "Elke week worden alle fondsen in het universum gerangschikt op hun rendement over 3, 6 en 12 maanden. De sterkste fondsen met een opwaartse trend vullen de satellietplaatsen; per thema of regio is één fonds toegestaan.",
             f"Een fonds in bezit blijft zolang het in de top 15 staat en de trend op is. Een nieuw fonds vervangt een bestaand fonds alleen bij een scoreverschil van ten minste {r['replacement_margin_pts']} punten. Een fonds wordt op trend verkocht na twee opeenvolgende weken onder het 200-daags gemiddelde.",
             f"Als wereldaandelen in een dalende trend staan en de meeste fondsen ook, schakelt de portefeuille naar defensief: {r['satellites']['risk_off']} satellieten en de vrijgekomen ruimte in een geldmarktfonds (XEON).",
@@ -254,7 +254,7 @@ def page_method(f, lang):
         ]
         data = ("Koersen: slotkoersen op Xetra en Euronext Amsterdam in euro (Yahoo Finance), posities gecontroleerd tegen een tweede bron (Alpha Vantage). "
                 "Rendementen zijn koersrendementen; bij uitkerende fondsen (Dist) zijn dividenden niet meegerekend. Transacties worden gemodelleerd tegen de slotkoers van woensdag "
-                f"met hele stukken en {r['cost_bps'] / 100:.2f}% geschatte kosten per transactie. ".replace(".", ",", 1).replace("0,10", "0,10") +
+                f"met hele stukken en {num(r['cost_bps'] / 100, 'nl')}% geschatte kosten per transactie. " +
                 "Macrodata: ECB Data Portal, Federal Reserve Bank of New York en Eurostat. Het commentaar is opgesteld met behulp van AI op basis van uitsluitend de cijfers in dit rapport; "
                 "elk getal in de tekst wordt automatisch gecontroleerd tegen die cijfers.")
         disc = ("Dit rapport beschrijft een fictieve modelportefeuille die volgens vaste regels wordt beheerd. Er wordt niet daadwerkelijk belegd. Het rapport is algemene informatie "
@@ -262,7 +262,7 @@ def page_method(f, lang):
                 "(een deel van) uw inleg verliezen. In het verleden behaalde resultaten bieden geen garantie voor de toekomst. Lees voor u belegt de essentiële-informatiedocumenten (KID) van de fondsen.")
     else:
         how = [
-            f"The portfolio has a core (VWCE for equities, EUNA for bonds), {r['satellites']['risk_on']} satellites of about {r['satellite_weight_pct']}% each, and a small cash position (target {r['cash_target_pct']}%).",
+            f"The portfolio has a core (VWCE for equities, EUNA for bonds), {r['satellites']['risk_on']} satellites of about {num(r['satellite_weight_pct'], 'en', 0)}% each, and a small cash position (target {num(r['cash_target_pct'], 'en', 0)}%).",
             "Every week all funds in the universe are ranked on their 3-, 6- and 12-month returns. The strongest funds in an uptrend fill the satellite slots; one fund per theme or region.",
             f"A held fund stays while it ranks in the top 15 and its trend is up. A newcomer replaces a holding only if it scores at least {r['replacement_margin_pts']} points higher. A fund is sold on trend after two consecutive weeks below its 200-day average.",
             f"When world equity is in a downtrend and most funds are too, the portfolio turns defensive: {r['satellites']['risk_off']} satellites, with the freed-up weight in a money-market fund (XEON).",
@@ -270,7 +270,7 @@ def page_method(f, lang):
         ]
         data = ("Prices: closing prices on Xetra and Euronext Amsterdam in euro (Yahoo Finance), with holdings checked against a second source (Alpha Vantage). "
                 "Returns are price returns; for distributing funds (Dist) dividends are not included. Trades are modelled at the Wednesday close in whole shares "
-                f"with an estimated {r['cost_bps'] / 100:.2f}% cost per trade. Macro data: ECB Data Portal, Federal Reserve Bank of New York and Eurostat. "
+                f"with an estimated {num(r['cost_bps'] / 100, 'en')}% cost per trade. Macro data: ECB Data Portal, Federal Reserve Bank of New York and Eurostat. "
                 "The commentary is drafted with the help of AI from the figures in this report only; every number in the text is checked automatically against those figures.")
         disc = ("This report describes a hypothetical model portfolio managed by fixed rules. No money is actually invested. It is general information, not personal investment advice: "
                 "it does not take your financial situation, objectives or risk tolerance into account. Investing involves risk; you can lose some or all of your money. "
