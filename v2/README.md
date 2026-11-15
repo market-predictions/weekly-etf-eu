@@ -1,8 +1,9 @@
 # Weekly ETF Review — v2
 
 A weekly, rules-based model portfolio of European UCITS ETFs, published as a
-4-page report in Dutch and English. Everything here is self-contained: v2 does
-not use the older code in this repository.
+4-page report in Dutch and English. Goal and definition of done: `../OUTCOME.md`;
+working rules for AI assistants: `../AGENTS.md`. The previous setup is archived in branch
+`archive/v1-pre-outcome-model-2026-11-15`.
 
 **Design rule:** code computes and decides; the AI only writes commentary, and
 every number in that commentary must already exist in the computed facts.
@@ -62,6 +63,7 @@ only, and never touches the saved state.
 | `render.py` | HTML/PDF layout and layout checks |
 | `mailer.py` | Email (addresses only from secrets; repo and logs are public) |
 | `run_weekly.py` | The weekly cycle above |
+| `acceptance.py` | Checks against `OUTCOME.md` (run on every PR: `python -m v2.acceptance`) |
 | `simulate.py`, `probe.py`, `backfill.py` | Historical test, source probe, one-off backfill from 14 Aug 2026 |
 
 ## Secrets

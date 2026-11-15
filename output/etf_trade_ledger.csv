@@ -1,6 +1,0 @@
-trade_id,trade_date,source_report,ticker,action,shares_delta,previous_weight_pct,new_weight_pct,weight_change_pct,target_weight_pct,conviction_tier,portfolio_role,funding_source_note
-weekly_analysis_pro_260330-NONE,2026-03-30,weekly_analysis_pro_260330.md,NONE,No change,0.0,0.0,0.0,0.0,,,,Maintained positioning
-weekly_analysis_pro_260403-NONE,2026-04-03,weekly_analysis_pro_260403.md,NONE,No change,0.0,0.0,0.0,0.0,,,,Share counts unchanged
-weekly_analysis_pro_260505-SMH,2026-05-05,weekly_analysis_pro_260505.md,SMH,Increase,8.0,21.35,24.69,3.34,24.69,Tier 1,Growth engine,Funded from cash
-model-2026-05-29-20260530_101857-01-GLD,2026-05-29,runtime:etf_report_state_20260529_20260530_101857.json,GLD,Decrease,-15.380800,9.4300,4.4300,-5.0000,4.4300,Tier 3,Hedge ballast,Canonical model rotation
-model-2026-05-29-20260530_101857-01-GSG,2026-05-29,runtime:etf_report_state_20260529_20260530_101857.json,GSG,Increase,201.749658,0.0000,5.0000,5.0000,5.0000,Tier 2,Rotation destination,Canonical model rotation
