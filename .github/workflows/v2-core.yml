@@ -43,6 +43,7 @@ jobs:
           MRKT_RPRTS_MAIL_FROM: ${{ secrets.MRKT_RPRTS_MAIL_FROM }}
           V2_TRIAL_TO: ${{ secrets.V2_TRIAL_TO }}
           V2_REHEARSAL: "1"
+          V2_DRY_RUN: "1"
           V2_AV_LIMIT: "2"
           V2_PRIMARY: yahoo
           V2_VERIFIER: alpha_vantage
