@@ -6,3 +6,9 @@ date,type,id,isin,shares,price_eur,amount_eur,reason
 2026-08-14,opening_balance,SXR8,IE00B5BMR087,10,,,Holdings carried over from the 14 Aug 2026 report
 2026-08-14,opening_balance,IQQQ,IE00B1TXK627,149,,,Holdings carried over from the 14 Aug 2026 report
 2026-08-14,opening_cash,CASH,,,,28101.01,Cash carried over from the 14 Aug 2026 report
+2026-11-18,sell,DFEN,IE000YYE6WK5,207,47.945,9924.61,trend_down: close 47.95 below 200-day average 54.58 for 2 consecutive weeks
+2026-11-18,sell,EUNA,IE00BDBRDM35,1526,4.8579,7413.16,inflation_regime: core bonds from EUNA to IBGS
+2026-11-18,sell,IQQQ,IE00B1TXK627,35,68.75,2406.25,resize: weight 10.4% vs target 8.0% (band 2%)
+2026-11-18,sell,L0CK,IE00BG0J4C88,233,11.218,2613.79,resize: weight 10.7% vs target 8.0% (band 2%)
+2026-11-18,buy,IBGS,IE00B14X4Q57,112,139.77,15654.24,inflation_regime: core bonds from EUNA to IBGS
+2026-11-18,buy,VWCE,IE00BK5BQT80,81,165.32,13390.92,resize: weight 25.4% vs target 39.9% (band 2%)

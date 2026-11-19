@@ -1,32 +1,26 @@
 {
- "as_of": "2026-11-11",
- "cash_eur": 28101.01,
- "nav_eur": 100409.09,
+ "as_of": "2026-11-18",
+ "cash_eur": 21362.27,
+ "nav_eur": 98270.67,
  "track_record_start": "2026-08-14",
  "positions": [
+  {
+   "id": "IBGS",
+   "isin": "IE00B14X4Q57",
+   "exchange": "Euronext Amsterdam",
+   "shares": 112
+  },
+  {
+   "id": "IQQQ",
+   "isin": "IE00B1TXK627",
+   "exchange": "Xetra",
+   "shares": 114
+  },
   {
    "id": "L0CK",
    "isin": "IE00BG0J4C88",
    "exchange": "Xetra",
-   "shares": 934
-  },
-  {
-   "id": "DFEN",
-   "isin": "IE000YYE6WK5",
-   "exchange": "Xetra",
-   "shares": 207
-  },
-  {
-   "id": "VWCE",
-   "isin": "IE00BK5BQT80",
-   "exchange": "Xetra",
-   "shares": 151
-  },
-  {
-   "id": "EUNA",
-   "isin": "IE00BDBRDM35",
-   "exchange": "Xetra",
-   "shares": 1526
+   "shares": 701
   },
   {
    "id": "SXR8",
@@ -35,10 +29,10 @@
    "shares": 10
   },
   {
-   "id": "IQQQ",
-   "isin": "IE00B1TXK627",
+   "id": "VWCE",
+   "isin": "IE00BK5BQT80",
    "exchange": "Xetra",
-   "shares": 149
+   "shares": 232
   }
  ]
 }

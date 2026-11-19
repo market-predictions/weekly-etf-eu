@@ -1,0 +1,60 @@
+{
+ "report_date": "2026-11-18",
+ "commentary_source": {
+  "en": "fallback",
+  "nl": "fallback"
+ },
+ "commentary_problems": {
+  "en": [
+   "no OPENAI_API_KEY"
+  ],
+  "nl": [
+   "no OPENAI_API_KEY"
+  ]
+ },
+ "render": {
+  "nl": {
+   "pages": 4,
+   "problems": []
+  },
+  "en": {
+   "pages": 4,
+   "problems": []
+  }
+ },
+ "price_checks": {
+  "DFEN": "verified",
+  "EUNA": "verified",
+  "IQQQ": "verified",
+  "L0CK": "verified",
+  "SXR8": "verified",
+  "VWCE": "verified"
+ },
+ "macro": {
+  "ecb_deposit_rate": {
+   "available": true,
+   "date": "2026-11-18",
+   "stale": false
+  },
+  "fed_funds_effective": {
+   "available": true,
+   "date": "2026-11-17",
+   "stale": false
+  },
+  "euro_10y_yield": {
+   "available": true,
+   "date": "2026-11-17",
+   "stale": false
+  },
+  "eurusd": {
+   "available": true,
+   "date": "2026-11-18",
+   "stale": false
+  },
+  "euro_inflation": {
+   "available": true,
+   "date": "2026-10-01",
+   "stale": false
+  }
+ }
+}
