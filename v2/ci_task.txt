@@ -1,1 +1,1 @@
-run_weekly
+diag_xcheck
